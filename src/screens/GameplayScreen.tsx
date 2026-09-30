@@ -1,8 +1,8 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { approvalQuota, callFor, isOnBreak, lineupFor, useGameStore, TEAM_LATE_DAY, TEAM_LATE_END } from '../game/store';
+import { approvalQuota, callFor, isOnBreak, lineupFor, useGameStore } from '../game/store';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { days } from '../game/data/days';
-import { candidates } from '../game/data/candidates';
+import { candidates, candidateOf } from '../game/data/candidates';
 import type { Candidate, EvaluatedField } from '../game/types';
 import { BREAK_END_MIN, formatClock } from '../game/time';
 import { Button } from '../components/ui/Button';
@@ -27,6 +27,9 @@ import { Orientation } from '../components/gameplay/Orientation';
 import { REFERENCE_MINUTES, referenceFor } from '../game/references';
 import type { ThreadId } from '../game/manager';
 import { CvBody } from '../components/gameplay/CvBody';
+import { QueueSidebar } from '../components/gameplay/QueueSidebar';
+import { RecallComposer } from '../components/gameplay/RecallComposer';
+import { ShiftGate } from '../components/gameplay/ShiftGate';
 import { scanAt, SCAN_FIELD_DELAYS } from '../components/gameplay/scan';
 import styles from './GameplayScreen.module.css';
 
@@ -56,12 +59,6 @@ function sectionNotes(c: Candidate) {
     const bad = !!sec.field && sec.field === c.flaggedField;
     return { label: sec.label, bad, text: bad ? reason : sec.ok };
   });
-}
-
-function formatTime(totalSeconds: number) {
-  const mm = Math.floor(totalSeconds / 60);
-  const ss = totalSeconds % 60;
-  return `${mm}:${ss < 10 ? '0' : ''}${ss}`;
 }
 
 export function GameplayScreen() {
@@ -96,10 +93,8 @@ export function GameplayScreen() {
   const shiftStarted = useGameStore((s) => s.shiftStarted);
   const revokeDraft = useGameStore((s) => s.revokeDraft);
   const sendRevoke = useGameStore((s) => s.sendRevoke);
-  const lateReason = useGameStore((s) => s.lateReason);
   const extraMails = useGameStore((s) => s.extraMails);
   const [noteOpen, setNoteOpen] = useState(false);
-  const startShift = useGameStore((s) => s.startShift);
   const finishOrientation = useGameStore((s) => s.finishOrientation);
   // the first morning begins with the portal walk-through instead of the clock-in card
   const needsOrientation = useGameStore((s) => s.currentDayIndex === 0 && !s.orientationDone);
@@ -147,7 +142,6 @@ export function GameplayScreen() {
   const tick = useGameStore((s) => s.tick);
   const decide = useGameStore((s) => s.decide);
   const undoDecision = useGameStore((s) => s.undoDecision);
-  const finishDay = useGameStore((s) => s.finishDay);
   const planRejectionMails = useGameStore((s) => s.planRejectionMails);
   const plannedRejections = useGameStore((s) => s.plannedRejections);
   const [editingMails, setEditingMails] = useState(false);
@@ -165,28 +159,29 @@ export function GameplayScreen() {
   const todaysRejects = lineup.filter((id) => decisions[id] === 'reject');
   // someone rejected today has no notice in the outbox yet
   const pendingMails = !rejectionMailsSent && todaysRejects.some((id) => !plannedRejections[id]);
-  const plannedCount = Object.keys(plannedRejections).length;
   const showMails = !rejectionMailsSent && todaysRejects.length > 0 && lineup.every((id) => decisions[id]) && ((pendingMails && !mailsHidden) || editingMails);
   const [analyzedIds, setAnalyzedIds] = useState<Set<string>>(new Set());
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
   const onBreak = isOnBreak({ workdayMinutes, breakOver });
 
-  // Open-plan office sound bed while working (the cafeteria has its own ambience).
+  // Open-plan office sound bed while working (the cafeteria has its own ambience). During
+  // Wednesday's video call you're in your headphones: no office, no rain on the window.
   const office = useRef<ReturnType<typeof audioEngine.startOfficeAmbience> | null>(null);
   useEffect(() => {
-    if (onBreak) return;
+    if (onBreak || meetingActive) return;
     office.current = audioEngine.startOfficeAmbience(currentDayIndex === 2);
     return () => {
       office.current?.stop();
       office.current = null;
     };
-  }, [onBreak, currentDayIndex]);
+  }, [onBreak, currentDayIndex, meetingActive]);
   useEffect(() => {
     office.current?.setUrgency(workdayMinutes >= 480 ? 1 : 0);
   }, [workdayMinutes]);
 
-  // after Hakan Bey's call about the invitations, the mail opens on the draft you have to send
+  // after Hakan Bey's call about the invitations the recall mail opens over everything; the mail
+  // app comes up behind it, so the sent copy is right there afterwards
   useEffect(() => {
     if (!revokeDraft || desk.inCall) return;
     setView('pc');
@@ -317,10 +312,10 @@ export function GameplayScreen() {
       .filter((e) => e.decision === 'reject' && writesBack(e.id, gameSeed))
       .map((e) => ({
         id: e.id,
-        name: candidates[e.id].name,
-        initials: candidates[e.id].initials,
-        color: candidates[e.id].color,
-        role: candidates[e.id].role.replace(' adayı', ''),
+        name: candidateOf(e.id).name,
+        initials: candidateOf(e.id).initials,
+        color: candidateOf(e.id).color,
+        role: candidateOf(e.id).role.replace(' adayı', ''),
         at: e.at,
         dayIndex: currentDayIndex,
         ...dmProfile(e.id, gameSeed),
@@ -330,7 +325,7 @@ export function GameplayScreen() {
     echoes: rejectedEchoes(weekLog, currentDayIndex),
     rejectedAuthors: decisionLog
       .filter((e) => e.decision === 'reject')
-      .map((e) => ({ name: candidates[e.id].name, initials: candidates[e.id].initials, color: candidates[e.id].color })),
+      .map((e) => ({ name: candidateOf(e.id).name, initials: candidateOf(e.id).initials, color: candidateOf(e.id).color })),
   };
 
   // camera: the desk zooms into the monitor while the system UI grows out of its screen
@@ -411,6 +406,7 @@ export function GameplayScreen() {
       />
 
       {paused && <SettingsPanel onResume={togglePause} />}
+      {revokeDraft && !desk.inCall && <RecallComposer to={revokeDraft.map((id) => candidateOf(id).name)} onSend={sendRevoke} />}
       {meetingActive && !paused && (
         <Suspense fallback={null}>
           <MeetingRoom />
@@ -467,108 +463,17 @@ export function GameplayScreen() {
             mailRead={mailRead}
             onReadMail={readMail}
             extraMails={extraMails}
-            finalistNames={finalists.map((f) => candidates[f.id].name)}
-            draft={revokeDraft ? { to: revokeDraft.map((id) => candidates[id].name), onSend: sendRevoke } : null}
+            finalistNames={finalists.map((f) => candidateOf(f.id).name)}
             portal={
       <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef}>
             {!shiftStarted && needsOrientation && <Orientation container={portalRef} onDone={finishOrientation} />}
-            {!shiftStarted && !needsOrientation && (
-              <div className={styles.shiftGate}>
-                <div className={styles.shiftCard}>
-                  <div className={styles.shiftEyebrow}>
-                    {day.dayName} · Gün {day.day}
-                  </div>
-                  <div className={`${styles.shiftClock} mono`}>{formatClock(workdayMinutes)}</div>
-                  <p>
-                    {lateReason && (
-                      <>
-                        {lateReason}
-                        <br />
-                      </>
-                    )}
-                    Kuyrukta bugün <b>{lineup.length} dosya</b> var. Mülakat kontenjanı: <b>{quota.dailyLimit}</b> aday.
-                    <br />
-                    Mesaiyi başlattığında saat işlemeye başlar.
-                  </p>
-                  <button
-                    className={styles.shiftButton}
-                    onClick={() => {
-                      audioEngine.playUi('connect');
-                      startShift();
-                    }}
-                  >
-                    Mesaiye Başla
-                  </button>
-                </div>
-              </div>
-            )}
-            <div className={styles.sidebar}>
-              <div className={styles.ruleNote} data-tour="rule">
-                <div className={styles.ruleLabel}>İK Müdüründen Not</div>
-                <div className={styles.ruleText}>"{day.ruleText}"</div>
-              </div>
-              <div className={styles.queueBox} data-tour="queue">
-                <div className={styles.queueLabel}>Adaylar</div>
-                <div className={styles.queueList}>
-                  {lineup.map((id) => {
-                    const c = candidates[id];
-                    const isSelected = id === currentCandidateId;
-                    const isOpened = openedIds.includes(id);
-                    const isDecided = !!decisions[id];
-                    return (
-                      <button
-                        key={id}
-                        className={`${styles.queueItem} ${isSelected ? styles.queueItemSelected : ''} ${
-                          decisions[id] === 'approve' ? styles.queueApproved : decisions[id] === 'reject' ? styles.queueRejected : ''
-                        }`}
-                        onClick={() => selectCandidate(id)}
-                        disabled={onBreak}
-                      >
-                        <span
-                          className={styles.queueAvatar}
-                          style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }}
-                        />
-                        <span className={styles.queueName}>
-                          {c.name}
-                          {id === 'onur' && <em className={styles.queueTag}>Tavsiye</em>}
-                        </span>
-                        <span className={`${styles.queueTime} mono`}>
-                          {isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {(() => {
-                const open = lineup.filter((id) => !decisions[id]).length;
-                if (!open && pendingMails && mailsHidden)
-                  return (
-                    <Button variant="gold" onClick={() => setMailsHidden(false)}>
-                      Ret bildirimleri ({todaysRejects.length}) →
-                    </Button>
-                  );
-                return (
-                  <>
-                  {!open && !pendingMails && plannedCount > 0 && !rejectionMailsSent && !editingMails && (
-                    <button className={styles.outboxNote} onClick={() => setEditingMails(true)}>
-                      ✉ {plannedCount} bildirim giden kutusunda · 17:00 <span>Düzenle</span>
-                    </button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    data-tour="finish"
-                    onClick={finishDay}
-                    disabled={open > 0 || pendingMails || (currentDayIndex === TEAM_LATE_DAY && workdayMinutes < TEAM_LATE_END)}
-                    title={open ? `${open} dosya açık: günü bitirmeden önce hepsine karar ver.` : currentDayIndex === TEAM_LATE_DAY && workdayMinutes < TEAM_LATE_END ? 'Bugün ekipçe 19:00\'a kadar kalınıyor.' : 'Tüm dosyalar kapandı.'}
-                  >
-                    {open ? `Günü Bitir · ${open} dosya açık` : pendingMails ? 'Günü Bitir · bildirimler bekliyor' : 'Günü Bitir'}
-                  </Button>
-                  </>
-                );
-              })()}
-            </div>
+            {!shiftStarted && !needsOrientation && <ShiftGate />}
+            <QueueSidebar
+              mailsHidden={mailsHidden}
+              onShowMails={() => setMailsHidden(false)}
+              editingMails={editingMails}
+              onEditMails={() => setEditingMails(true)}
+            />
 
             {showMails ? (
               <RejectionMails

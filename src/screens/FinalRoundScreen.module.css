@@ -79,22 +79,26 @@
 
 .body {
   flex: 1;
-  display: flex;
-  gap: 24px;
-  padding: 24px 32px 32px;
-  align-items: flex-start;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'list room'
+    'list hire';
+  gap: 16px 24px;
+  padding: 20px 32px 24px;
 }
 
 /* ── Finalist list ── */
 
 .list {
-  width: 260px;
-  flex-shrink: 0;
+  grid-area: list;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  position: sticky;
-  top: 24px;
 }
 
 .listLabel {
@@ -207,17 +211,39 @@
 
 /* ── Profile + transcript ── */
 
-.profile {
-  flex: 1;
-  min-width: 0;
-  background: var(--paper-light);
-  border-radius: 16px;
-  box-shadow: 0 2px 14px rgba(34, 31, 27, 0.1);
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  animation: profileIn 0.3s ease both;
+
+.listItem:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.listState {
+  display: block;
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.state_waiting {
+  color: var(--text-muted);
+}
+
+.state_active {
+  color: #b7791f;
+}
+
+.state_done {
+  color: #2f7a4f;
+}
+
+/* ── The interview room: conversation on the left, the file on the right ── */
+
+.room {
+  grid-area: room;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+  animation: profileIn 0.25s ease both;
 }
 
 @keyframes profileIn {
@@ -227,147 +253,337 @@
   }
 }
 
-.profileHead {
+.conversation {
+  min-height: 0;
   display: flex;
-  gap: 18px;
-  align-items: center;
+  flex-direction: column;
+  background: var(--paper-light);
+  border-radius: 14px;
+  box-shadow: 0 2px 14px rgba(34, 31, 27, 0.1);
+  overflow: hidden;
 }
 
-.profileNames h2 {
-  font-family: var(--font-display);
-  font-size: calc(26px * var(--ts, 1));
+.roomHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.roomHead h2 {
   margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(22px * var(--ts, 1));
 }
 
 .profileSub {
-  font-size: calc(14px * var(--ts, 1));
+  font-size: calc(13px * var(--ts, 1));
   color: var(--text-dim);
 }
 
-.profileMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin-top: 4px;
-  font-size: calc(12.5px * var(--ts, 1));
-  color: var(--text-dim);
-}
-
-.facts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.facts > div {
-  background: var(--paper-muted);
-  border-radius: 10px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.factLabel {
-  font-size: calc(10px * var(--ts, 1));
+.roomState {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(34, 31, 27, 0.06);
+  font-size: calc(12px * var(--ts, 1));
   font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-muted);
+  white-space: nowrap;
 }
 
-.factValue {
-  font-size: calc(14px * var(--ts, 1));
-  font-weight: 600;
-}
-
-.transcript {
+.log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.transcriptLabel {
-  display: flex;
-  justify-content: space-between;
-  font-size: calc(var(--fs-label) * var(--ts, 1));
-  font-weight: 700;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+.logEmpty {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--border-muted);
+  border-radius: 10px;
   color: var(--text-dim);
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border-muted);
+  font-style: italic;
+  font-size: calc(14px * var(--ts, 1));
 }
 
-.qa {
+.exchange {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  animation: profileIn 0.35s ease both;
 }
 
-.question,
-.answer {
+/* a speaker column and what they said, like minutes of a meeting */
+.turn {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.turnWho {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  flex-direction: column;
+  border-left: 3px solid;
+  padding-left: 8px;
+}
+
+.turnWho b {
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.turnWho small {
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--text-muted);
+}
+
+.turnText {
   font-size: calc(14.5px * var(--ts, 1));
   line-height: 1.55;
 }
 
-.question {
-  font-weight: 600;
-  color: var(--ink);
+.turn_you {
+  background: rgba(45, 58, 85, 0.05);
 }
 
-.answer {
-  font-family: var(--font-display);
+.turn_you .turnWho {
+  border-color: #2d3a55;
+}
+
+.turn_candidate .turnWho {
+  border-color: var(--gold);
+}
+
+.turn_hakan {
+  background: rgba(168, 64, 47, 0.07);
+}
+
+.turn_hakan .turnWho {
+  border-color: var(--red);
+}
+
+.note {
+  margin: 0 0 0 176px;
+  font-size: calc(13px * var(--ts, 1));
   font-style: italic;
-  font-size: calc(15.5px * var(--ts, 1));
-  color: #3a362f;
-  background: var(--paper-muted);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-left: 34px;
+  color: var(--text-dim);
 }
 
-.speaker {
+/* ── What you can do next ── */
+
+.console {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--paper-muted);
-  font-family: var(--font-mono);
-  font-size: calc(9px * var(--ts, 1));
-  font-weight: 800;
-  font-style: normal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--border-muted);
+  background: rgba(34, 31, 27, 0.025);
 }
 
-.speakerCandidate {
-  background: var(--gold);
-  color: var(--ink);
+.consoleTitle {
+  margin: 0 0 10px;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
-.historyRow {
-  display: flex;
-  flex-wrap: wrap;
+.consoleWait {
+  margin: 0;
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-.highlight {
-  font-size: calc(12.5px * var(--ts, 1));
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(63, 107, 99, 0.1);
-  color: var(--teal);
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: calc(13.5px * var(--ts, 1));
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.option:hover,
+.question:hover {
+  border-color: #2d3a55;
+  box-shadow: 0 0 0 2px rgba(45, 58, 85, 0.12);
+}
+
+.option span {
+  color: var(--text-dim);
+}
+
+.optionPrimary {
+  border-color: rgba(63, 107, 99, 0.6);
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.question {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: calc(14px * var(--ts, 1));
+  text-align: left;
+  cursor: pointer;
+}
+
+.question small {
+  display: block;
+  margin-top: 2px;
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--text-muted);
+}
+
+.qNumber {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #2d3a55;
+  color: #fff;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 800;
+}
+
+.questionFollow {
+  border-style: dashed;
+}
+
+.questionFollow .qNumber {
+  background: #4c7fb0;
+}
+
+.questionRisk {
+  border-color: rgba(168, 64, 47, 0.35);
+  background: rgba(168, 64, 47, 0.04);
+}
+
+.questionRisk .qNumber {
+  background: var(--red);
+}
+
+.questionRisk small {
+  color: var(--red);
+}
+
+.endButton {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ── The file and the team lead's read ── */
+
+.dossier {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px;
+  background: var(--paper-light);
+  border-radius: 14px;
+  box-shadow: 0 2px 14px rgba(34, 31, 27, 0.1);
+}
+
+.dossier h3 {
+  margin: 14px 0 8px;
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dossier h3:first-child {
+  margin-top: 0;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 12px;
+  margin: 0;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.facts dt {
+  color: var(--text-dim);
+}
+
+.facts dd {
+  margin: 0;
   font-weight: 600;
 }
 
+.highlights {
+  margin: 0;
+  padding-left: 18px;
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.45;
+}
+
+.leadNote {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 3px solid #4c7fb0;
+  background: rgba(76, 127, 176, 0.08);
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.45;
+}
+
+.leadNote p {
+  margin: 0 0 6px;
+}
+
+.leadNote small {
+  display: block;
+  opacity: 0.75;
+}
+
+.leadEmpty {
+  margin: 0;
+  font-size: calc(12.5px * var(--ts, 1));
+  font-style: italic;
+  color: var(--text-muted);
+}
+
 .hireBar {
+  grid-area: hire;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -428,46 +644,6 @@
   margin-top: 8px;
 }
 
-@media (max-width: 860px) {
-  .body {
-    flex-direction: column;
-    padding: 16px;
-  }
-
-  .list {
-    width: 100%;
-    position: static;
-  }
-
-  .facts {
-    grid-template-columns: 1fr;
-  }
-
-  .header {
-    padding: 18px 16px;
-  }
-}
-
-/* ── Live interview ── */
-
-.chat {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 360px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.chatEmpty {
-  font-size: calc(14px * var(--ts, 1));
-  font-style: italic;
-  color: var(--text-dim);
-  padding: 14px;
-  border: 1px dashed var(--border-muted);
-  border-radius: 12px;
-}
-
 .thinking {
   display: inline-flex;
   gap: 4px;
@@ -518,145 +694,6 @@
   }
 }
 
-.questionPicker {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-muted);
-}
-
-.questionChip {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  text-align: left;
-  border-radius: var(--choice-radius) !important;
-  font-size: calc(14px * var(--ts, 1));
-  font-weight: 600;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border-muted);
-  background: var(--paper-light);
-  color: var(--ink);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
-}
-
-.questionChip:hover:not(:disabled) {
-  border-color: var(--gold);
-  background: #fffdf6;
-  transform: translateX(2px);
-}
-
-.questionChip:disabled {
-  cursor: default;
-  opacity: 0.45;
-}
-
-.chipDone {
-  opacity: 0.6 !important;
-  text-decoration: line-through;
-  text-decoration-color: rgba(34, 31, 27, 0.3);
-}
-
-.chipIcon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--gold);
-  font-size: calc(11px * var(--ts, 1));
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.outOfTime {
-  font-size: calc(13px * var(--ts, 1));
-  color: var(--red);
-  font-weight: 600;
-}
-
-/* the question from Hakan Bey's list */
-.chipForbidden {
-  border-color: rgba(168, 64, 47, 0.45) !important;
-  background: rgba(168, 64, 47, 0.07) !important;
-  color: var(--red) !important;
-}
-
-.chipForbidden small {
-  margin-left: auto;
-  padding-left: 10px;
-  font-size: calc(10.5px * var(--ts, 1));
-  opacity: 0.75;
-}
-
-.questionForbidden {
-  color: var(--red);
-}
-
-.whisper {
-  position: fixed;
-  left: 50%;
-  bottom: 28px;
-  transform: translateX(-50%);
-  max-width: min(560px, 90vw);
-  padding: 14px 20px;
-  border-radius: 14px;
-  background: #1f2024;
-  color: #f3ecd8;
-  font: 14px/1.45 var(--font-body);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
-  cursor: pointer;
-  z-index: 20;
-  animation: whisperIn 0.35s ease;
-}
-
-.whisper b {
-  color: var(--gold);
-  margin-right: 4px;
-}
-
-.whisper small {
-  display: block;
-  margin-top: 6px;
-  opacity: 0.5;
-  font-size: calc(11px * var(--ts, 1));
-}
-
-@keyframes whisperIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 10px);
-  }
-}
-
-/* the team lead's view after each interview */
-.leadNote {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 12px 0 4px;
-  padding: 12px 14px;
-  border-left: 3px solid #4c7fb0;
-  border-radius: 8px;
-  background: rgba(76, 127, 176, 0.1);
-  font-size: calc(13.5px * var(--ts, 1));
-  line-height: 1.5;
-}
-
-.leadNote b {
-  font-size: calc(12px * var(--ts, 1));
-  letter-spacing: 0.02em;
-}
-
-.leadNote small {
-  opacity: 0.75;
-}
-
 .panelVotes {
   display: flex;
   flex-direction: column;
@@ -682,7 +719,8 @@
   opacity: 0.7;
 }
 
-/* fixed-height interview: the page never grows, only the conversation scrolls */
+
+/* fixed-height screen on desktop: only the conversation scrolls */
 @media (min-width: 861px) {
   .screen {
     height: 100dvh;
@@ -690,44 +728,6 @@
     overflow: hidden;
   }
 
-  .body {
-    min-height: 0;
-    align-items: stretch;
-    padding-bottom: 24px;
-  }
-
-  .list {
-    position: static;
-    overflow-y: auto;
-    min-height: 0;
-  }
-
-  .profile {
-    min-height: 0;
-    overflow-y: auto;
-    gap: 14px;
-    padding: 22px 28px;
-  }
-
-  .profile > * {
-    flex-shrink: 0;
-  }
-
-  .profile > .transcript {
-    flex: 1 1 auto;
-    flex-shrink: 1;
-    min-height: auto;
-  }
-
-  .chat {
-    flex: 1;
-    min-height: 170px;
-    max-height: none;
-    /* size never follows the transcript, so the card doesn't grow as answers pile up */
-    contain: size;
-  }
-
-  /* compact chrome so the conversation gets the room */
   .header {
     padding: 14px 32px;
     align-items: center;
@@ -743,113 +743,46 @@
     font-size: calc(13px * var(--ts, 1));
     line-height: 1.45;
   }
+}
 
+@media (max-width: 1100px) {
+  .room {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dossier {
+    order: -1;
+  }
+}
+
+@media (max-width: 860px) {
   .body {
-    padding-top: 16px;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'list'
+      'room'
+      'hire';
+    padding: 16px;
   }
 
-  .leadNote {
-    margin: 0;
-    padding: 8px 12px;
-    font-size: calc(13px * var(--ts, 1));
-    line-height: 1.4;
+  .header {
+    padding: 18px 16px;
   }
 
-  .hireBar {
-    padding-top: 10px;
+  .turn {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
-  .questionPicker {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+  .note {
+    margin-left: 0;
   }
 
-  .questionPicker .questionChip {
-    font-size: calc(13px * var(--ts, 1));
-    padding: 8px 12px;
+  .options {
+    grid-template-columns: 1fr;
   }
 
-  .questionPicker .outOfTime,
-  .questionPicker .chipEnd,
-  .questionPicker .chipFollow {
-    grid-column: 1 / -1;
-  }
-}
-
-/* ── Follow-up, Hakan Bey cutting in, the candidate's own question ── */
-.speakerHakan {
-  background: var(--red);
-  color: #fff;
-}
-
-.stage {
-  font-size: calc(11px * var(--ts, 1));
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-right: 4px;
-}
-
-.stageNote {
-  margin-left: 34px;
-  font-size: calc(13px * var(--ts, 1));
-  font-style: italic;
-  color: var(--text-dim);
-}
-
-.choiceTag {
-  display: block;
-  margin-top: 3px;
-  font-size: calc(10.5px * var(--ts, 1));
-  font-weight: 600;
-  opacity: 0.6;
-}
-
-.chipFollow {
-  border-style: dashed !important;
-  border-color: rgba(76, 127, 176, 0.6) !important;
-}
-
-.chipProtect {
-  border-color: rgba(63, 107, 99, 0.6) !important;
-  background: rgba(63, 107, 99, 0.08) !important;
-}
-
-.chipEnd {
-  justify-content: center;
-  background: var(--ink) !important;
-  color: var(--paper-muted) !important;
-  border-color: var(--ink) !important;
-}
-
-/* short laptop screens (720–800px tall): trim the chrome, keep the conversation */
-@media (min-width: 861px) and (max-height: 820px) {
-  .profile {
-    gap: 10px;
-    padding: 16px 22px;
-  }
-
-  .profile .avatarLarge {
-    width: 46px;
-    height: 46px;
-    font-size: calc(17px * var(--ts, 1));
-  }
-
-  .facts > div {
-    padding: 6px 10px;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  /* the highlights are on the CV already; here they only push the chat down */
-  .historyRow {
-    display: none;
-  }
-
-  .hireBar {
-    padding-top: 8px;
+  .log {
+    max-height: 60vh;
   }
 }

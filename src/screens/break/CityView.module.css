@@ -18,103 +18,6 @@
   }
 }
 
-/* Hulls riding the swell */
-.bob,
-.bobSlow,
-.bobStrong {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: bob 2.6s ease-in-out infinite;
-}
-
-.bobSlow {
-  animation-duration: 4.2s;
-}
-
-.bobStrong {
-  animation: bobStrong 1.9s ease-in-out infinite;
-}
-
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(0.9px) rotate(0.8deg);
-  }
-}
-
-@keyframes bobStrong {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-1.6deg);
-  }
-  50% {
-    transform: translateY(1.6px) rotate(1.8deg);
-  }
-}
-
-.wake {
-  animation: wake 1.4s ease-in-out infinite;
-}
-
-@keyframes wake {
-  50% {
-    opacity: 0.35;
-  }
-}
-
-.smoke {
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  animation: smoke 2.8s ease-out infinite;
-}
-
-@keyframes smoke {
-  0% {
-    opacity: 0.8;
-    transform: translate(0, 0) scale(0.6);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(8px, -10px) scale(2.2);
-  }
-}
-
-/* Ripples travel one period (40px) per loop — seamless */
-.wave {
-  animation: wave linear infinite;
-}
-
-.waveReverse {
-  animation-direction: reverse;
-}
-
-@keyframes wave {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-40px);
-  }
-}
-
-.glint {
-  opacity: 0.2;
-  animation: glint 1.3s ease-in-out infinite;
-}
-
-@keyframes glint {
-  0%,
-  100% {
-    opacity: 0.15;
-  }
-  50% {
-    opacity: 0.85;
-  }
-}
-
 /* Seagulls: glide across with a gentle rise and fall, wings flapping */
 .gullPath {
   animation-name: gullGlide;
@@ -209,37 +112,6 @@
   }
 }
 
-.bobStorm {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: bobStorm 1.3s ease-in-out infinite;
-}
-
-@keyframes bobStorm {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-4deg);
-  }
-  50% {
-    transform: translateY(2.4px) rotate(4.5deg);
-  }
-}
-
-.whitecap {
-  opacity: 0;
-  animation: whitecap 2.2s ease-in-out infinite;
-}
-
-@keyframes whitecap {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  40% {
-    opacity: 0.85;
-  }
-}
-
 /* Rain sheets: each loops by exactly one pattern tile (projected along the fall direction). */
 .rainFar {
   animation: rainFar 0.55s linear infinite;
@@ -321,23 +193,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bobStorm,
-  .whitecap,
   .rainFar,
-  .rainNear,
-  .dropSlide,
-  .snowFall,
-  .snowSway,
-  .drift,
-  .bob,
-  .bobSlow,
-  .bobStrong,
-  .wave,
-  .glint,
-  .gullPath,
-  .wing,
-  .smoke,
-  .wake {
+.rainNear,
+.dropSlide,
+.snowFall,
+.snowSway,
+.drift,
+.gullPath,
+.wing {
     animation: none;
   }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { candidates } from '../../game/data/candidates';
+import { candidateOf } from '../../game/data/candidates';
 import { addressOf, mailFor, TEMPLATES, type RejectTemplate } from '../../game/rejectionMails';
 import { formatClock } from '../../game/time';
 import { MAIL_SEND_AT } from '../../game/store';
@@ -45,7 +45,7 @@ export function RejectionMails({ ids, autoRejected, dayName, minutes, planned, o
   const shared = ids.every((id) => choices[id] === choices[ids[0]]) ? choices[ids[0]] : '';
   const late = minutes >= MAIL_SEND_AT;
   const mail = mailFor(focus, choices[focus]);
-  const focused = candidates[focus];
+  const focused = candidateOf(focus);
   const toSend = ids.filter((id) => choices[id] !== 'none').length;
 
   function choose(id: string, t: RejectTemplate) {
@@ -99,7 +99,7 @@ export function RejectionMails({ ids, autoRejected, dayName, minutes, planned, o
           </div>
           <ul className={styles.rows}>
             {ids.map((id) => {
-              const c = candidates[id];
+              const c = candidateOf(id);
               return (
                 <li key={id} className={`${styles.row} ${id === focus ? styles.rowOn : ''}`} onClick={() => setFocus(id)}>
                   <span className={styles.who}>

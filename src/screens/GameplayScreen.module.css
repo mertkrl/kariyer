@@ -36,117 +36,10 @@
   pointer-events: none;
 }
 
-.pcBar {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px 20px;
-  background: #1f2433;
-  color: #d8e1ee;
-  font-size: calc(13px * var(--ts, 1));
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
-}
-
-.pcBack {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  font: 600 13px var(--font-body);
-  cursor: pointer;
-}
-
-.pcBack:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.pcBack kbd {
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.14);
-  font: 500 11px var(--font-mono);
-}
-
-.pcTitle {
-  margin-left: auto;
-  opacity: 0.7;
-  letter-spacing: 0.4px;
-}
-
 .breakArea {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-}
-
-/* the desk still reaches you at the computer: the landline rings, the phone buzzes */
-.peekRing,
-.peekPhone {
-  position: absolute;
-  bottom: 22px;
-  z-index: 4;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 16px;
-  border: 0;
-  border-radius: 12px;
-  font: 500 14px var(--font-body);
-  cursor: pointer;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
-}
-
-.peekRing {
-  left: 22px;
-  background: #1f2024;
-  color: #fff;
-  outline: 2px solid rgba(255, 80, 60, 0.75);
-  animation: peekShake 1.3s ease-in-out infinite;
-}
-
-.peekPhone {
-  right: 22px;
-  background: #fbf8f0;
-  color: var(--ink);
-  animation: peekBuzz 0.07s linear 12 alternate;
-}
-
-@keyframes peekShake {
-  0%,
-  60%,
-  100% {
-    transform: none;
-  }
-  64%,
-  72% {
-    transform: translate(2px, -1px) rotate(-1deg);
-  }
-  68%,
-  76% {
-    transform: translate(-2px, 0) rotate(1deg);
-  }
-}
-
-@keyframes peekBuzz {
-  from {
-    transform: translateX(-2px);
-  }
-  to {
-    transform: translateX(2px);
-  }
-}
-
-.divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--border-dark);
 }
 
 .mainArea {
@@ -403,37 +296,10 @@
   }
 }
 
-.scanTarget {
-  position: relative;
-  animation: scanTargetPulse 1.1s ease-in-out;
-  animation-delay: var(--scan-delay, 0s);
-  animation-fill-mode: backwards;
-}
-
-@keyframes scanTargetPulse {
-  0%,
-  85%,
-  100% {
-    box-shadow: none;
-    background-color: var(--paper-muted);
-  }
-  4%,
-  16% {
-    box-shadow: 0 0 0 2px var(--blue), 0 0 14px rgba(76, 127, 176, 0.45);
-    background-color: rgba(76, 127, 176, 0.14);
-  }
-}
-
 .emptyState {
   margin: auto;
   color: var(--text-dim);
   font-size: calc(14px * var(--ts, 1));
-}
-
-.candidateHeader {
-  display: flex;
-  gap: 20px;
-  align-items: center;
 }
 
 .avatar {
@@ -460,29 +326,6 @@
   font-size: calc(14px * var(--ts, 1));
   color: var(--text-dim);
   margin-top: 4px;
-}
-
-.factGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.factCard {
-  background: var(--paper-muted);
-  border-radius: 8px;
-  padding: 14px;
-}
-
-.factLabel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: calc(11px * var(--ts, 1));
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  margin-bottom: 4px;
 }
 
 .verdictIcon {
@@ -521,111 +364,12 @@
   }
 }
 
-.factValue {
-  font-size: calc(16px * var(--ts, 1));
-  font-weight: 600;
-}
-
-.motivationBox {
-  background: var(--paper-muted);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.motivationText {
-  font-size: calc(14px * var(--ts, 1));
-  line-height: 1.5;
-  color: #3a362f;
-  font-style: italic;
-  margin-top: 6px;
-}
-
-.questionsBox {
-  background: var(--paper-muted);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.questionsList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.qaItem {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.questionText {
-  font-size: calc(13px * var(--ts, 1));
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.answerText {
-  font-size: calc(13px * var(--ts, 1));
-  line-height: 1.5;
-  color: #3a362f;
-  font-style: italic;
-  padding-left: 14px;
-}
-
-.detailToggle {
-  align-self: flex-start;
-  background: none;
-  border: 1px solid var(--border-muted);
-  color: var(--text-dim);
-  font-size: calc(13px * var(--ts, 1));
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.detailPanel {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.detailGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  background: var(--paper-muted);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.detailCell {
-  min-width: 0;
-}
-
-.detailText {
-  font-size: calc(13px * var(--ts, 1));
-  line-height: 1.5;
-  color: #3a362f;
-  margin-top: 6px;
-}
-
 .internalNoteBox {
   background: #221f1b;
   border: 1px dashed var(--red);
   border-radius: 8px;
   padding: 10px 12px;
   animation: barIn 0.3s ease 0.15s both;
-}
-
-.internalNoteLabel {
-  font-size: calc(10px * var(--ts, 1));
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #d9a79c;
-  margin-bottom: 6px;
-  font-family: var(--font-mono);
 }
 
 .internalNoteText {
@@ -646,10 +390,6 @@
 
 .actionBar > button {
   flex: 1;
-}
-
-.systemBoxExpanded {
-  min-height: 175px;
 }
 
 .systemBoxDown {
@@ -785,7 +525,6 @@
     opacity: 1;
   }
 }
-
 
 /* ── Decision stamp (compact, top-right of the CV) ── */
 
@@ -1063,62 +802,6 @@
   color: var(--text-dim);
 }
 
-.historyBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.timeline {
-  list-style: none;
-  margin: 0 0 6px;
-  padding: 0 0 0 14px;
-  border-left: 2px solid var(--border-muted);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.timeline li {
-  position: relative;
-  display: flex;
-  gap: 12px;
-  font-size: calc(13px * var(--ts, 1));
-}
-
-.timeline li::before {
-  content: '';
-  position: absolute;
-  left: -20px;
-  top: 5px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--paper-light);
-  border: 2px solid var(--teal);
-}
-
-.timelinePeriod {
-  flex-shrink: 0;
-  width: 92px;
-  font-size: calc(11px * var(--ts, 1));
-  color: var(--text-muted);
-  padding-top: 2px;
-}
-
-.timelineBody {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  color: var(--ink);
-}
-
-.timelineBody em {
-  font-size: calc(12px * var(--ts, 1));
-  color: var(--text-dim);
-}
-
 .highlights {
   margin: 0;
   padding-left: 18px;
@@ -1247,27 +930,6 @@
   opacity: 0.85;
 }
 
-.drawerHandle {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  width: 30px;
-  height: 6px;
-  margin-top: -3px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, #d9c19a, #9a7a4a);
-}
-
-.drawerNew {
-  animation: drawerPulse 1.6s ease-in-out infinite;
-}
-
-@keyframes drawerPulse {
-  50% {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 3px rgba(200, 60, 40, 0.45);
-  }
-}
-
 /* the portal inside its window: everything fits, only long lists scroll inside their own box */
 .portalArea {
   height: 100%;
@@ -1322,30 +984,6 @@
   width: 48px;
   height: 48px;
   font-size: calc(18px * var(--ts, 1));
-}
-
-.portalArea .factGrid {
-  gap: 10px;
-}
-
-.portalArea .factCard {
-  padding: 9px 12px;
-}
-
-.portalArea .motivationBox,
-.portalArea .questionsBox {
-  padding: 10px 12px;
-}
-
-.portalArea .motivationText {
-  margin-top: 2px;
-  font-size: calc(13.5px * var(--ts, 1));
-  line-height: 1.4;
-}
-
-.portalArea .questionsList {
-  gap: 6px;
-  margin-top: 4px;
 }
 
 .portalArea .rightPanel {
@@ -1421,66 +1059,6 @@
 /* what the last decision did, and why */
 .portalArea {
   position: relative;
-}
-
-.effectToast {
-  position: absolute;
-  left: 50%;
-  top: 10px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  max-width: min(640px, 90%);
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: rgba(31, 32, 36, 0.94);
-  color: #f3ecd8;
-  font-size: calc(13.5px * var(--ts, 1));
-  line-height: 1.4;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
-  transform: translateX(-50%);
-  animation: effectLife 4.6s ease forwards;
-}
-
-.effectToast b {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-  font-weight: 700;
-}
-
-.effectToast i {
-  font-style: normal;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.effUp {
-  background: rgba(111, 163, 122, 0.25);
-  color: #9fdcae;
-}
-
-.effDown {
-  background: rgba(168, 64, 47, 0.3);
-  color: #f3a497;
-}
-
-@keyframes effectLife {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -8px);
-  }
-  8%,
-  82% {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, 0);
-  }
 }
 
 /* the morning: nothing ticks until you clock in */
@@ -1635,11 +1213,6 @@ button.systemIconBadge {
   overflow: hidden;
 }
 
-.candidateCard .candidateHeader {
-  gap: 14px;
-  align-items: flex-start;
-}
-
 .candidateCard .avatar {
   width: 48px;
   height: 48px;
@@ -1668,87 +1241,9 @@ button.systemIconBadge {
   justify-content: flex-end;
 }
 
-.cardBody {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 12px;
-  min-height: 0;
-  flex: 0 1 auto;
-}
-
-.cardCol {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.candidateCard .factGrid {
-  gap: 8px;
-}
-
-.candidateCard .factCard,
-.candidateCard .motivationBox,
-.candidateCard .questionsBox {
-  padding: 8px 10px;
-}
-
-.candidateCard .factValue {
-  font-size: calc(13.5px * var(--ts, 1));
-  line-height: 1.3;
-}
-
-.candidateCard .factLabel {
-  font-size: calc(10px * var(--ts, 1));
-  margin-bottom: 2px;
-}
-
-.candidateCard .motivationText,
-.candidateCard .answerText,
-.candidateCard .questionText {
-  font-size: calc(12px * var(--ts, 1));
-  line-height: 1.4;
-  margin-top: 2px;
-}
-
-.candidateCard .questionsList {
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.candidateCard .historyBlock {
-  gap: 4px;
-  margin: 0;
-  padding: 8px 10px;
-  background: var(--paper-muted);
-  border-radius: 8px;
-}
-
-.candidateCard .timeline {
-  gap: 5px;
-  margin: 0 0 4px;
-  font-size: calc(12px * var(--ts, 1));
-}
-
-.candidateCard .timelinePeriod {
-  width: 78px;
-  font-size: calc(10.5px * var(--ts, 1));
-}
-
 .candidateCard .highlights {
   font-size: calc(12px * var(--ts, 1));
   gap: 1px;
-}
-
-.candidateCard .detailGrid {
-  gap: 6px 12px;
-  padding: 8px 10px;
-}
-
-.candidateCard .detailText {
-  font-size: calc(11.5px * var(--ts, 1));
-  line-height: 1.35;
-  margin-top: 1px;
 }
 
 .candidateCard .grow {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SPEAKERS, type Board, type ChatMessage, type Speaker, type TeamStats } from '../../game/meeting';
 import { Dashboard } from './Dashboard';
 import styles from './MeetingRoom.module.css';
@@ -44,7 +44,7 @@ function Tile({ who, talking, sharing }: { who: Person; talking: boolean; sharin
               <i />
             </span>
           ) : (
-            '🔇'
+            <MicOff />
           )}
         </span>
         {sharing && <small>paylaşıyor</small>}
@@ -53,30 +53,59 @@ function Tile({ who, talking, sharing }: { who: Person; talking: boolean; sharin
   );
 }
 
-/** The call's side chat: what people type while someone else has the floor. */
+/** A muted microphone, drawn like the call app's own icon set. */
+function MicOff() {
+  return (
+    <svg className={styles.micOff} viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M3 7.5a5 5 0 0 0 10 0M8 12.5V14.5M5.5 14.5h5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M2.5 2.5 13.5 13.5" stroke="#e5484d" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * The call's side chat, in two tabs: the room ("Genel") and what is written only to you
+ * ("Özel"). A new message on the tab you aren't looking at shows as a count.
+ */
 function Chat({ messages, typing }: { messages: ChatMessage[]; typing: Speaker | null }) {
+  const [tab, setTab] = useState<'public' | 'private'>('public');
+  const publicMsgs = messages.filter((m) => !m.private);
+  const privateMsgs = messages.filter((m) => m.private);
+  // what was on each tab the last time you looked at it
+  const [seen, setSeen] = useState({ public: 0, private: 0 });
+  const current = tab === 'public' ? publicMsgs : privateMsgs;
+  if (seen[tab] !== current.length) setSeen({ ...seen, [tab]: current.length });
+  const unread = { public: publicMsgs.length - seen.public, private: privateMsgs.length - seen.private };
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => {
     end.current?.scrollIntoView({ block: 'nearest' });
-  }, [messages.length, typing]);
+  }, [current.length, typing, tab]);
   return (
-    <aside className={styles.chat} aria-label="Görüşme sohbeti" aria-live="polite">
-      <div className={styles.chatHead}>Sohbet</div>
-      <div className={styles.chatList}>
-        {messages.map((m, i) =>
+    <aside className={styles.chat} aria-label="Görüşme sohbeti">
+      <div className={styles.chatTabs} role="tablist">
+        {(['public', 'private'] as const).map((t) => (
+          <button key={t} role="tab" aria-selected={tab === t} className={`${styles.chatTab} ${tab === t ? styles.chatTabOn : ''}`} onClick={() => setTab(t)}>
+            {t === 'public' ? 'Genel' : 'Özel'}
+            {tab !== t && unread[t] > 0 && <span className={styles.chatBadge}>{unread[t]}</span>}
+          </button>
+        ))}
+      </div>
+      <div className={styles.chatList} aria-live="polite">
+        {current.length === 0 && <p className={styles.chatSystem}>{tab === 'public' ? 'Henüz mesaj yok.' : 'Sana özel mesaj yok.'}</p>}
+        {current.map((m, i) =>
           m.who === 'system' ? (
             <p key={i} className={styles.chatSystem}>
               {m.text}
             </p>
           ) : (
-            <p key={i} className={`${styles.chatMsg} ${m.private ? styles.chatPrivate : ''}`}>
+            <p key={i} className={styles.chatMsg}>
               <b style={{ color: SPEAKERS[m.who].color }}>{SPEAKERS[m.who].name.split(' ')[0]}</b>
-              {m.private && <em>özel · sadece sana</em>}
               <span>{m.text}</span>
             </p>
           ),
         )}
-        {typing && typing !== 'room' && <p className={styles.chatTyping}>{SPEAKERS[typing].name.split(' ')[0]} yazıyor…</p>}
+        {tab === 'private' && typing && typing !== 'room' && <p className={styles.chatTyping}>{SPEAKERS[typing].name.split(' ')[0]} yazıyor…</p>}
         <div ref={end} />
       </div>
     </aside>

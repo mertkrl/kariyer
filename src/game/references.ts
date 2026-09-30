@@ -1,4 +1,4 @@
-import { candidates } from './data/candidates';
+import { candidateOf } from './data/candidates';
 
 /*
  * Reference checks over the landline: you dial a candidate's former employer to test a claim
@@ -70,7 +70,7 @@ const NONE = /^(Yok|Belirtilmemiş)/;
 /** The reference you'd get on the phone, or null when there is nobody to call. */
 export function referenceFor(id: string): ReferenceCheck | null {
   if (SPECIAL[id]) return SPECIAL[id];
-  const c = candidates[id];
+  const c = candidateOf(id);
   if (!c || NONE.test(c.references) || NONE.test(c.previousCompany)) return null;
   const company = c.previousCompany.split('—')[0].trim();
   const title = (c.previousCompany.split('—')[1] ?? '').replace(/\(.*\)/, '').replace('.', '').trim();

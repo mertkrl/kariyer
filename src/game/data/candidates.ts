@@ -1,5 +1,7 @@
 import type { Candidate } from '../types';
 
+import { EXTRA_CANDIDATES } from './extraCandidates';
+
 export const candidates: Record<string, Candidate> = {
   ahmet: {
     id: 'ahmet',
@@ -1211,3 +1213,16 @@ export const candidates: Record<string, Candidate> = {
     },
   },
 };
+
+// the files Hakan Bey finds when you finish early (see extraCandidates.ts)
+Object.assign(candidates, EXTRA_CANDIDATES);
+
+/**
+ * The candidate behind an id. Ids come from lineups, decisions and saves, so a wrong one is a
+ * bug or a stale save: it fails here, by name, instead of as "undefined" somewhere downstream.
+ */
+export function candidateOf(id: string): Candidate {
+  const c = candidates[id];
+  if (!c) throw new Error(`Bilinmeyen aday kimliği: "${id}"`);
+  return c;
+}

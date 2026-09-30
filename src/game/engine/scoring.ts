@@ -1,5 +1,5 @@
 import type { Decision } from '../types';
-import { candidates } from '../data/candidates';
+import { candidateOf } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
 
 /*
@@ -39,7 +39,7 @@ const FLAG_WORDS: Record<string, string> = {
 export const CONSIDERED_SECONDS = 12;
 
 export function decisionEffect(id: string, decision: Decision, ctx: { secondsSpent: number; referenceChecked: boolean }): DecisionEffect {
-  const c = candidates[id];
+  const c = candidateOf(id);
   const fit = candidateDetails[id]?.hireFit ?? 3;
   const first = c.name.split(' ')[0];
   const flag = FLAG_WORDS[c.flaggedField] ?? 'sistem işareti';

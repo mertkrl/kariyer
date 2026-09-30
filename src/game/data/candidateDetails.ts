@@ -7,6 +7,8 @@
  * algorithm scored their CV.
  */
 
+import { EXTRA_DETAILS } from './extraCandidates';
+
 export interface WorkEntry {
   period: string;
   title: string;
@@ -704,3 +706,6 @@ export const candidateDetails: Record<string, CandidateDetails> = {
     hireFit: 2,
   },
 };
+
+// the extra pile's CVs and interview answers
+Object.assign(candidateDetails, EXTRA_DETAILS);

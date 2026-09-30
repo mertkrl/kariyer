@@ -12,9 +12,9 @@ type StampKind = 'approve' | 'reject';
  */
 
 const SFX_LEVEL = 0.55;
-const MUSIC_SRC = '/audio/theme-calm.m4a';
+const MUSIC_SRC = `${import.meta.env.BASE_URL}audio/theme-calm.m4a`;
 /** A real rain recording, looped under the weather and street scenes. */
-const RAIN_SRC = '/audio/rain.mp3';
+const RAIN_SRC = `${import.meta.env.BASE_URL}audio/rain.mp3`;
 /** Exact loop length of theme-calm.m4a (32 bars @ 66 BPM) — see scripts/generate-calm-music.mjs. */
 const MUSIC_LOOP_SECONDS = (60 / 66) * 4 * 32;
 

@@ -215,3 +215,17 @@
   color: var(--on-dark-faint);
   letter-spacing: 0.5px;
 }
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.saveNote {
+  max-width: 340px;
+  font-size: calc(12px * var(--ts, 1));
+  line-height: 1.4;
+  color: rgba(244, 239, 228, 0.6);
+}

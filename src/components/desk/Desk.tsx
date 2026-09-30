@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { callFor, lineupFor, useGameStore } from '../../game/store';
+import { callFor, lineupFor, useGameStore, TEAM_LATE_DAY } from '../../game/store';
+import { PIZZA_SLICES } from '../../game/slices/deskSlice';
 import { days } from '../../game/data/days';
 import { COFFEE_SIPS, DRAWER_LOCKED_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState } from '../../game/desk';
 import { inbox } from '../../game/mail';
@@ -9,6 +10,7 @@ import type { ThreadId } from '../../game/manager';
 import { DeskRoom, STAGE_H, STAGE_W } from './DeskRoom';
 import { OfficeWindow, type WindowWeather } from './OfficeWindow';
 import { COFFEE_RINGS, deskExtras, type DeskExtra } from './DeskExtras';
+import { PizzaBox } from './DeskExtrasArt';
 import { OrchidArt } from './OrchidArt';
 import { AirConArt, DeskLampArt, ExtinguisherArt, PlantArt, PrinterCabinetArt, WaterCoolerArt } from './DeskDecor';
 import { DeskDefs, FoldersArt, KeyboardArt, LandlineArt, MobileArt, MonitorArt, MouseArt, MugArt, PedestalArt, PenCupArt, PosterArt, WallClockArt, WindowFrameArt } from './DeskObjects';
@@ -26,6 +28,9 @@ interface DeskProps {
 }
 
 /** Your desk, seen from your chair. Everything on it is something you can pick up. */
+/** When the pizza reaches the desks on the team's late Thursday (see the office chat). */
+const PIZZA_AT = 560;
+
 export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) {
   const dayIndex = useGameStore((s) => s.currentDayIndex);
   const minutes = useGameStore((s) => s.workdayMinutes);
@@ -46,6 +51,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
   const waterFlower = useGameStore((s) => s.waterFlower);
   const visitCooler = useGameStore((s) => s.visitCooler);
   const clearDeskItem = useGameStore((s) => s.clearDeskItem);
+  const eatPizza = useGameStore((s) => s.eatPizza);
   // nothing costs time before you clock in, so nothing says how long it takes
   const shiftStarted = useGameStore((s) => s.shiftStarted);
   const mins = (n: number) => (shiftStarted ? ` (${n} dk)` : '');
@@ -184,6 +190,18 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
           <div key={`${x}-${y}`} className={styles.ring} style={{ left: x - rad, top: y - rad * 0.32, width: rad * 2, height: rad * 0.64 }} />
         ))}
         {extras.filter((e) => !onMonitor(e)).map(renderExtra)}
+
+        {/* Thursday, the team stays late: Emre leaves a pizza box on every desk at 17:20 */}
+        {dayIndex === TEAM_LATE_DAY && minutes >= PIZZA_AT && (
+          <button
+            className={styles.obj}
+            style={{ left: 1040, top: 486, width: 190, height: 110 }}
+            data-label={(desk.pizzaEaten ?? 0) < PIZZA_SLICES ? `Pizza · ${PIZZA_SLICES - (desk.pizzaEaten ?? 0)} dilim${mins(4)}` : 'Boş pizza kutusu'}
+            onClick={() => think(eatPizza())}
+          >
+            <PizzaBox left={PIZZA_SLICES - (desk.pizzaEaten ?? 0)} />
+          </button>
+        )}
 
         {desk.flower && (
           <button className={`${styles.obj} ${styles.orchid}`} data-label={flower === 'fresh' ? 'Hoş geldin orkidesi' : 'Orkide · su istiyor'} onClick={() => setFlowerOpen((v) => !v)}>

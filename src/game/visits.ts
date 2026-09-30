@@ -1,5 +1,5 @@
 import type { DeskCall } from './desk';
-import { candidates } from './data/candidates';
+import { candidateOf } from './data/candidates';
 
 /*
  * The people you turned away come back. The morning after you reject Kerem, Derya or Seda,
@@ -128,7 +128,7 @@ export function visitCall(id: string, dayIndex: number): DeskCall | undefined {
       id,
       day: dayIndex,
       at: v.at,
-      caller: candidates[v.id].name,
+      caller: candidateOf(v.id).name,
       line: 'Dış hat · santralden bağlandı',
       lines: v.lobby,
       choices: [

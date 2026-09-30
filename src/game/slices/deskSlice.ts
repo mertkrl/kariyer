@@ -1,0 +1,142 @@
+/*
+ * The desk: the landline and its calls, coffee, the flower, the water cooler, reference calls.
+ */
+import type { GetState, SetState } from '../storeApi';
+import type { GameState } from '../storeTypes';
+import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../desk';
+import { REFERENCE_MINUTES, referenceFor } from '../references';
+import { REPLY_EFFECT, requestIsFair } from '../manager';
+import { audioEngine } from '../../audio/audioEngine';
+import { callFor, revokeInvites, revokeTargets } from '../managerCalls';
+import { clampScore } from '../storeDefaults';
+import { isOnBreak, spendMinutes } from '../clock';
+
+/** Your share of the team's pizza: three slices, a few minutes each. */
+export const PIZZA_SLICES = 3;
+const PIZZA_MINUTES = 4;
+const PIZZA_THOUGHTS = [
+  'İlk dilim. Soğumaya başlamış ama aç olduğunu şimdi fark ettin.',
+  'İkinci dilim, ekrana bakarak. Klavyeye yağ damlamasın diye peçeteyi altına koydun.',
+  'Son dilim. "Şirket zor durumda" diyen Emre üçüncü kutuyu açıyor.',
+];
+
+export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, 'pickUpCall' | 'answerCall' | 'drinkCoffee' | 'eatPizza' | 'waterFlower' | 'clearDeskNotice' | 'clearDeskItem' | 'callReference' | 'visitCooler' | 'sendRevoke'> => ({
+  pickUpCall: () => {
+    const { desk } = get();
+    if (!desk.ringing) return;
+    set({ desk: { ...desk, inCall: desk.ringing, ringing: null } });
+  },
+
+  answerCall: (choice) => {
+    const state = get();
+    const id = state.desk.inCall;
+    if (id?.startsWith('ref:')) {
+      const cid = id.slice(4);
+      const ref = referenceFor(cid);
+      set({
+        referenceChecks: ref ? { ...state.referenceChecks, [cid]: ref.verdict } : state.referenceChecks,
+        desk: { ...state.desk, inCall: null, calls: { ...state.desk.calls, [id]: 'answered' } } });
+      spendMinutes(REFERENCE_MINUTES);
+      return;
+    }
+    if (id?.startsWith(REQUEST_CALL_PREFIX)) {
+      const requestId = id.slice(REQUEST_CALL_PREFIX.length);
+      const answer = choice === 0 ? 'comply' : 'refuse';
+      const req = state.managerRequests.find((r) => r.id === requestId);
+      // saying yes to a request the file backs up isn't a compromise
+      const effect = req && requestIsFair(req) ? { performans: REPLY_EFFECT[answer].performans, vicdan: 0 } : REPLY_EFFECT[answer];
+      set({
+        managerRequests: state.managerRequests.map((r) => (r.id === requestId ? { ...r, answer } : r)),
+        managerStance: {
+          refusals: state.managerStance.refusals + (answer === 'refuse' ? 1 : 0),
+          complies: state.managerStance.complies + (answer === 'comply' ? 1 : 0) },
+        performans: clampScore(state.performans + effect.performans),
+        vicdan: clampScore(state.vicdan + effect.vicdan),
+        desk: { ...state.desk, inCall: null, calls: { ...state.desk.calls, [id]: 'answered' } } });
+      spendMinutes(4);
+      return;
+    }
+    const call = id ? callFor(state, id) : undefined;
+    if (!call) return;
+    const c = call.choices[choice];
+    set({
+      performans: clampScore(state.performans + (c?.performans ?? 0)),
+      vicdan: clampScore(state.vicdan + (c?.vicdan ?? 0)),
+      // telling them the truth face to face counts as honest feedback
+      dmHandled: c?.honestFor ? { ...state.dmHandled, [c.honestFor]: 'honest' } : state.dmHandled,
+      story: c?.reform ? { ...state.story, reform: c.reform } : state.story,
+      ...(c?.revoke ? { revokeDraft: revokeTargets(state.finalists) } : {}),
+      desk: {
+        ...state.desk,
+        inCall: c?.next ?? null,
+        calls: { ...state.desk.calls, [call.id]: 'answered' },
+        flower: state.desk.flower || !!call.flower,
+        lastWatered: call.flower ? state.currentDayIndex : state.desk.lastWatered } });
+    spendMinutes(call.minutes);
+  },
+
+  drinkCoffee: () => {
+    const state = get();
+    const desk = state.desk;
+    if (desk.coffee <= 0) {
+      // the kitchen: a fresh mug costs a few minutes
+      set({ desk: { ...desk, coffee: COFFEE_SIPS, refills: desk.refills + 1 } });
+      const pour = audioEngine.startPour('brew');
+      pour.setFill(0.6);
+      setTimeout(() => pour.stop(), 1100);
+      spendMinutes(REFILL_MINUTES);
+      return REFILL_THOUGHTS[desk.refills % REFILL_THOUGHTS.length];
+    }
+    const thoughts = COFFEE_THOUGHTS[Math.min(state.currentDayIndex, COFFEE_THOUGHTS.length - 1)];
+    const thought = thoughts[desk.sipsToday] ?? IDLE_THOUGHTS[desk.sipsToday % IDLE_THOUGHTS.length];
+    set({ desk: { ...desk, coffee: desk.coffee - 1, sipsToday: desk.sipsToday + 1 } });
+    audioEngine.playSip();
+    return thought;
+  },
+
+  eatPizza: () => {
+    const { desk } = get();
+    const eaten = desk.pizzaEaten ?? 0;
+    if (eaten >= PIZZA_SLICES) return 'Kutu boş. Sadece kenarlarda biraz sos kalmış.';
+    set({ desk: { ...desk, pizzaEaten: eaten + 1 } });
+    spendMinutes(PIZZA_MINUTES);
+    return PIZZA_THOUGHTS[eaten];
+  },
+
+  waterFlower: () => {
+    const state = get();
+    if (!state.desk.flower || state.desk.lastWatered === state.currentDayIndex) return;
+    set({ desk: { ...state.desk, lastWatered: state.currentDayIndex } });
+    spendMinutes(WATER_MINUTES);
+  },
+
+  clearDeskNotice: () => set((state) => ({ desk: { ...state.desk, notice: null } })),
+
+  clearDeskItem: (id) => set((state) => ({ desk: { ...state.desk, cleared: [...state.desk.cleared, id] } })),
+
+  callReference: (candidateId) => {
+    const state = get();
+    if (state.desk.inCall || state.desk.ringing || isOnBreak(state) || !referenceFor(candidateId)) return false;
+    audioEngine.playHandset();
+    set({ desk: { ...state.desk, inCall: `ref:${candidateId}` } });
+    return true;
+  },
+
+  visitCooler: () => {
+    const state = get();
+    set({ desk: { ...state.desk, coolerVisits: state.desk.coolerVisits + 1 } });
+    audioEngine.playSip();
+    spendMinutes(COOLER_MINUTES);
+    return COOLER_THOUGHTS[state.desk.coolerVisits % COOLER_THOUGHTS.length];
+  },
+
+  sendRevoke: (honest) => {
+    const state = get();
+    if (!state.revokeDraft) return;
+    audioEngine.playUi('confirm');
+    set({
+      ...revokeInvites(state, honest),
+      revokeDraft: null,
+      vicdan: clampScore(state.vicdan + (honest ? -1 : -3)) });
+  },
+});

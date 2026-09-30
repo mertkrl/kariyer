@@ -100,6 +100,11 @@
   background: linear-gradient(160deg, #4f8fd8, #2a5ea5);
 }
 
+.glyphCalendar {
+  background: linear-gradient(160deg, #f1efe9, #cfcac0);
+  color: #22201c;
+}
+
 .glyphSheet {
   background: linear-gradient(160deg, #3a9b5c, #1f6e3c);
   font-family: var(--font-body);
@@ -425,62 +430,13 @@
   color: var(--text-muted);
 }
 
-/* writing the recall mail */
-.compose {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
-.composeHint {
-  margin: 4px 0;
-  font-size: calc(12.5px * var(--ts, 1));
-  color: #a8402f;
-}
 
-.composeOption {
-  text-align: left;
-  padding: 10px 12px;
-  border: 1px solid #d8d2c4;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font: inherit;
-}
 
-.composeOption b {
-  display: block;
-  margin-bottom: 4px;
-  font-size: calc(13px * var(--ts, 1));
-}
 
-.composeOption pre {
-  margin: 0;
-  white-space: pre-wrap;
-  font: 12px/1.45 var(--font-body);
-  color: #3a362f;
-}
 
-.composeOn {
-  border-color: #3f6b63;
-  box-shadow: 0 0 0 2px rgba(63, 107, 99, 0.25);
-}
 
-.composeSend {
-  align-self: flex-end;
-  padding: 8px 20px;
-  border: 0;
-  border-radius: 8px;
-  background: #3f6b63;
-  color: #fff;
-  font: 700 13px var(--font-body);
-  cursor: pointer;
-}
 
-.composeSend:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
 
 /* an attachment under a mail */
 .attachment {

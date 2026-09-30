@@ -6,7 +6,7 @@ import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput }
 import { Button } from '../components/ui/Button';
 import { drawShareCard } from '../game/engine/shareCard';
 import { days } from '../game/data/days';
-import { candidates } from '../game/data/candidates';
+import { candidates, candidateOf } from '../game/data/candidates';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { AD_EFFECT } from '../game/data/jobs';
 import styles from './FinalScreen.module.css';
@@ -167,7 +167,7 @@ export function FinalScreen() {
             <span className="mono">haftanın beş insanı</span>
           </div>
           {KEY_CHARACTERS.map((k) => {
-            const c = candidates[k.id];
+            const c = candidateOf(k.id);
             const outcome = hiredId === k.id ? 'hired' : (story.keyDecisions[k.id] ?? 'none');
             // turned away, but told the truth: honest feedback is the thing that helps
             const helped = outcome === 'reject' && dmHandled[k.id] === 'honest';

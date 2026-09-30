@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../game/store';
-import { candidates } from '../../game/data/candidates';
+import { candidates, candidateOf } from '../../game/data/candidates';
 import { AD_KEYWORDS, atsReport } from '../../game/ats';
 import { audioEngine } from '../../audio/audioEngine';
 import { buildOpening, CLOSING, OPTIONS, SHORTLIST, SPEAKERS, type Board, type Line, type MeetingOption, type Speaker, type TeamStats } from '../../game/meeting';
@@ -29,7 +29,7 @@ export function MeetingRoom() {
     const picks = invited
       // someone a colleague already put on the list is not listed twice
       .filter((id) => candidates[id] && !SHORTLIST.some((c) => c.id === id))
-      .map((id) => ({ id, name: candidates[id].name, ats: Math.round((atsReport(candidates[id], 0).matched.length / AD_KEYWORDS.length) * 100) }));
+      .map((id) => ({ id, name: candidateOf(id).name, ats: Math.round((atsReport(candidateOf(id), 0).matched.length / AD_KEYWORDS.length) * 100) }));
     return { files, avg: files ? Math.round(seconds / files) : 0, invites: invited.length, ai: files ? Math.min(1, g.aiUses / files) : 0, picks };
   });
   const [OPENING] = useState(() => buildOpening(you));

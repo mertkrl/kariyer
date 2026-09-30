@@ -101,6 +101,8 @@ export function buildOpening(you: TeamStats): Line[] {
   const { ayse, emre } = COLLEAGUE_STATS;
   const total = you.files + ayse.files + emre.files;
   const fast = you.files > 0 && you.avg < 20;
+  // a few seconds a file isn't reading at all: nobody praises that
+  const skimming = you.files > 0 && you.avg < 10;
   const slow = you.avg >= 45;
   const lines: Line[] = [
     { who: 'room', text: 'Görüntülü toplantı. Selin ekranını paylaşıyor: ekibin haftalık panosu açık. Hakan Bey\'in kamerası kapalı.', board: { page: 'overview' }, chat: [{ who: 'selin', text: 'Ekranım görünüyor mu?' }, { who: 'emre', text: 'Görünüyor 👍' }] },
@@ -113,6 +115,8 @@ export function buildOpening(you: TeamStats): Line[] {
     },
     you.files === 0
       ? { who: 'hakan', text: 'Defne\'nin satırı boş: bu hafta tek dosya kapatmamış. Cumaya kadar bunu değiştirmeni bekliyorum.', board: { page: 'people', metric: 'files', focus: ['you'] } }
+      : skimming
+      ? { who: 'hakan', text: `Dosya başına ${you.avg} saniye mi? Bu kadar da olmaz. Sistem başvuruların çoğunu zaten eliyor; önüne düşen az sayıdaki CV'ye daha fazla vakit ayır.`, board: { page: 'people', metric: 'avg', focus: ['you'] } }
       : fast
       ? { who: 'hakan', text: `Dosya başına ${you.avg} saniye. Emre'yle birlikte ekibin en hızlısı sensin. Böyle devam.`, board: { page: 'people', metric: 'avg', focus: ['you'] } }
       : slow

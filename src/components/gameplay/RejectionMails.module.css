@@ -186,21 +186,6 @@
   letter-spacing: 0.3px;
 }
 
-.reason {
-  justify-self: start;
-  padding: 2px 8px;
-  border-radius: 5px;
-  background: rgba(168, 64, 47, 0.08);
-  color: #8f3527;
-  font-size: calc(11.5px * var(--ts, 1));
-  font-weight: 600;
-  white-space: nowrap;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-sizing: border-box;
-}
-
 .template {
   width: 100%;
 }

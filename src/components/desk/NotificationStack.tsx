@@ -36,7 +36,7 @@ interface Props {
   mails: Mail[];
   ringing: { caller: string; line: string } | null;
   notice: string | null;
-  noticeKind?: 'missed' | 'overtime' | 'scheduled' | 'sent';
+  noticeKind?: 'missed' | 'overtime' | 'overtimeWarning' | 'scheduled' | 'sent';
   onPickUp: () => void;
   onOpenThread: (thread: ThreadId) => void;
   onOpenMail: () => void;
@@ -84,7 +84,7 @@ export function NotificationStack({ style, callStyle, messages, mails, ringing, 
   const mailNotice = noticeKind === 'scheduled' || noticeKind === 'sent';
   const noticeNote = notice && (
     <div className={`${styles.note} ${mailNotice ? styles.scheduled : styles.missed}`} role="status">
-      <b>{{ overtime: '⏰ Fazla mesai', missed: '☎ Cevapsız çağrı', scheduled: '✉ Gönderim planlandı · 17:00', sent: '✉ Bildirimler gönderildi' }[noticeKind ?? 'missed']}</b>
+      <b>{{ overtime: '⏰ Fazla mesai', overtimeWarning: '⏰ Mesainin bitmesine 1 saat', missed: '☎ Cevapsız çağrı', scheduled: '✉ Gönderim planlandı · 17:00', sent: '✉ Bildirimler gönderildi' }[noticeKind ?? 'missed']}</b>
       <span>{notice}</span>
     </div>
   );

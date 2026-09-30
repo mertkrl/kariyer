@@ -3,7 +3,7 @@
  * invitations (and notices a strong file you turned away), and people you rejected turn up on
  * Kariyergram having found work somewhere else.
  */
-import { candidates } from './data/candidates';
+import { candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import type { Decision } from './types';
 import type { Mail } from './mail';
@@ -19,7 +19,7 @@ export interface WeekEntry {
 export type MeetingChoice = 'sample' | 'praise' | 'observe' | null;
 
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
-const first = (id: string) => candidates[id].name.split(' ')[0];
+const first = (id: string) => candidateOf(id).name.split(' ')[0];
 
 const LEVENT_SPECIAL: Record<string, string> = {
   okan: 'bu dosyayı sen mi seçtin? Neyse, Cuma görürüz.',
@@ -47,7 +47,7 @@ export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingC
     ? ['Dün mülakata çağırdığın adayların CV\'lerine ekip olarak baktık:', '', ...invited.map((id) => `• ${first(id)}: ${leventOn(id)}`)]
     : ['Dün kimseyi mülakata çağırmamışsın. Ekip Cuma\'yı bekliyor; boş gelmeyelim.'];
   if (missed) {
-    lines.push('', `Bir de: ${candidates[missed.id].name} dün elenmiş. Profilini tesadüfen gördüm; aradığımız tam oydu. Ne oldu?`);
+    lines.push('', `Bir de: ${candidateOf(missed.id).name} dün elenmiş. Profilini tesadüfen gördüm; aradığımız tam oydu. Ne oldu?`);
   }
   if (dayIndex === 3 && meeting === 'sample') {
     lines.push('', 'Toplantıdaki rastgele kontrol fikrin iyiydi. Hakan Bey bir şey demedi ama ben not aldım.');
@@ -79,9 +79,9 @@ export function rejectedEchoes(log: WeekEntry[], dayIndex: number) {
       const seed = [...e.id].reduce((n, ch) => n + ch.charCodeAt(0), 0) + i;
       return {
         id: e.id,
-        name: candidates[e.id].name,
-        initials: candidates[e.id].initials,
-        color: candidates[e.id].color,
+        name: candidateOf(e.id).name,
+        initials: candidateOf(e.id).initials,
+        color: candidateOf(e.id).color,
         text: FOUND_WORK[(seed + i) % FOUND_WORK.length](NEW_JOBS[(seed + 2 * i) % NEW_JOBS.length]),
       };
     });

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { formatClock } from '../game/time';
 import { lineupFor, useGameStore } from '../game/store';
 import { days, FINALIST_LIMIT } from '../game/data/days';
-import { candidates } from '../game/data/candidates';
+import { candidateOf } from '../game/data/candidates';
 import { Button } from '../components/ui/Button';
 import { DayEndBackdrop } from '../components/dayend/DayEndBackdrop';
 import { CountUp } from '../components/dayend/CountUp';
@@ -117,7 +117,7 @@ export function DayEndScreen() {
             </div>
             <ul className={`${styles.decisionList} ${lineup.length > 7 ? styles.decisionListTwo : ''}`}>
               {lineup.map((id) => {
-                const c = candidates[id];
+                const c = candidateOf(id);
                 const d = decisions[id];
                 const at = decisionLog.find((e) => e.id === id)?.at;
                 const req = managerRequests.find((r) => r.candidateId === id);

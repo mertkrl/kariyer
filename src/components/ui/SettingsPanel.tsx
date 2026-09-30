@@ -79,6 +79,7 @@ function VolumeRow({ id, icon, title, hint, value, disabled, onChange, onCommit 
 /** Pause menu: resumes the game and holds the audio mix controls. */
 export function SettingsPanel({ onResume }: { onResume: () => void }) {
   const musicVolume = useGameStore((s) => s.musicVolume);
+  const seed = useGameStore((s) => s.seed);
   const sfxVolume = useGameStore((s) => s.sfxVolume);
   const muted = useGameStore((s) => s.muted);
   const setMusicVolume = useGameStore((s) => s.setMusicVolume);
@@ -198,6 +199,9 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
             ⌂ Ana Sayfaya Dön
           </button>
         )}
+        <p className={`${styles.seed} mono`} title="Aynı haftayı yeniden oynamak için adresin sonuna ?seed=… ekle">
+          Oyun kodu #{seed}
+        </p>
       </div>
     </div>
   );

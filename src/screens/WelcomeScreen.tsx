@@ -2,11 +2,16 @@ import { useState, type MouseEvent } from 'react';
 import { useGameStore } from '../game/store';
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
+import { readSave } from '../game/save';
 import styles from './WelcomeScreen.module.css';
 import { ORCHID_CREDIT } from '../components/desk/OrchidArt';
 
 export function WelcomeScreen() {
   const startGame = useGameStore((s) => s.startGame);
+  const continueGame = useGameStore((s) => s.continueGame);
+  // a checkpoint from an earlier visit, kept in this browser
+  const [save] = useState(readSave);
+  const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
@@ -69,9 +74,21 @@ export function WelcomeScreen() {
           dinleyeceksin? Her tıkladığın buton, ekranın öbür ucunda birinin hayatını etkiliyor.
         </p>
 
-        <Button variant="gold" sound="start" onClick={startGame}>
-          İŞE BAŞLA →
-        </Button>
+        {savedDay ? (
+          <div className={styles.actions}>
+            <Button variant="gold" sound="start" onClick={continueGame}>
+              DEVAM ET · {savedDay.dayName} →
+            </Button>
+            <Button variant="ghost" sound="start" onClick={startGame}>
+              Yeni oyun
+            </Button>
+            <small className={styles.saveNote}>Kayıt yalnızca bu tarayıcıda durur. Yeni oyunda ilanı seçtiğin anda eski kaydın üzerine yazılır.</small>
+          </div>
+        ) : (
+          <Button variant="gold" sound="start" onClick={startGame}>
+            İŞE BAŞLA →
+          </Button>
+        )}
       </div>
 
       <div className={styles.bottomInfo}>

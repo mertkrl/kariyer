@@ -33,29 +33,6 @@
   background: linear-gradient(transparent, rgba(255, 255, 255, 0.14), transparent);
 }
 
-/* ── Brand ── */
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 15px;
-  color: var(--ink);
-  background: linear-gradient(145deg, #e3c257, #b58f1d);
-  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-
 .brandText {
   display: flex;
   flex-direction: column;
@@ -206,13 +183,6 @@
   --clock-dot: var(--gold);
 }
 
-
-
-
-
-
-
-
 /* ── Meters ── */
 
 .meter {
@@ -308,63 +278,6 @@
   bottom: 0;
   width: 1px;
   background: rgba(0, 0, 0, 0.35);
-}
-
-/* ── Interview quota ── */
-
-.quota {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.quotaHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.quotaLabel {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: var(--on-dark-muted);
-}
-
-.quotaValue {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--gold);
-}
-
-.quotaValue span {
-  font-size: 11px;
-  color: var(--on-dark-muted);
-}
-
-.pips {
-  display: flex;
-  gap: 3px;
-}
-
-.pips span {
-  width: 9px;
-  height: 5px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.12);
-  transition: background 0.3s ease;
-}
-
-.pips .pipOn {
-  background: var(--gold);
-  box-shadow: 0 0 5px rgba(201, 162, 39, 0.5);
-}
-
-.quotaToday {
-  font-size: 10px;
-  color: var(--on-dark-muted);
 }
 
 /* ── Controls ── */
@@ -472,26 +385,4 @@
 
 .deskButton:hover {
   background: rgba(201, 162, 39, 0.24);
-}
-
-.money {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  line-height: 1.1;
-}
-
-.moneyLabel {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: var(--on-dark-muted);
-}
-
-.moneyValue {
-  white-space: nowrap;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--gold);
 }

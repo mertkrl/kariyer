@@ -44,7 +44,7 @@ function shuffle<T>(list: T[], rand: () => number): T[] {
 }
 
 /** A fresh week: same day sizes, ~⅓ of each day swapped with other days, every queue shuffled. */
-export function makeLineups(rand: () => number = Math.random): string[][] {
+export function makeLineups(rand: () => number): string[][] {
   const lineups = defaultLineups();
   const workdays = lineups.map((_, i) => i).filter((i) => lineups[i].length > 0);
   const swaps = Math.round(workdays.reduce((n, i) => n + lineups[i].length, 0) / 3 / 2);

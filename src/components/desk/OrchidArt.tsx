@@ -64,14 +64,14 @@ export function OrchidArt({ state }: { state: FlowerState }) {
       </svg>
       {/* leaves and pot */}
       <img
-        src="/desk/orchid.png"
+        src={`${import.meta.env.BASE_URL}desk/orchid.png`}
         alt=""
         draggable={false}
         style={{ ...IMG, clipPath: 'inset(58% 0 0 0)', transformOrigin: '50% 92%', ...LEAVES[state] }}
       />
       {/* the flower spike, hinged where it leaves the leaves */}
       <img
-        src="/desk/orchid.png"
+        src={`${import.meta.env.BASE_URL}desk/orchid.png`}
         alt=""
         draggable={false}
         style={{ ...IMG, clipPath: 'inset(0 0 42% 0)', transformOrigin: '46% 60%', ...SPIKE[state] }}

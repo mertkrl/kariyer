@@ -5,7 +5,7 @@
  */
 import type { Decision } from './types';
 import type { Mail } from './mail';
-import { candidates } from './data/candidates';
+import { candidates, candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
@@ -150,12 +150,12 @@ export const REVOKE_AT = 420;
 export function revokeTargets(finalists: Finalist[]) {
   const mine = finalists.filter((f) => !f.byManager);
   if (mine.length < 3) return [];
-  return [...mine].sort((a, b) => candidates[b.id].age - candidates[a.id].age).slice(0, 2).map((f) => f.id);
+  return [...mine].sort((a, b) => candidateOf(b.id).age - candidateOf(a.id).age).slice(0, 2).map((f) => f.id);
 }
 
 export function revokeCall(finalists: Finalist[], refusals: number, day: number): DeskCall {
   const ids = revokeTargets(finalists);
-  const names = ids.map((id) => candidates[id].name).join(' ve ');
+  const names = ids.map((id) => candidateOf(id).name).join(' ve ');
   return {
     id: 'revoke',
     day,
@@ -193,7 +193,7 @@ export function callFor(
       day: state.currentDayIndex,
       at: 0,
       caller: ref.who,
-      line: `Dış hat · ${candidates[cid].name} için referans`,
+      line: `Dış hat · ${candidateOf(cid).name} için referans`,
       lines: ref.lines,
       choices: [{ text: 'Bilgi için teşekkür ederim, iyi günler.', reply: 'Rica ederim, iyi çalışmalar.' }],
       minutes: REFERENCE_MINUTES,
@@ -224,7 +224,7 @@ export function callFor(
   const r = state.managerRequests.find((x) => x.id === id.slice(REQUEST_CALL_PREFIX.length));
   if (!r) return undefined;
   const refusals = state.managerStance.refusals;
-  const name = candidates[r.candidateId].name.split(' ')[0];
+  const name = candidateOf(r.candidateId).name.split(' ')[0];
   return {
     id,
     day: state.currentDayIndex,

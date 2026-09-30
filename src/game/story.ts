@@ -1,4 +1,5 @@
 import type { Decision } from './types';
+import { EXTRA_FEMALE } from './data/extraCandidates';
 
 /*
  * "Sistemin Dişlisi" — the week's story.
@@ -264,7 +265,7 @@ export const WEIGHT_TABLE: { rule: string; weight: string; page: 1 | 2; decoded:
 export type EvidenceAction = 'tihek' | 'anon' | 'zehra' | 'director' | 'delete';
 
 /** Candidates the Friday "aile planı" question is aimed at; the rest get "askerlik". */
-export const FEMALE = new Set(['selin', 'zeynep', 'derya', 'aylin', 'elif', 'nihan', 'pinar', 'sibel', 'ece', 'gokce', 'handan', 'asli', 'irem', 'nazli', 'duygu', 'gizem', 'seda', 'ceren', 'nehir']);
+export const FEMALE = new Set([...EXTRA_FEMALE, 'selin', 'zeynep', 'derya', 'aylin', 'elif', 'nihan', 'pinar', 'sibel', 'ece', 'gokce', 'handan', 'asli', 'irem', 'nazli', 'duygu', 'gizem', 'seda', 'ceren', 'nehir']);
 
 /* ── Friday: the questions on Hakan Bey's list ── */
 

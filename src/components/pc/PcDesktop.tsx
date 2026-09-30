@@ -3,6 +3,7 @@ import { inbox, type Mail } from '../../game/mail';
 import { formatClock } from '../../game/time';
 import { audioEngine } from '../../audio/audioEngine';
 import { PLAYER } from '../../game/player';
+import { CalendarApp } from './CalendarApp';
 import styles from './PcDesktop.module.css';
 
 /*
@@ -11,7 +12,9 @@ import styles from './PcDesktop.module.css';
  * a hurry. Apps open maximised; the taskbar keeps the clock.
  */
 
-export type PcApp = 'portal' | 'mail';
+export type PcApp = 'portal' | 'mail' | 'calendar';
+
+const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral' };
 
 interface PcDesktopProps {
   app: PcApp | null;
@@ -26,14 +29,13 @@ interface PcDesktopProps {
   /** Mail written during this playthrough. */
   extraMails?: Mail[];
   /** A recall mail you have to write: to whom, and the send action. */
-  draft?: { to: string[]; onSend: (honest: boolean) => void } | null;
   /** Who is on the interview list right now (for the list attached to Hakan Bey's mail). */
   finalistNames?: string[];
 }
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 
-export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, extraMails, draft, finalistNames = [] }: PcDesktopProps) {
+export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, extraMails, finalistNames = [] }: PcDesktopProps) {
   const mails = inbox(dayIndex, minutes, extraMails);
   const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !mailRead.includes(m.id)).length;
   const [toast, setToast] = useState<string | null>(null);
@@ -69,6 +71,12 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
           </span>
           E-posta
         </button>
+        <button className={styles.icon} onClick={() => open('calendar')}>
+          <span className={`${styles.glyph} ${styles.glyphCalendar}`}>
+            <CalendarGlyph day={dayIndex} />
+          </span>
+          Takvim
+        </button>
         <button className={styles.icon} onClick={() => setToast('Excel: "Lisansınızın süresi doldu. Lütfen BT yöneticinize başvurun."')}>
           <span className={`${styles.glyph} ${styles.glyphSheet}`}>X</span>
           Adaylar_FINAL_v7.xlsx
@@ -80,10 +88,10 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       </div>
 
       {app && (
-        <div className={styles.window} role="dialog" aria-label={app === 'portal' ? 'İşe Alım Portalı' : 'E-posta'}>
+        <div className={styles.window} role="dialog" aria-label={TITLES[app]}>
           <div className={styles.titleBar}>
-            <span className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : styles.glyphMail}`}>{app === 'portal' ? 'İK' : '✉'}</span>
-            <span className={styles.title}>{app === 'portal' ? 'İşe Alım Portalı — İK Sistemi v4.2' : `E-posta — Gelen Kutusu (${unread})`}</span>
+            <span className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : '▦'}</span>
+            <span className={styles.title}>{app === 'mail' ? `E-posta — Gelen Kutusu (${unread})` : TITLES[app]}</span>
             <span className={styles.winButtons}>
               <button onClick={onClose} aria-label="Simge durumuna küçült">
                 —
@@ -96,7 +104,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
               </button>
             </span>
           </div>
-          <div className={styles.windowBody}>{app === 'portal' ? portal : <MailApp mails={mails} read={mailRead} onRead={onReadMail} draft={draft} finalistNames={finalistNames} />}</div>
+          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} finalistNames={finalistNames} />}</div>
         </div>
       )}
 
@@ -111,6 +119,9 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
           <span className={`${styles.miniGlyph} ${styles.glyphMail}`}>✉</span> E-posta
           {unread > 0 && <i className={styles.taskBadge}>{unread}</i>}
         </button>
+        <button className={`${styles.task} ${app === 'calendar' ? styles.taskOn : ''}`} onClick={() => (app === 'calendar' ? onClose() : open('calendar'))}>
+          <span className={`${styles.miniGlyph} ${styles.glyphCalendar}`}>▦</span> Takvim
+        </button>
         <span className={styles.tray}>
           <span>📶</span>
           <span className="mono">
@@ -123,14 +134,20 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
   );
 }
 
-/** The two ways to word it: the lie Hakan Bey asked for, or what actually happened. */
-const RECALL_BODIES = {
-  lie: 'Sayın aday,\n\nTarafınıza gönderilen mülakat daveti sehven gönderilmiştir. Yaşanan karışıklık için anlayışınıza sığınırız.\n\nSaygılarımızla,\nTavrinsa Labs İnsan Kaynakları',
-  honest: 'Sayın aday,\n\nŞirketimizin kadro planı bu hafta değişti ve açık pozisyon sayısı azaldı. Bu nedenle size gönderdiğimiz mülakat davetini geri almak zorunda kaldık. Değerlendirmenizle ilgili bir eksiklik değildir; bunu açıkça bilmenizi istedim.\n\nSaygılarımla,\nTavrinsa Labs İnsan Kaynakları',
-};
+/** The calendar's desktop icon: a tear-off page showing the weekday. */
+function CalendarGlyph({ day }: { day: number }) {
+  return (
+    <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
+      <rect x="4" y="6" width="32" height="30" rx="5" fill="#fff" />
+      <path d="M4 11a5 5 0 0 1 5-5h22a5 5 0 0 1 5 5v4H4z" fill="#d64550" />
+      <text x="20" y="31" textAnchor="middle" fontSize="15" fontWeight="800" fill="#22201c" fontFamily="var(--font-body)">
+        {day + 21}
+      </text>
+    </svg>
+  );
+}
 
-function MailApp({ mails, read, onRead, draft, finalistNames }: { mails: Mail[]; read: string[]; onRead: (id: string) => void; draft?: PcDesktopProps['draft']; finalistNames: string[] }) {
-  const [choice, setChoice] = useState<'lie' | 'honest' | null>(null);
+function MailApp({ mails, read, onRead, finalistNames }: { mails: Mail[]; read: string[]; onRead: (id: string) => void; finalistNames: string[] }) {
   const [folder, setFolder] = useState<'inbox' | 'outbox' | 'sent'>('inbox');
   const received = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox');
   const outbox = mails.filter((m) => m.folder === 'outbox');
@@ -174,12 +191,6 @@ function MailApp({ mails, read, onRead, draft, finalistNames }: { mails: Mail[];
             {n > 0 && <span className={`${styles.folderCount} ${id === 'inbox' ? styles.folderUnread : ''}`}>{n}</span>}
           </button>
         ))}
-        {draft && (
-          <div className={`${styles.folder} ${styles.folderOn}`}>
-            <FolderIcon kind="draft" />
-            Taslaklar <span className={`${styles.folderCount} ${styles.folderUnread}`}>1</span>
-          </div>
-        )}
       </nav>
       <div className={styles.listPane}>
         <div className={styles.listHead}>
@@ -216,28 +227,7 @@ function MailApp({ mails, read, onRead, draft, finalistNames }: { mails: Mail[];
         </ul>
       </div>
       <article className={styles.reader}>
-        {draft ? (
-          // the recall mail: you pick the words and send it
-          <div className={styles.compose}>
-            <h3>Yeni ileti</h3>
-            <div className={styles.readerMeta}>
-              <b>Kime:</b> {draft.to.join(', ')}
-            </div>
-            <div className={styles.readerMeta}>
-              <b>Konu:</b> Mülakat davetiniz hk.
-            </div>
-            <p className={styles.composeHint}>Hakan Bey "sehven gönderildi" yazmanızı istedi. Metni siz seçiyorsunuz.</p>
-            {(['lie', 'honest'] as const).map((k) => (
-              <button key={k} className={`${styles.composeOption} ${choice === k ? styles.composeOn : ''}`} onClick={() => setChoice(k)}>
-                <b>{k === 'lie' ? '"Sehven gönderildi"' : 'Doğrusunu yaz'}</b>
-                <pre>{RECALL_BODIES[k]}</pre>
-              </button>
-            ))}
-            <button className={styles.composeSend} disabled={!choice} onClick={() => choice && draft.onSend(choice === 'honest')}>
-              Gönder
-            </button>
-          </div>
-        ) : current ? (
+        {current ? (
           <>
             <h3>{current.subject}</h3>
             <div className={styles.readerMeta}>
@@ -304,13 +294,12 @@ function Initials({ name }: { name: string }) {
   );
 }
 
-function FolderIcon({ kind }: { kind: 'inbox' | 'outbox' | 'sent' | 'draft' }) {
+function FolderIcon({ kind }: { kind: 'inbox' | 'outbox' | 'sent' }) {
   return (
     <svg className={styles.folderIcon} viewBox="0 0 20 20" aria-hidden="true">
       {kind === 'inbox' && <path d="M3 11 5 4h10l2 7v5H3zM3 11h4l1 2h4l1-2h4" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />}
       {kind === 'outbox' && <path d="M10 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14zM10 6v4l3 2" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />}
       {kind === 'sent' && <path d="M3 10 17 3l-4 14-3-6zM10 11l7-8" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />}
-      {kind === 'draft' && <path d="M4 16h3l9-9-3-3-9 9zM12 5l3 3" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />}
     </svg>
   );
 }

@@ -3,7 +3,7 @@
  * the day until you choose, per person, what goes out. Hundreds the system cut have already had
  * its automatic reply; these are the ones a human read.
  */
-import { candidates } from './data/candidates';
+import { candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import type { Mail } from './mail';
 
@@ -28,7 +28,7 @@ const REASON: Record<string, string> = {
 };
 
 export function mailFor(id: string, template: RejectTemplate): { subject: string; body: string } | null {
-  const c = candidates[id];
+  const c = candidateOf(id);
   const first = c.name.split(' ')[0];
   const strong = candidateDetails[id]?.highlights.find((h) => !h.startsWith('Öneri'));
   switch (template) {
@@ -55,7 +55,7 @@ export function mailFor(id: string, template: RejectTemplate): { subject: string
 const TR: Record<string, string> = { ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u', İ: 'i', Ç: 'c', Ğ: 'g', Ö: 'o', Ş: 's', Ü: 'u' };
 /** A plausible personal address for a candidate. */
 export const addressOf = (id: string) =>
-  `${candidates[id].name
+  `${candidateOf(id).name
     .split(' ')
     .map((p) => [...p].map((ch) => TR[ch] ?? ch).join('').toLowerCase())
     .join('.')}@eposta.test`;
@@ -67,7 +67,7 @@ export function outboxMails(choices: Record<string, RejectTemplate>, day: number
   return Object.entries(choices).flatMap(([id, t]) => {
     const mail = mailFor(id, t);
     if (!mail) return [];
-    return [{ id: `outbox-${day}-${id}`, day, at, folder: 'outbox' as const, to: candidates[id].name, from: 'Sen', address: addressOf(id), subject: mail.subject, body: mail.body }];
+    return [{ id: `outbox-${day}-${id}`, day, at, folder: 'outbox' as const, to: candidateOf(id).name, from: 'Sen', address: addressOf(id), subject: mail.subject, body: mail.body }];
   });
 }
 
@@ -76,7 +76,7 @@ export function sentMails(choices: Record<string, RejectTemplate>, day: number, 
   return Object.entries(choices).flatMap(([id, t], i) => {
     const mail = mailFor(id, t);
     if (!mail) return [];
-    return [{ id: `sent-${day}-${id}`, day, at: at + i * 0.2, folder: 'sent' as const, to: candidates[id].name, from: 'Sen', address: addressOf(id), subject: mail.subject, body: mail.body }];
+    return [{ id: `sent-${day}-${id}`, day, at: at + i * 0.2, folder: 'sent' as const, to: candidateOf(id).name, from: 'Sen', address: addressOf(id), subject: mail.subject, body: mail.body }];
   });
 }
 
@@ -141,7 +141,7 @@ const VOICES: Voice[] = [
 ];
 
 function whoIs(id: string): Who {
-  const c = candidates[id];
+  const c = candidateOf(id);
   const d = candidateDetails[id];
   const last = d?.workHistory.find((w) => w.title && w.title !== '—');
   return {
@@ -178,6 +178,6 @@ export function candidateReplies(choices: Record<string, RejectTemplate>, day: n
     const body = voice.body;
     const nextMorning = t === 'none' || at + 30 > 520;
     const when = nextMorning ? { day: day + 1, at: 40 + (h % 120) } : { day, at: at + 25 + (h % 50) };
-    return [{ id: `reply-${day}-${id}`, ...when, reply: true, from: candidates[id].name, address: addressOf(id), subject, body }];
+    return [{ id: `reply-${day}-${id}`, ...when, reply: true, from: candidateOf(id).name, address: addressOf(id), subject, body }];
   });
 }

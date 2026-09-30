@@ -109,7 +109,9 @@ export interface DeskState {
   /** What happened while you weren't looking — shown on the desk. */
   notice: string | null;
   /** What kind of notice it is. */
-  noticeKind?: 'missed' | 'overtime' | 'scheduled' | 'sent';
+  noticeKind?: 'missed' | 'overtime' | 'overtimeWarning' | 'scheduled' | 'sent';
+  /** Slices of Thursday's late-night pizza you ate. */
+  pizzaEaten?: number;
 }
 
 /** Replying to a rejected candidate's DM: the truth (against policy), the template, or silence. */
@@ -134,6 +136,10 @@ export interface GameState {
   breakOver: boolean;
   /** Past 17:00 with files still open: you stay until 20:00. */
   overtime: boolean;
+  /** Today's one-hour warning (16:00) has been shown. */
+  overtimeWarned: boolean;
+  /** Extra files Hakan Bey added after you closed the queue early, by day index. */
+  extraFiles: Record<number, string[]>;
   openedIds: string[];
   currentCandidateId: string | null;
   decisions: Record<string, Decision>;
@@ -205,6 +211,10 @@ export interface GameState {
   lateReason: string | null;
   /** This game's roll of the dice: who writes to you, and in what temper. */
   seed: number;
+  /** The id the next phone message gets. */
+  messageSeq: number;
+  /** Workday minute the landline last rang or was in use today (null: not yet). */
+  lastLandlineAt: number | null;
   /** Scores when the day began (the evening report shows what the day did to them). */
   dayStart: { performans: number; vicdan: number };
   /** Group chats you muted: they still arrive, they just don't pop up. */
@@ -242,6 +252,8 @@ export interface GameState {
   selectedJobId: string | null;
 
   startGame: () => void;
+  /** Picks the week up from this browser's last checkpoint (the start of a day). */
+  continueGame: () => void;
   publishJob: (jobId: string) => void;
   proceedToBriefing: () => void;
   beginDay: () => void;
@@ -286,6 +298,8 @@ export interface GameState {
   answerCall: (choice: number) => void;
   /** A sip of coffee and a thought — or, with an empty mug, a trip to the kitchen (a few minutes). */
   drinkCoffee: () => string;
+  /** A slice of the team's pizza on Thursday evening. Returns the thought. */
+  eatPizza: () => string;
   waterFlower: () => void;
   clearDeskNotice: () => void;
   clearDeskItem: (id: string) => void;

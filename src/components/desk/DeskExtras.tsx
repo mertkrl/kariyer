@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import type { StoryState } from '../../game/store';
-import { CakePlate, Envelope, Scarf, Umbrella } from './DeskExtrasArt';
+import { CakePlate, Envelope, Umbrella } from './DeskExtrasArt';
 
 /*
  * The desk remembers the week. Things turn up because of the calendar (the birthday cake plate,
- * a wet umbrella against the water cooler, a scarf on the partition) and because of you (the
+ * a wet umbrella against the water cooler) and because of you (the
  * final notice for a bill you didn't pay, the manager's note). The plate and the notices go once
  * you've dealt with them. Each one has a thought behind it.
  */
@@ -45,9 +45,6 @@ export function deskExtras({ dayIndex, story, performans, cleared }: Ctx): DeskE
   }
   if (dayIndex === 2) {
     out.push({ id: 'umbrella', box: [1784, 420, 64, 210], label: 'Islak şemsiye', thought: 'Şemsiyeni sebilin yanına dayadın. Altında küçük bir su birikintisi oluştu.', art: <Umbrella /> });
-  }
-  if (dayIndex === 3) {
-    out.push({ id: 'scarf', box: [1146, 352, 160, 130], label: 'Atkı', thought: 'Karda yürüyüp geldin. Atkın hâlâ soğuk ve ıslak.', art: <Scarf /> });
   }
   // unpaid bills leave a final notice on the desk; read it and it goes back in your bag
   if (story.bills.fatura === 'skipped' && dayIndex >= 2) {

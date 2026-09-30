@@ -49,51 +49,38 @@ export const Umbrella = () => (
   </svg>
 );
 
-/** A knitted wool scarf thrown over the partition: ribbed, folded, heavy with melted snow. */
-export const Scarf = () => (
-  <svg viewBox="0 0 160 130" width="100%" height="100%" aria-hidden="true">
-    <defs>
-      <pattern id="scarfRib" width="5" height="6" patternUnits="userSpaceOnUse">
-        <rect width="5" height="6" fill="#8e2a26" />
-        <rect width="2.2" height="6" fill="#a1342e" />
-        <path d="M0 3 Q1.1 1.6 2.2 3" stroke="rgba(0,0,0,0.18)" strokeWidth={0.6} fill="none" />
-      </pattern>
-      <linearGradient id="scarfFold" x1="0" x2="1">
-        <stop offset="0" stopColor="rgba(0,0,0,0.35)" />
-        <stop offset="0.35" stopColor="rgba(0,0,0,0)" />
-        <stop offset="0.7" stopColor="rgba(255,255,255,0.06)" />
-        <stop offset="1" stopColor="rgba(0,0,0,0.3)" />
-      </linearGradient>
-      <linearGradient id="scarfWet" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="rgba(0,0,0,0)" />
-        <stop offset="1" stopColor="rgba(20,0,0,0.28)" />
-      </linearGradient>
-    </defs>
-    <ellipse cx={80} cy={124} rx={62} ry={4} fill="rgba(40,24,10,0.18)" filter="url(#deskBlur)" />
-    {/* the part lying over the top edge of the partition */}
-    <path d="M6 34 C30 22 60 20 82 24 C104 20 132 22 154 32 L152 46 C128 38 104 38 82 40 C60 36 32 38 8 48 Z" fill="url(#scarfRib)" />
-    <path d="M6 34 C30 22 60 20 82 24 C104 20 132 22 154 32 L152 46 C128 38 104 38 82 40 C60 36 32 38 8 48 Z" fill="url(#scarfFold)" />
-    <path d="M10 40 C34 32 60 30 82 33 C104 30 128 31 150 39" stroke="rgba(0,0,0,0.22)" strokeWidth={1.2} fill="none" />
-    {/* left end: hangs long, twisted once */}
-    <path d="M22 42 C20 64 26 88 30 116 L58 114 C54 88 50 66 50 40 Z" fill="url(#scarfRib)" />
-    <path d="M22 42 C20 64 26 88 30 116 L58 114 C54 88 50 66 50 40 Z" fill="url(#scarfFold)" />
-    <path d="M22 42 C20 64 26 88 30 116 L58 114 C54 88 50 66 50 40 Z" fill="url(#scarfWet)" />
-    <path d="M24 70 C34 66 44 68 52 64" stroke="rgba(0,0,0,0.28)" strokeWidth={1.4} fill="none" />
-    {/* right end: shorter, falls behind */}
-    <path d="M112 40 C114 60 110 80 104 100 L128 104 C132 82 136 60 138 38 Z" fill="url(#scarfRib)" />
-    <path d="M112 40 C114 60 110 80 104 100 L128 104 C132 82 136 60 138 38 Z" fill="url(#scarfFold)" />
-    <path d="M112 40 C114 60 110 80 104 100 L128 104 C132 82 136 60 138 38 Z" fill="rgba(0,0,0,0.12)" />
-    {/* fringes */}
-    {Array.from({ length: 9 }, (_, i) => (
-      <path key={`l${i}`} d={`M${31 + i * 3.2} 115 q${(i % 3) - 1} 6 ${(i % 2) * 1.5 - 0.5} 11`} stroke="#8a2824" strokeWidth={1.6} strokeLinecap="round" fill="none" />
-    ))}
-    {Array.from({ length: 8 }, (_, i) => (
-      <path key={`r${i}`} d={`M${105 + i * 3} 102 q${(i % 3) - 1} 5 ${(i % 2) * 1.5 - 0.5} 9`} stroke="#7a2320" strokeWidth={1.5} strokeLinecap="round" fill="none" />
-    ))}
-    {/* a drip from the melted snow */}
-    <circle cx={44} cy={127} r={1.4} fill="rgba(180,205,240,0.7)" />
-  </svg>
-);
+/** Thursday's pizza in its open box: the slices you haven't eaten yet. */
+export const PizzaBox = ({ left }: { left: number }) => {
+  // six slices around the centre; the first three are the team's, already gone
+  const slices = Array.from({ length: 6 }, (_, i) => i).filter((i) => i >= 6 - left);
+  return (
+    <svg viewBox="0 0 190 110" width="100%" height="100%" aria-hidden="true">
+      {shadow(95, 96, 88, 10)}
+      {/* the lid, standing open behind */}
+      <path d="M22 44 L40 4 L150 4 L168 44 Z" fill="#d9c29b" stroke="#b89a6c" strokeWidth={1.5} />
+      <text x={95} y={30} textAnchor="middle" fontSize={11} fontWeight={700} fill="#a33a2a" fontFamily="Georgia, serif">
+        PİZZA
+      </text>
+      {/* the box */}
+      <path d="M10 48 L180 48 L172 96 L18 96 Z" fill="#e6d3ad" stroke="#b89a6c" strokeWidth={1.5} />
+      <ellipse cx={95} cy={72} rx={70} ry={20} fill="#d2b88c" />
+      {slices.map((i) => {
+        const a0 = (i / 6) * Math.PI * 2;
+        const a1 = ((i + 1) / 6) * Math.PI * 2;
+        const p = (a: number, r: number) => `${95 + Math.cos(a) * r} ${72 + Math.sin(a) * r * 0.29}`;
+        return (
+          <g key={i}>
+            <path d={`M95 72 L${p(a0, 64)} A64 18.5 0 0 1 ${p(a1, 64)} Z`} fill="#e8a13c" stroke="#b5651d" strokeWidth={2.5} />
+            <path d={`M95 72 L${p(a0, 54)} A54 15.6 0 0 1 ${p(a1, 54)} Z`} fill="#f2c45a" />
+            <circle cx={95 + Math.cos((a0 + a1) / 2) * 34} cy={72 + Math.sin((a0 + a1) / 2) * 34 * 0.29} r={4} fill="#b8322a" />
+            <circle cx={95 + Math.cos((a0 + a1) / 2 + 0.25) * 48} cy={72 + Math.sin((a0 + a1) / 2 + 0.25) * 48 * 0.29} r={3} fill="#b8322a" />
+          </g>
+        );
+      })}
+      {left === 0 && <path d="M70 70 q6 -3 12 0 M104 76 q5 -2 9 1" stroke="#b5651d" strokeWidth={2} fill="none" strokeLinecap="round" />}
+    </svg>
+  );
+};
 
 export const Envelope = ({ paid }: { paid: boolean }) => (
   <svg viewBox="0 0 140 80" width="100%" height="100%" aria-hidden="true">
