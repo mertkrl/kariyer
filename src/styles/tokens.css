@@ -1,0 +1,62 @@
+:root {
+  --paper: #efe9d8;
+  --paper-light: #fbf8f0;
+  --paper-muted: #f2ecdd;
+  --paper-dim: #e3dcc6;
+
+  --ink: #221f1b;
+  --ink-dark: #1b1917;
+  --ink-darker: #100e0b;
+  --ink-panel: #15130f;
+
+  --border-muted: #d4cbae;
+  --border-dark: #3a362f;
+  --border-darker: #2e2a22;
+
+  --gold: #c9a227;
+  --red: #a8402f;
+  --red-hover: #8f3527;
+  --teal: #3f6b63;
+  --blue: #4c7fb0;
+  --clay: #b3766b;
+  --plum: #7c6a8c;
+  --green: #6fa37a;
+
+  /* on paper: 4.7:1 */
+  --text-muted: #6e664d;
+  --text-dim: #6b6455;
+  --text-faint: #4a453b;
+  /* the same greys for text on the dark screens (report, top bar, title screens) */
+  --on-dark-muted: rgba(233, 230, 223, 0.74);
+  --on-dark-faint: rgba(233, 230, 223, 0.6);
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* one type and spacing scale for every screen */
+  --fs-label: 11px;
+  --tracking-label: 1.2px;
+  --fs-small: 12.5px;
+  --fs-body: 14px;
+  --fs-speech: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  /* choices you say out loud: interview, landline, meeting */
+  --choice-radius: 12px;
+  --choice-pad: 10px 14px;
+  --choice-hover: var(--gold);
+}
+
+/* reading size, set from Settings: every text-heavy screen multiplies its font sizes by it */
+:root {
+  --ts: 1;
+}

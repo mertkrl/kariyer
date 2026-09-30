@@ -1,0 +1,403 @@
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--ink-darker);
+  color: var(--paper-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #d8c9ae;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.counterBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.counter {
+  font-size: clamp(48px, 10vw, 72px);
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.counterLive {
+  text-shadow: 0 0 24px rgba(201, 162, 39, 0.35);
+}
+
+.counterLabel {
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #d8c9ae;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.brainStage {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.brainArena {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.arenaShake {
+  animation: arenaShake 0.4s ease-in-out 2;
+}
+
+.arenaShakeHard {
+  animation: arenaShakeHard 0.25s linear 4;
+}
+
+@keyframes arenaShake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(4px, -3px);
+  }
+  50% {
+    transform: translate(-4px, 2px);
+  }
+  75% {
+    transform: translate(3px, 3px);
+  }
+}
+
+@keyframes arenaShakeHard {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-8px, 6px);
+  }
+  50% {
+    transform: translate(8px, -6px);
+  }
+  75% {
+    transform: translate(-6px, -8px);
+  }
+}
+
+.brainWrap {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 39, 0.16), transparent 70%);
+  z-index: 2;
+}
+
+.brain {
+  width: 64px;
+  height: 64px;
+  color: var(--gold);
+  z-index: 2;
+  filter: drop-shadow(0 0 14px rgba(201, 162, 39, 0.45));
+  animation: brainIdle 2.4s ease-in-out infinite;
+}
+
+@keyframes brainIdle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.brainScanning .brain {
+  color: var(--blue);
+  animation: brainPulse 0.55s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(76, 127, 176, 0.85));
+}
+
+@keyframes brainPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+.scanRing {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--blue);
+  border-right-color: var(--blue);
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.brainGlitch .brain {
+  color: var(--red);
+  animation: glitchShake 0.1s linear infinite;
+  filter: drop-shadow(0 0 28px rgba(168, 64, 47, 1));
+}
+
+@keyframes glitchShake {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(-6px, 4px) scale(1.08);
+  }
+  50% {
+    transform: translate(6px, -4px) scale(0.94);
+  }
+  75% {
+    transform: translate(-4px, -6px) scale(1.05);
+  }
+  100% {
+    transform: translate(4px, 6px) scale(1);
+  }
+}
+
+.brainBurst .brain {
+  color: var(--gold);
+  animation: brainBurst 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 0 26px rgba(201, 162, 39, 0.9));
+}
+
+@keyframes brainBurst {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.shockwave {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--gold);
+  animation: shockwave 0.7s cubic-bezier(0.1, 0.6, 0.4, 1) both;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shockwaveDelay {
+  animation-delay: 0.15s;
+}
+
+.shockwaveError {
+  border-color: var(--red);
+}
+
+@keyframes shockwave {
+  0% {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.6);
+    opacity: 0;
+  }
+}
+
+.selectedBadge {
+  position: absolute;
+  bottom: -4px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  padding: 9px 20px;
+  border-radius: 24px;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(201, 162, 39, 0.5);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.5s;
+  opacity: 0;
+  z-index: 3;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.selectedBadge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.65);
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0.3) translateY(10px);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.stageLabel {
+  font-size: 13px;
+  color: var(--on-dark-muted);
+  min-height: 18px;
+}
+
+.stageLabelError {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.resultBox {
+  width: 100%;
+  background: var(--ink);
+  border: 1px solid var(--border-dark);
+  border-radius: 14px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.errorBox {
+  border-color: var(--red);
+}
+
+.resultBadge {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 39, 0.18), transparent 72%);
+  margin-bottom: 4px;
+}
+
+.resultBadge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201, 162, 39, 0.4);
+}
+
+.resultBadgeError {
+  background: radial-gradient(circle, rgba(168, 64, 47, 0.2), transparent 72%);
+}
+
+.resultBadgeError::before {
+  border-color: rgba(168, 64, 47, 0.45);
+}
+
+.resultBadgeIcon {
+  width: 38px;
+  height: 38px;
+  color: var(--gold);
+  filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.5));
+}
+
+.resultBadgeError .resultBadgeIcon {
+  color: var(--red);
+  opacity: 0.55;
+  filter: drop-shadow(0 0 8px rgba(168, 64, 47, 0.6));
+}
+
+.resultBadgeSlash {
+  position: absolute;
+  width: 46px;
+  height: 2px;
+  background: var(--red);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(168, 64, 47, 0.7);
+}
+
+.resultTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--paper-muted);
+}
+
+.resultText {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #b8b0a0;
+  margin-bottom: 8px;
+}
+
+/* what your ad did before any filter ran */
+.adNote {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  width: min(560px, calc(100% - 32px));
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(20, 18, 14, 0.88);
+  color: #f3ecd8;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  transform: translateX(-50%);
+}

@@ -1,0 +1,50 @@
+.button {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 16px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.primary {
+  background: var(--teal);
+  color: var(--paper-muted);
+  font-family: var(--font-display);
+}
+
+.danger {
+  background: var(--red);
+  color: var(--paper-muted);
+  font-family: var(--font-display);
+}
+
+.danger:hover {
+  background: var(--red-hover);
+}
+
+.gold {
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--font-display);
+}
+
+.ghost {
+  background: var(--paper-dim);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+}

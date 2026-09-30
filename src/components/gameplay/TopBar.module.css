@@ -1,0 +1,497 @@
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: 84px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  padding: 10px 24px;
+  background:
+    radial-gradient(120% 140% at 50% -40%, rgba(201, 162, 39, 0.1), transparent 60%),
+    linear-gradient(180deg, #221f1b 0%, #171512 100%);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.22);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: var(--paper-muted);
+}
+
+.left,
+.right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.right {
+  justify-content: flex-end;
+}
+
+.sep {
+  width: 1px;
+  height: 38px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.14), transparent);
+}
+
+/* ── Brand ── */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 15px;
+  color: var(--ink);
+  background: linear-gradient(145deg, #e3c257, #b58f1d);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brandText strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--paper-light);
+}
+
+.brandText span {
+  font-size: 11px;
+  color: var(--on-dark-muted);
+}
+
+/* ── Day + week ── */
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dayTop {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.dayNumber {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--paper-light);
+}
+
+.dayOf {
+  font-size: 12px;
+  color: var(--on-dark-muted);
+  font-weight: 600;
+}
+
+.dayName {
+  font-size: 12px;
+  color: #b8b0a0;
+}
+
+.week {
+  display: flex;
+  gap: 4px;
+}
+
+.weekStep {
+  width: 22px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0;
+  position: relative;
+}
+
+.weekDone {
+  background: rgba(201, 162, 39, 0.55);
+}
+
+.weekNow {
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.6);
+}
+
+.weekInterview {
+  height: 14px;
+  margin-top: -4px;
+  width: 16px;
+  background: transparent;
+  box-shadow: none;
+  font-size: 12px;
+  line-height: 14px;
+  text-align: center;
+  color: rgba(201, 162, 39, 0.55);
+}
+
+.weekInterview.weekNow {
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(201, 162, 39, 0.7);
+}
+
+/* ── Clock ── */
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  --clock: var(--paper-light);
+  --clock-dot: #6fc39a;
+}
+
+.clockTime {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--clock);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.clockStatus {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.clockDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--clock-dot);
+  box-shadow: 0 0 6px var(--clock-dot);
+  animation: blink 1.6s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.clockUrgent {
+  --clock: #ec8a78;
+  --clock-dot: #e0574a;
+}
+
+.clockBreak {
+  --clock-dot: var(--gold);
+}
+
+
+
+
+
+
+
+
+/* ── Meters ── */
+
+.meter {
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meterHead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.meterIcon {
+  font-size: 9px;
+  color: var(--meter);
+}
+
+.meterLabel {
+  flex: 1;
+  color: #c9c2af;
+}
+
+.meterValue {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--paper-light);
+}
+
+.delta {
+  position: absolute;
+  right: -4px;
+  top: -14px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 6px;
+  animation: deltaFloat 1.4s ease-out forwards;
+  pointer-events: none;
+}
+
+.deltaUp {
+  color: #0f2a1f;
+  background: #7fd3a8;
+}
+
+.deltaDown {
+  color: #fff;
+  background: #d0584a;
+}
+
+@keyframes deltaFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.meterTrack {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.meterFill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--meter) 60%, transparent), var(--meter));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--meter) 60%, transparent);
+  transition: width 0.45s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+.meterTick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ── Interview quota ── */
+
+.quota {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.quotaHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quotaLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.quotaValue {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.quotaValue span {
+  font-size: 11px;
+  color: var(--on-dark-muted);
+}
+
+.pips {
+  display: flex;
+  gap: 3px;
+}
+
+.pips span {
+  width: 9px;
+  height: 5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 0.3s ease;
+}
+
+.pips .pipOn {
+  background: var(--gold);
+  box-shadow: 0 0 5px rgba(201, 162, 39, 0.5);
+}
+
+.quotaToday {
+  font-size: 10px;
+  color: var(--on-dark-muted);
+}
+
+/* ── Controls ── */
+
+.controls {
+  display: flex;
+  gap: 8px;
+}
+
+.iconButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--paper-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.2s ease;
+}
+
+.iconButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: rotate(35deg);
+}
+
+.iconGlyph {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 1180px) {
+  .brandText {
+    display: none;
+  }
+
+  .meter {
+    width: 120px;
+  }
+}
+
+/* Not enough room to keep the clock at the exact centre: centre it between the two sides. */
+@media (max-width: 1240px) {
+  .bar {
+    grid-template-columns: auto 1fr auto;
+    gap: 18px;
+  }
+
+  .right {
+    gap: 12px;
+  }
+
+  .meter {
+    width: 104px;
+  }
+}
+
+@media (max-width: 960px) {
+  .bar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .left,
+  .center,
+  .right {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clockDot,
+  .delta {
+    animation: none;
+  }
+}
+
+.hardChip {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #a8402f;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+/* at the computer: back to the desk */
+.deskButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: rgba(201, 162, 39, 0.12);
+  color: var(--gold);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.deskButton:hover {
+  background: rgba(201, 162, 39, 0.24);
+}
+
+.money {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.1;
+}
+
+.moneyLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.moneyValue {
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+}

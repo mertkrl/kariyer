@@ -1,0 +1,435 @@
+/* Full-bleed scene under the top bar, with the controls floating over it. */
+.room {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - 84px);
+  overflow: hidden;
+  background: #e4dac4;
+  animation: roomIn 0.6s ease both;
+}
+
+@keyframes roomIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Overlay ── */
+
+.finishButton {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  filter: drop-shadow(0 8px 18px rgba(34, 31, 27, 0.3));
+}
+
+/* A reaction line: slides in, lingers, and is removed by the component after a few seconds. */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: min(620px, calc(100% - 240px));
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: rgba(27, 25, 23, 0.82);
+  backdrop-filter: blur(6px);
+  color: var(--paper-light);
+  font-size: calc(14.5px * var(--ts, 1));
+  font-style: italic;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  animation: toastLife 4.2s ease both;
+}
+
+@keyframes toastLife {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  8%,
+  82% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+}
+
+@media (max-width: 720px) {
+  .toast {
+    max-width: calc(100% - 32px);
+    bottom: 84px;
+  }
+}
+
+/* ── Interactive SVG objects ── */
+
+.hit {
+  cursor: pointer;
+  outline: none;
+  transition: filter 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.hit:hover,
+.hit:focus-visible {
+  filter: drop-shadow(0 0 5px rgba(201, 162, 39, 0.95)) brightness(1.04);
+}
+
+.bump {
+  animation: bump 0.36s ease;
+}
+
+@keyframes bump {
+  0% {
+    transform: none;
+  }
+  40% {
+    transform: translateY(-5px) scale(1.03);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.level {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition: transform 0.45s ease;
+}
+
+.teaFill {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.7s ease;
+}
+
+.teaSurface {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition: transform 0.7s ease;
+}
+
+.steamGroup {
+  pointer-events: none;
+}
+
+.steam {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: steam 2.4s ease-in-out infinite;
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px);
+  }
+}
+
+.stir {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: stir 0.16s ease-in-out 6 alternate;
+}
+
+@keyframes stir {
+  from {
+    transform: translateX(-7px) rotate(-5deg);
+  }
+  to {
+    transform: translateX(7px) rotate(5deg);
+  }
+}
+
+.sugarDrop {
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sugarDrop 0.7s cubic-bezier(0.45, 0, 0.7, 1) forwards;
+}
+
+/* Starts on the sugar bowl, arcs over the rim and drops onto the tea surface (--drop-y). */
+@keyframes sugarDrop {
+  0% {
+    transform: translate(122px, 112px) rotate(0deg);
+    opacity: 1;
+  }
+  45% {
+    transform: translate(58px, -34px) rotate(110deg);
+  }
+  75% {
+    transform: translate(0, 0) rotate(190deg);
+  }
+  96% {
+    transform: translate(0, var(--drop-y)) rotate(230deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, var(--drop-y)) rotate(230deg);
+    opacity: 0;
+  }
+}
+
+.sugarSink {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sugarSink 0.5s ease-in 0.68s forwards;
+}
+
+@keyframes sugarSink {
+  0% {
+    opacity: 0.95;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translateY(var(--sink-y)) rotate(35deg);
+  }
+}
+
+.splash {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: ripple 0.55s ease-out 0.66s forwards;
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+/* ── Lemon ── */
+
+.lemonMover {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition: transform 0.55s cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+
+/* From the plate (96,474) to just above the soup bowl, tilted toward it. */
+.lemonLifted {
+  transform: translate(122px, -66px) rotate(28deg);
+}
+
+.lemonSqueezing {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: lemonSqueeze 0.38s ease-in-out 3;
+}
+
+@keyframes lemonSqueeze {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: scale(1.12, 0.72);
+  }
+}
+
+.juiceDrop {
+  opacity: 0;
+  animation: juiceDrop 0.48s ease-in 2 both;
+}
+
+@keyframes juiceDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(34px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+}
+
+.juiceRipple {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: ripple 0.8s ease-out 3 both;
+}
+
+/* Juice slowly spreads across the soup and settles as a faint sheen. */
+.juiceSheen {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: juiceSpread 1.6s ease-out 0.2s both;
+  opacity: 0.22;
+}
+
+@keyframes juiceSpread {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.15);
+  }
+  100% {
+    opacity: 0.22;
+    transform: scale(1);
+  }
+}
+
+/* While pouring, the liquid is driven frame-by-frame — no CSS easing on top of the physics. */
+.pouring .teaFill,
+.pouring .teaSurface {
+  transition: none;
+}
+
+/* ── SVG text ── */
+
+.noticeTitle {
+  font-family: var(--font-mono);
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 800;
+  letter-spacing: 2px;
+  fill: #221f1b;
+}
+
+.noticeTime {
+  font-family: var(--font-display);
+  font-size: calc(18px * var(--ts, 1));
+  font-weight: 700;
+  fill: #a8402f;
+}
+
+.noticeText {
+  font-family: var(--font-body);
+  font-size: calc(10.5px * var(--ts, 1));
+  fill: #6b6455;
+}
+
+.boardTitle {
+  font-family: var(--font-display);
+  font-size: calc(22px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 2px;
+  fill: #f2efe4;
+}
+
+.boardSub {
+  font-family: var(--font-mono);
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 1px;
+  fill: #e8c86a;
+}
+
+.boardItem {
+  font-family: var(--font-body);
+  font-size: calc(16px * var(--ts, 1));
+  font-weight: 500;
+  fill: #ece8dc;
+}
+
+.boardBullet {
+  fill: #e8c86a;
+}
+
+.boardFoot {
+  font-family: var(--font-body);
+  font-size: calc(12px * var(--ts, 1));
+  font-style: italic;
+  fill: #e8c86a;
+}
+
+.ayranLabel {
+  font-family: var(--font-mono);
+  font-size: calc(9px * var(--ts, 1));
+  font-weight: 800;
+  letter-spacing: 1px;
+  fill: #ffffff;
+}
+
+/* The sill plant stirs in the breeze from the open window. */
+.plantSway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway 5.5s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plantSway,
+  .room,
+  .bump,
+  .steam,
+  .stir,
+  .toast,
+  .lemonSqueezing,
+  .juiceRipple {
+    animation: none;
+  }
+}
+
+.breakTimer {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(20, 18, 14, 0.82);
+  color: #f3ecd8;
+  font-size: calc(14px * var(--ts, 1));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.breakTimerLow {
+  background: var(--red);
+  animation: breakTick 1s ease-in-out infinite;
+}
+
+@keyframes breakTick {
+  50% {
+    transform: scale(1.05);
+  }
+}

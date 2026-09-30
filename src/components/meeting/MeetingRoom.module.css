@@ -1,0 +1,477 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #141210;
+  display: flex;
+  flex-direction: column;
+  animation: roomIn 0.6s ease both;
+}
+
+.header {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: calc(var(--fs-label) * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: #f4efe4;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.header .mono {
+  font-weight: 500;
+  color: rgba(244, 239, 228, 0.8);
+}
+
+.call {
+  /* the dialog sits below the call and takes the room it needs: nothing overlaps */
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 56px 20px 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 30%);
+  gap: 14px;
+  background: radial-gradient(ellipse at 50% 0%, #25282d, #131416 70%);
+}
+
+.share.shareOff {
+  border-color: rgba(244, 239, 228, 0.12);
+}
+
+.share {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0c0d0f;
+  border: 2px solid rgba(217, 160, 200, 0.45);
+}
+
+.shareBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 600;
+  color: rgba(244, 239, 228, 0.85);
+  background: #1b1c20;
+}
+
+.shareDot,
+.rec {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e0574a;
+  animation: blink 1.6s steps(1) infinite;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 58px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.chat {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background: #1b1c20;
+  border: 1px solid rgba(244, 239, 228, 0.1);
+  color: #f4efe4;
+  overflow: hidden;
+}
+
+.chatHead {
+  padding: 7px 12px;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(244, 239, 228, 0.7);
+  border-bottom: 1px solid rgba(244, 239, 228, 0.1);
+}
+
+.chatList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.chatMsg,
+.chatSystem,
+.chatTyping {
+  margin: 0;
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.35;
+  animation: chatIn 0.3s ease both;
+}
+
+.chatMsg b {
+  margin-right: 6px;
+}
+
+.chatMsg em {
+  margin-right: 6px;
+  font-style: normal;
+  font-size: calc(10.5px * var(--ts, 1));
+  color: #e0b04a;
+}
+
+.chatMsg span {
+  display: block;
+}
+
+.chatPrivate {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(224, 176, 74, 0.1);
+  border-left: 2px solid #e0b04a;
+}
+
+.chatSystem,
+.chatTyping {
+  font-size: calc(11.5px * var(--ts, 1));
+  font-style: italic;
+  color: rgba(244, 239, 228, 0.6);
+}
+
+@keyframes chatIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.tile {
+  position: relative;
+  min-height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #222428;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tileTalking {
+  outline-color: var(--c);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+.noCam {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nameplate {
+  max-width: 88%;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(16, 14, 11, 0.62);
+  backdrop-filter: blur(4px);
+  color: #f4efe4;
+  font-weight: 700;
+  font-size: calc(14px * var(--ts, 1));
+  text-align: center;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  transition: color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nameplateTalking {
+  color: var(--c);
+  animation: ring 1.2s ease-out infinite;
+}
+
+.tileName {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: calc(11.5px * var(--ts, 1));
+  font-weight: 700;
+  color: #f4efe4;
+}
+
+.tileName small {
+  font-weight: 500;
+  color: rgba(244, 239, 228, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 10px;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+
+.bars i {
+  width: 2.5px;
+  height: 100%;
+  background: #6bd06b;
+  border-radius: 1px;
+  animation: level 0.6s ease-in-out infinite alternate;
+}
+
+.bars i:nth-child(2) {
+  animation-delay: -0.2s;
+}
+
+.bars i:nth-child(3) {
+  animation-delay: -0.4s;
+}
+
+@keyframes level {
+  from {
+    transform: scaleY(0.3);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes ring {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 70%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.dialog {
+  flex-shrink: 0;
+  align-self: center;
+  margin-bottom: 18px;
+  z-index: 2;
+  width: min(760px, calc(100% - 32px));
+  box-sizing: border-box;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: rgba(16, 14, 11, 0.9);
+  border: 1px solid rgba(244, 239, 228, 0.14);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  color: #f4efe4;
+}
+
+.lineButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.speaker {
+  font-size: calc(14px * var(--ts, 1));
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.speaker small {
+  margin-left: 6px;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 500;
+  color: rgba(244, 239, 228, 0.72);
+}
+
+.narration {
+  color: rgba(244, 239, 228, 0.72);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: calc(11.5px * var(--ts, 1));
+}
+
+.text {
+  margin: 0;
+  min-height: 3em;
+  font-family: var(--font-display);
+  font-size: calc(18px * var(--ts, 1));
+  line-height: 1.5;
+}
+
+.stage {
+  font-style: italic;
+  color: rgba(244, 239, 228, 0.85);
+}
+
+.next {
+  display: block;
+  margin-top: 8px;
+  text-align: right;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  color: #e0b04a;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: var(--choice-pad);
+  border-radius: var(--choice-radius);
+  border: 1px solid rgba(244, 239, 228, 0.2);
+  background: rgba(244, 239, 228, 0.06);
+  color: #f4efe4;
+  font: inherit;
+  font-size: calc(14.5px * var(--ts, 1));
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.option:hover {
+  border-color: var(--choice-hover);
+  background: rgba(201, 162, 39, 0.1);
+  transform: translateX(2px);
+}
+
+.optionIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e0b04a;
+  color: #1b1917;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+@keyframes roomIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nameplateTalking,
+  .chatMsg,
+  .chatSystem,
+  .chatTyping,
+  .bars i,
+  .shareDot,
+  .rec {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .call {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding: 64px 12px 10px;
+    gap: 8px;
+  }
+
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 40px;
+    gap: 6px;
+  }
+
+  .chat {
+    flex: none;
+    height: 86px;
+  }
+
+  .chatHead {
+    display: none;
+  }
+
+  .dialog {
+    margin-bottom: 10px;
+    padding: 12px 14px;
+  }
+
+  .tileName small {
+    display: none;
+  }
+
+  .nameplate {
+    padding: 4px 7px;
+    font-size: calc(11px * var(--ts, 1));
+  }
+}
+
+@media (max-width: 640px) {
+  .text {
+    font-size: calc(16px * var(--ts, 1));
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

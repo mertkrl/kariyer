@@ -1,0 +1,144 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+}
+
+.dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 14, 11, 0.62);
+  animation: fade 0.3s ease both;
+}
+
+/* the lit part: a hole cut by a huge shadow */
+.spot {
+  position: absolute;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 3px rgba(201, 162, 39, 0.9),
+    0 0 0 9999px rgba(16, 14, 11, 0.62);
+  transition:
+    top 0.35s ease,
+    left 0.35s ease,
+    width 0.35s ease,
+    height 0.35s ease;
+  pointer-events: none;
+}
+
+.card {
+  position: absolute;
+  width: min(420px, calc(100% - 32px));
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  background: #fffdf7;
+  border: 1px solid var(--border-muted);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+  animation: cardIn 0.3s ease both;
+  transition:
+    left 0.35s ease,
+    right 0.35s ease;
+}
+
+.centered {
+  top: 34%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* while the CV is lit, the card waits over the right-hand panel */
+.aside {
+  top: 34%;
+  right: 16px;
+  width: min(300px, 30%);
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: calc(var(--fs-label) * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ddd4bd;
+}
+
+.dots .dotOn {
+  background: var(--gold);
+}
+
+.card h3 {
+  margin: 8px 0 6px;
+  font-family: var(--font-display);
+  font-size: calc(20px * var(--ts, 1));
+}
+
+.card p {
+  margin: 0;
+  font-size: calc(13.5px * var(--ts, 1));
+  line-height: 1.55;
+  color: #3a362f;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.back {
+  padding: 8px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+  background: transparent;
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.next {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper-light);
+  font-size: calc(13.5px * var(--ts, 1));
+  font-weight: 700;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+.skip {
+  margin-right: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: calc(12.5px * var(--ts, 1));
+  color: var(--text-muted);
+  text-decoration: underline;
+}

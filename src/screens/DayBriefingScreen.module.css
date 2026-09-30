@@ -1,0 +1,174 @@
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--ink-darker);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  max-width: 1040px;
+  box-sizing: border-box;
+  background: #ede6ce;
+  border: 10px solid #16140f;
+  border-radius: 16px;
+  padding: 24px 30px 26px;
+  position: relative;
+  color: var(--ink);
+}
+
+.stamp {
+  position: absolute;
+  top: -6px;
+  right: 28px;
+  background: var(--red);
+  color: var(--paper-muted);
+  font-weight: 800;
+  font-size: calc(12px * var(--ts, 1));
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  border-radius: 3px;
+  transform: rotate(4deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  font-size: calc(12px * var(--ts, 1));
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+  color: #16140f;
+}
+
+.divider {
+  height: 1px;
+  background: #c9bf9e;
+  margin-bottom: 14px;
+}
+
+.memoBox {
+  background: #e4dcc0;
+  border: 1px solid #c9bf9e;
+  border-radius: 6px;
+  padding: 16px 20px;
+}
+
+.memoField {
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.memoBody {
+  white-space: pre-line;
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.55;
+  color: #2e2a22;
+  margin: 10px 0;
+}
+
+.signature {
+  text-align: right;
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 700;
+  font-style: italic;
+}
+
+.goalsLabel {
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  color: #16140f;
+}
+
+.goals {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.goalRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: calc(13px * var(--ts, 1));
+  color: #2e2a22;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #16140f;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.cta {
+  width: 100%;
+  text-transform: uppercase;
+  font-family: var(--font-mono) !important;
+}
+
+
+/* memo on the left, today's goals and the button on the right: the whole page in one screen */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 820px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+/* the first morning: who you are */
+.intro {
+  max-width: 640px;
+}
+
+.introFacts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding-left: 18px;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.6;
+  color: #2e2a22;
+}
+
+.introLine {
+  margin: 0 0 20px;
+  font-size: calc(15px * var(--ts, 1));
+  font-weight: 700;
+  color: #16140f;
+}

@@ -1,0 +1,41 @@
+.toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-dark);
+  background: rgba(27, 25, 23, 0.75);
+  backdrop-filter: blur(4px);
+  color: var(--paper-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.toggle:hover {
+  background: rgba(27, 25, 23, 0.95);
+  transform: scale(1.06);
+}
+
+.glyph {
+  width: 18px;
+  height: 18px;
+}
+
+.inline {
+  position: static;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-dark);
+}
+
+.inline:hover {
+  background: rgba(255, 255, 255, 0.16);
+}

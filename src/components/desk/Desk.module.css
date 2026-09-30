@@ -1,0 +1,952 @@
+.desk {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #15110c;
+  user-select: none;
+}
+
+/* 1600×900 stage, scaled to cover the area like a photograph */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 50% 50%;
+}
+
+.room {
+  position: absolute;
+}
+
+/* ── wall ── */
+
+.window {
+  position: absolute;
+  left: 1030px;
+  top: 38px;
+  width: 430px;
+  height: 267px;
+}
+
+.windowView {
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 416px;
+  height: 253px;
+}
+
+.aircon {
+  position: absolute;
+  left: 540px;
+  top: 2px;
+  width: 360px;
+  height: 76px;
+  pointer-events: none;
+}
+
+.airflow {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 70px;
+  height: 60px;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 12px);
+  mask-image: linear-gradient(180deg, #000, transparent);
+  animation: airflow 2.4s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes airflow {
+  to {
+    background-position: 0 24px;
+  }
+}
+
+/* the office around the desk: things standing on the carpet (floor line y≈606) */
+.cooler {
+  left: 1658px;
+  top: 344px;
+  width: 124px;
+  height: 280px;
+}
+
+.plant {
+  position: absolute;
+  left: -380px;
+  top: 262px;
+  width: 250px;
+  height: 396px;
+  pointer-events: none;
+}
+
+.extinguisher {
+  position: absolute;
+  left: -560px;
+  top: 360px;
+  width: 70px;
+  height: 132px;
+  pointer-events: none;
+}
+
+.printer {
+  position: absolute;
+  left: 1880px;
+  top: 422px;
+  width: 280px;
+  height: 230px;
+  pointer-events: none;
+}
+
+.windowFrame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.clock {
+  position: absolute;
+  left: 170px;
+  top: 30px;
+  width: 120px;
+  height: 120px;
+}
+
+.poster {
+  position: absolute;
+  left: 80px;
+  top: 172px;
+  width: 280px;
+  height: 200px;
+}
+
+.folders {
+  position: absolute;
+  left: 150px;
+  top: 428px;
+  width: 220px;
+  height: 84px;
+}
+
+.penCup {
+  position: absolute;
+  left: 1142px;
+  top: 446px;
+  width: 80px;
+  height: 120px;
+}
+
+
+.lamp {
+  left: 0;
+  top: 236px;
+  width: 200px;
+  height: 272px;
+}
+
+
+
+
+
+/* an old coffee ring on the oak */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(96, 58, 26, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(96, 58, 26, 0.08);
+  pointer-events: none;
+}
+
+/* ── interactive objects ── */
+
+.obj {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.obj:hover:not(:disabled),
+.obj:focus-visible {
+  outline: none;
+  filter: drop-shadow(0 0 10px rgba(255, 228, 160, 0.95)) brightness(1.06);
+}
+
+.obj:disabled {
+  cursor: default;
+}
+
+.obj::after,
+.note::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translate(-50%, -8px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(20, 18, 14, 0.92);
+  color: #f3ecd8;
+  font: 600 20px var(--font-body);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.obj:hover:not(:disabled)::after,
+.obj:focus-visible::after,
+.note:hover::after {
+  opacity: 1;
+}
+
+.monitor {
+  left: 410px;
+  top: 90px;
+  width: 620px;
+  height: 470px;
+}
+
+.screen {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 596px;
+  height: 335px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1b2436 0%, #0f141f 100%);
+  color: #d8e1ee;
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+.screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0.04) 60%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+.screenOff {
+  background: #050506;
+}
+
+.osBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  background: #253150;
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.osBody {
+  padding: 14px 18px;
+}
+
+.osTitle {
+  font-size: calc(16px * var(--ts, 1));
+  margin-bottom: 10px;
+  color: #aeb9cc;
+}
+
+.osTitle b {
+  color: #f0d77a;
+}
+
+.osList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.osList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.osList li i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.osList li span {
+  margin-left: auto;
+  color: #7c879b;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+.osCurrent {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.osEnter {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1b1917;
+  font-size: calc(14px * var(--ts, 1));
+  font-weight: 700;
+  animation: enterPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes enterPulse {
+  50% {
+    box-shadow: 0 0 0 8px rgba(201, 162, 39, 0);
+    transform: scale(1.04);
+  }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.5);
+  }
+}
+
+.note {
+  position: absolute;
+  padding: 10px 11px;
+  border: 0;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.25;
+  color: #2b2410;
+  cursor: pointer;
+  box-shadow: 2px 5px 8px rgba(30, 20, 10, 0.35);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+}
+
+.note small {
+  display: block;
+  font: 700 9px var(--font-body);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(43, 36, 16, 0.65);
+  margin-bottom: 3px;
+}
+
+.noteYellow {
+  left: 970px;
+  top: 92px;
+  width: 124px;
+  height: 124px;
+  background: linear-gradient(180deg, #f3dc6a 0%, #f8e88c 30%, #f6e27a 100%);
+  transform: rotate(5deg);
+}
+
+.notePink {
+  left: 392px;
+  top: 390px;
+  width: 100px;
+  height: 74px;
+  background: linear-gradient(180deg, #ee9db6 0%, #f6b3c7 100%);
+  transform: rotate(-7deg);
+  font-weight: 600;
+  font-size: calc(15px * var(--ts, 1));
+}
+
+.note:hover {
+  filter: brightness(1.06) drop-shadow(0 0 8px rgba(255, 228, 160, 0.9));
+}
+
+.landline {
+  left: 110px;
+  top: 500px;
+  width: 270px;
+  height: 200px;
+}
+
+.keyboard {
+  left: 470px;
+  top: 604px;
+  width: 500px;
+  height: 104px;
+}
+
+.mouse {
+  left: 990px;
+  top: 632px;
+  width: 170px;
+  height: 100px;
+}
+
+.mug {
+  left: 1236px;
+  top: 512px;
+  width: 130px;
+  height: 150px;
+}
+
+.mobile {
+  left: 1400px;
+  top: 640px;
+  width: 164px;
+  height: 136px;
+}
+
+.orchid {
+  left: 1372px;
+  top: 112px;
+  width: 232px;
+  height: 460px;
+}
+
+.pedestal {
+  left: 30px;
+  top: 822px;
+  width: 300px;
+  height: 100px;
+}
+
+.pedestalNew {
+  animation: drawerCall 2.4s ease-in-out infinite;
+}
+
+@keyframes drawerCall {
+  50% {
+    filter: drop-shadow(0 0 12px rgba(226, 90, 76, 0.85));
+  }
+}
+
+/* ── motion ── */
+
+.buzzing {
+  animation: buzz 0.07s linear 14 alternate;
+}
+
+@keyframes buzz {
+  from {
+    transform: translate(-2px, 0) rotate(-1.2deg);
+  }
+  to {
+    transform: translate(2px, 1px) rotate(1.2deg);
+  }
+}
+
+.rattle {
+  animation: buzz 0.06s linear 6 alternate;
+}
+
+.ringing {
+  animation: ringHop 1.3s ease-in-out infinite;
+}
+
+@keyframes ringHop {
+  0%,
+  60%,
+  100% {
+    transform: none;
+  }
+  64%,
+  72% {
+    transform: translate(1px, -1px);
+  }
+  68%,
+  76% {
+    transform: translate(-1px, 0);
+  }
+}
+
+:global(.deskHandsetRing) {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: handset 1.3s ease-in-out infinite;
+}
+
+@keyframes handset {
+  0%,
+  55%,
+  100% {
+    transform: none;
+  }
+  60%,
+  70%,
+  80% {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+  65%,
+  75% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+
+:global(.deskLedBlink) {
+  animation: led 0.65s steps(2) infinite;
+}
+
+@keyframes led {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+:global(.deskSteam) path {
+  animation: steam 3.2s ease-in-out infinite;
+  opacity: 0;
+}
+
+:global(.deskSteam) path:nth-child(2) {
+  animation-delay: 1.4s;
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  30% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scaleX(1.3);
+  }
+}
+
+:global(.deskSecond) {
+  transform-box: view-box;
+  transform-origin: 60px 60px;
+  animation: second 60s steps(60) infinite;
+}
+
+@keyframes second {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── light ── */
+
+.dusk {
+  position: absolute;
+  left: -900px;
+  top: -400px;
+  width: 3400px;
+  height: 1700px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(18, 24, 52, calc(var(--dusk) * 0.55)) 0%, rgba(14, 12, 24, calc(var(--dusk) * 0.5)) 100%);
+  mix-blend-mode: multiply;
+}
+
+.screenGlow {
+  position: absolute;
+  left: 280px;
+  top: 200px;
+  width: 880px;
+  height: 600px;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 45% at 50% 30%, rgba(160, 190, 255, 0.4), rgba(160, 190, 255, 0) 70%);
+  mix-blend-mode: screen;
+  opacity: calc(var(--dusk) * 0.85);
+  transition: opacity 0.6s ease;
+}
+
+.screenGlowOff {
+  opacity: 0;
+}
+
+.lampGlow {
+  position: absolute;
+  left: 0;
+  top: 300px;
+  width: 620px;
+  height: 460px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 42% 38% at 46% 62%, rgba(255, 214, 150, 0.55), rgba(255, 214, 150, 0) 72%),
+    radial-gradient(circle at 27% 8%, rgba(255, 244, 214, 0.9), rgba(255, 244, 214, 0) 6%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.lampGlowOn {
+  opacity: calc(0.35 + var(--dusk) * 0.65);
+}
+
+/* the monitor's own desktop, seen from the chair */
+.miniDesktop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 70% at 70% 30%, rgba(90, 130, 200, 0.45), transparent 60%),
+    radial-gradient(70% 60% at 20% 90%, rgba(201, 162, 39, 0.22), transparent 60%),
+    linear-gradient(160deg, #1c2a44 0%, #0f1622 70%);
+}
+
+.miniIcons {
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  display: grid;
+  gap: 12px;
+  width: 96px;
+}
+
+.miniIcons span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: #eef2f8;
+  font-size: calc(11px * var(--ts, 1));
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.miniIcons i {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-style: normal;
+  font-weight: 800;
+  font-size: calc(18px * var(--ts, 1));
+  color: #fff;
+}
+
+.miniIcons i b {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #e0463a;
+  font-size: calc(10px * var(--ts, 1));
+  line-height: 18px;
+}
+
+.miniPortal {
+  background: linear-gradient(160deg, #e0b93a, #a8841c);
+  color: #1b1917 !important;
+}
+
+.miniMail {
+  background: linear-gradient(160deg, #4f8fd8, #2a5ea5);
+}
+
+.miniSheet {
+  background: linear-gradient(160deg, #3a9b5c, #1f6e3c);
+}
+
+.miniStatus {
+  position: absolute;
+  right: 20px;
+  bottom: 40px;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.4;
+}
+
+.miniTaskbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: rgba(16, 20, 30, 0.9);
+  color: #d8e1ee;
+  font-size: calc(11px * var(--ts, 1));
+}
+
+/* ── bubbles, in screen space ── */
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+}
+
+.thought {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  max-width: min(660px, 90vw);
+  padding: 12px 22px;
+  border-radius: 12px;
+  background: rgba(20, 18, 14, 0.88);
+  color: #f3ecd8;
+  font: italic 17px/1.45 var(--font-display);
+  text-align: center;
+  pointer-events: none;
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+.flowerCard {
+  position: absolute;
+  right: 5%;
+  top: 14%;
+  width: min(320px, 86vw);
+  padding: 20px 22px 16px;
+  border-radius: 6px;
+  background: #fffdf7;
+  color: var(--ink);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+  animation: pop 0.3s ease;
+}
+
+.flowerText {
+  margin: 0 0 12px;
+  white-space: pre-line;
+  font: italic 17px/1.45 var(--font-display);
+  color: #5e4a1c;
+}
+
+.flowerState {
+  margin: 0 0 14px;
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.flowerActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flowerActions button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-muted);
+  background: var(--paper-light);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+.flowerActions button:first-child {
+  background: #2d3a55;
+  border-color: #2d3a55;
+  color: #fff;
+}
+
+/* ── landline call ── */
+
+.call {
+  position: absolute;
+  right: 3%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(420px, calc(100% - 32px));
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fbf8f0;
+  color: var(--ink);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: callIn 0.3s ease;
+  z-index: 40;
+}
+
+.callHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #1f2024;
+  color: #fff;
+}
+
+.callIcon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #2e9d57;
+  font-size: calc(17px * var(--ts, 1));
+}
+
+.callWho {
+  font-weight: 700;
+  font-size: calc(15px * var(--ts, 1));
+}
+
+.callLine {
+  font-size: calc(12px * var(--ts, 1));
+  opacity: 0.65;
+}
+
+.callTimer {
+  margin-left: auto;
+  font-size: calc(13px * var(--ts, 1));
+  opacity: 0.8;
+}
+
+.callBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  max-height: 42vh;
+  overflow-y: auto;
+}
+
+.callSays,
+.callYou,
+.callTyping {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.4;
+  max-width: 88%;
+  animation: pop 0.25s ease;
+}
+
+.callSays,
+.callTyping {
+  align-self: flex-start;
+  background: var(--paper-dim);
+}
+
+/* what the other side says reads like speech everywhere: interview, meeting, landline */
+.callSays {
+  font-family: var(--font-display);
+  font-size: calc(15px * var(--ts, 1));
+}
+
+.callTyping {
+  letter-spacing: 3px;
+}
+
+.callYou {
+  align-self: flex-end;
+  background: #2d3a55;
+  color: #fff;
+}
+
+.callChoices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+.callChoice {
+  padding: var(--choice-pad);
+  border-radius: var(--choice-radius);
+  border: 1px solid var(--border-muted);
+  background: #fff;
+  text-align: left;
+  font: 600 calc(var(--fs-body) * var(--ts, 1)) / 1.45 var(--font-body);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.callChoice:hover {
+  border-color: var(--choice-hover);
+  background: #fffdf6;
+  transform: translateX(2px);
+}
+
+.callEnd {
+  padding: 0 16px 14px;
+  font-size: calc(12px * var(--ts, 1));
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buzzing,
+  .rattle,
+  .ringing,
+  .pedestalNew,
+  :global(.deskHandsetRing),
+  :global(.deskSteam) path,
+  .osEnter {
+    animation: none;
+  }
+}
+
+@keyframes callIn {
+  from {
+    opacity: 0;
+  }
+}
+
+:global(.deskLedSlow) {
+  animation: led 2.4s steps(2) infinite;
+}
+
+:global(.deskBubble) {
+  animation: bubble 5s ease-in-out infinite;
+}
+
+@keyframes bubble {
+  0%,
+  80% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.callStakes {
+  padding: 7px 16px;
+  background: #f6e7b0;
+  color: #5e4a1c;
+  font: 600 12.5px var(--font-body);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* his note and yours, stuck on the monitor's top bezel like the rent note */
+.noteStuck {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 10px 8px;
+  font-size: calc(13.5px * var(--ts, 1));
+  -webkit-line-clamp: unset;
+  font-style: italic;
+  line-height: 1.2;
+  z-index: 2;
+}
+
+/* a long rule: smaller type so the whole sentence fits on the post-it */
+.noteDense {
+  font-size: calc(10.5px * var(--ts, 1));
+  line-height: 1.18;
+  -webkit-line-clamp: 9;
+}

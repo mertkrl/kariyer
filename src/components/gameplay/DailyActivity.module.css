@@ -1,0 +1,241 @@
+.box {
+  background: var(--paper-light);
+  border: 1px solid var(--border-muted);
+  border-radius: 14px;
+  padding: 18px;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.progressText {
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* One segment per candidate in queue order */
+.segments {
+  display: flex;
+  gap: 4px;
+}
+
+.segment {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--paper-dim);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.segApprove {
+  background: var(--teal);
+}
+
+.segReject {
+  background: var(--red);
+}
+
+.segActive {
+  background: repeating-linear-gradient(-45deg, var(--gold) 0 4px, #e0c35a 4px 8px);
+  animation: activePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes activePulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.tile {
+  border-radius: 10px;
+  padding: 8px 6px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  border: 1px solid transparent;
+}
+
+.tileValue {
+  font-size: calc(24px * var(--ts, 1));
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.tileLabel {
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.tileApprove {
+  background: rgba(63, 107, 99, 0.1);
+  border-color: rgba(63, 107, 99, 0.22);
+  color: var(--teal);
+}
+
+.tileReject {
+  background: rgba(168, 64, 47, 0.08);
+  border-color: rgba(168, 64, 47, 0.2);
+  color: var(--red);
+}
+
+.tilePending {
+  background: var(--paper-muted);
+  border-color: var(--border-muted);
+  color: var(--text-dim);
+}
+
+.metrics {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px dashed var(--border-muted);
+  border-bottom: 1px dashed var(--border-muted);
+  padding: 4px 0;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(12px * var(--ts, 1));
+  color: var(--text-dim);
+  padding: 4px 0;
+}
+
+.metric span.paceBehind {
+  color: var(--red);
+}
+
+.metric span.paceAhead {
+  color: var(--teal);
+}
+
+.metric .mono,
+.metric span:last-child {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.logHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.empty {
+  font-size: calc(12px * var(--ts, 1));
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.log {
+  list-style: none;
+  margin: -4px -6px 0 0;
+  padding: 0 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.logItem {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--paper-dim);
+}
+
+.logItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.logItemNew {
+  animation: logIn 0.35s ease both;
+}
+
+@keyframes logIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+.logAvatar {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  color: #fff;
+}
+
+.logText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.logName {
+  font-size: calc(12.5px * var(--ts, 1));
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logAction {
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.actionApprove {
+  color: var(--teal);
+}
+
+.actionReject {
+  color: var(--red);
+}
+
+.logTime {
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--text-muted);
+}

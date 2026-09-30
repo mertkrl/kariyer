@@ -1,0 +1,855 @@
+.screen {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--ink);
+  color: var(--paper-muted);
+  padding: 22px 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: calc(var(--fs-label) * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: calc(32px * var(--ts, 1));
+  margin: 4px 0 6px;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 640px;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.5;
+  color: #b8b0a0;
+}
+
+.subtitle strong {
+  color: var(--paper-light);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.counter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.counterValue {
+  font-size: calc(22px * var(--ts, 1));
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.counterLabel {
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--text-muted);
+}
+
+.forcedNote {
+  margin: 20px 32px 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(168, 64, 47, 0.1);
+  border: 1px solid rgba(168, 64, 47, 0.3);
+  color: var(--red);
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  padding: 24px 32px 32px;
+  align-items: flex-start;
+}
+
+/* ── Finalist list ── */
+
+.list {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 24px;
+}
+
+.listLabel {
+  font-size: calc(var(--fs-label) * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-muted);
+  background: var(--paper-light);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.listItem:hover {
+  transform: translateX(2px);
+}
+
+.listItemSelected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.35);
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.avatarLarge {
+  width: 64px;
+  height: 64px;
+  font-size: calc(22px * var(--ts, 1));
+  font-family: var(--font-display);
+}
+
+.listText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.listName {
+  font-size: calc(14px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.listRole {
+  font-size: calc(11.5px * var(--ts, 1));
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dayBadge {
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--paper-muted);
+  border-radius: 5px;
+  padding: 2px 5px;
+}
+
+.refBadge {
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  color: var(--red);
+}
+
+.teamBadge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(76, 127, 176, 0.14);
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  color: #2f5f8f;
+}
+
+.readDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+/* ── Profile + transcript ── */
+
+.profile {
+  flex: 1;
+  min-width: 0;
+  background: var(--paper-light);
+  border-radius: 16px;
+  box-shadow: 0 2px 14px rgba(34, 31, 27, 0.1);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: profileIn 0.3s ease both;
+}
+
+@keyframes profileIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.profileHead {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.profileNames h2 {
+  font-family: var(--font-display);
+  font-size: calc(26px * var(--ts, 1));
+  margin: 0;
+}
+
+.profileSub {
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.profileMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 4px;
+  font-size: calc(12.5px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.facts > div {
+  background: var(--paper-muted);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.factLabel {
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  font-size: calc(14px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.transcriptLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(var(--fs-label) * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.qa {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: profileIn 0.35s ease both;
+}
+
+.question,
+.answer {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: calc(14.5px * var(--ts, 1));
+  line-height: 1.55;
+}
+
+.question {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.answer {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: calc(15.5px * var(--ts, 1));
+  color: #3a362f;
+  background: var(--paper-muted);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-left: 34px;
+}
+
+.speaker {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper-muted);
+  font-family: var(--font-mono);
+  font-size: calc(9px * var(--ts, 1));
+  font-weight: 800;
+  font-style: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speakerCandidate {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.historyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.highlight {
+  font-size: calc(12.5px * var(--ts, 1));
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(63, 107, 99, 0.1);
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.hireBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-muted);
+}
+
+.hireHint {
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+/* ── Confirm modal ── */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(16, 14, 11, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal {
+  width: min(420px, 100%);
+  background: var(--paper-light);
+  border-radius: 18px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  animation: profileIn 0.25s ease both;
+}
+
+.modal h2 {
+  font-family: var(--font-display);
+  font-size: calc(22px * var(--ts, 1));
+  margin: 4px 0 0;
+}
+
+.modal p {
+  margin: 0;
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+@media (max-width: 860px) {
+  .body {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .list {
+    width: 100%;
+    position: static;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    padding: 18px 16px;
+  }
+}
+
+/* ── Live interview ── */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.chatEmpty {
+  font-size: calc(14px * var(--ts, 1));
+  font-style: italic;
+  color: var(--text-dim);
+  padding: 14px;
+  border: 1px dashed var(--border-muted);
+  border-radius: 12px;
+}
+
+.thinking {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.thinking i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: dot 1s ease-in-out infinite;
+}
+
+.thinking i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.thinking i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes dot {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--ink);
+  animation: caret 0.8s steps(2) infinite;
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.questionPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-muted);
+}
+
+.questionChip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  border-radius: var(--choice-radius) !important;
+  font-size: calc(14px * var(--ts, 1));
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-muted);
+  background: var(--paper-light);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.questionChip:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: #fffdf6;
+  transform: translateX(2px);
+}
+
+.questionChip:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.chipDone {
+  opacity: 0.6 !important;
+  text-decoration: line-through;
+  text-decoration-color: rgba(34, 31, 27, 0.3);
+}
+
+.chipIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--gold);
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.outOfTime {
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* the question from Hakan Bey's list */
+.chipForbidden {
+  border-color: rgba(168, 64, 47, 0.45) !important;
+  background: rgba(168, 64, 47, 0.07) !important;
+  color: var(--red) !important;
+}
+
+.chipForbidden small {
+  margin-left: auto;
+  padding-left: 10px;
+  font-size: calc(10.5px * var(--ts, 1));
+  opacity: 0.75;
+}
+
+.questionForbidden {
+  color: var(--red);
+}
+
+.whisper {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  max-width: min(560px, 90vw);
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: #1f2024;
+  color: #f3ecd8;
+  font: 14px/1.45 var(--font-body);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  z-index: 20;
+  animation: whisperIn 0.35s ease;
+}
+
+.whisper b {
+  color: var(--gold);
+  margin-right: 4px;
+}
+
+.whisper small {
+  display: block;
+  margin-top: 6px;
+  opacity: 0.5;
+  font-size: calc(11px * var(--ts, 1));
+}
+
+@keyframes whisperIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
+
+/* the team lead's view after each interview */
+.leadNote {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 4px;
+  padding: 12px 14px;
+  border-left: 3px solid #4c7fb0;
+  border-radius: 8px;
+  background: rgba(76, 127, 176, 0.1);
+  font-size: calc(13.5px * var(--ts, 1));
+  line-height: 1.5;
+}
+
+.leadNote b {
+  font-size: calc(12px * var(--ts, 1));
+  letter-spacing: 0.02em;
+}
+
+.leadNote small {
+  opacity: 0.75;
+}
+
+.panelVotes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 12px;
+  text-align: left;
+  font-size: calc(13.5px * var(--ts, 1));
+  line-height: 1.5;
+}
+
+.panelVotes p {
+  margin: 0;
+}
+
+.panelResult {
+  margin-top: 4px !important;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.panelBudget {
+  font-size: 12px !important;
+  opacity: 0.7;
+}
+
+/* fixed-height interview: the page never grows, only the conversation scrolls */
+@media (min-width: 861px) {
+  .screen {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .body {
+    min-height: 0;
+    align-items: stretch;
+    padding-bottom: 24px;
+  }
+
+  .list {
+    position: static;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  .profile {
+    min-height: 0;
+    overflow-y: auto;
+    gap: 14px;
+    padding: 22px 28px;
+  }
+
+  .profile > * {
+    flex-shrink: 0;
+  }
+
+  .profile > .transcript {
+    flex: 1 1 auto;
+    flex-shrink: 1;
+    min-height: auto;
+  }
+
+  .chat {
+    flex: 1;
+    min-height: 170px;
+    max-height: none;
+    /* size never follows the transcript, so the card doesn't grow as answers pile up */
+    contain: size;
+  }
+
+  /* compact chrome so the conversation gets the room */
+  .header {
+    padding: 14px 32px;
+    align-items: center;
+  }
+
+  .title {
+    font-size: calc(26px * var(--ts, 1));
+    margin: 2px 0 4px;
+  }
+
+  .subtitle {
+    max-width: 880px;
+    font-size: calc(13px * var(--ts, 1));
+    line-height: 1.45;
+  }
+
+  .body {
+    padding-top: 16px;
+  }
+
+  .leadNote {
+    margin: 0;
+    padding: 8px 12px;
+    font-size: calc(13px * var(--ts, 1));
+    line-height: 1.4;
+  }
+
+  .hireBar {
+    padding-top: 10px;
+  }
+
+  .questionPicker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .questionPicker .questionChip {
+    font-size: calc(13px * var(--ts, 1));
+    padding: 8px 12px;
+  }
+
+  .questionPicker .outOfTime,
+  .questionPicker .chipEnd,
+  .questionPicker .chipFollow {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Follow-up, Hakan Bey cutting in, the candidate's own question ── */
+.speakerHakan {
+  background: var(--red);
+  color: #fff;
+}
+
+.stage {
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.stageNote {
+  margin-left: 34px;
+  font-size: calc(13px * var(--ts, 1));
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.choiceTag {
+  display: block;
+  margin-top: 3px;
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.chipFollow {
+  border-style: dashed !important;
+  border-color: rgba(76, 127, 176, 0.6) !important;
+}
+
+.chipProtect {
+  border-color: rgba(63, 107, 99, 0.6) !important;
+  background: rgba(63, 107, 99, 0.08) !important;
+}
+
+.chipEnd {
+  justify-content: center;
+  background: var(--ink) !important;
+  color: var(--paper-muted) !important;
+  border-color: var(--ink) !important;
+}
+
+/* short laptop screens (720–800px tall): trim the chrome, keep the conversation */
+@media (min-width: 861px) and (max-height: 820px) {
+  .profile {
+    gap: 10px;
+    padding: 16px 22px;
+  }
+
+  .profile .avatarLarge {
+    width: 46px;
+    height: 46px;
+    font-size: calc(17px * var(--ts, 1));
+  }
+
+  .facts > div {
+    padding: 6px 10px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  /* the highlights are on the CV already; here they only push the chat down */
+  .historyRow {
+    display: none;
+  }
+
+  .hireBar {
+    padding-top: 8px;
+  }
+}

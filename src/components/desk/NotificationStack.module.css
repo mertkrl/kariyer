@@ -1,0 +1,142 @@
+.stack {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 8px;
+  width: min(340px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 15px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(251, 248, 240, 0.97);
+  color: var(--ink);
+  text-align: left;
+  font-family: var(--font-body);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+  pointer-events: auto;
+  cursor: pointer;
+  animation: noteIn 0.3s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.note b {
+  font-size: calc(13.5px * var(--ts, 1));
+}
+
+.note .body {
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.35;
+  opacity: 0.85;
+}
+
+.body strong {
+  font-weight: 700;
+}
+
+/* the app row on top: which app, group or private, when */
+.app {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 1px;
+  font-size: calc(11px * var(--ts, 1));
+  color: rgba(34, 31, 27, 0.6);
+}
+
+.app em {
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.app time {
+  margin-left: auto;
+}
+
+.glyph {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* call notices keep their plain two-line layout */
+.missed span,
+.ring span {
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.35;
+  opacity: 0.85;
+}
+
+.note:hover {
+  transform: translateX(3px);
+}
+
+.mail {
+  background: rgba(238, 243, 251, 0.97);
+}
+
+.missed {
+  background: var(--red);
+  color: #fff;
+  cursor: default;
+}
+
+.missed:hover {
+  transform: none;
+}
+
+.ring {
+  background: #1f2024;
+  color: #fff;
+  outline: 2px solid rgba(255, 80, 60, 0.75);
+  animation:
+    noteIn 0.3s cubic-bezier(0.2, 1.3, 0.4, 1),
+    ringPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes ringPulse {
+  50% {
+    outline-color: rgba(255, 80, 60, 0.12);
+  }
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
+/* a system confirmation from the mail client: calm, blue, professional */
+.scheduled {
+  background: #eef3fb;
+  border-left: 4px solid #2f5f8f;
+  color: #1f2f44;
+  cursor: default;
+}
+
+.centred {
+  transform: translate(-50%, -50%);
+}
+
+.scheduled:hover {
+  transform: none;
+}
+
+.scheduled b {
+  color: #2f5f8f;
+}
+
+.scheduled span {
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.4;
+}

@@ -1,0 +1,420 @@
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--ink-darker);
+  color: var(--paper-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.content {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-items: center;
+  text-align: center;
+}
+
+.eyebrow {
+  font-size: calc(12px * var(--ts, 1));
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 5vw, 34px);
+  line-height: 1.3;
+  color: var(--paper-muted);
+  margin: 0;
+}
+
+.body {
+  font-size: calc(15px * var(--ts, 1));
+  line-height: 1.6;
+  color: #b8b0a0;
+  max-width: 520px;
+  margin: 0;
+}
+
+.scoreRow {
+  display: flex;
+  gap: 32px;
+}
+
+.scoreBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scoreValue {
+  font-family: var(--font-display);
+  font-size: calc(30px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.scoreLabel {
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.scoreDivider {
+  width: 1px;
+  background: var(--border-dark);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-dark);
+  width: 100%;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.statCard {
+  background: var(--ink);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: calc(24px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.statLabel {
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--on-dark-muted);
+  margin-top: 4px;
+}
+
+.realNote {
+  background: #2b2822;
+  border-radius: 10px;
+  padding: 18px 20px;
+  text-align: left;
+  width: 100%;
+}
+
+.realNoteLabel {
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+  margin-bottom: 6px;
+}
+
+.realNoteText {
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.5;
+  color: #c9c2af;
+}
+
+.realNoteSource {
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--on-dark-muted);
+  margin-top: 8px;
+}
+
+.hiddenCanvas {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hireCard {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  text-align: left;
+  background: var(--ink);
+  border: 1px solid var(--border-dark);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.hireAvatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: calc(20px * var(--ts, 1));
+  font-weight: 700;
+  color: #fff;
+}
+
+.hireText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hireLabel {
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hireName {
+  font-family: var(--font-display);
+  font-size: calc(20px * var(--ts, 1));
+  color: var(--paper-muted);
+}
+
+.hireName span {
+  font-family: var(--font-body);
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--on-dark-muted);
+}
+
+.hireOutcome {
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.55;
+  color: #b8b0a0;
+}
+
+.hireVerdict {
+  font-size: calc(14px * var(--ts, 1));
+  font-style: italic;
+  color: var(--paper-muted);
+}
+
+/* ── Achievements ── */
+
+.achievements {
+  width: 100%;
+  text-align: left;
+}
+
+.achHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.achHead .mono {
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.achGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.ach {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-dark);
+  background: var(--ink);
+}
+
+.achIcon {
+  font-size: calc(22px * var(--ts, 1));
+  flex-shrink: 0;
+}
+
+.achText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.achText b {
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--paper-muted);
+}
+
+.achText small {
+  font-size: calc(11px * var(--ts, 1));
+  line-height: 1.35;
+  color: var(--on-dark-muted);
+}
+
+.achNow {
+  border-color: rgba(201, 162, 39, 0.7);
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.18), var(--ink) 70%);
+  box-shadow: 0 0 18px rgba(201, 162, 39, 0.18);
+  animation: achIn 0.5s ease both;
+}
+
+.achEver {
+  opacity: 0.8;
+}
+
+.achLocked {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.achNew {
+  position: absolute;
+  top: -7px;
+  right: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: calc(9.5px * var(--ts, 1));
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+@keyframes achIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+/* ── One year later ── */
+
+.epilogue {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.epiRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--ink);
+  border: 1px solid var(--border-dark);
+  animation: achIn 0.5s ease both;
+}
+
+.epiReject {
+  border-color: rgba(168, 64, 47, 0.55);
+}
+
+.epiHired {
+  border-color: rgba(201, 162, 39, 0.7);
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.14), var(--ink) 70%);
+}
+
+.epiAvatar {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 800;
+}
+
+.epiText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: calc(13.5px * var(--ts, 1));
+  line-height: 1.5;
+  color: #c9c2af;
+}
+
+.epiText b {
+  color: var(--paper-muted);
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.epiText small {
+  font-weight: 500;
+  color: var(--on-dark-muted);
+  font-size: calc(11.5px * var(--ts, 1));
+}
+
+/* ── your week in numbers, and what this means outside the game ── */
+.week,
+.realWorld {
+  width: 100%;
+  text-align: left;
+}
+
+.weekList {
+  margin: 0;
+  padding: 12px 14px 12px 32px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.45;
+}
+
+.weekList b {
+  color: var(--gold);
+}
+
+.realCols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.realCols > div {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.realCols b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.realCols p {
+  margin: 0 0 8px;
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.5;
+  opacity: 0.85;
+}
