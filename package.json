@@ -10,7 +10,8 @@
     "lint": "oxlint --report-unused-disable-directives",
     "test": "node --import ./tests/setup/register.mjs --test \"tests/**/*.test.ts\"",
     "check": "npm run typecheck && npm run lint && npm test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "size": "node scripts/check-size.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
