@@ -4,7 +4,7 @@
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
 import { REPLY_EFFECT, managerReaction, managerTone, replyText } from '../manager';
-import { audioEngine } from '../../audio/audioEngine';
+import { sound } from '../sound';
 import { clampScore } from '../storeDefaults';
 import { takeMessageId } from '../clock';
 
@@ -39,7 +39,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
         ...state.phone.map((m) => (m.id === messageId ? { ...m, answered: true } : m)),
         { id: takeMessageId(), thread: msg.thread, at: state.workdayMinutes, day: state.currentDayIndex, from: 'me', text: reply.text },
       ] });
-    audioEngine.playUi('click');
+    sound().playUi('click');
     window.setTimeout(() => {
       const s2 = get();
       if (s2.phase !== 'gameplay') return;
@@ -57,7 +57,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
               { at: s2.workdayMinutes + reply.aside.after, kind: 'ambient' as const, dayIndex: s2.currentDayIndex, ambient: { thread: reply.aside.thread, text: reply.aside.text } },
             ].sort((a, b) => a.at - b.at)
           : s2.managerScript });
-      audioEngine.playPhoneBuzz();
+      sound().playPhoneBuzz();
     }, 1800);
   },
 
@@ -79,7 +79,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
       managerStance: stance,
       performans: clampScore(state.performans + effect.performans),
       vicdan: clampScore(state.vicdan + effect.vicdan) });
-    audioEngine.playUi('click');
+    sound().playUi('click');
     // The manager "types" for a moment before reacting.
     window.setTimeout(() => {
       const s2 = get();
@@ -96,7 +96,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
             text: managerReaction(answer, managerTone(stance.refusals)) },
         ],
         phoneUnread: { ...s2.phoneUnread, manager: s2.phoneUnread.manager + 1 } });
-      audioEngine.playPhoneBuzz();
+      sound().playPhoneBuzz();
     }, 1600);
   },
 

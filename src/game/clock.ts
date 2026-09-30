@@ -11,7 +11,7 @@ import { type GameState } from './storeTypes';
 import { REVOKE_AT, callFor, revokeInvites, revokeTargets } from './managerCalls';
 import { type RejectTemplate, candidateReplies, sentMails } from './rejectionMails';
 import { TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from './storeDefaults';
-import { audioEngine } from '../audio/audioEngine';
+import { sound } from './sound';
 import { visitorsToday } from './visits';
 import { days } from './data/days';
 import { EXTRA_CANDIDATES } from './data/extraCandidates';
@@ -189,7 +189,7 @@ export function checkDayEnd(minutes: number) {
           notice: open
             ? `Saat 16:00 ve ${open} dosya hâlâ açık. 17:00'ye kadar bitmezse fazla mesaiye kalacaksın.`
             : "Saat 16:00. Ret bildirimleri hazır değil; 17:00'ye kadar gönderilmezse fazla mesaiye kalacaksın." } });
-      audioEngine.playPhoneBuzz();
+      sound().playPhoneBuzz();
     }
   }
   if (!state.overtime && minutes >= WORKDAY_END_MIN) {
@@ -219,7 +219,7 @@ export function checkDayEnd(minutes: number) {
           : open
             ? `Saat 17:00 ama ${open} dosya hâlâ açık. 20:00'ye kadar kalıyorsun — fazla mesai ücreti yok.`
             : 'Saat 17:00 ama ret bildirimleri hazır değil. Gönderene kadar kalıyorsun.' } });
-    audioEngine.playPhoneBuzz();
+    sound().playPhoneBuzz();
     return;
   }
   if (state.overtime && minutes >= OVERTIME_END_MIN) state.finishDay();
@@ -310,7 +310,7 @@ export function deliverManagerMessages(minutes: number) {
     phoneUnread: unread,
     managerRequests: [...state.managerRequests, ...requests],
     managerNudged: nudged });
-  audioEngine.playPhoneBuzz();
+  sound().playPhoneBuzz();
 }
 
 /** Closing the queue before 15:30 counts as "early". */
@@ -343,6 +343,6 @@ export function addExtraFiles(): boolean {
     phone: [...s.phone, { id: takeMessageId(), thread: 'manager', at: s.workdayMinutes, day, from: 'them', text }],
     phoneUnread: { ...s.phoneUnread, manager: s.phoneUnread.manager + 1 },
   });
-  audioEngine.playPhoneBuzz();
+  sound().playPhoneBuzz();
   return true;
 }

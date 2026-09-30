@@ -8,7 +8,7 @@ import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from '
 import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../clock';
 import { MEETING_MINUTES, OPTIONS } from '../meeting';
 import { TEMPLATE_MINUTES, outboxMails } from '../rejectionMails';
-import { audioEngine } from '../../audio/audioEngine';
+import { sound } from '../sound';
 import { candidateDetails } from '../data/candidateDetails';
 import { panelDecision } from '../managerCalls';
 
@@ -17,7 +17,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     const state = get();
     const a = EVENING_ACTIVITIES[state.currentDayIndex]?.find((x) => x.id === id);
     if (!a || state.story.activities.includes(id) || state.story.money < a.cost) return;
-    audioEngine.playUi('confirm');
+    sound().playUi('confirm');
     set({ story: { ...state.story, money: state.story.money - a.cost, spentToday: state.story.spentToday + a.cost, activities: [...state.story.activities, id] } });
   },
 
@@ -53,7 +53,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       const today = state.story.ledger[state.currentDayIndex] ?? {};
       if (!e || today[id] !== undefined) return {};
       const paid = pay && state.story.money >= e.cost;
-      audioEngine.playUi(paid ? 'confirm' : 'click');
+      sound().playUi(paid ? 'confirm' : 'click');
       return {
         story: {
           ...state.story,
@@ -107,7 +107,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     const fit = candidateDetails[id]?.hireFit ?? 3;
     const performans = Math.max(0, Math.min(100, state.performans + (fit - 3) * 6));
     const vicdan = Math.max(0, Math.min(100, state.vicdan + (fit >= 4 ? 4 : fit <= 2 ? -4 : 0)));
-    audioEngine.playUi('confirm');
+    sound().playUi('confirm');
     set({ hiredId: id, recommendedId: recommended, performans, vicdan, phase: 'weekend' });
   },
 
@@ -139,7 +139,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
         notice: late
           ? `${count} ret bildirimi adaylara gönderildi.`
           : `${count} ret bildirimi giden kutusuna alındı ve bugün 17:00'de gönderilecek. O saate kadar kararlarını değiştirebilirsin; değişen adayın bildirimi otomatik olarak geri çekilir.` } });
-    audioEngine.playUi('confirm');
+    sound().playUi('confirm');
     spendMinutes(Math.round(minutes));
     const after = get();
     // past 17:00 there is nothing to wait for

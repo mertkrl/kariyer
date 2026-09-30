@@ -17,7 +17,7 @@ import {
   reprimandText,
   type PhoneMessage,
 } from './manager';
-import { audioEngine } from '../audio/audioEngine';
+import { sound } from './sound';
 import { BREAK_END_MIN, BREAK_START_MIN, formatClock } from './time';
 import { leventMail, type WeekEntry } from './echoes';
 import { MEETING_AT, MEETING_DAY } from './meeting';
@@ -126,9 +126,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       clearSave();
       return;
     }
-    audioEngine.init();
-    audioEngine.setMuted(get().muted);
-    audioEngine.startAmbient();
+    sound().init();
+    sound().setMuted(get().muted);
+    sound().startAmbient();
     set(save.data);
   },
 
@@ -136,9 +136,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     const seed = newSeed();
     const momRand = rngFor(seed, 'mom');
     set({ seed, messageSeq: 1, extraFiles: {}, lineups: makeLineups(rngFor(seed, 'lineups')), momOrder: [...Array(MOM_POOL_SIZE).keys()].sort(() => momRand() - 0.5) });
-    audioEngine.init();
-    audioEngine.setMuted(get().muted);
-    audioEngine.startAmbient();
+    sound().init();
+    sound().setMuted(get().muted);
+    sound().startAmbient();
     set({
       phase: 'jobSelect',
       currentDayIndex: 0,
@@ -314,7 +314,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (state.meeting.state === 'active') return;
     if (state.currentDayIndex === MEETING_DAY && state.meeting.state === 'pending' && state.workdayMinutes >= MEETING_AT && !isOnBreak(state)) {
       set({ meeting: { ...state.meeting, state: 'active' } });
-      audioEngine.playUi('select', 1);
+      sound().playUi('select', 1);
       return;
     }
 
@@ -338,12 +338,12 @@ export const useGameStore = create<GameState>((set, get) => ({
       if (due.kind === 'meeting') {
         // Dragged into an "urgent" meeting: half an hour gone in a blink.
         nextMinutes += 30;
-        audioEngine.playPhoneBuzz();
+        sound().playPhoneBuzz();
       } else if (due.kind === 'calendar') {
         nextMinutes += due.minutes ?? 15;
-        audioEngine.playUi('select', 2);
+        sound().playUi('select', 2);
       } else {
-        audioEngine.playUi(due.kind === 'power' ? 'click' : 'connect');
+        sound().playUi(due.kind === 'power' ? 'click' : 'connect');
       }
       activeEvent = { kind: due.kind, until: nextMinutes + EVENT_LENGTH[due.kind], text: due.text };
     }
@@ -382,7 +382,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const prevDecision = state.decisions[id];
     // Final-round quota: today's cap and the week-wide cap of FINALIST_LIMIT.
     if (decision === 'approve' && prevDecision !== 'approve' && !approvalQuota(state).canApprove) {
-      audioEngine.playUi('click');
+      sound().playUi('click');
       return;
     }
     let performans = state.performans;
@@ -406,7 +406,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (decision === 'approve') dayStats.approved += 1;
     else dayStats.rejected += 1;
 
-    audioEngine.playStamp(decision);
+    sound().playStamp(decision);
 
     set({
       decisions: { ...state.decisions, [id]: decision },
@@ -445,7 +445,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const decisions = { ...state.decisions };
     delete decisions[id];
 
-    audioEngine.playUndo();
+    sound().playUndo();
 
     // a notice waiting in the outbox for this person is pulled back with the decision
     const plannedRejections = { ...state.plannedRejections };

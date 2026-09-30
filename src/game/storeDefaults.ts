@@ -10,7 +10,6 @@ import { FINALIST_LIMIT, days } from './data/days';
 import { MINUTES_PER_TICK } from './time';
 import { START_MONEY } from './story';
 import { type ThreadId } from './manager';
-import { audioEngine } from '../audio/audioEngine';
 export const MUTED_STORAGE_KEY = 'kariyerweb-muted';
 
 export const MUSIC_VOLUME_KEY = 'kariyerweb-music-volume';
@@ -43,12 +42,8 @@ export function storeVolume(key: string, value: number) {
   }
 }
 
-// The engine must know the saved mute state before the very first click sound.
-audioEngine.setMuted(readStoredMuted());
 export const initialMusicVolume = readStoredVolume(MUSIC_VOLUME_KEY);
 export const initialSfxVolume = readStoredVolume(SFX_VOLUME_KEY);
-audioEngine.setMusicVolume(initialMusicVolume);
-audioEngine.setSfxVolume(initialSfxVolume);
 
 /** Today's candidate queue (randomised per game; see lineups.ts). */
 export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>, dayIndex = state.currentDayIndex): string[] {

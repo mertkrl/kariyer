@@ -5,8 +5,17 @@ import './styles/global.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 import { applyTextScale, loadTextScale } from './game/textScale'
+import { audioEngine } from './audio/audioEngine'
+import { connectSound } from './game/sound'
+import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/storeDefaults'
 
 applyTextScale(loadTextScale())
+
+// The engine must know the saved mute state and volumes before the very first click sound.
+audioEngine.setMuted(readStoredMuted())
+audioEngine.setMusicVolume(initialMusicVolume)
+audioEngine.setSfxVolume(initialSfxVolume)
+connectSound(audioEngine)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

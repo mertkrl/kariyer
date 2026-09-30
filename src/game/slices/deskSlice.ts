@@ -6,7 +6,7 @@ import type { GameState } from '../storeTypes';
 import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../desk';
 import { REFERENCE_MINUTES, referenceFor } from '../references';
 import { REPLY_EFFECT, requestIsFair } from '../manager';
-import { audioEngine } from '../../audio/audioEngine';
+import { sound } from '../sound';
 import { callFor, revokeInvites, revokeTargets } from '../managerCalls';
 import { clampScore } from '../storeDefaults';
 import { isOnBreak, spendMinutes } from '../clock';
@@ -81,7 +81,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     if (desk.coffee <= 0) {
       // the kitchen: a fresh mug costs a few minutes
       set({ desk: { ...desk, coffee: COFFEE_SIPS, refills: desk.refills + 1 } });
-      const pour = audioEngine.startPour('brew');
+      const pour = sound().startPour('brew');
       pour.setFill(0.6);
       setTimeout(() => pour.stop(), 1100);
       spendMinutes(REFILL_MINUTES);
@@ -90,7 +90,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     const thoughts = COFFEE_THOUGHTS[Math.min(state.currentDayIndex, COFFEE_THOUGHTS.length - 1)];
     const thought = thoughts[desk.sipsToday] ?? IDLE_THOUGHTS[desk.sipsToday % IDLE_THOUGHTS.length];
     set({ desk: { ...desk, coffee: desk.coffee - 1, sipsToday: desk.sipsToday + 1 } });
-    audioEngine.playSip();
+    sound().playSip();
     return thought;
   },
 
@@ -117,7 +117,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
   callReference: (candidateId) => {
     const state = get();
     if (state.desk.inCall || state.desk.ringing || isOnBreak(state) || !referenceFor(candidateId)) return false;
-    audioEngine.playHandset();
+    sound().playHandset();
     set({ desk: { ...state.desk, inCall: `ref:${candidateId}` } });
     return true;
   },
@@ -125,7 +125,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
   visitCooler: () => {
     const state = get();
     set({ desk: { ...state.desk, coolerVisits: state.desk.coolerVisits + 1 } });
-    audioEngine.playSip();
+    sound().playSip();
     spendMinutes(COOLER_MINUTES);
     return COOLER_THOUGHTS[state.desk.coolerVisits % COOLER_THOUGHTS.length];
   },
@@ -133,7 +133,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
   sendRevoke: (honest) => {
     const state = get();
     if (!state.revokeDraft) return;
-    audioEngine.playUi('confirm');
+    sound().playUi('confirm');
     set({
       ...revokeInvites(state, honest),
       revokeDraft: null,

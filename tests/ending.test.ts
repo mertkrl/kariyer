@@ -1,0 +1,55 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { getEnding, type EndingContext } from '../src/game/engine/ending';
+import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../src/game/engine/achievements';
+
+const ctx = (over: Partial<EndingContext> = {}): EndingContext => ({ refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal', ...over });
+
+test('kırmızı dosya kararı puanlardan önce gelir', () => {
+  const plain = getEnding(90, 90, ctx());
+  const tihek = getEnding(90, 90, ctx({ evidence: 'tihek' }));
+  assert.notEqual(plain.title, tihek.title);
+  assert.equal(tihek.left, true);
+});
+
+test('direktöre gitmek performansa bağlı', () => {
+  assert.notEqual(getEnding(70, 50, ctx({ evidence: 'director' })).title, getEnding(30, 50, ctx({ evidence: 'director' })).title);
+});
+
+test('kira ödenmediyse son metinde anılır', () => {
+  assert.match(getEnding(50, 50, ctx({ evidence: 'anon', rentPaid: false })).body, /kira/);
+  assert.doesNotMatch(getEnding(50, 50, ctx({ evidence: 'anon', rentPaid: true })).body, /kira hâlâ/);
+});
+
+test('çok yüksek vicdan istifa ile biter', () => {
+  const e = getEnding(50, 90, ctx());
+  assert.equal(e.left, true);
+  assert.match(e.title, /İstifa/);
+});
+
+test('bütün puan aralığında bir son vardır', () => {
+  for (let p = 0; p <= 100; p += 5) for (let v = 0; v <= 100; v += 5) assert.ok(getEnding(p, v, ctx()).title.length > 0);
+});
+
+const input = (over: Partial<AchievementInput> = {}): AchievementInput => ({
+  performans: 50, vicdan: 50, aiUses: 1, refusals: 1, complies: 0, undecided: 1, reviewed: 10, avgSeconds: 30, hireFit: 3,
+  momMessages: 2, momAnswered: 0, difficulty: 'normal', weekendChoice: null, finalists: 5, events: 0, dmHonest: 0, ...over,
+});
+
+test('başarım kimlikleri benzersiz', () => {
+  assert.equal(new Set(ACHIEVEMENTS.map((a) => a.id)).size, ACHIEVEMENTS.length);
+});
+
+test('başarımlar kaydedilir, ikinci kez "yeni" sayılmaz', () => {
+  localStorage.clear();
+  const first = unlockAchievements(input({ aiUses: 0, refusals: 3 }));
+  assert.deepEqual(first.fresh.sort(), ['human', 'spine']);
+  const again = unlockAchievements(input({ aiUses: 0 }));
+  assert.deepEqual(again.fresh, []);
+  assert.ok(loadUnlocked().has('spine'));
+});
+
+test('bozuk başarım kaydı oyunu durdurmaz', () => {
+  localStorage.setItem('kariyerweb-achievements', '{bozuk');
+  assert.equal(loadUnlocked().size, 0);
+});
