@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../game/store';
 import { candidateOf } from '../game/data/candidates';
 import { buildCall, type CallChoice, type CallLine } from '../game/weekend';
@@ -16,34 +16,32 @@ import styles from './WeekendScreen.module.css';
 type Stage = 'ringing' | 'talking' | 'ended';
 
 export function WeekendScreen() {
-  const s = useGameStore();
+  const powerCut = useGameStore((st) => st.story.bills.fatura === 'skipped');
   const finishWeekend = useGameStore((st) => st.finishWeekend);
   const setWeekendChoice = useGameStore((st) => st.setWeekendChoice);
-  const steps = useMemo(
-    () =>
-      buildCall({
-        hiredName: s.hiredId ? candidateOf(s.hiredId).name.split(' ')[0] : null,
-        recommendedName: s.recommendedId && s.recommendedId !== s.hiredId ? candidateOf(s.recommendedId).name.split(' ')[0] : null,
-        hiredNeighbour: s.hiredId === 'onur',
-        processed: s.totalStats.approved + s.totalStats.rejected,
-        autoRejected: s.totalStats.autoRejected,
-        refusals: s.managerStance.refusals - (s.difficulty === 'hard' ? 1 : 0),
-        complies: s.managerStance.complies,
-        vicdan: s.vicdan,
-        performans: s.performans,
-        momMessages: s.week.momMessages,
-        momAnswered: s.week.momAnswered,
-        aiUses: s.aiUses,
-        events: s.week.events,
-        dmHonest: Object.values(s.dmHandled).filter((k) => k === 'honest').length,
-        dmIgnored: Object.values(s.dmHandled).filter((k) => k === 'ignore').length,
-        bills: s.story.bills,
-        rentPaid: s.story.rent === 'paid',
-      }),
-    // the week is over — its numbers no longer change
-    // oxlint-disable-next-line react/exhaustive-deps
-    [],
-  );
+  // the week is over — its numbers no longer change, so the call is written once
+  const [steps] = useState(() => {
+    const s = useGameStore.getState();
+    return buildCall({
+      hiredName: s.hiredId ? candidateOf(s.hiredId).name.split(' ')[0] : null,
+      recommendedName: s.recommendedId && s.recommendedId !== s.hiredId ? candidateOf(s.recommendedId).name.split(' ')[0] : null,
+      hiredNeighbour: s.hiredId === 'onur',
+      processed: s.totalStats.approved + s.totalStats.rejected,
+      autoRejected: s.totalStats.autoRejected,
+      refusals: s.managerStance.refusals - (s.difficulty === 'hard' ? 1 : 0),
+      complies: s.managerStance.complies,
+      vicdan: s.vicdan,
+      performans: s.performans,
+      momMessages: s.week.momMessages,
+      momAnswered: s.week.momAnswered,
+      aiUses: s.aiUses,
+      events: s.week.events,
+      dmHonest: Object.values(s.dmHandled).filter((k) => k === 'honest').length,
+      dmIgnored: Object.values(s.dmHandled).filter((k) => k === 'ignore').length,
+      bills: s.story.bills,
+      rentPaid: s.story.rent === 'paid',
+    });
+  });
   const [stage, setStage] = useState<Stage>('ringing');
   const [shown, setShown] = useState<CallLine[]>([]);
   const [cursor, setCursor] = useState(0);
@@ -114,10 +112,10 @@ export function WeekendScreen() {
   const clock = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
   return (
-    <div className={`${styles.screen} ${s.story.bills.fatura === 'skipped' ? styles.powerCut : ''}`}>
+    <div className={`${styles.screen} ${powerCut ? styles.powerCut : ''}`}>
       <div className={styles.room}>
-        <HomeScene dark={s.story.bills.fatura === 'skipped'} />
-        <div className={styles.timeTag}>{s.story.bills.fatura === 'skipped' ? 'Cuma · 21:40 · Evde · annen teyzende · elektrik kesik' : 'Cuma · 21:40 · Evde · annen teyzende'}</div>
+        <HomeScene dark={powerCut} />
+        <div className={styles.timeTag}>{powerCut ? 'Cuma · 21:40 · Evde · annen teyzende · elektrik kesik' : 'Cuma · 21:40 · Evde · annen teyzende'}</div>
       </div>
 
       <div className={styles.phone}>
