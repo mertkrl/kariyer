@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
 import { WEIGHT_TABLE } from '../../game/story';
+import { useDialog } from '../ui/useDialog';
 import styles from './RedFolder.module.css';
 
 /*
@@ -20,13 +21,14 @@ interface Props {
 
 export function RedFolder({ state, photoPages, dayIndex, onDecide, onClose }: Props) {
   const [flash, setFlash] = useState(false);
+  const panel = useDialog<HTMLDivElement>(onClose);
   // Wednesday: page one. Thursday: the second page, taped under the drawer, is there too.
   const pages = dayIndex >= 3 ? 2 : 1;
   const rows = WEIGHT_TABLE.filter((r) => r.page <= pages);
   const decided = state === 'photographed' && photoPages >= pages;
   return (
     <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Kırmızı dosya">
-      <div className={styles.folder} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.folder} ref={panel} onClick={(e) => e.stopPropagation()}>
         <div className={styles.tab}>K-3 · KİŞİYE ÖZEL</div>
         <div className={styles.sheet}>
           <div className={styles.stamp}>GİZLİ</div>

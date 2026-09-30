@@ -120,7 +120,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
           key={e.id}
           className={`${styles.note} ${styles.noteStuck}`}
           style={{ left: e.box[0], top: e.box[1], width: e.box[2], height: e.box[3], background: e.note.color, transform: `rotate(${e.note.rot}deg)` }}
-          data-label={e.label}
+          data-label={e.label} aria-label={e.label}
           onClick={onClick}
         >
           {e.note.lines.map((l) => (
@@ -129,7 +129,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         </button>
       );
     return (
-      <button key={e.id} className={styles.obj} style={{ left: e.box[0], top: e.box[1], width: e.box[2], height: e.box[3] }} data-label={e.label} onClick={onClick}>
+      <button key={e.id} className={styles.obj} style={{ left: e.box[0], top: e.box[1], width: e.box[2], height: e.box[3] }} data-label={e.label} aria-label={e.label} onClick={onClick}>
         {e.art}
       </button>
     );
@@ -169,12 +169,12 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         <div className={styles.printer}>
           <PrinterCabinetArt />
         </div>
-        <button className={`${styles.obj} ${styles.cooler}`} data-label={`Su sebili · yan hak${mins(2)}`} onClick={() => think(visitCooler())}>
+        <button className={`${styles.obj} ${styles.cooler}`} data-label={`Su sebili · yan hak${mins(2)}`} aria-label={`Su sebili · yan hak${mins(2)}`} onClick={() => think(visitCooler())}>
           <WaterCoolerArt />
         </button>
 
         {/* ── back of the desk ── */}
-        <button className={`${styles.obj} ${styles.lamp}`} data-label={lampOn ? 'Lambayı kapat' : 'Lambayı aç'} onClick={() => {
+        <button className={`${styles.obj} ${styles.lamp}`} data-label={lampOn ? 'Lambayı kapat' : 'Lambayı aç'} aria-label={lampOn ? 'Lambayı kapat' : 'Lambayı aç'} onClick={() => {
           audioEngine.playUi('click');
           setLampChoice(!lampOn);
         }}>
@@ -196,7 +196,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
           <button
             className={styles.obj}
             style={{ left: 1040, top: 486, width: 190, height: 110 }}
-            data-label={(desk.pizzaEaten ?? 0) < PIZZA_SLICES ? `Pizza · ${PIZZA_SLICES - (desk.pizzaEaten ?? 0)} dilim${mins(4)}` : 'Boş pizza kutusu'}
+            data-label={(desk.pizzaEaten ?? 0) < PIZZA_SLICES ? `Pizza · ${PIZZA_SLICES - (desk.pizzaEaten ?? 0)} dilim${mins(4)}` : 'Boş pizza kutusu'} aria-label={(desk.pizzaEaten ?? 0) < PIZZA_SLICES ? `Pizza · ${PIZZA_SLICES - (desk.pizzaEaten ?? 0)} dilim${mins(4)}` : 'Boş pizza kutusu'}
             onClick={() => think(eatPizza())}
           >
             <PizzaBox left={PIZZA_SLICES - (desk.pizzaEaten ?? 0)} />
@@ -204,12 +204,12 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         )}
 
         {desk.flower && (
-          <button className={`${styles.obj} ${styles.orchid}`} data-label={flower === 'fresh' ? 'Hoş geldin orkidesi' : 'Orkide · su istiyor'} onClick={() => setFlowerOpen((v) => !v)}>
+          <button className={`${styles.obj} ${styles.orchid}`} data-label={flower === 'fresh' ? 'Hoş geldin orkidesi' : 'Orkide · su istiyor'} aria-label={flower === 'fresh' ? 'Hoş geldin orkidesi' : 'Orkide · su istiyor'} onClick={() => setFlowerOpen((v) => !v)}>
             <OrchidArt state={flower} />
           </button>
         )}
 
-        <button className={`${styles.obj} ${styles.monitor}`} data-label="Bilgisayar" onClick={onOpenPc} disabled={powerOut}>
+        <button className={`${styles.obj} ${styles.monitor}`} data-label="Bilgisayar" aria-label="Bilgisayar" onClick={onOpenPc} disabled={powerOut}>
           <MonitorArt />
           <div className={`${styles.screen} ${powerOut ? styles.screenOff : ''}`}>
             {!powerOut && (
@@ -244,7 +244,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         {extras.filter(onMonitor).map(renderExtra)}
         <button
           className={`${styles.note} ${styles.noteYellow} ${day.ruleText.length > 52 ? styles.noteDense : ''}`}
-          data-label="Post-it"
+          data-label="Post-it" aria-label="Post-it"
           onClick={() => think(`İK Müdürü'nden not: "${day.ruleText}"`)}
         >
           <small>İK Müdürü</small>
@@ -254,7 +254,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         {/* ── front of the desk ── */}
         <button
           className={`${styles.obj} ${styles.landline} ${ringingCaller ? styles.ringing : ''}`}
-          data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
+          data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
           onClick={() => {
             if (ringingCaller) {
               audioEngine.playHandset();
@@ -264,16 +264,16 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         >
           <LandlineArt ringing={!!ringingCaller} display={ringingCaller ?? formatClock(minutes)} />
         </button>
-        <button className={`${styles.obj} ${styles.keyboard}`} data-label="Klavye" onClick={onOpenPc} disabled={powerOut}>
+        <button className={`${styles.obj} ${styles.keyboard}`} data-label="Klavye" aria-label="Klavye" onClick={onOpenPc} disabled={powerOut}>
           <KeyboardArt />
         </button>
-        <button className={`${styles.obj} ${styles.mouse}`} data-label="Fare" onClick={onOpenPc} disabled={powerOut}>
+        <button className={`${styles.obj} ${styles.mouse}`} data-label="Fare" aria-label="Fare" onClick={onOpenPc} disabled={powerOut}>
           <MouseArt />
         </button>
-        <button className={`${styles.obj} ${styles.mug}`} data-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} onClick={() => think(drinkCoffee())}>
+        <button className={`${styles.obj} ${styles.mug}`} data-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} aria-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} onClick={() => think(drinkCoffee())}>
           <MugArt sips={desk.coffee} max={COFFEE_SIPS} />
         </button>
-        <button key={buzz?.id ?? 'phone'} className={`${styles.obj} ${styles.mobile} ${buzz ? styles.buzzing : ''}`} data-label="Cep telefonu" onClick={() => onOpenPhone(buzz?.thread ?? null)}>
+        <button key={buzz?.id ?? 'phone'} className={`${styles.obj} ${styles.mobile} ${buzz ? styles.buzzing : ''}`} data-label="Cep telefonu" aria-label="Cep telefonu" onClick={() => onOpenPhone(buzz?.thread ?? null)}>
           <MobileArt lit={!!buzz || unreadTotal > 0} unread={unreadTotal} />
         </button>
 
@@ -281,7 +281,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         <button
           key={`drawer-${drawerShake}`}
           className={`${styles.obj} ${styles.pedestal} ${drawerShake ? styles.rattle : ''} ${drawer === 'unlocked' ? styles.pedestalNew : ''}`}
-          data-label="Sol alt çekmece"
+          data-label="Sol alt çekmece" aria-label="Sol alt çekmece"
           onClick={() => {
             if (drawer === 'locked') {
               setDrawerShake((n) => n + 1);

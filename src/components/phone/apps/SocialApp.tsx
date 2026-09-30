@@ -150,6 +150,13 @@ export function SocialApp({ rejected, echoes = [], dayIndex = 0, dms = [], dmHan
     window.setTimeout(() => setToast((t) => (t === text ? null : t)), 1800);
   }
 
+  // a story opened takes the keyboard, so the arrow keys page through it
+  const storyRef = useRef<HTMLDivElement>(null);
+  const storyOpen = story !== null;
+  useEffect(() => {
+    if (storyOpen) storyRef.current?.focus({ preventScroll: true });
+  }, [storyOpen]);
+
   // Story auto-advance
   useEffect(() => {
     if (story === null) return;
@@ -565,7 +572,17 @@ export function SocialApp({ rejected, echoes = [], dayIndex = 0, dms = [], dmHan
           className={styles.storyViewer}
           role="button"
           tabIndex={0}
-          aria-label="Hikâye: sağa dokun sonraki, sola dokun önceki"
+          aria-label="Hikâye: sağa dokun ya da sağ ok sonraki, sola dokun ya da sol ok önceki"
+          ref={storyRef}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setStory(null);
+            else if (e.key === 'ArrowLeft') openStory(Math.max(0, story - 1));
+            else if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') openStory(story < STORIES.length - 1 ? story + 1 : null);
+            else return;
+            // handled here: the phone around it must not close on this Escape
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           onClick={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
             const back = e.clientX - r.left < r.width / 3;

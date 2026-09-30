@@ -101,7 +101,7 @@ export function RejectionMails({ ids, autoRejected, dayName, minutes, planned, o
             {ids.map((id) => {
               const c = candidateOf(id);
               return (
-                <li key={id} className={`${styles.row} ${id === focus ? styles.rowOn : ''}`} onClick={() => setFocus(id)}>
+                <li key={id} className={`${styles.row} ${id === focus ? styles.rowOn : ''}`} onClick={() => setFocus(id)} onFocus={() => setFocus(id)}>
                   <span className={styles.who}>
                     <Initials name={c.name} color={c.color} />
                     <span>

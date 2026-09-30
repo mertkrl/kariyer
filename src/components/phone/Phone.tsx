@@ -15,6 +15,7 @@ import { SocialApp, type SocialAuthor } from './apps/SocialApp';
 import type { DmCandidate } from './apps/candidateDms';
 import type { DmKind } from '../../game/store';
 import { TrafficApp } from './apps/TrafficApp';
+import { useDialog } from '../ui/useDialog';
 import styles from './Phone.module.css';
 
 /*
@@ -194,13 +195,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   const chatRef = useRef<HTMLDivElement>(null);
   const tone = managerTone(stance.refusals);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const device = useDialog<HTMLDivElement>(onClose);
 
   const thread = screen.kind === 'chat' ? screen.thread : null;
   const threadMessages = thread ? messages.filter((m) => m.thread === thread) : [];
@@ -378,7 +373,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
 
   return (
     <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Telefon">
-      <div className={styles.device} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.device} ref={device} onClick={(e) => e.stopPropagation()}>
         {/* One display clips everything (status bar, app, home indicator) to the rounded glass. */}
         <div className={`${styles.display} ${screen.kind === 'home' ? styles.displayHome : ''}`}>
           <div className={styles.notch} />
