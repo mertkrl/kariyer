@@ -22,7 +22,7 @@ import { BREAK_END_MIN, BREAK_START_MIN, formatClock } from './time';
 import { leventMail, type WeekEntry } from './echoes';
 import { MEETING_AT, MEETING_DAY } from './meeting';
 import type { Finalist, WeekLog, StoryState, GameState } from './storeTypes';
-import { clearSave, readSave, writeSave } from './save';
+import { checkSave, clearSave, readSave, writeSave, type SaveFile } from './save';
 import { bindStore } from './storeApi';
 import { createDeskSlice } from './slices/deskSlice';
 import { createPhoneSlice } from './slices/phoneSlice';
@@ -113,6 +113,22 @@ function freshWeek(): WeekData {
   };
 }
 
+/**
+ * The checkpoint, if this build of the game can continue it: its fields fit today's state, and
+ * everyone it names is still in the cast. One that doesn't is removed.
+ */
+export function loadSave(): SaveFile | null {
+  const save = readSave();
+  if (!save) return null;
+  const data = checkSave(save.data, { ...freshWeek(), difficulty: 'normal' });
+  const ids = data ? [...(data.lineups ?? []).flat(), ...(data.weekLog ?? []).map((e) => e.id), ...(data.finalists ?? []).map((f) => f.id)] : [];
+  if (!data || ids.some((id) => !(id in candidates))) {
+    clearSave();
+    return null;
+  }
+  return { ...save, data };
+}
+
 export const useGameStore = create<GameState>((set, get) => ({
   ...freshWeek(),
   difficulty: 'normal',
@@ -121,14 +137,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   sfxVolume: initialSfxVolume,
 
   continueGame: () => {
-    const save = readSave();
+    const save = loadSave();
     if (!save) return;
-    // a save naming someone who is no longer in the game (an older build's cast) is not loaded
-    const ids = [...(save.data.lineups ?? []).flat(), ...(save.data.weekLog ?? []).map((e) => e.id), ...(save.data.finalists ?? []).map((f) => f.id)];
-    if (ids.some((id) => !(id in candidates))) {
-      clearSave();
-      return;
-    }
     sound().init();
     sound().setMuted(get().muted);
     sound().startAmbient();

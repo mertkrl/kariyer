@@ -104,3 +104,13 @@ test('onaylayan ve reddeden oyuncu farklı yerlere varır', () => {
   assert.ok(yes.finalists.length > no.finalists.length);
 });
 
+
+test('gerçek bir haftanın gün başı kaydı eksiksiz geri yüklenir', async () => {
+  const { loadSave } = await import('../src/game/store');
+  playWeek(31, 'mixed');
+  const save = loadSave();
+  assert.ok(save, 'son gün başı kaydı geçersiz sayıldı');
+  const kept = Object.keys(save.data).sort();
+  const written = Object.keys(JSON.parse(localStorage.getItem('kariyerweb-save')!).data).sort();
+  assert.deepEqual(kept, written, 'kaydın bazı alanları yüklenirken düştü');
+});

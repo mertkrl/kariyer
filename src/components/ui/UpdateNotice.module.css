@@ -1,0 +1,29 @@
+.notice {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 1000;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 12px 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+  background: rgba(27, 25, 23, 0.92);
+  backdrop-filter: blur(4px);
+  color: var(--paper-muted);
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.action {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--gold);
+  color: var(--ink-dark);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

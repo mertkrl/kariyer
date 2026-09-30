@@ -3,6 +3,7 @@ import { useGameStore } from './game/store';
 import { audioEngine } from './audio/audioEngine';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { SoundToggle } from './components/ui/SoundToggle';
+import { UpdateNotice } from './components/ui/UpdateNotice';
 
 // Only the welcome screen ships in the first bundle; every other screen is its own chunk.
 const SCREENS = {
@@ -72,6 +73,7 @@ function App() {
   return (
     <>
       <Suspense fallback={null}>{renderScreen()}</Suspense>
+      {phase === 'welcome' && <UpdateNotice />}
       {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
     </>
   );

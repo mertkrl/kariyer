@@ -1,8 +1,7 @@
 import { useState, type MouseEvent } from 'react';
-import { useGameStore } from '../game/store';
+import { loadSave, useGameStore } from '../game/store';
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
-import { readSave } from '../game/save';
 import styles from './WelcomeScreen.module.css';
 import { ORCHID_CREDIT } from '../components/desk/OrchidArt';
 
@@ -10,7 +9,7 @@ export function WelcomeScreen() {
   const startGame = useGameStore((s) => s.startGame);
   const continueGame = useGameStore((s) => s.continueGame);
   // a checkpoint from an earlier visit, kept in this browser
-  const [save] = useState(readSave);
+  const [save] = useState(loadSave);
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 

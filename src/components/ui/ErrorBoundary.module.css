@@ -70,3 +70,10 @@
   background: none;
   color: #f4efe4;
 }
+
+.card .note {
+  min-height: 1.5em;
+  margin: 14px 0 0;
+  font-size: calc(13px * var(--ts, 1));
+  color: rgba(244, 239, 228, 0.6);
+}
