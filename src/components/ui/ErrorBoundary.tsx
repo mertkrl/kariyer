@@ -91,8 +91,18 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           </div>
           <p className={styles.note} aria-live="polite">
             {copied === true && 'Rapor panoya kopyalandı. Hata bildirirken yapıştırman yeterli; içinde kişisel bilgi yok.'}
-            {copied === false && 'Panoya erişilemedi. Yukarıdaki hata metnini ve ayarlardaki oyun kodunu paylaşabilirsin.'}
+            {copied === false && 'Panoya erişilemedi; rapor aşağıda seçili. Kopyalayıp hata bildirirken yapıştırabilirsin.'}
           </p>
+          {copied === false && (
+            <textarea
+              className={`${styles.report} mono`}
+              readOnly
+              rows={8}
+              aria-label="Hata raporu"
+              value={report(error, this.state.componentStack)}
+              ref={(el) => el?.select()}
+            />
+          )}
         </div>
       </div>
     );

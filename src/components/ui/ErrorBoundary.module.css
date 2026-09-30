@@ -77,3 +77,16 @@
   font-size: calc(13px * var(--ts, 1));
   color: rgba(244, 239, 228, 0.6);
 }
+
+.report {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(244, 239, 228, 0.12);
+  background: rgba(244, 239, 228, 0.06);
+  color: rgba(244, 239, 228, 0.8);
+  font-size: calc(11px * var(--ts, 1));
+  resize: vertical;
+}

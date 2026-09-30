@@ -114,15 +114,15 @@ function freshWeek(): WeekData {
 }
 
 /**
- * The checkpoint, if this build of the game can continue it: its fields fit today's state, and
- * everyone it names is still in the cast. One that doesn't is removed.
+ * The checkpoint, if this build of the game can continue it: its fields fit today's state, its day
+ * exists, and everyone it names is still in the cast. One that doesn't is removed.
  */
 export function loadSave(): SaveFile | null {
   const save = readSave();
   if (!save) return null;
   const data = checkSave(save.data, { ...freshWeek(), difficulty: 'normal' });
   const ids = data ? [...(data.lineups ?? []).flat(), ...(data.weekLog ?? []).map((e) => e.id), ...(data.finalists ?? []).map((f) => f.id)] : [];
-  if (!data || ids.some((id) => !(id in candidates))) {
+  if (!data || !days[data.currentDayIndex ?? -1] || ids.some((id) => !(id in candidates))) {
     clearSave();
     return null;
   }

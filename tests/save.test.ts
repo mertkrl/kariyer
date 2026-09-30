@@ -47,6 +47,12 @@ test('oyunda artık olmayan adayı anan kayıt silinir', () => {
   assert.equal(localStorage.getItem(KEY), null);
 });
 
+test('olmayan bir güne ait kayıt silinir', () => {
+  state().restart();
+  writeSave({ ...state(), phase: 'briefing', currentDayIndex: 99 });
+  assert.equal(loadSave(), null);
+});
+
 test('devam et kaydı olduğu gibi yükler', () => {
   state().restart();
   writeSave({ ...state(), phase: 'briefing', currentDayIndex: 3, vicdan: 12 });
