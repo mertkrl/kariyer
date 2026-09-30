@@ -41,7 +41,7 @@ export function WeekendScreen() {
         rentPaid: s.story.rent === 'paid',
       }),
     // the week is over — its numbers no longer change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
     [],
   );
   const [stage, setStage] = useState<Stage>('ringing');

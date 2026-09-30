@@ -155,7 +155,6 @@ export function SocialApp({ rejected, echoes = [], dayIndex = 0, dms = [], dmHan
     if (story === null) return;
     const id = window.setTimeout(() => openStory(story < STORIES.length - 1 ? story + 1 : null), 3200);
     return () => window.clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [story, STORIES.length]);
 
   function openStory(i: number | null) {

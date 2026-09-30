@@ -83,7 +83,7 @@ export function FinalScreen() {
   useEffect(() => {
     setCollected(unlockAchievements(input).all);
     // once per final screen
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, []);
   const totalProcessed = totalStats.approved + totalStats.rejected;
 

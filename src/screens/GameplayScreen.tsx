@@ -245,7 +245,7 @@ export function GameplayScreen() {
     audioEngine.stopScan();
     setAnalyzedIds(new Set());
     setAnalyzingId(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, [day.day]);
 
   useEffect(() => {

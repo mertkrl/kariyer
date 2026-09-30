@@ -162,7 +162,7 @@ function Typed({ text, full, onDone }: { text: string; full: boolean; onDone: ()
     }, TICK_MS);
     return () => window.clearInterval(id);
     // typed once per line; the parent keys this component by line
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, []);
   return <>{full ? text : text.slice(0, shown)}</>;
 }

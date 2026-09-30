@@ -115,7 +115,7 @@ export function ApplicationFloodScreen() {
       audioEngine.stopFloodRiser();
       audioEngine.stopScan();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, [currentDayIndex]);
 
   // Once the AI starts sorting, the applicant count counts back down as CVs
@@ -146,7 +146,7 @@ export function ApplicationFloodScreen() {
 
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, [stage, currentDayIndex]);
 
   /** The core swallows a CV: paper "fwip" from its side + a quick pulse of the icon. */
