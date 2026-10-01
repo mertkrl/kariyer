@@ -645,3 +645,27 @@
     grid-template-columns: 150px minmax(200px, 36%) 1fr;
   }
 }
+
+/* A short screen: a slimmer title bar and taskbar leave the open app more room. */
+@media (max-height: 820px) {
+  .window {
+    inset: 0 0 34px;
+  }
+
+  .titleBar {
+    height: 28px;
+  }
+
+  .taskbar {
+    height: 34px;
+  }
+
+  .start {
+    height: 28px;
+  }
+
+  .task {
+    height: 28px;
+  }
+}
+

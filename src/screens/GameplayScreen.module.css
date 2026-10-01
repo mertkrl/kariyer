@@ -1,4 +1,6 @@
 .screen {
+  /* width of the portal's right column; notifications at the computer line up with it */
+  --pc-side: 270px;
   width: 100%;
   height: 100vh;
   height: 100dvh;
@@ -990,7 +992,7 @@
 
 .portalArea .rightPanel {
   position: static;
-  width: 270px;
+  width: var(--pc-side);
   min-height: 0;
   overflow-y: auto;
   gap: 10px;
@@ -1830,4 +1832,71 @@ button.systemIconBadge {
   margin-left: auto;
   color: #2d3a55;
   text-decoration: underline;
+}
+
+/* ── A narrow CV card (a 1024px laptop, a half-screen window) ──
+   The card, not the window, decides. The résumé keeps its two columns (one column was tried:
+   the sidebar's facts then stack under the profile and the CV gets longer, not shorter); what
+   goes is the waste around it. The head drops from four lines to three — name and the
+   reference call share the first, role and place get the full width below — and the decision
+   buttons stop wrapping onto two lines. */
+.portalArea .candidateCard {
+  container: cv / inline-size;
+}
+
+@container cv (max-width: 620px) {
+  .cvHead {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: center;
+  }
+
+  .cvHead > .avatar {
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+
+  .cvHead .candidateNames {
+    display: contents;
+  }
+
+  .cvHead .candidateSub,
+  .cvHead .candidateMeta {
+    grid-column: 2 / -1;
+    margin-top: 0;
+  }
+
+  .cvHead .candidateSub {
+    font-size: calc(13px * var(--ts, 1));
+  }
+
+  .headerRef {
+    grid-column: 3;
+    grid-row: 1;
+    max-width: none;
+  }
+
+  .actionBar > button {
+    padding: 10px 14px;
+    font-size: calc(14px * var(--ts, 1));
+    white-space: nowrap;
+  }
+}
+
+/* a narrow window: the right column gives the CV a little more room */
+@media (max-width: 1100px) {
+  .screen {
+    --pc-side: 232px;
+  }
+
+  /* the AI box's button goes under its title rather than squeezing it onto three lines */
+  .systemHeader {
+    flex-wrap: wrap;
+  }
+
+  .analyzeButton {
+    margin-left: 44px;
+  }
 }

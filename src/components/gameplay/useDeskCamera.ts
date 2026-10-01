@@ -46,8 +46,10 @@ export function useDeskCamera(areaRef: RefObject<HTMLDivElement | null>, atPc: b
   const mobile = onStage(1482, 636);
   const landline = onStage(245, 496);
   const callStackStyle: CSSProperties | undefined = atPc ? undefined : { left: Math.max(12, landline.x - 170), bottom: Math.max(12, area.h - landline.y + 6) };
+  // at the computer they rise over the right column (the day's tally), never over the CV and
+  // its decision buttons
   const stackStyle: CSSProperties = atPc
-    ? { right: 16, bottom: 58 }
+    ? { right: 16, bottom: 58, width: 'var(--pc-side)' }
     : { right: Math.max(12, area.w - mobile.x - 170), bottom: Math.max(12, area.h - mobile.y + 6) };
 
   return { area, stageScale, deskStyle, pcStyle, stackStyle, callStackStyle };

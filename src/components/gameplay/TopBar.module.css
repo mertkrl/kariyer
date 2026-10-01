@@ -351,6 +351,27 @@
   }
 }
 
+/* A short screen: the bar keeps everything, a little tighter, so the workday gets the height. */
+@media (max-height: 820px) {
+  .bar {
+    min-height: 64px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .clockTime {
+    font-size: 26px;
+  }
+
+  .clockStatus {
+    margin-top: 2px;
+  }
+
+  .day {
+    gap: 5px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .clockDot,
   .delta {
