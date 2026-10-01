@@ -1,8 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { useGameStore } from './game/store';
+import { usePhase } from './game/storeLoader';
 import { audioEngine } from './audio/audioEngine';
 import { WelcomeScreen } from './screens/WelcomeScreen';
-import { SoundToggle } from './components/ui/SoundToggle';
 import { UpdateNotice } from './components/ui/UpdateNotice';
 
 // Only the welcome screen ships in the first bundle; every other screen is its own chunk.
@@ -26,9 +25,11 @@ const FinalRoundScreen = lazy(() => SCREENS.FinalRoundScreen().then((m) => ({ de
 const FinalScreen = lazy(() => SCREENS.FinalScreen().then((m) => ({ default: m.FinalScreen })));
 const WeekendScreen = lazy(() => SCREENS.WeekendScreen().then((m) => ({ default: m.WeekendScreen })));
 const ReckoningScreen = lazy(() => SCREENS.ReckoningScreen().then((m) => ({ default: m.ReckoningScreen })));
+// reads the game's mute setting, so it comes with the game rather than with the first screen
+const SoundToggle = lazy(() => import('./components/ui/SoundToggle').then((m) => ({ default: m.SoundToggle })));
 
 function App() {
-  const phase = useGameStore((s) => s.phase);
+  const phase = usePhase();
 
   // Music enters when the workday starts (GameplayScreen then drives work/break/paused).
   // Intro screens stay silent so the application-flood sound design reads clearly.
@@ -72,9 +73,11 @@ function App() {
 
   return (
     <>
-      <Suspense fallback={null}>{renderScreen()}</Suspense>
+      <Suspense fallback={null}>
+        {renderScreen()}
+        {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
+      </Suspense>
       {phase === 'welcome' && <UpdateNotice />}
-      {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
     </>
   );
 }

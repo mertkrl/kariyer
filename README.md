@@ -47,7 +47,7 @@ Oyun mantığı ses çalmak için `game/sound.ts` üzerinden konuşur; ses motor
 
 ```
 src/
-  App.tsx                 Aşamaya göre ekran seçimi (ekranlar ihtiyaç anında yüklenir)
+  App.tsx                 Aşamaya göre ekran seçimi (ekranlar ve oyunun kendisi ihtiyaç anında yüklenir)
   screens/                Her oyun aşamasının ekranı
   components/
     desk/ pc/ phone/      Masa, bilgisayar ve telefon
@@ -56,6 +56,8 @@ src/
     dayend/ story/ ui/    Gün sonu sahneleri, kırmızı dosya, ortak bileşenler
   game/
     store.ts              Oyun durumu, başlangıç değerleri ve gün döngüsü (zustand)
+    storeLoader.ts        Store'u ilk ekrandan sonra arka planda yükler; App aşamayı buradan okur
+    prefs.ts              Ses tercihleri (store'dan bağımsız, ilk sesten önce okunur)
     slices/               Telefon, masa, hikâye ve ayar eylemleri
     clock.ts              Saat ilerledikçe olanlar: mesajlar, aramalar, 17:00 bildirimleri, gün sonu
     storeDefaults.ts      Başlangıç kayıtları ve küçük saf yardımcılar

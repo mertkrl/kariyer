@@ -7,7 +7,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
-const BUDGET_KB = 160;
+const BUDGET_KB = 100;
 const dist = 'dist';
 const kb = (bytes) => Math.round(bytes / 102.4) / 10;
 const gz = (path) => gzipSync(readFileSync(path)).length;

@@ -8,7 +8,7 @@ import { applyTextScale, loadTextScale } from './game/textScale'
 import { audioEngine } from './audio/audioEngine'
 import { connectSound } from './game/sound'
 import { registerServiceWorker } from './swUpdate'
-import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/storeDefaults'
+import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/prefs'
 
 applyTextScale(loadTextScale())
 

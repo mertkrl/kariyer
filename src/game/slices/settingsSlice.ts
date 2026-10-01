@@ -3,7 +3,7 @@
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
-import { MUSIC_VOLUME_KEY, MUTED_STORAGE_KEY, SFX_VOLUME_KEY, storeVolume } from '../storeDefaults';
+import { MUSIC_VOLUME_KEY, MUTED_STORAGE_KEY, SFX_VOLUME_KEY, storeVolume } from '../prefs';
 import { sound } from '../sound';
 
 export const createSettingsSlice = (set: SetState, get: GetState): Pick<GameState, 'setMusicVolume' | 'setSfxVolume' | 'toggleMute'> => ({

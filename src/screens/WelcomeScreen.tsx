@@ -1,15 +1,22 @@
-import { useState, type MouseEvent } from 'react';
-import { loadSave, useGameStore } from '../game/store';
+import { useEffect, useMemo, useState, type MouseEvent } from 'react';
+import { readSave } from '../game/save';
+import { loadStore, useLoadedStore, withStore } from '../game/storeLoader';
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
 import styles from './WelcomeScreen.module.css';
 import { ORCHID_CREDIT } from '../components/desk/OrchidArt';
 
 export function WelcomeScreen() {
-  const startGame = useGameStore((s) => s.startGame);
-  const continueGame = useGameStore((s) => s.continueGame);
-  // a checkpoint from an earlier visit, kept in this browser
-  const [save] = useState(loadSave);
+  // This screen draws before the game has loaded; the game is fetched meanwhile.
+  const store = useLoadedStore();
+  useEffect(() => {
+    void loadStore();
+  }, []);
+  const startGame = () => withStore((m) => m.useGameStore.getState().startGame());
+  const continueGame = () => withStore((m) => m.useGameStore.getState().continueGame());
+  // a checkpoint from an earlier visit, kept in this browser: taken at its word at first, then
+  // checked against the game once it has loaded (a save this build can't continue disappears)
+  const save = useMemo(() => (store ? store.loadSave() : readSave()), [store]);
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
