@@ -1881,7 +1881,6 @@ button.systemIconBadge {
   .actionBar > button {
     padding: 10px 14px;
     font-size: calc(14px * var(--ts, 1));
-    white-space: nowrap;
   }
 }
 
@@ -1898,5 +1897,36 @@ button.systemIconBadge {
 
   .analyzeButton {
     margin-left: 44px;
+  }
+}
+
+/* A short screen: the decision row gives the CV back what it can — slimmer buttons, and on a
+   wide card the quota sits beside them instead of on a line of its own. */
+@media (max-height: 820px) {
+  .actionArea {
+    gap: 4px;
+  }
+
+  .actionBar > button {
+    padding: 10px 14px;
+    font-size: calc(14px * var(--ts, 1));
+  }
+
+  @container cv (min-width: 621px) {
+    .actionArea {
+      flex-direction: row;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .quotaLine {
+      flex: 1;
+      min-width: 0;
+      line-height: 1.35;
+    }
+
+    .actionBar {
+      flex: 0 0 62%;
+    }
   }
 }
