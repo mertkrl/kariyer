@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { Candidate, EvaluatedField } from '../../game/types';
 import type { candidateDetails } from '../../game/data/candidateDetails';
 import { questionsFor } from '../../game/lineups';
@@ -25,9 +26,33 @@ export function Verdict({ field, candidate }: { field?: EvaluatedField; candidat
 
 type Details = (typeof candidateDetails)[string];
 
+/**
+ * True while the CV runs on below the fold. On a short screen the CV scrolls inside the card,
+ * and its bottom edge fades out so the company's questions aren't missed.
+ */
+function useMoreBelow() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    for (const child of el.children) ro.observe(child);
+    el.addEventListener('scroll', check, { passive: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', check);
+    };
+  }, []);
+  return { ref, more };
+}
+
 export function CvBody({ candidate, details, scanning, verdicts }: { candidate: Candidate; details?: Details; scanning: boolean; verdicts: boolean }) {
+  const { ref, more } = useMoreBelow();
   return (
-    <div className={styles.cvBody}>
+    <div ref={ref} className={`${styles.cvBody} ${more ? styles.cvBodyMore : ''}`}>
       <div className={styles.cvMain}>
         <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(1)}>
           <h3>

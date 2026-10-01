@@ -111,7 +111,8 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           </header>
 
-          <CvBody candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} />
+          {/* keyed by person: each CV opens at its top, not where the last one was scrolled to */}
+          <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} />
 
           <div className={styles.grow} />
 

@@ -1626,6 +1626,66 @@ button.systemIconBadge {
   scrollbar-width: thin;
 }
 
+/* more of the CV below: its bottom edge fades out */
+.cvBodyMore {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
+}
+
+/* A short screen (a 13" laptop, a browser with toolbars): the CV tightens up so that it fits
+   on one screen for most people; the longest still scroll, with the fade above. */
+@media (max-height: 820px) {
+  .portalArea .candidateCard {
+    padding: 12px 18px;
+    gap: 8px;
+  }
+
+  .cvHead {
+    padding-bottom: 8px;
+  }
+
+  .cvBody {
+    gap: 12px;
+  }
+
+  .cvMain,
+  .cvSide {
+    gap: 6px;
+  }
+
+  .cvSide {
+    padding: 8px 10px;
+  }
+
+  .cvSection h3 {
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+  }
+
+  .cvSection p,
+  .cvList,
+  .cvTimeline {
+    font-size: calc(12.5px * var(--ts, 1));
+    line-height: 1.35;
+  }
+
+  .cvTimeline {
+    gap: 4px;
+  }
+
+  .cvQa div {
+    font-size: calc(12px * var(--ts, 1));
+    line-height: 1.35;
+  }
+
+  .cvQuote {
+    font-size: calc(12.5px * var(--ts, 1)) !important;
+  }
+
+  .cvStrong {
+    font-size: calc(17px * var(--ts, 1)) !important;
+  }
+}
+
 /* the ATS parse report inside the AI note: what the machine actually counted */
 .ats {
   margin-top: 8px;
