@@ -14,7 +14,9 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  /* clip, not hidden: the zoomed desk overflows this box, and a hidden overflow can still be
+     scrolled — focusing a button on the computer used to slide the whole view sideways */
+  overflow: clip;
   background: #15110c;
 }
 
