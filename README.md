@@ -70,7 +70,9 @@ src/
     player.ts             Oyuncunun adı (tek yerden değişir)
     save.ts               Tarayıcıdaki kayıt (localStorage), doğrulama ve sürüm geçişleri
     sound.ts              Oyun mantığının ses çıkışı (main.tsx'te ses motoruna bağlanır)
-  audio/                  Ses motoru (müzik dosyaları public/audio altında, scripts/ ile üretilir)
+  audio/                  Ses: audioEngine (ayarlar, müzik, kısa sesler), engineCore (ses grafiği ve
+                          sentez araçları), scenes/ (ofis, sokak, hava, öğle arası, tarama…)
+                          Müzik dosyaları public/audio altında, scripts/ ile üretilir
 docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları
 ```
 
