@@ -1612,6 +1612,20 @@ button.systemIconBadge {
   display: none;
 }
 
+/* On a short screen the CV scrolls inside the card; the header and the decision buttons stay
+   put. Without this the file spilled over the buttons and took their clicks. */
+.candidateCard > .cvHead,
+.candidateCard > .actionArea,
+.candidateCard > .decisionBar {
+  flex-shrink: 0;
+}
+
+.candidateCard > .cvBody {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
 /* the ATS parse report inside the AI note: what the machine actually counted */
 .ats {
   margin-top: 8px;
