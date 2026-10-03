@@ -9,6 +9,7 @@ import { days } from '../src/game/data/days';
 import { REQUESTS } from '../src/game/data/phoneScript';
 import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/game/lineups';
 import { rngFor } from '../src/game/rng';
+import { jobDrafts, salaryText } from '../src/game/data/jobs';
 
 /** The label each verdict opens its system line with. Scoring reads `verdict`; players read the line. */
 const LABELS = {
@@ -90,5 +91,13 @@ test('yapay zekâ puanı 0–100 arasında, sabit ve sistemin önerisiyle aynı 
     const below = Math.max(...(byVerdict.get(order[i - 1]) ?? [0]));
     const above = Math.min(...(byVerdict.get(order[i]) ?? [100]));
     assert.ok(below < above, `${order[i - 1]} en yüksek ${below} ≥ ${order[i]} en düşük ${above}`);
+  }
+});
+
+test('her ilan maaş aralığını açıkça yazar', () => {
+  for (const j of jobDrafts) {
+    assert.ok(Number.isInteger(j.salary.min) && j.salary.min > 0, `${j.id}: alt sınır yok`);
+    assert.ok(j.salary.max >= j.salary.min, `${j.id}: üst sınır alttan küçük`);
+    assert.match(salaryText(j), /^\d{1,3}(\.\d{3})* – \d{1,3}(\.\d{3})* TL/, j.id);
   }
 });

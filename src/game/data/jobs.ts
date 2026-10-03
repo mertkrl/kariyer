@@ -24,7 +24,7 @@ export const jobDrafts: JobDraft[] = [
     companyLine: 'Tavrinsa Labs Inc.',
     location: 'İstanbul (Hibrit)',
     employmentType: 'Tam Zamanlı',
-    salaryRange: '35.000 - 55.000 TL',
+    salary: { min: 35000, max: 55000 },
     summary:
       'Ekibimize katılacak yazılım geliştiriciler arıyoruz. Deneyim seviyesi pozisyona göre değerlendirilecektir.',
     aboutRole:
@@ -56,7 +56,7 @@ export const jobDrafts: JobDraft[] = [
     companyLine: 'Tavrinsa Labs Inc.',
     location: 'İstanbul (Ofisten)',
     employmentType: 'Tam Zamanlı',
-    salaryRange: '32.000 - 48.000 TL',
+    salary: { min: 32000, max: 48000 },
     summary:
       'Hızlı tempoya ayak uydurabilecek, "aile gibi" bir ekipte çalışmak isteyen dinamik adaylar arıyoruz.',
     aboutRole:
@@ -88,7 +88,7 @@ export const jobDrafts: JobDraft[] = [
     companyLine: 'Tavrinsa Labs Inc.',
     location: 'İstanbul (Ofisten)',
     employmentType: 'Tam Zamanlı',
-    salaryRange: 'Performansa Bağlı (Taban: 30.000 TL)',
+    salary: { min: 30000, max: 50000, extra: 'performans primi' },
     summary:
       'Hedeflere ulaşmayı önceliklendiren, rekabetçi bir ortamda çalışabilecek profesyoneller arıyoruz.',
     aboutRole:
@@ -113,3 +113,9 @@ export const jobDrafts: JobDraft[] = [
     ],
   },
 ];
+
+/** An ad's pay as it is printed: "35.000 – 55.000 TL", with what comes on top. */
+export function salaryText({ salary }: Pick<JobDraft, 'salary'>) {
+  const tl = (n: number) => n.toLocaleString('tr-TR');
+  return `${tl(salary.min)} – ${tl(salary.max)} TL${salary.extra ? ` + ${salary.extra}` : ''}`;
+}

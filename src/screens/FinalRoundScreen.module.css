@@ -792,3 +792,93 @@
     max-height: 60vh;
   }
 }
+
+/* ── Friday morning: cutting the shortlist down to a day (PoolPicker) ── */
+.picker {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  width: min(760px, 100%);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 24px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pickerTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(24px * var(--ts, 1));
+}
+
+.pickerLead {
+  margin: 0;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.pickerList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pickerItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-muted);
+  background: var(--paper-light);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pickerItem input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal);
+  flex-shrink: 0;
+}
+
+.pickerOn {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 2px rgba(63, 107, 99, 0.15);
+}
+
+.pickerLocked {
+  cursor: default;
+  background: var(--paper-muted);
+}
+
+.pickerSource {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: calc(11.5px * var(--ts, 1));
+  color: var(--text-dim);
+  text-align: right;
+}
+
+.pickerFoot {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  bottom: 0;
+  padding-top: 10px;
+  background: linear-gradient(transparent, var(--paper) 30%);
+}
+
+@media (max-width: 760px) {
+  .pickerList {
+    grid-template-columns: 1fr;
+  }
+}

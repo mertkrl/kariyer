@@ -1,7 +1,7 @@
 import { audioEngine } from '../audio/audioEngine';
 import { useState, type CSSProperties } from 'react';
 import { useGameStore } from '../game/store';
-import { jobDrafts } from '../game/data/jobs';
+import { jobDrafts, salaryText } from '../game/data/jobs';
 import { Button } from '../components/ui/Button';
 import styles from './JobSelectScreen.module.css';
 
@@ -74,7 +74,8 @@ export function JobSelectScreen() {
                 </div>
                 <div className={`${styles.postingFact} ${styles.postingFactSalary}`}>
                   <span className={styles.postingFactIcon}>💰</span>
-                  {selectedJob.salaryRange}
+                  <span className="sr-only">Maaş aralığı: </span>
+                  {salaryText(selectedJob)}
                 </div>
               </div>
             </div>

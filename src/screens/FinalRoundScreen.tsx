@@ -33,6 +33,9 @@ function Note({ children }: { children: ReactNode }) {
 /** When nobody was advanced all week, management fills the final with its internal reference. */
 const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];
 /** The rest of the team screened too: their shortlists sit in the same room on Friday. */
+/** How many people one interview day holds; a longer list is cut down in the morning. */
+export const INTERVIEW_LIMIT = 6;
+
 const COLLEAGUES: Finalist[] = [
   { id: 'nehir', day: 0, by: 'ayse' },
   { id: 'berk', day: 0, by: 'ayse' },
@@ -99,7 +102,12 @@ export function FinalRoundScreen() {
   // Hakan Bey leans over once in the day, after the first question that isn't on his list
   const [whispered, setWhispered] = useState(false);
   const forced = finalists.length === 0;
-  const pool = [...(forced ? FALLBACK : finalists), ...COLLEAGUES.filter((c) => !finalists.some((f) => f.id === c.id))];
+  const everyone = [...(forced ? FALLBACK : finalists), ...COLLEAGUES.filter((c) => !finalists.some((f) => f.id === c.id))];
+  // who Hakan Bey wants in the room stays in it: his nephew and everyone he asked you to call
+  const locked = new Set(everyone.filter((f) => f.byManager || f.id === NEPHEW_ID || pastRequests.some((r) => r.want === 'approve' && r.candidateId === f.id)).map((f) => f.id));
+  // a long shortlist is cut down to a day's worth of interviews before the first one
+  const [chosen, setChosen] = useState<string[] | null>(() => (everyone.length <= INTERVIEW_LIMIT ? everyone.map((f) => f.id) : null));
+  const pool = chosen ? everyone.filter((f) => chosen.includes(f.id)) : everyone;
 
   const [selectedId, setSelectedId] = useState(pool[0].id);
   // Each candidate's interview so far, in order; one answer typing live at a time.
@@ -271,269 +279,280 @@ export function FinalRoundScreen() {
         </div>
       )}
 
+      {chosen === null ? (
+        <PoolPicker
+          everyone={everyone}
+          locked={locked}
+          onConfirm={(ids) => {
+            setChosen(ids);
+            setSelectedId(ids[0]);
+          }}
+        />
+      ) : (
       <div className={styles.body}>
-        <aside className={styles.list} aria-label="Mülakat adayları">
-          <div className={styles.listLabel}>Mülakat Adayları</div>
-          {pool.map((f, i) => {
-            const c = candidateOf(f.id);
-            const isSelected = f.id === selectedId;
-            return (
-              <button
-                key={f.id}
-                className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ''}`}
-                onClick={() => select(f.id, i)}
-                disabled={busy && !isSelected}
-                title={busy && !isSelected ? 'Önce bu görüşmedeki konuşmayı tamamla' : undefined}
-              >
-                <span className={styles.avatar} style={{ background: c.color }}>
-                  {c.initials}
-                </span>
-                <span className={styles.listText}>
-                  <span className={styles.listName}>{c.name}</span>
-                  <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
-                  <span className={`${styles.listState} ${styles['state_' + stateOf(f.id)]}`}>
-                    {{ waiting: 'Görüşülmedi', active: 'Görüşme sürüyor', done: 'Görüşüldü' }[stateOf(f.id)]}
+          <aside className={styles.list} aria-label="Mülakat adayları">
+            <div className={styles.listLabel}>Mülakat Adayları</div>
+            {pool.map((f, i) => {
+              const c = candidateOf(f.id);
+              const isSelected = f.id === selectedId;
+              return (
+                <button
+                  key={f.id}
+                  className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ''}`}
+                  onClick={() => select(f.id, i)}
+                  disabled={busy && !isSelected}
+                  title={busy && !isSelected ? 'Önce bu görüşmedeki konuşmayı tamamla' : undefined}
+                >
+                  <span className={styles.avatar} style={{ background: c.color }}>
+                    {c.initials}
                   </span>
-                </span>
-                <span className={styles.listMeta}>
-                  {f.by ? <span className={styles.teamBadge}>{f.by === 'ayse' ? 'Ayşe' : 'Emre'}</span> : f.byManager ? <span className={styles.refBadge}>Hakan Bey</span> : f.day > 0 ? <span className={`${styles.dayBadge} mono`}>G{f.day}</span> : <span className={styles.refBadge}>Referans</span>}
-                </span>
-              </button>
-            );
-          })}
-        </aside>
-
-        <main className={styles.room} key={selectedId}>
-          <section className={styles.conversation} aria-label="Görüşme">
-            <header className={styles.roomHead}>
-              <span className={`${styles.avatar} ${styles.avatarLarge}`} style={{ background: candidate.color }}>
-                {candidate.initials}
-              </span>
-              <div>
-                <h2>{candidate.name}</h2>
-                <div className={styles.profileSub}>
-                  {candidate.age} yaşında · {candidate.role}
-                </div>
-              </div>
-              <span className={`${styles.roomState} ${styles['state_' + stateOf(selectedId)]}`}>
-                {ended ? 'Görüşme tamamlandı' : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
-              </span>
-            </header>
-
-            <div className={styles.log} ref={chatRef} aria-live="polite">
-              {entries.length === 0 && (
-                <p className={styles.logEmpty}>
-                  {candidate.name.split(' ')[0]} karşında oturuyor. Süren kısa: {QUESTION_BUDGET} soru ve bir takip sorusu. Aşağıdan ilk soruyu seç.
-                </p>
-              )}
-              {entries.map((e, index) => {
-                if (e.kind === 'note') return <Note key={index}>{e.text}</Note>;
-                if (e.kind === 'hakan')
-                  return (
-                    <div key={index} className={styles.exchange}>
-                      <Turn who="Hakan Kaya" role="İK Müdürü" tone="hakan">
-                        {forbiddenQuestion(selectedId, candidate.age)}
-                      </Turn>
-                      {e.choice === 'protect' && (
-                        <>
-                          <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
-                            Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok.
-                          </Turn>
-                          <Note>Kısa bir sessizlik. Hakan Bey not defterine bir şey yazıyor: "…Peki. Devam edin."</Note>
-                        </>
-                      )}
-                      {e.choice === 'silent' && <Note>Bir şey demiyorsun.</Note>}
-                    </div>
-                  );
-                if (e.kind === 'back') {
-                  const back = backQuestionFor(selectedId);
-                  return (
-                    <div key={index} className={styles.exchange}>
-                      <Turn who={candidate.name} role="Aday" tone="candidate">
-                        {back.question}
-                      </Turn>
-                      {e.choice && (
-                        <>
-                          <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
-                            {e.choice === 'honest' ? back.honest : back.polished}
-                          </Turn>
-                          <Turn who={candidate.name} role="Aday" tone="candidate">
-                            {e.choice === 'honest' ? back.afterHonest : back.afterPolished}
-                          </Turn>
-                          <Note>{e.choice === 'honest' ? 'Hakan Bey boğazını temizliyor.' : 'Hakan Bey onaylar gibi başını sallıyor.'}</Note>
-                        </>
-                      )}
-                    </div>
-                  );
-                }
-                const live = typing && typing.candidateId === selectedId && typing.entry === index;
-                const answer = answerFor(selectedId, e.q);
-                return (
-                  <div key={index} className={styles.exchange}>
-                    {!e.by && (
-                      <Turn who={PLAYER.name} role={e.q >= FOLLOW ? 'Takip sorusu' : e.q === FORBIDDEN ? "Hakan Bey'in listesinden" : 'İK Uzmanı'} tone={e.q === FORBIDDEN ? 'hakan' : 'you'}>
-                        {questionText(e.q)}
-                      </Turn>
-                    )}
-                    <Turn who={candidate.name} role="Aday" tone="candidate">
-                      {live && typing.shown < 0 ? (
-                        <span className={styles.thinking} aria-label="düşünüyor">
-                          <i />
-                          <i />
-                          <i />
-                        </span>
-                      ) : (
-                        <>
-                          {live ? answer.slice(0, typing.shown) : answer}
-                          {live && <span className={styles.caret} />}
-                        </>
-                      )}
-                    </Turn>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className={styles.console}>
-              {typing ? (
-                <p className={styles.consoleWait}>{candidate.name.split(' ')[0]} cevaplıyor…</p>
-              ) : pending?.kind === 'hakan' ? (
-                <>
-                  <p className={styles.consoleTitle}>Hakan Bey araya girdi. Ne yapıyorsun?</p>
-                  <div className={styles.options}>
-                    <button className={`${styles.option} ${styles.optionPrimary}`} onClick={() => respondHakan(true)}>
-                      <b>Araya gir</b>
-                      <span>"Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok."</span>
-                    </button>
-                    <button className={styles.option} onClick={() => respondHakan(false)}>
-                      <b>Sessiz kal</b>
-                      <span>Aday soruyu cevaplasın.</span>
-                    </button>
-                  </div>
-                </>
-              ) : pending?.kind === 'back' ? (
-                <>
-                  <p className={styles.consoleTitle}>{candidate.name.split(' ')[0]} bir soru soruyor. Nasıl cevaplıyorsun?</p>
-                  <div className={styles.options}>
-                    {(() => {
-                      const back = backQuestionFor(selectedId);
-                      return (
-                        <>
-                          <button className={styles.option} onClick={() => answerBack(true)}>
-                            <b>Olduğu gibi anlat</b>
-                            <span>{back.honest}</span>
-                          </button>
-                          <button className={styles.option} onClick={() => answerBack(false)}>
-                            <b>Şirketi iyi göster</b>
-                            <span>{back.polished}</span>
-                          </button>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </>
-              ) : ended ? (
-                <p className={styles.consoleWait}>Görüşme tamamlandı. {interviewed < pool.length ? 'Listeden sıradaki adayı seç.' : 'Tüm adaylarla görüştün; önerini sunabilirsin.'}</p>
-              ) : (
-                <>
-                  <p className={styles.consoleTitle}>
-                    {mine.length < QUESTION_BUDGET ? `Soru seç · ${mine.length}/${QUESTION_BUDGET}` : 'Soru hakkın doldu.'}
-                  </p>
-                  <div className={styles.questionList}>
-                    {mine.length < QUESTION_BUDGET &&
-                      FINAL_INTERVIEW_QUESTIONS.map((q, i) =>
-                        mine.includes(i) ? null : (
-                          <button key={q} className={styles.question} onClick={() => ask(i)}>
-                            <span className={styles.qNumber}>{i + 1}</span>
-                            {q}
-                          </button>
-                        ),
-                      )}
-                    {canFollow && lastOwn && (
-                      <button className={`${styles.question} ${styles.questionFollow}`} onClick={() => ask(FOLLOW + lastOwn.q)}>
-                        <span className={styles.qNumber}>↳</span>
-                        <span>
-                          {FOLLOW_UP_QUESTIONS[lastOwn.q]}
-                          <small>Takip sorusu · 1 hak</small>
-                        </span>
-                      </button>
-                    )}
-                    {!structured && !hakanChoice && !forbiddenDone && mine.length < QUESTION_BUDGET && (
-                      <button className={`${styles.question} ${styles.questionRisk}`} onClick={() => ask(FORBIDDEN)} title="İş Kanunu'na göre ayrımcılık sayılabilir.">
-                        <span className={styles.qNumber}>!</span>
-                        <span>
-                          {forbiddenQuestion(selectedId, candidate.age)}
-                          <small>Hakan Bey'in listesinden · ayrımcılık sayılabilir</small>
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                  {mine.length > 0 && (
-                    <button className={styles.endButton} onClick={endInterview}>
-                      Görüşmeyi bitir →
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </section>
-
-          <aside className={styles.dossier} aria-label="Aday dosyası">
-            <h3>Dosya</h3>
-            <dl className={styles.facts}>
-              <dt>Deneyim</dt>
-              <dd>{candidate.experience}</dd>
-              <dt>Maaş beklentisi</dt>
-              <dd>{candidate.salary}</dd>
-              <dt>Son görev</dt>
-              <dd>{details.workHistory[0].title}</dd>
-              <dt>Konum</dt>
-              <dd>{details.location}</dd>
-              <dt>Dil</dt>
-              <dd>{details.languages}</dd>
-              {selected && selected.day > 0 && (
-                <>
-                  <dt>Mülakata çağrılma</dt>
-                  <dd>{selected.day}. gün</dd>
-                </>
-              )}
-            </dl>
-            <h3>Öne çıkanlar</h3>
-            <ul className={styles.highlights}>
-              {details.highlights.map((h) => (
-                <li key={h}>{h}</li>
-              ))}
-            </ul>
-            <h3>{LEAD}'ın notu</h3>
-            {leadHeard ? (
-              <div className={styles.leadNote} role="status">
-                <p>"{leadView(selectedId, fit)}"</p>
-                {followUsed && !typing && <p>"{followUpVerdict(selectedId, fit)}"</p>}
-                {mine.includes(FORBIDDEN) && <small>Sonra alçak sesle: "O soruyu sormasaydın keşke."</small>}
-                {hakanChoice === 'protect' && <small>Sonra alçak sesle: "Araya girmen iyiydi."</small>}
-                {hakanChoice === 'silent' && <small>Sonra alçak sesle: "Hakan Bey o soruyu sorunca bir şey demedin."</small>}
-              </div>
-            ) : (
-              <p className={styles.leadEmpty}>İlk cevaptan sonra ekip liderinin görüşü burada görünür.</p>
-            )}
+                  <span className={styles.listText}>
+                    <span className={styles.listName}>{c.name}</span>
+                    <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
+                    <span className={`${styles.listState} ${styles['state_' + stateOf(f.id)]}`}>
+                      {{ waiting: 'Görüşülmedi', active: 'Görüşme sürüyor', done: 'Görüşüldü' }[stateOf(f.id)]}
+                    </span>
+                  </span>
+                  <span className={styles.listMeta}>
+                    {f.by ? <span className={styles.teamBadge}>{f.by === 'ayse' ? 'Ayşe' : 'Emre'}</span> : f.byManager ? <span className={styles.refBadge}>Hakan Bey</span> : f.day > 0 ? <span className={`${styles.dayBadge} mono`}>G{f.day}</span> : <span className={styles.refBadge}>Referans</span>}
+                  </span>
+                </button>
+              );
+            })}
           </aside>
-        </main>
-
-        <div className={styles.hireBar}>
-          <span className={styles.hireHint}>
-            {interviewed < pool.length ? `Öneri için önce herkesle görüşmeyi bitir: ${pool.length - interviewed} aday kaldı.` : 'Tüm adaylarla görüştün.'}
-          </span>
-          <Button
-            variant="gold"
-            sound="click"
-            onClick={() => setConfirming(true)}
-            disabled={interviewed < pool.length || busy}
-            title={interviewed < pool.length ? 'Önce bütün adaylarla görüş' : undefined}
-          >
-            {accusative(candidate.name.split(' ')[0])} Öner →
-          </Button>
+  
+          <main className={styles.room} key={selectedId}>
+            <section className={styles.conversation} aria-label="Görüşme">
+              <header className={styles.roomHead}>
+                <span className={`${styles.avatar} ${styles.avatarLarge}`} style={{ background: candidate.color }}>
+                  {candidate.initials}
+                </span>
+                <div>
+                  <h2>{candidate.name}</h2>
+                  <div className={styles.profileSub}>
+                    {candidate.age} yaşında · {candidate.role}
+                  </div>
+                </div>
+                <span className={`${styles.roomState} ${styles['state_' + stateOf(selectedId)]}`}>
+                  {ended ? 'Görüşme tamamlandı' : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
+                </span>
+              </header>
+  
+              <div className={styles.log} ref={chatRef} aria-live="polite">
+                {entries.length === 0 && (
+                  <p className={styles.logEmpty}>
+                    {candidate.name.split(' ')[0]} karşında oturuyor. Süren kısa: {QUESTION_BUDGET} soru ve bir takip sorusu. Aşağıdan ilk soruyu seç.
+                  </p>
+                )}
+                {entries.map((e, index) => {
+                  if (e.kind === 'note') return <Note key={index}>{e.text}</Note>;
+                  if (e.kind === 'hakan')
+                    return (
+                      <div key={index} className={styles.exchange}>
+                        <Turn who="Hakan Kaya" role="İK Müdürü" tone="hakan">
+                          {forbiddenQuestion(selectedId, candidate.age)}
+                        </Turn>
+                        {e.choice === 'protect' && (
+                          <>
+                            <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
+                              Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok.
+                            </Turn>
+                            <Note>Kısa bir sessizlik. Hakan Bey not defterine bir şey yazıyor: "…Peki. Devam edin."</Note>
+                          </>
+                        )}
+                        {e.choice === 'silent' && <Note>Bir şey demiyorsun.</Note>}
+                      </div>
+                    );
+                  if (e.kind === 'back') {
+                    const back = backQuestionFor(selectedId);
+                    return (
+                      <div key={index} className={styles.exchange}>
+                        <Turn who={candidate.name} role="Aday" tone="candidate">
+                          {back.question}
+                        </Turn>
+                        {e.choice && (
+                          <>
+                            <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
+                              {e.choice === 'honest' ? back.honest : back.polished}
+                            </Turn>
+                            <Turn who={candidate.name} role="Aday" tone="candidate">
+                              {e.choice === 'honest' ? back.afterHonest : back.afterPolished}
+                            </Turn>
+                            <Note>{e.choice === 'honest' ? 'Hakan Bey boğazını temizliyor.' : 'Hakan Bey onaylar gibi başını sallıyor.'}</Note>
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
+                  const live = typing && typing.candidateId === selectedId && typing.entry === index;
+                  const answer = answerFor(selectedId, e.q);
+                  return (
+                    <div key={index} className={styles.exchange}>
+                      {!e.by && (
+                        <Turn who={PLAYER.name} role={e.q >= FOLLOW ? 'Takip sorusu' : e.q === FORBIDDEN ? "Hakan Bey'in listesinden" : 'İK Uzmanı'} tone={e.q === FORBIDDEN ? 'hakan' : 'you'}>
+                          {questionText(e.q)}
+                        </Turn>
+                      )}
+                      <Turn who={candidate.name} role="Aday" tone="candidate">
+                        {live && typing.shown < 0 ? (
+                          <span className={styles.thinking} aria-label="düşünüyor">
+                            <i />
+                            <i />
+                            <i />
+                          </span>
+                        ) : (
+                          <>
+                            {live ? answer.slice(0, typing.shown) : answer}
+                            {live && <span className={styles.caret} />}
+                          </>
+                        )}
+                      </Turn>
+                    </div>
+                  );
+                })}
+              </div>
+  
+              <div className={styles.console}>
+                {typing ? (
+                  <p className={styles.consoleWait}>{candidate.name.split(' ')[0]} cevaplıyor…</p>
+                ) : pending?.kind === 'hakan' ? (
+                  <>
+                    <p className={styles.consoleTitle}>Hakan Bey araya girdi. Ne yapıyorsun?</p>
+                    <div className={styles.options}>
+                      <button className={`${styles.option} ${styles.optionPrimary}`} onClick={() => respondHakan(true)}>
+                        <b>Araya gir</b>
+                        <span>"Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok."</span>
+                      </button>
+                      <button className={styles.option} onClick={() => respondHakan(false)}>
+                        <b>Sessiz kal</b>
+                        <span>Aday soruyu cevaplasın.</span>
+                      </button>
+                    </div>
+                  </>
+                ) : pending?.kind === 'back' ? (
+                  <>
+                    <p className={styles.consoleTitle}>{candidate.name.split(' ')[0]} bir soru soruyor. Nasıl cevaplıyorsun?</p>
+                    <div className={styles.options}>
+                      {(() => {
+                        const back = backQuestionFor(selectedId);
+                        return (
+                          <>
+                            <button className={styles.option} onClick={() => answerBack(true)}>
+                              <b>Olduğu gibi anlat</b>
+                              <span>{back.honest}</span>
+                            </button>
+                            <button className={styles.option} onClick={() => answerBack(false)}>
+                              <b>Şirketi iyi göster</b>
+                              <span>{back.polished}</span>
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </>
+                ) : ended ? (
+                  <p className={styles.consoleWait}>Görüşme tamamlandı. {interviewed < pool.length ? 'Listeden sıradaki adayı seç.' : 'Tüm adaylarla görüştün; önerini sunabilirsin.'}</p>
+                ) : (
+                  <>
+                    <p className={styles.consoleTitle}>
+                      {mine.length < QUESTION_BUDGET ? `Soru seç · ${mine.length}/${QUESTION_BUDGET}` : 'Soru hakkın doldu.'}
+                    </p>
+                    <div className={styles.questionList}>
+                      {mine.length < QUESTION_BUDGET &&
+                        FINAL_INTERVIEW_QUESTIONS.map((q, i) =>
+                          mine.includes(i) ? null : (
+                            <button key={q} className={styles.question} onClick={() => ask(i)}>
+                              <span className={styles.qNumber}>{i + 1}</span>
+                              {q}
+                            </button>
+                          ),
+                        )}
+                      {canFollow && lastOwn && (
+                        <button className={`${styles.question} ${styles.questionFollow}`} onClick={() => ask(FOLLOW + lastOwn.q)}>
+                          <span className={styles.qNumber}>↳</span>
+                          <span>
+                            {FOLLOW_UP_QUESTIONS[lastOwn.q]}
+                            <small>Takip sorusu · 1 hak</small>
+                          </span>
+                        </button>
+                      )}
+                      {!structured && !hakanChoice && !forbiddenDone && mine.length < QUESTION_BUDGET && (
+                        <button className={`${styles.question} ${styles.questionRisk}`} onClick={() => ask(FORBIDDEN)} title="İş Kanunu'na göre ayrımcılık sayılabilir.">
+                          <span className={styles.qNumber}>!</span>
+                          <span>
+                            {forbiddenQuestion(selectedId, candidate.age)}
+                            <small>Hakan Bey'in listesinden · ayrımcılık sayılabilir</small>
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                    {mine.length > 0 && (
+                      <button className={styles.endButton} onClick={endInterview}>
+                        Görüşmeyi bitir →
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+  
+            <aside className={styles.dossier} aria-label="Aday dosyası">
+              <h3>Dosya</h3>
+              <dl className={styles.facts}>
+                <dt>Deneyim</dt>
+                <dd>{candidate.experience}</dd>
+                <dt>Maaş beklentisi</dt>
+                <dd>{candidate.salary}</dd>
+                <dt>Son görev</dt>
+                <dd>{details.workHistory[0].title}</dd>
+                <dt>Konum</dt>
+                <dd>{details.location}</dd>
+                <dt>Dil</dt>
+                <dd>{details.languages}</dd>
+                {selected && selected.day > 0 && (
+                  <>
+                    <dt>Mülakata çağrılma</dt>
+                    <dd>{selected.day}. gün</dd>
+                  </>
+                )}
+              </dl>
+              <h3>Öne çıkanlar</h3>
+              <ul className={styles.highlights}>
+                {details.highlights.map((h) => (
+                  <li key={h}>{h}</li>
+                ))}
+              </ul>
+              <h3>{LEAD}'ın notu</h3>
+              {leadHeard ? (
+                <div className={styles.leadNote} role="status">
+                  <p>"{leadView(selectedId, fit)}"</p>
+                  {followUsed && !typing && <p>"{followUpVerdict(selectedId, fit)}"</p>}
+                  {mine.includes(FORBIDDEN) && <small>Sonra alçak sesle: "O soruyu sormasaydın keşke."</small>}
+                  {hakanChoice === 'protect' && <small>Sonra alçak sesle: "Araya girmen iyiydi."</small>}
+                  {hakanChoice === 'silent' && <small>Sonra alçak sesle: "Hakan Bey o soruyu sorunca bir şey demedin."</small>}
+                </div>
+              ) : (
+                <p className={styles.leadEmpty}>İlk cevaptan sonra ekip liderinin görüşü burada görünür.</p>
+              )}
+            </aside>
+          </main>
+  
+          <div className={styles.hireBar}>
+            <span className={styles.hireHint}>
+              {interviewed < pool.length ? `Öneri için önce herkesle görüşmeyi bitir: ${pool.length - interviewed} aday kaldı.` : 'Tüm adaylarla görüştün.'}
+            </span>
+            <Button
+              variant="gold"
+              sound="click"
+              onClick={() => setConfirming(true)}
+              disabled={interviewed < pool.length || busy}
+              title={interviewed < pool.length ? 'Önce bütün adaylarla görüş' : undefined}
+            >
+              {accusative(candidate.name.split(' ')[0])} Öner →
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
 
       {confirming && (
@@ -588,5 +607,62 @@ export function FinalRoundScreen() {
         </div>
       )}
     </div>
+  );
+}
+
+const sourceOf = (f: Finalist) => (f.by ? (f.by === 'ayse' ? 'Ayşe seçti' : 'Emre seçti') : f.byManager ? 'Hakan Bey ekletti' : f.day > 0 ? `Sen çağırdın · ${f.day}. gün` : 'Referans');
+
+/**
+ * Friday morning, when the shortlist is longer than a day of interviews: who you'll actually
+ * sit down with. Hakan Bey's people are already on it and can't be taken off.
+ */
+function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist[]; locked: Set<string>; onConfirm: (ids: string[]) => void }) {
+  const [picked, setPicked] = useState<string[]>(() => everyone.filter((f) => locked.has(f.id)).map((f) => f.id));
+  const full = picked.length >= INTERVIEW_LIMIT;
+  const toggle = (id: string) => {
+    if (locked.has(id)) return;
+    audioEngine.playUi('click');
+    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < INTERVIEW_LIMIT ? [...p, id] : p));
+  };
+  return (
+    <section className={styles.picker} aria-labelledby="picker-title">
+      <h2 id="picker-title" className={styles.pickerTitle}>
+        Bugün kimlerle görüşeceksin?
+      </h2>
+      <p className={styles.pickerLead}>
+        Kısa listede <b>{everyone.length}</b> kişi var; bir günde en fazla <b>{INTERVIEW_LIMIT}</b> mülakat yapılabiliyor. Hakan Bey'in istedikleri listede kalıyor; kalan yerleri sen
+        seç. Seçmediklerine bu iş için dönülmeyecek.
+      </p>
+      <ul className={styles.pickerList}>
+        {everyone.map((f) => {
+          const c = candidateOf(f.id);
+          const on = picked.includes(f.id);
+          const isLocked = locked.has(f.id);
+          return (
+            <li key={f.id}>
+              <label className={`${styles.pickerItem} ${on ? styles.pickerOn : ''} ${isLocked ? styles.pickerLocked : ''}`}>
+                <input type="checkbox" checked={on} disabled={isLocked || (!on && full)} onChange={() => toggle(f.id)} />
+                <span className={styles.avatar} style={{ background: c.color }}>
+                  {c.initials}
+                </span>
+                <span className={styles.listText}>
+                  <span className={styles.listName}>{c.name}</span>
+                  <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
+                </span>
+                <span className={styles.pickerSource}>{isLocked ? '🔒 ' : ''}{sourceOf(f)}</span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      <div className={styles.pickerFoot}>
+        <span className="mono">
+          {picked.length}/{INTERVIEW_LIMIT} seçildi
+        </span>
+        <Button variant="gold" disabled={picked.length === 0} onClick={() => onConfirm(everyone.filter((f) => picked.includes(f.id)).map((f) => f.id))}>
+          Mülakatlara başla →
+        </Button>
+      </div>
+    </section>
   );
 }

@@ -64,7 +64,8 @@ export interface JobDraft {
   companyLine: string;
   location: string;
   employmentType: string;
-  salaryRange: string;
+  /** Every ad states its pay as a range (tests/data.test.ts): who applies needs to know. */
+  salary: { min: number; max: number; /** what comes on top, if anything */ extra?: string };
   summary: string;
   aboutRole: string;
   responsibilities: string[];
