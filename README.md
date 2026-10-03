@@ -22,8 +22,17 @@ Diğer komutlar:
 | `npm test` | Testler: Node'un kendi test aracıyla, ek paket kurmadan |
 | `npm run check` | Tip kontrolü + lint + testler |
 | `npm run size` | Derlemeden sonra ilk açılış paketinin boyut bütçesini denetler |
+| `npm run ci` | CI'ın çalıştırdığının aynısı: check + derleme + boyut bütçesi + `npm audit` |
 
-GitHub'a gönderildiğinde `.github/workflows/ci.yml` bunların hepsini her push ve PR'da çalıştırır.
+GitHub'a gönderildiğinde `.github/workflows/ci.yml` her push ve PR'da `npm run ci`'ı çalıştırır. Node sürümü `.nvmrc`'de (CI de onu okur).
+
+Göndermeden önce aynı denetimin yerelde çalışması için, depoyu klonladıktan sonra bir kez:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda `git push --no-verify`). Dependabot paket ve GitHub Actions güncellemeleri için haftalık PR açar; hata bildirimi ve PR için şablonlar `.github/` altında.
 
 ## Testler
 
@@ -31,8 +40,10 @@ GitHub'a gönderildiğinde `.github/workflows/ci.yml` bunların hepsini her push
 
 - `scoring`, `ending`: kararların ve sonların kuralları, başarımlar
 - `rng`, `time`: tohumlu rastgelelik, saat ve Türkçe ekler
-- `save`: kaydın yazılması, doğrulanması, bozuk ya da eski kayıtların reddi
-- `week`: bir botun beş günü saat saat oynaması; aynı tohumun aynı haftayı vermesi, zor mod
+- `save`: kaydın yazılması, doğrulanması, bozuk ya da eski kayıtların reddi; kaybolan kaydın oyuncuya söylenmesi
+- `week`: bir botun beş günü saat saat oynaması; aynı tohumun aynı haftayı vermesi, rahat ve zor mod
+- `data`: senaryo verisinin bütünlüğü (her aday, gün, rica ve hikâye rolü tutarlı; karışık kadrolar adayları kaybetmez); oyun mantığında `Math.random` yok
+- `security`, `privacy`: ağ isteği yok, HTML'den betik yok, her depolama anahtarı `kariyerweb-` önekli, kayıt oyunun durumunu kirletemez, sayfadaki ve başlıktaki güvenlik politikası aynı; "Verilerimi sil" her şeyi siler
 - `balance`: farklı alışkanlıkta botlar (okumadan sisteme uyan, okuyarak uyan, dengeli, adayları savunan, hiç karar vermeyen) aynı haftaları oynar; puanların bu oyuncuları doğru sıraya dizmesi ve duvara dayanmaması denetlenir. Puanlama kuralları `game/engine/scoring.ts` başındaki açıklamada.
 
 Oyun mantığı ses çalmak için `game/sound.ts` üzerinden konuşur; ses motoru `main.tsx`'te bağlanır, testlerde sessizdir.
@@ -98,7 +109,7 @@ Her oyunun bir kodu (tohum) vardır; ayarlar panelinin altında "Oyun kodu #…"
 `dist/` klasörü herhangi bir statik sunucudan, herhangi bir alt klasörde yayınlanabilir.
 
 - **Paylaşım önizlemesi:** sosyal sitelerin bağlantı önizlemesi `og:image` için tam adres ister. Derlerken yayın adresini ver: `SITE_URL=https://alan-adi npm run build`. Sayfaya tam görsel adresi, `og:url` ve `canonical` eklenir. Sonuç kartının altındaki adres, oyunun açıldığı adresten okunur.
-- **Güvenlik:** derlenen sayfa kendi Content-Security-Policy'sini taşır: yalnızca oyunun kendi dosyaları yüklenir, sayfadan hiçbir yere istek çıkmaz. `public/_headers` (Netlify ve Cloudflare Pages bunu okur) başka sitelerin oyunu çerçeve içine almasını engeller, `sw.js`'in önbelleğe alınmamasını ve parmak izli dosyaların uzun süre önbellekte kalmasını sağlar. Başka bir sunucu kullanılıyorsa aynı başlıklar oradan verilmeli.
+- **Güvenlik:** derlenen sayfa kendi Content-Security-Policy'sini taşır (`csp.ts`): yalnızca oyunun kendi dosyaları yüklenir, sayfadan hiçbir yere istek çıkmaz, Trusted Types metnin betiğe dönüşmesini engeller. `public/_headers` (Netlify ve Cloudflare Pages bunu okur) aynı politikayı başlık olarak da verir, başka sitelerin oyunu çerçeve içine almasını engeller, `sw.js`'in önbelleğe alınmamasını ve parmak izli dosyaların uzun süre önbellekte kalmasını sağlar. Başka bir sunucu kullanılıyorsa aynı başlıklar oradan verilmeli.
 - **Görseller:** masadaki orkide, Unsplash Lisansı'yla yayımlanmış bir fotoğraftan kesildi (ücretsiz kullanım ve değiştirme serbest, atıf gerekmez). Diğer bütün çizimler kodun içinde SVG olarak durur.
 
 ## Gizlilik

@@ -10,6 +10,7 @@
     "lint": "oxlint --report-unused-disable-directives",
     "test": "node --import ./tests/setup/register.mjs --test \"tests/**/*.test.ts\"",
     "check": "npm run typecheck && npm run lint && npm test",
+    "ci": "npm run check && npm run build && npm run size && npm audit --audit-level=high",
     "preview": "vite preview",
     "size": "node scripts/check-size.mjs"
   },

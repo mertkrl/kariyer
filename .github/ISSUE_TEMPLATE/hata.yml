@@ -1,0 +1,28 @@
+name: Hata bildir
+description: Oyunda bir şey bozuk ya da beklendiği gibi değil
+labels: [hata]
+body:
+  - type: textarea
+    id: rapor
+    attributes:
+      label: Hata raporu
+      description: Oyun çöktüyse hata ekranındaki "Hata raporunu kopyala" düğmesiyle alınan metni yapıştır. Kişisel bilgi içermez.
+      render: text
+  - type: input
+    id: kod
+    attributes:
+      label: Oyun kodu
+      description: Ayarlar panelinin altındaki "Oyun kodu #…" (çökmediyse). Aynı haftayı yeniden kurmaya yeter.
+      placeholder: "#123456789"
+  - type: textarea
+    id: ne-oldu
+    attributes:
+      label: Ne oldu, ne bekliyordun?
+      description: Hangi gün, saat kaç civarı, hangi ekranda?
+    validations:
+      required: true
+  - type: input
+    id: cihaz
+    attributes:
+      label: Cihaz ve tarayıcı
+      placeholder: "ör. iPhone 15, Safari · Windows, Chrome 141"

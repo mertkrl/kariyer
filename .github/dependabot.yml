@@ -1,0 +1,18 @@
+# Weekly pull requests for outdated packages and actions. Minor and patch updates of the
+# development tools come together in one PR; anything else (and react, react-dom, zustand) one
+# by one, so a change in what the player downloads is reviewed on its own (docs/bagimliliklar.md).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-tools:
+        dependency-type: development
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -5,22 +5,30 @@ on:
     branches: [main]
   pull_request:
 
+# a newer push to the same branch makes the running check pointless
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# the workflow only reads the code and uploads the build
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
-      - run: npm run size
+      # the same command a developer runs before pushing (package.json "ci")
+      - run: npm run ci
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
+          retention-days: 14
