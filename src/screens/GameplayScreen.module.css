@@ -213,19 +213,13 @@
 }
 
 .scanLine {
+  /* a reading head, not a curtain: a thin bright line with a short glow trailing above it */
   position: absolute;
   left: 0;
   right: 0;
-  height: 90px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(76, 127, 176, 0.28) 45%,
-    rgba(76, 127, 176, 0.55) 50%,
-    rgba(76, 127, 176, 0.28) 55%,
-    transparent
-  );
-  box-shadow: 0 0 18px 2px rgba(76, 127, 176, 0.5);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(143, 208, 255, 0.95) 12%, #d8f1ff 50%, rgba(143, 208, 255, 0.95) 88%, transparent);
+  box-shadow: 0 0 10px 1px rgba(143, 208, 255, 0.75), 0 -28px 36px -10px rgba(76, 127, 176, 0.28);
   animation: scanSweep 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
@@ -2117,4 +2111,111 @@ button.systemIconBadge {
   .finishReady .finishButton {
     animation: none;
   }
+}
+
+/* ── The AI box as a console: dark, apart from the paper CV it reads (AiPanel, AiRun) ── */
+.systemBox {
+  background: linear-gradient(180deg, #172131, #111824);
+  border-color: rgba(143, 180, 227, 0.22);
+  box-shadow: 0 6px 18px rgba(12, 18, 28, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: #dfe8f5;
+}
+
+.systemBox .systemTitle {
+  color: #f2f6fc;
+}
+
+.systemBox .systemSub {
+  color: rgba(201, 214, 234, 0.7);
+}
+
+.systemBox .systemLine {
+  background: rgba(255, 255, 255, 0.06);
+  color: #c9d6ea;
+}
+
+.systemBox .analyzeButton {
+  color: #cfe2fb;
+  border-color: rgba(143, 208, 255, 0.5);
+  background: rgba(76, 127, 176, 0.18);
+}
+
+.systemBox .analyzeButton:hover:not(:disabled) {
+  background: rgba(76, 127, 176, 0.32);
+}
+
+/* the report: the same console, laid over the CV */
+.noteBubble {
+  background: linear-gradient(180deg, #172131, #111824);
+  color: #dfe8f5;
+  border: 1px solid rgba(143, 180, 227, 0.22);
+  box-shadow: 0 18px 44px rgba(8, 12, 20, 0.45);
+}
+
+.noteBubble::before {
+  background: #172131;
+  border-left: 1px solid rgba(143, 180, 227, 0.22);
+  border-top: 1px solid rgba(143, 180, 227, 0.22);
+}
+
+.noteBubble .systemLine {
+  background: rgba(255, 255, 255, 0.06);
+  color: #dfe8f5;
+}
+
+.noteBubble .ats {
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(143, 180, 227, 0.18);
+}
+
+.noteBubble .atsHead,
+.noteBubble .atsRow {
+  color: rgba(201, 214, 234, 0.72);
+}
+
+.noteBubble .atsRow b {
+  color: #f2f6fc;
+}
+
+.noteBubble .atsHit {
+  background: rgba(95, 194, 143, 0.16);
+  color: #7fd1a6;
+}
+
+.noteBubble .atsMiss {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(201, 214, 234, 0.5);
+}
+
+.noteBubble .sectionNotes,
+.noteBubble .sectionNotes span {
+  color: rgba(201, 214, 234, 0.75);
+}
+
+.noteBubble .sectionNotes b {
+  color: #7fd1a6;
+}
+
+.noteBubble .noteBubbleClose {
+  color: rgba(201, 214, 234, 0.7);
+}
+
+.noteBubble .noteBubbleClose:hover {
+  color: #fff;
+}
+
+/* the report is on a dark console: its warnings in a red that reads there */
+.noteBubble .sectionNotes .noteBad,
+.noteBubble .sectionNotes .noteBad b,
+.noteBubble .sectionNotes .noteBad span,
+.noteBubble .atsBad {
+  color: #f08a76;
+}
+
+/* while the AI reads, the CV is behind faint graph paper: the machine's view of the page */
+.candidateCardScanning .scanOverlay {
+  background-image:
+    linear-gradient(rgba(76, 127, 176, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76, 127, 176, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
 }

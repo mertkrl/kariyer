@@ -3,7 +3,7 @@ import { useGameStore } from '../../game/store';
 import { audioEngine } from '../../audio/audioEngine';
 import { SCAN_FIELD_DELAYS } from './scan';
 
-const ANALYZE_DURATION_MS = 4600;
+export const ANALYZE_DURATION_MS = 4600;
 
 /**
  * Running the AI on a file: the scan takes a few seconds (the CV card sweeps, the panel

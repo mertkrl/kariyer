@@ -1,0 +1,229 @@
+/* The AI box runs on a dark console, apart from the paper CV beside it (GameplayScreen.module.css: .systemBox) */
+
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(12px * var(--ts, 1));
+  color: #c9d6ea;
+}
+
+.progressHead .mono {
+  color: #8fb4e3;
+}
+
+.track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(143, 180, 227, 0.16);
+  overflow: hidden;
+}
+
+.track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4c7fb0, #8fd0ff);
+  box-shadow: 0 0 8px rgba(143, 208, 255, 0.6);
+  transition: width 0.08s linear;
+}
+
+.steps {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.mark {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(143, 180, 227, 0.35);
+}
+
+.waiting {
+  color: rgba(201, 214, 234, 0.4);
+}
+
+.active {
+  color: #e6eefa;
+}
+
+.active .mark {
+  border-color: transparent;
+  border-top-color: #8fd0ff;
+  border-right-color: #8fd0ff;
+  animation: spin 0.8s linear infinite;
+}
+
+.done {
+  color: #9fb3cf;
+}
+
+.done .mark {
+  border-color: #5aa77f;
+  background: #5aa77f;
+}
+
+.done .mark::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 1.5px;
+  width: 3px;
+  height: 6px;
+  border: solid #0f1520;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.log {
+  margin: 2px 0 0;
+  padding: 7px 9px;
+  min-height: 3.9em;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.32);
+  color: #7fd1a6;
+  font-size: calc(10.5px * var(--ts, 1));
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.caret {
+  display: inline-block;
+  width: 6px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: #7fd1a6;
+  animation: blink 1s steps(2) infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── the result ── */
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(143, 180, 227, 0.16);
+  --tone: #8fd0ff;
+}
+
+.high {
+  --tone: #5fc28f;
+}
+
+.mid {
+  --tone: #e0b04a;
+}
+
+.low {
+  --tone: #e06a55;
+}
+
+.dial {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+
+.dialTrack {
+  fill: none;
+  stroke: rgba(143, 180, 227, 0.16);
+  stroke-width: 5;
+}
+
+.dialValue {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px var(--tone));
+}
+
+.dialText {
+  transform: rotate(90deg);
+  transform-origin: 26px 26px;
+  fill: #f2f6fc;
+  font: 700 15px var(--font-mono);
+}
+
+.resultText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.resultLabel {
+  font-size: calc(10.5px * var(--ts, 1));
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(201, 214, 234, 0.6);
+}
+
+.resultText b {
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--tone);
+}
+
+.reportButton {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #8fb4e3;
+  font: 600 calc(12px * var(--ts, 1)) var(--font-body);
+  cursor: pointer;
+}
+
+.reportButton:hover,
+.reportButton:focus-visible {
+  color: #cfe2fb;
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active .mark,
+  .caret {
+    animation: none;
+  }
+}

@@ -75,3 +75,20 @@ test('karışık kadro aynı adayları dağıtır, hikâye karakterleri kendi g�
     for (const id of KEY_CAST) assert.equal(day(lineups, id), day(authored, id), `tohum ${seed}: ${id}`);
   }
 });
+
+test('yapay zekâ puanı 0–100 arasında, sabit ve sistemin önerisiyle aynı sırada', async () => {
+  const { aiScore } = await import('../src/game/ats');
+  const order = ['out', 'low', 'review', 'priority'];
+  const byVerdict = new Map<string, number[]>();
+  for (const c of Object.values(candidates)) {
+    const s = aiScore(c);
+    assert.ok(Number.isInteger(s) && s >= 0 && s <= 100, `${c.id}: ${s}`);
+    assert.equal(aiScore(c), s);
+    byVerdict.set(c.verdict, [...(byVerdict.get(c.verdict) ?? []), s]);
+  }
+  for (let i = 1; i < order.length; i++) {
+    const below = Math.max(...(byVerdict.get(order[i - 1]) ?? [0]));
+    const above = Math.min(...(byVerdict.get(order[i]) ?? [100]));
+    assert.ok(below < above, `${order[i - 1]} en yüksek ${below} ≥ ${order[i]} en düşük ${above}`);
+  }
+});

@@ -53,3 +53,21 @@ export function systemLineWith(c: Candidate, report: AtsReport) {
   const pct = Math.round((report.matched.length / AD_KEYWORDS.length) * 100);
   return c.systemLine.replace(/ATS eşleşme %\d+/, `ATS eşleşme %${pct}`);
 }
+
+/**
+ * The model's "fit score" out of 100, as the portal shows it. It follows the system's own
+ * verdict (a flagged file scores low whatever it says), with a fixed spread per person so two
+ * files with the same verdict don't read the same. The number looks precise; it is the verdict
+ * with decimals' confidence.
+ */
+const SCORE_BAND: Record<Candidate['verdict'], [number, number]> = {
+  priority: [82, 96],
+  review: [54, 72],
+  low: [36, 52],
+  out: [9, 31],
+};
+
+export function aiScore(c: Pick<Candidate, 'id' | 'verdict'>): number {
+  const [lo, hi] = SCORE_BAND[c.verdict];
+  return lo + (hash(c.id) % (hi - lo + 1));
+}

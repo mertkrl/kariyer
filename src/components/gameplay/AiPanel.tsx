@@ -6,7 +6,8 @@ import { days } from '../../game/data/days';
 import type { Candidate, EvaluatedField } from '../../game/types';
 import { atsReport, systemLineWith } from '../../game/ats';
 import { AiIcon } from '../ui/AiIcon';
-import type { AiAnalysis } from './useAiAnalysis';
+import { ANALYZE_DURATION_MS, type AiAnalysis } from './useAiAnalysis';
+import { AnalysisRun, ScoreDial } from './AiRun';
 import styles from '../../screens/GameplayScreen.module.css';
 
 /** What the AI "reads" in each section: one flagged, the rest waved through with a stock phrase. */
@@ -107,6 +108,11 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
           </button>
         )}
       </div>
+
+      {isAnalyzing && candidate && (
+        <AnalysisRun key={candidate.id} candidate={candidate} applications={days[currentDayIndex].applicationTarget} durationMs={ANALYZE_DURATION_MS} />
+      )}
+      {hasNote && candidate && <ScoreDial key={candidate.id} candidate={candidate} reportOpen={noteOpen} onToggleReport={toggleNote} />}
 
       {aiOffline && (
         <div className={styles.systemLine}>{itOutage ? 'IT arızası: sistem yaklaşık 1 saat devre dışı. Bu arada kararlar sende.' : 'Bugün algoritmik öneri yok — kararlar tamamen sende.'}</div>
