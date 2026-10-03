@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type RefObject } from 'react';
 import { callFor, useGameStore, TEAM_LATE_DAY } from '../../game/store';
 import { PIZZA_SLICES } from '../../game/slices/deskSlice';
 import { days } from '../../game/data/days';
@@ -138,8 +138,11 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
     );
   };
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  useDeskKeys(rootRef);
+
   return (
-    <div className={styles.desk}>
+    <div ref={rootRef} className={styles.desk} onKeyDown={moveFocus}>
       <DeskDefs />
       <div className={styles.stage} style={stageStyle}>
         <DeskRoom className={styles.room} scale={scale} />
@@ -215,8 +218,10 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
 
         <button
           className={`${styles.obj} ${styles.monitor} ${firstClockIn ? styles.beckon : ''}`}
-          data-label={firstClockIn ? 'Güne başla · bilgisayara geç' : 'Bilgisayar'}
+          data-label={`${firstClockIn ? 'Güne başla · bilgisayara geç' : 'Bilgisayar'} · B`}
           aria-label={firstClockIn ? 'Güne başla: bilgisayara geç' : 'Bilgisayar'}
+          data-key="b"
+          aria-keyshortcuts="B"
           onClick={onOpenPc}
           disabled={powerOut}
         >
@@ -269,7 +274,9 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         {/* ── front of the desk ── */}
         <button
           className={`${styles.obj} ${styles.landline} ${ringingCaller ? styles.ringing : ''}`}
-          data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
+          data-label={`${ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} · H`} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
+          data-key="h"
+          aria-keyshortcuts="H"
           onClick={() => {
             if (ringingCaller) {
               audioEngine.playHandset();
@@ -285,10 +292,10 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         <button className={`${styles.obj} ${styles.mouse}`} data-label="Fare" aria-label="Fare" onClick={onOpenPc} disabled={powerOut}>
           <MouseArt />
         </button>
-        <button className={`${styles.obj} ${styles.mug}`} data-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} aria-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} onClick={() => think(drinkCoffee())}>
+        <button className={`${styles.obj} ${styles.mug}`} data-label={`${desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} · K`} data-key="k" aria-keyshortcuts="K" aria-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} onClick={() => think(drinkCoffee())}>
           <MugArt sips={desk.coffee} max={COFFEE_SIPS} />
         </button>
-        <button key={buzz?.id ?? 'phone'} className={`${styles.obj} ${styles.mobile} ${buzz ? styles.buzzing : ''}`} data-label="Cep telefonu" aria-label="Cep telefonu" onClick={() => onOpenPhone(buzz?.thread ?? null)}>
+        <button key={buzz?.id ?? 'phone'} className={`${styles.obj} ${styles.mobile} ${buzz ? styles.buzzing : ''}`} data-label="Cep telefonu · T" aria-label="Cep telefonu" data-key="t" aria-keyshortcuts="T" onClick={() => onOpenPhone(buzz?.thread ?? null)}>
           <MobileArt lit={!!buzz || unreadTotal > 0} unread={unreadTotal} />
         </button>
 
@@ -296,7 +303,9 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         <button
           key={`drawer-${drawerShake}`}
           className={`${styles.obj} ${styles.pedestal} ${drawerShake ? styles.rattle : ''} ${drawer === 'unlocked' ? styles.pedestalNew : ''}`}
-          data-label="Sol alt çekmece" aria-label="Sol alt çekmece"
+          data-label="Sol alt çekmece · Ç" aria-label="Sol alt çekmece"
+          data-key="ç"
+          aria-keyshortcuts="Ç"
           onClick={() => {
             if (drawer === 'locked') {
               setDrawerShake((n) => n + 1);
@@ -346,4 +355,68 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
       {thought && <div className={styles.thought}>{thought}</div>}
     </div>
   );
+}
+
+/** Something on top of the desk has the keyboard: a dialog, the computer, a text field. */
+function deskBusy(root: HTMLElement, e: KeyboardEvent) {
+  if (root.closest('[inert]')) return true;
+  const t = e.target as HTMLElement | null;
+  if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return true;
+  // a dialog that is actually showing: not the rotate hint hidden on a wide screen, not the
+  // computer's window left open behind the desk (its layer is inert while you're at the desk)
+  return [...document.querySelectorAll('[role="dialog"]')].some((d) => d.getClientRects().length > 0 && !root.contains(d) && !d.closest('[inert]'));
+}
+
+/**
+ * The desk's shortcuts: B the computer, T the mobile, H the landline, K the coffee, Ç the
+ * drawer — each button names its key (data-key) and shows it in its label. Turkish keyboards
+ * type ç; elsewhere C does the same.
+ */
+function useDeskKeys(rootRef: RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const root = rootRef.current;
+      if (!root || e.metaKey || e.ctrlKey || e.altKey || e.repeat || deskBusy(root, e)) return;
+      const key = e.key.toLocaleLowerCase('tr') === 'c' ? 'ç' : e.key.toLocaleLowerCase('tr');
+      const target = root.querySelector<HTMLButtonElement>(`button[data-key="${CSS.escape(key)}"]:not(:disabled)`);
+      if (!target) return;
+      e.preventDefault();
+      target.focus({ preventScroll: true });
+      target.click();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [rootRef]);
+}
+
+const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+
+/** Arrow keys move between the things on the desk: to the nearest one in that direction. */
+function moveFocus(e: ReactKeyboardEvent<HTMLDivElement>) {
+  const dir = ARROWS[e.key];
+  const from = e.target as HTMLElement;
+  if (!dir || !(from instanceof HTMLButtonElement) || !from.classList.contains(styles.obj)) return;
+  const centre = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  };
+  const a = centre(from);
+  let best: HTMLButtonElement | null = null;
+  let bestScore = Infinity;
+  for (const el of e.currentTarget.querySelectorAll<HTMLButtonElement>(`button.${styles.obj}:not(:disabled)`)) {
+    if (el === from) continue;
+    const b = centre(el);
+    const along = (b.x - a.x) * dir[0] + (b.y - a.y) * dir[1];
+    if (along <= 1) continue;
+    const across = Math.abs((b.x - a.x) * dir[1]) + Math.abs((b.y - a.y) * dir[0]);
+    // straight ahead beats off to the side; outside the 45° cone only if nothing is inside it
+    const score = along + across * 2 + (across > along ? 1e6 : 0);
+    if (score < bestScore) {
+      bestScore = score;
+      best = el;
+    }
+  }
+  if (!best) return;
+  e.preventDefault();
+  best.focus({ preventScroll: true });
 }

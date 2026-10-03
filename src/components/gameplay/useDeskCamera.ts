@@ -49,7 +49,7 @@ export function useDeskCamera(areaRef: RefObject<HTMLDivElement | null>, atPc: b
   // at the computer they rise over the right column (the day's tally), never over the CV and
   // its decision buttons
   const stackStyle: CSSProperties = atPc
-    ? { right: 16, bottom: 58, width: 'var(--pc-side)' }
+    ? { right: 16, bottom: 'calc(var(--pc-taskbar) + 16px)', width: 'var(--pc-side)' }
     : { right: Math.max(12, area.w - mobile.x - 170), bottom: Math.max(12, area.h - mobile.y + 6) };
 
   return { area, stageScale, deskStyle, pcStyle, stackStyle, callStackStyle };

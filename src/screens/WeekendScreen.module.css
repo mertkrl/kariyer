@@ -282,7 +282,7 @@
   line-height: 1.5;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
   .screen {
     grid-template-columns: 1fr;
     grid-template-rows: 40% 60%;

@@ -1,6 +1,5 @@
 .screen {
-  /* width of the portal's right column; notifications at the computer line up with it */
-  --pc-side: 270px;
+  /* the portal's right column is --pc-side (styles/layout.css) */
   width: 100%;
   height: 100vh;
   height: 100dvh;
@@ -721,7 +720,7 @@
   position: sticky;
   top: 28px;
   align-self: flex-start;
-  height: calc(100vh - 84px - 56px);
+  height: calc(100vh - var(--frame-topbar) - 56px);
   min-height: 560px;
 }
 
@@ -990,6 +989,8 @@
 
 /* the portal inside its window: everything fits, only long lists scroll inside their own box */
 .portalArea {
+  /* the AI note opens in here, over the CV (AiPanel: useNotePlacement) */
+  position: relative;
   height: 100%;
   width: 100%;
   padding: 12px 16px;
@@ -1330,6 +1331,12 @@ button.systemIconBadge {
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   gap: 14px;
   min-height: 0;
+}
+
+/* the end-of-file marker (CvBody: useSeenToEnd) */
+.cvEnd {
+  grid-column: 1 / -1;
+  height: 1px;
 }
 
 .cvMain,
@@ -1811,9 +1818,12 @@ button.systemIconBadge {
 
 /* the analysis opens wide, over the CV, so everything it says fits without scrolling */
 .noteBubble {
+  /* placed in the portal area, not in the right column (AiPanel: useNotePlacement sets top,
+     right and max-height): the column scrolls, and would cut the note down to its own width */
   left: auto;
-  right: 0;
+  z-index: 30;
   width: min(660px, calc(100vw - 360px));
+  overflow-y: auto;
 }
 
 .noteBubble::before {
@@ -1832,10 +1842,11 @@ button.systemIconBadge {
   margin-top: 0;
 }
 
-@media (max-width: 900px) {
+/* a narrow window: one column, still opening wide over the CV rather than squeezed into the
+   right column, and scrolling inside itself instead of running off the bottom of the screen */
+@media (max-width: 960px) {
   .noteBubble {
-    width: auto;
-    left: 0;
+    width: min(480px, calc(100vw - 48px));
   }
 
   .noteGrid {
@@ -1940,10 +1951,6 @@ button.systemIconBadge {
 
 /* a narrow window: the right column gives the CV a little more room */
 @media (max-width: 1100px) {
-  .screen {
-    --pc-side: 232px;
-  }
-
   /* the AI box's button goes under its title rather than squeezing it onto three lines */
   .systemHeader {
     flex-wrap: wrap;
@@ -1982,5 +1989,48 @@ button.systemIconBadge {
     .actionBar {
       flex: 0 0 62%;
     }
+  }
+}
+
+/* A phone on its side: the file can't share ~250px with its header and the decision row, so
+   the whole card scrolls — header, file — with the decision row kept at its bottom edge. */
+@media (max-height: 520px) {
+  .portalArea .candidateCard {
+    overflow-y: auto;
+  }
+
+  .portalArea .cvBody {
+    flex: none;
+    overflow: visible;
+  }
+
+  .portalArea .grow {
+    display: none;
+  }
+
+  .portalArea .decisionBar {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .portalArea .actionArea {
+    position: sticky;
+    bottom: -12px;
+    z-index: 2;
+    margin: 0 -18px -12px;
+    padding: 8px 18px 12px;
+    background: var(--paper-light);
+    box-shadow: 0 -6px 12px rgba(34, 31, 27, 0.08);
+  }
+}
+
+/* A very narrow CV card (an upright tablet, ~320px: the queue and the right column take their
+   share): one column, sidebar under the main part, instead of two columns of a few words each.
+   Not on a 1024px laptop (the card is ~520px there): see above why two columns stay. This
+   follows the card's own width, not the screen's (docs/yerlesim.md). */
+@container cv (max-width: 420px) {
+  .cvBody {
+    grid-template-columns: 1fr;
   }
 }

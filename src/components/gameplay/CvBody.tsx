@@ -30,22 +30,13 @@ type Details = (typeof candidateDetails)[string];
  * True while the CV runs on below the fold. On a short screen the CV scrolls inside the card,
  * and its bottom edge fades out so the company's questions aren't missed.
  */
-function useMoreBelow(onEnd: () => void) {
+function useMoreBelow() {
   const ref = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState(false);
-  const endRef = useRef(onEnd);
-  useEffect(() => {
-    endRef.current = onEnd;
-  });
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const check = () => {
-      const below = el.scrollHeight - el.scrollTop - el.clientHeight > 4;
-      setMore(below);
-      // the end of the file has been on screen (or all of it fits): it can count as read
-      if (!below) endRef.current();
-    };
+    const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
     const ro = new ResizeObserver(check);
     ro.observe(el);
     for (const child of el.children) ro.observe(child);
@@ -58,8 +49,31 @@ function useMoreBelow(onEnd: () => void) {
   return { ref, more };
 }
 
+/**
+ * The end of the file has been on screen — whatever scrolls it there: the CV inside the card on
+ * a short screen, the whole card on a phone on its side, or nothing when it all fits.
+ */
+function useSeenToEnd(onEnd: () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+  const endRef = useRef(onEnd);
+  useEffect(() => {
+    endRef.current = onEnd;
+  });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) endRef.current();
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+
 export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }: { candidate: Candidate; details?: Details; scanning: boolean; verdicts: boolean; onReadThrough: () => void }) {
-  const { ref, more } = useMoreBelow(onReadThrough);
+  const { ref, more } = useMoreBelow();
+  const endRef = useSeenToEnd(onReadThrough);
   return (
     <div ref={ref} className={`${styles.cvBody} ${more ? styles.cvBodyMore : ''}`}>
       <div className={styles.cvMain}>
@@ -159,6 +173,8 @@ export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }
           </section>
         )}
       </aside>
+      {/* the bottom of the file, across both columns: once this has been on screen, it was seen whole */}
+      <div ref={endRef} className={styles.cvEnd} aria-hidden="true" />
     </div>
   );
 }

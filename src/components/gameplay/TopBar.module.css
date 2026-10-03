@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  min-height: 84px;
+  min-height: var(--frame-topbar);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
@@ -311,7 +311,7 @@
   height: 18px;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1240px) {
   .brandText {
     display: none;
   }
@@ -337,24 +337,44 @@
   }
 }
 
+/* A tablet or a small window: still one row (stacked, the bar took a fifth of the screen),
+   tighter — the separators go, the meters narrow, the ▲ ♥ icons carry their names. */
 @media (max-width: 960px) {
   .bar {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr auto;
     gap: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .left,
   .center,
   .right {
-    justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .center {
+    justify-content: center;
+  }
+
+  .sep {
+    display: none;
+  }
+
+  .meter {
+    width: 72px;
+  }
+
+  /* the icons carry the meaning here; screen readers get the name from the meter itself */
+  .meterLabel {
+    display: none;
   }
 }
 
 /* A short screen: the bar keeps everything, a little tighter, so the workday gets the height. */
 @media (max-height: 820px) {
   .bar {
-    min-height: 64px;
     padding-top: 6px;
     padding-bottom: 6px;
   }

@@ -147,6 +147,16 @@ export function GameplayScreen() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // back at the desk from the computer, the keyboard picks up where it left: on the computer
+  const wasAtPc = useRef(false);
+  useEffect(() => {
+    if (view === 'pc') wasAtPc.current = true;
+    else if (wasAtPc.current) {
+      wasAtPc.current = false;
+      document.querySelector<HTMLButtonElement>('button[data-key="b"]')?.focus({ preventScroll: true });
+    }
+  }, [view]);
+
   // Esc leaves the computer for the desk (unless something on top of it wants the key).
   useEffect(() => {
     if (view !== 'pc') return;
@@ -284,7 +294,7 @@ export function GameplayScreen() {
             finalistNames={finalists.map((f) => candidateOf(f.id).name)}
             beckonPortal={!shiftStarted && currentDayIndex === 0}
             portal={
-      <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef}>
+      <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef} data-note-host>
             {!shiftStarted && needsOrientation && <Orientation container={portalRef} onDone={finishOrientation} />}
             {!shiftStarted && !needsOrientation && <ShiftGate />}
             <QueueSidebar

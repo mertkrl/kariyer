@@ -44,6 +44,7 @@ Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda 
 - `save`: kaydın yazılması, doğrulanması, bozuk ya da eski kayıtların reddi; kaybolan kaydın oyuncuya söylenmesi
 - `week`: bir botun beş günü saat saat oynaması; aynı tohumun aynı haftayı vermesi, rahat ve zor mod
 - `data`: senaryo verisinin bütünlüğü (her aday, gün, rica ve hikâye rolü tutarlı; karışık kadrolar adayları kaybetmez); oyun mantığında `Math.random` yok
+- `layout`: bütün stil dosyaları yalnızca ortak kırılma noktalarını kullanır; çerçeve ölçüleri tek yerde ([docs/yerlesim.md](docs/yerlesim.md))
 - `security`, `privacy`: ağ isteği yok, HTML'den betik yok, her depolama anahtarı `kariyerweb-` önekli, kayıt oyunun durumunu kirletemez, sayfadaki ve başlıktaki güvenlik politikası aynı; "Verilerimi sil" her şeyi siler
 - `balance`: farklı alışkanlıkta botlar (okumadan sisteme uyan, okuyarak uyan, dengeli, adayları savunan, hiç karar vermeyen) aynı haftaları oynar; puanların bu oyuncuları doğru sıraya dizmesi ve duvara dayanmaması denetlenir. Puanlama kuralları `game/engine/scoring.ts` başındaki açıklamada.
 
@@ -87,7 +88,7 @@ src/
   audio/                  Ses: audioEngine (ayarlar, müzik, kısa sesler), engineCore (ses grafiği ve
                           sentez araçları), scenes/ (ofis, sokak, hava, öğle arası, tarama…)
                           Müzik dosyaları public/audio altında, scripts/ ile üretilir
-docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları
+docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları, yerleşim stratejisi, eğitmen rehberi
 ```
 
 ## Eğitimde kullanmak

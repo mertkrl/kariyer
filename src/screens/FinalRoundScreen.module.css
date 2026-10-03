@@ -721,7 +721,7 @@
 
 
 /* fixed-height screen on desktop: only the conversation scrolls */
-@media (min-width: 861px) {
+@media (min-width: 961px) {
   .screen {
     height: 100dvh;
     min-height: 0;
@@ -755,7 +755,13 @@
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
+  /* one column: the list scrolls in its own few rows so the interview room is right below it,
+     not under all nine names */
+  .list {
+    max-height: 34vh;
+  }
+
   .body {
     grid-template-columns: 1fr;
     grid-template-areas:

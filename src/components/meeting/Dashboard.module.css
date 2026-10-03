@@ -562,3 +562,26 @@
     transition: none;
   }
 }
+
+/* a phone on its side: the shared screen is barely a hundred pixels high, so the page keeps
+   its natural height and scrolls inside it instead of squeezing the cards on top of each other */
+@media (max-height: 520px) {
+  .page {
+    overflow-y: auto;
+  }
+
+  .gridOverview,
+  .gridPeople,
+  .gridShort,
+  .gridFunnel {
+    height: auto;
+  }
+
+  .kpi {
+    min-height: 0;
+  }
+
+  .kpi b {
+    font-size: calc(17px * var(--ts, 1));
+  }
+}

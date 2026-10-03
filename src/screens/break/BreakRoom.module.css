@@ -73,7 +73,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .toast {
     max-width: calc(100% - 32px);
     bottom: 84px;
