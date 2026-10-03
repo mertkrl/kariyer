@@ -57,20 +57,43 @@ export function checkSave(data: unknown, fresh: object): Partial<GameState> | nu
   return kept as Partial<GameState>;
 }
 
+/**
+ * Set when there was a save but this build couldn't continue it (an older version, a damaged
+ * file, a day or a candidate the game no longer has), so the player is told rather than
+ * finding their week silently gone.
+ */
+let lost = false;
+export const saveWasLost = () => lost;
+
 export function readSave(): SaveFile | null {
+  let raw: string | null = null;
   try {
-    const save: unknown = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null');
-    if (!isRecord(save) || typeof save.version !== 'number' || !isRecord(save.data)) return null;
+    raw = localStorage.getItem(SAVE_KEY);
+    const save: unknown = JSON.parse(raw ?? 'null');
+    if (save === null) return null;
+    if (!isRecord(save) || typeof save.version !== 'number' || !isRecord(save.data)) return unusable();
     let { version, data } = save;
     while (version < SAVE_VERSION && MIGRATIONS[version]) data = MIGRATIONS[version++](data);
-    if (version !== SAVE_VERSION) return null;
+    if (version !== SAVE_VERSION) return unusable();
     return { version, savedAt: typeof save.savedAt === 'number' ? save.savedAt : 0, data: data as Partial<GameState> };
   } catch {
-    return null;
+    return raw === null ? null : unusable();
   }
 }
 
+function unusable(): null {
+  lost = true;
+  return null;
+}
+
+/** Removes a save that turned out not to fit the game (see `saveWasLost`). */
+export function discardSave(): null {
+  clearSave();
+  return unusable();
+}
+
 export function clearSave() {
+  lost = false;
   try {
     localStorage.removeItem(SAVE_KEY);
   } catch {

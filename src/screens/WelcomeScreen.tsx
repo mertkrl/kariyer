@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type MouseEvent } from 'react';
-import { readSave } from '../game/save';
+import { readSave, saveWasLost } from '../game/save';
 import { loadStore, useLoadedStore, withStore } from '../game/storeLoader';
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
@@ -92,9 +92,16 @@ export function WelcomeScreen() {
             <small className={styles.saveNote}>Kayıt yalnızca bu tarayıcıda durur. Yeni oyunda ilanı seçtiğin anda eski kaydın üzerine yazılır.</small>
           </div>
         ) : (
-          <Button variant="gold" sound="start" onClick={startGame}>
-            İŞE BAŞLA →
-          </Button>
+          <div className={styles.actions}>
+            <Button variant="gold" sound="start" onClick={startGame}>
+              İŞE BAŞLA →
+            </Button>
+            {save === null && saveWasLost() && (
+              <small className={styles.saveNote} role="status">
+                Önceki kaydın oyunun bu sürümüyle uyumlu değildi, kaldığın yerden devam edilemiyor. Üzgünüz.
+              </small>
+            )}
+          </div>
         )}
       </div>
 

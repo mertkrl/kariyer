@@ -22,7 +22,7 @@ import { BREAK_END_MIN, BREAK_START_MIN, formatClock } from './time';
 import { leventMail, type WeekEntry } from './echoes';
 import { MEETING_AT, MEETING_DAY } from './meeting';
 import type { Finalist, WeekLog, StoryState, GameState } from './storeTypes';
-import { checkSave, clearSave, readSave, writeSave, type SaveFile } from './save';
+import { checkSave, clearSave, discardSave, readSave, writeSave, type SaveFile } from './save';
 import { bindStore } from './storeApi';
 import { cancelLater, later } from './later';
 import { createDeskSlice } from './slices/deskSlice';
@@ -125,10 +125,7 @@ export function loadSave(): SaveFile | null {
   if (!save) return null;
   const data = checkSave(save.data, { ...freshWeek(), difficulty: 'normal' });
   const ids = data ? [...(data.lineups ?? []).flat(), ...(data.weekLog ?? []).map((e) => e.id), ...(data.finalists ?? []).map((f) => f.id)] : [];
-  if (!data || !days[data.currentDayIndex ?? -1] || ids.some((id) => !(id in candidates))) {
-    clearSave();
-    return null;
-  }
+  if (!data || !days[data.currentDayIndex ?? -1] || ids.some((id) => !(id in candidates))) return discardSave();
   return { ...save, data };
 }
 

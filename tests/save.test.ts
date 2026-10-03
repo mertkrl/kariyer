@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SAVE_VERSION, checkSave, clearSave, readSave, writeSave } from '../src/game/save';
+import { SAVE_VERSION, checkSave, clearSave, readSave, saveWasLost, writeSave } from '../src/game/save';
 import { loadSave, useGameStore } from '../src/game/store';
 import type { GameState } from '../src/game/storeTypes';
 
@@ -61,4 +61,22 @@ test('devam et kaydı olduğu gibi yükler', () => {
   assert.equal(state().currentDayIndex, 3);
   assert.equal(state().vicdan, 12);
   assert.equal(state().phase, 'briefing');
+});
+
+test('kullanılamayan kayıt oyuncuya söylenir, kayıt hiç yoksa söylenmez', () => {
+  clearSave();
+  assert.equal(readSave(), null);
+  assert.equal(saveWasLost(), false);
+  localStorage.setItem(KEY, JSON.stringify({ version: SAVE_VERSION - 1, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 0 } }));
+  assert.equal(readSave(), null);
+  assert.equal(saveWasLost(), true);
+  clearSave();
+  assert.equal(saveWasLost(), false);
+  localStorage.setItem(KEY, '{bozuk');
+  assert.equal(readSave(), null);
+  assert.equal(saveWasLost(), true);
+  state().restart();
+  writeSave({ ...state(), phase: 'briefing', currentDayIndex: 99 });
+  assert.equal(loadSave(), null);
+  assert.equal(saveWasLost(), true);
 });
