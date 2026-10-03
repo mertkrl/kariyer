@@ -8,14 +8,17 @@ import { BREAK_END_MIN, BREAK_START_MIN, OVERTIME_END_MIN, WORKDAY_END_MIN, isBr
 import { CALLBACK_MINUTES, REQUEST_CALL_PREFIX, RING_MINUTES, callsForDay } from './desk';
 import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies } from './manager';
 import { type GameState } from './storeTypes';
-import { REVOKE_AT, callFor, revokeInvites, revokeTargets } from './managerCalls';
+import { REVOKE_AT, REVOKE_DAY, callFor, revokeInvites, revokeTargets } from './managerCalls';
 import { type RejectTemplate, candidateReplies, sentMails } from './rejectionMails';
 import { TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from './storeDefaults';
 import { sound } from './sound';
 import { visitorsToday } from './visits';
 import { days } from './data/days';
 import { EXTRA_CANDIDATES } from './data/extraCandidates';
-import { rngFor } from './rng';
+import { rngFor, shuffle } from './rng';
+import { THANKS_DAY } from './weekdays';
+/** 13:00 on the thanks day: the call comes after lunch. */
+const THANKS_AT = 300;
 /** Hands out the next phone message id. */
 export function takeMessageId() {
   const id = getState().messageSeq;
@@ -60,7 +63,7 @@ export function ringLandline(minutes: number) {
   if (!desk.ringing && minutes - lastTextAt(state) < QUIET_GAP) return;
   if (!desk.ringing && minutes >= BREAK_START_MIN - 15 && minutes < BREAK_END_MIN) return;
   // Wednesday afternoon: two of your invitations are to be taken back
-  if (!desk.ringing && state.currentDayIndex === 2 && minutes >= REVOKE_AT && !desk.calls.revoke && !state.revoked && revokeTargets(state.finalists).length === 2) {
+  if (!desk.ringing && state.currentDayIndex === REVOKE_DAY && minutes >= REVOKE_AT && !desk.calls.revoke && !state.revoked && revokeTargets(state.finalists).length === 2) {
     setState({ desk: { ...desk, ringing: 'revoke', ringingSince: minutes } });
     return;
   }
@@ -92,8 +95,8 @@ export function ringLandline(minutes: number) {
     return;
   }
   // Thursday afternoon: someone you called to interview earlier in the week rings to say thanks
-  if (state.currentDayIndex === 3 && minutes >= 300 && !Object.keys(desk.calls).some((k) => k.startsWith('thanks:'))) {
-    const early = state.finalists.find((f) => f.day <= 2);
+  if (state.currentDayIndex === THANKS_DAY && minutes >= THANKS_AT && !Object.keys(desk.calls).some((k) => k.startsWith('thanks:'))) {
+    const early = state.finalists.find((f) => f.day <= THANKS_DAY - 1);
     if (early) {
       setState({ desk: { ...desk, ringing: `thanks:${early.id}`, ringingSince: minutes } });
       return;
@@ -313,33 +316,32 @@ export function deliverManagerMessages(minutes: number) {
   sound().playPhoneBuzz();
 }
 
-/** Closing the queue before 15:30 counts as "early". */
+/** Closing the queue before 15:30 counts as "early"; Hakan Bey only checks from 14:00 on. */
 const EXTRA_FILES_BEFORE = WORKDAY_END_MIN - 90;
+export const EXTRA_FILES_FROM = 6 * 60;
 
 /**
  * You closed today's queue early: Hakan Bey notices and "finds" 2–4 more files in the system's
  * waiting list. Once a day, only on a screening day, never someone already in the week.
- * The files go to the end of the queue; if they aren't closed by 17:00, overtime as usual.
+ * The files go to the top of the queue; if they aren't closed by 17:00, overtime as usual.
+ * Only while you're still at your desk: "Günü Bitir" with every file closed sends you home.
  * Returns whether files were added.
  */
 export function addExtraFiles(): boolean {
   const s = getState();
   const day = s.currentDayIndex;
-  if (s.phase !== 'gameplay' || days[day]?.final || s.overtime || s.extraFiles[day] || s.workdayMinutes >= EXTRA_FILES_BEFORE) return false;
+  if (s.phase !== 'gameplay' || days[day]?.final || s.overtime || s.extraFiles[day] || s.workdayMinutes < EXTRA_FILES_FROM || s.workdayMinutes >= EXTRA_FILES_BEFORE) return false;
   if (!lineupFor(s).every((id) => s.decisions[id])) return false;
   const inWeek = new Set(s.lineups.flat());
-  const pool = Object.keys(EXTRA_CANDIDATES).filter((id) => !inWeek.has(id));
-  if (pool.length < 2) return false;
   const rand = rngFor(s.seed, `extras-${day}`);
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
+  const pool = shuffle(Object.keys(EXTRA_CANDIDATES).filter((id) => !inWeek.has(id)), rand);
+  if (pool.length < 2) return false;
   const picked = pool.slice(0, Math.min(pool.length, 2 + Math.floor(rand() * 3)));
   const text = `İşi bitirmişsin, bakıyorum. O zaman biraz daha CV'ye bak bakalım: sistemin bekleme listesinden ${picked.length} dosya daha portalına düştü. Mesai bitmeden kapat.`;
   setState({
     extraFiles: { ...s.extraFiles, [day]: picked },
-    lineups: s.lineups.map((l, i) => (i === day ? [...l, ...picked] : l)),
+    // the new files land at the top of the queue, where they're seen
+    lineups: s.lineups.map((l, i) => (i === day ? [...picked, ...l] : l)),
     phone: [...s.phone, { id: takeMessageId(), thread: 'manager', at: s.workdayMinutes, day, from: 'them', text }],
     phoneUnread: { ...s.phoneUnread, manager: s.phoneUnread.manager + 1 },
   });

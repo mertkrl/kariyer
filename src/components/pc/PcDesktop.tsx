@@ -31,11 +31,13 @@ interface PcDesktopProps {
   /** A recall mail you have to write: to whom, and the send action. */
   /** Who is on the interview list right now (for the list attached to Hakan Bey's mail). */
   finalistNames?: string[];
+  /** Before the shift starts: point at the portal, where the day begins. */
+  beckonPortal?: boolean;
 }
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 
-export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, extraMails, finalistNames = [] }: PcDesktopProps) {
+export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, extraMails, finalistNames = [], beckonPortal = false }: PcDesktopProps) {
   const mails = inbox(dayIndex, minutes, extraMails);
   const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !mailRead.includes(m.id)).length;
   const [toast, setToast] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       </div>
 
       <div className={styles.icons}>
-        <button className={styles.icon} onClick={() => open('portal')}>
+        <button className={`${styles.icon} ${beckonPortal && !app ? styles.beckon : ''}`} onClick={() => open('portal')}>
           <span className={`${styles.glyph} ${styles.glyphPortal}`}>İK</span>
           İşe Alım Portalı
         </button>

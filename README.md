@@ -33,6 +33,7 @@ GitHub'a gönderildiğinde `.github/workflows/ci.yml` bunların hepsini her push
 - `rng`, `time`: tohumlu rastgelelik, saat ve Türkçe ekler
 - `save`: kaydın yazılması, doğrulanması, bozuk ya da eski kayıtların reddi
 - `week`: bir botun beş günü saat saat oynaması; aynı tohumun aynı haftayı vermesi, zor mod
+- `balance`: farklı alışkanlıkta botlar (okumadan sisteme uyan, okuyarak uyan, dengeli, adayları savunan, hiç karar vermeyen) aynı haftaları oynar; puanların bu oyuncuları doğru sıraya dizmesi ve duvara dayanmaması denetlenir. Puanlama kuralları `game/engine/scoring.ts` başındaki açıklamada.
 
 Oyun mantığı ses çalmak için `game/sound.ts` üzerinden konuşur; ses motoru `main.tsx`'te bağlanır, testlerde sessizdir.
 
@@ -90,7 +91,19 @@ Her oyunun bir kodu (tohum) vardır; ayarlar panelinin altında "Oyun kodu #…"
 
 ## Çevrimdışı
 
-`npm run build` bir servis çalışanı (`sw.js`) üretir: oyunun tüm dosyaları (sayfa, betikler, stiller, yazı tipleri, sesler) ilk açılışta tarayıcıya alınır. Yeni bir derleme yayınlandığında süren bir haftanın ortasında devreye girmez: karşılama ekranında "Oyunun yeni sürümü hazır · Yenile" çıkar, seçilmezse bütün sekmeler kapanınca geçilir. Servis çalışanı yalnızca derlenmiş sürümde ve HTTPS ya da localhost üzerinden çalışır.
+`npm run build` bir servis çalışanı (`sw.js`) üretir: oyunun dosyaları (sayfa, betikler, stiller, yazı tipleri, görseller) ilk açılışta tarayıcıya alınır. Müzik ve yağmur sesi (birkaç MB) ilk açılışta indirilmez; ilk çalındıklarında saklanır, böylece mobil veride duyulmayacak ses indirilmez. Yeni bir derleme yayınlandığında süren bir haftanın ortasında devreye girmez: karşılama ekranında "Oyunun yeni sürümü hazır · Yenile" çıkar, seçilmezse bütün sekmeler kapanınca geçilir. Servis çalışanı yalnızca derlenmiş sürümde ve HTTPS ya da localhost üzerinden çalışır.
+
+## Yayına almak
+
+`dist/` klasörü herhangi bir statik sunucudan, herhangi bir alt klasörde yayınlanabilir.
+
+- **Paylaşım önizlemesi:** sosyal sitelerin bağlantı önizlemesi `og:image` için tam adres ister. Derlerken yayın adresini ver: `SITE_URL=https://alan-adi npm run build`. Sayfaya tam görsel adresi, `og:url` ve `canonical` eklenir. Sonuç kartının altındaki adres, oyunun açıldığı adresten okunur.
+- **Güvenlik:** derlenen sayfa kendi Content-Security-Policy'sini taşır: yalnızca oyunun kendi dosyaları yüklenir, sayfadan hiçbir yere istek çıkmaz. `public/_headers` (Netlify ve Cloudflare Pages bunu okur) başka sitelerin oyunu çerçeve içine almasını engeller, `sw.js`'in önbelleğe alınmamasını ve parmak izli dosyaların uzun süre önbellekte kalmasını sağlar. Başka bir sunucu kullanılıyorsa aynı başlıklar oradan verilmeli.
+- **Görseller:** masadaki orkide, Unsplash Lisansı'yla yayımlanmış bir fotoğraftan kesildi (ücretsiz kullanım ve değiştirme serbest, atıf gerekmez). Diğer bütün çizimler kodun içinde SVG olarak durur.
+
+## Gizlilik
+
+Oyun hiçbir veri göndermez: sunucu, hesap, analiz ya da üçüncü taraf betiği yoktur. Kayıt, başarımlar ve ayarlar yalnızca oyuncunun tarayıcısında `kariyerweb-` ile başlayan anahtarlarda durur. Karşılama ekranındaki "Verilerimi sil" bağlantısı bunların hepsini siler. Hata raporu yalnızca oyuncu düğmeye basınca panoya kopyalanır; içinde sürüm, oyun kodu, aşama, tarayıcı bilgisi ve hata izi vardır, kişisel bilgi yoktur.
 
 ## Bağımlılıklar
 
@@ -99,4 +112,4 @@ Her oyunun bir kodu (tohum) vardır; ayarlar panelinin altında "Oyun kodu #…"
 ## Bilinen eksikler
 
 - Arayüz testleri yok: testler oyun mantığını kapsıyor, ekranlar elle deneniyor.
-- Paylaşım önizleme görseli (`og:image`) göreli adres kullanıyor; yayına alınan alan adına göre tam adres yazılmalı.
+- Renklerin çoğu (yaklaşık 1.400 yerde) hâlâ doğrudan yazılmış; `styles/tokens.css` yalnızca temel paleti taşıyor.

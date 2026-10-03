@@ -14,17 +14,20 @@ function filesIn(dir: string, root = dir): string[] {
 
 /*
  * Offline play without a PWA library: at build time this writes `sw.js`, a service worker that
- * keeps the whole game (the page, its scripts, styles, fonts, icons and audio) in the browser's
- * cache. The cache is named after a hash of the file list, so a new build replaces the old one.
- * The page itself is fetched from the network first; a new build waits for the player (swUpdate.ts).
+ * keeps the whole game (the page, its scripts, styles, fonts and icons) in the browser's cache.
+ * The music and rain (a few MB) are not part of that first download: each is kept the first time
+ * it plays, so a phone on mobile data doesn't fetch sound it may never hear. The cache is named
+ * after a hash of the file list, so a new build replaces the old one. The page itself is fetched
+ * from the network first; a new build waits for the player (swUpdate.ts).
  */
 function offlineCache(): Plugin {
   return {
     name: 'offline-cache',
     apply: 'build',
     generateBundle(_, bundle) {
-      const files = [...Object.keys(bundle), ...filesIn('public')].filter((f) => !f.endsWith('.map') && f !== '.DS_Store' && f !== 'og.png' && f !== 'audio/theme.m4a')
-      const version = createHash('sha256').update(files.join('|')).digest('hex').slice(0, 12)
+      const all = [...Object.keys(bundle), ...filesIn('public')].filter((f) => !f.endsWith('.map') && !f.endsWith('.DS_Store') && f !== 'og.png' && f !== '_headers')
+      const files = all.filter((f) => !f.startsWith('audio/'))
+      const version = createHash('sha256').update(all.join('|')).digest('hex').slice(0, 12)
       const source = `const CACHE = 'sen-iksin-${version}';
 const FILES = ${JSON.stringify(['./', ...files.map((f) => './' + f)])};
 
@@ -52,11 +55,68 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(fetch(request).catch(() => caches.match('./', { cacheName: CACHE })));
     return;
   }
-  // everything else is fingerprinted or static: the cached copy is the right one
-  event.respondWith(caches.match(request, { ignoreSearch: true }).then((hit) => hit ?? fetch(request)));
+  // everything else is fingerprinted or static: the cached copy is the right one; what isn't
+  // cached yet (the music, the rain) is kept the first time it arrives whole
+  event.respondWith(
+    caches.match(request, { ignoreSearch: true }).then(
+      (hit) =>
+        hit ??
+        fetch(request).then((response) => {
+          if (response.status === 200 && !request.headers.has('range')) {
+            const copy = response.clone();
+            event.waitUntil(caches.open(CACHE).then((cache) => cache.put(request, copy)));
+          }
+          return response;
+        }),
+    ),
+  );
 });
 `
       this.emitFile({ type: 'asset', fileName: 'sw.js', source })
+    },
+  }
+}
+
+/*
+ * What only the published page needs. A Content-Security-Policy that allows nothing but the
+ * game's own files: no other site's scripts, no requests leaving the page (the game has no
+ * server and sends nothing). It is added at build time only — the dev server injects styles
+ * and a websocket the policy would block. And when SITE_URL is set (the address the build is
+ * published at, e.g. SITE_URL=https://sen-iksin.example npm run build), the share preview gets
+ * absolute addresses, which link previews on social sites require.
+ */
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "media-src 'self' blob:",
+  "connect-src 'self'",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ')
+
+function publishedPage(): Plugin {
+  return {
+    name: 'published-page',
+    apply: 'build',
+    transformIndexHtml: {
+      // after Vite has rewritten the page's own addresses to relative ones
+      order: 'post',
+      handler(html) {
+        let out = html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`)
+        const site = process.env.SITE_URL?.replace(/\/+$/, '')
+        if (site) {
+          out = out
+            .replace(/content="\.?\/og\.png"/g, `content="${site}/og.png"`)
+            .replace('<meta property="og:type"', `<link rel="canonical" href="${site}/" />\n    <meta property="og:url" content="${site}/" />\n    <meta property="og:type"`)
+        }
+        return out
+      },
     },
   }
 }
@@ -68,5 +128,5 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify((JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version),
   },
-  plugins: [react(), offlineCache()],
+  plugins: [react(), offlineCache(), publishedPage()],
 })

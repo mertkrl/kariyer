@@ -33,7 +33,7 @@
 }
 
 .eyebrow {
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--on-dark-muted);
@@ -74,7 +74,7 @@
   background: transparent;
   color: var(--on-dark-muted);
   font: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--ts, 1));
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
@@ -107,7 +107,7 @@
 @media (max-width: 560px) {
   .tab {
     padding: 9px 12px;
-    font-size: 12.5px;
+    font-size: calc(12.5px * var(--ts, 1));
   }
 }
 
@@ -146,7 +146,7 @@
 }
 
 .postingEyebrow {
-  font-size: 10px;
+  font-size: calc(10px * var(--ts, 1));
   letter-spacing: 1.5px;
   text-transform: uppercase;
   font-weight: 700;
@@ -177,7 +177,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: calc(20px * var(--ts, 1));
   font-weight: 700;
   color: #fff;
 }
@@ -191,7 +191,7 @@
 }
 
 .postingMeta {
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   color: var(--on-dark-muted);
   margin-top: 2px;
 }
@@ -206,7 +206,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   font-weight: 600;
   padding: 7px 13px;
   border-radius: 20px;
@@ -220,7 +220,7 @@
 }
 
 .postingFactIcon {
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
 }
 
 .postingDivider {
@@ -250,7 +250,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ts, 1));
   letter-spacing: 0.5px;
   text-transform: uppercase;
   font-weight: 700;
@@ -298,7 +298,7 @@
 }
 
 .difficultyLabel {
-  font-size: 11px;
+  font-size: calc(11px * var(--ts, 1));
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -313,7 +313,7 @@
   background: var(--ink);
   color: var(--on-dark-muted);
   font: inherit;
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -333,7 +333,7 @@
 }
 
 .difficultyHint {
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   color: var(--on-dark-muted);
   margin-left: 6px;
 }

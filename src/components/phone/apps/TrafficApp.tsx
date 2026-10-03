@@ -346,7 +346,8 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
             {available
               .filter((r) => r.id !== route.id)
               .map((r) => (
-                <g key={r.id} className={styles.altRoute} onClick={() => setRouteId(r.id)}>
+                // a mouse/touch shortcut for the mode buttons below, which are the keyboard way
+                <g key={r.id} className={styles.altRoute} onClick={() => setRouteId(r.id)} aria-hidden="true">
                   <path d={r.d} fill="none" stroke="#ffffff" strokeWidth={4.6} strokeLinecap="round" strokeLinejoin="round" />
                   <path d={r.d} fill="none" stroke="#a9bfdc" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={r.mode === 'car' ? undefined : '0.1 4'} />
                   <path d={r.d} fill="none" stroke="transparent" strokeWidth={12} />
@@ -404,7 +405,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
             {available.map((r) => {
               const on = r.id === route.id;
               return (
-                <g key={r.id} transform={`translate(${r.tag[0]} ${r.tag[1]}) scale(${1 / k})`} className={styles.bubble} onClick={() => setRouteId(r.id)}>
+                <g key={r.id} transform={`translate(${r.tag[0]} ${r.tag[1]}) scale(${1 / k})`} className={styles.bubble} onClick={() => setRouteId(r.id)} aria-hidden="true">
                   <rect x="-20" y="-8" width="40" height="16" rx="5" fill={on ? '#1a73e8' : '#ffffff'} stroke={on ? '#1a73e8' : '#c5ccd6'} strokeWidth="0.8" />
                   <text y="3.3" className={on ? styles.bubbleOn : styles.bubbleText}>
                     {MODE_ICON[r.mode]} {eta(r)} dk

@@ -145,7 +145,10 @@ export interface GameState {
   decisions: Record<string, Decision>;
   /** Today's decisions, newest last. Re-deciding a candidate moves them to the end. */
   decisionLog: DecisionLogEntry[];
+  /** Seconds each of today's files spent open on the portal screen. */
   timeSpent: Record<string, number>;
+  /** The portal is on screen with a file open: only then does reading time count. */
+  reading: boolean;
 
   dayStats: DayStats;
   totalStats: DayStats;
@@ -197,9 +200,8 @@ export interface GameState {
   /** Friday: how you handled Hakan Bey cutting in, and the candidates' own questions. */
   interviewStance: InterviewStance;
   /** What each of today's decisions did to the scores (to take it back exactly). */
-  decisionEffects: Record<string, { performans: number; vicdan: number }>;
-  /** The last decision's effect, shown for a moment. */
-  lastEffect: { id: string; reason: string; performans: number; vicdan: number; key: number } | null;
+  /** What each of today's decisions did to the scores (as applied, so undo restores them exactly) and why. */
+  decisionEffects: Record<string, { performans: number; vicdan: number; reason?: string }>;
   /** Performance fell too low: one interview slot fewer today. */
   quotaCut: boolean;
 
@@ -274,6 +276,7 @@ export interface GameState {
   restart: () => void;
   toggleMute: () => void;
   togglePause: () => void;
+  setReading: (reading: boolean) => void;
   startShift: () => void;
   finishOrientation: () => void;
   toggleMuteThread: (thread: ThreadId) => void;

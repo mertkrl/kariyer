@@ -6,6 +6,8 @@ import { ZEHRA } from './story';
 import { PLAYER } from './player';
 import { AMBIENT, BIRTHDAY, FAMILY, GREETINGS, MOM_POOL, REQUESTS, TEAM_COMPLIED, TEAM_DEFIED, TONED } from './data/phoneScript';
 import type { Ambient, Grievance, ManagerRequest, ManagerTone, QuickReply, RequestTemplate, ScheduledMessage } from './phoneTypes';
+import { BIRTHDAY_DAY, THURSDAY, TUESDAY } from './weekdays';
+import { shuffle } from './rng';
 
 export { GROUP_THREADS } from './phoneTypes';
 export type { Grievance, ManagerRequest, ManagerTone, PhoneMessage, QuickReply, ScheduledMessage, ThreadId } from './phoneTypes';
@@ -37,7 +39,7 @@ const THURSDAY_REQUEST_SLOTS = [330];
 /** Hard mode: he pushes twice on those days. */
 const HARD_REQUEST_SLOTS = [160, 380];
 /** He only pushes his people on Tuesdays and Thursdays. */
-const REQUEST_DAYS = [1, 3];
+const REQUEST_DAYS = [TUESDAY, THURSDAY];
 
 const MOM_SLOTS = [140, 190, 350, 410, 460];
 
@@ -69,7 +71,7 @@ export function buildManagerScript(
   const rank = (x: { id: string; t: RequestTemplate }) => (x.id === 'okan' || x.id === 'baris' ? 3 : x.t.want === 'approve' ? 2 : STORY_TARGETS.includes(x.id) ? 1 : 0);
   available.sort((a, b) => rank(b) - rank(a));
   // One message from mom a day, at a quiet time (mid-morning or mid-afternoon, alternating).
-  const momPicks = (momOrder ?? [...MOM_POOL.keys()].sort(() => rand() - 0.5)).slice(dayIndex * 2, dayIndex * 2 + 1).map((i) => MOM_POOL[i % MOM_POOL.length]);
+  const momPicks = (momOrder ?? shuffle([...MOM_POOL.keys()], rand)).slice(dayIndex * 2, dayIndex * 2 + 1).map((i) => MOM_POOL[i % MOM_POOL.length]);
   const slots = [MOM_SLOTS[dayIndex % 2 === 0 ? 1 : 2]];
   // on a day home already has something to say, she skips the small talk
   if (!(FAMILY[dayIndex]?.length)) momPicks.forEach((m, i) => {
@@ -88,12 +90,12 @@ export function buildManagerScript(
 
   // the office noticed how yesterday went with Hakan Bey — that's the office's line for the day
   const team = managerDay ? teamReaction(managerDay, dayIndex) : [];
-  for (const a of [...team, ...(AMBIENT[dayIndex] ?? []), ...(dayIndex === 1 ? BIRTHDAY : [])]) {
+  for (const a of [...team, ...(AMBIENT[dayIndex] ?? []), ...(dayIndex === BIRTHDAY_DAY ? BIRTHDAY : [])]) {
     script.push({ at: a.at, kind: 'ambient', dayIndex, ambient: { thread: a.thread, sender: a.sender, text: a.text, replies: a.replies } });
     for (const f of a.followUps ?? []) script.push({ at: a.at + f.after, kind: 'ambient', dayIndex, ambient: { thread: a.thread, sender: f.sender, text: f.text, closes: f.closes } });
   }
 
-  (REQUEST_DAYS.includes(dayIndex) ? (hard ? HARD_REQUEST_SLOTS : dayIndex === 3 ? THURSDAY_REQUEST_SLOTS : REQUEST_SLOTS) : []).forEach((at, slot) => {
+  (REQUEST_DAYS.includes(dayIndex) ? (hard ? HARD_REQUEST_SLOTS : dayIndex === THURSDAY ? THURSDAY_REQUEST_SLOTS : REQUEST_SLOTS) : []).forEach((at, slot) => {
     const pick = available[slot];
     if (!pick) return;
     script.push({

@@ -23,6 +23,16 @@ export function rngFor(seed: number, label: string): () => number {
   };
 }
 
+/** A copy of `list` in random order (Fisher–Yates: every order equally likely). */
+export function shuffle<T>(list: readonly T[], rand: () => number): T[] {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 /** A new playthrough's seed: `?seed=123` in the address replays that week, otherwise a fresh one. */
 export function newSeed(): number {
   const asked = Number(new URLSearchParams(window.location.search).get('seed'));

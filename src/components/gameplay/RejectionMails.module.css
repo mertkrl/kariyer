@@ -180,7 +180,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.3px;

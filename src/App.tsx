@@ -3,6 +3,7 @@ import { usePhase } from './game/storeLoader';
 import { audioEngine } from './audio/audioEngine';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { UpdateNotice } from './components/ui/UpdateNotice';
+import { RotateHint } from './components/ui/RotateHint';
 
 // Only the welcome screen ships in the first bundle; every other screen is its own chunk.
 const SCREENS = {
@@ -78,6 +79,7 @@ function App() {
         {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
       </Suspense>
       {phase === 'welcome' && <UpdateNotice />}
+      {(phase === 'gameplay' || phase === 'finalRound') && <RotateHint />}
     </>
   );
 }

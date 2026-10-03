@@ -1226,3 +1226,4 @@ export function candidateOf(id: string): Candidate {
   if (!c) throw new Error(`Bilinmeyen aday kimliği: "${id}"`);
   return c;
 }
+

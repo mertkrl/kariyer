@@ -23,7 +23,7 @@
 }
 
 .eyebrow {
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   letter-spacing: 3px;
   text-transform: uppercase;
   color: #d8c9ae;
@@ -52,7 +52,7 @@
 }
 
 .counterLabel {
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   letter-spacing: 1px;
   text-transform: uppercase;
   color: #d8c9ae;
@@ -259,7 +259,7 @@
   bottom: -4px;
   background: var(--gold);
   color: var(--ink);
-  font-size: 14px;
+  font-size: calc(14px * var(--ts, 1));
   font-weight: 800;
   padding: 9px 20px;
   border-radius: 24px;
@@ -295,7 +295,7 @@
 }
 
 .stageLabel {
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   color: var(--on-dark-muted);
   min-height: 18px;
 }
@@ -374,13 +374,13 @@
 
 .resultTitle {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: calc(18px * var(--ts, 1));
   font-weight: 700;
   color: var(--paper-muted);
 }
 
 .resultText {
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   line-height: 1.6;
   color: #b8b0a0;
   margin-bottom: 8px;
@@ -396,7 +396,7 @@
   border-radius: 10px;
   background: rgba(20, 18, 14, 0.88);
   color: #f3ecd8;
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   line-height: 1.5;
   text-align: center;
   transform: translateX(-50%);

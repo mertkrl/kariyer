@@ -314,16 +314,20 @@ export const AMBIENT: Ambient[][] = [
   ],
 ];
 
+/** 14:30, a quarter of an hour in the kitchen. */
+export const BIRTHDAY_PARTY = { at: 390, minutes: 15 };
+export const BIRTHDAY_YES = 'Ben de geliyorum.';
+
 /** Tuesday: Ayşe sets up a surprise for Emre's birthday (Emre's not in it). Going costs a quarter of an hour. */
 export const BIRTHDAY: Ambient[] = [
   {
     at: 70, thread: 'birthday', sender: 'Ayşe', text: 'Selam herkese! Bugün Emre\'nin doğum günü 🎂 14:30\'da mutfakta sürpriz pasta yapıyoruz, sakın çaktırmayın 🤫 Kimler geliyor?',
     replies: [
       {
-        text: 'Ben de geliyorum.',
+        text: BIRTHDAY_YES,
         reaction: 'Süper, 14:30 mutfakta 🙂',
         reactionSender: 'Ayşe',
-        event: { at: 390, minutes: 15, text: '🎂 Mutfakta Emre\'ye sürpriz: mumlar, alkış, iki fotoğraf. 15 dakika.' },
+        event: { ...BIRTHDAY_PARTY, text: '🎂 Mutfakta Emre\'ye sürpriz: pasta, alkış, iki fotoğraf. 15 dakika.' },
       },
       { text: 'Dosyalar yetişmeyecek, gelemeyeceğim. Emre\'ye benden de iyi dilekler.', reaction: 'İletiriz, sana da bir dilim ayırırız 🙂', reactionSender: 'Selin (İK)' },
     ],

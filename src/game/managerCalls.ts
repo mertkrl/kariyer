@@ -5,13 +5,14 @@
  */
 import type { Decision } from './types';
 import type { Mail } from './mail';
-import { candidates, candidateOf } from './data/candidates';
+import { candidateOf, candidates } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
 import { REFERENCE_MINUTES, referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
 import type { Finalist, GameState, StoryState } from './storeTypes';
+import { WEDNESDAY } from './weekdays';
 
 /**
  * After his confession you can pitch a fix instead of just agreeing or objecting. He mostly
@@ -145,6 +146,8 @@ export function revokeInvites(state: GameState, honest: boolean | null): Partial
  * are to get a mail saying the invitation was sent by mistake. He picks the two oldest of the
  * ones you chose yourself. The mail goes either way; what you can decide is whether it lies.
  */
+/** Wednesday afternoon: two of your invitations are to be taken back. */
+export const REVOKE_DAY = WEDNESDAY;
 export const REVOKE_AT = 420;
 
 export function revokeTargets(finalists: Finalist[]) {

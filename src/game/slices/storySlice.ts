@@ -11,6 +11,8 @@ import { TEMPLATE_MINUTES, outboxMails } from '../rejectionMails';
 import { sound } from '../sound';
 import { candidateDetails } from '../data/candidateDetails';
 import { panelDecision } from '../managerCalls';
+import { SECOND_PAGE_DAY } from '../weekdays';
+import { later } from '../later';
 
 export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'recordAiUse' | 'setDifficulty'> => ({
   doActivity: (id) => {
@@ -30,7 +32,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
   decideDrawer: (photo) =>
     set((state) => {
       // Wednesday only the first page is in the folder; the second turns up on Thursday
-      const available = state.currentDayIndex >= 3 ? 2 : 1;
+      const available = state.currentDayIndex >= SECOND_PAGE_DAY ? 2 : 1;
       const photoPages = photo ? Math.max(state.story.photoPages, available) : state.story.photoPages;
       return { story: { ...state.story, drawer: photoPages > 0 ? 'photographed' : 'returned', photoPages } };
     }),
@@ -147,7 +149,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       dispatchRejections();
       const done = get();
       if (done.overtime && lineupFor(done).every((cid) => done.decisions[cid]) && !(done.currentDayIndex === TEAM_LATE_DAY && done.workdayMinutes < TEAM_LATE_END)) {
-        window.setTimeout(() => get().finishDay(), 1400);
+        later(() => get().finishDay(), 1400);
       }
     }
   },

@@ -7,6 +7,8 @@ import { candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import type { Decision } from './types';
 import type { Mail } from './mail';
+import { THURSDAY, TUESDAY } from './weekdays';
+import { MEETING_DAY } from './meeting';
 
 export interface WeekEntry {
   id: string;
@@ -38,7 +40,7 @@ function leventOn(id: string) {
 
 /** The team lead's mid-morning mail about yesterday's files. */
 export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingChoice): Mail | null {
-  if (dayIndex < 1 || dayIndex > 3) return null;
+  if (dayIndex < TUESDAY || dayIndex > THURSDAY) return null;
   const yesterday = log.filter((e) => e.day === dayIndex - 1);
   const invited = yesterday.filter((e) => e.decision === 'approve').map((e) => e.id);
   // the one that got away: a strong file turned down, which he happened to see
@@ -49,7 +51,7 @@ export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingC
   if (missed) {
     lines.push('', `Bir de: ${candidateOf(missed.id).name} dün elenmiş. Profilini tesadüfen gördüm; aradığımız tam oydu. Ne oldu?`);
   }
-  if (dayIndex === 3 && meeting === 'sample') {
+  if (dayIndex === MEETING_DAY + 1 && meeting === 'sample') {
     lines.push('', 'Toplantıdaki rastgele kontrol fikrin iyiydi. Hakan Bey bir şey demedi ama ben not aldım.');
   }
   return {

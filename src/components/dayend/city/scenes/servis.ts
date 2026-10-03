@@ -1,4 +1,4 @@
-import { H, PAD, W, glow, glowRect, makeRng, pick, range, rgba, vGradient, walker, type Cam, type RGB } from '../kit';
+import { H, PAD, W, glow, glowRect, makeRng, pick, range, rgba, vGradient, type Cam, type RGB } from '../kit';
 import type { CityScene } from '../scene';
 
 /*
@@ -56,16 +56,6 @@ export function servisScene(): CityScene {
     cars.push({ rx: x + len / 2, v: 0, kind, len, body: kind === 'servis' ? [234, 234, 228] : kind === 'taxi' ? [236, 184, 20] : pick(r, PAINT), brake: 1 });
     x += len + range(r, 1.2, 2.6);
   }
-
-  // pavement people
-  const walkers = Array.from({ length: 26 }, () => ({
-    x: range(r, -60, 60),
-    v: range(r, 1, 1.5),
-    dir: (r() < 0.5 ? 1 : -1) as 1 | -1,
-    phase: range(r, 0, 6),
-    umbrella: r() < 0.8 ? pick(r, ['#141418', '#1d2230', '#5a1e22', '#22324f', '#2e2e34', 'rgba(210,220,235,0.5)']) : null,
-    depth: range(r, 0, 1),
-  }));
 
   // raindrops on the glass
   const drops = Array.from({ length: 170 }, () => ({ x: range(r, WIN.x, WIN.x + WIN.w), y: range(r, WIN.y, WIN.y + WIN.h), r: Math.pow(r(), 2.2) * 9 + 1.6 }));
@@ -419,12 +409,6 @@ export function servisScene(): CityScene {
         if (c.rx < -44) c.rx += 88;
         if (c.rx > 44) c.rx -= 88;
       }
-      for (const w of walkers) {
-        w.x += (w.v * w.dir - vs) * dt;
-        w.phase += dt * w.v * 4.2;
-        if (w.x < -70) w.x += 140;
-        if (w.x > 70) w.x -= 140;
-      }
       // rivulets: stick, then slide, gathering speed
       for (const d of rivulets) {
         if (d.pause > 0) {
@@ -464,12 +448,6 @@ export function servisScene(): CityScene {
       b.fillRect(0, 0, BW, BH);
       drawStrip(b, buildings, KB, 0);
       drawStrip(b, pavement, KS, 0);
-      // people under umbrellas on the pavement
-      for (const w of [...walkers].sort((a, c) => a.depth - c.depth)) {
-        const x = BW / 2 - w.x * KS;
-        if (x < -20 || x > BW + 20) continue;
-        walker(b, x, 108 + w.depth * 8, 17 + w.depth * 3, w.phase, w.dir > 0 ? -1 : 1, { color: '#0c0b10', umbrella: w.umbrella, coat: 0.16 });
-      }
       // wet road
       b.fillStyle = vGradient(b, 120, BH, [
         [0, '#2a262c'],

@@ -36,6 +36,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const lineups = useGameStore((s) => s.lineups);
   const quotaCut = useGameStore((s) => s.quotaCut);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
+  const effect = useGameStore((s) => (s.currentCandidateId ? s.decisionEffects[s.currentCandidateId] : undefined));
   const lineBusy = useGameStore((s) => Boolean(s.desk.inCall || s.desk.ringing));
   const callReference = useGameStore((s) => s.callReference);
   const decide = useGameStore((s) => s.decide);
@@ -124,6 +125,13 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                 <span className={styles.decisionTitle}>
                   {decidedForCurrent === 'approve' ? '✓ Mülakata çağrıldı' : '✕ Reddedildi'}
                 </span>
+                {effect?.reason && (
+                  <span className={styles.decisionWhy}>
+                    {effect.reason}
+                    <EffectChip label="Performans" value={effect.performans} />
+                    <EffectChip label="Vicdan" value={effect.vicdan} />
+                  </span>
+                )}
                 <span className={`${styles.decisionMeta} mono`}>
                   {decidedAt !== undefined && `${formatClock(decidedAt)} · `}
                   {isMac ? '⌘Z' : 'Ctrl+Z'} ile geri alınabilir
@@ -171,6 +179,24 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
       ) : (
         <div className={styles.emptyState}>Kuyruktan bir aday seç.</div>
       )}
+      {/* the decision and what it did, read out once for screen readers */}
+      <div className="sr-only" aria-live="polite">
+        {candidate && decidedForCurrent && effect?.reason
+          ? `${decidedForCurrent === 'approve' ? 'Mülakata çağrıldı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
+          : ''}
+      </div>
     </div>
+  );
+}
+
+const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '±0');
+
+/** One score's change from this decision; nothing when it didn't move. */
+function EffectChip({ label, value }: { label: string; value: number }) {
+  if (value === 0) return null;
+  return (
+    <span className={`${styles.effectChip} ${value > 0 ? styles.effectUp : styles.effectDown} mono`} aria-hidden="true">
+      {label} {signed(value)}
+    </span>
   );
 }

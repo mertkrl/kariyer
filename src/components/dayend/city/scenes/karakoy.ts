@@ -17,7 +17,6 @@ import {
   rgba,
   snow,
   vGradient,
-  walker,
   type Cam,
   type Reflection,
   type RGB,
@@ -123,10 +122,7 @@ export function karakoyScene(): CityScene {
   const flakes = makeDrops(r, 1000);
   const bays = along(BAY).map((s) => ({ s, c: SHOP_LIGHT[Math.floor(r() * SHOP_LIGHT.length)], a: range(r, 0.75, 1), seed: r() * 10 }));
   const lamps = along(26, 6);
-  const fishers = along(8.5, 4).map((s) => ({ s: s + range(r, -1, 1) / LEN, sway: range(r, 0, 6), rod: range(r, 0.8, 1.2), h: range(r, 0.95, 1.06) }));
-  const strollers = Array.from({ length: 16 }, () => ({ s: r(), v: range(r, 0.0022, 0.0038) * (r() < 0.5 ? 1 : -1), phase: range(r, 0, 6), umbrella: r() < 0.4 }));
   const gulls = Array.from({ length: 9 }, () => ({ cx: range(r, 600, 1500), cy: range(r, 180, 380), rad: range(r, 60, 200), sp: range(r, 0.2, 0.45), ph: range(r, 0, 6), s: range(r, 0.8, 1.3) }));
-  const pier = Array.from({ length: 8 }, () => ({ x: range(r, 1180, 1660), y: range(r, 850, 892), v: range(r, 0.8, 1.4), dir: (r() < 0.7 ? 1 : -1) as 1 | -1, phase: range(r, 0, 6), umbrella: r() < 0.5 }));
   let refl: Reflection[] = [];
   let skyL: HTMLCanvasElement;
   let cityL: HTMLCanvasElement;
@@ -312,7 +308,7 @@ export function karakoyScene(): CityScene {
       });
 
       railL = makeLayer(px, (g) => {
-        // the parapet in front of the people on the deck, snow along its top
+        // the parapet along the deck, snow along its top
         g.fillStyle = 'rgba(20,23,34,0.96)';
         band(g, DECK, DECK + 0.25);
         band(g, RAIL - 0.2, RAIL);
@@ -412,18 +408,6 @@ export function karakoyScene(): CityScene {
     },
     update(dt) {
       lastDt = dt;
-      for (const p of strollers) {
-        p.s += p.v * dt;
-        if (p.s > 1) p.s = 0;
-        if (p.s < 0) p.s = 1;
-        p.phase += dt * 5;
-      }
-      for (const p of pier) {
-        p.x += p.v * p.dir * dt * 40;
-        p.phase += dt * p.v * 4.2;
-        if (p.x > W + PAD + 30) p.x = 1160;
-        if (p.x < 1150) p.x = W + PAD + 20;
-      }
     },
     draw(g, t, cam: Cam) {
       drawLayer(g, skyL, cam, 0.15);
@@ -455,40 +439,7 @@ export function karakoyScene(): CityScene {
       g.globalAlpha = 1;
 
       g.drawImage(bridgeL, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
-      // people on the upper deck: strollers under umbrellas, fishermen at the parapet
-      for (const p of strollers) {
-        const b = at(p.s, HALF - 2.6, DECK);
-        if (b[2] < 1.5) continue;
-        walker(g, b[0], b[1], 1.72 * b[2], p.phase, p.v > 0 ? -1 : 1, { color: '#0a0b12', rim: 'rgba(236,241,250,0.45)', umbrella: p.umbrella ? '#161a26' : null, coat: 0.2 });
-      }
-      for (const f of fishers) {
-        const b = at(f.s, HALF - 0.7, DECK);
-        const k = b[2];
-        if (k < 1.3) continue;
-        walker(g, b[0], b[1], 1.72 * k * f.h, 0, -1, { color: '#08090e', rim: 'rgba(236,241,250,0.5)', coat: 0.26 }, 'side', true);
-      }
       g.drawImage(railL, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
-      // rods out over the water, each line dropping to the surface
-      for (const f of fishers) {
-        const hand = at(f.s, HALF - 0.3, DECK + 1.25);
-        const k = hand[2];
-        if (k < 1.3) continue;
-        const sway = Math.sin(t * 0.7 + f.sway) * k * 0.12;
-        const tip = at(f.s, HALF + 3.4 * f.rod, DECK + 2.6 * f.rod);
-        g.strokeStyle = 'rgba(12,14,20,0.95)';
-        g.lineWidth = Math.max(0.5, k * 0.035);
-        g.beginPath();
-        g.moveTo(hand[0], hand[1]);
-        g.quadraticCurveTo((hand[0] + tip[0]) / 2, (hand[1] + tip[1]) / 2 - k * 0.1, tip[0], tip[1] + sway);
-        g.stroke();
-        const water = at(f.s, HALF + 3.4 * f.rod, 0);
-        g.strokeStyle = 'rgba(210,220,240,0.16)';
-        g.lineWidth = 0.5;
-        g.beginPath();
-        g.moveTo(tip[0], tip[1] + sway);
-        g.lineTo(water[0] + sway * 0.4, water[1]);
-        g.stroke();
-      }
       // lamp posts on the upper deck
       g.strokeStyle = '#1c202d';
       for (const s of lamps) {
@@ -555,9 +506,6 @@ export function karakoyScene(): CityScene {
       glowRect(g, 1480, 860, 300, 60, SODIUM, 0.2);
       glowRect(g, 1393, 706, 220, 60, [255, 200, 90], 0.12);
       g.globalCompositeOperation = 'source-over';
-      for (const p of [...pier].sort((a, b) => a.y - b.y)) {
-        walker(g, p.x, p.y, 64 + (p.y - 850) * 0.9, p.phase, p.dir, { color: '#0b0d14', rim: 'rgba(236,241,250,0.6)', umbrella: p.umbrella ? '#1c2230' : null, coat: 0.22 });
-      }
       g.restore();
 
       snow(g, flakes, lastDt, t, 0.9);

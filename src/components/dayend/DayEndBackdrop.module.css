@@ -50,7 +50,7 @@
   background: rgba(16, 14, 11, 0.55);
   backdrop-filter: blur(6px);
   color: #f2efe4;
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
   font-style: italic;
 }
 

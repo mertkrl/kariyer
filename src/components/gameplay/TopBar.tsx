@@ -23,7 +23,15 @@ function Meter({ label, value, color, icon }: MeterProps) {
   }, [value]);
 
   return (
-    <div className={styles.meter} style={{ '--meter': color } as CSSProperties}>
+    <div
+      className={styles.meter}
+      style={{ '--meter': color } as CSSProperties}
+      role="meter"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(value)}
+    >
       <div className={styles.meterHead}>
         <span className={styles.meterIcon} aria-hidden="true">
           {icon}

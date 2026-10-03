@@ -41,7 +41,7 @@
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: calc(11px * var(--ts, 1));
   letter-spacing: 3px;
   text-transform: uppercase;
   color: #7f9cc0;
@@ -55,7 +55,7 @@
 
 .lead {
   margin: 0 0 6px;
-  font-size: 15px;
+  font-size: calc(15px * var(--ts, 1));
   line-height: 1.55;
   color: #b8b0a0;
 }
@@ -78,7 +78,7 @@
 .cardHead {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   font-weight: 800;
   letter-spacing: 1px;
   color: #9aa3ae;
@@ -90,7 +90,7 @@
   padding: 10px 12px;
   border-radius: 12px 12px 12px 4px;
   background: #2a3038;
-  font-size: 14px;
+  font-size: calc(14px * var(--ts, 1));
 }
 
 .row {
@@ -108,7 +108,7 @@
   border-radius: 10px;
   border: 1px solid transparent;
   font: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--ts, 1));
   font-weight: 800;
   text-align: left;
   cursor: pointer;
@@ -116,7 +116,7 @@
 
 .row small,
 .action small {
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--ts, 1));
   font-weight: 500;
   opacity: 0.8;
 }
@@ -139,7 +139,7 @@
 
 .result {
   margin: 0;
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--ts, 1));
   color: #cfd6dd;
   line-height: 1.5;
 }
@@ -162,20 +162,20 @@
   background: #f2eee4;
   color: #2a2620;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: calc(11px * var(--ts, 1));
   transform: rotate(-2deg);
   filter: blur(0.3px) contrast(1.05);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .photoSheet b {
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   margin-bottom: 4px;
 }
 
 .photoSheet em {
   margin-top: 4px;
-  font-size: 10px;
+  font-size: calc(10px * var(--ts, 1));
   color: #6b6455;
 }
 

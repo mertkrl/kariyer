@@ -6,8 +6,9 @@
  */
 import type { MeetingChoice } from './echoes';
 import { PLAYER } from './player';
+import { WEDNESDAY } from './weekdays';
 
-export const MEETING_DAY = 2;
+export const MEETING_DAY = WEDNESDAY;
 /** 11:00 */
 export const MEETING_AT = 180;
 /** How long it takes out of the day. */

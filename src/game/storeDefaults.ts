@@ -9,7 +9,9 @@ import { type DayStats, type Difficulty, type EventKind } from './types';
 import { FINALIST_LIMIT, days } from './data/days';
 import { MINUTES_PER_TICK } from './time';
 import { START_MONEY } from './story';
+import { shuffle } from './rng';
 import { type ThreadId } from './manager';
+import { THURSDAY } from './weekdays';
 /** Today's candidate queue (randomised per game; see lineups.ts). */
 export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>, dayIndex = state.currentDayIndex): string[] {
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;
@@ -39,7 +41,7 @@ export const EVENT_LENGTH: Record<EventKind, number> = { power: 20, meeting: 4, 
 
 export function planEvents(rand: () => number): DayEvent[] {
   // hard mode's surprises: nothing that just eats the clock (no "5-minute" meetings)
-  const kinds: EventKind[] = ['power', 'it'].sort(() => rand() - 0.5) as EventKind[];
+  const kinds = shuffle<EventKind>(['power', 'it'], rand);
   return [
     { kind: kinds[0], at: Math.round(90 + rand() * 120) },
     { kind: kinds[1], at: Math.round(320 + rand() * 130) },
@@ -78,7 +80,7 @@ export const DM_EFFECT: Record<DmKind, { performans: number; vicdan: number }> =
 export const SLEEPLESS_BELOW = 35;
 export const SLEEPLESS_MINUTES = 25;
 /** Thursday the whole team stays late (no AI): until 19:00. */
-export const TEAM_LATE_DAY = 3;
+export const TEAM_LATE_DAY = THURSDAY;
 export const TEAM_LATE_END = 11 * 60;
 /** Writing up a reason for a rejection, once Hakan Bey asks for one. */
 export const JUSTIFY_MINUTES = 3;

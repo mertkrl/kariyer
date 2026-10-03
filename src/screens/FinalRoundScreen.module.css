@@ -715,7 +715,7 @@
 }
 
 .panelBudget {
-  font-size: 12px !important;
+  font-size: calc(12px * var(--ts, 1)) !important;
   opacity: 0.7;
 }
 

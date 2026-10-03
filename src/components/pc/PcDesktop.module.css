@@ -669,3 +669,22 @@
   }
 }
 
+
+/* before the shift starts: the portal is where the day begins */
+.beckon {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(201, 162, 39, 0.7);
+  animation: beckon 2.4s ease-in-out infinite;
+}
+
+@keyframes beckon {
+  50% {
+    box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beckon {
+    animation: none;
+  }
+}

@@ -10,14 +10,11 @@ import {
   hsl,
   makeLayer,
   makeRng,
-  pick,
   range,
   rgba,
   tower,
   vGradient,
-  walker,
   type Cam,
-  type Pedestrian,
   type RGB,
 } from '../kit';
 import { drawTraffic, jostle, populate, project, stepLane, straightLane, type Lane, type Persp } from '../traffic';
@@ -62,62 +59,6 @@ export function e5Scene(): CityScene {
     for (const l of lanes) stepLane(l, 0.05);
     jostle(lanes, 0.05, 0.6);
   }
-
-  // Commuters on the platform: they wait, pace, and pile into a metrobüs when its doors open.
-  interface Commuter {
-    X: number;
-    Z: number;
-    state: 'idle' | 'walk' | 'board' | 'gone';
-    toX: number;
-    toZ: number;
-    v: number;
-    phase: number;
-    sway: number;
-    tone: number;
-    phone: boolean;
-    timer: number;
-  }
-  const waiting: Commuter[] = Array.from({ length: 48 }, () => ({
-    X: range(r, -1.3, 1.3),
-    Z: range(r, STATION[0] + 1, STATION[1] - 2),
-    state: 'idle' as const,
-    toX: 0,
-    toZ: 0,
-    v: range(r, 1, 1.5),
-    phase: range(r, 0, 6),
-    sway: range(r, 0, 6),
-    tone: range(r, 0.72, 1.08),
-    phone: r() < 0.3,
-    timer: range(r, 0, 8),
-  }));
-  /** Which side of the platform a dwelling bus is on, and the stretch its doors cover. */
-  const openDoors = () => {
-    const out: { side: number; z0: number; z1: number }[] = [];
-    for (const [lane, side] of [
-      [busIn, -1],
-      [busOut, 1],
-    ] as const) {
-      for (const v of lane.vehicles) {
-        if (v.dwell <= 0.6) continue;
-        const pt = lane.at(v.u);
-        const z0 = Math.min(pt.Z, pt.Z - pt.dz * v.len);
-        const z1 = Math.max(pt.Z, pt.Z - pt.dz * v.len);
-        if (z1 > STATION[0] && z0 < STATION[1]) out.push({ side, z0, z1 });
-      }
-    }
-    return out;
-  };
-
-  // Big silhouettes crossing our own overpass in the foreground
-  const passers: Pedestrian[] = Array.from({ length: 4 }, (_, i) => ({
-    x: range(r, -900, 2500),
-    y: 1000 + i * 12,
-    h: range(r, 470, 560),
-    v: range(r, 1.1, 1.5),
-    dir: (i % 2 ? 1 : -1) as 1 | -1,
-    phase: range(r, 0, 6),
-    look: { color: '#07080b', rim: 'rgba(255,170,110,0.35)', bag: pick(r, [0, 1, 2] as const), coat: 0.16 },
-  }));
 
   const beacons: { x: number; y: number; ph: number }[] = [];
   let sky: HTMLCanvasElement;
@@ -400,63 +341,6 @@ export function e5Scene(): CityScene {
     update(dt) {
       for (const l of lanes) stepLane(l, dt);
       jostle(lanes, dt, 0.35);
-      const doors = openDoors();
-      for (const c of waiting) {
-        c.timer -= dt;
-        if (c.state === 'gone') {
-          // new commuters keep coming down the stairs at the far end
-          if (c.timer <= 0) {
-            // new commuters come down the overpass stairs under the ZİNCİRLİKUYU board
-            c.state = 'walk';
-            c.X = range(r, -0.6, 0.6);
-            c.Z = STATION[0] + 0.6;
-            c.toX = range(r, -1.2, 1.2);
-            c.toZ = range(r, STATION[0] + 6, STATION[1] - 2);
-          }
-          continue;
-        }
-        const door = doors.find((d) => c.Z > d.z0 - 1 && c.Z < d.z1 + 1);
-        if (door && c.state !== 'board' && Math.random() < dt * 1.4) {
-          c.state = 'board';
-          c.toX = door.side * 1.75;
-          c.toZ = Math.min(door.z1 - 1, Math.max(door.z0 + 1, c.Z));
-        }
-        if (c.state === 'idle' && c.timer <= 0) {
-          if (Math.random() < 0.45) {
-            c.state = 'walk';
-            c.toX = range(r, -1.2, 1.2);
-            c.toZ = Math.min(STATION[1] - 2, Math.max(STATION[0] + 1, c.Z + range(r, -12, 12)));
-          }
-          c.timer = range(r, 3, 9);
-        }
-        if (c.state === 'walk' || c.state === 'board') {
-          const dx = c.toX - c.X;
-          const dz = c.toZ - c.Z;
-          const dist = Math.hypot(dx, dz);
-          const step = c.v * (c.state === 'board' ? 1.3 : 1) * dt;
-          c.phase += dt * c.v * 4.2;
-          if (dist <= step) {
-            c.X = c.toX;
-            c.Z = c.toZ;
-            if (c.state === 'board') {
-              c.state = 'gone';
-              c.timer = range(r, 4, 14);
-            } else {
-              c.state = 'idle';
-              c.timer = range(r, 3, 9);
-            }
-          } else {
-            c.X += (dx / dist) * step;
-            c.Z += (dz / dist) * step;
-          }
-        }
-      }
-      for (const p of passers) {
-        p.x += p.v * p.dir * dt * (p.h / 1.7);
-        p.phase += dt * p.v * 4.2;
-        if (p.dir > 0 && p.x > W + 1400) p.x = -1400;
-        if (p.dir < 0 && p.x < -1400) p.x = W + 1400;
-      }
     },
     draw(g, t, cam: Cam) {
       drawLayer(g, sky, cam, 0.35);
@@ -490,39 +374,11 @@ export function e5Scene(): CityScene {
       g.globalCompositeOperation = 'source-over';
       const look = { ambient: [150, 90, 60] as const, ambientA: 0.12, haze: 900 };
       drawTraffic(g, P, lanes, look, STATION[0], Z1);
-      // people on the platform, far to near
-      const people = waiting.filter((w) => w.state !== 'gone').sort((a, b) => b.Z - a.Z);
-      for (const w of people) {
-        const [x, y, k] = pr(w.X, 0.3, w.Z);
-        const h = 1.72 * k * w.tone;
-        const moving = w.state !== 'idle';
-        const sideways = moving && Math.abs(w.toX - w.X) > Math.abs(w.toZ - w.Z);
-        walker(
-          g,
-          x + (moving ? 0 : Math.sin(t * 0.8 + w.sway) * k * 0.03),
-          y,
-          h,
-          w.phase,
-          w.toX >= w.X ? 1 : -1,
-          { color: '#17141a', rim: 'rgba(255,200,150,0.35)', coat: 0.14 },
-          sideways ? 'side' : 'front',
-          !moving,
-        );
-        if (w.phone) {
-          g.globalCompositeOperation = 'lighter';
-          glow(g, x + h * 0.05, y - h * 0.72, h * 0.08, [150, 200, 255], 0.8);
-          g.globalCompositeOperation = 'source-over';
-        }
-      }
       g.drawImage(station, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       drawTraffic(g, P, lanes, look, 7, STATION[0]);
       g.restore();
 
       drawLayer(g, rail, cam, 1.15);
-      g.save();
-      g.translate(cam.x * 1.3, cam.y * 1.3);
-      for (const p of passers) walker(g, p.x, p.y, p.h, p.phase, p.dir, p.look);
-      g.restore();
 
       // warm city haze on top of everything distant
       g.fillStyle = rgba([200, 120, 90], 0.06);

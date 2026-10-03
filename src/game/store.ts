@@ -3,11 +3,11 @@ import type { DayStats } from './types';
 import { days } from './data/days';
 import { DAY_PLANS } from './data/dayPlans';
 import { DAILY_WAGE, OPEN_FILE_PENALTY, QUOTA_CUT_BELOW, TARGET_BONUS, TARGET_BONUS_AT, PRIM, KEY_CHARACTERS } from './story';
-import { decisionEffect } from './engine/scoring';
+import { OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, decisionEffect, isStrong, isWronglyFlagged, unusedSlotCost } from './engine/scoring';
 import { AD_EFFECT } from './data/jobs';
 import type { Mail } from './mail';
 import { COFFEE_SIPS } from './desk';
-import { candidates, candidateOf } from './data/candidates';
+import { candidateOf, candidates } from './data/candidates';
 import { defaultLineups, makeLineups, KEY_CAST } from './lineups';
 import {
   buildManagerScript,
@@ -24,14 +24,16 @@ import { MEETING_AT, MEETING_DAY } from './meeting';
 import type { Finalist, WeekLog, StoryState, GameState } from './storeTypes';
 import { checkSave, clearSave, readSave, writeSave, type SaveFile } from './save';
 import { bindStore } from './storeApi';
+import { cancelLater, later } from './later';
 import { createDeskSlice } from './slices/deskSlice';
 import { createPhoneSlice } from './slices/phoneSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createStorySlice } from './slices/storySlice';
-import { newSeed, rngFor } from './rng';
+import { newSeed, rngFor, shuffle } from './rng';
 import { EVENT_LENGTH, JUSTIFY_MINUTES, SLEEPLESS_BELOW, SLEEPLESS_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, emptyStance, emptyStats, emptyWeek, lineupFor, minutesPerTick, newDesk, newStory, noUnread, planEvents } from './storeDefaults';
 import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './prefs';
 import { addExtraFiles, checkDayEnd, dayLimit, deliverManagerMessages, dispatchRejections, expireReplies, isOnBreak, mailsPending, ringLandline, spendMinutes } from './clock';
+import { NEIGHBOUR_DAY } from './weekdays';
 
 export type { Finalist, DayEvent, ActiveEvent, WeekLog, StoryState, DeskState, DmKind, DecisionLogEntry, GameState, InterviewStance } from './storeTypes';
 export { TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, lineupFor, minutesPerTick } from './storeDefaults';
@@ -59,6 +61,7 @@ function freshWeek(): WeekData {
     decisions: {},
     decisionLog: [],
     timeSpent: {},
+    reading: false,
     dayStats: emptyStats(),
     totalStats: emptyStats(),
     finalists: [],
@@ -99,7 +102,6 @@ function freshWeek(): WeekData {
     forbiddenAsked: 0,
     interviewStance: emptyStance(),
     decisionEffects: {},
-    lastEffect: null,
     quotaCut: false,
     paused: false,
     shiftStarted: false,
@@ -140,6 +142,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   continueGame: () => {
     const save = loadSave();
     if (!save) return;
+    cancelLater();
     sound().init();
     sound().setMuted(get().muted);
     sound().startAmbient();
@@ -147,6 +150,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   startGame: () => {
+    cancelLater();
     const seed = newSeed();
     const momRand = rngFor(seed, 'mom');
     sound().init();
@@ -157,7 +161,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       phase: 'jobSelect',
       seed,
       lineups: makeLineups(rngFor(seed, 'lineups')),
-      momOrder: [...Array(MOM_POOL_SIZE).keys()].sort(() => momRand() - 0.5),
+      momOrder: shuffle([...Array(MOM_POOL_SIZE).keys()], momRand),
     });
   },
 
@@ -212,8 +216,8 @@ export const useGameStore = create<GameState>((set, get) => ({
           ]
         : [];
     const lineups =
-      state.currentDayIndex === 3 && state.story.neighbourCv && !lineupFor(state).includes('onur')
-        ? state.lineups.map((l, i) => (i === 3 ? [...l, 'onur'] : l))
+      state.currentDayIndex === NEIGHBOUR_DAY && state.story.neighbourCv && !lineupFor(state).includes('onur')
+        ? state.lineups.map((l, i) => (i === NEIGHBOUR_DAY ? [...l, 'onur'] : l))
         : state.lineups;
     set({
       phase: 'gameplay',
@@ -244,7 +248,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       overtimeWarned: false,
       quotaCut,
       decisionEffects: {},
-      lastEffect: null,
       // weather can make you late — and so can a bad conscience, or an empty travel card
       workdayMinutes: lateMinutes,
       dayEvents: [
@@ -320,7 +323,8 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     let timeSpent = state.timeSpent;
     const id = state.currentCandidateId;
-    if (id && !state.decisions[id]) {
+    // reading time counts only while the file is actually on screen
+    if (id && !state.decisions[id] && state.reading) {
       timeSpent = { ...state.timeSpent, [id]: (state.timeSpent[id] ?? 0) + 1 };
     }
 
@@ -329,6 +333,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     expireReplies(nextMinutes);
     deliverManagerMessages(nextMinutes);
     checkDayEnd(nextMinutes);
+    // a queue closed in the morning: at 14:00 Hakan Bey notices, and finds more files
+    addExtraFiles();
   },
 
   skipBreak: () => {
@@ -367,6 +373,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // how you decided matters as much as what: reading the file, checking a reference
     const effect = decisionEffect(id, decision, { secondsSpent: state.timeSpent[id] ?? 0, referenceChecked: Boolean(state.referenceChecks[id]) });
+    const before = { performans, vicdan };
     performans = clampScore(performans + effect.performans);
     vicdan = clampScore(vicdan + effect.vicdan);
     if (decision === 'approve') dayStats.approved += 1;
@@ -380,16 +387,15 @@ export const useGameStore = create<GameState>((set, get) => ({
       performans,
       vicdan,
       dayStats,
-      decisionEffects: { ...state.decisionEffects, [id]: { performans: effect.performans, vicdan: effect.vicdan } },
-      lastEffect: { id, reason: effect.reason, performans: effect.performans, vicdan: effect.vicdan, key: (state.lastEffect?.key ?? 0) + 1 } });
+      decisionEffects: { ...state.decisionEffects, [id]: { performans: performans - before.performans, vicdan: vicdan - before.vicdan, reason: effect.reason } } });
     // Hakan Bey wants every "no" in writing now
     if (state.justifyRejects && decision === 'reject' && prevDecision !== 'reject') spendMinutes(JUSTIFY_MINUTES);
     // closing the queue early: a few more files are on their way
-    window.setTimeout(addExtraFiles, 1500);
+    later(addExtraFiles, 1500);
     // staying late: closing the last open file sends you home
     const after = get();
     if (after.overtime && lineupFor(after).every((cid) => after.decisions[cid]) && !mailsPending(after) && !(after.currentDayIndex === TEAM_LATE_DAY && after.workdayMinutes < TEAM_LATE_END)) {
-      window.setTimeout(() => get().finishDay(), 1400);
+      later(() => get().finishDay(), 1400);
     }
   },
 
@@ -422,7 +428,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       decisions,
       decisionLog: state.decisionLog.filter((e) => e.id !== id),
       decisionEffects,
-      lastEffect: null,
       performans: reverted.performans,
       vicdan: reverted.vicdan,
       dayStats });
@@ -430,8 +435,6 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   finishDay: () => {
     if (get().phase !== 'gameplay') return;
-    // closing early doesn't send you home: Hakan Bey finds more files first
-    if (addExtraFiles()) return;
     // the outbox goes out with the day (stamped 17:00); anyone without a notice hears nothing
     dispatchRejections();
     const state = get();
@@ -448,6 +451,19 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (momIgnored > 0) {
       verdict.vicdan -= momIgnored;
       verdict.lines.push(`Annenin ${momIgnored} mesajını cevapsız bıraktın.`);
+    }
+    // the company counts the files you left open
+    if (undecided > 0) {
+      verdict.performans -= Math.min(OPEN_FILE_PERFORMANS_CAP, undecided * OPEN_FILE_PERFORMANS);
+      verdict.lines.push(`${undecided} dosyayı açık bıraktın. Raporda "tamamlanmadı" yazıyor.`);
+    }
+    // an interview slot nobody got, while strong people were turned away for a flag
+    const quota = approvalQuota(state);
+    const strongRejected = lineup.filter((id) => state.decisions[id] === 'reject' && isWronglyFlagged(id) && isStrong(id)).length;
+    const emptySlots = unusedSlotCost(Math.min(quota.dailyLeft, quota.totalLeft), strongRejected);
+    if (emptySlots > 0) {
+      verdict.vicdan -= emptySlots;
+      verdict.lines.push(`${emptySlots} mülakat hakkın boş kaldı; o sırada işaretli ${strongRejected} güçlü adayı eledin.`);
     }
 
     const dayStats: DayStats = { ...state.dayStats, autoRejected, undecided };
@@ -537,9 +553,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       dayStats: emptyStats() });
   },
 
-  restart: () => set(freshWeek()),
+  restart: () => {
+    cancelLater();
+    set(freshWeek());
+  },
 
   togglePause: () => set((state) => ({ paused: !state.paused })),
+  setReading: (reading) => set({ reading }),
   startShift: () => set({ shiftStarted: true }),
   finishOrientation: () => set({ orientationDone: true, shiftStarted: true }),
   ...createPhoneSlice(set, get),

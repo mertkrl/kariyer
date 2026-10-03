@@ -163,6 +163,23 @@ export function GameplayScreen() {
     return () => clearInterval(interval);
   }, [tick]);
 
+  // a file counts as read only while it is on screen: not from the desk, the phone or a call
+  const reading = atPc && pcApp === 'portal' && !showMails && !phoneOpen && !folderOpen && !desk.inCall && !paused;
+  useEffect(() => {
+    useGameStore.getState().setReading(reading);
+  }, [reading]);
+  useEffect(() => () => useGameStore.getState().setReading(false), []);
+
+  // a hidden tab doesn't keep the workday running behind the player's back
+  useEffect(() => {
+    function onVisibility() {
+      const s = useGameStore.getState();
+      if (document.hidden && !s.paused) s.togglePause();
+    }
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+
   // a new day opens on its first file
   useEffect(() => {
     if (openedIds.length === 0 && lineup.length > 0) {
@@ -265,6 +282,7 @@ export function GameplayScreen() {
             onReadMail={readMail}
             extraMails={extraMails}
             finalistNames={finalists.map((f) => candidateOf(f.id).name)}
+            beckonPortal={!shiftStarted && currentDayIndex === 0}
             portal={
       <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef}>
             {!shiftStarted && needsOrientation && <Orientation container={portalRef} onDone={finishOrientation} />}

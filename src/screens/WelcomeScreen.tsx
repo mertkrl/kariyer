@@ -4,7 +4,7 @@ import { loadStore, useLoadedStore, withStore } from '../game/storeLoader';
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
 import styles from './WelcomeScreen.module.css';
-import { ORCHID_CREDIT } from '../components/desk/OrchidArt';
+import { clearAllGameData } from '../game/privacy';
 
 export function WelcomeScreen() {
   // This screen draws before the game has loaded; the game is fetched meanwhile.
@@ -19,6 +19,7 @@ export function WelcomeScreen() {
   const save = useMemo(() => (store ? store.loadSave() : readSave()), [store]);
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [confirmClear, setConfirmClear] = useState(false);
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -99,8 +100,30 @@ export function WelcomeScreen() {
 
       <div className={styles.bottomInfo}>
         Gerçek iş arama deneyimlerinden ilham alınmıştır.
-        <br />
-        <small style={{ opacity: 0.7 }}>{ORCHID_CREDIT}</small>
+        <p className={styles.privacy}>
+          Oyun hiçbir veri göndermez; ilerlemen ve ayarların yalnızca bu tarayıcıda durur.{' '}
+          {confirmClear ? (
+            <>
+              Kayıt, başarımlar ve ayarlar silinsin mi?{' '}
+              <button
+                className={styles.privacyLink}
+                onClick={() => {
+                  clearAllGameData();
+                  window.location.reload();
+                }}
+              >
+                Evet, sil
+              </button>{' '}
+              <button className={styles.privacyLink} onClick={() => setConfirmClear(false)}>
+                Vazgeç
+              </button>
+            </>
+          ) : (
+            <button className={styles.privacyLink} onClick={() => setConfirmClear(true)}>
+              Verilerimi sil
+            </button>
+          )}
+        </p>
       </div>
     </div>
   );

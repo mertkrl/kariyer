@@ -372,6 +372,44 @@
   }
 }
 
+/* A phone on its side: one thin row, or the bar would take half of a 375px-high screen. */
+@media (max-width: 960px) and (max-height: 520px) {
+  .bar {
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    min-height: 0;
+    padding: 4px 10px;
+  }
+
+  .left,
+  .center,
+  .right {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .center {
+    justify-content: center;
+  }
+
+  .sep {
+    display: none;
+  }
+
+  .meter {
+    width: 64px;
+  }
+
+  /* the icons (▲ ♥) carry the meaning here; screen readers get the name from the meter itself */
+  .meterLabel {
+    display: none;
+  }
+
+  .clockTime {
+    font-size: 20px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .clockDot,
   .delta {

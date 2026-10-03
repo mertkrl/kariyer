@@ -4,9 +4,9 @@ import { getEnding } from '../game/engine/ending';
 import { KEY_CHARACTERS } from '../game/story';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../game/engine/achievements';
 import { Button } from '../components/ui/Button';
-import { drawShareCard } from '../game/engine/shareCard';
+import { GAME_NAME, shareCardImage } from '../game/engine/shareCard';
 import { days } from '../game/data/days';
-import { candidates, candidateOf } from '../game/data/candidates';
+import { candidateOf, candidates } from '../game/data/candidates';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { AD_EFFECT } from '../game/data/jobs';
 import styles from './FinalScreen.module.css';
@@ -87,20 +87,39 @@ export function FinalScreen() {
   }, []);
   const totalProcessed = totalStats.approved + totalStats.rejected;
 
-  const handleDownloadCard = () => {
+  // the game's address without the seed: a shared card invites people to their own week
+  const gameUrl = `${window.location.origin}${window.location.pathname}`;
+  const canShareFiles = typeof navigator.canShare === 'function';
+
+  /** On a phone: the system share sheet with the card attached. Elsewhere: download the card. */
+  const handleShareCard = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    drawShareCard(canvas, {
+    const blob = await shareCardImage(canvas, {
       endingTitle: ending.title,
       performans,
       vicdan,
       totalProcessed,
       autoRejected: totalStats.autoRejected,
+      url: gameUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''),
     });
+    if (!blob) return;
+    const file = new File([blob], 'sen-iksin-sonuc-karti.png', { type: 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: GAME_NAME, text: `"${ending.title}" — Performans ${performans} · Vicdan ${vicdan}. Sen olsan ne yapardın? ${gameUrl}` });
+        return;
+      } catch (e) {
+        // the player closed the share sheet: nothing more to do
+        if (e instanceof DOMException && e.name === 'AbortError') return;
+      }
+    }
+    const href = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = 'sistemin-parcasi-sonuc-karti.png';
-    link.href = canvas.toDataURL('image/png');
+    link.download = file.name;
+    link.href = href;
     link.click();
+    window.setTimeout(() => URL.revokeObjectURL(href), 1000);
   };
 
   return (
@@ -310,7 +329,7 @@ export function FinalScreen() {
           <div className={styles.realNoteText}>
             İşverenlere yapılan başvuruların büyük çoğunluğunda adaylar hiçbir zaman geri bildirim
             almıyor — bir CareerBuilder anketine göre başvuru yapanların %75'i işverenden hiç haber
-            alamıyor. Sen az önce bunu {(totalProcessed + totalStats.autoRejected).toLocaleString('tr-TR')} kez yaşadın —
+            alamıyor. Sen az önce bunu {(totalProcessed + totalStats.autoRejected).toLocaleString('tr-TR')} kişiye yaşattın —
             sadece {days.length} günde.
           </div>
           <div className={styles.realNoteSource}>Kaynak: CareerBuilder anketi (3.900 katılımcı)</div>
@@ -319,8 +338,8 @@ export function FinalScreen() {
         <canvas ref={canvasRef} width={1080} height={1080} className={styles.hiddenCanvas} />
 
         <div className={styles.actions}>
-          <Button variant="ghost" onClick={handleDownloadCard}>
-            SONUÇ KARTINI İNDİR
+          <Button variant="ghost" onClick={() => void handleShareCard()}>
+            {canShareFiles ? 'SONUCU PAYLAŞ' : 'SONUÇ KARTINI İNDİR'}
           </Button>
           <Button variant="gold" onClick={restart}>
             BAŞTAN OYNA

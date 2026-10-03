@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
 import type { GameState } from '../../game/store';
+import { RAINY_DAY } from '../../game/weekdays';
 
 interface Workday {
   onBreak: boolean;
@@ -18,7 +19,7 @@ export function useWorkdaySounds({ onBreak, meetingActive, paused, currentDayInd
   const office = useRef<ReturnType<typeof audioEngine.startOfficeAmbience> | null>(null);
   useEffect(() => {
     if (onBreak || meetingActive) return;
-    office.current = audioEngine.startOfficeAmbience(currentDayIndex === 2);
+    office.current = audioEngine.startOfficeAmbience(currentDayIndex === RAINY_DAY);
     return () => {
       office.current?.stop();
       office.current = null;

@@ -24,7 +24,7 @@
 .logo {
   color: #f2c811;
   letter-spacing: -2px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ts, 1));
 }
 
 .crumb {

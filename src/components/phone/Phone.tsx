@@ -53,7 +53,11 @@ const APPS: { id: AppId | 'chats'; label: string }[] = [
   { id: 'traffic', label: 'Trafik' },
 ];
 
-const APP_TITLES: Record<AppId, string> = { terfi: 'Terfi', social: 'Kariyergram', traffic: 'Trafik' };
+/** The two apps kept in the dock at the bottom of the home screen. */
+const DOCK: (AppId | 'chats')[] = ['chats', 'social'];
+
+/** The colour each screen puts behind the status bar. */
+const STATUS_THEME: Record<AppId, StatusTheme> = { terfi: 'dark', social: 'light', traffic: 'light' };
 
 interface PhoneProps {
   messages: PhoneMessage[];
@@ -107,22 +111,34 @@ function BellIcon({ muted }: { muted: boolean }) {
   );
 }
 
-function StatusBar({ clock, dark }: { clock: string; dark?: boolean }) {
+/** What the status bar sits on: the wallpaper, a light app, a dark app, or the chats' green bar. */
+type StatusTheme = 'wallpaper' | 'light' | 'dark' | 'chat';
+
+function StatusBar({ clock, theme }: { clock: string; theme: StatusTheme }) {
   return (
-    <div className={`${styles.status} ${dark ? styles.statusDark : ''} mono`}>
-      <span>{clock}</span>
-      <span className={styles.statusIcons}>
+    <div className={`${styles.status} ${styles[`status_${theme}`]}`}>
+      <span className={styles.statusTime}>{clock}</span>
+      <span className={styles.statusIcons} aria-hidden="true">
         <span className={styles.signal}>
           <i />
           <i />
           <i />
           <i />
         </span>
+        <svg className={styles.wifi} viewBox="0 0 16 12">
+          <path d="M8 11.2 5.6 8.6a3.4 3.4 0 0 1 4.8 0L8 11.2Z" fill="currentColor" />
+          <path d="M3.6 6.6a6.2 6.2 0 0 1 8.8 0l-1.2 1.3a4.5 4.5 0 0 0-6.4 0L3.6 6.6Z" fill="currentColor" />
+          <path d="M1.4 4.3a9.4 9.4 0 0 1 13.2 0l-1.2 1.3a7.7 7.7 0 0 0-10.8 0L1.4 4.3Z" fill="currentColor" />
+        </svg>
+        <span className={styles.batteryPct}>{BATTERY}</span>
         <span className={styles.battery} />
       </span>
     </div>
   );
 }
+
+/** A phone at work is never quite full. */
+const BATTERY = '64';
 
 /** Locked phone in the right column: clock + the latest unread notifications. */
 export function PhoneDock(props: PhoneProps & { onOpen: () => void }) {
@@ -157,7 +173,7 @@ export function PhoneDock(props: PhoneProps & { onOpen: () => void }) {
     <button className={styles.dock} ref={shakeRef} onClick={onOpen} aria-label={`Telefonu aç${totalUnread ? `, ${totalUnread} okunmamış mesaj` : ''}`}>
       <div className={styles.lock}>
         <div className={styles.notch} />
-        <StatusBar clock={clock} />
+        <StatusBar clock={clock} theme="wallpaper" />
         <div className={styles.lockClock}>
           <span className="mono">{clock}</span>
           <small>{dayName}</small>
@@ -230,29 +246,34 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
 
   let body: ReactNode;
   if (screen.kind === 'home') {
+    const icon = (app: (typeof APPS)[number], inDock = false) => (
+      <button
+        key={app.id}
+        className={styles.appIcon}
+        onClick={() => setScreen(app.id === 'chats' ? { kind: 'chats' } : { kind: 'app', app: app.id })}
+        aria-label={app.label}
+      >
+        <span className={styles.appGlyph}>
+          <AppIcon id={app.id as IconId} />
+          {app.id === 'chats' && totalUnread > 0 && <span className={styles.appBadge}>{totalUnread}</span>}
+          {app.id === 'social' && dmPending > 0 && <span className={styles.appBadge}>{dmPending}</span>}
+        </span>
+        {!inDock && <span className={styles.appLabel}>{app.label}</span>}
+      </button>
+    );
     body = (
       <div className={styles.home}>
-        <div className={styles.homeClock}>
-          <span className="mono">{clock}</span>
-          <small>İyi çalışmalar 🙂</small>
+        <div className={styles.widget}>
+          <span className={styles.widgetDay}>{props.dayName}</span>
+          <strong className={styles.widgetTime}>{clock}</strong>
+          <span className={styles.widgetNote}>Tavrinsa Labs · mesai 08:00–17:00</span>
         </div>
-        <div className={styles.appGrid}>
-          {APPS.map((app) => (
-            <button
-              key={app.id}
-              className={styles.appIcon}
-              onClick={() => setScreen(app.id === 'chats' ? { kind: 'chats' } : { kind: 'app', app: app.id })}
-            >
-              <span className={styles.appGlyph}>
-                <AppIcon id={app.id as IconId} />
-                {app.id === 'chats' && totalUnread > 0 && <span className={styles.appBadge}>{totalUnread}</span>}
-                {app.id === 'social' && dmPending > 0 && <span className={styles.appBadge}>{dmPending}</span>}
-              </span>
-              <span className={styles.appLabel}>{app.label}</span>
-            </button>
-          ))}
+        <div className={styles.appGrid}>{APPS.filter((a) => !DOCK.includes(a.id)).map((a) => icon(a))}</div>
+        <div className={styles.pageDots} aria-hidden="true">
+          <i className={styles.pageDotOn} />
+          <i />
         </div>
-        <div className={styles.homeTip}>Oyunlar da mesai saatinden yer… ⏱</div>
+        <div className={styles.dockBar}>{APPS.filter((a) => DOCK.includes(a.id)).map((a) => icon(a, true))}</div>
       </div>
     );
   } else if (screen.kind === 'chats') {
@@ -359,9 +380,9 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
       </>
     );
   } else {
+    // the app owns the whole screen; the home indicator at the bottom takes you back
     body = (
       <>
-        {header(APP_TITLES[screen.app])}
         <div className={styles.appBody}>
           {screen.app === 'terfi' && <PromotionGame />}
           {screen.app === 'social' && <SocialApp rejected={rejectedAuthors} echoes={echoes} dayIndex={dayIndex} dms={dms} dmHandled={dmHandled} onDm={onDm} minutes={minutes} />}
@@ -377,7 +398,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
         {/* One display clips everything (status bar, app, home indicator) to the rounded glass. */}
         <div className={`${styles.display} ${screen.kind === 'home' ? styles.displayHome : ''}`}>
           <div className={styles.notch} />
-          <StatusBar clock={clock} dark={screen.kind === 'home'} />
+          <StatusBar clock={clock} theme={screen.kind === 'home' ? 'wallpaper' : screen.kind === 'app' ? STATUS_THEME[screen.app] : 'chat'} />
           <div className={styles.screen}>{body}</div>
           <button
             className={styles.homeBar}
@@ -386,7 +407,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
           />
         </div>
       </div>
-      <div className={styles.overlayHint}>Esc ya da boşluğa tıkla: telefonu bırak</div>
+      <div className={styles.overlayHint}>Alttaki çizgi: ana ekran · Esc ya da boşluk: telefonu bırak</div>
     </div>
   );
 }

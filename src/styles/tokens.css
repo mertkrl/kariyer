@@ -18,6 +18,8 @@
   --red-hover: #8f3527;
   --teal: #3f6b63;
   --blue: #4c7fb0;
+  /* the blue as small text on paper: 5:1 (the plain blue is 3.5:1) */
+  --blue-ink: #3b6894;
   --clay: #b3766b;
   --plum: #7c6a8c;
   --green: #6fa37a;

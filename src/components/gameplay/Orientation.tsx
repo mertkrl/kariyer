@@ -20,7 +20,7 @@ const STEPS: Step[] = [
     title: 'Hoş geldin! İlk gün: oryantasyon',
     text: 'Tavrinsa Labs İK ekibine hoş geldin. Mesai başlamadan portalı birlikte tanıyalım; iki dakika sürer. Bu hafta tek bir pozisyon için başvuruları değerlendireceksin: Yazılım Geliştirici.',
   },
-  { target: '[data-tour="queue"]', title: 'Adaylar', text: 'Bugün masana gelen dosyalar burada. Bir isme tıklayınca CV açılır; yanındaki süre, o dosyada ne kadar kaldığını gösterir.' },
+  { target: '[data-tour="queue"]', title: 'Adaylar', text: 'Bugün masana gelen dosyalar burada. Bir isme tıklayınca CV açılır; yanındaki süre, CV ekrandayken o dosyayı ne kadar okuduğunu gösterir; ✓ çıkınca dosyayı gerçekten okumuş sayılırsın.' },
   { target: '[data-tour="cv"]', title: 'CV', text: 'Profil, iş deneyimi, öne çıkanlar, şirket sorularına cevaplar, beceriler ve eğitim. Dosyayı gerçekten okuyup okumadığın kararlarının ağırlığını değiştirir.' },
   { target: '[data-tour="reference"]', title: 'Referansı ara', text: 'CV\'deki bir iddiayı doğrulamanın yolu: eski işverenini ararsın. Sabit hattan yapılır ve 8 dakika sürer.' },
   { target: '[data-tour="ai"]', title: 'Yapay Zekâ Analizi', text: '"Değerlendir" dersen sistem bir ATS raporu ve öneri üretir. Kullanmak zorunda değilsin; sistemin neye baktığını, neye bakmadığını da not al.' },

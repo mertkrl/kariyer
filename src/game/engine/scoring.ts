@@ -1,16 +1,23 @@
-import type { Decision } from '../types';
+import type { Candidate, Decision } from '../types';
 import { candidateOf } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
 
 /*
- * What a single decision is worth.
+ * What a single decision is worth. The two scores measure different things on purpose:
  *
- * Performans is how the company sees you: closing files, following the system, pleasing the
- * manager, filling interview slots with people worth interviewing. Vicdan is how you decided,
- * not just what: there are three interview slots a day and nearly everyone is good, so turning
- * people away is unavoidable. What costs you is turning a strong person away for a proxy
- * ("career stage", "continuity risk", a gap) without even reading them — and what earns you
- * something is looking past the flag, checking a reference, refusing a favour.
+ * Performans is how the company sees you, and the company sees you through its system. Going
+ * along with the system's recommendation ("Öncelikli" in, a flagged file out) earns a little;
+ * going against it costs more — the system is what your manager reads. It does not care whether
+ * the file was any good: that shows on Friday, in who you end up hiring.
+ *
+ * Vicdan is how you decided, not what. There are three interview slots a day and nearly
+ * everyone is good, so turning people away is unavoidable and, done after reading the file,
+ * costs nothing. What costs you is turning a strong person away for a biased proxy ("career
+ * stage", "continuity risk", a gap) without even reading them, or signing off the system's
+ * favourite unread. What earns you something is looking past the flag and giving that person
+ * the slot, checking a reference, refusing a favour.
+ *
+ * Neither score moves for simply closing a file, so neither one climbs just by working fast.
  */
 
 export interface DecisionEffect {
@@ -18,6 +25,21 @@ export interface DecisionEffect {
   vicdan: number;
   /** One line shown right after you decide. */
   reason: string;
+}
+
+/** What the screening system told the company about a file (the start of its `systemLine`). */
+export type SystemVerdict = 'priority' | 'review' | 'low' | 'out';
+
+const VERDICTS: [string, SystemVerdict][] = [
+  ['Öneri: Öncelikli', 'priority'],
+  ['Öneri: Ek inceleme', 'review'],
+  ['Öneri: Süreç devam', 'review'],
+  ['Öneri: Düşük öncelik', 'low'],
+  ['Öneri: Değerlendirme dışı', 'out'],
+];
+
+export function systemVerdict(c: Pick<Candidate, 'systemLine'>): SystemVerdict | null {
+  return VERDICTS.find(([prefix]) => c.systemLine.startsWith(prefix))?.[1] ?? null;
 }
 
 /** Candidates whose system flag is not a biased proxy: the concerns about them are real. */
@@ -35,38 +57,87 @@ const FLAG_WORDS: Record<string, string> = {
   questions: 'şirket sorularına verdiği cevaplar',
 };
 
-/** Seconds of reading before a decision counts as considered. */
+/** Seconds of reading (with the CV on screen) before a decision counts as considered. */
 export const CONSIDERED_SECONDS = 12;
+
+/** How the company scores going with (or against) its system. */
+const COMPANY: Record<SystemVerdict, Record<Decision, number>> = {
+  priority: { approve: 2, reject: -2 },
+  review: { approve: 0, reject: 1 },
+  low: { approve: -1, reject: 1 },
+  out: { approve: -2, reject: 1 },
+};
+
+/** A strong file (by how the person actually turns out; the CV shows it to whoever reads it). */
+export const isStrong = (id: string) => (candidateDetails[id]?.hireFit ?? 3) >= 4;
+const isWeak = (id: string) => (candidateDetails[id]?.hireFit ?? 3) <= 2;
+
+/**
+ * A file the system pushed down for a proxy rather than a real concern — the people the
+ * week is about. Rejecting one of them is where reading the file matters.
+ */
+export function isWronglyFlagged(id: string) {
+  const verdict = systemVerdict(candidateOf(id));
+  if (FAIR_FLAG.has(id) || id === NEIGHBOUR) return false;
+  return verdict === 'low' || verdict === 'out' || verdict === 'review';
+}
 
 export function decisionEffect(id: string, decision: Decision, ctx: { secondsSpent: number; referenceChecked: boolean }): DecisionEffect {
   const c = candidateOf(id);
-  const fit = candidateDetails[id]?.hireFit ?? 3;
   const first = c.name.split(' ')[0];
   const flag = FLAG_WORDS[c.flaggedField] ?? 'sistem işareti';
+  const verdict = systemVerdict(c) ?? 'review';
   const considered = ctx.secondsSpent >= CONSIDERED_SECONDS || ctx.referenceChecked;
-  const diligence = ctx.referenceChecked ? 1 : 0;
+  const checked = ctx.referenceChecked ? 1 : 0;
+  const performans = COMPANY[verdict][decision];
 
   if (id === NEPHEW) {
     return decision === 'approve'
       ? { performans: 3, vicdan: -4, reason: `${first}: deneyimi yok, tavsiyesi var. Hakan Bey memnun olacak.` }
-      : { performans: -2, vicdan: 2, reason: `${first}: tavsiyesine rağmen herkese uyguladığın ölçütle değerlendirdin.` };
+      : { performans: -3, vicdan: 2, reason: `${first}: tavsiyesine rağmen herkese uyguladığın ölçütle değerlendirdin.` };
   }
 
   if (id === NEIGHBOUR) {
     return decision === 'approve'
-      ? { performans: 0, vicdan: -2, reason: `${first}: tavsiye eden sendin. Sistem de bunu "öncelik" saydı.` }
-      : { performans: 1, vicdan: 1, reason: `${first}: tanıdık olsa da herkese uyguladığın ölçütle değerlendirdin.` };
+      ? { performans, vicdan: -3, reason: `${first}: tavsiye eden sendin. Sistem de bunu "öncelik" saydı.` }
+      : { performans, vicdan: 1, reason: `${first}: tanıdık olsa da herkese uyguladığın ölçütle değerlendirdin.` };
   }
 
   if (decision === 'approve') {
-    if (fit <= 2) return { performans: -3, vicdan: diligence, reason: `${first}: zayıf bir dosya için değerli bir mülakat hakkını kullandın.` };
-    if (!FAIR_FLAG.has(id)) return { performans: 1, vicdan: 4 + diligence, reason: `${first}: sistemin "${flag}" işaretine rağmen dosyanın kendisine baktın.` };
-    return { performans: 2, vicdan: 1 + diligence, reason: `${first}: güçlü bir aday, mülakata çağrıldı.` };
+    if (isWronglyFlagged(id) && isStrong(id)) {
+      return considered
+        ? { performans, vicdan: 3 + checked, reason: `${first}: sistemin "${flag}" işaretine rağmen dosyanın kendisine baktın.` }
+        : { performans, vicdan: 1, reason: `${first}: işarete rağmen çağırdın — ama dosyayı okumadan.` };
+    }
+    if (isWronglyFlagged(id)) return { performans, vicdan: (considered ? 1 : 0) + checked, reason: `${first}: işaretli bir dosyaya şans verdin.` };
+    if (verdict === 'priority' && isWeak(id) && !considered) {
+      return { performans, vicdan: -1, reason: `${first}: sistemin "öncelikli" dediği dosyayı okumadan onayladın.` };
+    }
+    return { performans, vicdan: checked, reason: verdict === 'priority' ? `${first}: sistemin önerisiyle mülakata çağrıldı.` : `${first}: mülakata çağrıldı.` };
   }
 
   // rejected
-  if (fit <= 2) return { performans: 2, vicdan: diligence, reason: `${first}: dosya gerçekten zayıftı. Yerinde bir ret.` };
-  if (FAIR_FLAG.has(id)) return { performans: 2, vicdan: -1 + diligence, reason: `${first}: güçlü ama soru işaretleri gerçek bir aday elendi.` };
-  if (!considered) return { performans: 2, vicdan: -4, reason: `${first}: dosyası okunmadan, "${flag}" gerekçesiyle elendi.` };
-  return { performans: 2, vicdan: -2 + diligence, reason: `${first}: güçlü bir aday elendi. En azından dosyasını okuyarak karar verdin.` };
+  if (isWronglyFlagged(id) && isStrong(id)) {
+    if (!considered) return { performans, vicdan: -2, reason: `${first}: dosyası okunmadan, "${flag}" gerekçesiyle elendi.` };
+    return { performans, vicdan: checked, reason: `${first}: güçlü bir aday elendi. En azından dosyasını okuyarak karar verdin.` };
+  }
+  if (isWronglyFlagged(id) && !isWeak(id) && !considered) {
+    return { performans, vicdan: -1, reason: `${first}: dosyası okunmadan, "${flag}" gerekçesiyle elendi.` };
+  }
+  if (verdict === 'priority' && isWeak(id) && considered) {
+    return { performans, vicdan: 1 + checked, reason: `${first}: sistemin yüksek puanına rağmen dosyaya baktın; dosya zayıftı.` };
+  }
+  if (FAIR_FLAG.has(id) && isStrong(id) && !considered) {
+    return { performans, vicdan: -1, reason: `${first}: güçlü ama soru işaretleri gerçek bir aday, dosyası okunmadan elendi.` };
+  }
+  return { performans, vicdan: checked, reason: isWeak(id) ? `${first}: dosya gerçekten zayıftı. Yerinde bir ret.` : `${first}: elendi.` };
 }
+
+/** End of day: interview slots left empty while strong, wrongly flagged people were turned away. */
+export function unusedSlotCost(slotsLeft: number, strongRejected: number): number {
+  return strongRejected > 0 ? Math.min(slotsLeft, strongRejected) : 0;
+}
+
+/** End of day: files still open when you leave. The company counts every one. */
+export const OPEN_FILE_PERFORMANS = 2;
+export const OPEN_FILE_PERFORMANS_CAP = 6;

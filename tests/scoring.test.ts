@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CONSIDERED_SECONDS, decisionEffect } from '../src/game/engine/scoring';
+import { CONSIDERED_SECONDS, decisionEffect, systemVerdict } from '../src/game/engine/scoring';
 import { candidates } from '../src/game/data/candidates';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 
@@ -30,7 +30,7 @@ test('müdürün yeğenini almak performans kazandırır, vicdan kaybettirir', (
 });
 
 test('güçlü ve haksız işaretli adayı okumadan elemek, okuyarak elemekten pahalı', () => {
-  const strong = ids.filter((id) => !SPECIAL.has(id) && !FAIR_FLAG.has(id) && fitOf(id) >= 3);
+  const strong = ids.filter((id) => !SPECIAL.has(id) && !FAIR_FLAG.has(id) && fitOf(id) >= 3 && systemVerdict(candidates[id]) !== 'priority');
   assert.ok(strong.length > 0);
   for (const id of strong) {
     assert.ok(decisionEffect(id, 'reject', hasty).vicdan < decisionEffect(id, 'reject', read).vicdan, id);
@@ -45,8 +45,35 @@ test('referans kontrolü hiçbir kararı kötüleştirmez', () => {
   }
 });
 
-test('zayıf dosyaya mülakat hakkı vermek performans kaybettirir', () => {
-  const weak = ids.filter((id) => !SPECIAL.has(id) && fitOf(id) <= 2);
-  assert.ok(weak.length > 0);
-  for (const id of weak) assert.ok(decisionEffect(id, 'approve', read).performans < 0, id);
+test('her adayın sistem önerisi okunabiliyor', () => {
+  for (const id of ids) assert.ok(systemVerdict(candidates[id]), `${id}: ${candidates[id].systemLine}`);
+});
+
+test('performans sistemin önerisini izler, dosyanın kalitesini değil', () => {
+  for (const id of ids) {
+    if (SPECIAL.has(id)) continue;
+    const v = systemVerdict(candidates[id]);
+    const approve = decisionEffect(id, 'approve', read).performans;
+    const reject = decisionEffect(id, 'reject', read).performans;
+    if (v === 'priority') assert.ok(approve > reject, id);
+    if (v === 'low' || v === 'out') assert.ok(reject > approve, id);
+    // reading longer never changes how the company scores a decision
+    assert.equal(decisionEffect(id, 'reject', hasty).performans, reject, id);
+  }
+});
+
+test('okuyarak verilen ret vicdandan yemez; okumadan verilen yer', () => {
+  for (const id of ids) {
+    if (SPECIAL.has(id)) continue;
+    assert.ok(decisionEffect(id, 'reject', read).vicdan >= 0, id);
+  }
+});
+
+test('işarete rağmen güçlü adaya şans vermek vicdan kazandırır, performans kaybettirir', () => {
+  const flagged = ids.filter((id) => !SPECIAL.has(id) && !FAIR_FLAG.has(id) && fitOf(id) >= 4 && ['low', 'out'].includes(systemVerdict(candidates[id])!));
+  assert.ok(flagged.length > 10);
+  for (const id of flagged) {
+    const e = decisionEffect(id, 'approve', read);
+    assert.ok(e.vicdan > 0 && e.performans < 0, id);
+  }
 });

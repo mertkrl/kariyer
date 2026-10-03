@@ -177,6 +177,11 @@
 .queueTime {
   font-size: calc(11px * var(--ts, 1));
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.queueRead {
+  color: var(--teal);
 }
 
 .candidateCard {
@@ -626,6 +631,35 @@
   color: var(--text-dim);
 }
 
+/* why the scores moved: the decision's one-line reason and its effect */
+.decisionWhy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.effectChip {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.effectUp {
+  background: rgba(63, 107, 99, 0.14);
+  color: #2f5a52;
+}
+
+.effectDown {
+  background: rgba(168, 64, 47, 0.12);
+  color: #8f3527;
+}
+
 .undoButton,
 .nextButton {
   border-radius: 9px;
@@ -752,7 +786,7 @@
 .analyzeButton {
   flex-shrink: 0;
   background: transparent;
-  color: var(--blue);
+  color: var(--blue-ink);
   border: 1px solid rgba(76, 127, 176, 0.45);
   border-radius: 999px;
   padding: 5px 11px;
@@ -1334,7 +1368,7 @@ button.systemIconBadge {
 
 .cvStrong {
   font-family: var(--font-display);
-  font-size: 17px !important;
+  font-size: calc(17px * var(--ts, 1)) !important;
   font-weight: 700;
   color: #1c2335 !important;
 }
@@ -1594,7 +1628,7 @@ button.systemIconBadge {
 }
 
 .cvStrong {
-  font-size: 20px !important;
+  font-size: calc(20px * var(--ts, 1)) !important;
   color: var(--ink) !important;
 }
 
@@ -1607,7 +1641,7 @@ button.systemIconBadge {
 
 .cvQuote {
   border-left-color: var(--gold);
-  font-size: 13.5px !important;
+  font-size: calc(13.5px * var(--ts, 1)) !important;
 }
 
 .candidateCard .grow {

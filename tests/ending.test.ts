@@ -21,10 +21,21 @@ test('kira ödenmediyse son metinde anılır', () => {
   assert.doesNotMatch(getEnding(50, 50, ctx({ evidence: 'anon', rentPaid: true })).body, /kira hâlâ/);
 });
 
-test('çok yüksek vicdan istifa ile biter', () => {
-  const e = getEnding(50, 90, ctx());
+test('çok yüksek vicdan ve itirazlar istifa ile biter', () => {
+  const e = getEnding(50, 90, ctx({ refusals: 3 }));
   assert.equal(e.left, true);
   assert.match(e.title, /İstifa/);
+  assert.doesNotMatch(getEnding(50, 90, ctx()).title, /İstifa/);
+});
+
+test('yüksek performans düşük vicdanla terfi değil, sistemin sonu olur', () => {
+  assert.match(getEnding(90, 10, ctx({ hireFit: 5 })).title, /sistemin mükemmel/);
+  assert.match(getEnding(90, 50, ctx({ hireFit: 5 })).title, /Terfi/);
+});
+
+test('düşük performans işten çıkarılmayla biter', () => {
+  assert.equal(getEnding(30, 70, ctx()).left, true);
+  assert.equal(getEnding(30, 20, ctx()).left, true);
 });
 
 test('bütün puan aralığında bir son vardır', () => {

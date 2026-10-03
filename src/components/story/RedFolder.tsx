@@ -3,6 +3,7 @@ import { audioEngine } from '../../audio/audioEngine';
 import { WEIGHT_TABLE } from '../../game/story';
 import { useDialog } from '../ui/useDialog';
 import styles from './RedFolder.module.css';
+import { SECOND_PAGE_DAY } from '../../game/weekdays';
 
 /*
  * The red folder Zehra left in the bottom-left drawer: the scoring weights the AI really uses,
@@ -23,7 +24,7 @@ export function RedFolder({ state, photoPages, dayIndex, onDecide, onClose }: Pr
   const [flash, setFlash] = useState(false);
   const panel = useDialog<HTMLDivElement>(onClose);
   // Wednesday: page one. Thursday: the second page, taped under the drawer, is there too.
-  const pages = dayIndex >= 3 ? 2 : 1;
+  const pages = dayIndex >= SECOND_PAGE_DAY ? 2 : 1;
   const rows = WEIGHT_TABLE.filter((r) => r.page <= pages);
   const decided = state === 'photographed' && photoPages >= pages;
   return (

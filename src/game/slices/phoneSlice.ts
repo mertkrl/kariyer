@@ -7,6 +7,7 @@ import { REPLY_EFFECT, managerReaction, managerTone, replyText } from '../manage
 import { sound } from '../sound';
 import { clampScore } from '../storeDefaults';
 import { takeMessageId } from '../clock';
+import { later } from '../later';
 
 export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 'toggleMuteThread' | 'answerMessage' | 'answerRequest' | 'markPhoneRead'> => ({
   toggleMuteThread: (thread) =>
@@ -40,7 +41,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
         { id: takeMessageId(), thread: msg.thread, at: state.workdayMinutes, day: state.currentDayIndex, from: 'me', text: reply.text },
       ] });
     sound().playUi('click');
-    window.setTimeout(() => {
+    later(() => {
       const s2 = get();
       if (s2.phase !== 'gameplay') return;
       set({
@@ -81,7 +82,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
       vicdan: clampScore(state.vicdan + effect.vicdan) });
     sound().playUi('click');
     // The manager "types" for a moment before reacting.
-    window.setTimeout(() => {
+    later(() => {
       const s2 = get();
       if (s2.phase !== 'gameplay') return;
       set({

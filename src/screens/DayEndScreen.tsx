@@ -10,6 +10,7 @@ import { CHART } from '../components/dayend/chartColors';
 import { EvidenceCard } from '../components/story/EvidenceCard';
 import { CONSIDERED_SECONDS } from '../game/engine/scoring';
 import styles from './DayEndScreen.module.css';
+import { SECOND_PAGE_DAY } from '../game/weekdays';
 
 export function DayEndScreen() {
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
@@ -31,7 +32,7 @@ export function DayEndScreen() {
   const [watching, setWatching] = useState(false);
   const story = useGameStore((s) => s.story);
   // Thursday night: what you do with the photo can't wait for Friday
-  const photoTonight = currentDayIndex === 3 && story.drawer === 'photographed';
+  const photoTonight = currentDayIndex === SECOND_PAGE_DAY && story.drawer === 'photographed';
   const photoOpen = photoTonight && story.evidence === null;
 
   const day = days[currentDayIndex];

@@ -12,16 +12,13 @@ import {
   makeLayer,
   makeRng,
   mosque,
-  pick,
   polyY,
   range,
   reflections,
   smoothPath,
   stars,
   vGradient,
-  walker,
   type Cam,
-  type Pedestrian,
   type Reflection,
 } from '../kit';
 import { drawTraffic, jostle, populate, project, stepLane, type Lane, type Persp } from '../traffic';
@@ -31,7 +28,7 @@ import type { CityScene } from '../scene';
  * Ortaköy, 17:10 — the 15 Temmuz Şehitler Köprüsü at sunset, seen from the hillside above the
  * mosque. The Europe → Asia lanes are a solid river of brake lights (everyone going home to the
  * Anatolian side), the other way flows. The bridge's LEDs cycle colours, a vapur crosses, gulls
- * hang over the water and the promenade below is full of people leaving work.
+ * hang over the water and the lamps come on along the empty promenade below.
  */
 
 const P: Persp = { vpx: 800, vpy: 400, f: 900, camH: 110 };
@@ -120,20 +117,6 @@ export function bridgeScene(): CityScene {
     for (const l of lanes) stepLane(l, 0.05);
     jostle(lanes, 0.05, 0.8);
   }
-
-  const promenade: Pedestrian[] = Array.from({ length: 34 }, () => {
-    const y = range(r, 842, 906);
-    const h = 60 + (y - 842) * 1.5;
-    return {
-      x: range(r, -PAD, 560),
-      y,
-      h,
-      v: range(r, 1.05, 1.5),
-      dir: (r() < 0.5 ? 1 : -1) as 1 | -1,
-      phase: range(r, 0, 6),
-      look: { color: '#120f16', rim: 'rgba(255,160,100,0.45)', bag: pick(r, [0, 1, 2, 3] as const), coat: range(r, 0.08, 0.16) },
-    };
-  }).sort((a, b) => a.y - b.y);
 
   // coastal roads (Çırağan / Beylerbeyi): streams of head- and tail-lights along the shore
   const roads = [
@@ -436,12 +419,6 @@ export function bridgeScene(): CityScene {
     update(dt) {
       for (const l of lanes) stepLane(l, dt);
       jostle(lanes, dt, 0.4);
-      for (const p of promenade) {
-        p.x += p.v * p.dir * dt * (p.h / 1.7);
-        p.phase += dt * p.v * 4.2;
-        if (p.dir > 0 && p.x > 600) p.x = -PAD - 40;
-        if (p.dir < 0 && p.x < -PAD - 40) p.x = 600;
-      }
       for (const b of gulls) {
         b.x += b.v * dt;
         if (b.x > W + PAD) b.x = -PAD;
@@ -541,7 +518,7 @@ export function bridgeScene(): CityScene {
       // gulls
       for (const b of gulls) gull(g, b.x, b.y + Math.sin(t * 0.8 + b.bob) * 10, b.s, t * 6 + b.ph, 'rgba(30,20,34,0.85)');
 
-      // promenade crowd, lamps
+      // promenade lamps
       g.drawImage(fg, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.globalCompositeOperation = 'lighter';
       for (let x = 30; x < 540; x += 120) {
@@ -549,7 +526,6 @@ export function bridgeScene(): CityScene {
         glowRect(g, x, 880, 160, 40, [255, 170, 110], 0.18);
       }
       g.globalCompositeOperation = 'source-over';
-      for (const p of promenade) walker(g, p.x, p.y, p.h, p.phase, p.dir, p.look);
       g.restore();
     },
   };

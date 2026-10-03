@@ -1,4 +1,5 @@
 import { days } from './data/days';
+import { shuffle } from './rng';
 
 /*
  * Random candidate pool.
@@ -32,15 +33,6 @@ export function questionsFor(candidateId: string): string[] {
 /** The authored lineups, used before a game starts (and as a fallback). */
 export function defaultLineups(): string[][] {
   return days.map((day) => [...day.candidateIds]);
-}
-
-function shuffle<T>(list: T[], rand: () => number): T[] {
-  const out = [...list];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
 }
 
 /** A fresh week: same day sizes, ~⅓ of each day swapped with other days, every queue shuffled. */

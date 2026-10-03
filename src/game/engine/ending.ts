@@ -15,6 +15,9 @@ export interface EndingContext {
   hiredNephew?: boolean;
 }
 
+/** Below this the probation period ends with you. */
+export const FIRED_BELOW = 35;
+
 const DEFAULT_CTX: EndingContext = { refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal' };
 
 export function getEnding(performans: number, vicdan: number, ctx: EndingContext = DEFAULT_CTX): EndingVariant {
@@ -47,7 +50,7 @@ export function getEnding(performans: number, vicdan: number, ctx: EndingContext
         }
       : {
           title: 'Dosya kayboldu. Sonra sen.',
-      left: true,
+          left: true,
           body: `Direktör "ilgileneceğiz" dedi. İki hafta sonra performansın gerekçe gösterilerek sözleşmen yenilenmedi. Tablo hâlâ yerinde duruyor.${rentLine}`,
         };
   }
@@ -63,7 +66,8 @@ export function getEnding(performans: number, vicdan: number, ctx: EndingContext
       body: `Okan'ı işe aldın. Hakan Bey seni terfi listesine yazdı. Ekip ise artık yanında konuşmuyor.${rentLine}`,
     };
   }
-  if (vicdan >= 85 || (ctx.weekendChoice === 'quit' && vicdan >= 68)) {
+  // Resigning is the rare ending: a very clear conscience *and* having said no out loud.
+  if ((vicdan >= 85 && ctx.refusals >= 3) || (ctx.weekendChoice === 'quit' && vicdan >= 68)) {
     return {
       title: 'İstifa ettin.',
       left: true,
@@ -76,6 +80,25 @@ export function getEnding(performans: number, vicdan: number, ctx: EndingContext
       title: 'Müdürle yolların ayrıldı.',
       left: true,
       body: 'Pazartesi sabahı İK direktörünün odasına çağrıldın. "Uyum sorunu" dediler. Kapıdan çıkarken içinde garip bir hafiflik vardı — en azından hiçbir talimat için kendini eğmemiştin.',
+    };
+  }
+
+  if (performans < FIRED_BELOW) {
+    return {
+      title: 'İşten çıkarıldın.',
+      left: true,
+      body:
+        vicdan >= 55
+          ? 'Deneme süren "uyum sorunu" gerekçesiyle, tazminatsız bitirildi. Ama birkaç kişi senin yüzünden ikinci bir şans buldu. Sistem seni istemedi — belki de bu iyiye işaretti.'
+          : 'Deneme süren "performans yetersizliği" gerekçesiyle, tazminatsız bitirildi. Ne sisteme yaranabildin ne de adaylara sahip çıkabildin. Masandaki dosyaları bir başkası devraldı.',
+    };
+  }
+
+  // Before the promotion: a high score bought with a low conscience is the system's ending.
+  if (performans >= 75 && vicdan < 35) {
+    return {
+      title: 'Sen artık sistemin mükemmel bir parçasısın.',
+      body: 'Kuralları hiç sorgulamadan uyguladın. İK Müdürü senden çok memnun. Ama geride bıraktığın dosyalar da bir yerlerde.',
     };
   }
 
@@ -97,21 +120,6 @@ export function getEnding(performans: number, vicdan: number, ctx: EndingContext
     return {
       title: 'Algoritmanın gölgesinde.',
       body: 'Kararların çoğunu makine verdi, sen imzaladın. Rapor kusursuz görünüyor, müdür memnun. Peki o raporun neresinde sen varsın?',
-    };
-  }
-
-  if (performans >= 65 && vicdan < 40) {
-    return {
-      title: 'Sen artık sistemin mükemmel bir parçasısın.',
-      body: 'Kuralları hiç sorgulamadan uyguladın. İK Müdürü senden çok memnun. Ama geride bıraktığın dosyalar da bir yerlerde.',
-    };
-  }
-
-  if (performans < 45 && vicdan >= 60) {
-    return {
-      title: 'İşten çıkarıldın.',
-      left: true,
-      body: 'Deneme süren "uyum sorunu" gerekçesiyle, tazminatsız bitirildi. Ama birkaç kişi senin yüzünden ikinci bir şans buldu. Sistem seni istemedi — belki de bu iyiye işaretti.',
     };
   }
 

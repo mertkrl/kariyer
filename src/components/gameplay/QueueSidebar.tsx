@@ -2,6 +2,7 @@ import { useGameStore, isOnBreak, lineupFor, TEAM_LATE_DAY, TEAM_LATE_END } from
 import { candidateOf } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';
+import { CONSIDERED_SECONDS } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
 
 /*
@@ -76,6 +77,11 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                 </span>
                 <span className={`${styles.queueTime} mono`}>
                   {isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}
+                  {(timeSpent[id] ?? 0) >= CONSIDERED_SECONDS && (
+                    <span className={styles.queueRead} title="Dosyayı okudun">
+                      {' '}✓<span className="sr-only">okundu</span>
+                    </span>
+                  )}
                 </span>
               </button>
             );

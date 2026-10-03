@@ -389,18 +389,6 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     ] as const) {
       if (!vis) continue;
       band([P(-0.8, s, y0), P(-v.len + 0.6, s, y0), P(-v.len + 0.6, s, y1), P(-0.8, s, y1)]);
-      // passengers standing shoulder to shoulder
-      g.fillStyle = 'rgba(38,26,20,0.82)';
-      for (let a = -1.2; !servis && a > -v.len + 0.8; a -= 0.62) {
-        const [hx, hy, hk] = P(a + Math.sin(a * 7.1) * 0.1, s, 2.05 + Math.sin(a * 3.3) * 0.08);
-        const [, sy] = P(a, s, 1.55);
-        const rr = 0.17 * hk;
-        if (rr < 0.5) break;
-        g.beginPath();
-        g.arc(hx, hy, rr, 0, Math.PI * 2);
-        g.fill();
-        g.fillRect(hx - rr * 1.5, hy + rr * 0.8, rr * 3, Math.max(1, sy - hy));
-      }
       if (v.kind === 'metrobus') {
         g.fillStyle = 'rgba(20,20,24,0.9)';
         poly(g, [P(-v.len / 2 + 0.4, s, 0.35), P(-v.len / 2 - 0.4, s, 0.35), P(-v.len / 2 - 0.4, s, v.hgt), P(-v.len / 2 + 0.4, s, v.hgt)]);
