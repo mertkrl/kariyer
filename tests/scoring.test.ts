@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CONSIDERED_SECONDS, decisionEffect, systemVerdict } from '../src/game/engine/scoring';
+import { CONSIDERED_SECONDS, decisionEffect, systemVerdict, wasConsidered } from '../src/game/engine/scoring';
 import { NEIGHBOUR_ID, NEPHEW_ID, candidates } from '../src/game/data/candidates';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 
@@ -8,9 +8,9 @@ const FAIR_FLAG = new Set(Object.values(candidates).filter((c) => c.flagIsFair).
 const SPECIAL = new Set([NEPHEW_ID, NEIGHBOUR_ID]);
 const ids = Object.keys(candidates);
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
-const hasty = { secondsSpent: 0, referenceChecked: false };
-const read = { secondsSpent: CONSIDERED_SECONDS, referenceChecked: false };
-const checked = { secondsSpent: 0, referenceChecked: true };
+const hasty = { secondsSpent: 0, readThrough: false, referenceChecked: false };
+const read = { secondsSpent: CONSIDERED_SECONDS, readThrough: true, referenceChecked: false };
+const checked = { secondsSpent: 0, readThrough: false, referenceChecked: true };
 
 test('her aday ve her karar için sonuç tanımlı ve adlı', () => {
   for (const id of ids) {
@@ -76,4 +76,13 @@ test('işarete rağmen güçlü adaya şans vermek vicdan kazandırır, performa
     const e = decisionEffect(id, 'approve', read);
     assert.ok(e.vicdan > 0 && e.performans < 0, id);
   }
+});
+
+test('dosya okunmuş sayılmak için hem süre hem de sonuna kadar görülmek gerekir', () => {
+  // waiting out the clock with the CV half off screen is not reading it
+  assert.equal(wasConsidered({ secondsSpent: 60, readThrough: false, referenceChecked: false }), false);
+  // scrolling straight to the bottom is not reading it either
+  assert.equal(wasConsidered({ secondsSpent: CONSIDERED_SECONDS - 1, readThrough: true, referenceChecked: false }), false);
+  assert.equal(wasConsidered(read), true);
+  assert.equal(wasConsidered(checked), true);
 });

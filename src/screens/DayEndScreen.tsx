@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { formatClock } from '../game/time';
-import { lineupFor, useGameStore } from '../game/store';
+import { lineupFor, readingOf, useGameStore } from '../game/store';
 import { days, FINALIST_LIMIT } from '../game/data/days';
 import { candidateOf } from '../game/data/candidates';
 import { Button } from '../components/ui/Button';
@@ -8,7 +8,7 @@ import { DayEndBackdrop } from '../components/dayend/DayEndBackdrop';
 import { CountUp } from '../components/dayend/CountUp';
 import { CHART } from '../components/dayend/chartColors';
 import { EvidenceCard } from '../components/story/EvidenceCard';
-import { CONSIDERED_SECONDS } from '../game/engine/scoring';
+import { wasConsidered } from '../game/engine/scoring';
 import styles from './DayEndScreen.module.css';
 import { SECOND_PAGE_DAY } from '../game/weekdays';
 
@@ -17,6 +17,7 @@ export function DayEndScreen() {
   const dayStats = useGameStore((s) => s.dayStats);
   const decisions = useGameStore((s) => s.decisions);
   const timeSpent = useGameStore((s) => s.timeSpent);
+  const readThrough = useGameStore((s) => s.readThrough);
   const performans = useGameStore((s) => s.performans);
   const vicdan = useGameStore((s) => s.vicdan);
   const nextDay = useGameStore((s) => s.nextDay);
@@ -41,8 +42,8 @@ export function DayEndScreen() {
 
   // files you actually sat with — the same bar the scoring uses
   const readCount = useMemo(
-    () => lineup.filter((id) => decisions[id] && ((timeSpent[id] ?? 0) >= CONSIDERED_SECONDS || referenceChecks[id])).length,
-    [decisions, timeSpent, lineup, referenceChecks],
+    () => lineup.filter((id) => decisions[id] && wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id))).length,
+    [decisions, timeSpent, readThrough, lineup, referenceChecks],
   );
   const skimmed = processed - readCount;
   const mailsSent = rejectionToday.personal + rejectionToday.standard + rejectionToday.pool;

@@ -25,6 +25,8 @@ export function FinalScreen() {
   const vicdan = useGameStore((s) => s.vicdan);
   const totalStats = useGameStore((s) => s.totalStats);
   const restart = useGameStore((s) => s.restart);
+  const startGame = useGameStore((s) => s.startGame);
+  const seed = useGameStore((s) => s.seed);
   const hiredId = useGameStore((s) => s.hiredId);
   const hired = hiredId ? candidates[hiredId] : null;
   const fit = hiredId ? candidateDetails[hiredId]?.hireFit ?? 3 : 3;
@@ -344,7 +346,11 @@ export function FinalScreen() {
           <Button variant="gold" onClick={restart}>
             BAŞTAN OYNA
           </Button>
+          <Button variant="ghost" onClick={() => startGame(seed)} title="Aynı adaylar, aynı aramalar, aynı hafta">
+            AYNI HAFTAYI YENİDEN OYNA
+          </Button>
         </div>
+        <p className={styles.replayNote}>Aynı adaylar, aynı aramalar. Bu kez başka kararlar verirsen hafta nasıl biter?</p>
       </div>
     </div>
   );

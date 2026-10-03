@@ -3,7 +3,7 @@ import type { DayStats } from './types';
 import { days } from './data/days';
 import { DAY_PLANS } from './data/dayPlans';
 import { DAILY_WAGE, OPEN_FILE_PENALTY, QUOTA_CUT_BELOW, TARGET_BONUS, TARGET_BONUS_AT, PRIM, KEY_CHARACTERS } from './story';
-import { OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, decisionEffect, isStrong, isWronglyFlagged, unusedSlotCost } from './engine/scoring';
+import { type ReadingContext, OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, decisionEffect, isStrong, isWronglyFlagged, unusedSlotCost } from './engine/scoring';
 import { AD_EFFECT } from './data/jobs';
 import type { Mail } from './mail';
 import { COFFEE_SIPS } from './desk';
@@ -61,6 +61,7 @@ function freshWeek(): WeekData {
     decisions: {},
     decisionLog: [],
     timeSpent: {},
+    readThrough: {},
     reading: false,
     dayStats: emptyStats(),
     totalStats: emptyStats(),
@@ -120,6 +121,11 @@ function freshWeek(): WeekData {
  * The checkpoint, if this build of the game can continue it: its fields fit today's state, its day
  * exists, and everyone it names is still in the cast. One that doesn't is removed.
  */
+/** How a file was read, as the scoring weighs it. */
+export function readingOf(state: Pick<GameState, 'timeSpent' | 'readThrough' | 'referenceChecks'>, id: string): ReadingContext {
+  return { secondsSpent: state.timeSpent[id] ?? 0, readThrough: Boolean(state.readThrough[id]), referenceChecked: Boolean(state.referenceChecks[id]) };
+}
+
 export function loadSave(): SaveFile | null {
   const save = readSave();
   if (!save) return null;
@@ -146,9 +152,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     set(save.data);
   },
 
-  startGame: () => {
+  startGame: (replaySeed) => {
     cancelLater();
-    const seed = newSeed();
+    const seed = newSeed(replaySeed);
     const momRand = rngFor(seed, 'mom');
     sound().init();
     sound().setMuted(get().muted);
@@ -369,7 +375,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     // how you decided matters as much as what: reading the file, checking a reference
-    const effect = decisionEffect(id, decision, { secondsSpent: state.timeSpent[id] ?? 0, referenceChecked: Boolean(state.referenceChecks[id]) });
+    const effect = decisionEffect(id, decision, readingOf(state, id));
     const before = { performans, vicdan };
     performans = clampScore(performans + effect.performans);
     vicdan = clampScore(vicdan + effect.vicdan);
@@ -547,6 +553,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       decisions: {},
       decisionLog: [],
       timeSpent: {},
+      readThrough: {},
       dayStats: emptyStats() });
   },
 
@@ -557,6 +564,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   togglePause: () => set((state) => ({ paused: !state.paused })),
   setReading: (reading) => set({ reading }),
+  markReadThrough: (id) => {
+    if (!get().readThrough[id]) set((state) => ({ readThrough: { ...state.readThrough, [id]: true } }));
+  },
   startShift: () => set({ shiftStarted: true }),
   finishOrientation: () => set({ orientationDone: true, shiftStarted: true }),
   ...createPhoneSlice(set, get),

@@ -30,13 +30,22 @@ type Details = (typeof candidateDetails)[string];
  * True while the CV runs on below the fold. On a short screen the CV scrolls inside the card,
  * and its bottom edge fades out so the company's questions aren't missed.
  */
-function useMoreBelow() {
+function useMoreBelow(onEnd: () => void) {
   const ref = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState(false);
+  const endRef = useRef(onEnd);
+  useEffect(() => {
+    endRef.current = onEnd;
+  });
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    const check = () => {
+      const below = el.scrollHeight - el.scrollTop - el.clientHeight > 4;
+      setMore(below);
+      // the end of the file has been on screen (or all of it fits): it can count as read
+      if (!below) endRef.current();
+    };
     const ro = new ResizeObserver(check);
     ro.observe(el);
     for (const child of el.children) ro.observe(child);
@@ -49,8 +58,8 @@ function useMoreBelow() {
   return { ref, more };
 }
 
-export function CvBody({ candidate, details, scanning, verdicts }: { candidate: Candidate; details?: Details; scanning: boolean; verdicts: boolean }) {
-  const { ref, more } = useMoreBelow();
+export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }: { candidate: Candidate; details?: Details; scanning: boolean; verdicts: boolean; onReadThrough: () => void }) {
+  const { ref, more } = useMoreBelow(onReadThrough);
   return (
     <div ref={ref} className={`${styles.cvBody} ${more ? styles.cvBodyMore : ''}`}>
       <div className={styles.cvMain}>

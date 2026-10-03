@@ -34,7 +34,8 @@ export function shuffle<T>(list: readonly T[], rand: () => number): T[] {
 }
 
 /** A new playthrough's seed: `?seed=123` in the address replays that week, otherwise a fresh one. */
-export function newSeed(): number {
+export function newSeed(replay?: number): number {
+  if (replay !== undefined && Number.isInteger(replay) && replay > 0) return replay;
   const asked = Number(new URLSearchParams(window.location.search).get('seed'));
   return Number.isInteger(asked) && asked > 0 ? asked : Math.floor(Math.random() * 1e9) + 1;
 }

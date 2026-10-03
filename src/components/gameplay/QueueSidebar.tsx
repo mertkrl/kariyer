@@ -1,8 +1,8 @@
-import { useGameStore, isOnBreak, lineupFor, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store';
+import { useGameStore, isOnBreak, lineupFor, readingOf, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store';
 import { NEIGHBOUR_ID, candidateOf } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';
-import { CONSIDERED_SECONDS } from '../../game/engine/scoring';
+import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
 
 /*
@@ -31,6 +31,8 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   const decisions = useGameStore((s) => s.decisions);
   const openedIds = useGameStore((s) => s.openedIds);
   const timeSpent = useGameStore((s) => s.timeSpent);
+  const readThrough = useGameStore((s) => s.readThrough);
+  const referenceChecks = useGameStore((s) => s.referenceChecks);
   const currentCandidateId = useGameStore((s) => s.currentCandidateId);
   const selectCandidate = useGameStore((s) => s.selectCandidate);
   const finishDay = useGameStore((s) => s.finishDay);
@@ -77,7 +79,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                 </span>
                 <span className={`${styles.queueTime} mono`}>
                   {isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}
-                  {(timeSpent[id] ?? 0) >= CONSIDERED_SECONDS && (
+                  {wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id)) && (
                     <span className={styles.queueRead} title="Dosyayı okudun">
                       {' '}✓<span className="sr-only">okundu</span>
                     </span>

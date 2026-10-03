@@ -42,6 +42,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const decide = useGameStore((s) => s.decide);
   const undoDecision = useGameStore((s) => s.undoDecision);
   const selectCandidate = useGameStore((s) => s.selectCandidate);
+  const markReadThrough = useGameStore((s) => s.markReadThrough);
 
   const candidate = currentCandidateId ? candidates[currentCandidateId] : null;
   const details = candidate ? candidateDetails[candidate.id] : undefined;
@@ -113,7 +114,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
           </header>
 
           {/* keyed by person: each CV opens at its top, not where the last one was scrolled to */}
-          <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} />
+          <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} onReadThrough={() => markReadThrough(candidate.id)} />
 
           <div className={styles.grow} />
 

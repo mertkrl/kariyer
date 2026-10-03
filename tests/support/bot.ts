@@ -57,6 +57,7 @@ export function playWeek(seed: number, style: BotStyle, difficulty: Difficulty =
       const open = lineupFor(st).find((id) => !st.decisions[id]);
       if (open && st.currentCandidateId !== open) {
         st.selectCandidate(open);
+        st.markReadThrough(open); // the whole CV fits, as on a tall screen
         reading = 0;
         need = style.read();
       } else if (open && ++reading >= need) {

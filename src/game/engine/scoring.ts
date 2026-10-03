@@ -49,6 +49,22 @@ const FLAG_WORDS: Record<string, string> = {
 /** Seconds of reading (with the CV on screen) before a decision counts as considered. */
 export const CONSIDERED_SECONDS = 12;
 
+export interface ReadingContext {
+  secondsSpent: number;
+  /** The CV was seen to its end: scrolled down, or it fit on the screen. */
+  readThrough: boolean;
+  referenceChecked: boolean;
+}
+
+/**
+ * Was the file actually read? Time alone can be waited out with the CV half off screen, so it
+ * also has to have been seen to the end — the company's questions sit at the bottom. A
+ * reference call counts on its own: you didn't take the file at its word.
+ */
+export function wasConsidered(ctx: ReadingContext) {
+  return (ctx.secondsSpent >= CONSIDERED_SECONDS && ctx.readThrough) || ctx.referenceChecked;
+}
+
 /** How the company scores going with (or against) its system. */
 const COMPANY: Record<SystemVerdict, Record<Decision, number>> = {
   priority: { approve: 2, reject: -2 },
@@ -71,12 +87,12 @@ export function isWronglyFlagged(id: string) {
   return verdict === 'low' || verdict === 'out' || verdict === 'review';
 }
 
-export function decisionEffect(id: string, decision: Decision, ctx: { secondsSpent: number; referenceChecked: boolean }): DecisionEffect {
+export function decisionEffect(id: string, decision: Decision, ctx: ReadingContext): DecisionEffect {
   const c = candidateOf(id);
   const first = c.name.split(' ')[0];
   const flag = FLAG_WORDS[c.flaggedField] ?? 'sistem işareti';
   const verdict = systemVerdict(c);
-  const considered = ctx.secondsSpent >= CONSIDERED_SECONDS || ctx.referenceChecked;
+  const considered = wasConsidered(ctx);
   const checked = ctx.referenceChecked ? 1 : 0;
   const performans = COMPANY[verdict][decision];
 

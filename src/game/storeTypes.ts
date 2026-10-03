@@ -147,6 +147,8 @@ export interface GameState {
   decisionLog: DecisionLogEntry[];
   /** Seconds each of today's files spent open on the portal screen. */
   timeSpent: Record<string, number>;
+  /** Files whose CV was seen to the end (see `wasConsidered`). */
+  readThrough: Record<string, true>;
   /** The portal is on screen with a file open: only then does reading time count. */
   reading: boolean;
 
@@ -253,7 +255,8 @@ export interface GameState {
 
   selectedJobId: string | null;
 
-  startGame: () => void;
+  /** A new week; with `replaySeed`, the same week as that seed's (same files, same calls). */
+  startGame: (replaySeed?: number) => void;
   /** Picks the week up from this browser's last checkpoint (the start of a day). */
   continueGame: () => void;
   publishJob: (jobId: string) => void;
@@ -277,6 +280,7 @@ export interface GameState {
   toggleMute: () => void;
   togglePause: () => void;
   setReading: (reading: boolean) => void;
+  markReadThrough: (id: string) => void;
   startShift: () => void;
   finishOrientation: () => void;
   toggleMuteThread: (thread: ThreadId) => void;

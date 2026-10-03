@@ -63,3 +63,14 @@ test('gerçek bir haftanın gün başı kaydı eksiksiz geri yüklenir', async (
   const written = Object.keys(JSON.parse(localStorage.getItem('kariyerweb-save')!).data).sort();
   assert.deepEqual(kept, written, 'kaydın bazı alanları yüklenirken düştü');
 });
+
+test('aynı haftayı yeniden oynamak aynı tohumu ve kadroyu verir', () => {
+  const s = useGameStore.getState;
+  s().restart();
+  s().startGame();
+  const { seed, lineups } = s();
+  s().restart();
+  s().startGame(seed);
+  assert.equal(s().seed, seed);
+  assert.deepEqual(s().lineups, lineups);
+});

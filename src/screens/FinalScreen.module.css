@@ -142,6 +142,13 @@
   justify-content: center;
 }
 
+.replayNote {
+  margin: -4px 0 0;
+  font-size: calc(13px * var(--ts, 1));
+  text-align: center;
+  color: var(--on-dark-muted);
+}
+
 .hireCard {
   width: 100%;
   display: flex;
