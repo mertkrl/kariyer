@@ -126,6 +126,7 @@ export function JobSelectScreen() {
             <span className={styles.difficultyLabel}>Zorluk</span>
             {(
               [
+                ['relaxed', 'Rahat'],
                 ['normal', 'Normal'],
                 ['hard', 'Zor'],
               ] as const
@@ -137,7 +138,7 @@ export function JobSelectScreen() {
                 className={`${styles.diffBtn} ${difficulty === id ? (id === 'hard' ? styles.diffHard : styles.diffOn) : ''}`}
                 onClick={() => {
                   audioEngine.init();
-                  audioEngine.playUi('select', id === 'hard' ? 3 : 1);
+                  audioEngine.playUi('select', id === 'hard' ? 3 : id === 'relaxed' ? 0 : 1);
                   setDifficulty(id);
                 }}
               >
@@ -145,7 +146,11 @@ export function JobSelectScreen() {
               </button>
             ))}
             <span className={styles.difficultyHint}>
-              {difficulty === 'hard' ? 'Saat daha hızlı akar, müdür daha sert, gün içinde sürprizler çıkar.' : 'Hikâyeyi rahatça yaşamak için.'}
+              {difficulty === 'hard'
+                ? 'Saat daha hızlı akar, müdür daha sert, gün içinde sürprizler çıkar.'
+                : difficulty === 'relaxed'
+                  ? 'Saat daha yavaş akar: dosyaları kendi hızında okursun. Hikâye ve puanlama aynı.'
+                  : 'Hikâyenin tasarlandığı hız.'}
             </span>
           </div>
           <Button variant="gold" sound="confirm" onClick={() => publishJob(selectedJob.id)}>

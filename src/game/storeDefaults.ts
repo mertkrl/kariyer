@@ -35,7 +35,8 @@ export function approvalQuota(state: Pick<GameState, 'currentDayIndex' | 'decisi
 export const emptyWeek = (): WeekLog => ({ reviewTicks: 0, reviewed: 0, momMessages: 0, momAnswered: 0, managerIgnored: 0, events: 0 });
 
 /** Game minutes that pass per second of play. */
-export const minutesPerTick = (d: Difficulty) => (d === 'hard' ? MINUTES_PER_TICK * 1.35 : MINUTES_PER_TICK);
+const CLOCK_SPEED: Record<Difficulty, number> = { relaxed: 0.6, normal: 1, hard: 1.35 };
+export const minutesPerTick = (d: Difficulty) => MINUTES_PER_TICK * CLOCK_SPEED[d];
 
 export const EVENT_LENGTH: Record<EventKind, number> = { power: 20, meeting: 4, it: 60, calendar: 5, weather: 6 };
 

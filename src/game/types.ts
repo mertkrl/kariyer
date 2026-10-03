@@ -84,7 +84,8 @@ export type GamePhase =
   | 'weekend'
   | 'final';
 
-export type Difficulty = 'normal' | 'hard';
+/** relaxed: a slower clock, for reading at your own pace; the story and the scoring are the same. */
+export type Difficulty = 'relaxed' | 'normal' | 'hard';
 
 /** Hard-mode surprises during the workday. */
 export type EventKind = 'power' | 'meeting' | 'it' | 'calendar' | 'weather';

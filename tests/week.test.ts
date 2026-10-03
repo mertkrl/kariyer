@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { useGameStore } from '../src/game/store';
+import { minutesPerTick, useGameStore } from '../src/game/store';
 import { FINALIST_LIMIT } from '../src/game/data/days';
 import { playWeek, type BotStyle, type Run } from './support/bot';
 import { rngFor } from '../src/game/rng';
@@ -36,6 +36,13 @@ test('zor modda da hafta tamamlanır', () => {
   const run = playStyle(2024, 'mixed', 'hard');
   assert.equal(store.getState().difficulty, 'hard');
   assert.ok(store.getState().week.events > 0, 'zor modda sürpriz olay yaşanmadı');
+  assert.ok(run.scoresSeen.every((v) => v >= 0 && v <= 100));
+});
+
+test('rahat modda saat yavaş akar ve hafta tamamlanır', () => {
+  assert.ok(minutesPerTick('relaxed') < minutesPerTick('normal'));
+  const run = playStyle(2024, 'mixed', 'relaxed');
+  assert.equal(store.getState().difficulty, 'relaxed');
   assert.ok(run.scoresSeen.every((v) => v >= 0 && v <= 100));
 });
 

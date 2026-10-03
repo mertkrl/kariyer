@@ -1,4 +1,4 @@
-import type { Ref } from 'react';
+import { useEffect, type Ref } from 'react';
 import { approvalQuota, lineupFor, useGameStore } from '../../game/store';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { candidates } from '../../game/data/candidates';
@@ -43,6 +43,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const undoDecision = useGameStore((s) => s.undoDecision);
   const selectCandidate = useGameStore((s) => s.selectCandidate);
   const markReadThrough = useGameStore((s) => s.markReadThrough);
+  const reading = useGameStore((s) => s.reading);
 
   const candidate = currentCandidateId ? candidates[currentCandidateId] : null;
   const details = candidate ? candidateDetails[candidate.id] : undefined;
@@ -52,6 +53,25 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const decidedAt = decisionLog.find((e) => e.id === currentCandidateId)?.at;
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);
+
+  // the keyboard: M calls to interview, R rejects, S opens the next file (Ctrl/Cmd+Z undoes, see
+  // GameplayScreen). Only while the portal has the player's attention, never while typing.
+  useEffect(() => {
+    if (!reading || !candidate || onBreak) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      const key = e.key.toLocaleLowerCase('tr');
+      if (key === 'm' && !decidedForCurrent && quota.canApprove) decide('approve');
+      else if (key === 'r' && !decidedForCurrent) decide('reject');
+      else if (key === 's' && nextUndecidedId) selectCandidate(nextUndecidedId);
+      else return;
+      e.preventDefault();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [reading, candidate, onBreak, decidedForCurrent, quota.canApprove, nextUndecidedId, decide, selectCandidate]);
 
   return (
     <div className={`${styles.candidateCard} ${isAnalyzing ? styles.candidateCardScanning : ''}`} data-tour="cv">
@@ -142,8 +162,8 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                 ↶ Kararı Geri Al
               </button>
               {nextUndecidedId && (
-                <button className={styles.nextButton} onClick={() => selectCandidate(nextUndecidedId)}>
-                  Sonraki Aday →
+                <button className={styles.nextButton} onClick={() => selectCandidate(nextUndecidedId)} aria-keyshortcuts="S">
+                  Sonraki Aday → <kbd className={styles.kbd}>S</kbd>
                 </button>
               )}
             </div>
@@ -166,12 +186,13 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   sound="none"
                   onClick={() => decide('approve')}
                   disabled={!quota.canApprove}
-                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır'}
+                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır (M)'}
+                  aria-keyshortcuts="M"
                 >
-                  ✓ MÜLAKATA ÇAĞIR
+                  ✓ MÜLAKATA ÇAĞIR <kbd className={styles.kbd}>M</kbd>
                 </Button>
-                <Button variant="danger" sound="none" onClick={() => decide('reject')}>
-                  ✕ REDDET
+                <Button variant="danger" sound="none" onClick={() => decide('reject')} title="Adayı reddet (R)" aria-keyshortcuts="R">
+                  ✕ REDDET <kbd className={styles.kbd}>R</kbd>
                 </Button>
               </div>
             </div>

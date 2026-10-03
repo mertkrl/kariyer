@@ -401,6 +401,26 @@
   flex: 1;
 }
 
+/* the keyboard shortcut on a button; hidden where there is no keyboard to speak of */
+.kbd {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78em;
+  line-height: 1.5;
+  opacity: 0.6;
+  vertical-align: 1px;
+}
+
+@media (hover: none) {
+  .kbd {
+    display: none;
+  }
+}
+
 .systemBoxDown {
   border: 1px dashed var(--red);
 }
