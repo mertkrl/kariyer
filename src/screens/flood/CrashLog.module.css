@@ -1,0 +1,136 @@
+/* the screening service's log over the arena, while the system comes apart (CrashLog.tsx) */
+.wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 4% 6%;
+  pointer-events: none;
+}
+
+.log {
+  width: min(680px, 100%);
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(6, 8, 12, 0.86);
+  border: 1px solid rgba(255, 90, 70, 0.35);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  font-size: calc(11.5px * var(--ts, 1));
+  line-height: 1.55;
+  white-space: pre-wrap;
+  color: #9fb3cf;
+  text-align: left;
+}
+
+.info {
+  color: #8fb4e3;
+}
+
+.warn {
+  color: #e0b04a;
+}
+
+.err {
+  color: #f08a76;
+}
+
+.fatal {
+  color: #fff;
+  background: rgba(200, 40, 30, 0.55);
+}
+
+.caret {
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  vertical-align: -2px;
+  background: #f08a76;
+  animation: blink 0.8s steps(2) infinite;
+}
+
+/* the picture tearing: slices of the screen jumping sideways, the colour channels split */
+.tearing {
+  animation: tear 0.42s steps(1) infinite;
+}
+
+@keyframes tear {
+  0% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+    filter: none;
+  }
+  20% {
+    clip-path: inset(12% 0 64% 0);
+    transform: translateX(-14px);
+    filter: hue-rotate(40deg) saturate(2);
+  }
+  40% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(6px);
+    filter: drop-shadow(3px 0 rgba(255, 0, 60, 0.6)) drop-shadow(-3px 0 rgba(0, 220, 255, 0.6));
+  }
+  60% {
+    clip-path: inset(58% 0 18% 0);
+    transform: translateX(18px);
+    filter: none;
+  }
+  80% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+    filter: brightness(1.6);
+  }
+}
+
+/* the screen goes dark: no signal */
+.dark {
+  background: #000;
+  align-items: center;
+  animation: flicker 0.18s steps(2) 3;
+}
+
+.noSignal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #d8dde6;
+  font-size: calc(22px * var(--ts, 1));
+  letter-spacing: 6px;
+}
+
+.noSignal small {
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 2px;
+  color: #6f7787;
+}
+
+/* CRT-like scanlines over everything */
+.scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 4px);
+  mix-blend-mode: multiply;
+}
+
+@keyframes flicker {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tearing,
+  .dark,
+  .caret {
+    animation: none;
+  }
+}

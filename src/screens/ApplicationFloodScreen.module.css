@@ -401,3 +401,10 @@
   text-align: center;
   transform: translateX(-50%);
 }
+
+/* the crash screen's error line, as a status page would print it */
+.resultCode {
+  font-size: calc(11.5px * var(--ts, 1));
+  letter-spacing: 0.5px;
+  color: #f08a76;
+}

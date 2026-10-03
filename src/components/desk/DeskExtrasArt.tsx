@@ -1,4 +1,5 @@
 /* Drawings for the things the week leaves on the desk (see DeskExtras). */
+import { useId } from 'react';
 
 const shadow = (cx: number, cy: number, rx: number, ry: number) => <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(40,24,10,0.3)" filter="url(#deskBlur)" />;
 
@@ -51,33 +52,130 @@ export const Umbrella = () => (
 
 /** Thursday's pizza in its open box: the slices you haven't eaten yet. */
 export const PizzaBox = ({ left }: { left: number }) => {
+  const id = useId().replace(/:/g, '');
   // six slices around the centre; the first three are the team's, already gone
   const slices = Array.from({ length: 6 }, (_, i) => i).filter((i) => i >= 6 - left);
+  const CX = 95;
+  const CY = 72;
+  const RX = 64;
+  const RY = 18.5;
+  const pt = (a: number, f: number) => [CX + Math.cos(a) * RX * f, CY + Math.sin(a) * RY * f] as const;
+  const wedge = (a0: number, a1: number, f: number) => {
+    const [x0, y0] = pt(a0, f);
+    const [x1, y1] = pt(a1, f);
+    return `M${CX} ${CY} L${x0} ${y0} A${RX * f} ${RY * f} 0 0 1 ${x1} ${y1} Z`;
+  };
+  // toppings, placed once per slice by a fixed pattern so the pizza doesn't change between renders
+  const toppings = (i: number) => {
+    const mid = ((i + 0.5) / 6) * Math.PI * 2;
+    return {
+      pepperoni: [
+        [mid - 0.18, 0.42],
+        [mid + 0.2, 0.7],
+        [mid - 0.12, 0.84],
+      ],
+      olives: [
+        [mid + 0.25, 0.4],
+        [mid - 0.28, 0.66],
+      ],
+      herbs: Array.from({ length: 7 }, (_, k) => [mid - 0.38 + ((k * 37) % 76) / 100, 0.25 + ((k * 53) % 60) / 100]),
+    };
+  };
   return (
     <svg viewBox="0 0 190 110" width="100%" height="100%" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}lid`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e4cfa6" />
+          <stop offset="1" stopColor="#cdb385" />
+        </linearGradient>
+        <linearGradient id={`${id}box`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ead9b4" />
+          <stop offset="1" stopColor="#d6bf93" />
+        </linearGradient>
+        <radialGradient id={`${id}crust`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0.82" stopColor="#d58a35" />
+          <stop offset="0.93" stopColor="#e8a957" />
+          <stop offset="1" stopColor="#a8601f" />
+        </radialGradient>
+        <radialGradient id={`${id}cheese`} cx="0.45" cy="0.4" r="0.6">
+          <stop offset="0" stopColor="#fbe39a" />
+          <stop offset="0.6" stopColor="#f5cc63" />
+          <stop offset="1" stopColor="#e9ad45" />
+        </radialGradient>
+        <radialGradient id={`${id}pep`} cx="0.4" cy="0.35" r="0.65">
+          <stop offset="0" stopColor="#d4473a" />
+          <stop offset="0.75" stopColor="#a8281f" />
+          <stop offset="1" stopColor="#6e140f" />
+        </radialGradient>
+      </defs>
       {shadow(95, 96, 88, 10)}
-      {/* the lid, standing open behind */}
-      <path d="M22 44 L40 4 L150 4 L168 44 Z" fill="#d9c29b" stroke="#b89a6c" strokeWidth={1.5} />
-      <text x={95} y={30} textAnchor="middle" fontSize={11} fontWeight={700} fill="#a33a2a" fontFamily="Georgia, serif">
+      {/* the lid, standing open behind: cardboard, the shop's print, a grease mark */}
+      <path d="M22 44 L40 4 L150 4 L168 44 Z" fill={`url(#${id}lid)`} stroke="#ad8f60" strokeWidth={1.4} />
+      <path d="M40 4 L150 4" stroke="#f3e6c8" strokeWidth={1} />
+      <circle cx={95} cy={22} r={13} fill="none" stroke="#a33a2a" strokeWidth={1.4} opacity={0.75} />
+      <text x={95} y={25.5} textAnchor="middle" fontSize={8.5} fontWeight={800} fill="#a33a2a" fontFamily="Georgia, serif" opacity={0.85}>
         PİZZA
       </text>
-      {/* the box */}
-      <path d="M10 48 L180 48 L172 96 L18 96 Z" fill="#e6d3ad" stroke="#b89a6c" strokeWidth={1.5} />
-      <ellipse cx={95} cy={72} rx={70} ry={20} fill="#d2b88c" />
+      <ellipse cx={130} cy={34} rx={9} ry={4} fill="rgba(160,110,40,0.18)" />
+      {/* the box: corrugated edge, inside floor */}
+      <path d="M10 48 L180 48 L172 96 L18 96 Z" fill={`url(#${id}box)`} stroke="#ad8f60" strokeWidth={1.4} />
+      <path d="M10 48 L180 48" stroke="#f5ead0" strokeWidth={1.2} />
+      {Array.from({ length: 34 }, (_, k) => (
+        <line key={k} x1={13 + k * 5} y1={49.5} x2={13 + k * 5} y2={52} stroke="rgba(150,118,72,0.45)" strokeWidth={0.8} />
+      ))}
+      <ellipse cx={CX} cy={CY} rx={RX + 4} ry={RY + 2.5} fill="#cbb07f" />
+      {/* where eaten slices were: a grease ring and crumbs */}
+      <ellipse cx={CX} cy={CY} rx={RX - 6} ry={RY - 2} fill="rgba(170,110,40,0.16)" />
+      {[
+        [70, 66],
+        [78, 74],
+        [62, 72],
+        [86, 64],
+      ].map(([x, y]) => (
+        <circle key={`${x}${y}`} cx={x} cy={y} r={0.9} fill="#b97a33" />
+      ))}
       {slices.map((i) => {
-        const a0 = (i / 6) * Math.PI * 2;
-        const a1 = ((i + 1) / 6) * Math.PI * 2;
-        const p = (a: number, r: number) => `${95 + Math.cos(a) * r} ${72 + Math.sin(a) * r * 0.29}`;
+        const a0 = (i / 6) * Math.PI * 2 + 0.012;
+        const a1 = ((i + 1) / 6) * Math.PI * 2 - 0.012;
+        const t = toppings(i);
         return (
           <g key={i}>
-            <path d={`M95 72 L${p(a0, 64)} A64 18.5 0 0 1 ${p(a1, 64)} Z`} fill="#e8a13c" stroke="#b5651d" strokeWidth={2.5} />
-            <path d={`M95 72 L${p(a0, 54)} A54 15.6 0 0 1 ${p(a1, 54)} Z`} fill="#f2c45a" />
-            <circle cx={95 + Math.cos((a0 + a1) / 2) * 34} cy={72 + Math.sin((a0 + a1) / 2) * 34 * 0.29} r={4} fill="#b8322a" />
-            <circle cx={95 + Math.cos((a0 + a1) / 2 + 0.25) * 48} cy={72 + Math.sin((a0 + a1) / 2 + 0.25) * 48 * 0.29} r={3} fill="#b8322a" />
+            {/* crust, then a rim of sauce, then the cheese */}
+            <path d={wedge(a0, a1, 1)} fill={`url(#${id}crust)`} />
+            <path d={wedge(a0, a1, 0.9)} fill="#c2412b" />
+            <path d={wedge(a0, a1, 0.86)} fill={`url(#${id}cheese)`} />
+            {/* charred spots on the crust */}
+            {[0.2, 0.55, 0.8].map((f) => {
+              const [x, y] = pt(a0 + (a1 - a0) * f, 0.96);
+              return <ellipse key={f} cx={x} cy={y} rx={1.6} ry={0.7} fill="rgba(90,45,15,0.55)" />;
+            })}
+            {/* melted cheese bubbles */}
+            {[0.3, 0.6].map((f) => {
+              const [x, y] = pt(a0 + (a1 - a0) * f, 0.55);
+              return <ellipse key={f} cx={x} cy={y} rx={2.2} ry={0.9} fill="rgba(255,248,215,0.6)" />;
+            })}
+            {t.pepperoni.map(([a, f]) => {
+              const [x, y] = pt(a, f);
+              return (
+                <g key={`p${a}`}>
+                  <ellipse cx={x} cy={y} rx={4.6} ry={1.9} fill={`url(#${id}pep)`} />
+                  <ellipse cx={x - 1.2} cy={y - 0.5} rx={1.4} ry={0.45} fill="rgba(255,190,150,0.55)" />
+                </g>
+              );
+            })}
+            {t.olives.map(([a, f]) => {
+              const [x, y] = pt(a, f);
+              return <ellipse key={`o${a}`} cx={x} cy={y} rx={1.9} ry={0.85} fill="none" stroke="#2b2620" strokeWidth={1.1} />;
+            })}
+            {t.herbs.map(([a, f], k) => {
+              const [x, y] = pt(a, f);
+              return <rect key={k} x={x} y={y} width={1.1} height={0.6} fill="#4f6b2f" transform={`rotate(${k * 40} ${x} ${y})`} />;
+            })}
+            {/* the cut */}
+            <path d={`M${CX} ${CY} L${pt(a0 - 0.012, 1)[0]} ${pt(a0 - 0.012, 1)[1]}`} stroke="rgba(120,70,25,0.5)" strokeWidth={0.7} />
           </g>
         );
       })}
-      {left === 0 && <path d="M70 70 q6 -3 12 0 M104 76 q5 -2 9 1" stroke="#b5651d" strokeWidth={2} fill="none" strokeLinecap="round" />}
     </svg>
   );
 };

@@ -313,75 +313,168 @@ export function servisScene(): CityScene {
       g.moveTo(-PAD, 60);
       g.lineTo(W + PAD, 60);
       g.stroke();
-      // a colleague in the seat ahead, head against the window, half asleep
-      g.fillStyle = '#0b0c12';
-      g.beginPath();
-      g.ellipse(150, 520, 44, 52, -0.35, 0, Math.PI * 2);
-      g.fill();
-      g.fillStyle = '#16121a';
-      g.beginPath();
-      g.ellipse(140, 492, 44, 38, -0.35, Math.PI * 1.05, Math.PI * 2.05);
-      g.fill();
-      g.strokeStyle = 'rgba(140,170,230,0.45)';
+      // wall panels: moulded plastic, a seam every metre or so, a little gloss
+      g.strokeStyle = 'rgba(0,0,0,0.35)';
+      g.lineWidth = 2;
+      for (const x of [WIN.x - 70, PILLAR, WIN.x + WIN.w + 50]) {
+        g.beginPath();
+        g.moveTo(x, WIN.y + WIN.h + 34);
+        g.lineTo(x, H + PAD);
+        g.stroke();
+      }
+      g.fillStyle = 'rgba(255,255,255,0.025)';
+      g.fillRect(-PAD, WIN.y + WIN.h + 40, W + PAD * 2, 40);
+      // aluminium trim inside the rubber seals
+      const trim = g.createLinearGradient(0, WIN.y, 0, WIN.y + WIN.h);
+      trim.addColorStop(0, 'rgba(170,176,190,0.55)');
+      trim.addColorStop(0.5, 'rgba(90,94,106,0.4)');
+      trim.addColorStop(1, 'rgba(150,156,170,0.5)');
+      g.strokeStyle = trim;
       g.lineWidth = 3;
       g.beginPath();
-      g.ellipse(150, 520, 44, 52, -0.35, Math.PI * 1.2, Math.PI * 1.75);
+      g.roundRect(WIN.x + 7, WIN.y + 7, PILLAR - WIN.x - 28, WIN.h - 14, 20);
+      g.roundRect(PILLAR + 21, WIN.y + 7, WIN.x + WIN.w - PILLAR - 28, WIN.h - 14, 20);
       g.stroke();
-      g.fillStyle = '#0b0c12';
-      g.beginPath();
-      g.roundRect(60, 560, 200, 140, 60);
-      g.fill();
-      // seat in front of us: seat back + headrest with the obligatory lace cover
-      const seat = g.createLinearGradient(0, 600, 0, H + PAD);
-      seat.addColorStop(0, '#2b3854');
-      seat.addColorStop(1, '#141b2a');
-      g.fillStyle = seat;
-      g.beginPath();
-      g.roundRect(-60, 640, 640, 400, 46);
-      g.fill();
-      g.strokeStyle = 'rgba(255,255,255,0.08)';
+      // glare on the glass: the cabin light catching it from above
+      for (const [x0, x1] of [
+        [WIN.x, PILLAR - 14],
+        [PILLAR + 14, WIN.x + WIN.w],
+      ]) {
+        const glare = g.createLinearGradient(x0, WIN.y, x0 + (x1 - x0) * 0.6, WIN.y + WIN.h);
+        glare.addColorStop(0, 'rgba(200,215,255,0.07)');
+        glare.addColorStop(0.35, 'rgba(200,215,255,0.015)');
+        glare.addColorStop(1, 'rgba(200,215,255,0)');
+        g.fillStyle = glare;
+        g.beginPath();
+        g.roundRect(x0 + 8, WIN.y + 8, x1 - x0 - 16, WIN.h - 16, 20);
+        g.fill();
+      }
+      // ceiling: the luggage rack's rails, air vents and reading lights, the blue LED strip
+      g.fillStyle = '#1b1d26';
+      g.fillRect(-PAD, 18, W + PAD * 2, 34);
+      g.strokeStyle = '#4c505c';
       g.lineWidth = 3;
+      for (const y of [24, 40]) {
+        g.beginPath();
+        g.moveTo(-PAD, y);
+        g.lineTo(W + PAD, y);
+        g.stroke();
+      }
+      for (let x = 40; x < W; x += 230) {
+        // a vent grille and a reading light per seat row
+        g.fillStyle = '#0c0d12';
+        g.beginPath();
+        g.roundRect(x, 74, 64, 10, 4);
+        g.fill();
+        g.strokeStyle = 'rgba(255,255,255,0.07)';
+        g.lineWidth = 1;
+        for (let k = 6; k < 64; k += 8) {
+          g.beginPath();
+          g.moveTo(x + k, 75);
+          g.lineTo(x + k, 83);
+          g.stroke();
+        }
+        g.fillStyle = '#23252f';
+        g.beginPath();
+        g.arc(x + 96, 80, 7, 0, Math.PI * 2);
+        g.fill();
+      }
+      glowRect(g, W / 2, 88, W * 1.2, 10, [80, 130, 255], 0.35);
+      g.fillStyle = 'rgba(120,165,255,0.85)';
+      g.fillRect(-PAD, 86, W + PAD * 2, 2);
+      // seat in front of us: a moulded shell, fabric back with stitched panels, headrest with
+      // the obligatory lace cover, and the grab handle on top
+      const shell = g.createLinearGradient(0, 600, 0, H + PAD);
+      shell.addColorStop(0, '#1f2533');
+      shell.addColorStop(1, '#0d1018');
+      g.fillStyle = shell;
       g.beginPath();
-      g.roundRect(-40, 660, 600, 380, 40);
-      g.stroke();
-      g.fillStyle = '#2d3b5a';
+      g.roundRect(-70, 628, 660, 420, 52);
+      g.fill();
+      const fabric = g.createLinearGradient(0, 650, 0, H + PAD);
+      fabric.addColorStop(0, '#30406a');
+      fabric.addColorStop(0.5, '#25335a');
+      fabric.addColorStop(1, '#141d33');
+      g.fillStyle = fabric;
       g.beginPath();
-      g.roundRect(200, 560, 280, 140, 34);
+      g.roundRect(-44, 650, 608, 400, 42);
+      g.fill();
+      // woven pattern: fine diagonal threads
+      g.save();
+      g.beginPath();
+      g.roundRect(-44, 650, 608, 400, 42);
+      g.clip();
+      g.strokeStyle = 'rgba(255,255,255,0.035)';
+      g.lineWidth = 1;
+      for (let k = -400; k < 700; k += 7) {
+        g.beginPath();
+        g.moveTo(k, 650);
+        g.lineTo(k + 400, 1050);
+        g.stroke();
+      }
+      g.restore();
+      // stitched panels
+      g.strokeStyle = 'rgba(10,14,24,0.6)';
+      g.lineWidth = 3;
+      g.setLineDash([6, 5]);
+      for (const x of [140, 380]) {
+        g.beginPath();
+        g.moveTo(x, 700);
+        g.lineTo(x, H + PAD);
+        g.stroke();
+      }
+      g.setLineDash([]);
+      g.fillStyle = 'rgba(255,255,255,0.06)';
+      g.beginPath();
+      g.roundRect(-30, 656, 580, 6, 3);
+      g.fill();
+      // headrest
+      const head = g.createLinearGradient(0, 548, 0, 700);
+      head.addColorStop(0, '#36487a');
+      head.addColorStop(1, '#22305a');
+      g.fillStyle = head;
+      g.beginPath();
+      g.roundRect(196, 548, 288, 150, 40);
       g.fill();
       g.fillStyle = 'rgba(238,236,228,0.92)';
       g.beginPath();
-      g.roundRect(226, 574, 228, 66, 16);
+      g.roundRect(222, 566, 236, 68, 16);
       g.fill();
       g.strokeStyle = 'rgba(180,176,166,0.9)';
       g.setLineDash([3, 4]);
       g.lineWidth = 2;
       g.beginPath();
-      g.roundRect(232, 580, 216, 54, 12);
+      g.roundRect(228, 572, 224, 56, 12);
       g.stroke();
       g.setLineDash([]);
       g.fillStyle = '#7d8290';
       g.font = '800 22px "Work Sans", sans-serif';
       g.textAlign = 'center';
-      g.fillText('TAVRINSA LABS', 340, 614);
+      g.fillText('TAVRINSA LABS', 340, 607);
       g.textAlign = 'left';
-      // grab handle on top of the seat
-      g.strokeStyle = '#a8abb6';
-      g.lineWidth = 8;
+      // grab handle on top of the seat, with a highlight along the chrome
       g.lineCap = 'round';
+      g.strokeStyle = '#6f727c';
+      g.lineWidth = 10;
       g.beginPath();
       g.moveTo(500, 650);
-      g.quadraticCurveTo(540, 612, 580, 650);
+      g.quadraticCurveTo(540, 608, 580, 650);
       g.stroke();
-      // our neighbour's shoulder, bottom right
-      g.fillStyle = '#0a0b10';
+      g.strokeStyle = 'rgba(235,238,245,0.7)';
+      g.lineWidth = 3;
       g.beginPath();
-      g.ellipse(1440, 950, 320, 180, -0.1, 0, Math.PI * 2);
+      g.moveTo(506, 642);
+      g.quadraticCurveTo(540, 612, 572, 640);
+      g.stroke();
+      // across the aisle, the edge of the next row's seat in the dark
+      g.fillStyle = '#121624';
+      g.beginPath();
+      g.roundRect(1380, 700, 360, 420, 50);
       g.fill();
-      g.strokeStyle = 'rgba(255,170,110,0.25)';
-      g.lineWidth = 4;
+      g.fillStyle = 'rgba(255,255,255,0.04)';
       g.beginPath();
-      g.ellipse(1440, 950, 320, 180, -0.1, Math.PI * 1.1, Math.PI * 1.45);
-      g.stroke();
+      g.roundRect(1392, 712, 340, 6, 3);
+      g.fill();
     },
     update(dt) {
       // stop-and-go: creep a few metres, wait, creep again

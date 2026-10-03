@@ -28,7 +28,7 @@ import type { CityScene } from '../scene';
  * Karaköy, 17:45 — snow, from the ferry pier, looking across the Golden Horn at Galata Bridge.
  * Composed after a real photograph from this spot: the bridge runs from big on the right to
  * small on the left in true perspective; its lower level of fish restaurants is a long band of
- * gold, lamp posts and fishermen line the upper deck; Yeni Cami glows at the far end, with
+ * gold, lamp posts line the upper deck; Yeni Cami glows at the far end, with
  * Süleymaniye on the hill above; the dark water throws everything back in broken gold.
  */
 
@@ -247,18 +247,14 @@ export function karakoyScene(): CityScene {
           g.fillStyle = gr;
           band(g, LOW[0], LOW[1], HALF - 1.2, s0, s1);
           if (k < 2) continue;
-          // what's inside: diners, a counter, hanging lamps
+          // what's inside: the counter and a row of hanging lamps (no one at the tables in this snow)
           g.fillStyle = 'rgba(70,34,20,0.55)';
           band(g, LOW[0], LOW[0] + 1, HALF - 1.2, s0, s1);
-          const diners = Math.floor(b.seed * 7) % 4;
-          for (let i = 0; i < diners; i++) {
-            const p = at(s0 + ((i + 0.4 + ((b.seed * (i + 3)) % 0.5)) * 1.6) / LEN, HALF - 1.4, LOW[0] + 1.05 + ((b.seed * (i + 1)) % 0.3));
-            g.fillStyle = 'rgba(52,24,14,0.8)';
+          for (let i = 0; i < 3; i++) {
+            const p = at(s0 + ((i + 0.5) * (BAY - 0.7)) / 3 / LEN, HALF - 1.4, LOW[1] - 1.25);
+            g.fillStyle = 'rgba(255,236,190,0.85)';
             g.beginPath();
-            g.ellipse(p[0], p[1], k * 0.13, k * 0.16, 0, 0, Math.PI * 2);
-            g.fill();
-            g.beginPath();
-            g.ellipse(p[0], p[1] + k * 0.42, k * 0.26, k * 0.3, 0, Math.PI, 0);
+            g.ellipse(p[0], p[1], k * 0.12, k * 0.08, 0, 0, Math.PI * 2);
             g.fill();
           }
           // mullions and transom

@@ -23,13 +23,12 @@ import type { CityScene } from '../scene';
 /*
  * Zincirlikuyu, 17:20 — looking down the E-5 from the metrobüs overpass. Four lanes crawling
  * east towards the bridge (a river of brake lights), four lanes of headlights coming the other
- * way, red metrobüses sliding past the jam and stopping at the packed station below you.
+ * way, and down the middle the busway: red metrobüses streaming past the jam in both directions.
  */
 
 const P: Persp = { vpx: 800, vpy: 452, f: 950, camH: 9.5 };
 const Z0 = 16;
 const Z1 = 1300;
-const STATION: [number, number] = [22, 72];
 const SODIUM: RGB = [255, 172, 88];
 
 export function e5Scene(): CityScene {
@@ -45,14 +44,11 @@ export function e5Scene(): CityScene {
     populate(l, r, { spacing: [3.2, 7], v0: [6, 9.5], taxi: 0.14, bus: 0.03 });
     lanes.push(l);
   }
+  // the busway: no stop in this stretch, so the metrobüses never brake — one after another
   const busIn = straightLane(-3, 2, Z1, -1);
-  populate(busIn, r, { spacing: [120, 170], v0: [12, 14], only: 'metrobus' });
-  busIn.stopAt = Z1 - 34;
-  busIn.dwell = 7;
+  populate(busIn, r, { spacing: [55, 90], v0: [13, 15], only: 'metrobus' });
   const busOut = straightLane(3, 2, Z1, 1);
-  populate(busOut, r, { spacing: [120, 170], v0: [12, 14], only: 'metrobus' });
-  busOut.stopAt = 52 - 2;
-  busOut.dwell = 7;
+  populate(busOut, r, { spacing: [55, 90], v0: [13, 15], only: 'metrobus' });
   lanes.push(busIn, busOut);
   // Let the traffic settle into its jam before the first frame.
   for (let i = 0; i < 600; i++) {
@@ -66,7 +62,6 @@ export function e5Scene(): CityScene {
   let road: HTMLCanvasElement;
   let lampGlow: HTMLCanvasElement;
   let rail: HTMLCanvasElement;
-  let station: HTMLCanvasElement;
 
   const pr = (X: number, Y: number, Z: number) => project(P, X, Y, Z);
   const quad = (g: CanvasRenderingContext2D, X0: number, X1: number, Y: number, z0: number, z1: number) => {
@@ -216,12 +211,11 @@ export function e5Scene(): CityScene {
           g.fillStyle = '#35323a';
           wall(g, X + (X < 0 ? 0.3 : -0.3), 0, 0.9, Z0 - 10, Z1);
         }
-        // platform
-        g.fillStyle = '#4a4650';
-        quad(g, -1.55, 1.55, 0.3, STATION[0], STATION[1]);
-        g.fillStyle = 'rgba(236,200,90,0.6)';
-        quad(g, -1.55, -1.4, 0.31, STATION[0], STATION[1]);
-        quad(g, 1.4, 1.55, 0.31, STATION[0], STATION[1]);
+        // the busway's own median: a low concrete divider between the two directions
+        g.fillStyle = '#56515b';
+        quad(g, -0.32, 0.32, 0.75, Z0 - 10, Z1);
+        g.fillStyle = '#33303a';
+        wall(g, 0.3, 0, 0.75, Z0 - 10, Z1);
         // retaining walls + the cemetery's cypresses on the right
         g.fillStyle = '#211d25';
         wall(g, -23, 0, 7, Z0 - 10, Z1);
@@ -281,33 +275,6 @@ export function e5Scene(): CityScene {
         g.font = `600 ${gk * 0.5}px "Work Sans", sans-serif`;
         g.fillText('↗ BEŞİKTAŞ   E-5', gx0 + gk * 0.6, gy0 + (gy1 - gy0) * 0.72);
       });
-      // the station canopy and its name board sit in front of the buses at the platform
-      station = makeLayer(px, (g) => {
-        // station canopy + name board
-        g.fillStyle = 'rgba(190,205,220,0.13)';
-        quad(g, -1.9, 1.9, 3.7, STATION[0], STATION[1]);
-        g.strokeStyle = 'rgba(40,40,48,0.9)';
-        for (let z = STATION[0]; z <= STATION[1]; z += 10) {
-          for (const X of [-1.7, 1.7]) {
-            const [xb, yb, k] = pr(X, 0.3, z);
-            const [, yt] = pr(X, 3.7, z);
-            g.lineWidth = 0.14 * k;
-            g.beginPath();
-            g.moveTo(xb, yb);
-            g.lineTo(xb, yt);
-            g.stroke();
-          }
-        }
-        const [sx0, sy0, sk] = pr(-1.9, 4.5, STATION[0]);
-        const [sx1, sy1] = pr(1.9, 3.7, STATION[0]);
-        g.fillStyle = '#1d4f9a';
-        g.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0);
-        g.fillStyle = '#ffffff';
-        g.font = `800 ${sk * 0.42}px "Work Sans", sans-serif`;
-        g.textAlign = 'center';
-        g.fillText('ZİNCİRLİKUYU', (sx0 + sx1) / 2, (sy0 + sy1) / 2 + 1);
-        g.textAlign = 'left';
-      });
       lampGlow = makeLayer(px, (g) => {
         g.globalCompositeOperation = 'lighter';
         for (let z = 30; z < 900; z += 38) {
@@ -319,10 +286,6 @@ export function e5Scene(): CityScene {
             glowRect(g, gx, gy, gk * 16, gk * 5, SODIUM, 0.16);
           }
         }
-        const [sx, sy, sk] = pr(0, 4.1, STATION[0]);
-        glowRect(g, sx, sy, sk * 6, sk * 2, [120, 170, 255], 0.35);
-        const [cx, cy, ck] = pr(0, 3.6, (STATION[0] + STATION[1]) / 2);
-        glowRect(g, cx, cy + ck * 2, ck * 8, ck * 5, [220, 235, 255], 0.14);
       });
       rail = makeLayer(px, (g) => {
         g.fillStyle = vGradient(g, 850, H + PAD, [
@@ -373,9 +336,7 @@ export function e5Scene(): CityScene {
       g.drawImage(lampGlow, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.globalCompositeOperation = 'source-over';
       const look = { ambient: [150, 90, 60] as const, ambientA: 0.12, haze: 900 };
-      drawTraffic(g, P, lanes, look, STATION[0], Z1);
-      g.drawImage(station, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
-      drawTraffic(g, P, lanes, look, 7, STATION[0]);
+      drawTraffic(g, P, lanes, look, 7, Z1);
       g.restore();
 
       drawLayer(g, rail, cam, 1.15);

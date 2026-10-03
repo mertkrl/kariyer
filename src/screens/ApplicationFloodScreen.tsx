@@ -7,11 +7,13 @@ import { AiIcon } from '../components/ui/AiIcon';
 import { audioEngine } from '../audio/audioEngine';
 import { PaperStorm, type Point } from './flood/PaperStorm';
 import { ParquetFloor } from './flood/ParquetFloor';
+import { CrashLog } from './flood/CrashLog';
 import styles from './ApplicationFloodScreen.module.css';
 
 const COUNT_DURATION_MS = 2200;
 const SCAN_DURATION_MS = 1300;
-const SORT_DURATION_MS = 3200;
+/** The crash day's "sorting": long enough for the log to run to its fatal line and the screen to go dark. */
+const CRASH_DURATION_MS = 5400;
 const SORT_COUNTDOWN_MS = 1400;
 
 const INCOMING_COUNT = 64;
@@ -105,7 +107,7 @@ export function ApplicationFloodScreen() {
     // no such badge, so it still resolves into an error screen on its own.
     if (day.aiDown) {
       timeoutsRef.current.push(
-        window.setTimeout(() => setStage('done'), COUNT_DURATION_MS + SCAN_DURATION_MS + SORT_DURATION_MS),
+        window.setTimeout(() => setStage('done'), COUNT_DURATION_MS + SCAN_DURATION_MS + CRASH_DURATION_MS),
       );
     }
 
@@ -238,6 +240,7 @@ export function ApplicationFloodScreen() {
               </button>
             )}
             {stage === 'sorting' && adNote && <div className={styles.adNote}>📢 {adNote}</div>}
+            {stage === 'sorting' && day.aiDown && <CrashLog durationMs={CRASH_DURATION_MS} />}
           </div>
 
           <div className={`${styles.stageLabel} ${stage === 'sorting' && day.aiDown ? styles.stageLabelError : ''}`}>
@@ -254,6 +257,7 @@ export function ApplicationFloodScreen() {
               <div className={styles.resultBadgeSlash} />
             </div>
             <div className={styles.resultTitle}>SİSTEM HATASI: AI Modülü Yanıt Vermiyor</div>
+            <div className={`${styles.resultCode} mono`}>503 Service Unavailable · ats-ranker · olay #A7F3-1129</div>
             <div className={styles.resultText}>
               Yapay zeka analiz sistemi çöktü. Bugün {count.toLocaleString('tr-TR')} başvuru
               arasından hangi {shortlist} kişiyi göreceğine hiçbir algoritma karar vermiyor — bu sefer

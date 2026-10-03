@@ -354,6 +354,21 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     return faces;
   };
 
+  // a wheel on the side facing us, drawn in the side's own plane so it foreshortens properly
+  const wheel = (along: number, s: number, r: number) => {
+    const ring = (rr: number) => Array.from({ length: 12 }, (_, i) => P(along + Math.cos((i / 12) * Math.PI * 2) * rr, s, r + Math.sin((i / 12) * Math.PI * 2) * rr));
+    g.fillStyle = 'rgba(8,8,10,0.96)';
+    poly(g, ring(r));
+    g.fillStyle = rgba(shade([150, 154, 160], 0.55, o));
+    poly(g, ring(r * 0.55));
+    g.fillStyle = 'rgba(20,20,24,0.9)';
+    poly(g, ring(r * 0.18));
+  };
+  const sideStrip = (a0: number, a1: number, s: number, y0: number, y1: number, fill: string) => {
+    g.fillStyle = fill;
+    poly(g, [P(a0, s, y0), P(a1, s, y0), P(a1, s, y1), P(a0, s, y1)]);
+  };
+
   if (v.kind === 'bus' || v.kind === 'metrobus' || v.kind === 'servis') {
     const servis = v.kind === 'servis';
     const side = shade(v.body, servis ? 0.36 : 0.42, o);
@@ -381,7 +396,16 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     const y0 = servis ? 1.05 : 1.15;
     const y1 = servis ? 2.3 : 2.6;
     const endGlass = (a: number) => band([P(a, -w + 0.15, y0 - 0.1), P(a, w - 0.15, y0 - 0.1), P(a, w - 0.15, y1 + 0.3), P(a, -w + 0.15, y1 + 0.3)]);
-    if (frontVis) endGlass(0);
+    if (frontVis) {
+      endGlass(0);
+      if (!servis) {
+        // the line's LED sign above the windscreen
+        g.fillStyle = 'rgba(12,10,8,0.95)';
+        poly(g, [P(0, -w + 0.3, y1 + 0.38), P(0, w - 0.3, y1 + 0.38), P(0, w - 0.3, y1 + 0.68), P(0, -w + 0.3, y1 + 0.68)]);
+        g.fillStyle = 'rgba(255,160,40,0.92)';
+        poly(g, [P(0, -w + 0.45, y1 + 0.45), P(0, w - 0.45, y1 + 0.45), P(0, w - 0.45, y1 + 0.61), P(0, -w + 0.45, y1 + 0.61)]);
+      }
+    }
     if (backVis) endGlass(-v.len);
     for (const [vis, s] of [
       [rightVis, w],
@@ -389,10 +413,16 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     ] as const) {
       if (!vis) continue;
       band([P(-0.8, s, y0), P(-v.len + 0.6, s, y0), P(-v.len + 0.6, s, y1), P(-0.8, s, y1)]);
+      // window mullions: a long bus is a row of panes, not one lit strip
+      if (!servis) for (let a = -2.4; a > -v.len + 1.2; a -= 1.55) sideStrip(a, a - 0.12, s, y0, y1, 'rgba(18,18,22,0.72)');
       if (v.kind === 'metrobus') {
-        g.fillStyle = 'rgba(20,20,24,0.9)';
-        poly(g, [P(-v.len / 2 + 0.4, s, 0.35), P(-v.len / 2 - 0.4, s, 0.35), P(-v.len / 2 - 0.4, s, v.hgt), P(-v.len / 2 + 0.4, s, v.hgt)]);
+        // the articulation: a dark bellows with its folds
+        sideStrip(-v.len / 2 + 0.45, -v.len / 2 - 0.45, s, 0.35, v.hgt, 'rgba(20,20,24,0.95)');
+        for (let k2 = -0.3; k2 <= 0.31; k2 += 0.15) sideStrip(-v.len / 2 + k2, -v.len / 2 + k2 - 0.04, s, 0.4, v.hgt - 0.05, 'rgba(70,70,78,0.7)');
       }
+      // wheels: front axle, rear axle(s)
+      const axles = v.kind === 'metrobus' ? [-2.6, -v.len / 2 - 2.2, -v.len + 2.4] : [-2.4, -v.len + 2.8];
+      for (const a of axles) wheel(a, s, 0.5);
       // stripe: white on buses, the company's blue band on a servis
       g.fillStyle = servis ? 'rgba(40,80,150,0.75)' : 'rgba(235,235,235,0.55)';
       poly(g, [P(-0.2, s, 0.8), P(-v.len + 0.2, s, 0.8), P(-v.len + 0.2, s, 0.95), P(-0.2, s, 0.95)]);
@@ -420,11 +450,31 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
       }
     }
   }
+  // the side facing us: a light catching the shoulder line, and the wheels
+  for (const [vis, s] of [
+    [lower[2][0], w],
+    [lower[3][0], -w],
+  ] as const) {
+    if (!vis) continue;
+    sideStrip(-0.25, -v.len + 0.25, s, lowerTop - 0.14, lowerTop - 0.08, rgba(shade(mix(v.body, [255, 255, 255], 0.35), 0.75, o), 0.8));
+    const r0 = v.kind === 'van' ? 0.36 : 0.32;
+    wheel(-v.len * 0.18, s, r0);
+    wheel(-v.len * 0.8, s, r0);
+  }
   const glass = mix(GLASS, o.ambient, o.ambientA * 0.8);
   if (v.kind === 'van') {
     box(-0.9, -v.len, -w * 0.97, w * 0.97, lowerTop, v.hgt, shade(v.body, 0.4, o), shade(v.body, 0.66, o), glass, shade(v.body, 0.45, o));
   } else {
-    box(-v.len * 0.26, -v.len * 0.78, -w * 0.86, w * 0.86, lowerTop, v.hgt, glass, shade(v.body, 0.4, o), glass, glass);
+    const cabin = box(-v.len * 0.26, -v.len * 0.78, -w * 0.86, w * 0.86, lowerTop, v.hgt, glass, shade(v.body, 0.4, o), glass, glass);
+    // the pillars between the windows, in the body colour
+    for (const [vis, s] of [
+      [cabin[2][0], w * 0.86],
+      [cabin[3][0], -w * 0.86],
+    ] as const) {
+      if (!vis) continue;
+      const pillar = rgba(shade(v.body, 0.34, o));
+      for (const a of [-v.len * 0.26, -v.len * 0.52, -v.len * 0.78]) sideStrip(a + 0.06, a - 0.06, s, lowerTop, v.hgt, pillar);
+    }
   }
   if (v.kind === 'taxi') {
     const a = -v.len * 0.52;
