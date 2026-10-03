@@ -364,7 +364,7 @@ export function FinalRoundScreen() {
                       </div>
                     );
                   if (e.kind === 'back') {
-                    const back = backQuestionFor(selectedId);
+                    const back = backQuestionFor(selectedId, pool.map((f) => f.id));
                     return (
                       <div key={index} className={styles.exchange}>
                         <Turn who={candidate.name} role="Aday" tone="candidate">
@@ -434,7 +434,7 @@ export function FinalRoundScreen() {
                     <p className={styles.consoleTitle}>{candidate.name.split(' ')[0]} bir soru soruyor. Nasıl cevaplıyorsun?</p>
                     <div className={styles.options}>
                       {(() => {
-                        const back = backQuestionFor(selectedId);
+                        const back = backQuestionFor(selectedId, pool.map((f) => f.id));
                         return (
                           <>
                             <button className={styles.option} onClick={() => answerBack(true)}>

@@ -7,7 +7,7 @@ import { BILLS, EVENING_ACTIVITIES, EXPENSES, RENT } from '../story';
 import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from '../storeDefaults';
 import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../clock';
 import { MEETING_MINUTES, OPTIONS } from '../meeting';
-import { TEMPLATE_MINUTES, outboxMails } from '../rejectionMails';
+import { REPLY_BACK, TEMPLATE_MINUTES, outboxMails, replyBackMail } from '../rejectionMails';
 import { sound } from '../sound';
 import { candidateDetails } from '../data/candidateDetails';
 import { panelDecision } from '../managerCalls';
@@ -15,7 +15,7 @@ import { SECOND_PAGE_DAY } from '../weekdays';
 import { later } from '../later';
 import { NEPHEW_ID } from '../data/candidates';
 
-export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'recordAiUse' | 'setDifficulty'> => ({
+export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'recordAiUse' | 'setDifficulty'> => ({
   doActivity: (id) => {
     const state = get();
     const a = EVENING_ACTIVITIES[state.currentDayIndex]?.find((x) => x.id === id);
@@ -156,6 +156,21 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
   },
 
   readMail: (id) => set((state) => (state.mailRead.includes(id) ? state : { mailRead: [...state.mailRead, id] })),
+  answerCandidateMail: (mailId, kind) => {
+    const state = get();
+    const reply = state.extraMails.find((m) => m.id === mailId);
+    // one answer per mail: it is already in "Gönderilenler"
+    if (!reply || state.extraMails.some((m) => m.id === `answer-${mailId}`)) return;
+    const sent = replyBackMail(reply, kind, state.currentDayIndex, state.workdayMinutes);
+    const option = REPLY_BACK.find((o) => o.kind === kind);
+    if (!sent || !option) return;
+    sound().playUi('connect');
+    set({
+      extraMails: [...state.extraMails, sent],
+      performans: clampScore(state.performans + option.effect.performans),
+      vicdan: clampScore(state.vicdan + option.effect.vicdan),
+    });
+  },
 
   recordAiUse: () => set((state) => ({ aiUses: state.aiUses + 1 })),
 

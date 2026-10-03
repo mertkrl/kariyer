@@ -116,7 +116,7 @@ const BACK_QUESTIONS: BackQuestion[] = [
   },
   {
     question: 'Bir şey sorabilir miyim? Ekipte fazla mesai ne sıklıkta oluyor?',
-    honest: 'Oluyor. Bu hafta bütün ekip bir akşam 19:00\'a kadar kaldı.',
+    honest: "Oluyor. Bu hafta bütün ekip bir akşam 19:00'a kadar kaldı.",
     polished: 'Nadiren. İş-yaşam dengesine önem veren bir şirketiz.',
     afterHonest: 'Dürüstlüğünüz için teşekkürler. Planımı ona göre yaparım.',
     afterPolished: 'Güzel, bunu duymak iyi oldu.',
@@ -127,6 +127,69 @@ const BACK_QUESTIONS: BackQuestion[] = [
     polished: 'Şeffaf ve ölçülebilir bir performans sistemimiz var.',
     afterHonest: 'Anlıyorum. Açık söylemeniz güven verdi.',
     afterPolished: 'Tamam, çok iyi.',
+  },
+  {
+    question: 'İlanda "hibrit" yazıyordu. Haftada kaç gün ofiste olmamız bekleniyor?',
+    honest: 'Kâğıt üzerinde iki gün evden, pratikte çoğu hafta dört gün ofisteyiz.',
+    polished: 'Esnek bir hibrit modelimiz var, ekip kendi düzenini kuruyor.',
+    afterHonest: 'Bunu şimdi bilmek iyi oldu, ulaşımımı ona göre düşünürüm.',
+    afterPolished: 'Harika, esneklik benim için önemli.',
+  },
+  {
+    question: 'Eğitim ya da konferans için bir bütçe ayrılıyor mu?',
+    honest: 'Bu yıl bütçe kesildi. Şirket içi sunumlar yapıyoruz, dışarıdan eğitim pek yok.',
+    polished: 'Gelişime çok önem veriyoruz; her çalışanın bir öğrenme planı oluyor.',
+    afterHonest: 'Anlaşıldı. Kendi kendime öğrenmeye alışığım zaten.',
+    afterPolished: 'Çok iyi, bu benim için belirleyici bir şey.',
+  },
+  {
+    question: 'İlk üç ayda benden tam olarak ne bekleniyor olacak?',
+    honest: 'Açıkçası yazılı bir plan yok; ilk haftalarda çalışan sistemi devralman bekleniyor.',
+    polished: 'Yapılandırılmış bir oryantasyon programımız ve bir mentorumuz var.',
+    afterHonest: 'Teşekkürler, en azından neye hazırlanacağımı biliyorum.',
+    afterPolished: 'Mentor olması çok güzel, teşekkür ederim.',
+  },
+  {
+    question: 'Maaşlar yılda kaç kez güncelleniyor?',
+    honest: 'Yılda bir kez, genelde enflasyonun biraz altında kalıyor.',
+    polished: 'Piyasa koşullarını yakından takip ediyor, düzenli güncelliyoruz.',
+    afterHonest: 'Açık söylediğiniz için sağ olun; hesabımı ona göre yaparım.',
+    afterPolished: 'Anladım, teşekkür ederim.',
+  },
+  {
+    question: 'Ekip kaç kişi, ve ben kime bağlı çalışacağım?',
+    honest: 'Altı kişiyiz; ekip lideri iki ekibi birden yönetiyor, o yüzden çoğu zaman kendi başına kalıyorsun.',
+    polished: 'Küçük, sıkı bir ekip; ekip liderimiz herkesle birebir ilgileniyor.',
+    afterHonest: 'Bağımsız çalışmaya alışığım, bunu bilmek iyi oldu.',
+    afterPolished: 'Birebir ilgi çok değerli, teşekkürler.',
+  },
+  {
+    question: 'Burada terfi nasıl oluyor? Bir kariyer basamağı tanımlı mı?',
+    honest: 'Tanımlı bir basamak yok; terfiler daha çok bir kadro boşaldığında oluyor.',
+    polished: 'Net bir kariyer haritamız var, performansa göre ilerliyorsunuz.',
+    afterHonest: 'Dürüst cevap için teşekkürler. Beklentimi ona göre ayarlarım.',
+    afterPolished: 'Güzel, uzun vadeli düşünüyorum çünkü.',
+  },
+  {
+    question: 'Nöbet ya da mesai dışı çağrı sistemi var mı? Hafta sonları arandığınız oluyor mu?',
+    honest: 'Resmî bir nöbet yok ama canlı sistemde sorun olunca hafta sonu da aranılıyor.',
+    polished: 'Hayır, mesai dışı sınırlarına saygı duyuyoruz.',
+    afterHonest: 'Bunu söylemeniz önemli, teşekkür ederim.',
+    afterPolished: 'Rahatladım, teşekkürler.',
+  },
+  {
+    question: 'Şirket son bir yılda işten çıkarma yaptı mı?',
+    honest: 'Geçen bahar küçük bir daralma oldu, bazı ekipler birleştirildi.',
+    polished: 'Hayır, istikrarlı şekilde büyüyoruz.',
+    afterHonest: 'Açık olduğunuz için teşekkürler. Bilerek karar vermek isterim.',
+    afterPolished: 'Bu güven verici, teşekkür ederim.',
+  },
+  {
+    question: 'Kullandığınız teknolojileri değiştirme konusunda ekibin ne kadar söz hakkı var?',
+    honest: 'Pek yok; büyük kararlar yukarıda veriliyor, biz uyguluyoruz.',
+    polished: 'Çok fazla; teknik kararları ekip birlikte alıyor.',
+    afterHonest: 'Anlıyorum, en azından ne beklemem gerektiğini biliyorum.',
+    afterPolished: 'Çok güzel, katkı sunabilmek benim için önemli.',
   },
 ];
 
@@ -140,7 +203,18 @@ const BACK_SPECIAL: Record<string, BackQuestion> = {
   },
 };
 
-export const backQuestionFor = (id: string): BackQuestion => BACK_SPECIAL[id] ?? BACK_QUESTIONS[hash(id) % BACK_QUESTIONS.length];
+/**
+ * The question a candidate asks you at the end. Across one interview day nobody asks the same
+ * thing as anyone else: the day's people (`day`) share out the questions in turn, starting at
+ * a point fixed by the day's line-up. Someone with a question of their own (BACK_SPECIAL) asks it.
+ */
+export function backQuestionFor(id: string, day: readonly string[] = [id]): BackQuestion {
+  if (BACK_SPECIAL[id]) return BACK_SPECIAL[id];
+  const askers = [...day].filter((x) => !BACK_SPECIAL[x]).sort();
+  const start = askers.reduce((n, x) => n + hash(x), 0) % BACK_QUESTIONS.length;
+  const turn = Math.max(0, askers.indexOf(id));
+  return BACK_QUESTIONS[(start + turn) % BACK_QUESTIONS.length];
+}
 
 /** Hakan Bey cuts in on the people his list was written for, at most this many times. */
 export const HAKAN_INTERRUPTS = 2;

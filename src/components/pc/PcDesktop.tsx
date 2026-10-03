@@ -5,6 +5,7 @@ import { audioEngine } from '../../audio/audioEngine';
 import { PLAYER } from '../../game/player';
 import { CalendarApp } from './CalendarApp';
 import styles from './PcDesktop.module.css';
+import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/rejectionMails';
 
 /*
  * The work computer. A desktop like any office PC: a wallpaper nobody chose, the recruitment
@@ -26,6 +27,8 @@ interface PcDesktopProps {
   minutes: number;
   mailRead: string[];
   onReadMail: (id: string) => void;
+  /** Write back to a candidate's reply. */
+  onAnswerMail?: (mailId: string, kind: ReplyBack) => void;
   /** Mail written during this playthrough. */
   extraMails?: Mail[];
   /** A recall mail you have to write: to whom, and the send action. */
@@ -37,7 +40,7 @@ interface PcDesktopProps {
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 
-export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, extraMails, finalistNames = [], beckonPortal = false }: PcDesktopProps) {
+export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, onAnswerMail, extraMails, finalistNames = [], beckonPortal = false }: PcDesktopProps) {
   const mails = inbox(dayIndex, minutes, extraMails);
   const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !mailRead.includes(m.id)).length;
   const [toast, setToast] = useState<string | null>(null);
@@ -110,7 +113,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
               </button>
             </span>
           </div>
-          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} finalistNames={finalistNames} />}</div>
+          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} onAnswer={onAnswerMail} answered={new Set((extraMails ?? []).filter((m) => m.id.startsWith('answer-')).map((m) => m.id.slice(7)))} finalistNames={finalistNames} />}</div>
         </div>
       )}
 
@@ -153,7 +156,7 @@ function CalendarGlyph({ day }: { day: number }) {
   );
 }
 
-function MailApp({ mails, read, onRead, finalistNames }: { mails: Mail[]; read: string[]; onRead: (id: string) => void; finalistNames: string[] }) {
+function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { mails: Mail[]; read: string[]; onRead: (id: string) => void; onAnswer?: (mailId: string, kind: ReplyBack) => void; answered: Set<string>; finalistNames: string[] }) {
   const [folder, setFolder] = useState<'inbox' | 'outbox' | 'sent'>('inbox');
   const received = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox');
   const outbox = mails.filter((m) => m.folder === 'outbox');
@@ -247,6 +250,24 @@ function MailApp({ mails, read, onRead, finalistNames }: { mails: Mail[]; read: 
               <span className="mono">{current.folder === 'outbox' ? `Planlandı · ${DAY_SHORT[current.day]} 17:00` : `${DAY_SHORT[current.day]} ${formatClock(current.at)}`}</span>
             </div>
             <pre className={styles.readerBody}>{current.body}</pre>
+            {current.reply && onAnswer && replyAuthor(current.id) && (
+              <div className={styles.replyBack}>
+                {answered.has(current.id) ? (
+                  <p className={styles.replyDone}>✓ Yanıtın gönderildi · Gönderilenler'de</p>
+                ) : (
+                  <>
+                    <div className={styles.replyLabel}>Yanıtla</div>
+                    <div className={styles.replyOptions}>
+                      {REPLY_BACK.map((o) => (
+                        <button key={o.kind} className={styles.replyOption} onClick={() => onAnswer(current.id, o.kind)}>
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
             {current.attachment && (
               <div className={styles.attachment}>
                 <div className={styles.attachmentName}>📎 {current.attachment.name}</div>

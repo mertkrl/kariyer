@@ -6,6 +6,7 @@
 import { candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import type { Mail } from './mail';
+import { PLAYER } from './player';
 
 export type RejectTemplate = 'standard' | 'personal' | 'pool' | 'none';
 
@@ -180,4 +181,35 @@ export function candidateReplies(choices: Record<string, RejectTemplate>, day: n
     const when = nextMorning ? { day: day + 1, at: 40 + (h % 120) } : { day, at: at + 25 + (h % 50) };
     return [{ id: `reply-${day}-${id}`, ...when, reply: true, from: candidateOf(id).name, address: addressOf(id), subject, body }];
   });
+}
+
+/*
+ * Writing back to someone who answered their rejection. Three ways: a warm thank-you that keeps
+ * the door open, the actual reason the system gave (honest, and the company would rather you
+ * didn't), or the line every HR inbox sends. The effects stay off screen, like every decision.
+ */
+export type ReplyBack = 'warm' | 'reason' | 'formal';
+
+export const REPLY_BACK: { kind: ReplyBack; label: string; effect: { performans: number; vicdan: number } }[] = [
+  { kind: 'warm', label: 'Teşekkür et, kapıyı açık bırak', effect: { performans: 0, vicdan: 1 } },
+  { kind: 'reason', label: 'Elenme gerekçesini açıkça söyle', effect: { performans: -1, vicdan: 2 } },
+  { kind: 'formal', label: 'Kurumsal kısa yanıt', effect: { performans: 0, vicdan: 0 } },
+];
+
+/** Whose reply a mail is (`reply-<day>-<candidate>`), or null for any other mail. */
+export const replyAuthor = (mailId: string) => /^reply-\d+-(.+)$/.exec(mailId)?.[1] ?? null;
+
+/** Your answer to a candidate's reply, as it lands in "Gönderilenler". */
+export function replyBackMail(reply: Mail, kind: ReplyBack, day: number, at: number): Mail | null {
+  const id = replyAuthor(reply.id);
+  if (!id) return null;
+  const c = candidateOf(id);
+  const first = c.name.split(' ')[0];
+  const reason = /Gerekçe: ([^·]+)/.exec(c.systemLine)?.[1]?.trim();
+  const body = {
+    warm: `Merhaba ${first},\n\nYazdığınız için teşekkür ederim. Bu pozisyon için ilerleyemedik ama dosyanızı gerçekten okudum ve sizi gelecekte açılacak ilanlarımızda da görmek isterim. Yeni bir ilan açıldığında size haber vereceğim.\n\nİyi çalışmalar,\n${PLAYER.name}`,
+    reason: `Merhaba ${first},\n\nSorunuza açık bir cevap vermek istiyorum: başvurunuz, ön eleme sistemimizin "${reason ?? 'otomatik değerlendirme'}" gerekçesiyle verdiği öneri doğrultusunda elendi. Bu gerekçenin sizin yetkinliğinizi tam yansıtmadığını düşünüyorsanız haklı olabilirsiniz; bunu ekibimizle de paylaşacağım.\n\nSaygılarımla,\n${PLAYER.name}`,
+    formal: `Sayın ${c.name},\n\nİletiniz alınmıştır. Değerlendirme süreçlerimiz kurum politikalarımız doğrultusunda yürütülmektedir. İlginiz için teşekkür ederiz.\n\nTavrinsa Labs İnsan Kaynakları`,
+  }[kind];
+  return { id: `answer-${reply.id}`, day, at, folder: 'sent', to: c.name, from: 'Sen', address: addressOf(id), subject: reply.subject.startsWith('Re:') ? reply.subject : `Re: ${reply.subject}`, body };
 }

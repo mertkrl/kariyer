@@ -61,6 +61,7 @@ export function GameplayScreen() {
   const revokeDraft = useGameStore((s) => s.revokeDraft);
   const sendRevoke = useGameStore((s) => s.sendRevoke);
   const extraMails = useGameStore((s) => s.extraMails);
+  const answerCandidateMail = useGameStore((s) => s.answerCandidateMail);
   const mailRead = useGameStore((s) => s.mailRead);
   const readMail = useGameStore((s) => s.readMail);
   const finishOrientation = useGameStore((s) => s.finishOrientation);
@@ -290,6 +291,7 @@ export function GameplayScreen() {
             minutes={workdayMinutes}
             mailRead={mailRead}
             onReadMail={readMail}
+            onAnswerMail={answerCandidateMail}
             extraMails={extraMails}
             finalistNames={finalists.map((f) => candidateOf(f.id).name)}
             beckonPortal={!shiftStarted && currentDayIndex === 0}

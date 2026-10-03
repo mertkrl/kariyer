@@ -10,6 +10,7 @@ import type { ReformKind } from './desk';
 import type { ManagerRequest, PhoneMessage, ScheduledMessage, Grievance, ThreadId } from './manager';
 import type { MeetingChoice, WeekEntry } from './echoes';
 import type { RejectTemplate } from './rejectionMails';
+import type { ReplyBack } from './rejectionMails';
 
 export interface Finalist {
   id: string;
@@ -311,6 +312,8 @@ export interface GameState {
   clearDeskNotice: () => void;
   clearDeskItem: (id: string) => void;
   readMail: (id: string) => void;
+  /** Write back to a candidate who answered their rejection (rejectionMails.ts: REPLY_BACK). */
+  answerCandidateMail: (mailId: string, kind: ReplyBack) => void;
   /** Dial a candidate's former employer. False when the line is busy or there's nobody to call. */
   callReference: (candidateId: string) => boolean;
   /** Friday: ask a question no interviewer should ask. */

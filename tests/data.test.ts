@@ -101,3 +101,13 @@ test('her ilan maaş aralığını açıkça yazar', () => {
     assert.match(salaryText(j), /^\d{1,3}(\.\d{3})* – \d{1,3}(\.\d{3})* TL/, j.id);
   }
 });
+
+test('mülakat günü aynı soruyu iki aday sormaz', async () => {
+  const { backQuestionFor } = await import('../src/game/data/interviewExtras');
+  const ids = Object.keys(candidates);
+  for (let start = 0; start + 6 <= ids.length; start += 3) {
+    const day = ids.slice(start, start + 6);
+    const asked = day.map((id) => backQuestionFor(id, day).question);
+    assert.equal(new Set(asked).size, asked.length, day.join(','));
+  }
+});
