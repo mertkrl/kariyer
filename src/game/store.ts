@@ -3,7 +3,7 @@ import type { DayStats } from './types';
 import { days } from './data/days';
 import { DAY_PLANS } from './data/dayPlans';
 import { DAILY_WAGE, OPEN_FILE_PENALTY, QUOTA_CUT_BELOW, TARGET_BONUS, TARGET_BONUS_AT, PRIM, KEY_CHARACTERS } from './story';
-import { type ReadingContext, OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, decisionEffect, isStrong, isWronglyFlagged, unusedSlotCost } from './engine/scoring';
+import { type ReadingContext, OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, decisionEffect, isStrong, wasConsidered, isWronglyFlagged, unusedSlotCost } from './engine/scoring';
 import { AD_EFFECT } from './data/jobs';
 import type { Mail } from './mail';
 import { COFFEE_SIPS } from './desk';
@@ -538,7 +538,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    const logged: WeekEntry[] = Object.entries(state.decisions).map(([id, decision]) => ({ id, day: state.currentDayIndex, decision }));
+    const logged: WeekEntry[] = Object.entries(state.decisions).map(([id, decision]) => ({ id, day: state.currentDayIndex, decision, considered: wasConsidered(readingOf(state, id)) }));
     set({
       weekLog: [...state.weekLog.filter((e) => e.day !== state.currentDayIndex), ...logged],
       // The final day has no new applications — straight to the memo.

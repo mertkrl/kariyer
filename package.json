@@ -12,7 +12,8 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "ci": "npm run check && npm run build && npm run size && npm audit --audit-level=high",
     "preview": "vite preview",
-    "size": "node scripts/check-size.mjs"
+    "size": "node scripts/check-size.mjs",
+    "package": "npm run build && node scripts/package.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

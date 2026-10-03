@@ -1,0 +1,152 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  /* above the always-on sound button */
+  z-index: 1001;
+  background: rgba(10, 9, 8, 0.72);
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 32px 16px;
+}
+
+/* a sheet of paper: what gets printed */
+.sheet {
+  width: 100%;
+  max-width: 720px;
+  height: fit-content;
+  background: var(--paper-light);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 28px 32px 24px;
+  text-align: left;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.5;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.toolbar button {
+  border: 1px solid var(--border-muted, #cfc7b0);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.toolbar button:hover {
+  background: var(--paper-dim);
+}
+
+.head h2 {
+  margin: 0;
+  font-family: var(--font-display, serif);
+  font-size: 1.8em;
+}
+
+.head p {
+  margin: 4px 0 0;
+  opacity: 0.75;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0 8px;
+}
+
+.summary div {
+  border: 1px solid var(--paper-dim);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.summary small {
+  display: block;
+  opacity: 0.65;
+  font-size: 0.8em;
+}
+
+.summary b {
+  font-size: 1.15em;
+}
+
+.sheet h3 {
+  margin: 20px 0 6px;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+
+.facts,
+.questions {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.questions li {
+  margin-bottom: 8px;
+}
+
+.muted {
+  margin: 0;
+  opacity: 0.65;
+}
+
+.foot {
+  margin: 24px 0 0;
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+@media (max-width: 560px) {
+  .sheet {
+    padding: 20px 16px;
+  }
+  .summary {
+    grid-template-columns: 1fr 1fr;
+  }
+  .summary div:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* printing: only the sheet, on white, without its buttons */
+@media print {
+  :global(body) * {
+    visibility: hidden;
+  }
+  .sheet,
+  .sheet * {
+    visibility: visible;
+  }
+  .backdrop {
+    position: absolute;
+    background: none;
+    padding: 0;
+    overflow: visible;
+  }
+  .sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: none;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+  }
+  .toolbar {
+    display: none;
+  }
+}

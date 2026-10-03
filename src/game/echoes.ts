@@ -15,6 +15,8 @@ export interface WeekEntry {
   /** Day index the decision was made on. */
   day: number;
   decision: Decision;
+  /** The file was read before the decision (`wasConsidered`); missing in saves from before. */
+  considered?: boolean;
 }
 
 /** How the Wednesday meeting went for you, if it has happened. */

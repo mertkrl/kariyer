@@ -22,6 +22,7 @@ Diğer komutlar:
 | `npm test` | Testler: Node'un kendi test aracıyla, ek paket kurmadan |
 | `npm run check` | Tip kontrolü + lint + testler |
 | `npm run size` | Derlemeden sonra ilk açılış paketinin boyut bütçesini denetler |
+| `npm run package` | Derleyip `release/` altına itch.io'ya (HTML projesi) yüklenmeye hazır bir zip üretir |
 | `npm run ci` | CI'ın çalıştırdığının aynısı: check + derleme + boyut bütçesi + `npm audit` |
 
 GitHub'a gönderildiğinde `.github/workflows/ci.yml` her push ve PR'da `npm run ci`'ı çalıştırır. Node sürümü `.nvmrc`'de (CI de onu okur).
@@ -87,6 +88,10 @@ src/
                           Müzik dosyaları public/audio altında, scripts/ ile üretilir
 docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları
 ```
+
+## Eğitimde kullanmak
+
+Final ekranındaki **Oturum raporu** oyuncunun haftasını (son, puanlar, okuyarak verilen kararlar, sistemin haksız yere aşağı ittiği adaylara ne yaptığı, müdürün ricaları) ve kendi kararlarından başlayan tartışma sorularını gösterir; yazdırılabilir ya da metin olarak kopyalanabilir, hiçbir yere gönderilmez. Bir grubun aynı haftayı oynaması için adres `?seed=` ile paylaşılır. Oturum planı, süreler ve tartışma akışı: [docs/egitmen-rehberi.md](docs/egitmen-rehberi.md).
 
 ## Hata bildirmek
 

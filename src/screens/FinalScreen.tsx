@@ -9,6 +9,8 @@ import { days } from '../game/data/days';
 import { NEPHEW_ID, candidateOf, candidates } from '../game/data/candidates';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { AD_EFFECT } from '../game/data/jobs';
+import { sessionReport } from '../game/engine/report';
+import { SessionReport } from './final/SessionReport';
 import styles from './FinalScreen.module.css';
 
 /** One year later — how the hire actually turned out (hidden fit revealed by the interviews). */
@@ -82,6 +84,8 @@ export function FinalScreen() {
     return earned.filter((id) => !before.has(id));
   });
   const [collected, setCollected] = useState(() => loadUnlocked());
+  const [reportOpen, setReportOpen] = useState(false);
+  const weekLog = useGameStore((s) => s.weekLog);
   useEffect(() => {
     setCollected(unlockAchievements(input).all);
     // once per final screen
@@ -343,6 +347,9 @@ export function FinalScreen() {
           <Button variant="ghost" onClick={() => void handleShareCard()}>
             {canShareFiles ? 'SONUCU PAYLAŞ' : 'SONUÇ KARTINI İNDİR'}
           </Button>
+          <Button variant="ghost" onClick={() => setReportOpen(true)} title="Eğitim ya da sınıf tartışması için: haftanın özeti ve sana özel sorular">
+            OTURUM RAPORU
+          </Button>
           <Button variant="gold" onClick={restart}>
             BAŞTAN OYNA
           </Button>
@@ -350,6 +357,25 @@ export function FinalScreen() {
             AYNI HAFTAYI YENİDEN OYNA
           </Button>
         </div>
+        {reportOpen && (
+          <SessionReport
+            onClose={() => setReportOpen(false)}
+            report={sessionReport({
+              seed,
+              difficulty,
+              endingTitle: ending.title,
+              performans,
+              vicdan,
+              weekLog,
+              finalists,
+              hiredId,
+              referenceChecks,
+              aiUses,
+              complies: managerStance.complies,
+              refusals,
+            })}
+          />
+        )}
         <p className={styles.replayNote}>Aynı adaylar, aynı aramalar. Bu kez başka kararlar verirsen hafta nasıl biter?</p>
       </div>
     </div>
