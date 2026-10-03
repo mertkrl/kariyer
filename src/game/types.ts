@@ -2,6 +2,11 @@ export type Decision = 'approve' | 'reject';
 
 export type EvaluatedField = 'experience' | 'salary' | 'skills' | 'motivation' | 'questions';
 
+/** What the screening system told the company about a file. */
+export type SystemVerdict = 'priority' | 'review' | 'low' | 'out';
+/** nephew: the manager's nephew · neighbour: your mother's neighbour's son, your own "reference". */
+export type StoryRole = 'nephew' | 'neighbour';
+
 export interface Candidate {
   id: string;
   name: string;
@@ -21,7 +26,14 @@ export interface Candidate {
   activities?: string[];
   companyAnswers: string[];
   internalNote: string;
+  /** What the screening system recommends. Scoring reads this, never the wording of `systemLine`. */
+  verdict: SystemVerdict;
+  /** The system's line as shown on screen; must open with the label of `verdict` (tests check it). */
   systemLine: string;
+  /** The system's concern about this file is real, not a biased proxy. */
+  flagIsFair?: boolean;
+  /** A file the week's story hangs on. Exactly one candidate holds each role. */
+  storyRole?: StoryRole;
   outcomeNote: Record<Decision, string>;
   flaggedField: EvaluatedField;
 }

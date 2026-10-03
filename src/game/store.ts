@@ -7,7 +7,7 @@ import { OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, decisionEffect, isStron
 import { AD_EFFECT } from './data/jobs';
 import type { Mail } from './mail';
 import { COFFEE_SIPS } from './desk';
-import { candidateOf, candidates } from './data/candidates';
+import { NEIGHBOUR_ID, candidateOf, candidates } from './data/candidates';
 import { defaultLineups, makeLineups, KEY_CAST } from './lineups';
 import {
   buildManagerScript,
@@ -216,8 +216,8 @@ export const useGameStore = create<GameState>((set, get) => ({
           ]
         : [];
     const lineups =
-      state.currentDayIndex === NEIGHBOUR_DAY && state.story.neighbourCv && !lineupFor(state).includes('onur')
-        ? state.lineups.map((l, i) => (i === NEIGHBOUR_DAY ? [...l, 'onur'] : l))
+      state.currentDayIndex === NEIGHBOUR_DAY && state.story.neighbourCv && !lineupFor(state).includes(NEIGHBOUR_ID)
+        ? state.lineups.map((l, i) => (i === NEIGHBOUR_DAY ? [...l, NEIGHBOUR_ID] : l))
         : state.lineups;
     set({
       phase: 'gameplay',

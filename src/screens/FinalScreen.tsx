@@ -6,7 +6,7 @@ import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput }
 import { Button } from '../components/ui/Button';
 import { GAME_NAME, shareCardImage } from '../game/engine/shareCard';
 import { days } from '../game/data/days';
-import { candidateOf, candidates } from '../game/data/candidates';
+import { NEPHEW_ID, candidateOf, candidates } from '../game/data/candidates';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { AD_EFFECT } from '../game/data/jobs';
 import styles from './FinalScreen.module.css';
@@ -53,7 +53,7 @@ export function FinalScreen() {
     weekendChoice,
     difficulty,
     evidence: story.evidence,
-    hiredNephew: hiredId === 'okan',
+    hiredNephew: hiredId === NEPHEW_ID,
   });
   const input: AchievementInput = {
     performans,

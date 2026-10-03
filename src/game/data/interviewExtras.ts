@@ -5,6 +5,7 @@
  *  - Hakan Bey cutting in with a question from his list.
  */
 import { FEMALE } from '../story';
+import { NEPHEW_ID } from './candidates';
 
 /** Follow-up to each of FINAL_INTERVIEW_QUESTIONS, in order. */
 export const FOLLOW_UP_QUESTIONS: [string, string, string] = [
@@ -143,4 +144,4 @@ export const backQuestionFor = (id: string): BackQuestion => BACK_SPECIAL[id] ??
 
 /** Hakan Bey cuts in on the people his list was written for, at most this many times. */
 export const HAKAN_INTERRUPTS = 2;
-export const hakanTarget = (id: string, age: number) => id !== 'okan' && (FEMALE.has(id) || age >= 40);
+export const hakanTarget = (id: string, age: number) => id !== NEPHEW_ID && (FEMALE.has(id) || age >= 40);

@@ -55,74 +55,92 @@ export const TEXT_GAP = 8;
 export const lastTextAt = (state: GameState) =>
   state.phone.reduce((at, m) => (m.from === 'them' && (m.day ?? state.currentDayIndex) === state.currentDayIndex ? Math.max(at, m.at) : at), -Infinity);
 
+type Patch = Partial<GameState>;
+type Desk = GameState['desk'];
+const ring = (desk: Desk, id: string, minutes: number): Patch => ({ desk: { ...desk, ringing: id, ringingSince: minutes } });
+
+/** A call left ringing too long is missed; the manager's favour calls ring back later. */
+function letRing(state: GameState, minutes: number): Patch | null {
+  const desk = state.desk;
+  const id = desk.ringing;
+  if (!id || minutes - desk.ringingSince < RING_MINUTES) return null;
+  if (id.startsWith(REQUEST_CALL_PREFIX) && desk.calls[id] !== 'missed') {
+    // he'll ring back
+    const r = state.managerRequests.find((x) => x.id === id.slice(REQUEST_CALL_PREFIX.length));
+    return {
+      desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: 'Hakan Bey aradı, açmadın. Birazdan tekrar arar.', noticeKind: 'missed' },
+      managerScript: r
+        ? [...state.managerScript, { at: minutes + CALLBACK_MINUTES, kind: 'request' as const, dayIndex: state.currentDayIndex, retry: true, request: { id: r.id, candidateId: r.candidateId, want: r.want, template: r.template ?? 0 } }]
+        : state.managerScript };
+  }
+  const call = callFor(state, id);
+  if (!call) return null;
+  return {
+    ...(id === 'revoke' ? revokeInvites(state, null) : {}),
+    performans: clampScore(state.performans + (call.missed.performans ?? 0)),
+    vicdan: clampScore(state.vicdan + (call.missed.vicdan ?? 0)),
+    desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: call.missed.note, noticeKind: 'missed', flower: desk.flower || !!call.flower, lastWatered: call.flower ? state.currentDayIndex : desk.lastWatered } };
+}
+
+/**
+ * Who calls next, most urgent first: the first source that has a call due wins the line.
+ * A new kind of call is a new entry here, placed where it should cut in.
+ */
+const CALL_SOURCES: ((state: GameState, minutes: number) => Patch | null)[] = [
+  // Wednesday afternoon: two of your invitations are to be taken back
+  (state, minutes) =>
+    state.currentDayIndex === REVOKE_DAY && minutes >= REVOKE_AT && !state.desk.calls.revoke && !state.revoked && revokeTargets(state.finalists).length === 2
+      ? ring(state.desk, 'revoke', minutes)
+      : null,
+  // called into his office the morning after you went against him
+  (state, minutes) => (state.reviewAt !== null && minutes >= state.reviewAt && !state.desk.calls.review ? ring(state.desk, 'review', minutes) : null),
+  // Thursday afternoon: someone you called to interview earlier in the week rings to say thanks
+  (state, minutes) => {
+    if (state.currentDayIndex !== THANKS_DAY || minutes < THANKS_AT || Object.keys(state.desk.calls).some((k) => k.startsWith('thanks:'))) return null;
+    const early = state.finalists.find((f) => f.day <= THANKS_DAY - 1);
+    return early ? ring(state.desk, `thanks:${early.id}`, minutes) : null;
+  },
+  // someone you turned away yesterday is waiting in the lobby
+  (state, minutes) => {
+    const due = visitorsToday(state.currentDayIndex, state.story.keyDecisions, state.dmHandled).find((v) => !state.desk.calls[v.id] && v.at <= minutes);
+    return due ? ring(state.desk, due.id, minutes) : null;
+  },
+  // the day's scripted calls and the manager's favours, whichever fell due first
+  (state, minutes) => {
+    const desk = state.desk;
+    const dueStatic = callsForDay(state.currentDayIndex).find((c) => !desk.calls[c.id] && c.at <= minutes);
+    const dueRequest = state.managerScript.find((m) => m.kind === 'request' && m.at <= minutes);
+    if (dueRequest?.request && (!dueStatic || dueRequest.at <= dueStatic.at)) {
+      // the manager wants a favour: that's a phone call, never a message
+      const r = dueRequest.request;
+      const known = state.managerRequests.some((x) => x.id === r.id);
+      return {
+        managerScript: state.managerScript.filter((m) => m !== dueRequest),
+        managerRequests: known ? state.managerRequests : [...state.managerRequests, { id: r.id, candidateId: r.candidateId, want: r.want, answer: null, template: r.template }],
+        ...ring(desk, REQUEST_CALL_PREFIX + r.id, minutes) };
+    }
+    if (!dueStatic) return null;
+    // someone walking up to your desk doesn't ring — the conversation just starts
+    return dueStatic.walkIn ? { desk: { ...desk, inCall: dueStatic.id } } : ring(desk, dueStatic.id, minutes);
+  },
+];
+
 /** Starts today's next landline call when it's due; a call left ringing too long is missed. */
 export function ringLandline(minutes: number) {
   const state = getState();
-  const desk = state.desk;
-  if (desk.inCall) return;
-  if (!desk.ringing && minutes - lastTextAt(state) < QUIET_GAP) return;
-  if (!desk.ringing && minutes >= BREAK_START_MIN - 15 && minutes < BREAK_END_MIN) return;
-  // Wednesday afternoon: two of your invitations are to be taken back
-  if (!desk.ringing && state.currentDayIndex === REVOKE_DAY && minutes >= REVOKE_AT && !desk.calls.revoke && !state.revoked && revokeTargets(state.finalists).length === 2) {
-    setState({ desk: { ...desk, ringing: 'revoke', ringingSince: minutes } });
+  if (state.desk.inCall) return;
+  if (state.desk.ringing) {
+    const missed = letRing(state, minutes);
+    if (missed) setState(missed);
     return;
   }
-  // called into his office the morning after you went against him
-  if (!desk.ringing && state.reviewAt !== null && minutes >= state.reviewAt && !desk.calls.review) {
-    setState({ desk: { ...desk, ringing: 'review', ringingSince: minutes } });
-    return;
+  // the line stays quiet right after a text, and around lunch
+  if (minutes - lastTextAt(state) < QUIET_GAP) return;
+  if (minutes >= BREAK_START_MIN - 15 && minutes < BREAK_END_MIN) return;
+  for (const source of CALL_SOURCES) {
+    const patch = source(state, minutes);
+    if (patch) return setState(patch);
   }
-  if (desk.ringing) {
-    if (minutes - desk.ringingSince < RING_MINUTES) return;
-    const id = desk.ringing;
-    if (id.startsWith(REQUEST_CALL_PREFIX) && desk.calls[id] !== 'missed') {
-      // he'll ring back
-      const r = state.managerRequests.find((x) => x.id === id.slice(REQUEST_CALL_PREFIX.length));
-      setState({
-        desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: 'Hakan Bey aradı, açmadın. Birazdan tekrar arar.', noticeKind: 'missed' },
-        managerScript: r
-          ? [...state.managerScript, { at: minutes + CALLBACK_MINUTES, kind: 'request' as const, dayIndex: state.currentDayIndex, retry: true, request: { id: r.id, candidateId: r.candidateId, want: r.want, template: r.template ?? 0 } }]
-          : state.managerScript });
-      return;
-    }
-    const call = callFor(state, id);
-    if (!call) return;
-    setState({
-      ...(id === 'revoke' ? revokeInvites(state, null) : {}),
-      performans: clampScore(state.performans + (call.missed.performans ?? 0)),
-      vicdan: clampScore(state.vicdan + (call.missed.vicdan ?? 0)),
-      desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: call.missed.note, noticeKind: 'missed', flower: desk.flower || !!call.flower, lastWatered: call.flower ? state.currentDayIndex : desk.lastWatered } });
-    return;
-  }
-  // Thursday afternoon: someone you called to interview earlier in the week rings to say thanks
-  if (state.currentDayIndex === THANKS_DAY && minutes >= THANKS_AT && !Object.keys(desk.calls).some((k) => k.startsWith('thanks:'))) {
-    const early = state.finalists.find((f) => f.day <= THANKS_DAY - 1);
-    if (early) {
-      setState({ desk: { ...desk, ringing: `thanks:${early.id}`, ringingSince: minutes } });
-      return;
-    }
-  }
-  // someone you turned away yesterday is waiting in the lobby
-  const dueVisit = visitorsToday(state.currentDayIndex, state.story.keyDecisions, state.dmHandled).find((v) => !desk.calls[v.id] && v.at <= minutes);
-  if (dueVisit) {
-    setState({ desk: { ...desk, ringing: dueVisit.id, ringingSince: minutes } });
-    return;
-  }
-  const dueStatic = callsForDay(state.currentDayIndex).find((c) => !desk.calls[c.id] && c.at <= minutes);
-  const dueRequest = state.managerScript.find((m) => m.kind === 'request' && m.at <= minutes);
-  if (dueRequest?.request && (!dueStatic || dueRequest.at <= dueStatic.at)) {
-    // the manager wants a favour: that's a phone call, never a message
-    const r = dueRequest.request;
-    const known = state.managerRequests.some((x) => x.id === r.id);
-    setState({
-      managerScript: state.managerScript.filter((m) => m !== dueRequest),
-      managerRequests: known ? state.managerRequests : [...state.managerRequests, { id: r.id, candidateId: r.candidateId, want: r.want, answer: null, template: r.template }],
-      desk: { ...desk, ringing: REQUEST_CALL_PREFIX + r.id, ringingSince: minutes } });
-    return;
-  }
-  // someone walking up to your desk doesn't ring — the conversation just starts
-  if (dueStatic?.walkIn) setState({ desk: { ...desk, inCall: dueStatic.id } });
-  else if (dueStatic) setState({ desk: { ...desk, ringing: dueStatic.id, ringingSince: minutes } });
 }
 
 /**

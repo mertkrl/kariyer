@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { accusative } from '../game/turkish';
 import { SALARY_CAP, panelDecision, useGameStore, type Finalist } from '../game/store';
 import { forbiddenAnswer, forbiddenQuestion } from '../game/story';
-import { candidateOf } from '../game/data/candidates';
+import { NEPHEW_ID, candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
 import { FINALIST_LIMIT } from '../game/data/days';
 import { backQuestionFor, followUpAnswer, followUpVerdict, FOLLOW_UP_QUESTIONS, HAKAN_INTERRUPTS, hakanTarget } from '../game/data/interviewExtras';
@@ -31,7 +31,7 @@ function Note({ children }: { children: ReactNode }) {
 }
 
 /** When nobody was advanced all week, management fills the final with its internal reference. */
-const FALLBACK: Finalist[] = [{ id: 'okan', day: 0 }];
+const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];
 /** The rest of the team screened too: their shortlists sit in the same room on Friday. */
 const COLLEAGUES: Finalist[] = [
   { id: 'nehir', day: 0, by: 'ayse' },
@@ -563,7 +563,7 @@ export function FinalRoundScreen() {
                     <b>Hakan Bey:</b>{' '}
                     {panel.his === selectedId
                       ? '"Bütçe onaylı. İmzalıyorum."'
-                      : panel.his === 'okan'
+                      : panel.his === NEPHEW_ID
                         ? '"Ben Okan\'dan yanayım. Uzun vadeli uyum önemli."'
                         : `"Ben ${accusative(first(panel.his))} daha uygun buluyorum."`}
                   </p>

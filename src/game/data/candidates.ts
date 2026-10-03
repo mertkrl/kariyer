@@ -1,4 +1,4 @@
-import type { Candidate } from '../types';
+import type { Candidate, StoryRole } from '../types';
 
 import { EXTRA_CANDIDATES } from './extraCandidates';
 
@@ -26,6 +26,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra deneyimli bir backend developer olarak gerçek sistemler kurmuş olmak istiyorum.',
     ],
     internalNote: 'Sistem notu: "Deneyim gereksinimini karşılamıyor." Ölçüt: yaş × deneyim tablosu, insan gözden geçirmesi yok.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Deneyim 1 yıl < 5 yıl (kural) · Güven: %96',
     outcomeNote: {
       reject: 'Ahmet bu ay 47. reddini aldı. Başvurduğu hiçbir yerden geri bildirim almadı.',
@@ -54,6 +55,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra kendi alanımda uzmanlaşmış, güvenilir bir ekip üyesi olmak istiyorum.',
     ],
     internalNote: 'Sistem notu: "Deneyimsiz." Aynı sistem, deneyim kazandıracak pozisyonları da aynı gerekçeyle eliyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Deneyim 0 yıl < 5 yıl (kural) · Güven: %98',
     outcomeNote: {
       reject: 'Selin, "deneyim kazanmak için" başvurduğu 6. stajı da bu şekilde kaybetti.',
@@ -81,6 +83,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra daha büyük bir organizasyonu yönetiyor olmayı hedefliyorum.',
     ],
     internalNote: 'Sistem notu: "Kültürel uyum: belirsiz." Hiçbir yazılı kritere dayanmıyor — kararı sana bırakıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Kültür uyumu skoru 41/100 · Güven: %63',
     outcomeNote: {
       reject: "Caner'in dosyasına hiçbir gerekçe yazılmadı. Sistem kaydı sadece \"kültürel uyum: düşük\".",
@@ -109,6 +112,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm performans sorunlarını bulmak, zayıf yönüm bazen fazla detaya takılmak.',
     ],
     internalNote: 'Sistem notu: "Anahtar kelime eşleşmesi düşük: \'Java\' bulunamadı." CV\'de Kotlin ve Spring Boot yazıyor; sistem ikisinin de Java ekosistemi olduğunu bilmiyor. CV hiçbir insan tarafından açılmadı.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: ATS eşleşme %42, anahtar kelime "Java" bulunamadı · Güven: %91',
     outcomeNote: {
       reject: 'Zeynep 6 yıldır tam olarak bu işi yapıyor. Red maili başvurudan 0,4 saniye sonra gitti.',
@@ -136,6 +140,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm arayüz detayları, zayıf yönüm zamanı bazen çok esnek yönetmek.',
     ],
     internalNote: 'Sistem notu: "Format okunamadı." Standart şablon dışı her CV aynı gerekçeyle düşük öncelikli işaretleniyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Belge ayrıştırılamadı (standart dışı format) · Güven: %88',
     outcomeNote: {
       reject: 'Mert\'in portföyü tam aranan şeydi. Ama CV\'si "standart dışı" bulunup elendi.',
@@ -163,6 +168,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm kriz anında sakin kalmak, zayıf yönüm bazen fazla kontrolcü olmak.',
     ],
     internalNote: 'Sistem notu: "Ek inceleme gerekli." Ek inceleme için ayrılmış bir süre veya sorumlu yok.',
+    verdict: 'review',
     systemLine: 'Öneri: Ek inceleme · Gerekçe: Özgeçmişte 24 aylık boşluk · İnceleme sorumlusu: atanmadı',
     outcomeNote: {
       reject: 'Derya\'nın dosyası "inceleme kuyruğunda" kaldı ve hiç açılmadı. Boşluğun sebebi kimseye sorulmadı.',
@@ -172,6 +178,7 @@ export const candidates: Record<string, Candidate> = {
 
   emre: {
     id: 'emre',
+    flagIsFair: true,
     flaggedField: 'salary',
     name: 'Emre Tan',
     initials: 'ET',
@@ -191,6 +198,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmezseniz rakibiniz seçer. Kararı hızlı verin, başka görüşmelerim var.',
     ],
     internalNote: 'Sistem notu: "Bütçe uyumsuz." Gerçek bütçe hiçbir aşamada aday ya da sana gösterilmiyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Ücret beklentisi bant üstü (+%73) · Güven: %89',
     outcomeNote: {
       reject: "Emre 3 ay sonra aynı şirkete, aynı işe, \"danışman\" unvanıyla %38 daha yüksek ücretle alınacak.",
@@ -218,6 +226,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü teslim tarihlerine sadığım ve yazdığım servisler gece kimseyi uyandırmıyor.',
     ],
     internalNote: 'Sistem notu: "Süreç devam ediyor." Aday kaybı şirket için hiçbir risk metriğinde yer almıyor.',
+    verdict: 'review',
     systemLine: 'Öneri: Süreç devam · Sonraki aşama: 5. mülakat · Aday kaybı riski: hesaplanmıyor',
     outcomeNote: {
       reject: 'Aylin 5. mülakattan sonra süreçten kendisi çekildi. İlan hâlâ "aktif" yayında.',
@@ -245,6 +254,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü 7 yıl tek başıma bir şirketin bütün sipariş sistemini ayakta tuttum.',
     ],
     internalNote: 'Sistem notu: "Referans maaş: düşük." Teklif, piyasa değeri değil önceki maaş baz alınarak hesaplanıyor.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Not: Önceki maaş düşük; teklif önceki maaş +%5 ile sınırlandırılsın · Güven: %90',
     outcomeNote: {
       reject: 'Burak teklifi reddetti. Yerine alınan geliştirici, sadece ilk teklifi yüksek istediği için 15.000 TL daha fazla alıyor.',
@@ -273,6 +283,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü 18 yıllık deneyimimi ekibe aktarabilirim, maaş beklentim de düşük.',
     ],
     internalNote: 'Sistem notu: "Aşırı nitelikli — 6 ayda ayrılma riski yüksek." Adayın kendi beyanı hiçbir ağırlığa sahip değil, sadece geçmiş istatistik baz alınıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Aşırı nitelik, 6 ay içinde ayrılma olasılığı %71 · Güven: %82',
     outcomeNote: {
       reject: "Kerem'in düşük maaş talebi bile onu kurtaramadı. Sistem \"gidecek\" dediği için hiç görüşmeye çağrılmadı.",
@@ -300,6 +311,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm detaycılık, zayıf yönüm bazen fazla temkinli karar vermek.',
     ],
     internalNote: 'Sistem notu: "Devamlılık riski: orta (aile durumu beyanı)." Beyanın içeriği: medeni hal — evli. Performansa dayalı hiçbir gerekçe yok, sadece bir varsayım.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Devamlılık riski orta (medeni hal: evli, yaş: 29) · Güven: %77',
     outcomeNote: {
       reject: 'Elif\'in dosyasına "aile planı riski" notu düşüldü — hiçbir zaman öğrenemeyeceği bir gerekçeyle elendi.',
@@ -327,6 +339,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü hem kodda hem dilde ekibe köprü olabilirim.',
     ],
     internalNote: 'Sistem notu: "Yurt dışı deneyim yok, devlet üniversitesi mezunu." İlanda yazılmayan bir tercih kriteri baz alınıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Yurt dışı deneyim yok, okul segmenti Tier-3 · Güven: %74',
     outcomeNote: {
       reject: 'Barış\'ın CV\'si "yurt dışı deneyim" kutusunu işaretlemediği için hiç okunmadı. İlan hâlâ "uygun aday bulunamadı" diyor.',
@@ -355,6 +368,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü teknik liderliğini yaptığım ürün iki yılda aktif kullanıcıyı üçe katladı ve tek bir büyük kesinti yaşamadı.',
     ],
     internalNote: 'Sistem notu: "Maaş beklentisi yüksek — bant dışı." Karşılaştırma aynı unvanın junior bandıyla yapılmış; kıdem hesaba katılmıyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Ücret beklentisi bant üstü (junior bandı ×2,1) · Güven: %93',
     outcomeNote: {
       reject: 'Nihan\'ın 13 yıllık deneyimi "bütçeye sığmadığı" için hiç değerlendirilmedi. Pozisyon 6 ay boş kaldı.',
@@ -363,6 +377,8 @@ export const candidates: Record<string, Candidate> = {
   },
   okan: {
     id: 'okan',
+    storyRole: 'nephew',
+    flagIsFair: true,
     flaggedField: 'experience',
     name: 'Okan Bulut',
     initials: 'OB',
@@ -383,6 +399,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü hızlı öğrenirim ve öğrenmeye çok istekliyim.',
     ],
     internalNote: 'Sistem notu: "İç referans: İK Müdürü H. Kaya (yakını)." Hiçbir yetkinlik ölçütü karşılanmıyor ama referans "+40 öncelik" olarak işaretli.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Gerekçe: İç referans (+40) · Yetkinlik eşleşmesi: %12',
     outcomeNote: {
       reject: 'Okan reddedildi, ertesi hafta aynı pozisyona "başka bir kanaldan" tekrar başvurdu — bu sefer işe alındı.',
@@ -391,6 +408,7 @@ export const candidates: Record<string, Candidate> = {
   },
   onur: {
     id: 'onur',
+    storyRole: 'neighbour',
     flaggedField: 'experience',
     name: 'Onur Kaplan',
     initials: 'OK',
@@ -411,6 +429,7 @@ export const candidates: Record<string, Candidate> = {
       'Ailemle yaşıyorum, beni zorlayacak bir yükümlülüğüm yok.',
     ],
     internalNote: 'Sistem notu: "Başvuru kanalı: çalışan tavsiyesi (İK uzmanı)." Deneyim şartını karşılamıyor; tavsiye kaynağı nedeniyle öncelik işareti eklendi.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Gerekçe: Çalışan tavsiyesi (tavsiye eden: İK uzmanı) · Yetkinlik eşleşmesi: %48',
     outcomeNote: {
       reject: 'Onur reddedildi. Annen akşam komşuya ne diyeceğini bilemedi.',
@@ -439,6 +458,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra bu alanda uzmanlaşmış bir geliştirici olmak istiyorum.',
     ],
     internalNote: 'Sistem notu: "Örgün eğitim yok, bootcamp sayılmıyor." Deneyim hanesi otomatik 0 olarak işaretleniyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Örgün eğitim yok, deneyim 0 yıl sayıldı · Güven: %95',
     outcomeNote: {
       reject: 'Deniz, bootcamp\'ten mezun olan 40 arkadaşından 31\'i gibi hâlâ "deneyim" arıyor.',
@@ -466,6 +486,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü disiplinliyim ve öğrenme hızım yüksek.',
     ],
     internalNote: 'Sistem notu: "İlgisiz sektör deneyimi — 0 yıl olarak sayılır." 3 yıllık iş deneyimi, alan farklı olduğu için hiç sayılmıyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: İlgisiz sektör deneyimi (0 yıl sayıldı) · Güven: %90',
     outcomeNote: {
       reject: "Pınar'ın 3 yıllık disiplini ve azmi hiçbir yerde değerlendirilmedi. Yine \"deneyim yok\" damgası yedi.",
@@ -494,6 +515,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü 7 yıldır yazdığım gün sonu sistemi tek gece bile durmadı.',
     ],
     internalNote: 'Sistem notu: "CV formatı okunamadı — .md (Markdown) dosyası olarak yüklenmiş." ATS sadece PDF/Word okuyor, içerik hiç taranmadı.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Belge okunamadı (.md) · Güven: —',
     outcomeNote: {
       reject: 'Kaan\'ın CV\'si formatı yüzünden hiç açılmadan sistemden silindi. 7 yıllık deneyimi hiçbir ekranda görünmedi.',
@@ -521,6 +543,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü hem yerel hem uluslararası ekiplerle çalışma alışkanlığım var.',
     ],
     internalNote: 'Sistem notu: "Anahtar kelimeler İngilizce, ilan Türkçe taranıyor." CV\'nin dili yüzünden eşleşme skoru sıfırlandı.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Anahtar kelime eşleşmesi %0 (belge dili: İngilizce) · Güven: %99',
     outcomeNote: {
       reject: 'Sibel\'in CV\'si sadece dil farkı yüzünden hiç eşleşmedi. Aynı ilana 3. kez başvuruyor.',
@@ -549,6 +572,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü hatasız yazılım için titizlikle çalışıyorum.',
     ],
     internalNote: 'Sistem notu: "Maaş beklentisi belirsiz — otomatik düşük öncelik." Sistem net rakam vermeyen adayları riskli/opak olarak işaretliyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Ücret beklentisi belirtilmemiş (opak başvuru) · Güven: %70',
     outcomeNote: {
       reject: 'Yusuf, net rakam vermediği için "kararsız" damgası yedi. Oysa sadece esnek davranmaya çalışıyordu.',
@@ -576,6 +600,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü geliştirdiğim üç ürünün de dönüşüm oranı arttı.',
     ],
     internalNote: 'Sistem notu: "Maaş geçmişi paylaşılmadı — şüpheli işaretlendi." Yasal olarak paylaşmama hakkı olsa da sistem bunu red gerekçesi sayıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Maaş geçmişi paylaşılmadı · Güven: %72',
     outcomeNote: {
       reject: 'Ece\'nin maaş geçmişini paylaşmama hakkı, sistem tarafından "şeffaf olmama" olarak kaydedildi.',
@@ -604,6 +629,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü uzaktan çalışsam da teslim performansım hiç düşmedi.',
     ],
     internalNote: 'Sistem notu: "Uzaktan çalışma talebi — ekip uyumu düşük." İlan "hibrit" diyor; adayın 6 yıllık uzaktan çalışma performansı hiç okunmuyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Uzaktan çalışma talebi (haftada 3 gün), ekip uyumu düşük · Güven: %68',
     outcomeNote: {
       reject: 'Uğur\'un 10 yıllık sicili, ilanda vaat edilen hibrit çalışmayı istediği için elendi.',
@@ -631,6 +657,7 @@ export const candidates: Record<string, Candidate> = {
       'Beni seçmelisiniz çünkü yazdığım her sitede sayfa açılış süresi düştü.',
     ],
     internalNote: 'Sistem notu: "Dijital ayak izi analizi: kısa vadeli izin olasılığı yüksek." Kaynak: adayın herkese açık bir paylaşımı (hamilelik duyurusu). Özel hayatı, kendisine hiç sorulmadan değerlendirmeye alınmış.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Dijital ayak izi, kısa vadeli izin olasılığı yüksek · Güven: %81',
     outcomeNote: {
       reject: 'Gökçe\'nin özel hayatına dair bir paylaşımı, iş performansıyla hiç ilgisi olmayan bir gerekçeyle elenmesine yol açtı.',
@@ -659,6 +686,7 @@ export const candidates: Record<string, Candidate> = {
       'Hayır. Geçen yıl bulut ve Kubernetes eğitimi aldım; tempoma yetişemeyen tek şey ofis yazıcıları.',
     ],
     internalNote: 'Sistem notu: "Modern teknolojilere uzak olabilir — varsayım." Adaya hiçbir yetkinlik testi yapılmadan, sadece yaşına bakılarak not düşülmüş.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Kariyer evresi (55), teknoloji uyumu tahmini düşük · Güven: %66',
     outcomeNote: {
       reject: 'Handan\'ın 28 yıllık deneyimi, hiç test edilmemiş bir "teknolojiye uzaklık" varsayımıyla bir kenara bırakıldı.',
@@ -687,6 +715,7 @@ export const candidates: Record<string, Candidate> = {
       'Hayır. Çocuklarım büyüdü; açıkçası şu an kariyerime her zamankinden fazla vakit ayırabiliyorum.',
     ],
     internalNote: 'Sistem notu: "Kariyer evresi: geç. Uzun vadeli yatırım getirisi düşük." Yasal emeklilik yaşına hâlâ 13 yıl var; sistem bunu hesaba katmıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Kariyer evresi (52), uzun vadeli getiri düşük · Güven: %79',
     outcomeNote: {
       reject: 'Aslı\'nın 22 yıllık kesintisiz geçmişi "yaş" tek satırıyla bir kenara yazıldı. Hâlâ iş arıyor.',
@@ -718,6 +747,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra erişilebilirlik konusunda şirket içinde başvurulan kişi olmak istiyorum.',
     ],
     internalNote: 'Sistem notu: "Maaşlı iş deneyimi: 0." Açık kaynak katkıları deneyim hanesine hiç yazılmıyor.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Maaşlı iş deneyimi 0 yıl · Güven: %97',
     outcomeNote: {
       reject: 'Tolga katkı verdiği kütüphaneyi kullanan başka bir şirkete girdi. Şirketiniz o kütüphaneyi hâlâ kullanıyor.',
@@ -746,6 +776,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra küçük bir analitik ekibi yönetiyor olmak istiyorum.',
     ],
     internalNote: 'Sistem notu: "Yarı zamanlı deneyim ×0,5 katsayısıyla hesaplanır." Aynı işi yapan tam zamanlı kişiyle eşit sayılmıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Deneyim 1,5 yıl (yarı zamanlı ×0,5) · Güven: %86',
     outcomeNote: {
       reject: 'Melis, okurken çalışmak zorunda kaldığı için "yarım deneyimli" sayılmaya devam ediyor.',
@@ -774,6 +805,7 @@ export const candidates: Record<string, Candidate> = {
       '5 yıl sonra ekibe yeni katılanlara mentorluk yapan bir geliştirici olmak istiyorum.',
     ],
     internalNote: 'Sistem notu: "Junior rolü için yaş profili uyumsuz." İlanda yaş sınırı yok; filtre "kültürel uyum" başlığı altında çalışıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Junior rolü için yaş profili uyumsuz (39) · Güven: %75',
     outcomeNote: {
       reject: 'Hakan tekrar öğretmenliğe döndü. "Denedim" diyor, "ama kapı hep aynı yerden kapandı."',
@@ -803,6 +835,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm karmaşık problemleri sadeleştirmek; zayıf yönüm bazen fazla detaya girmem.',
     ],
     internalNote: 'Sistem notu: "Beceri bölümü boş." CV iki sütunlu tasarlanmış; ATS sağ sütunu hiç okumadı.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: ATS eşleşme %31, beceri alanı boş · Güven: %84',
     outcomeNote: {
       reject: 'İrem\'in CV\'sini tek sütuna çevirip gönderdiği ertesi başvurusu başka bir şirkette %94 skor aldı. İşe alındı.',
@@ -811,6 +844,7 @@ export const candidates: Record<string, Candidate> = {
   },
   serkan: {
     id: 'serkan',
+    flagIsFair: true,
     flaggedField: 'motivation',
     name: 'Serkan Uçar',
     initials: 'SU',
@@ -831,6 +865,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm mükemmeliyetçiliğim, zayıf yönüm de fazla çalışmam.',
     ],
     internalNote: 'Sistem notu: "ATS skoru %98 — en yüksek eşleşme." CV\'nin altına beyaz renkle 40 anahtar kelime gizlenmiş; sistem bunu fark etmiyor.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Gerekçe: ATS eşleşme %98 (haftanın en yükseği) · Güven: %99',
     outcomeNote: {
       reject: 'Serkan aynı CV\'yi 200 şirkete daha gönderdi. Sistemlerin çoğu onu yine en üste koydu.',
@@ -858,6 +893,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm kullanıcıyla empati, zayıf yönüm hayır demekte zorlanmam.',
     ],
     internalNote: 'Sistem notu: "Aday adı ve beceriler ayrıştırılamadı." Türkçe karakterler (ı, ş, ğ) sistemde bozulmuş: "Nazl? Ek?nc?".',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Ad ve beceri alanı ayrıştırılamadı ("Nazl? Ek?nc?") · Güven: —',
     outcomeNote: {
       reject: 'Nazlı adını CV\'de "Nazli Ekinci" olarak yazmaya başladı. Kendi adını sistem için değiştirmek zorunda kaldı.',
@@ -887,6 +923,7 @@ export const candidates: Record<string, Candidate> = {
       'Altyapı maliyetlerinizi ilk yıl maaşımın iki katı kadar düşürebileceğimi düşünüyorum.',
     ],
     internalNote: 'Sistem notu: "Maaş beklentisi yüksek." Karşılaştırma 2021 maaş tablosuyla yapılıyor; güncel piyasa verisi sisteme hiç girilmemiş.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Ücret beklentisi bant üstü (referans tablo: 2021) · Güven: %88',
     outcomeNote: {
       reject: 'Cem ertesi hafta rakip bir şirkette 92.000 TL ile işe başladı.',
@@ -914,6 +951,7 @@ export const candidates: Record<string, Candidate> = {
       'Çünkü kullanıcıyı dinlemeden yazılan her ekran size geri dönüş maliyeti olarak geri geliyor.',
     ],
     internalNote: 'Sistem notu: "Pazarlıkçı tutum — kültürel uyum riski." Aynı rakamı isteyen erkek adaylar "özgüvenli" olarak etiketleniyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Pazarlıkçı tutum, kültürel uyum riski · Güven: %71',
     outcomeNote: {
       reject: 'Duygu bir sonraki mülakatında maaş beklentisini 10.000 TL düşük söyledi. İşe alındı.',
@@ -941,6 +979,7 @@ export const candidates: Record<string, Candidate> = {
       'Yazdığım saha takip sistemi 11 yılda tek bir gün durmadı; şantiyede internet olmasa bile çalışıyordu.',
     ],
     internalNote: 'Sistem notu: "Maaş beklentisi anormal düşük — kalite riski." Düşük rakam istemek de, yüksek rakam istemek de ayrı ayrı red gerekçesi.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Ücret beklentisi anormal düşük, kalite riski · Güven: %69',
     outcomeNote: {
       reject: 'Ferhat 11. ayına girdi. Artık CV\'sine maaş beklentisi yazmıyor, çünkü ne yazsa yanlış oluyor.',
@@ -970,6 +1009,7 @@ export const candidates: Record<string, Candidate> = {
       'Hayır. 1,5 saatlik yolu 5 yıldır her gün gidiyorum, bir gün bile geç kalmadım.',
     ],
     internalNote: 'Sistem notu: "Adres: Esenyurt — ulaşım süresi uzun, ayrılma riski yüksek." Adayın 5 yıllık devamlılığı hesaba katılmıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Ulaşım süresi > 75 dk (Esenyurt), ayrılma riski · Güven: %76',
     outcomeNote: {
       reject: 'Gizem, CV\'sinden adresini silmeyi öğrendi. Sonraki başvurusunda mülakata çağrıldı.',
@@ -978,6 +1018,7 @@ export const candidates: Record<string, Candidate> = {
   },
   volkan: {
     id: 'volkan',
+    flagIsFair: true,
     flaggedField: 'experience',
     name: 'Volkan Tekin',
     initials: 'VT',
@@ -997,6 +1038,7 @@ export const candidates: Record<string, Candidate> = {
       'Hayır, etkilemez.',
     ],
     internalNote: 'Sistem notu: "İş değiştirme sıklığı yüksek — sadakat riski." Ayrılma nedenleri sisteme girilemiyor; sadece tarih aralıkları okunuyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: İş değiştirme sıklığı yüksek (4 yılda 3 şirket) · Güven: %83',
     outcomeNote: {
       reject: 'Volkan\'ın CV\'si "istikrarsız" etiketiyle 30 şirkette daha elendi. Hiçbiri nedenini sormadı, hiçbiri referansını da aramadı.',
@@ -1024,6 +1066,7 @@ export const candidates: Record<string, Candidate> = {
       'Hayır. Esnek çalışma saatleri isterim, ama teslim tarihlerimi hiç kaçırmadım.',
     ],
     internalNote: 'Sistem notu: "Devamlılık riski: orta (esnek mesai talebi, aile durumu)." Aynı talebi yapan evli erkek adaylar için bu not düşülmemiş.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Devamlılık riski orta (esnek mesai talebi, aile durumu) · Güven: %78',
     outcomeNote: {
       reject: 'Seda bir sonraki mülakatta çocuğundan hiç bahsetmedi. İşe alındı, ama her okul toplantısında yalan söylüyor.',
@@ -1053,6 +1096,7 @@ export const candidates: Record<string, Candidate> = {
       'Güçlü yönüm tekrarlayan işi görüp otomatikleştirmek; zayıf yönüm sunum yaparken heyecanlanmam, üzerinde çalışıyorum.',
     ],
     internalNote: 'Sistem notu: "Deneyim: 0 yıl." CV LinkedIn\'den PDF olarak dışa aktarılmış; ATS tarih aralıklarını ("Mar 2023 – Şu an") okuyamadı.',
+    verdict: 'out',
     systemLine: 'Öneri: Değerlendirme dışı · Gerekçe: Deneyim 0 yıl (tarih aralıkları okunamadı) · ATS: %38',
     outcomeNote: {
       reject: 'Ceren, "deneyimi 0 yıl" okunduğu için elendi. CV\'sini Word\'e çevirip gönderdiği başka bir şirket onu aynı gün mülakata çağırdı.',
@@ -1080,6 +1124,7 @@ export const candidates: Record<string, Candidate> = {
       'Çünkü 12 yıl boyunca bir şirketin bütün ERP sistemini tek bir denetim bulgusu çıkmadan geliştirdim; aynısını burada da yaparım.',
     ],
     internalNote: 'Sistem notu: "Önceki maaş 58.000 TL — düşük talep \'çaresizlik\' sinyali, pazarlık payı yüksek." Teklifin adayın ihtiyacına göre aşağı çekilmesi öneriliyor.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Not: Talep önceki maaşın %21 altında; teklif 40.000 TL ile başlatılsın · Güven: %87',
     outcomeNote: {
       reject: 'Murat 9 aydır iş arıyor. "Pahalı" bulunduğu her görüşmede rakamını biraz daha düşürüyor.',
@@ -1108,6 +1153,7 @@ export const candidates: Record<string, Candidate> = {
       'Aile işindeki borç kapanana kadar yarı zamanlı istiyorum; 8 yılda tek gün devamsızlık yapmadım.',
     ],
     internalNote: 'Sistem notu: "İkinci iş beyanı — bağlılık riski yüksek." Önceki 8 yılda tek bir devamsızlık kaydı yok.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: İkinci iş beyanı, bağlılık riski yüksek · Güven: %80',
     outcomeNote: {
       reject: 'Tuncay\'a "tam zamanlı pozisyon" dendi. Yarı zamanlı iş arayan biri için bu kapı hep kapalı.',
@@ -1134,6 +1180,7 @@ export const candidates: Record<string, Candidate> = {
     certifications: 'Oracle Java SE.',
     companyAnswers: ['Evet, 8 yıl; son iki yıl ara verdim ve bunu açıkça yazdım.', 'Hayır, tam zamanlı çalışabilirim.'],
     internalNote: 'Sistem notu: "Kariyer boşluğu: 24 ay." Boşluk süresindeki açık kaynak katkıları puanlamaya dahil edilmiyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Kariyer boşluğu 24 ay · Güven: %81',
     outcomeNote: {
       reject: 'Nehir iki ay sonra bir bankanın ödeme ekibine girdi.',
@@ -1158,6 +1205,7 @@ export const candidates: Record<string, Candidate> = {
     certifications: 'Backend Geliştirme (bootcamp).',
     companyAnswers: ['Yazılımda 3 yıl, toplamda 7 yıllık iş deneyimim var.', 'Hayır, uyum sağlarım.'],
     internalNote: 'Sistem notu: "Eğitim alanı eşleşmiyor (İşletme)." Son 3 yıllık yazılım deneyimi ayrı puanlanmıyor.',
+    verdict: 'low',
     systemLine: 'Öneri: Düşük öncelik · Gerekçe: Eğitim alanı eşleşmiyor · Güven: %74',
     outcomeNote: {
       reject: 'Berk aynı hafta bir lojistik firmasına geçti; muhasebe modülünü o yazıyor.',
@@ -1182,6 +1230,7 @@ export const candidates: Record<string, Candidate> = {
     certifications: 'AWS Cloud Practitioner, PSM I.',
     companyAnswers: ['Evet, 6 yıl.', 'Hayır.'],
     internalNote: 'Sistem notu: "Tam anahtar kelime eşleşmesi (9/9)." Skor, metnin ilan metnine benzerliğinden hesaplandı.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Gerekçe: Anahtar kelime eşleşmesi 9/9 · Güven: %94',
     outcomeNote: {
       reject: 'Çağan bir hafta içinde başka bir şirketten teklif aldı.',
@@ -1206,6 +1255,7 @@ export const candidates: Record<string, Candidate> = {
     certifications: 'Kubernetes (online), Scrum (online).',
     companyAnswers: ['Evet.', 'Hayır.'],
     internalNote: 'Sistem notu: "Kurumsal marka eşleşmesi yüksek." Önceki şirket adlarının bilinirliği puana ekleniyor; yapılan işin kendisi ölçülmüyor.',
+    verdict: 'priority',
     systemLine: 'Öneri: Öncelikli · Gerekçe: ATS skoru 97, kurumsal marka eşleşmesi · Güven: %97',
     outcomeNote: {
       reject: 'Sarp başka bir şirkette işe başladı; deneme süresini uzattılar.',
@@ -1227,3 +1277,13 @@ export function candidateOf(id: string): Candidate {
   return c;
 }
 
+function holderOf(role: StoryRole): string {
+  const holders = Object.values(candidates).filter((c) => c.storyRole === role);
+  if (holders.length !== 1) throw new Error(`"${role}" rolünde tam bir aday olmalı, ${holders.length} bulundu`);
+  return holders[0].id;
+}
+
+/** The manager's nephew. */
+export const NEPHEW_ID = holderOf('nephew');
+/** Your mother's neighbour's son — your own "reference". */
+export const NEIGHBOUR_ID = holderOf('neighbour');

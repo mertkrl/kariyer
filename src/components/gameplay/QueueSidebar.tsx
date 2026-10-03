@@ -1,5 +1,5 @@
 import { useGameStore, isOnBreak, lineupFor, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store';
-import { candidateOf } from '../../game/data/candidates';
+import { NEIGHBOUR_ID, candidateOf } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';
 import { CONSIDERED_SECONDS } from '../../game/engine/scoring';
@@ -73,7 +73,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                 <span className={styles.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
                 <span className={styles.queueName}>
                   {c.name}
-                  {id === 'onur' && <em className={styles.queueTag}>Tavsiye</em>}
+                  {id === NEIGHBOUR_ID && <em className={styles.queueTag}>Tavsiye</em>}
                 </span>
                 <span className={`${styles.queueTime} mono`}>
                   {isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}

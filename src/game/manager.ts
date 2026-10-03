@@ -1,5 +1,5 @@
 import type { Decision } from './types';
-import { candidateOf } from './data/candidates';
+import { NEPHEW_ID, candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { firstName } from './turkish';
 import { ZEHRA } from './story';
@@ -68,7 +68,7 @@ export function buildManagerScript(
     [available[i], available[j]] = [available[j], available[i]];
   }
   // his own people first (the nephew above all), then the story's key characters
-  const rank = (x: { id: string; t: RequestTemplate }) => (x.id === 'okan' || x.id === 'baris' ? 3 : x.t.want === 'approve' ? 2 : STORY_TARGETS.includes(x.id) ? 1 : 0);
+  const rank = (x: { id: string; t: RequestTemplate }) => (x.id === NEPHEW_ID || x.id === 'baris' ? 3 : x.t.want === 'approve' ? 2 : STORY_TARGETS.includes(x.id) ? 1 : 0);
   available.sort((a, b) => rank(b) - rank(a));
   // One message from mom a day, at a quiet time (mid-morning or mid-afternoon, alternating).
   const momPicks = (momOrder ?? shuffle([...MOM_POOL.keys()], rand)).slice(dayIndex * 2, dayIndex * 2 + 1).map((i) => MOM_POOL[i % MOM_POOL.length]);
@@ -287,7 +287,7 @@ export function managerReaction(answer: 'comply' | 'refuse', tone: ManagerTone) 
  */
 export function requestIsFair(r: Pick<ManagerRequest, 'candidateId' | 'want'>) {
   const fit = candidateDetails[r.candidateId]?.hireFit ?? 3;
-  return r.want === 'approve' ? fit >= 4 && r.candidateId !== 'okan' : fit <= 2;
+  return r.want === 'approve' ? fit >= 4 && r.candidateId !== NEPHEW_ID : fit <= 2;
 }
 
 /** Immediate effect of the reply itself. */

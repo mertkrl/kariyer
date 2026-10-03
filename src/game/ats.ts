@@ -33,7 +33,7 @@ export function atsReport(c: Candidate, applications: number): AtsReport {
   const unreadable = /ayrıştırılamadı/.test(c.systemLine);
   const title = (c.previousCompany.split('—')[1] ?? c.previousCompany).replace(/\(.*$/, '').split(',')[0].trim().replace(/\.$/, '');
   const h = hash(c.id);
-  const flagged = /Değerlendirme dışı|Düşük öncelik/.test(c.systemLine);
+  const flagged = c.verdict === 'out' || c.verdict === 'low';
   const of = Math.max(applications, 100);
   return {
     parsed: unreadable ? 3 : PARSE_FIELDS,

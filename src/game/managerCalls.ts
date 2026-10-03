@@ -5,7 +5,7 @@
  */
 import type { Decision } from './types';
 import type { Mail } from './mail';
-import { candidateOf, candidates } from './data/candidates';
+import { NEPHEW_ID, candidateOf, candidates } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
@@ -112,7 +112,7 @@ export function panelDecision(recommended: string, finalists: Finalist[], reques
   const pool = ids.some(affordable) ? ids.filter(affordable) : ids;
   const best = Math.max(...pool.map(fitOf));
   const lead = pool.includes(recommended) && fitOf(recommended) === best ? recommended : (pool.find((id) => fitOf(id) === best) ?? recommended);
-  const his = ids.includes('okan') ? 'okan' : (requests.find((r) => r.want === 'approve' && ids.includes(r.candidateId))?.candidateId ?? recommended);
+  const his = ids.includes(NEPHEW_ID) ? NEPHEW_ID : (requests.find((r) => r.want === 'approve' && ids.includes(r.candidateId))?.candidateId ?? recommended);
   const hired = recommended === lead || recommended === his ? recommended : lead === his ? lead : lead;
   return { lead, his, hired, overBudget: !affordable(recommended) };
 }

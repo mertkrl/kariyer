@@ -1,5 +1,5 @@
-import type { Candidate, Decision } from '../types';
-import { candidateOf } from '../data/candidates';
+import type { Candidate, Decision, SystemVerdict } from '../types';
+import { NEIGHBOUR_ID, NEPHEW_ID, candidateOf } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
 
 /*
@@ -27,27 +27,16 @@ export interface DecisionEffect {
   reason: string;
 }
 
-/** What the screening system told the company about a file (the start of its `systemLine`). */
-export type SystemVerdict = 'priority' | 'review' | 'low' | 'out';
+export type { SystemVerdict } from '../types';
 
-const VERDICTS: [string, SystemVerdict][] = [
-  ['Öneri: Öncelikli', 'priority'],
-  ['Öneri: Ek inceleme', 'review'],
-  ['Öneri: Süreç devam', 'review'],
-  ['Öneri: Düşük öncelik', 'low'],
-  ['Öneri: Değerlendirme dışı', 'out'],
-];
-
-export function systemVerdict(c: Pick<Candidate, 'systemLine'>): SystemVerdict | null {
-  return VERDICTS.find(([prefix]) => c.systemLine.startsWith(prefix))?.[1] ?? null;
+export function systemVerdict(c: Pick<Candidate, 'verdict'>): SystemVerdict {
+  return c.verdict;
 }
 
-/** Candidates whose system flag is not a biased proxy: the concerns about them are real. */
-const FAIR_FLAG = new Set(['okan', 'serkan', 'emre', 'volkan']);
-/** The manager's nephew. */
-const NEPHEW = 'okan';
-/** Your mother's neighbour's son — your own "reference". */
-const NEIGHBOUR = 'onur';
+const NEPHEW = NEPHEW_ID;
+const NEIGHBOUR = NEIGHBOUR_ID;
+/** The system's concern about this file is real: rejecting it is not rejecting a proxy. */
+const fairFlag = (id: string) => !!candidateOf(id).flagIsFair;
 
 const FLAG_WORDS: Record<string, string> = {
   experience: 'deneyim şartı',
@@ -78,7 +67,7 @@ const isWeak = (id: string) => (candidateDetails[id]?.hireFit ?? 3) <= 2;
  */
 export function isWronglyFlagged(id: string) {
   const verdict = systemVerdict(candidateOf(id));
-  if (FAIR_FLAG.has(id) || id === NEIGHBOUR) return false;
+  if (fairFlag(id) || id === NEIGHBOUR) return false;
   return verdict === 'low' || verdict === 'out' || verdict === 'review';
 }
 
@@ -86,7 +75,7 @@ export function decisionEffect(id: string, decision: Decision, ctx: { secondsSpe
   const c = candidateOf(id);
   const first = c.name.split(' ')[0];
   const flag = FLAG_WORDS[c.flaggedField] ?? 'sistem işareti';
-  const verdict = systemVerdict(c) ?? 'review';
+  const verdict = systemVerdict(c);
   const considered = ctx.secondsSpent >= CONSIDERED_SECONDS || ctx.referenceChecked;
   const checked = ctx.referenceChecked ? 1 : 0;
   const performans = COMPANY[verdict][decision];
@@ -127,7 +116,7 @@ export function decisionEffect(id: string, decision: Decision, ctx: { secondsSpe
   if (verdict === 'priority' && isWeak(id) && considered) {
     return { performans, vicdan: 1 + checked, reason: `${first}: sistemin yüksek puanına rağmen dosyaya baktın; dosya zayıftı.` };
   }
-  if (FAIR_FLAG.has(id) && isStrong(id) && !considered) {
+  if (fairFlag(id) && isStrong(id) && !considered) {
     return { performans, vicdan: -1, reason: `${first}: güçlü ama soru işaretleri gerçek bir aday, dosyası okunmadan elendi.` };
   }
   return { performans, vicdan: checked, reason: isWeak(id) ? `${first}: dosya gerçekten zayıftı. Yerinde bir ret.` : `${first}: elendi.` };

@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CONSIDERED_SECONDS, decisionEffect, systemVerdict } from '../src/game/engine/scoring';
-import { candidates } from '../src/game/data/candidates';
+import { NEIGHBOUR_ID, NEPHEW_ID, candidates } from '../src/game/data/candidates';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 
-const FAIR_FLAG = new Set(['okan', 'serkan', 'emre', 'volkan']);
-const SPECIAL = new Set(['okan', 'onur']);
+const FAIR_FLAG = new Set(Object.values(candidates).filter((c) => c.flagIsFair).map((c) => c.id));
+const SPECIAL = new Set([NEPHEW_ID, NEIGHBOUR_ID]);
 const ids = Object.keys(candidates);
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
 const hasty = { secondsSpent: 0, referenceChecked: false };
@@ -23,9 +23,9 @@ test('her aday ve her karar için sonuç tanımlı ve adlı', () => {
 });
 
 test('müdürün yeğenini almak performans kazandırır, vicdan kaybettirir', () => {
-  const e = decisionEffect('okan', 'approve', read);
+  const e = decisionEffect(NEPHEW_ID, 'approve', read);
   assert.ok(e.performans > 0 && e.vicdan < 0);
-  const r = decisionEffect('okan', 'reject', read);
+  const r = decisionEffect(NEPHEW_ID, 'reject', read);
   assert.ok(r.performans < 0 && r.vicdan > 0);
 });
 

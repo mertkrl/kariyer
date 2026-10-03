@@ -13,6 +13,7 @@ import { candidateDetails } from '../data/candidateDetails';
 import { panelDecision } from '../managerCalls';
 import { SECOND_PAGE_DAY } from '../weekdays';
 import { later } from '../later';
+import { NEPHEW_ID } from '../data/candidates';
 
 export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'recordAiUse' | 'setDifficulty'> => ({
   doActivity: (id) => {
@@ -103,7 +104,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     const state = get();
     if (state.phase !== 'finalRound' || state.hiredId) return;
     // you only recommend; the panel (you, Levent, Hakan Bey) decides
-    const id = panelDecision(recommended, state.finalists.length ? state.finalists : [{ id: 'okan', day: 0 }], state.story.pastRequests).hired;
+    const id = panelDecision(recommended, state.finalists.length ? state.finalists : [{ id: NEPHEW_ID, day: 0 }], state.story.pastRequests).hired;
     // How the hire actually works out moves Performans; hiring someone the system had
     // written off, and who turns out great, is what the Vicdan bar is about.
     const fit = candidateDetails[id]?.hireFit ?? 3;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../game/store';
-import { candidateOf } from '../game/data/candidates';
+import { NEIGHBOUR_ID, candidateOf } from '../game/data/candidates';
 import { buildCall, type CallChoice, type CallLine } from '../game/weekend';
 import { audioEngine } from '../audio/audioEngine';
 import { Button } from '../components/ui/Button';
@@ -25,7 +25,7 @@ export function WeekendScreen() {
     return buildCall({
       hiredName: s.hiredId ? candidateOf(s.hiredId).name.split(' ')[0] : null,
       recommendedName: s.recommendedId && s.recommendedId !== s.hiredId ? candidateOf(s.recommendedId).name.split(' ')[0] : null,
-      hiredNeighbour: s.hiredId === 'onur',
+      hiredNeighbour: s.hiredId === NEIGHBOUR_ID,
       processed: s.totalStats.approved + s.totalStats.rejected,
       autoRejected: s.totalStats.autoRejected,
       refusals: s.managerStance.refusals - (s.difficulty === 'hard' ? 1 : 0),
