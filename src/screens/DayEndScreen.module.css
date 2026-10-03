@@ -469,3 +469,90 @@
     grid-auto-rows: auto;
   }
 }
+
+/* ── the day in detail (Günün dökümü) ── */
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+}
+
+.facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.facts dt {
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--on-dark-faint);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--paper-muted);
+}
+
+.subHead {
+  margin: 12px 0 6px;
+  font-size: calc(var(--fs-label) * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+}
+
+.effects {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.effects li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(201, 162, 39, 0.5);
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.4;
+  color: var(--paper-muted);
+}
+
+.effectChips {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.effectChips i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: calc(11px * var(--ts, 1));
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.footer .finalistNote,
+.content > .finalistNote {
+  margin: 0;
+  text-align: center;
+}
+
+.effectChips i.up {
+  color: #7fd1a6;
+}
+
+.effectChips i.down {
+  color: #f08a76;
+}
