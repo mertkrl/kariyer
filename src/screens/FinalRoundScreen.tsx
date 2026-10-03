@@ -7,6 +7,8 @@ import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candid
 import { FINALIST_LIMIT } from '../game/data/days';
 import { backQuestionFor, followUpAnswer, followUpVerdict, FOLLOW_UP_QUESTIONS, HAKAN_INTERRUPTS, hakanTarget } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
+import { average, caseAnswer, caseFor, caseVerdict, defenseHolds, DEFENSE_THRESHOLD, expectedSalary, salaryMoves, salaryOffer, salaryTalk, scoreGap, tagNote, type SalaryMove, type Scores } from '../game/interview';
+import { AnswerText, CaseCard, EvidencePicker, NotesList, Scorecard, type Note as NotebookNote } from './final/InterviewParts';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
 import { PLAYER } from '../game/player';
@@ -74,12 +76,29 @@ const FORBIDDEN = 3;
 const TYPING_MS_PER_CHAR = 16;
 const THINKING_MS = 900;
 
-/** Follow-ups are stored as FOLLOW + the index of the question they dig into. */
+/** Follow-ups are stored as FOLLOW + the kind of probe (interview.ts: HookKind). */
 const FOLLOW = 10;
+/** The short coding case: one of the two questions. */
+const CASE = 20;
+const SALARY_LINES: Record<SalaryMove, (offer: number) => string> = {
+  match: () => 'Beklentiniz bütçemize uygun; bu rakamla ilerleyebiliriz.',
+  pass: () => 'Beklentinizi olduğu gibi Hakan Bey\'e ileteceğim.',
+  cap: (o) => `Bu pozisyon için bütçemiz ${o.toLocaleString('tr-TR')} TL. Bu rakama inebilir misiniz?`,
+  low: (o) => `Size ${o.toLocaleString('tr-TR')} TL teklif edebiliriz.`,
+  squeeze: (o) => `Biraz aşağı çekebilir miyiz? ${o.toLocaleString('tr-TR')} TL ile başlasak?`,
+};
+const SALARY_LABEL: Record<SalaryMove, string> = {
+  match: 'Beklentiyi kabul et',
+  pass: 'Olduğu gibi Hakan Bey\'e ilet',
+  cap: 'Bütçe tavanını teklif et',
+  low: 'Daha düşük teklif et',
+  squeeze: 'Biraz aşağı çekmeyi dene',
+};
 
 /** One beat of an interview, in the order it happened. */
 type Entry =
-  | { kind: 'q'; q: number; by?: 'hakan' }
+  | { kind: 'q'; q: number; by?: 'hakan'; about?: string }
+  | { kind: 'salary'; move: SalaryMove | null }
   | { kind: 'note'; text: string }
   | { kind: 'hakan'; choice: 'protect' | 'silent' | null }
   | { kind: 'back'; choice: 'honest' | 'polished' | null };
@@ -122,6 +141,13 @@ export function FinalRoundScreen() {
   const interruptsUsed = Object.values(log).flat().filter((e) => e.kind === 'hakan').length;
   const chatRef = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
+  // your notebook, scorecards, the pay agreed with each person, and the case you put to the panel
+  const [notes, setNotes] = useState<Record<string, NotebookNote[]>>({});
+  const [scores, setScores] = useState<Record<string, Scores>>({});
+  const [agreed, setAgreed] = useState<Record<string, number | null>>({});
+  const [evidence, setEvidence] = useState<string[]>([]);
+  const [defense, setDefense] = useState<{ id: string; holds: boolean; score: number } | null>(null);
+  const settleSalary = useGameStore((s) => s.settleSalary);
 
   const candidate = candidateOf(selectedId);
   const details = candidateDetails[selectedId];
@@ -135,13 +161,27 @@ export function FinalRoundScreen() {
   const entries = log[selectedId] ?? [];
   const questions = entries.filter((e): e is Extract<Entry, { kind: 'q' }> => e.kind === 'q');
   // the questions you chose yourself count against the slot; follow-ups and Hakan Bey's don't
-  const mine = questions.filter((e) => !e.by && e.q < FOLLOW).map((e) => e.q);
+  const mine = questions.filter((e) => !e.by && (e.q < FOLLOW || e.q === CASE)).map((e) => e.q);
   const forbiddenDone = questions.some((e) => e.q === FORBIDDEN);
-  const followUsed = questions.some((e) => e.q >= FOLLOW);
-  const pending = entries.find((e): e is Extract<Entry, { kind: 'hakan' | 'back' }> => (e.kind === 'hakan' || e.kind === 'back') && e.choice === null);
+  const followUsed = questions.some((e) => e.q >= FOLLOW && e.q < CASE);
+  const salaryEntry = entries.find((e): e is Extract<Entry, { kind: 'salary' }> => e.kind === 'salary');
+  const salaryDone = salaryEntry?.move != null;
+  const pending =
+    entries.find((e): e is Extract<Entry, { kind: 'hakan' | 'back' }> => (e.kind === 'hakan' || e.kind === 'back') && e.choice === null) ??
+    (salaryEntry && salaryEntry.move === null ? salaryEntry : undefined);
   const ended = endedFor(selectedId);
-  const lastOwn = [...questions].reverse().find((e) => !e.by && e.q < FORBIDDEN);
-  const canFollow = !followUsed && lastOwn !== undefined && !typing && !pending && !ended;
+  const canFollow = !followUsed && !typing && !pending && !ended;
+  const poolIds = pool.map((f) => f.id);
+  const myNotes = notes[selectedId] ?? [];
+  const isNoted = (sentence: string) => myNotes.some((n) => n.text === sentence);
+  function toggleNote(sentence: string) {
+    const id = selectedId;
+    audioEngine.playUi('click');
+    setNotes((all) => {
+      const list = all[id] ?? [];
+      return { ...all, [id]: list.some((n) => n.text === sentence) ? list.filter((n) => n.text !== sentence) : [...list, { text: sentence, tag: tagNote(sentence) }] };
+    });
+  }
   const hakanChoice = entries.find((e): e is Extract<Entry, { kind: 'hakan' }> => e.kind === 'hakan')?.choice ?? null;
 
   function finishTyping() {
@@ -178,9 +218,9 @@ export function FinalRoundScreen() {
     }, THINKING_MS);
   }
 
-  function ask(question: number) {
+  function ask(question: number, about?: string) {
     if (typing || pending || ended) return;
-    const follow = question >= FOLLOW;
+    const follow = question >= FOLLOW && question < CASE;
     if (follow ? !canFollow : questions.some((e) => e.q === question) || mine.length >= QUESTION_BUDGET) return;
     const id = selectedId;
     if (question === FORBIDDEN) askForbidden();
@@ -192,7 +232,7 @@ export function FinalRoundScreen() {
     const whisperNext = !structured && !interruptNext && question !== FORBIDDEN && !whispered && mine.length === 0;
     if (whisperNext) setWhispered(true);
     audioEngine.playUi('click');
-    push(id, { kind: 'q', q: question });
+    push(id, { kind: 'q', q: question, about });
     typeAnswer(
       id,
       entries.length,
@@ -218,8 +258,24 @@ export function FinalRoundScreen() {
     }
   }
 
+  function openSalary() {
+    if (typing || pending || ended || salaryEntry) return;
+    audioEngine.playUi('click');
+    push(selectedId, { kind: 'salary', move: null });
+  }
+
+  function talkSalary(move: SalaryMove) {
+    if (salaryEntry?.move !== null || typing) return;
+    const id = selectedId;
+    const result = salaryTalk(id, move);
+    audioEngine.playUi('click');
+    setLog((l) => ({ ...l, [id]: (l[id] ?? []).map((e) => (e.kind === 'salary' && e.move === null ? { kind: 'salary', move } : e)) }));
+    setAgreed((a) => ({ ...a, [id]: result.agreed }));
+    settleSalary(id, move);
+  }
+
   function endInterview() {
-    if (typing || pending || ended || mine.length === 0) return;
+    if (typing || pending || ended || mine.length === 0 || !salaryDone) return;
     audioEngine.playUi('click');
     push(selectedId, { kind: 'back', choice: null });
   }
@@ -232,11 +288,18 @@ export function FinalRoundScreen() {
   }
 
   function answerFor(id: string, question: number) {
+    if (question === CASE) return caseAnswer(id, caseFor(id, poolIds));
     if (question >= FOLLOW) return followUpAnswer(id, question - FOLLOW, candidateDetails[id].hireFit);
     return question === FORBIDDEN ? forbiddenAnswer(id, candidateOf(id).age) : candidateDetails[id].interview[question];
   }
-  const questionText = (q: number) =>
-    q >= FOLLOW ? FOLLOW_UP_QUESTIONS[q - FOLLOW] : q === FORBIDDEN ? forbiddenQuestion(selectedId, candidateOf(selectedId).age) : FINAL_INTERVIEW_QUESTIONS[q];
+  const questionText = (q: number, about?: string) =>
+    q === CASE
+      ? 'Kısa bir vaka vereyim: bu kodda ne yanlış, nasıl düzeltirdiniz?'
+      : q >= FOLLOW
+        ? `${about ? `"${about.replace(/[.;,]$/, '')}" dediniz. ` : ''}${FOLLOW_UP_QUESTIONS[q - FOLLOW]}`
+        : q === FORBIDDEN
+          ? forbiddenQuestion(selectedId, candidateOf(selectedId).age)
+          : FINAL_INTERVIEW_QUESTIONS[q];
   const fit = details.hireFit;
   const leadHeard = mine.some((q) => q !== FORBIDDEN) && !typing;
 
@@ -341,7 +404,7 @@ export function FinalRoundScreen() {
               <div className={styles.log} ref={chatRef} aria-live="polite">
                 {entries.length === 0 && (
                   <p className={styles.logEmpty}>
-                    {candidate.name.split(' ')[0]} karşında oturuyor. Süren kısa: {QUESTION_BUDGET} soru ve bir takip sorusu. Aşağıdan ilk soruyu seç.
+                    {candidate.name.split(' ')[0]} karşında oturuyor. Süren kısa: {QUESTION_BUDGET} soru (ya da bir mini vaka), cevaplardaki altı noktalı bir ifadenin üzerine bir takip sorusu, ve maaş. Cevaplardaki cümleleri ✎ ile not alabilirsin.
                   </p>
                 )}
                 {entries.map((e, index) => {
@@ -363,6 +426,31 @@ export function FinalRoundScreen() {
                         {e.choice === 'silent' && <Note>Bir şey demiyorsun.</Note>}
                       </div>
                     );
+                  if (e.kind === 'salary') {
+                    const ask = expectedSalary(selectedId);
+                    const result = e.move ? salaryTalk(selectedId, e.move) : null;
+                    return (
+                      <div key={index} className={styles.exchange}>
+                        <Turn who={PLAYER.name} role="Maaş" tone="you">
+                          Maaş beklentinizi konuşalım. Ne kadar bekliyorsunuz?
+                        </Turn>
+                        <Turn who={candidate.name} role="Aday" tone="candidate">
+                          {ask ? `Aylık net ${ask.toLocaleString('tr-TR')} TL bekliyorum.` : candidate.salary}
+                          {ask && ask > SALARY_CAP && ' Piyasada bu seviyede teklifler alıyorum.'}
+                        </Turn>
+                        {e.move && result && (
+                          <>
+                            <Turn who={PLAYER.name} role="Maaş" tone="you">
+                              {SALARY_LINES[e.move](salaryOffer(selectedId, e.move) ?? 0)}
+                            </Turn>
+                            <Turn who={candidate.name} role="Aday" tone="candidate">
+                              {result.reply}
+                            </Turn>
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
                   if (e.kind === 'back') {
                     const back = backQuestionFor(selectedId, pool.map((f) => f.id));
                     return (
@@ -389,10 +477,11 @@ export function FinalRoundScreen() {
                   return (
                     <div key={index} className={styles.exchange}>
                       {!e.by && (
-                        <Turn who={PLAYER.name} role={e.q >= FOLLOW ? 'Takip sorusu' : e.q === FORBIDDEN ? "Hakan Bey'in listesinden" : 'İK Uzmanı'} tone={e.q === FORBIDDEN ? 'hakan' : 'you'}>
-                          {questionText(e.q)}
+                        <Turn who={PLAYER.name} role={e.q === CASE ? 'Mini vaka' : e.q >= FOLLOW ? 'Takip sorusu' : e.q === FORBIDDEN ? "Hakan Bey'in listesinden" : 'İK Uzmanı'} tone={e.q === FORBIDDEN ? 'hakan' : 'you'}>
+                          {questionText(e.q, e.about)}
                         </Turn>
                       )}
+                      {e.q === CASE && <CaseCard c={caseFor(selectedId, poolIds)} />}
                       <Turn who={candidate.name} role="Aday" tone="candidate">
                         {live && typing.shown < 0 ? (
                           <span className={styles.thinking} aria-label="düşünüyor">
@@ -402,8 +491,21 @@ export function FinalRoundScreen() {
                           </span>
                         ) : (
                           <>
-                            {live ? answer.slice(0, typing.shown) : answer}
-                            {live && <span className={styles.caret} />}
+                            {live ? (
+                              <>
+                                {answer.slice(0, typing.shown)}
+                                <span className={styles.caret} />
+                              </>
+                            ) : (
+                              <AnswerText
+                                text={answer}
+                                fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : undefined}
+                                canFollow={canFollow}
+                                onFollow={e.q < FORBIDDEN && !e.by ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
+                                noted={isNoted}
+                                onNote={toggleNote}
+                              />
+                            )}
                           </>
                         )}
                       </Turn>
@@ -429,6 +531,20 @@ export function FinalRoundScreen() {
                       </button>
                     </div>
                   </>
+                ) : pending?.kind === 'salary' ? (
+                  <>
+                    <p className={styles.consoleTitle}>
+                      Beklenti {expectedSalary(selectedId)?.toLocaleString('tr-TR') ?? '—'} TL · bütçe tavanı {SALARY_CAP.toLocaleString('tr-TR')} TL. Ne diyorsun?
+                    </p>
+                    <div className={styles.options}>
+                      {salaryMoves(selectedId).map((m) => (
+                        <button key={m} className={`${styles.option} ${m === 'cap' || m === 'match' ? styles.optionPrimary : ''}`} onClick={() => talkSalary(m)}>
+                          <b>{SALARY_LABEL[m]}</b>
+                          <span>{SALARY_LINES[m](salaryOffer(selectedId, m) ?? 0)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 ) : pending?.kind === 'back' ? (
                   <>
                     <p className={styles.consoleTitle}>{candidate.name.split(' ')[0]} bir soru soruyor. Nasıl cevaplıyorsun?</p>
@@ -451,7 +567,11 @@ export function FinalRoundScreen() {
                     </div>
                   </>
                 ) : ended ? (
-                  <p className={styles.consoleWait}>Görüşme tamamlandı. {interviewed < pool.length ? 'Listeden sıradaki adayı seç.' : 'Tüm adaylarla görüştün; önerini sunabilirsin.'}</p>
+                  <>
+                    <p className={styles.consoleTitle}>Puan kartı · {candidate.name.split(' ')[0]} (her ölçüt 1–5)</p>
+                    <Scorecard scores={scores[selectedId] ?? {}} onScore={(c, v) => setScores((all) => ({ ...all, [selectedId]: { ...all[selectedId], [c]: v } }))} />
+                    <p className={styles.consoleWait}>{interviewed < pool.length ? 'Puanladıktan sonra listeden sıradaki adayı seç.' : 'Tüm adaylarla görüştün; önerini sunabilirsin.'}</p>
+                  </>
                 ) : (
                   <>
                     <p className={styles.consoleTitle}>
@@ -467,12 +587,21 @@ export function FinalRoundScreen() {
                             </button>
                           ),
                         )}
-                      {canFollow && lastOwn && (
-                        <button className={`${styles.question} ${styles.questionFollow}`} onClick={() => ask(FOLLOW + lastOwn.q)}>
-                          <span className={styles.qNumber}>↳</span>
+                      {mine.length < QUESTION_BUDGET && !mine.includes(CASE) && (
+                        <button className={`${styles.question} ${styles.questionFollow}`} onClick={() => ask(CASE)}>
+                          <span className={styles.qNumber}>{'</>'}</span>
                           <span>
-                            {FOLLOW_UP_QUESTIONS[lastOwn.q]}
-                            <small>Takip sorusu · 1 hak</small>
+                            Kısa bir kod vakası ver
+                            <small>Bir soru hakkı · adayın düşünme şeklini gösterir</small>
+                          </span>
+                        </button>
+                      )}
+                      {!salaryEntry && (
+                        <button className={styles.question} onClick={openSalary}>
+                          <span className={styles.qNumber}>₺</span>
+                          <span>
+                            Maaş beklentisini konuş
+                            <small>Görüşmeyi bitirmeden önce zorunlu</small>
                           </span>
                         </button>
                       )}
@@ -486,9 +615,10 @@ export function FinalRoundScreen() {
                         </button>
                       )}
                     </div>
+                    {canFollow && mine.length > 0 && <p className={styles.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
                     {mine.length > 0 && (
-                      <button className={styles.endButton} onClick={endInterview}>
-                        Görüşmeyi bitir →
+                      <button className={styles.endButton} onClick={endInterview} disabled={!salaryDone} title={salaryDone ? undefined : 'Önce maaşı konuş'}>
+                        {salaryDone ? 'Görüşmeyi bitir →' : 'Görüşmeyi bitir · önce maaşı konuş'}
                       </button>
                     )}
                   </>
@@ -503,6 +633,12 @@ export function FinalRoundScreen() {
                 <dd>{candidate.experience}</dd>
                 <dt>Maaş beklentisi</dt>
                 <dd>{candidate.salary}</dd>
+                {selectedId in agreed && (
+                  <>
+                    <dt>Anlaşılan</dt>
+                    <dd>{agreed[selectedId] === null ? 'Anlaşılamadı' : `${agreed[selectedId]?.toLocaleString('tr-TR')} TL`}</dd>
+                  </>
+                )}
                 <dt>Son görev</dt>
                 <dd>{details.workHistory[0].title}</dd>
                 <dt>Konum</dt>
@@ -522,11 +658,14 @@ export function FinalRoundScreen() {
                   <li key={h}>{h}</li>
                 ))}
               </ul>
+              <h3>Notlarım</h3>
+              <NotesList notes={myNotes} onRemove={toggleNote} />
               <h3>{LEAD}'ın notu</h3>
               {leadHeard ? (
                 <div className={styles.leadNote} role="status">
                   <p>"{leadView(selectedId, fit)}"</p>
                   {followUsed && !typing && <p>"{followUpVerdict(selectedId, fit)}"</p>}
+                  {mine.includes(CASE) && !typing && <p>"{caseVerdict(selectedId)}"</p>}
                   {mine.includes(FORBIDDEN) && <small>Sonra alçak sesle: "O soruyu sormasaydın keşke."</small>}
                   {hakanChoice === 'protect' && <small>Sonra alçak sesle: "Araya girmen iyiydi."</small>}
                   {hakanChoice === 'silent' && <small>Sonra alçak sesle: "Hakan Bey o soruyu sorunca bir şey demedin."</small>}
@@ -544,7 +683,11 @@ export function FinalRoundScreen() {
             <Button
               variant="gold"
               sound="click"
-              onClick={() => setConfirming(true)}
+              onClick={() => {
+                setEvidence([]);
+                setDefense(null);
+                setConfirming(true);
+              }}
               disabled={interviewed < pool.length || busy}
               title={interviewed < pool.length ? 'Önce bütün adaylarla görüş' : undefined}
             >
@@ -562,9 +705,19 @@ export function FinalRoundScreen() {
               {candidate.initials}
             </span>
             <h2 id="confirm-hire">Önerin: {candidate.name}</h2>
+            <Comparison
+              pool={poolIds}
+              scores={scores}
+              agreed={agreed}
+              notes={notes}
+              gap={scoreGap(scores, (id) => hakanTarget(id, candidateOf(id).age))}
+            />
             {(() => {
-              // you recommend; the panel votes
-              const panel = panelDecision(selectedId, pool, pastRequests);
+              // you recommend; the panel votes — Levent can be argued round, with your notes
+              const convinced = defense?.id === selectedId && defense.holds;
+              const panel = panelDecision(selectedId, pool, pastRequests, { agreed, convinced });
+              // only worth arguing when the panel would otherwise hire someone else
+              const contested = panel.hired !== selectedId && panel.lead !== selectedId && !panel.overBudget && !convinced;
               const first = (id: string) => candidateOf(id).name.split(' ')[0];
               return (
                 <div className={styles.panelVotes}>
@@ -587,6 +740,41 @@ export function FinalRoundScreen() {
                         : `"Ben ${accusative(first(panel.his))} daha uygun buluyorum."`}
                   </p>
                   <p className={styles.panelBudget}>Bütçe tavanı: {SALARY_CAP.toLocaleString('tr-TR')} TL/ay · üç oy ayrı düşerse karar ekip liderinin.</p>
+                  {(contested || defense?.id === selectedId) && (
+                    <div className={styles.defense}>
+                      <p className={styles.defenseTitle}>Önerini savun: {LEAD}'a notlarından en fazla üç kanıt göster.</p>
+                      {defense?.id === selectedId ? (
+                        <p className={defense.holds ? styles.defenseWon : styles.defenseLost}>
+                          {defense.holds
+                            ? `${LEAD}: "Haklısın, bunları ben de duydum. Fikrimi değiştiriyorum."`
+                            : `${LEAD}: "Bunlar beni ikna etmedi. Somut bir şey göremiyorum."`}
+                        </p>
+                      ) : (
+                        <>
+                          <EvidencePicker
+                            notes={notes[selectedId] ?? []}
+                            picked={evidence}
+                            onToggle={(t) => setEvidence((p) => (p.includes(t) ? p.filter((x) => x !== t) : p.length < 3 ? [...p, t] : p))}
+                          />
+                          <Button
+                            variant="ghost"
+                            disabled={evidence.length === 0}
+                            onClick={() => {
+                              const picked = (notes[selectedId] ?? []).filter((n) => evidence.includes(n.text)).map((n) => n.tag);
+                              const mineAvg = average(scores[selectedId]);
+                              const top = mineAvg !== null && poolIds.every((id) => id === selectedId || (average(scores[id]) ?? 0) <= mineAvg);
+                              const result = defenseHolds(selectedId, picked, top);
+                              audioEngine.playUi(result.holds ? 'confirm' : 'click');
+                              setDefense({ id: selectedId, ...result });
+                            }}
+                          >
+                            Kurula sun
+                          </Button>
+                          <small className={styles.defenseHint}>Somut notlar ağır basar, belirsiz olanlar sayılmaz; puan kartında en yüksek puanı ona verdiysen o da kanıttır (eşik {DEFENSE_THRESHOLD}).</small>
+                        </>
+                      )}
+                    </div>
+                  )}
                   <p className={styles.panelResult}>
                     Kurul kararı: <b>{candidateOf(panel.hired).name}</b>
                     {panel.hired !== selectedId && ' — önerin kabul edilmedi.'}
@@ -599,7 +787,7 @@ export function FinalRoundScreen() {
               <Button variant="ghost" onClick={() => setConfirming(false)}>
                 Vazgeç
               </Button>
-              <Button variant="gold" sound="none" onClick={() => hire(selectedId)}>
+              <Button variant="gold" sound="none" onClick={() => hire(selectedId, { agreed, convinced: defense?.id === selectedId && defense.holds })}>
                 Kurul Kararını Onayla
               </Button>
             </div>
@@ -664,5 +852,39 @@ function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist[]; loc
         </Button>
       </div>
     </section>
+  );
+}
+
+/** The room side by side before you recommend: your scores, the pay agreed, how much you noted. */
+function Comparison({ pool, scores, agreed, notes, gap }: { pool: string[]; scores: Record<string, Scores>; agreed: Record<string, number | null>; notes: Record<string, NotebookNote[]>; gap: number | null }) {
+  const rows = pool.map((id) => ({ id, avg: average(scores[id]), pay: agreed[id], noted: notes[id]?.length ?? 0 })).sort((a, b) => (b.avg ?? -1) - (a.avg ?? -1));
+  return (
+    <div className={styles.compare}>
+      <table>
+        <thead>
+          <tr>
+            <th>Aday</th>
+            <th>Puan kartın</th>
+            <th>Maaş</th>
+            <th>Not</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id}>
+              <td>{candidateOf(r.id).name}</td>
+              <td className="mono">{r.avg === null ? '—' : r.avg.toFixed(1)}</td>
+              <td className="mono">{r.pay === undefined ? '—' : r.pay === null ? 'anlaşılamadı' : r.pay.toLocaleString('tr-TR')}</td>
+              <td className="mono">{r.noted}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {gap !== null && (
+        <p className={styles.compareGap}>
+          ⚠ Hakan Bey'in listesindeki soruların hedeflediği adaylara (kadınlar, 40 yaş üstü) verdiğin puanların ortalaması diğerlerinden {gap.toLocaleString('tr-TR')} puan düşük.
+        </p>
+      )}
+    </div>
   );
 }

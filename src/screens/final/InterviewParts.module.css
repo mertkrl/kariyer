@@ -1,0 +1,205 @@
+/* ── an answer you can dig into and take notes from ── */
+.hook {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--blue);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.hook:hover,
+.hook:focus-visible {
+  outline: none;
+  background: rgba(76, 127, 176, 0.14);
+  border-radius: 3px;
+}
+
+.hookSpent {
+  text-decoration: underline dotted rgba(76, 127, 176, 0.3);
+  text-underline-offset: 3px;
+}
+
+.noted {
+  background: linear-gradient(transparent 55%, rgba(246, 226, 122, 0.75) 55%);
+}
+
+.pin {
+  margin-left: 3px;
+  padding: 0 3px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-dim);
+  font-size: 0.85em;
+  line-height: 1;
+  opacity: 0.45;
+  cursor: pointer;
+  vertical-align: 1px;
+}
+
+.pin:hover,
+.pin:focus-visible {
+  opacity: 1;
+  outline: none;
+  background: rgba(201, 162, 39, 0.18);
+}
+
+.pinOn {
+  opacity: 1;
+  color: #8a6b00;
+}
+
+/* ── the coding case ── */
+.case {
+  margin: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #2c3446;
+  background: #141a26;
+}
+
+.case figcaption {
+  padding: 6px 12px;
+  font-size: calc(11.5px * var(--ts, 1));
+  font-weight: 700;
+  color: #cfe2fb;
+  background: #1c2434;
+}
+
+.case figcaption span {
+  font-weight: 500;
+  color: rgba(201, 214, 234, 0.7);
+}
+
+.case pre {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.55;
+  color: #dfe8f5;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* ── scorecard ── */
+.scorecard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scoreRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.scoreDots {
+  display: flex;
+  gap: 4px;
+}
+
+.scoreDot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-muted);
+  background: var(--paper-light);
+  color: var(--text-dim);
+  font: 700 12px var(--font-mono);
+  cursor: pointer;
+}
+
+.scoreOn {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+
+/* ── notebook and evidence ── */
+.notes,
+.evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notes li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 6px;
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.4;
+}
+
+.notesEmpty {
+  margin: 0;
+  font-size: calc(12.5px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.noteRemove {
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.evidence label {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-muted);
+  background: var(--paper-light);
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.evidenceOn {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 2px rgba(63, 107, 99, 0.15);
+}
+
+.tag {
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tag_concrete {
+  background: rgba(63, 107, 99, 0.16);
+  color: var(--teal);
+}
+
+.tag_general {
+  background: rgba(76, 127, 176, 0.14);
+  color: var(--blue-ink);
+}
+
+.tag_vague {
+  background: rgba(34, 31, 27, 0.08);
+  color: var(--text-dim);
+}
+
+.tag_redflag {
+  background: rgba(168, 64, 47, 0.14);
+  color: var(--red);
+}

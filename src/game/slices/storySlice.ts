@@ -14,8 +14,9 @@ import { panelDecision } from '../managerCalls';
 import { SECOND_PAGE_DAY } from '../weekdays';
 import { later } from '../later';
 import { NEPHEW_ID } from '../data/candidates';
+import { salaryTalk } from '../interview';
 
-export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'recordAiUse' | 'setDifficulty'> => ({
+export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
   doActivity: (id) => {
     const state = get();
     const a = EVENING_ACTIVITIES[state.currentDayIndex]?.find((x) => x.id === id);
@@ -100,11 +101,11 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       performans: clampScore(state.performans + (honest ? -1 : 1)),
       vicdan: clampScore(state.vicdan + (honest ? 2 : -2)) })),
 
-  hire: (recommended) => {
+  hire: (recommended, panel) => {
     const state = get();
     if (state.phase !== 'finalRound' || state.hiredId) return;
     // you only recommend; the panel (you, Levent, Hakan Bey) decides
-    const id = panelDecision(recommended, state.finalists.length ? state.finalists : [{ id: NEPHEW_ID, day: 0 }], state.story.pastRequests).hired;
+    const id = panelDecision(recommended, state.finalists.length ? state.finalists : [{ id: NEPHEW_ID, day: 0 }], state.story.pastRequests, panel).hired;
     // How the hire actually works out moves Performans; hiring someone the system had
     // written off, and who turns out great, is what the Vicdan bar is about.
     const fit = candidateDetails[id]?.hireFit ?? 3;
@@ -156,6 +157,12 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
   },
 
   readMail: (id) => set((state) => (state.mailRead.includes(id) ? state : { mailRead: [...state.mailRead, id] })),
+  settleSalary: (id, move) => {
+    const state = get();
+    if (state.phase !== 'finalRound') return;
+    const { effect } = salaryTalk(id, move);
+    set({ performans: clampScore(state.performans + effect.performans), vicdan: clampScore(state.vicdan + effect.vicdan) });
+  },
   answerCandidateMail: (mailId, kind) => {
     const state = get();
     const reply = state.extraMails.find((m) => m.id === mailId);

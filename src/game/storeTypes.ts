@@ -11,6 +11,8 @@ import type { ManagerRequest, PhoneMessage, ScheduledMessage, Grievance, ThreadI
 import type { MeetingChoice, WeekEntry } from './echoes';
 import type { RejectTemplate } from './rejectionMails';
 import type { ReplyBack } from './rejectionMails';
+import type { PanelInput } from './managerCalls';
+import type { SalaryMove } from './interview';
 
 export interface Finalist {
   id: string;
@@ -269,8 +271,10 @@ export interface GameState {
   decide: (decision: Decision) => void;
   /** Takes back the decision on the currently open candidate. */
   undoDecision: () => void;
-  /** Final day: hire one finalist and end the game. */
-  hire: (id: string) => void;
+  /** Final day: recommend one finalist to the panel; what the interview settled (pay, your case) goes with it. */
+  hire: (id: string, panel?: PanelInput) => void;
+  /** Friday: what the salary talk with one candidate did to your scores. */
+  settleSalary: (id: string, move: SalaryMove) => void;
   answerRequest: (requestId: string, answer: 'comply' | 'refuse') => void;
   /** Optional quick reply to a mom / office message. */
   answerMessage: (messageId: number, replyIndex: number) => void;

@@ -104,14 +104,26 @@ export function salaryOf(id: string): number | null {
  * yours is among the best of them, he backs yours); Hakan Bey backs his nephew if he's in the
  * room, otherwise the candidate he asked you to call, otherwise you. Two votes carry it; if all
  * three disagree, the team lead — whose team it is — decides.
+ *
+ * From the interview: `agreed` is the pay talked down to (or kept) per person, null where they
+ * wouldn't come down; `convinced` means you argued Levent round to your pick with your notes.
  */
-export function panelDecision(recommended: string, finalists: Finalist[], requests: { candidateId: string; want: Decision }[]) {
+export interface PanelInput {
+  agreed?: Record<string, number | null>;
+  convinced?: boolean;
+}
+
+export function panelDecision(recommended: string, finalists: Finalist[], requests: { candidateId: string; want: Decision }[], input: PanelInput = {}) {
   const ids = finalists.map((f) => f.id);
   const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 0;
-  const affordable = (id: string) => (salaryOf(id) ?? 0) <= SALARY_CAP;
+  const pay = (id: string) => (input.agreed && id in input.agreed ? (input.agreed[id] ?? salaryOf(id)) : salaryOf(id)) ?? 0;
+  const affordable = (id: string) => pay(id) <= SALARY_CAP;
   const pool = ids.some(affordable) ? ids.filter(affordable) : ids;
   const best = Math.max(...pool.map(fitOf));
-  const lead = pool.includes(recommended) && fitOf(recommended) === best ? recommended : (pool.find((id) => fitOf(id) === best) ?? recommended);
+  const lead =
+    (input.convinced && affordable(recommended)) || (pool.includes(recommended) && fitOf(recommended) === best)
+      ? recommended
+      : (pool.find((id) => fitOf(id) === best) ?? recommended);
   const his = ids.includes(NEPHEW_ID) ? NEPHEW_ID : (requests.find((r) => r.want === 'approve' && ids.includes(r.candidateId))?.candidateId ?? recommended);
   const hired = recommended === lead || recommended === his ? recommended : lead === his ? lead : lead;
   return { lead, his, hired, overBudget: !affordable(recommended) };
