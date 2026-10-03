@@ -309,10 +309,20 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
       g.fillStyle = glass;
       g.fillRect(0, 0, VW, VH);
     };
+    // nothing to draw while the window is out of sight (scrolled away, or its panel hidden)
+    const io = new IntersectionObserver(([entry]) => {
+      cancelAnimationFrame(raf);
+      if (entry.isIntersecting) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    });
+    io.observe(canvas);
     raf = requestAnimationFrame(frame);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
     };
   }, [weather]);
 

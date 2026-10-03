@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   GROUP_THREADS,
   TONE_STATUS,
@@ -11,10 +11,9 @@ import {
 import { formatClock } from '../../game/time';
 import { AppIcon, type IconId } from './AppIcons';
 import { PromotionGame } from './apps/PromotionGame';
-import { SocialApp, type SocialAuthor } from './apps/SocialApp';
+import type { SocialAuthor } from './apps/SocialApp';
 import type { DmCandidate } from './apps/candidateDms';
 import type { DmKind } from '../../game/store';
-import { TrafficApp } from './apps/TrafficApp';
 import { useDialog } from '../ui/useDialog';
 import styles from './Phone.module.css';
 
@@ -23,6 +22,12 @@ import styles from './Phone.module.css';
  * picks it up into a full phone you can actually use: WhatsApp-style chats (contacts list →
  * conversation), and a few time-wasting apps. The workday clock keeps running meanwhile.
  */
+
+// The two big apps load when the phone is first picked up, not with the workday screen.
+const loadSocial = () => import('./apps/SocialApp');
+const loadTraffic = () => import('./apps/TrafficApp');
+const SocialApp = lazy(() => loadSocial().then((m) => ({ default: m.SocialApp })));
+const TrafficApp = lazy(() => loadTraffic().then((m) => ({ default: m.TrafficApp })));
 
 type Screen = { kind: 'home' } | { kind: 'chats' } | { kind: 'chat'; thread: ThreadId } | { kind: 'app'; app: AppId };
 type AppId = 'terfi' | 'social' | 'traffic';
@@ -209,6 +214,10 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   const dmPending = dms.filter((d) => !dmHandled[d.id]).length;
   const [screen, setScreen] = useState<Screen>(props.thread ? { kind: 'chat', thread: props.thread } : { kind: 'home' });
   const chatRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    void loadSocial();
+    void loadTraffic();
+  }, []);
   const tone = managerTone(stance.refusals);
 
   const device = useDialog<HTMLDivElement>(onClose);
@@ -385,8 +394,10 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
       <>
         <div className={styles.appBody}>
           {screen.app === 'terfi' && <PromotionGame />}
-          {screen.app === 'social' && <SocialApp rejected={rejectedAuthors} echoes={echoes} dayIndex={dayIndex} dms={dms} dmHandled={dmHandled} onDm={onDm} minutes={minutes} />}
-          {screen.app === 'traffic' && <TrafficApp minutes={minutes} weatherPenalty={weatherPenalty} />}
+          <Suspense fallback={null}>
+            {screen.app === 'social' && <SocialApp rejected={rejectedAuthors} echoes={echoes} dayIndex={dayIndex} dms={dms} dmHandled={dmHandled} onDm={onDm} minutes={minutes} />}
+            {screen.app === 'traffic' && <TrafficApp minutes={minutes} weatherPenalty={weatherPenalty} />}
+          </Suspense>
         </div>
       </>
     );

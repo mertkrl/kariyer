@@ -27,3 +27,7 @@ createRoot(document.getElementById('root')!).render(
 )
 
 registerServiceWorker()
+
+// the sound scenes are not needed for the first screen: fetch them once it has drawn
+const idle = window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 1500))
+idle(() => void audioEngine.loadScenes())

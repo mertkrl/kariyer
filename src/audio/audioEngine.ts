@@ -1,10 +1,4 @@
 import { EngineCore, MUSIC_LOOP_SECONDS, MUSIC_MOODS, MUSIC_SRC, sliderToGain, type MusicMood, type PourSound, type ScatterPaper, type StampKind } from './engineCore';
-import * as scan from './scenes/scan';
-import * as flood from './scenes/flood';
-import * as office from './scenes/office';
-import * as street from './scenes/street';
-import * as weather from './scenes/weather';
-import * as lunch from './scenes/lunch';
 
 export type { MusicMood, PourSound } from './engineCore';
 
@@ -17,6 +11,7 @@ export type { MusicMood, PourSound } from './engineCore';
 class AudioEngine extends EngineCore {
   /** Must be called from a user gesture (click) — browsers block audio otherwise. */
   init() {
+    void this.loadScenes();
     const ctx = this.ensureContext();
     if (ctx.state === 'suspended') void ctx.resume();
   }
@@ -233,26 +228,41 @@ class AudioEngine extends EngineCore {
   }
 
   // ── Scenes: each is documented where it is made, in ./scenes/<file>.ts ──────
+  // They arrive a moment after the first screen (main.tsx asks while the page is idle, init()
+  // at the first click); a scene asked for before then stays silent rather than waiting.
 
-  startScan(duration = 3.2, locks: number[] = [], chime = true) { return scan.startScan(this, duration, locks, chime); }
-  stopScan(fade = 0.12) { return scan.stopScan(this, fade); }
-  playScanComplete() { return scan.playScanComplete(this); }
-  startFloodRiser(duration: number) { return flood.startFloodRiser(this, duration); }
-  stopFloodRiser(fade = 0.15) { return flood.stopFloodRiser(this, fade); }
-  playCounterTick(pitch: number) { return flood.playCounterTick(this, pitch); }
-  playPaperIn(pan: number) { return flood.playPaperIn(this, pan); }
-  playPaperLand(pan: number) { return flood.playPaperLand(this, pan); }
-  playScatter(papers: ScatterPaper[], chaotic: boolean) { return flood.playScatter(this, papers, chaotic); }
-  startOfficeAmbience(rain = false): { setUrgency: (u: number) => void; stop: () => void } { return office.startOfficeAmbience(this, rain); }
-  startRushHourAmbience(scene: 0 | 1 | 2 | 3): () => void { return street.startRushHourAmbience(this, scene); }
-  startWeatherAmbience(kind: 'sunny' | 'windy' | 'rainy' | 'snowy'): () => void { return weather.startWeatherAmbience(this, kind); }
-  playLunchBell() { return lunch.playLunchBell(this); }
-  playPurr() { return lunch.playPurr(this); }
-  playSip() { return lunch.playSip(this); }
-  playBite() { return lunch.playBite(this); }
-  playSqueeze() { return lunch.playSqueeze(this); }
-  startPour(kind: 'brew' | 'water'): PourSound { return lunch.startPour(this, kind); }
-  playClink(count = 1) { return lunch.playClink(this, count); }
+  private scenes: typeof import('./scenes') | null = null;
+  private scenesLoading: Promise<void> | null = null;
+
+  loadScenes() {
+    this.scenesLoading ??= import('./scenes').then(
+      (m) => void (this.scenes = m),
+      () => void (this.scenesLoading = null), // offline before it was cached: try again next time
+    );
+    return this.scenesLoading;
+  }
+
+  startScan(duration = 3.2, locks: number[] = [], chime = true) { this.scenes?.scan.startScan(this, duration, locks, chime); }
+  stopScan(fade = 0.12) { this.scenes?.scan.stopScan(this, fade); }
+  playScanComplete() { this.scenes?.scan.playScanComplete(this); }
+  startFloodRiser(duration: number) { this.scenes?.flood.startFloodRiser(this, duration); }
+  stopFloodRiser(fade = 0.15) { this.scenes?.flood.stopFloodRiser(this, fade); }
+  playCounterTick(pitch: number) { this.scenes?.flood.playCounterTick(this, pitch); }
+  playPaperIn(pan: number) { this.scenes?.flood.playPaperIn(this, pan); }
+  playPaperLand(pan: number) { this.scenes?.flood.playPaperLand(this, pan); }
+  playScatter(papers: ScatterPaper[], chaotic: boolean) { this.scenes?.flood.playScatter(this, papers, chaotic); }
+  startOfficeAmbience(rain = false): { setUrgency: (u: number) => void; stop: () => void } {
+    return this.scenes?.office.startOfficeAmbience(this, rain) ?? { setUrgency: () => {}, stop: () => {} };
+  }
+  startRushHourAmbience(scene: 0 | 1 | 2 | 3): () => void { return this.scenes?.street.startRushHourAmbience(this, scene) ?? (() => {}); }
+  startWeatherAmbience(kind: 'sunny' | 'windy' | 'rainy' | 'snowy'): () => void { return this.scenes?.weather.startWeatherAmbience(this, kind) ?? (() => {}); }
+  playLunchBell() { this.scenes?.lunch.playLunchBell(this); }
+  playPurr() { this.scenes?.lunch.playPurr(this); }
+  playSip() { this.scenes?.lunch.playSip(this); }
+  playBite() { this.scenes?.lunch.playBite(this); }
+  playSqueeze() { this.scenes?.lunch.playSqueeze(this); }
+  startPour(kind: 'brew' | 'water'): PourSound { return this.scenes?.lunch.startPour(this, kind) ?? { setFill: () => {}, stop: () => {} }; }
+  playClink(count = 1) { this.scenes?.lunch.playClink(this, count); }
 }
 
 export const audioEngine = new AudioEngine();
