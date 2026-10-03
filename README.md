@@ -68,10 +68,11 @@ src/
     meeting/              Görüntülü toplantı ve pano
     dayend/ story/ ui/    Gün sonu sahneleri, kırmızı dosya, ortak bileşenler
   game/
-    store.ts              Oyun durumu, başlangıç değerleri ve gün döngüsü (zustand)
+    store.ts              Oyun durumu: yeni hafta, başlatma, devam etme, kayıt noktası (zustand)
     storeLoader.ts        Store'u ilk ekrandan sonra arka planda yükler; App aşamayı buradan okur
     prefs.ts              Ses tercihleri (store'dan bağımsız, ilk sesten önce okunur)
-    slices/               Telefon, masa, hikâye ve ayar eylemleri
+    slices/               Eylemler: gün (sabah, saat, akşam), dosyalar ve kararlar, telefon, masa, hikâye, ayarlar
+    tick.ts               Mesainin bir saniyesi: saati durduran durumlar, toplantı, öğle arası, çalışılan dakika — sırası tek listede
     clock.ts              Saat ilerledikçe olanlar: mesajlar, aramalar, 17:00 bildirimleri, gün sonu
     storeDefaults.ts      Başlangıç kayıtları ve küçük saf yardımcılar
     storeTypes.ts         Durumun tipleri

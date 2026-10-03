@@ -12,6 +12,7 @@ import { START_MONEY } from './story';
 import { shuffle } from './rng';
 import { type ThreadId } from './manager';
 import { THURSDAY } from './weekdays';
+import type { ReadingContext } from './engine/scoring';
 /** Today's candidate queue (randomised per game; see lineups.ts). */
 export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>, dayIndex = state.currentDayIndex): string[] {
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;
@@ -92,3 +93,8 @@ export const emptyStats = (): DayStats => ({ approved: 0, rejected: 0, autoRejec
 
 export const noUnread = (): Record<ThreadId, number> => ({ manager: 0, mom: 0, office: 0, zehra: 0, ayse: 0, birthday: 0 });
 export const clampScore = (v: number) => Math.max(0, Math.min(100, v));
+
+/** How a file was read, as the scoring weighs it. */
+export function readingOf(state: Pick<GameState, 'timeSpent' | 'readThrough' | 'referenceChecks'>, id: string): ReadingContext {
+  return { secondsSpent: state.timeSpent[id] ?? 0, readThrough: Boolean(state.readThrough[id]), referenceChecked: Boolean(state.referenceChecks[id]) };
+}
