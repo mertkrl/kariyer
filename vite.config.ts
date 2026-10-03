@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
+import { CSP } from './csp.ts'
 
 /** Every file under `dir`, as paths relative to it. */
 function filesIn(dir: string, root = dir): string[] {
@@ -78,27 +79,11 @@ self.addEventListener('fetch', (event) => {
 }
 
 /*
- * What only the published page needs. A Content-Security-Policy that allows nothing but the
- * game's own files: no other site's scripts, no requests leaving the page (the game has no
- * server and sends nothing). It is added at build time only — the dev server injects styles
- * and a websocket the policy would block. And when SITE_URL is set (the address the build is
+ * What only the published page needs. The Content-Security-Policy (csp.ts), added at build
+ * time only — the dev server injects styles and a websocket the policy would block. And when SITE_URL is set (the address the build is
  * published at, e.g. SITE_URL=https://sen-iksin.example npm run build), the share preview gets
  * absolute addresses, which link previews on social sites require.
  */
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "media-src 'self' blob:",
-  "connect-src 'self'",
-  "worker-src 'self'",
-  "manifest-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'none'",
-].join('; ')
 
 function publishedPage(): Plugin {
   return {

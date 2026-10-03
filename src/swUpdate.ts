@@ -13,11 +13,35 @@ function offer(worker: ServiceWorker) {
   listeners.forEach((l) => l());
 }
 
+const SW_URL = './sw.js';
+
+/**
+ * The page's security policy (csp.ts) only lets script addresses through a Trusted Types
+ * policy, and only this one, which passes the service worker's own address and refuses any other.
+ */
+function swUrl(): string {
+  const tt = (window as { trustedTypes?: { createPolicy: (name: string, rules: { createScriptURL: (url: string) => string }) => { createScriptURL: (url: string) => unknown } } }).trustedTypes;
+  if (!tt) return SW_URL;
+  const policy = tt.createPolicy('sen-iksin-sw', {
+    createScriptURL: (url) => {
+      if (url !== SW_URL) throw new TypeError(`İzin verilmeyen betik adresi: ${url}`);
+      return url;
+    },
+  });
+  return policy.createScriptURL(SW_URL) as string;
+}
+
 export function registerServiceWorker() {
   if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return;
   window.addEventListener('load', () => {
+    let url: string;
+    try {
+      url = swUrl();
+    } catch {
+      return; // the policy couldn't be made: play on without the offline copy
+    }
     navigator.serviceWorker
-      .register('./sw.js')
+      .register(url)
       .then((reg) => {
         // only an update needs asking about: the first install has no running page to replace
         if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);

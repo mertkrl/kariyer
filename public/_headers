@@ -1,12 +1,16 @@
 # Response headers for static hosts that read this file (Netlify, Cloudflare Pages).
-# The page carries its own Content-Security-Policy; framing can only be refused here.
+# The policy is csp.ts's, plus what only a header can do (refuse framing); tests/security.test.ts
+# keeps the two the same.
 /*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; require-trusted-types-for 'script'; trusted-types sen-iksin-sw; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()
   Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Origin-Agent-Cluster: ?1
+  Strict-Transport-Security: max-age=31536000
 
 # the service worker must always be checked for a new build
 /sw.js

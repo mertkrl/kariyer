@@ -115,8 +115,7 @@ export function WelcomeScreen() {
               <button
                 className={styles.privacyLink}
                 onClick={() => {
-                  clearAllGameData();
-                  window.location.reload();
+                  void clearAllGameData().then(() => window.location.reload());
                 }}
               >
                 Evet, sil

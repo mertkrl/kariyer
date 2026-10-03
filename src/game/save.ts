@@ -48,7 +48,8 @@ export function checkSave(data: unknown, fresh: object): Partial<GameState> | nu
   const shape = fresh as SaveData;
   const kept: SaveData = {};
   for (const [key, value] of Object.entries(data)) {
-    if (!(key in shape)) continue;
+    // own fields only: "__proto__" or "constructor" in a save must not reach the game's state
+    if (!Object.hasOwn(shape, key)) continue;
     const want = kind(shape[key]);
     const got = kind(value);
     if (want !== got && want !== 'empty' && got !== 'empty') return null;
