@@ -65,27 +65,31 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       <div className={styles.icons}>
         <button className={`${styles.icon} ${beckonPortal && !app ? styles.beckon : ''}`} onClick={() => open('portal')}>
           <span className={`${styles.glyph} ${styles.glyphPortal}`}>İK</span>
-          İşe Alım Portalı
+          <span className={styles.iconLabel}>İşe Alım Portalı</span>
         </button>
         <button className={styles.icon} onClick={() => open('mail')}>
           <span className={`${styles.glyph} ${styles.glyphMail}`}>
             ✉{unread > 0 && <i className={styles.badge}>{unread}</i>}
           </span>
-          E-posta
+          <span className={styles.iconLabel}>E-posta</span>
         </button>
         <button className={styles.icon} onClick={() => open('calendar')}>
           <span className={`${styles.glyph} ${styles.glyphCalendar}`}>
             <CalendarGlyph day={dayIndex} />
           </span>
-          Takvim
+          <span className={styles.iconLabel}>Takvim</span>
         </button>
         <button className={styles.icon} onClick={() => setToast('Excel: "Lisansınızın süresi doldu. Lütfen BT yöneticinize başvurun."')}>
           <span className={`${styles.glyph} ${styles.glyphSheet}`}>X</span>
-          Adaylar_FINAL_v7.xlsx
+          <span className={styles.iconLabel}>Adaylar_FINAL_v7.xlsx</span>
         </button>
         <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş. Biri, senden önce, çok aceleyle boşaltmış.')}>
-          <span className={`${styles.glyph} ${styles.glyphBin}`}>🗑</span>
-          Geri Dönüşüm Kutusu
+          <span className={`${styles.glyph} ${styles.glyphBin}`}>
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6" />
+            </svg>
+          </span>
+          <span className={styles.iconLabel}>Geri Dönüşüm Kutusu</span>
         </button>
       </div>
 

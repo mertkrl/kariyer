@@ -89,11 +89,10 @@ export function TopBar({ day, dayCount, dayName, interviewDay, workdayMinutes, o
       <div className={styles.left}>
         {onDesk && (
           <>
-            <button className={styles.deskButton} onClick={onDesk} title="Masaya dön (Esc)">
+            <button className={styles.deskButton} onClick={onDesk} title="Masaya dön" aria-keyshortcuts="Escape">
               <span aria-hidden="true">←</span>
               <span className={styles.brandText}>
                 <strong>Masaya dön</strong>
-                <span>Esc</span>
               </span>
             </button>
             <span className={styles.sep} />
@@ -144,7 +143,7 @@ export function TopBar({ day, dayCount, dayName, interviewDay, workdayMinutes, o
         <span className={styles.sep} />
         <div className={styles.controls}>
           <SoundToggle variant="inline" />
-          <button className={styles.iconButton} onClick={onSettings} aria-label="Ayarlar" title="Ayarlar (Esc)">
+          <button className={styles.iconButton} onClick={onSettings} aria-label="Ayarlar" title="Ayarlar ve kısayollar">
             <SettingsIcon className={styles.iconGlyph} />
           </button>
         </div>

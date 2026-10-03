@@ -418,7 +418,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
           />
         </div>
       </div>
-      <div className={styles.overlayHint}>Alttaki çizgi: ana ekran · Esc ya da boşluk: telefonu bırak</div>
+      <div className={styles.overlayHint}>Alttaki çizgi: ana ekran</div>
     </div>
   );
 }

@@ -102,17 +102,39 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
               ✉ {plannedCount} bildirim giden kutusunda · 17:00 <span>Düzenle</span>
             </button>
           )}
-          <Button
-            variant="ghost"
-            data-tour="finish"
-            onClick={finishDay}
-            disabled={open > 0 || pendingMails || stayingLate}
-            title={open ? `${open} dosya açık: günü bitirmeden önce hepsine karar ver.` : stayingLate ? "Bugün ekipçe 19:00'a kadar kalınıyor." : 'Tüm dosyalar kapandı.'}
-          >
-            {open ? `Günü Bitir · ${open} dosya açık` : pendingMails ? 'Günü Bitir · bildirimler bekliyor' : 'Günü Bitir'}
-          </Button>
+          <DayFinish
+            decided={lineup.length - open}
+            total={lineup.length}
+            blocker={open ? `${open} dosya açık` : pendingMails ? 'Ret bildirimleri bekliyor' : stayingLate ? "Ekipçe 19:00'a kadar kalınıyor" : null}
+            onFinish={finishDay}
+          />
         </>
       )}
+    </div>
+  );
+}
+
+/** The end of the day: how far the queue is, what still stands in the way, and the button. */
+function DayFinish({ decided, total, blocker, onFinish }: { decided: number; total: number; blocker: string | null; onFinish: () => void }) {
+  const ready = blocker === null;
+  const pct = total ? Math.round((decided / total) * 100) : 100;
+  return (
+    <div className={`${styles.finishCard} ${ready ? styles.finishReady : ''}`} data-tour="finish">
+      <div className={styles.finishHead}>
+        <span>Günün dosyaları</span>
+        <span className="mono">
+          {decided}/{total}
+        </span>
+      </div>
+      <div className={styles.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
+        <i style={{ width: `${pct}%` }} />
+      </div>
+      <button className={styles.finishButton} onClick={onFinish} disabled={!ready} aria-describedby="finish-state">
+        {ready ? 'Günü Bitir →' : 'Günü Bitir'}
+      </button>
+      <div id="finish-state" className={styles.finishState}>
+        {ready ? '✓ Bütün dosyalar kapandı' : blocker}
+      </div>
     </div>
   );
 }

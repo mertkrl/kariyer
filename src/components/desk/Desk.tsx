@@ -218,7 +218,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
 
         <button
           className={`${styles.obj} ${styles.monitor} ${firstClockIn ? styles.beckon : ''}`}
-          data-label={`${firstClockIn ? 'Güne başla · bilgisayara geç' : 'Bilgisayar'} · B`}
+          data-label={firstClockIn ? 'Güne başla · bilgisayara geç' : 'Bilgisayar'}
           aria-label={firstClockIn ? 'Güne başla: bilgisayara geç' : 'Bilgisayar'}
           data-key="b"
           aria-keyshortcuts="B"
@@ -274,7 +274,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         {/* ── front of the desk ── */}
         <button
           className={`${styles.obj} ${styles.landline} ${ringingCaller ? styles.ringing : ''}`}
-          data-label={`${ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} · H`} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
+          data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
           data-key="h"
           aria-keyshortcuts="H"
           onClick={() => {
@@ -292,10 +292,10 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         <button className={`${styles.obj} ${styles.mouse}`} data-label="Fare" aria-label="Fare" onClick={onOpenPc} disabled={powerOut}>
           <MouseArt />
         </button>
-        <button className={`${styles.obj} ${styles.mug}`} data-label={`${desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} · K`} data-key="k" aria-keyshortcuts="K" aria-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} onClick={() => think(drinkCoffee())}>
+        <button className={`${styles.obj} ${styles.mug}`} data-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} data-key="k" aria-keyshortcuts="K" aria-label={desk.coffee > 0 ? 'Kahve · bir yudum' : `Boş kupa · mutfakta doldur${mins(REFILL_MINUTES)}`} onClick={() => think(drinkCoffee())}>
           <MugArt sips={desk.coffee} max={COFFEE_SIPS} />
         </button>
-        <button key={buzz?.id ?? 'phone'} className={`${styles.obj} ${styles.mobile} ${buzz ? styles.buzzing : ''}`} data-label="Cep telefonu · T" aria-label="Cep telefonu" data-key="t" aria-keyshortcuts="T" onClick={() => onOpenPhone(buzz?.thread ?? null)}>
+        <button key={buzz?.id ?? 'phone'} className={`${styles.obj} ${styles.mobile} ${buzz ? styles.buzzing : ''}`} data-label="Cep telefonu" aria-label="Cep telefonu" data-key="t" aria-keyshortcuts="T" onClick={() => onOpenPhone(buzz?.thread ?? null)}>
           <MobileArt lit={!!buzz || unreadTotal > 0} unread={unreadTotal} />
         </button>
 
@@ -303,7 +303,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         <button
           key={`drawer-${drawerShake}`}
           className={`${styles.obj} ${styles.pedestal} ${drawerShake ? styles.rattle : ''} ${drawer === 'unlocked' ? styles.pedestalNew : ''}`}
-          data-label="Sol alt çekmece · Ç" aria-label="Sol alt çekmece"
+          data-label="Sol alt çekmece" aria-label="Sol alt çekmece"
           data-key="ç"
           aria-keyshortcuts="Ç"
           onClick={() => {
@@ -369,8 +369,8 @@ function deskBusy(root: HTMLElement, e: KeyboardEvent) {
 
 /**
  * The desk's shortcuts: B the computer, T the mobile, H the landline, K the coffee, Ç the
- * drawer — each button names its key (data-key) and shows it in its label. Turkish keyboards
- * type ç; elsewhere C does the same.
+ * drawer — each button names its key (data-key); the list is in the settings panel. Turkish
+ * keyboards type ç; elsewhere C does the same.
  */
 function useDeskKeys(rootRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {

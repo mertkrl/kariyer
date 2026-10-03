@@ -4,7 +4,7 @@
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
 import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../desk';
-import { REFERENCE_MINUTES, referenceFor } from '../references';
+import { referenceFor } from '../references';
 import { REPLY_EFFECT, requestIsFair } from '../manager';
 import { sound } from '../sound';
 import { callFor, revokeInvites, revokeTargets } from '../managerCalls';
@@ -36,7 +36,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
       set({
         referenceChecks: ref ? { ...state.referenceChecks, [cid]: ref.verdict } : state.referenceChecks,
         desk: { ...state.desk, inCall: null, calls: { ...state.desk.calls, [id]: 'answered' } } });
-      spendMinutes(REFERENCE_MINUTES);
+      // checking a reference costs no time on the clock: the check is the point, not a penalty
       return;
     }
     if (id?.startsWith(REQUEST_CALL_PREFIX)) {

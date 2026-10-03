@@ -17,8 +17,6 @@ export interface ReferenceCheck {
   summary: string;
 }
 
-/** Game minutes a reference call takes. */
-export const REFERENCE_MINUTES = 8;
 
 const SPECIAL: Record<string, ReferenceCheck> = {
   derya: {

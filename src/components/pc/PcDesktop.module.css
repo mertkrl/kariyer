@@ -48,15 +48,20 @@
   top: 22px;
   left: 22px;
   display: grid;
-  gap: 14px;
-  width: 104px;
+  /* every icon gets the same cell, whatever the length of its name: an even column */
+  grid-auto-rows: 100px;
+  gap: 8px;
+  width: 100px;
 }
 
 .icon {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: 7px;
+  height: 100%;
+  box-sizing: border-box;
   padding: 8px 4px;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -75,7 +80,18 @@
   border-color: rgba(255, 255, 255, 0.22);
 }
 
+/* the name under an icon: at most two lines, a long file name breaks rather than spilling */
+.iconLabel {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .glyph {
+  flex-shrink: 0;
   position: relative;
   display: grid;
   place-items: center;

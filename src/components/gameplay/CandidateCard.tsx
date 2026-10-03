@@ -2,7 +2,7 @@ import { useEffect, type Ref } from 'react';
 import { approvalQuota, lineupFor, useGameStore } from '../../game/store';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { candidates } from '../../game/data/candidates';
-import { REFERENCE_MINUTES, referenceFor } from '../../game/references';
+import { referenceFor } from '../../game/references';
 import { formatClock } from '../../game/time';
 import { Button } from '../ui/Button';
 import { CvBody } from './CvBody';
@@ -25,7 +25,6 @@ interface Props {
   nameRef: Ref<HTMLHeadingElement>;
 }
 
-const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
 export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Props) {
   const currentCandidateId = useGameStore((s) => s.currentCandidateId);
@@ -125,7 +124,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   title={lineBusy ? 'Hat meşgul' : 'Eski işverenini ara ve CV\'deki bilgiyi doğrula'}
                   onClick={() => callReference(candidate.id)}
                 >
-                  ☎ Referansı ara <small>{REFERENCE_MINUTES} dk</small>
+                  ☎ Referansı ara
                 </button>
               ) : (
                 <span className={styles.referenceNone}>☎ Aranacak referans yok</span>
@@ -155,7 +154,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                 )}
                 <span className={`${styles.decisionMeta} mono`}>
                   {decidedAt !== undefined && `${formatClock(decidedAt)} · `}
-                  {isMac ? '⌘Z' : 'Ctrl+Z'} ile geri alınabilir
+                  geri alınabilir
                 </span>
               </div>
               <button className={styles.undoButton} onClick={undoDecision}>
@@ -163,7 +162,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
               </button>
               {nextUndecidedId && (
                 <button className={styles.nextButton} onClick={() => selectCandidate(nextUndecidedId)} aria-keyshortcuts="S">
-                  Sonraki Aday → <kbd className={styles.kbd}>S</kbd>
+                  Sonraki Aday →
                 </button>
               )}
             </div>
@@ -186,13 +185,13 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   sound="none"
                   onClick={() => decide('approve')}
                   disabled={!quota.canApprove}
-                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır (M)'}
+                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır'}
                   aria-keyshortcuts="M"
                 >
-                  ✓ MÜLAKATA ÇAĞIR <kbd className={styles.kbd}>M</kbd>
+                  ✓ MÜLAKATA ÇAĞIR
                 </Button>
-                <Button variant="danger" sound="none" onClick={() => decide('reject')} title="Adayı reddet (R)" aria-keyshortcuts="R">
-                  ✕ REDDET <kbd className={styles.kbd}>R</kbd>
+                <Button variant="danger" sound="none" onClick={() => decide('reject')} title="Adayı reddet" aria-keyshortcuts="R">
+                  ✕ REDDET
                 </Button>
               </div>
             </div>

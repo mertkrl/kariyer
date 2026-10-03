@@ -32,6 +32,39 @@ function SfxGlyph() {
   );
 }
 
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
+
+/** Every shortcut the game has, where it works. The buttons themselves don't show their keys. */
+const SHORTCUTS: { where: string; keys: [string[], string][] }[] = [
+  {
+    where: 'Masada',
+    keys: [
+      [['B'], 'Bilgisayara geç'],
+      [['T'], 'Cep telefonunu al'],
+      [['H'], 'Masa telefonunu aç (çalıyorsa)'],
+      [['K'], 'Kahveden bir yudum'],
+      [['Ç'], 'Çekmeceyi aç'],
+      [['←', '↑', '→', '↓'], 'Masadaki nesneler arasında gez'],
+    ],
+  },
+  {
+    where: 'İşe Alım Portalı',
+    keys: [
+      [['M'], 'Mülakata çağır'],
+      [['R'], 'Reddet'],
+      [['S'], 'Sonraki aday'],
+      [[isMac ? '⌘' : 'Ctrl', 'Z'], 'Kararı geri al'],
+    ],
+  },
+  {
+    where: 'Her yerde',
+    keys: [
+      [['Esc'], 'Bilgisayardan masaya dön · telefonu ya da pencereyi kapat · bu paneli kapat'],
+      [['Boşluk'], 'Toplantıda konuşmayı ilerlet'],
+    ],
+  },
+];
+
 interface VolumeRowProps {
   id: string;
   icon: ReactNode;
@@ -107,7 +140,6 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
               Ayarlar
             </h2>
           </div>
-          <span className={`${styles.kbd} mono`}>ESC</span>
         </div>
 
         <div className={styles.section}>
@@ -177,6 +209,32 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
             </div>
           </div>
         </div>
+
+        <details className={styles.shortcuts}>
+          <summary className={styles.sectionHead}>
+            <span className={styles.sectionLabel}>Klavye kısayolları</span>
+            <span className={styles.shortcutsToggle} aria-hidden="true" />
+          </summary>
+          {SHORTCUTS.map((group) => (
+            <div key={group.where} className={styles.shortcutGroup}>
+              <div className={styles.shortcutWhere}>{group.where}</div>
+              <dl className={styles.shortcutList}>
+                {group.keys.map(([keys, what]) => (
+                  <div key={what} className={styles.shortcutRow}>
+                    <dt>
+                      {keys.map((k) => (
+                        <kbd key={k} className={`${styles.key} mono`}>
+                          {k}
+                        </kbd>
+                      ))}
+                    </dt>
+                    <dd>{what}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))}
+        </details>
 
         <Button variant="gold" onClick={onResume} className={styles.resume}>
           Devam Et

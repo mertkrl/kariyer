@@ -9,7 +9,7 @@ import { NEPHEW_ID, candidateOf, candidates } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
-import { REFERENCE_MINUTES, referenceFor } from './references';
+import { referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
 import type { Finalist, GameState, StoryState } from './storeTypes';
 import { WEDNESDAY } from './weekdays';
@@ -199,7 +199,7 @@ export function callFor(
       line: `Dış hat · ${candidateOf(cid).name} için referans`,
       lines: ref.lines,
       choices: [{ text: 'Bilgi için teşekkür ederim, iyi günler.', reply: 'Rica ederim, iyi çalışmalar.' }],
-      minutes: REFERENCE_MINUTES,
+      minutes: 0,
       missed: { note: '' },
       outgoing: true,
     };
