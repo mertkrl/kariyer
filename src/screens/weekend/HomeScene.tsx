@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
 import { WindowView } from './WindowView';
 import styles from './HomeScene.module.css';
 
@@ -7,86 +5,12 @@ import styles from './HomeScene.module.css';
  * Friday, 21:40 — an ordinary Istanbul living room, drawn with light and depth rather than
  * boxes: a plaster wall with crown and skirting, a white PVC window with net curtains and heavy
  * drapes (the street and the condemned block opposite behind it), a pot plant on the sill, a
- * three-seater with a lace doily on its back and a knitted throw, the cat asleep on it, a coffee
- * table with tea, a kilim with fringes, laminate flooring, a bookcase, a family photo, and a
+ * three-seater with a lace doily on its back and a knitted throw, a coffee
+ * table with tea, a kilim with fringes, laminate flooring, a bookcase, and a
  * floor lamp throwing a warm pool across all of it. Without electricity: two candles.
  */
 
 const WIN = { x: 110, y: 80, w: 460, h: 300 };
-
-type CatMood = 'asleep' | 'awake' | 'petted';
-
-/**
- * The cat, curled up on the sofa and breathing. Click: she lifts her head, opens her eyes and
- * flicks her tail; click again and she purrs. Left alone for a few seconds, she goes back to sleep.
- */
-function Cat() {
-  const [mood, setMood] = useState<CatMood>('asleep');
-  useEffect(() => {
-    if (mood === 'asleep') return;
-    const id = window.setTimeout(() => setMood('asleep'), mood === 'petted' ? 5200 : 4200);
-    return () => window.clearTimeout(id);
-  }, [mood]);
-  const awake = mood !== 'asleep';
-  return (
-    <g
-      transform="translate(640 492)"
-      className={styles.cat}
-      onClick={() => {
-        if (mood === 'awake') {
-          setMood('petted');
-          audioEngine.playPurr();
-        } else {
-          setMood('awake');
-          audioEngine.playUi('select');
-        }
-      }}
-    >
-      <title>Kedi</title>
-      <ellipse cx="0" cy="8" rx="64" ry="10" fill="rgba(0,0,0,0.32)" filter="url(#hsSoftSmall)" />
-      {/* body: breathing while asleep */}
-      <g className={awake ? undefined : styles.breathe}>
-        <path d="M-58 2 C-62 -34 20 -46 54 -20 C66 -10 62 6 52 8 L-54 8 Z" fill="url(#hsFur)" />
-        {[-40, -24, -8, 8, 24].map((x) => (
-          <path key={x} d={`M${x} -32 q7 12 2 36`} stroke="#a95c1c" strokeWidth={4.5} fill="none" strokeLinecap="round" opacity={0.75} />
-        ))}
-        <path d="M-50 -2 C-30 -8 10 -10 44 -4" stroke="rgba(255,235,210,0.25)" strokeWidth={6} fill="none" strokeLinecap="round" />
-      </g>
-      {/* tail: curled round, flicks when she's awake */}
-      <path className={awake ? styles.tailFlick : undefined} d="M-54 6 C-74 -4 -70 -24 -46 -20" stroke="#c07030" strokeWidth={11} fill="none" strokeLinecap="round" />
-      <path d="M-56 4 C-72 -6 -68 -22 -48 -19" stroke="#a95c1c" strokeWidth={3} fill="none" strokeDasharray="4 5" strokeLinecap="round" />
-      {/* head: tucked in, or lifted */}
-      <g className={styles.head} transform={awake ? 'translate(4 -14) rotate(-10 44 -12)' : undefined}>
-        <ellipse cx="44" cy="-12" rx="23" ry="19" fill="url(#hsFur)" />
-        <path d="M27 -24 L31 -44 L45 -29 Z M49 -29 L62 -44 L66 -22 Z" fill="#c07030" />
-        <path d="M30 -27 L33 -38 L40 -30 Z M53 -30 L60 -38 L61 -26 Z" fill="#e8a8a0" />
-        {[36, 42, 48].map((x) => (
-          <path key={x} d={`M${x} -30 l1 7`} stroke="#a95c1c" strokeWidth={2} strokeLinecap="round" />
-        ))}
-        {awake ? (
-          <>
-            <ellipse cx="38" cy="-13" rx="4" ry="4.5" fill="#c9d65a" />
-            <ellipse cx="52" cy="-13" rx="4" ry="4.5" fill="#c9d65a" />
-            <ellipse cx="38" cy="-13" rx="1.4" ry="4" fill="#1d1a14" />
-            <ellipse cx="52" cy="-13" rx="1.4" ry="4" fill="#1d1a14" />
-          </>
-        ) : (
-          <path d="M34 -12 q4 3 8 0 M48 -12 q4 3 8 0" stroke="#4a2410" strokeWidth={2} fill="none" strokeLinecap="round" />
-        )}
-        <path d="M44 -5 l-2.5 2.5 l5 0 z" fill="#b5584a" />
-        <path d="M30 -3 L16 -6 M30 -1 L15 1 M58 -3 L72 -6 M58 -1 L73 1" stroke="rgba(255,250,240,0.7)" strokeWidth={0.8} />
-      </g>
-      {mood === 'petted' && (
-        <g className={styles.purr}>
-          <text x="70" y="-46" fontSize="15" fill="#f2e6cf" fontFamily="Fraunces, serif" fontStyle="italic">
-            mırr…
-          </text>
-          <path d="M96 -64 c-3 -5 -10 -2 -6 4 l6 6 l6 -6 c4 -6 -3 -9 -6 -4z" fill="#e06d6d" />
-        </g>
-      )}
-    </g>
-  );
-}
 
 export function HomeScene({ dark }: { dark: boolean }) {
   const light = dark ? 0 : 1;
@@ -264,18 +188,7 @@ export function HomeScene({ dark }: { dark: boolean }) {
         <path d="M-20 -12 A26 26 0 0 1 8 -24" stroke="rgba(255,255,255,0.35)" strokeWidth={2} fill="none" />
       </g>
 
-      {/* ── family photo and bookcase ── */}
-      <g transform="translate(650 130)">
-        <rect x="3" y="4" width="92" height="116" fill="rgba(0,0,0,0.35)" filter="url(#hsSoftSmall)" />
-        <rect width="92" height="116" fill="#3a2a1f" />
-        <rect x="7" y="7" width="78" height="102" fill="#e7dcc6" />
-        <rect x="13" y="13" width="66" height="90" fill="#9c7d62" />
-        <circle cx="36" cy="46" r="10" fill="#4a3426" />
-        <path d="M22 103 q14 -40 28 0z" fill="#4a3426" />
-        <circle cx="58" cy="52" r="8" fill="#3e2b1f" />
-        <path d="M46 103 q12 -32 24 0z" fill="#3e2b1f" />
-        <path d="M13 13 L44 13 L20 103 L13 103 Z" fill="rgba(255,255,255,0.1)" />
-      </g>
+      {/* ── bookcase ── */}
       <g transform="translate(800 100)">
         <rect x="6" y="6" width="150" height="430" fill="rgba(0,0,0,0.35)" filter="url(#hsSoft)" />
         <rect width="150" height="430" fill="#3b2b20" />
@@ -345,7 +258,6 @@ export function HomeScene({ dark }: { dark: boolean }) {
         <path d="M812 480 L872 520 M870 482 L814 520" stroke="rgba(0,0,0,0.12)" strokeWidth={3} />
         <path d="M728 412 C746 440 752 506 742 560 L812 560 C822 506 812 440 796 410 Z" fill="url(#hsKnit)" />
         <path d="M742 560 L812 560" stroke="#ae8f58" strokeWidth={4} strokeDasharray="3 4" />
-        <Cat />
       </g>
 
       {/* ── coffee table with tea ── */}
