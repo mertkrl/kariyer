@@ -89,6 +89,9 @@ export function CaseCard({ c }: { c: CodeCase }) {
         Mini vaka · {c.title} — <span>Bu kodda ne yanlış?</span>
       </figcaption>
       <pre className="mono">{c.code}</pre>
+      <p className={styles.caseWhat}>
+        Kodu senin çözmen gerekmiyor. Bak: aday hatayı buluyor mu, nedenini anlatabiliyor mu, nasıl test edeceğini söylüyor mu? Cevaptan sonra Levent'in yorumu da dosyada.
+      </p>
     </figure>
   );
 }

@@ -269,6 +269,19 @@ export function scoreGap(scores: Record<string, Scores>, targets: (id: string) =
 export const DEFENSE_THRESHOLD = 3;
 
 /**
+ * How much your notes on someone would weigh in front of the panel: the best three, as the
+ * defence counts them (the scorecard's extra point comes on top). Shown as you take notes, so
+ * the rule is learnt while it can still be acted on, not at the end.
+ */
+export function evidenceStrength(tags: NoteTag[]): number {
+  return [...tags]
+    .map((t) => NOTE_WEIGHT[t])
+    .sort((a, b) => b - a)
+    .slice(0, 3)
+    .reduce((n, w) => n + w, 0);
+}
+
+/**
  * Does your case convince the team lead? Notes on the person you recommend count by their
  * weight; your scorecard counts once if it puts them on top. A weak candidate can't be argued
  * into the job, however good the notes sound.

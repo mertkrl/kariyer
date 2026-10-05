@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 import { candidates } from '../src/game/data/candidates';
 import { SALARY_CAP, panelDecision, salaryOf } from '../src/game/managerCalls';
-import { CODE_CASES, caseAnswer, caseFor, defenseHolds, hooksIn, salaryMoves, salaryTalk, scoreGap, sentencesOf, tagNote } from '../src/game/interview';
+import { CODE_CASES, DEFENSE_THRESHOLD, caseAnswer, caseFor, defenseHolds, evidenceStrength, hooksIn, salaryMoves, salaryTalk, scoreGap, sentencesOf, tagNote } from '../src/game/interview';
 
 const ids = Object.keys(candidateDetails);
 
@@ -85,4 +85,16 @@ test('puan kartı: Hakan Bey\'in hedeflerine belirgin düşük puan fark edilir'
   assert.equal(scoreGap(scores, (id) => id === 'a'), 2.3);
   assert.equal(scoreGap(scores, (id) => id === 'b'), null);
   assert.ok(Object.keys(candidates).length > 0);
+});
+
+test('kanıt gücü göstergesi savunmanın saydığıyla aynı: en iyi üç not', () => {
+  assert.equal(evidenceStrength(['concrete', 'general']), 3);
+  // only the best three count, a fourth general note adds nothing
+  assert.equal(evidenceStrength(['concrete', 'concrete', 'general', 'general']), 5);
+  assert.equal(evidenceStrength(['vague', 'redflag']), -1);
+  const ok = ids.find((id) => candidateDetails[id].hireFit >= 4)!;
+  for (const tags of [['concrete', 'general'], ['general', 'general'], ['concrete']] as const) {
+    const meterSaysEnough = evidenceStrength([...tags]) >= DEFENSE_THRESHOLD;
+    assert.equal(defenseHolds(ok, [...tags], false).holds, meterSaysEnough, tags.join(','));
+  }
 });

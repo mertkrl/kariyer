@@ -1,0 +1,64 @@
+import { useState } from 'react';
+import type { Finalist } from '../../game/store';
+import { candidateOf } from '../../game/data/candidates';
+import { Button } from '../../components/ui/Button';
+import { audioEngine } from '../../audio/audioEngine';
+import { INTERVIEW_LIMIT } from './interviewModel';
+import styles from '../FinalRoundScreen.module.css';
+
+const sourceOf = (f: Finalist) => (f.by ? (f.by === 'ayse' ? 'Ayşe seçti' : 'Emre seçti') : f.byManager ? 'Hakan Bey ekletti' : f.day > 0 ? `Sen çağırdın · ${f.day}. gün` : 'Referans');
+
+/**
+ * Friday morning, when the shortlist is longer than a day of interviews: who you'll actually
+ * sit down with. Hakan Bey's people are already on it and can't be taken off.
+ */
+export function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist[]; locked: Set<string>; onConfirm: (ids: string[]) => void }) {
+  const [picked, setPicked] = useState<string[]>(() => everyone.filter((f) => locked.has(f.id)).map((f) => f.id));
+  const full = picked.length >= INTERVIEW_LIMIT;
+  const toggle = (id: string) => {
+    if (locked.has(id)) return;
+    audioEngine.playUi('click');
+    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < INTERVIEW_LIMIT ? [...p, id] : p));
+  };
+  return (
+    <section className={styles.picker} aria-labelledby="picker-title">
+      <h2 id="picker-title" className={styles.pickerTitle}>
+        Bugün kimlerle görüşeceksin?
+      </h2>
+      <p className={styles.pickerLead}>
+        Kısa listede <b>{everyone.length}</b> kişi var; bir günde en fazla <b>{INTERVIEW_LIMIT}</b> mülakat yapılabiliyor. Hakan Bey'in istedikleri listede kalıyor; kalan yerleri sen
+        seç. Seçmediklerine bu iş için dönülmeyecek.
+      </p>
+      <ul className={styles.pickerList}>
+        {everyone.map((f) => {
+          const c = candidateOf(f.id);
+          const on = picked.includes(f.id);
+          const isLocked = locked.has(f.id);
+          return (
+            <li key={f.id}>
+              <label className={`${styles.pickerItem} ${on ? styles.pickerOn : ''} ${isLocked ? styles.pickerLocked : ''}`}>
+                <input type="checkbox" checked={on} disabled={isLocked || (!on && full)} onChange={() => toggle(f.id)} />
+                <span className={styles.avatar} style={{ background: c.color }}>
+                  {c.initials}
+                </span>
+                <span className={styles.listText}>
+                  <span className={styles.listName}>{c.name}</span>
+                  <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
+                </span>
+                <span className={styles.pickerSource}>{isLocked ? '🔒 ' : ''}{sourceOf(f)}</span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      <div className={styles.pickerFoot}>
+        <span className="mono">
+          {picked.length}/{INTERVIEW_LIMIT} seçildi
+        </span>
+        <Button variant="gold" disabled={picked.length === 0} onClick={() => onConfirm(everyone.filter((f) => picked.includes(f.id)).map((f) => f.id))}>
+          Mülakatlara başla →
+        </Button>
+      </div>
+    </section>
+  );
+}

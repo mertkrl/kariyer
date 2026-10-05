@@ -1,115 +1,23 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { accusative } from '../game/turkish';
-import { SALARY_CAP, panelDecision, useGameStore, type Finalist } from '../game/store';
+import { useGameStore } from '../game/store';
 import { forbiddenAnswer, forbiddenQuestion } from '../game/story';
 import { NEPHEW_ID, candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
 import { FINALIST_LIMIT } from '../game/data/days';
-import { backQuestionFor, followUpAnswer, followUpVerdict, FOLLOW_UP_QUESTIONS, HAKAN_INTERRUPTS, hakanTarget } from '../game/data/interviewExtras';
+import { followUpAnswer, FOLLOW_UP_QUESTIONS, HAKAN_INTERRUPTS, hakanTarget } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
-import { average, caseAnswer, caseFor, caseVerdict, defenseHolds, DEFENSE_THRESHOLD, expectedSalary, salaryMoves, salaryOffer, salaryTalk, scoreGap, tagNote, type SalaryMove, type Scores } from '../game/interview';
-import { AnswerText, CaseCard, EvidencePicker, NotesList, Scorecard, type Note as NotebookNote } from './final/InterviewParts';
+import { caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/interview';
+import { type Note as NotebookNote } from './final/InterviewParts';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
-import { PLAYER } from '../game/player';
+import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, QUESTION_BUDGET, THINKING_MS, TYPING_MS_PER_CHAR, WHISPER, type Entry, type Typing } from './final/interviewModel';
+import { PoolPicker } from './final/PoolPicker';
+import { Conversation } from './final/Conversation';
+import { Dossier } from './final/Dossier';
+import { HireModal } from './final/HireModal';
+import { InterviewConsole } from './final/InterviewConsole';
 import styles from './FinalRoundScreen.module.css';
-
-/** One line of the conversation: who speaks, in what role, and what they say. */
-function Turn({ who, role, tone, children }: { who: string; role: string; tone: 'you' | 'candidate' | 'hakan'; children: ReactNode }) {
-  return (
-    <div className={`${styles.turn} ${styles['turn_' + tone]}`}>
-      <div className={styles.turnWho}>
-        <b>{who}</b>
-        <small>{role}</small>
-      </div>
-      <div className={styles.turnText}>{children}</div>
-    </div>
-  );
-}
-
-/** What happens in the room without anyone speaking. */
-function Note({ children }: { children: ReactNode }) {
-  return <p className={styles.note}>{children}</p>;
-}
-
-/** When nobody was advanced all week, management fills the final with its internal reference. */
-const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];
-/** The rest of the team screened too: their shortlists sit in the same room on Friday. */
-/** How many people one interview day holds; a longer list is cut down in the morning. */
-export const INTERVIEW_LIMIT = 6;
-
-const COLLEAGUES: Finalist[] = [
-  { id: 'nehir', day: 0, by: 'ayse' },
-  { id: 'berk', day: 0, by: 'ayse' },
-  { id: 'cagan', day: 0, by: 'emre' },
-  { id: 'sarp', day: 0, by: 'emre' },
-];
-
-/*
- * The hiring manager sits in too: Levent, the software team lead. He listens to the answers,
- * not the flags, and says what he thinks after each interview. The hire is a panel decision —
- * you recommend, he and Hakan Bey sign (or object on the record).
- */
-const LEAD = 'Levent Arslan';
-const LEAD_SPECIAL: Record<string, string> = {
-  emre: 'Teknik olarak açık ara en iyisi. Ama ekibi "gereksiz" bulduğunu bana da söyledi; ekibim onunla çalışmak istemez.',
-  okan: 'Temel sorulara cevap veremedi. Kimin yakını olduğu umurumda değil; ekipte yeri yok.',
-  volkan: 'Çok iyi konuşuyor ama tek bir rakam, tek bir somut örnek vermedi. Referanslarını aramadan ben ikna olmadım.',
-};
-function leadView(id: string, fit: number) {
-  if (LEAD_SPECIAL[id]) return LEAD_SPECIAL[id];
-  if (fit >= 5) return 'Cevapları somut ve ölçülebilir. Teknik olarak ekibin en güçlüsü olabilir.';
-  if (fit === 4) return 'Sağlam. İlk aylarda biraz destek ister ama işini bildiği belli.';
-  if (fit === 3) return 'Potansiyeli var ama henüz hazır değil; yanına bir mentor vermemiz gerekir.';
-  return 'Somut hiçbir şey anlatmadı. Bu cevaplarla ben ikna olmadım.';
-}
-/** Does the team lead back this hire? Strong and not toxic: yes. */
-const leadBacks = (id: string, fit: number) => fit >= 4 && !LEAD_SPECIAL[id];
-
-/** What Hakan Bey says into your ear, once, after your first own question. */
-const WHISPER = 'Hakan Bey kulağına eğiliyor: "Listedeki soruları da sor. Aile planı, memleket, emeklilik… Uzun vadeli uyum önemli."';
-
-/** Each interview slot is short: only this many of the questions fit. */
-const QUESTION_BUDGET = 2;
-/** Index used for the question from Hakan Bey's list (after the three standard ones). */
-const FORBIDDEN = 3;
-const TYPING_MS_PER_CHAR = 16;
-const THINKING_MS = 900;
-
-/** Follow-ups are stored as FOLLOW + the kind of probe (interview.ts: HookKind). */
-const FOLLOW = 10;
-/** The short coding case: one of the two questions. */
-const CASE = 20;
-const SALARY_LINES: Record<SalaryMove, (offer: number) => string> = {
-  match: () => 'Beklentiniz bütçemize uygun; bu rakamla ilerleyebiliriz.',
-  pass: () => 'Beklentinizi olduğu gibi Hakan Bey\'e ileteceğim.',
-  cap: (o) => `Bu pozisyon için bütçemiz ${o.toLocaleString('tr-TR')} TL. Bu rakama inebilir misiniz?`,
-  low: (o) => `Size ${o.toLocaleString('tr-TR')} TL teklif edebiliriz.`,
-  squeeze: (o) => `Biraz aşağı çekebilir miyiz? ${o.toLocaleString('tr-TR')} TL ile başlasak?`,
-};
-const SALARY_LABEL: Record<SalaryMove, string> = {
-  match: 'Beklentiyi kabul et',
-  pass: 'Olduğu gibi Hakan Bey\'e ilet',
-  cap: 'Bütçe tavanını teklif et',
-  low: 'Daha düşük teklif et',
-  squeeze: 'Biraz aşağı çekmeyi dene',
-};
-
-/** One beat of an interview, in the order it happened. */
-type Entry =
-  | { kind: 'q'; q: number; by?: 'hakan'; about?: string }
-  | { kind: 'salary'; move: SalaryMove | null }
-  | { kind: 'note'; text: string }
-  | { kind: 'hakan'; choice: 'protect' | 'silent' | null }
-  | { kind: 'back'; choice: 'honest' | 'polished' | null };
-
-interface Typing {
-  candidateId: string;
-  /** Index of the entry whose answer is being typed. */
-  entry: number;
-  /** Characters revealed so far; -1 while the candidate is still "thinking". */
-  shown: number;
-}
 
 export function FinalRoundScreen() {
   const finalists = useGameStore((s) => s.finalists);
@@ -145,8 +53,6 @@ export function FinalRoundScreen() {
   const [notes, setNotes] = useState<Record<string, NotebookNote[]>>({});
   const [scores, setScores] = useState<Record<string, Scores>>({});
   const [agreed, setAgreed] = useState<Record<string, number | null>>({});
-  const [evidence, setEvidence] = useState<string[]>([]);
-  const [defense, setDefense] = useState<{ id: string; holds: boolean; score: number } | null>(null);
   const settleSalary = useGameStore((s) => s.settleSalary);
 
   const candidate = candidateOf(selectedId);
@@ -401,279 +307,62 @@ export function FinalRoundScreen() {
                 </span>
               </header>
   
-              <div className={styles.log} ref={chatRef} aria-live="polite">
-                {entries.length === 0 && (
-                  <p className={styles.logEmpty}>
-                    {candidate.name.split(' ')[0]} karşında oturuyor. Süren kısa: {QUESTION_BUDGET} soru (ya da bir mini vaka), cevaplardaki altı noktalı bir ifadenin üzerine bir takip sorusu, ve maaş. Cevaplardaki cümleleri ✎ ile not alabilirsin.
-                  </p>
-                )}
-                {entries.map((e, index) => {
-                  if (e.kind === 'note') return <Note key={index}>{e.text}</Note>;
-                  if (e.kind === 'hakan')
-                    return (
-                      <div key={index} className={styles.exchange}>
-                        <Turn who="Hakan Kaya" role="İK Müdürü" tone="hakan">
-                          {forbiddenQuestion(selectedId, candidate.age)}
-                        </Turn>
-                        {e.choice === 'protect' && (
-                          <>
-                            <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
-                              Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok.
-                            </Turn>
-                            <Note>Kısa bir sessizlik. Hakan Bey not defterine bir şey yazıyor: "…Peki. Devam edin."</Note>
-                          </>
-                        )}
-                        {e.choice === 'silent' && <Note>Bir şey demiyorsun.</Note>}
-                      </div>
-                    );
-                  if (e.kind === 'salary') {
-                    const ask = expectedSalary(selectedId);
-                    const result = e.move ? salaryTalk(selectedId, e.move) : null;
-                    return (
-                      <div key={index} className={styles.exchange}>
-                        <Turn who={PLAYER.name} role="Maaş" tone="you">
-                          Maaş beklentinizi konuşalım. Ne kadar bekliyorsunuz?
-                        </Turn>
-                        <Turn who={candidate.name} role="Aday" tone="candidate">
-                          {ask ? `Aylık net ${ask.toLocaleString('tr-TR')} TL bekliyorum.` : candidate.salary}
-                          {ask && ask > SALARY_CAP && ' Piyasada bu seviyede teklifler alıyorum.'}
-                        </Turn>
-                        {e.move && result && (
-                          <>
-                            <Turn who={PLAYER.name} role="Maaş" tone="you">
-                              {SALARY_LINES[e.move](salaryOffer(selectedId, e.move) ?? 0)}
-                            </Turn>
-                            <Turn who={candidate.name} role="Aday" tone="candidate">
-                              {result.reply}
-                            </Turn>
-                          </>
-                        )}
-                      </div>
-                    );
-                  }
-                  if (e.kind === 'back') {
-                    const back = backQuestionFor(selectedId, pool.map((f) => f.id));
-                    return (
-                      <div key={index} className={styles.exchange}>
-                        <Turn who={candidate.name} role="Aday" tone="candidate">
-                          {back.question}
-                        </Turn>
-                        {e.choice && (
-                          <>
-                            <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
-                              {e.choice === 'honest' ? back.honest : back.polished}
-                            </Turn>
-                            <Turn who={candidate.name} role="Aday" tone="candidate">
-                              {e.choice === 'honest' ? back.afterHonest : back.afterPolished}
-                            </Turn>
-                            <Note>{e.choice === 'honest' ? 'Hakan Bey boğazını temizliyor.' : 'Hakan Bey onaylar gibi başını sallıyor.'}</Note>
-                          </>
-                        )}
-                      </div>
-                    );
-                  }
-                  const live = typing && typing.candidateId === selectedId && typing.entry === index;
-                  const answer = answerFor(selectedId, e.q);
-                  return (
-                    <div key={index} className={styles.exchange}>
-                      {!e.by && (
-                        <Turn who={PLAYER.name} role={e.q === CASE ? 'Mini vaka' : e.q >= FOLLOW ? 'Takip sorusu' : e.q === FORBIDDEN ? "Hakan Bey'in listesinden" : 'İK Uzmanı'} tone={e.q === FORBIDDEN ? 'hakan' : 'you'}>
-                          {questionText(e.q, e.about)}
-                        </Turn>
-                      )}
-                      {e.q === CASE && <CaseCard c={caseFor(selectedId, poolIds)} />}
-                      <Turn who={candidate.name} role="Aday" tone="candidate">
-                        {live && typing.shown < 0 ? (
-                          <span className={styles.thinking} aria-label="düşünüyor">
-                            <i />
-                            <i />
-                            <i />
-                          </span>
-                        ) : (
-                          <>
-                            {live ? (
-                              <>
-                                {answer.slice(0, typing.shown)}
-                                <span className={styles.caret} />
-                              </>
-                            ) : (
-                              <AnswerText
-                                text={answer}
-                                fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : undefined}
-                                canFollow={canFollow}
-                                onFollow={e.q < FORBIDDEN && !e.by ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
-                                noted={isNoted}
-                                onNote={toggleNote}
-                              />
-                            )}
-                          </>
-                        )}
-                      </Turn>
-                    </div>
-                  );
-                })}
-              </div>
-  
-              <div className={styles.console}>
-                {typing ? (
-                  <p className={styles.consoleWait}>{candidate.name.split(' ')[0]} cevaplıyor…</p>
-                ) : pending?.kind === 'hakan' ? (
-                  <>
-                    <p className={styles.consoleTitle}>Hakan Bey araya girdi. Ne yapıyorsun?</p>
-                    <div className={styles.options}>
-                      <button className={`${styles.option} ${styles.optionPrimary}`} onClick={() => respondHakan(true)}>
-                        <b>Araya gir</b>
-                        <span>"Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok."</span>
-                      </button>
-                      <button className={styles.option} onClick={() => respondHakan(false)}>
-                        <b>Sessiz kal</b>
-                        <span>Aday soruyu cevaplasın.</span>
-                      </button>
-                    </div>
-                  </>
-                ) : pending?.kind === 'salary' ? (
-                  <>
-                    <p className={styles.consoleTitle}>
-                      Beklenti {expectedSalary(selectedId)?.toLocaleString('tr-TR') ?? '—'} TL · bütçe tavanı {SALARY_CAP.toLocaleString('tr-TR')} TL. Ne diyorsun?
-                    </p>
-                    <div className={styles.options}>
-                      {salaryMoves(selectedId).map((m) => (
-                        <button key={m} className={`${styles.option} ${m === 'cap' || m === 'match' ? styles.optionPrimary : ''}`} onClick={() => talkSalary(m)}>
-                          <b>{SALARY_LABEL[m]}</b>
-                          <span>{SALARY_LINES[m](salaryOffer(selectedId, m) ?? 0)}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : pending?.kind === 'back' ? (
-                  <>
-                    <p className={styles.consoleTitle}>{candidate.name.split(' ')[0]} bir soru soruyor. Nasıl cevaplıyorsun?</p>
-                    <div className={styles.options}>
-                      {(() => {
-                        const back = backQuestionFor(selectedId, pool.map((f) => f.id));
-                        return (
-                          <>
-                            <button className={styles.option} onClick={() => answerBack(true)}>
-                              <b>Olduğu gibi anlat</b>
-                              <span>{back.honest}</span>
-                            </button>
-                            <button className={styles.option} onClick={() => answerBack(false)}>
-                              <b>Şirketi iyi göster</b>
-                              <span>{back.polished}</span>
-                            </button>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </>
-                ) : ended ? (
-                  <>
-                    <p className={styles.consoleTitle}>Puan kartı · {candidate.name.split(' ')[0]} (her ölçüt 1–5)</p>
-                    <Scorecard scores={scores[selectedId] ?? {}} onScore={(c, v) => setScores((all) => ({ ...all, [selectedId]: { ...all[selectedId], [c]: v } }))} />
-                    <p className={styles.consoleWait}>{interviewed < pool.length ? 'Puanladıktan sonra listeden sıradaki adayı seç.' : 'Tüm adaylarla görüştün; önerini sunabilirsin.'}</p>
-                  </>
-                ) : (
-                  <>
-                    <p className={styles.consoleTitle}>
-                      {mine.length < QUESTION_BUDGET ? `Soru seç · ${mine.length}/${QUESTION_BUDGET}` : 'Soru hakkın doldu.'}
-                    </p>
-                    <div className={styles.questionList}>
-                      {mine.length < QUESTION_BUDGET &&
-                        FINAL_INTERVIEW_QUESTIONS.map((q, i) =>
-                          mine.includes(i) ? null : (
-                            <button key={q} className={styles.question} onClick={() => ask(i)}>
-                              <span className={styles.qNumber}>{i + 1}</span>
-                              {q}
-                            </button>
-                          ),
-                        )}
-                      {mine.length < QUESTION_BUDGET && !mine.includes(CASE) && (
-                        <button className={`${styles.question} ${styles.questionFollow}`} onClick={() => ask(CASE)}>
-                          <span className={styles.qNumber}>{'</>'}</span>
-                          <span>
-                            Kısa bir kod vakası ver
-                            <small>Bir soru hakkı · adayın düşünme şeklini gösterir</small>
-                          </span>
-                        </button>
-                      )}
-                      {!salaryEntry && (
-                        <button className={styles.question} onClick={openSalary}>
-                          <span className={styles.qNumber}>₺</span>
-                          <span>
-                            Maaş beklentisini konuş
-                            <small>Görüşmeyi bitirmeden önce zorunlu</small>
-                          </span>
-                        </button>
-                      )}
-                      {!structured && !hakanChoice && !forbiddenDone && mine.length < QUESTION_BUDGET && (
-                        <button className={`${styles.question} ${styles.questionRisk}`} onClick={() => ask(FORBIDDEN)} title="İş Kanunu'na göre ayrımcılık sayılabilir.">
-                          <span className={styles.qNumber}>!</span>
-                          <span>
-                            {forbiddenQuestion(selectedId, candidate.age)}
-                            <small>Hakan Bey'in listesinden · ayrımcılık sayılabilir</small>
-                          </span>
-                        </button>
-                      )}
-                    </div>
-                    {canFollow && mine.length > 0 && <p className={styles.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
-                    {mine.length > 0 && (
-                      <button className={styles.endButton} onClick={endInterview} disabled={!salaryDone} title={salaryDone ? undefined : 'Önce maaşı konuş'}>
-                        {salaryDone ? 'Görüşmeyi bitir →' : 'Görüşmeyi bitir · önce maaşı konuş'}
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
+              <Conversation
+                entries={entries}
+                selectedId={selectedId}
+                candidate={candidate}
+                poolIds={poolIds}
+                typing={typing}
+                canFollow={canFollow}
+                chatRef={chatRef}
+                answerFor={answerFor}
+                questionText={questionText}
+                ask={ask}
+                isNoted={isNoted}
+                toggleNote={toggleNote}
+                firstOfDay={interviewed === 0}
+              />
+
+              <InterviewConsole
+                candidate={candidate}
+                pool={pool}
+                typing={Boolean(typing)}
+                pending={pending?.kind ?? null}
+                ended={ended}
+                interviewed={interviewed}
+                mine={mine}
+                canFollow={canFollow}
+                salaryOpened={Boolean(salaryEntry)}
+                salaryDone={salaryDone}
+                structured={structured}
+                hakanAnswered={hakanChoice !== null}
+                forbiddenDone={forbiddenDone}
+                scores={scores[selectedId] ?? {}}
+                onScore={(c, v) => setScores((all) => ({ ...all, [selectedId]: { ...all[selectedId], [c]: v } }))}
+                ask={ask}
+                openSalary={openSalary}
+                talkSalary={talkSalary}
+                respondHakan={respondHakan}
+                answerBack={answerBack}
+                endInterview={endInterview}
+              />
             </section>
   
-            <aside className={styles.dossier} aria-label="Aday dosyası">
-              <h3>Dosya</h3>
-              <dl className={styles.facts}>
-                <dt>Deneyim</dt>
-                <dd>{candidate.experience}</dd>
-                <dt>Maaş beklentisi</dt>
-                <dd>{candidate.salary}</dd>
-                {selectedId in agreed && (
-                  <>
-                    <dt>Anlaşılan</dt>
-                    <dd>{agreed[selectedId] === null ? 'Anlaşılamadı' : `${agreed[selectedId]?.toLocaleString('tr-TR')} TL`}</dd>
-                  </>
-                )}
-                <dt>Son görev</dt>
-                <dd>{details.workHistory[0].title}</dd>
-                <dt>Konum</dt>
-                <dd>{details.location}</dd>
-                <dt>Dil</dt>
-                <dd>{details.languages}</dd>
-                {selected && selected.day > 0 && (
-                  <>
-                    <dt>Mülakata çağrılma</dt>
-                    <dd>{selected.day}. gün</dd>
-                  </>
-                )}
-              </dl>
-              <h3>Öne çıkanlar</h3>
-              <ul className={styles.highlights}>
-                {details.highlights.map((h) => (
-                  <li key={h}>{h}</li>
-                ))}
-              </ul>
-              <h3>Notlarım</h3>
-              <NotesList notes={myNotes} onRemove={toggleNote} />
-              <h3>{LEAD}'ın notu</h3>
-              {leadHeard ? (
-                <div className={styles.leadNote} role="status">
-                  <p>"{leadView(selectedId, fit)}"</p>
-                  {followUsed && !typing && <p>"{followUpVerdict(selectedId, fit)}"</p>}
-                  {mine.includes(CASE) && !typing && <p>"{caseVerdict(selectedId)}"</p>}
-                  {mine.includes(FORBIDDEN) && <small>Sonra alçak sesle: "O soruyu sormasaydın keşke."</small>}
-                  {hakanChoice === 'protect' && <small>Sonra alçak sesle: "Araya girmen iyiydi."</small>}
-                  {hakanChoice === 'silent' && <small>Sonra alçak sesle: "Hakan Bey o soruyu sorunca bir şey demedin."</small>}
-                </div>
-              ) : (
-                <p className={styles.leadEmpty}>İlk cevaptan sonra ekip liderinin görüşü burada görünür.</p>
-              )}
-            </aside>
+            <Dossier
+              candidate={candidate}
+              details={details}
+              selectedId={selectedId}
+              invitedOn={selected?.day ?? 0}
+              agreed={agreed}
+              notes={myNotes}
+              onRemoveNote={toggleNote}
+              leadHeard={leadHeard}
+              fit={fit}
+              followUsed={followUsed && !typing}
+              caseAsked={mine.includes(CASE) && !typing}
+              forbiddenAsked={mine.includes(FORBIDDEN)}
+              hakanChoice={hakanChoice}
+            />
           </main>
   
           <div className={styles.hireBar}>
@@ -683,11 +372,7 @@ export function FinalRoundScreen() {
             <Button
               variant="gold"
               sound="click"
-              onClick={() => {
-                setEvidence([]);
-                setDefense(null);
-                setConfirming(true);
-              }}
+              onClick={() => setConfirming(true)}
               disabled={interviewed < pool.length || busy}
               title={interviewed < pool.length ? 'Önce bütün adaylarla görüş' : undefined}
             >
@@ -699,191 +384,17 @@ export function FinalRoundScreen() {
 
 
       {confirming && (
-        <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="confirm-hire">
-          <div className={styles.modal}>
-            <span className={`${styles.avatar} ${styles.avatarLarge}`} style={{ background: candidate.color }}>
-              {candidate.initials}
-            </span>
-            <h2 id="confirm-hire">Önerin: {candidate.name}</h2>
-            <Comparison
-              pool={poolIds}
-              scores={scores}
-              agreed={agreed}
-              notes={notes}
-              gap={scoreGap(scores, (id) => hakanTarget(id, candidateOf(id).age))}
-            />
-            {(() => {
-              // you recommend; the panel votes — Levent can be argued round, with your notes
-              const convinced = defense?.id === selectedId && defense.holds;
-              const panel = panelDecision(selectedId, pool, pastRequests, { agreed, convinced });
-              // only worth arguing when the panel would otherwise hire someone else
-              const contested = panel.hired !== selectedId && panel.lead !== selectedId && !panel.overBudget && !convinced;
-              const first = (id: string) => candidateOf(id).name.split(' ')[0];
-              return (
-                <div className={styles.panelVotes}>
-                  <p>
-                    <b>{LEAD}:</b>{' '}
-                    {panel.lead === selectedId
-                      ? leadBacks(selectedId, fit)
-                        ? '"Katılıyorum. Ekibe iyi gelir."'
-                        : '"Aralarında en iyisi bu, katılıyorum."'
-                      : panel.overBudget
-                        ? `"${first(selectedId)} bütçeyi aşıyor. Tavanın içinde en iyisi ${first(panel.lead)}."`
-                        : `"Ben ${accusative(first(panel.lead))} tercih ederim. Cevapları daha somuttu."`}
-                  </p>
-                  <p>
-                    <b>Hakan Bey:</b>{' '}
-                    {panel.his === selectedId
-                      ? '"Bütçe onaylı. İmzalıyorum."'
-                      : panel.his === NEPHEW_ID
-                        ? '"Ben Okan\'dan yanayım. Uzun vadeli uyum önemli."'
-                        : `"Ben ${accusative(first(panel.his))} daha uygun buluyorum."`}
-                  </p>
-                  <p className={styles.panelBudget}>Bütçe tavanı: {SALARY_CAP.toLocaleString('tr-TR')} TL/ay · üç oy ayrı düşerse karar ekip liderinin.</p>
-                  {(contested || defense?.id === selectedId) && (
-                    <div className={styles.defense}>
-                      <p className={styles.defenseTitle}>Önerini savun: {LEAD}'a notlarından en fazla üç kanıt göster.</p>
-                      {defense?.id === selectedId ? (
-                        <p className={defense.holds ? styles.defenseWon : styles.defenseLost}>
-                          {defense.holds
-                            ? `${LEAD}: "Haklısın, bunları ben de duydum. Fikrimi değiştiriyorum."`
-                            : `${LEAD}: "Bunlar beni ikna etmedi. Somut bir şey göremiyorum."`}
-                        </p>
-                      ) : (
-                        <>
-                          <EvidencePicker
-                            notes={notes[selectedId] ?? []}
-                            picked={evidence}
-                            onToggle={(t) => setEvidence((p) => (p.includes(t) ? p.filter((x) => x !== t) : p.length < 3 ? [...p, t] : p))}
-                          />
-                          <Button
-                            variant="ghost"
-                            disabled={evidence.length === 0}
-                            onClick={() => {
-                              const picked = (notes[selectedId] ?? []).filter((n) => evidence.includes(n.text)).map((n) => n.tag);
-                              const mineAvg = average(scores[selectedId]);
-                              const top = mineAvg !== null && poolIds.every((id) => id === selectedId || (average(scores[id]) ?? 0) <= mineAvg);
-                              const result = defenseHolds(selectedId, picked, top);
-                              audioEngine.playUi(result.holds ? 'confirm' : 'click');
-                              setDefense({ id: selectedId, ...result });
-                            }}
-                          >
-                            Kurula sun
-                          </Button>
-                          <small className={styles.defenseHint}>Somut notlar ağır basar, belirsiz olanlar sayılmaz; puan kartında en yüksek puanı ona verdiysen o da kanıttır (eşik {DEFENSE_THRESHOLD}).</small>
-                        </>
-                      )}
-                    </div>
-                  )}
-                  <p className={styles.panelResult}>
-                    Kurul kararı: <b>{candidateOf(panel.hired).name}</b>
-                    {panel.hired !== selectedId && ' — önerin kabul edilmedi.'}
-                  </p>
-                </div>
-              );
-            })()}
-            <p>Diğer adaylar için süreç burada biter. Bu karar geri alınamaz.</p>
-            <div className={styles.modalActions}>
-              <Button variant="ghost" onClick={() => setConfirming(false)}>
-                Vazgeç
-              </Button>
-              <Button variant="gold" sound="none" onClick={() => hire(selectedId, { agreed, convinced: defense?.id === selectedId && defense.holds })}>
-                Kurul Kararını Onayla
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const sourceOf = (f: Finalist) => (f.by ? (f.by === 'ayse' ? 'Ayşe seçti' : 'Emre seçti') : f.byManager ? 'Hakan Bey ekletti' : f.day > 0 ? `Sen çağırdın · ${f.day}. gün` : 'Referans');
-
-/**
- * Friday morning, when the shortlist is longer than a day of interviews: who you'll actually
- * sit down with. Hakan Bey's people are already on it and can't be taken off.
- */
-function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist[]; locked: Set<string>; onConfirm: (ids: string[]) => void }) {
-  const [picked, setPicked] = useState<string[]>(() => everyone.filter((f) => locked.has(f.id)).map((f) => f.id));
-  const full = picked.length >= INTERVIEW_LIMIT;
-  const toggle = (id: string) => {
-    if (locked.has(id)) return;
-    audioEngine.playUi('click');
-    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < INTERVIEW_LIMIT ? [...p, id] : p));
-  };
-  return (
-    <section className={styles.picker} aria-labelledby="picker-title">
-      <h2 id="picker-title" className={styles.pickerTitle}>
-        Bugün kimlerle görüşeceksin?
-      </h2>
-      <p className={styles.pickerLead}>
-        Kısa listede <b>{everyone.length}</b> kişi var; bir günde en fazla <b>{INTERVIEW_LIMIT}</b> mülakat yapılabiliyor. Hakan Bey'in istedikleri listede kalıyor; kalan yerleri sen
-        seç. Seçmediklerine bu iş için dönülmeyecek.
-      </p>
-      <ul className={styles.pickerList}>
-        {everyone.map((f) => {
-          const c = candidateOf(f.id);
-          const on = picked.includes(f.id);
-          const isLocked = locked.has(f.id);
-          return (
-            <li key={f.id}>
-              <label className={`${styles.pickerItem} ${on ? styles.pickerOn : ''} ${isLocked ? styles.pickerLocked : ''}`}>
-                <input type="checkbox" checked={on} disabled={isLocked || (!on && full)} onChange={() => toggle(f.id)} />
-                <span className={styles.avatar} style={{ background: c.color }}>
-                  {c.initials}
-                </span>
-                <span className={styles.listText}>
-                  <span className={styles.listName}>{c.name}</span>
-                  <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
-                </span>
-                <span className={styles.pickerSource}>{isLocked ? '🔒 ' : ''}{sourceOf(f)}</span>
-              </label>
-            </li>
-          );
-        })}
-      </ul>
-      <div className={styles.pickerFoot}>
-        <span className="mono">
-          {picked.length}/{INTERVIEW_LIMIT} seçildi
-        </span>
-        <Button variant="gold" disabled={picked.length === 0} onClick={() => onConfirm(everyone.filter((f) => picked.includes(f.id)).map((f) => f.id))}>
-          Mülakatlara başla →
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-/** The room side by side before you recommend: your scores, the pay agreed, how much you noted. */
-function Comparison({ pool, scores, agreed, notes, gap }: { pool: string[]; scores: Record<string, Scores>; agreed: Record<string, number | null>; notes: Record<string, NotebookNote[]>; gap: number | null }) {
-  const rows = pool.map((id) => ({ id, avg: average(scores[id]), pay: agreed[id], noted: notes[id]?.length ?? 0 })).sort((a, b) => (b.avg ?? -1) - (a.avg ?? -1));
-  return (
-    <div className={styles.compare}>
-      <table>
-        <thead>
-          <tr>
-            <th>Aday</th>
-            <th>Puan kartın</th>
-            <th>Maaş</th>
-            <th>Not</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id}>
-              <td>{candidateOf(r.id).name}</td>
-              <td className="mono">{r.avg === null ? '—' : r.avg.toFixed(1)}</td>
-              <td className="mono">{r.pay === undefined ? '—' : r.pay === null ? 'anlaşılamadı' : r.pay.toLocaleString('tr-TR')}</td>
-              <td className="mono">{r.noted}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {gap !== null && (
-        <p className={styles.compareGap}>
-          ⚠ Hakan Bey'in listesindeki soruların hedeflediği adaylara (kadınlar, 40 yaş üstü) verdiğin puanların ortalaması diğerlerinden {gap.toLocaleString('tr-TR')} puan düşük.
-        </p>
+        <HireModal
+          candidate={candidate}
+          pool={pool}
+          scores={scores}
+          agreed={agreed}
+          notes={notes}
+          pastRequests={pastRequests}
+          fit={fit}
+          onClose={() => setConfirming(false)}
+          onConfirm={(convinced) => hire(selectedId, { agreed, convinced })}
+        />
       )}
     </div>
   );

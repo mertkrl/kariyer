@@ -1,6 +1,8 @@
 /* ── an answer you can dig into and take notes from ── */
 .hook {
-  padding: 0;
+  /* a taller hit area than the line it sits on, without moving the text */
+  padding: 4px 0;
+  margin: -4px 0;
   border: 0;
   background: none;
   font: inherit;
@@ -13,11 +15,16 @@
   cursor: pointer;
 }
 
-.hook:hover,
-.hook:focus-visible {
-  outline: none;
+.hook:hover {
   background: rgba(76, 127, 176, 0.14);
   border-radius: 3px;
+}
+
+.hook:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+  border-radius: 3px;
+  background: rgba(76, 127, 176, 0.14);
 }
 
 .hookSpent {
@@ -30,23 +37,33 @@
 }
 
 .pin {
-  margin-left: 3px;
-  padding: 0 3px;
+  /* at least 24×24 (WCAG 2.2 target size), sitting in the line as a small glyph */
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  margin: -4px 0 -4px 2px;
+  padding: 0;
   border: 0;
-  border-radius: 4px;
+  border-radius: 6px;
   background: none;
   color: var(--text-dim);
-  font-size: 0.85em;
+  font-size: 0.9em;
   line-height: 1;
-  opacity: 0.45;
+  opacity: 0.6;
   cursor: pointer;
-  vertical-align: 1px;
+  vertical-align: middle;
 }
 
-.pin:hover,
+.pin:hover {
+  opacity: 1;
+  background: rgba(201, 162, 39, 0.18);
+}
+
 .pin:focus-visible {
   opacity: 1;
-  outline: none;
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
   background: rgba(201, 162, 39, 0.18);
 }
 
@@ -151,10 +168,28 @@
 }
 
 .noteRemove {
+  min-width: 24px;
+  min-height: 24px;
   border: 0;
+  border-radius: 6px;
   background: none;
   color: var(--text-dim);
   cursor: pointer;
+}
+
+.noteRemove:hover,
+.noteRemove:focus-visible {
+  color: var(--red);
+  background: rgba(168, 64, 47, 0.1);
+}
+
+.caseWhat {
+  margin: 0;
+  padding: 6px 12px 8px;
+  font-size: calc(11.5px * var(--ts, 1));
+  line-height: 1.45;
+  color: rgba(201, 214, 234, 0.75);
+  border-top: 1px solid #2c3446;
 }
 
 .evidence label {
@@ -202,4 +237,26 @@
 .tag_redflag {
   background: rgba(168, 64, 47, 0.14);
   color: var(--red);
+}
+
+/* a finger, not a mouse: bigger targets, and the pin always in view */
+@media (pointer: coarse) {
+  .pin,
+  .noteRemove {
+    min-width: 32px;
+    min-height: 32px;
+    opacity: 1;
+  }
+
+  .hook {
+    padding: 8px 0;
+    margin: -8px 0;
+    background: rgba(76, 127, 176, 0.08);
+    border-radius: 3px;
+  }
+
+  .scoreDot {
+    width: 34px;
+    height: 34px;
+  }
 }
