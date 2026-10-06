@@ -145,7 +145,8 @@
 }
 
 .queueRejected .queueName {
-  color: var(--red);
+  /* a deeper red than --red: the struck-through name still reads at 5:1 on the tinted row */
+  color: #8a3324;
   text-decoration: line-through;
   text-decoration-color: rgba(168, 64, 47, 0.45);
 }
@@ -793,7 +794,7 @@
 }
 
 .analyzeButton:hover:not(:disabled) {
-  background: var(--blue);
+  background: var(--blue-ink);
   color: var(--paper-light);
 }
 
@@ -2125,13 +2126,14 @@ button.systemIconBadge {
 
 .systemBox .analyzeButton {
   color: #fff;
-  border-color: var(--blue);
-  background: var(--blue);
+  /* --blue-ink, not --blue: white on --blue is only 4.2:1 */
+  border-color: var(--blue-ink);
+  background: var(--blue-ink);
   box-shadow: 0 2px 6px rgba(76, 127, 176, 0.3);
 }
 
 .systemBox .analyzeButton:hover:not(:disabled) {
-  background: var(--blue-ink);
+  background: #2f5578;
 }
 
 .systemBox .analyzeButton:disabled {

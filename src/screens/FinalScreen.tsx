@@ -12,6 +12,7 @@ import { AD_EFFECT } from '../game/data/jobs';
 import { sessionReport } from '../game/engine/report';
 import { SessionReport } from './final/SessionReport';
 import styles from './FinalScreen.module.css';
+import { avatarStyle } from '../components/ui/avatarStyle';
 
 /** One year later — how the hire actually turned out (hidden fit revealed by the interviews). */
 const HIRE_VERDICT: Record<number, string> = {
@@ -197,7 +198,7 @@ export function FinalScreen() {
             const helped = outcome === 'reject' && dmHandled[k.id] === 'honest';
             return (
               <div key={k.id} className={`${styles.epiRow} ${outcome === 'reject' ? styles.epiReject : outcome === 'hired' ? styles.epiHired : ''}`}>
-                <span className={styles.epiAvatar} style={{ background: c.color }}>
+                <span className={styles.epiAvatar} style={avatarStyle(c.color)}>
                   {c.initials}
                 </span>
                 <span className={styles.epiText}>
@@ -211,7 +212,7 @@ export function FinalScreen() {
           })}
           {/* the other trial-period hire: the post had room for one of you */}
           <div className={styles.epiRow}>
-            <span className={styles.epiAvatar} style={{ background: '#6f8fa3' }}>
+            <span className={styles.epiAvatar} style={avatarStyle('#6f8fa3')}>
               A
             </span>
             <span className={styles.epiText}>

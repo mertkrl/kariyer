@@ -4,6 +4,7 @@ import { formatClock } from '../../game/time';
 import { CommuteScene } from './CommuteScene';
 import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN } from '../../game/time';
 import styles from './DailyActivity.module.css';
+import { avatarStyle } from '../ui/avatarStyle';
 
 interface DailyActivityProps {
   candidateIds: string[];
@@ -114,7 +115,7 @@ export function DailyActivity({
             const approve = entry.decision === 'approve';
             return (
               <li key={`${entry.id}-${entry.at}`} className={`${styles.logItem} ${i === 0 ? styles.logItemNew : ''}`}>
-                <span className={styles.logAvatar} style={{ background: c.color }}>
+                <span className={styles.logAvatar} style={avatarStyle(c.color)}>
                   {c.initials}
                 </span>
                 <span className={styles.logText}>

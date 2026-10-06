@@ -18,6 +18,7 @@ import { Dossier } from './final/Dossier';
 import { HireModal } from './final/HireModal';
 import { InterviewConsole } from './final/InterviewConsole';
 import styles from './FinalRoundScreen.module.css';
+import { avatarStyle } from '../components/ui/avatarStyle';
 
 export function FinalRoundScreen() {
   const finalists = useGameStore((s) => s.finalists);
@@ -272,7 +273,7 @@ export function FinalRoundScreen() {
                   disabled={busy && !isSelected}
                   title={busy && !isSelected ? 'Önce bu görüşmedeki konuşmayı tamamla' : undefined}
                 >
-                  <span className={styles.avatar} style={{ background: c.color }}>
+                  <span className={styles.avatar} style={avatarStyle(c.color)}>
                     {c.initials}
                   </span>
                   <span className={styles.listText}>
@@ -290,10 +291,10 @@ export function FinalRoundScreen() {
             })}
           </aside>
   
-          <main className={styles.room} key={selectedId}>
+          <div className={styles.room} key={selectedId} role="region" aria-label="Mülakat odası">
             <section className={styles.conversation} aria-label="Görüşme">
               <header className={styles.roomHead}>
-                <span className={`${styles.avatar} ${styles.avatarLarge}`} style={{ background: candidate.color }}>
+                <span className={`${styles.avatar} ${styles.avatarLarge}`} style={avatarStyle(candidate.color)}>
                   {candidate.initials}
                 </span>
                 <div>
@@ -363,7 +364,7 @@ export function FinalRoundScreen() {
               forbiddenAsked={mine.includes(FORBIDDEN)}
               hakanChoice={hakanChoice}
             />
-          </main>
+          </div>
   
           <div className={styles.hireBar}>
             <span className={styles.hireHint}>

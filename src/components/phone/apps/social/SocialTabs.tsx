@@ -2,6 +2,7 @@ import { PhotoArt } from '../PhotoArt';
 import { Icon } from './SocialIcon';
 import { ME, type Note, type Post } from './socialTypes';
 import styles from '../SocialApp.module.css';
+import { avatarStyle } from '../../../ui/avatarStyle';
 
 /*
  * The Explore, Activity and Profile tabs of Kariyergram. They only display; the state lives in
@@ -52,7 +53,7 @@ export function ActivityTab({ notes }: { notes: Note[] }) {
       <h3>Bildirimler</h3>
       {notes.map((n) => (
         <div key={n.id} className={`${styles.noteRow} ${n.unread ? styles.noteNew : ''}`}>
-          <span className={styles.avatar} style={{ background: n.color }}>
+          <span className={styles.avatar} style={avatarStyle(n.color)}>
             {n.who.slice(0, 2).toUpperCase()}
           </span>
           <span className={styles.noteText}>
@@ -80,7 +81,7 @@ export function ProfileTab({ savedPosts, followers, followingCount, onOpen }: Pr
   return (
     <div className={styles.profile}>
       <div className={styles.profileTop}>
-        <span className={`${styles.avatar} ${styles.avatarBig}`} style={{ background: ME.color }}>
+        <span className={`${styles.avatar} ${styles.avatarBig}`} style={avatarStyle(ME.color)}>
           {ME.initials}
         </span>
         <div className={styles.stats}>

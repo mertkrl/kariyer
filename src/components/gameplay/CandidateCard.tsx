@@ -8,6 +8,7 @@ import { Button } from '../ui/Button';
 import { CvBody } from './CvBody';
 import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
+import { avatarStyle } from '../ui/avatarStyle';
 
 /*
  * The open CV: header with the reference call, the file itself, and either the two buttons
@@ -97,7 +98,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
 
           {/* ── a CV laid out like one: header, main column, sidebar ── */}
           <header className={`${styles.cvHead} ${isAnalyzing ? styles.scanSweep : ''}`} style={scanAt(0)}>
-            <div className={styles.avatar} style={{ background: candidate.color }}>
+            <div className={styles.avatar} style={avatarStyle(candidate.color)}>
               {candidate.initials}
             </div>
             <div className={styles.candidateNames}>

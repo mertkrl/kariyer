@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { inbox, type Mail } from '../../game/mail';
 import { formatClock } from '../../game/time';
 import { audioEngine } from '../../audio/audioEngine';
@@ -6,6 +6,7 @@ import { PLAYER } from '../../game/player';
 import { CalendarApp } from './CalendarApp';
 import styles from './PcDesktop.module.css';
 import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/rejectionMails';
+import { avatarStyle } from '../ui/avatarStyle';
 
 /*
  * The work computer. A desktop like any office PC: a wallpaper nobody chose, the recruitment
@@ -51,6 +52,18 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
     return () => window.clearTimeout(id);
   }, [toast]);
 
+  // Opening an app takes keyboard focus to its title (not into it: in the portal the first
+  // control is a decision, and Enter must not make one); closing it returns focus to its icon.
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const iconsRef = useRef<HTMLDivElement>(null);
+  const lastApp = useRef(app);
+  useEffect(() => {
+    const was = lastApp.current;
+    lastApp.current = app;
+    if (app && app !== was) titleRef.current?.focus({ preventScroll: true });
+    else if (!app && was) iconsRef.current?.querySelector<HTMLElement>(`[data-app="${was}"]`)?.focus({ preventScroll: true });
+  }, [app]);
+
   const open = (a: PcApp) => {
     audioEngine.playUi('click');
     onOpen(a);
@@ -65,29 +78,30 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
         <div className={styles.wallMotto}>İnsan önce gelir.</div>
       </div>
 
-      <div className={styles.icons}>
-        <button className={`${styles.icon} ${beckonPortal && !app ? styles.beckon : ''}`} onClick={() => open('portal')}>
-          <span className={`${styles.glyph} ${styles.glyphPortal}`}>İK</span>
+      <div className={styles.icons} ref={iconsRef}>
+        <button className={`${styles.icon} ${beckonPortal && !app ? styles.beckon : ''}`} data-app="portal" onClick={() => open('portal')}>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphPortal}`}>İK</span>
           <span className={styles.iconLabel}>İşe Alım Portalı</span>
         </button>
-        <button className={styles.icon} onClick={() => open('mail')}>
-          <span className={`${styles.glyph} ${styles.glyphMail}`}>
+        <button className={styles.icon} data-app="mail" onClick={() => open('mail')}>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphMail}`}>
             ✉{unread > 0 && <i className={styles.badge}>{unread}</i>}
           </span>
           <span className={styles.iconLabel}>E-posta</span>
+          {unread > 0 && <span className="sr-only">, {unread} okunmamış</span>}
         </button>
-        <button className={styles.icon} onClick={() => open('calendar')}>
-          <span className={`${styles.glyph} ${styles.glyphCalendar}`}>
+        <button className={styles.icon} data-app="calendar" onClick={() => open('calendar')}>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphCalendar}`}>
             <CalendarGlyph day={dayIndex} />
           </span>
           <span className={styles.iconLabel}>Takvim</span>
         </button>
         <button className={styles.icon} onClick={() => setToast('Excel: "Lisansınızın süresi doldu. Lütfen BT yöneticinize başvurun."')}>
-          <span className={`${styles.glyph} ${styles.glyphSheet}`}>X</span>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphSheet}`}>X</span>
           <span className={styles.iconLabel}>Adaylar_FINAL_v7.xlsx</span>
         </button>
         <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş. Biri, senden önce, çok aceleyle boşaltmış.')}>
-          <span className={`${styles.glyph} ${styles.glyphBin}`}>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphBin}`}>
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6" />
             </svg>
@@ -99,8 +113,8 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       {app && (
         <div className={styles.window} role="dialog" aria-label={TITLES[app]}>
           <div className={styles.titleBar}>
-            <span className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : '▦'}</span>
-            <span className={styles.title}>{app === 'mail' ? `E-posta — Gelen Kutusu (${unread})` : TITLES[app]}</span>
+            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : '▦'}</span>
+            <span className={styles.title} ref={titleRef} tabIndex={-1} data-screen-focus>{app === 'mail' ? `E-posta — Gelen Kutusu (${unread})` : TITLES[app]}</span>
             <span className={styles.winButtons}>
               <button onClick={onClose} aria-label="Simge durumuna küçült">
                 —
@@ -117,22 +131,31 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
         </div>
       )}
 
-      {toast && <div className={styles.toast}>{toast}</div>}
+      {toast && (
+        <div className={styles.toast} role="status">
+          {toast}
+        </div>
+      )}
 
       <div className={styles.taskbar}>
-        <span className={styles.start}>◆</span>
-        <button className={`${styles.task} ${app === 'portal' ? styles.taskOn : ''}`} onClick={() => (app === 'portal' ? onClose() : open('portal'))}>
-          <span className={`${styles.miniGlyph} ${styles.glyphPortal}`}>İK</span> Portal
+        <span className={styles.start} aria-hidden="true">◆</span>
+        <button className={`${styles.task} ${app === 'portal' ? styles.taskOn : ''}`} aria-pressed={app === 'portal'} onClick={() => (app === 'portal' ? onClose() : open('portal'))}>
+          <span aria-hidden="true" className={`${styles.miniGlyph} ${styles.glyphPortal}`}>İK</span> Portal
         </button>
-        <button className={`${styles.task} ${app === 'mail' ? styles.taskOn : ''}`} onClick={() => (app === 'mail' ? onClose() : open('mail'))}>
-          <span className={`${styles.miniGlyph} ${styles.glyphMail}`}>✉</span> E-posta
-          {unread > 0 && <i className={styles.taskBadge}>{unread}</i>}
+        <button className={`${styles.task} ${app === 'mail' ? styles.taskOn : ''}`} aria-pressed={app === 'mail'} onClick={() => (app === 'mail' ? onClose() : open('mail'))}>
+          <span aria-hidden="true" className={`${styles.miniGlyph} ${styles.glyphMail}`}>✉</span> E-posta
+          {unread > 0 && (
+            <i className={styles.taskBadge} aria-hidden="true">
+              {unread}
+            </i>
+          )}
+          {unread > 0 && <span className="sr-only">, {unread} okunmamış</span>}
         </button>
-        <button className={`${styles.task} ${app === 'calendar' ? styles.taskOn : ''}`} onClick={() => (app === 'calendar' ? onClose() : open('calendar'))}>
-          <span className={`${styles.miniGlyph} ${styles.glyphCalendar}`}>▦</span> Takvim
+        <button className={`${styles.task} ${app === 'calendar' ? styles.taskOn : ''}`} aria-pressed={app === 'calendar'} onClick={() => (app === 'calendar' ? onClose() : open('calendar'))}>
+          <span aria-hidden="true" className={`${styles.miniGlyph} ${styles.glyphCalendar}`}>▦</span> Takvim
         </button>
         <span className={styles.tray}>
-          <span>📶</span>
+          <span aria-hidden="true">📶</span>
           <span className="mono">
             {formatClock(minutes)}
             <small>{DAY_SHORT[dayIndex] ?? ''}</small>
@@ -315,7 +338,7 @@ function Initials({ name }: { name: string }) {
     .join('');
   const color = AVATAR_COLORS[[...name].reduce((n, ch) => n + ch.charCodeAt(0), 0) % AVATAR_COLORS.length];
   return (
-    <span className={styles.initials} style={{ background: color }} aria-hidden="true">
+    <span className={styles.initials} style={avatarStyle(color)} aria-hidden="true">
       {letters || '?'}
     </span>
   );

@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { audioEngine } from '../../audio/audioEngine';
 import { INTERVIEW_LIMIT } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
+import { avatarStyle } from '../../components/ui/avatarStyle';
 
 const sourceOf = (f: Finalist) => (f.by ? (f.by === 'ayse' ? 'Ayşe seçti' : 'Emre seçti') : f.byManager ? 'Hakan Bey ekletti' : f.day > 0 ? `Sen çağırdın · ${f.day}. gün` : 'Referans');
 
@@ -38,7 +39,7 @@ export function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist
             <li key={f.id}>
               <label className={`${styles.pickerItem} ${on ? styles.pickerOn : ''} ${isLocked ? styles.pickerLocked : ''}`}>
                 <input type="checkbox" checked={on} disabled={isLocked || (!on && full)} onChange={() => toggle(f.id)} />
-                <span className={styles.avatar} style={{ background: c.color }}>
+                <span className={styles.avatar} style={avatarStyle(c.color)}>
                   {c.initials}
                 </span>
                 <span className={styles.listText}>

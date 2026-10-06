@@ -26,7 +26,7 @@
 
   /* on paper: 4.7:1 */
   --text-muted: #6e664d;
-  --text-dim: #6b6455;
+  --text-dim: #5f594b; /* 5:1 on --paper-dim, the darkest paper (WCAG AA) */
   --text-faint: #4a453b;
   /* the same greys for text on the dark screens (report, top bar, title screens) */
   --on-dark-muted: rgba(233, 230, 223, 0.74);

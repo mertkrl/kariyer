@@ -16,6 +16,7 @@ import type { DmCandidate } from './apps/candidateDms';
 import type { DmKind } from '../../game/store';
 import { useDialog } from '../ui/useDialog';
 import styles from './Phone.module.css';
+import { avatarStyle } from '../ui/avatarStyle';
 
 /*
  * The desk phone. In the right column it sits locked (clock + notification cards); clicking it
@@ -297,7 +298,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
             const c = CONTACTS[t];
             return (
               <button key={t} className={styles.chatRow} onClick={() => setScreen({ kind: 'chat', thread: t })}>
-                <span className={styles.rowAvatar} style={{ background: c.color }}>
+                <span className={styles.rowAvatar} style={avatarStyle(c.color)}>
                   {c.avatar}
                 </span>
                 <span className={styles.rowText}>
@@ -332,7 +333,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
                   : screen.thread === 'ayse'
                     ? 'İK uzmanı'
                     : 'çevrimiçi',
-          <span className={styles.rowAvatar} style={{ background: c.color }}>
+          <span className={styles.rowAvatar} style={avatarStyle(c.color)}>
             {c.avatar}
           </span>,
           GROUP_THREADS.includes(screen.thread) && onToggleMute ? (

@@ -3,6 +3,7 @@ import { AYSE } from '../socialContent';
 import { Icon } from './SocialIcon';
 import { ME, type Post } from './socialTypes';
 import styles from '../SocialApp.module.css';
+import { avatarStyle } from '../../../ui/avatarStyle';
 
 interface SocialPostProps {
   post: Post;
@@ -36,7 +37,7 @@ export function SocialPost({ post: p, liked, saved, following, burst, myVote: my
   return (
     <article className={`${styles.post} ${p.mine ? styles.postMine : ''}`}>
       <header className={styles.postHead}>
-        <span className={`${styles.avatar} ${p.candidate ? styles.avatarPlain : ''}`} style={{ background: p.author.color }}>
+        <span className={`${styles.avatar} ${p.candidate ? styles.avatarPlain : ''}`} style={avatarStyle(p.author.color)}>
           {p.author.initials}
         </span>
         <span className={styles.postMeta}>

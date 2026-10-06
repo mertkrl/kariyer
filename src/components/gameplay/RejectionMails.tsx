@@ -6,6 +6,7 @@ import { MAIL_SEND_AT } from '../../game/store';
 import { audioEngine } from '../../audio/audioEngine';
 import { PLAYER } from '../../game/player';
 import styles from './RejectionMails.module.css';
+import { avatarStyle } from '../ui/avatarStyle';
 
 /*
  * The last screen of the portal each day, laid out like a mail client's bulk reply: everyone you
@@ -32,7 +33,7 @@ function Initials({ name, color }: { name: string; color: string }) {
     .map((w) => w[0]?.toLocaleUpperCase('tr') ?? '')
     .join('');
   return (
-    <span className={styles.initials} style={{ background: color }} aria-hidden="true">
+    <span className={styles.initials} style={avatarStyle(color)} aria-hidden="true">
       {letters}
     </span>
   );

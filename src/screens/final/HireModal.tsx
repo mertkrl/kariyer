@@ -11,6 +11,7 @@ import { audioEngine } from '../../audio/audioEngine';
 import { EvidencePicker, type Note } from './InterviewParts';
 import { LEAD, leadBacks } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
+import { avatarStyle } from '../../components/ui/avatarStyle';
 
 /*
  * Recommending someone: the room side by side, how the panel votes, and — when it would hire
@@ -39,7 +40,7 @@ export function HireModal({ candidate, pool, scores, agreed, notes, pastRequests
   return (
       <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="confirm-hire">
         <div className={styles.modal}>
-          <span className={`${styles.avatar} ${styles.avatarLarge}`} style={{ background: candidate.color }}>
+          <span className={`${styles.avatar} ${styles.avatarLarge}`} style={avatarStyle(candidate.color)}>
             {candidate.initials}
           </span>
           <h2 id="confirm-hire">Önerin: {candidate.name}</h2>

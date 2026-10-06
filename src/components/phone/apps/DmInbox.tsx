@@ -3,6 +3,7 @@ import { audioEngine } from '../../../audio/audioEngine';
 import type { DmKind } from '../../../game/store';
 import { answerBack, openerFor, repliesFor, type DmCandidate } from './candidateDms';
 import styles from './DmInbox.module.css';
+import { avatarStyle } from '../../ui/avatarStyle';
 
 /*
  * Kariyergram direct messages. Rejected candidates land in "Mesaj İstekleri"; open one and
@@ -54,7 +55,7 @@ export function DmInbox({ dms, minutes, handled, onAnswer, onClose }: Props) {
           <button className={styles.back} onClick={() => setOpenId(null)} aria-label="Geri">
             ‹
           </button>
-          <span className={styles.avatar} style={{ background: open.color }}>
+          <span className={styles.avatar} style={avatarStyle(open.color)}>
             {open.initials}
           </span>
           <span className={styles.who}>
@@ -142,7 +143,7 @@ export function DmInbox({ dms, minutes, handled, onAnswer, onClose }: Props) {
       <div className={styles.list}>
         {(tab === 'requests' ? requests : chats).map((c) => (
           <button key={c.id} className={styles.row} onClick={() => setOpenId(c.id)}>
-            <span className={styles.avatar} style={{ background: c.color }}>
+            <span className={styles.avatar} style={avatarStyle(c.color)}>
               {c.initials}
             </span>
             <span className={styles.rowText}>
