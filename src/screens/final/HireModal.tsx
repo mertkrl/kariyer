@@ -52,7 +52,7 @@ export function HireModal({ candidate, pool, scores, agreed, notes, pastRequests
             gap={scoreGap(scores, (id) => hakanTarget(id, candidateOf(id).age))}
           />
           {(() => {
-            // you recommend; the panel votes — Levent can be argued round, with your notes
+            // you recommend; the panel votes — Ümit can be argued round, with your notes
             const convinced = defense?.id === selectedId && defense.holds;
             const panel = panelDecision(selectedId, pool, pastRequests, { agreed, convinced });
             // only worth arguing when the panel would otherwise hire someone else

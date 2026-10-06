@@ -51,7 +51,7 @@ export function CalendarApp() {
     // announced on Thursday afternoon; it isn't in anyone's calendar before that
     if (d === TEAM_LATE_DAY && dayIndex >= TEAM_LATE_DAY) out.push({ at: WORKDAY_END_MIN, end: TEAM_LATE_END, title: 'Ekipçe geç mesai', place: 'Sistem arızası · yemek şirketten', kind: 'late' });
     if (days[d].final) {
-      out.push({ at: INTERVIEWS[0][0], end: INTERVIEWS[0][1], title: 'Final mülakatları', place: 'Toplantı odası · Levent Arslan, Hakan Kaya', kind: 'interview' });
+      out.push({ at: INTERVIEWS[0][0], end: INTERVIEWS[0][1], title: 'Final mülakatları', place: 'Toplantı odası · Ümit Arslan, Hakan Kaya', kind: 'interview' });
       out.push({ at: INTERVIEWS[1][0], end: INTERVIEWS[1][1], title: 'Final mülakatları', place: 'Toplantı odası · karar toplantısı', kind: 'interview' });
     }
     if (d === dayIndex)

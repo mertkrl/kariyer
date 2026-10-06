@@ -1,7 +1,7 @@
 /*
  * Wednesday, 11:00, online: the weekly HR meeting as a video call. The one time the whole cast is
  * on one screen. Hakan Bey keeps his camera off; what they say is what counts.
- * Levent asks the question nobody asks, Emre and Ayşe answer it from their own lives, and
+ * Ümit asks the question nobody asks, Emre and Ayşe answer it from their own lives, and
  * Hakan Bey turns to you.
  */
 import type { MeetingChoice } from './echoes';
@@ -23,7 +23,7 @@ export const SPEAKERS: Record<Exclude<Speaker, 'room'>, { name: string; role: st
   selin: { name: 'Selin Aksoy', role: 'İK', color: '#d9a0c8' },
   ayse: { name: 'Ayşe Demir', role: 'İK uzmanı', color: '#8fcfa0' },
   emre: { name: 'Emre Yıldız', role: 'İK uzmanı', color: '#8fb8e8' },
-  levent: { name: 'Levent Arslan', role: 'Yazılım Ekip Lideri', color: '#c8c2b4' },
+  levent: { name: 'Ümit Arslan', role: 'Yazılım Ekip Lideri', color: '#c8c2b4' },
   you: { name: PLAYER.name, role: 'Sen', color: '#f4efe4' },
 };
 
@@ -95,7 +95,7 @@ export const COLLEAGUE_STATS: Record<'ayse' | 'emre', TeamStats> = {
 const pct = (x: number) => `%${Math.round(x * 100)}`;
 
 /**
- * The meeting follows the numbers: Hakan Bey reads your pace against Emre's and Ayşe's, Levent
+ * The meeting follows the numbers: Hakan Bey reads your pace against Emre's and Ayşe's, Ümit
  * reads it against what a CV takes to read, and the two shortlists coming to Friday collide.
  */
 export function buildOpening(you: TeamStats): Line[] {
@@ -135,9 +135,9 @@ export function buildOpening(you: TeamStats): Line[] {
     { who: 'levent', text: 'Sarp\'ın CV\'si kusursuz ama GitHub\'ı boş. Nehir\'in iki yıl arası var ama yazdığı kod ortada.', board: { page: 'shortlist', focus: ['sarp', 'nehir'] } },
     { who: 'emre', text: 'Sarp\'ın ATS skoru 97. Sistem bunu boşuna vermiyor. Nehir iki yıl çalışmamış.', board: { page: 'shortlist', focus: ['sarp'] }, chat: [{ who: 'emre', text: 'ATS 97 👀' }] },
     { who: 'ayse', text: 'Çocuğuna baktı Emre. Bunu CV\'sine dürüstçe yazdı diye mi eleyeceğiz?', board: { page: 'shortlist', focus: ['nehir'] }, chat: [{ who: 'levent', text: '+1 Ayşe' }] },
-    { who: 'levent', text: 'Asıl sorum şu: elenen 1.800 kişinin içinde kaç iyi yazılımcı var, bilen var mı?', board: { page: 'funnel', focus: ['eliminated'] }, chat: [{ who: 'system', text: 'Levent Arslan el kaldırdı ✋' }] },
-    { who: 'hakan', text: 'Sistem eledi, Levent. Sistemin işi bu.', board: { page: 'funnel', focus: ['threshold'] } },
-    { who: 'room', text: 'Kısa bir sessizlik. Kimse mikrofonunu açmıyor.', chat: [{ who: 'system', text: 'Levent Arslan elini indirdi' }] },
+    { who: 'levent', text: 'Asıl sorum şu: elenen 1.800 kişinin içinde kaç iyi yazılımcı var, bilen var mı?', board: { page: 'funnel', focus: ['eliminated'] }, chat: [{ who: 'system', text: 'Ümit Arslan el kaldırdı ✋' }] },
+    { who: 'hakan', text: 'Sistem eledi, Ümit. Sistemin işi bu.', board: { page: 'funnel', focus: ['threshold'] } },
+    { who: 'room', text: 'Kısa bir sessizlik. Kimse mikrofonunu açmıyor.', chat: [{ who: 'system', text: 'Ümit Arslan elini indirdi' }] },
     { who: 'hakan', text: 'Defne, sen ne düşünüyorsun? Sistemle çalışmak nasıl gidiyor?', board: { page: 'people', metric: 'files', focus: ['you'] } },
   );
   return lines;
@@ -170,7 +170,7 @@ export const OPTIONS: MeetingOption[] = [
     vicdan: -2,
     replies: [
       { who: 'hakan', text: 'Güzel. Böyle devam.', board: { page: 'overview' } },
-      { who: 'room', text: 'Levent mikrofonunu kapatıyor. Sohbette kimse bir şey yazmıyor.', chat: [{ who: 'emre', text: '👏' }] },
+      { who: 'room', text: 'Ümit mikrofonunu kapatıyor. Sohbette kimse bir şey yazmıyor.', chat: [{ who: 'emre', text: '👏' }] },
     ],
   },
   {

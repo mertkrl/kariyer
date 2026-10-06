@@ -210,7 +210,7 @@ export const AMBIENT: Ambient[][] = [
     },
   ],
   [
-    { at: 100, thread: 'office', sender: 'Selin (İK)', text: 'Hatırlatma: 11:00\'de haftalık İK toplantısı online, bağlantı takvimde. Hakan Bey genel müdürlükten, Levent Bey evden bağlanıyor.' },
+    { at: 100, thread: 'office', sender: 'Selin (İK)', text: 'Hatırlatma: 11:00\'de haftalık İK toplantısı online, bağlantı takvimde. Hakan Bey genel müdürlükten, Ümit Bey evden bağlanıyor.' },
     {
       at: 250, thread: 'office', sender: 'Emre', text: 'Toplantı odasını su basmış, sandalyeler koridorda 🌊 İyi ki toplantı online\'dı.',
       followUps: [

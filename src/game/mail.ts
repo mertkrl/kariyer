@@ -165,17 +165,17 @@ Anlayışınız için teşekkür ederiz.
     id: 'levent-intro',
     day: 1,
     at: 60,
-    from: 'Levent Arslan',
-    address: 'levent.arslan@tavrinsalabs.test',
+    from: 'Ümit Arslan',
+    address: 'umit.arslan@tavrinsalabs.test',
     subject: 'Cuma mülakatları hk.',
     body: `Merhaba ${PLAYER.first},
 
-Ben Levent, yazılım ekip lideri. Cuma mülakatlarında ben de olacağım; işe alacağımız kişi benim ekibimde çalışacak.
+Ben Ümit, yazılım ekip lideri. Cuma mülakatlarında ben de olacağım; işe alacağımız kişi benim ekibimde çalışacak.
 
 Bir ricam var: kısa listeyi hazırlarken ATS skoruna değil, adayların gerçekte ne yaptığına bakın. Tanıdığım en iyi geliştiricilerin çoğu iyi CV yazmayı bilmez.
 
 Kolay gelsin,
-Levent`,
+Ümit`,
   },
   {
     id: 'crash',
@@ -195,14 +195,14 @@ Bilgi İşlem`,
     id: 'levent-crash',
     day: 3,
     at: 160,
-    from: 'Levent Arslan',
-    address: 'levent.arslan@tavrinsalabs.test',
+    from: 'Ümit Arslan',
+    address: 'umit.arslan@tavrinsalabs.test',
     subject: 'Re: Sistem',
     body: `Sistemin çöktüğünü duydum. Açıkçası bizim ekip için kötü haber sayılmaz.
 
 Kısa listeye kimi koyduysanız yarın göreceğim. Tek isteğim: listeye "skoru yüksek" diye değil, "işi yapabilir" diye girsinler.
 
-Levent`,
+Ümit`,
   },
   {
     id: 'shortlist',

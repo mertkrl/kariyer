@@ -24,15 +24,15 @@ Ekran tekrar neşelenir, sıradaki CV gelir.
 ---
 
 ### Vaka 2 — "Stajyer Aranıyor: Tam Zamanlı Deneyimli"
-**Aday:** Selin, 22, üniversite 4. sınıf. Freelance 2 proje yapmış.
+**Aday:** Ilgın, 22, üniversite 4. sınıf. Freelance 2 proje yapmış.
 **Kural:** "Stajyer pozisyonu — sektörde en az 2 yıl profesyonel deneyim tercih sebebi."
 
 > Sistem, bir çocuk kitabı sesiyle: "Bir varmış bir yokmuş, bir stajyer varmış... ama tecrübesi yokmuş! 📖"
-> Küçük karikatür: Selin'in üstünde "STAJYER" yazan bir bebek kıyafeti, elinde "2 YIL DENEYİM" yazan dev bir çanta.
+> Küçük karikatür: Ilgın'ın üstünde "STAJYER" yazan bir bebek kıyafeti, elinde "2 YIL DENEYİM" yazan dev bir çanta.
 > [ONAYLA] [REDDET]
 
 **Reddet sonucu:** Ekran durur:
-*"Selin, 'deneyim kazanmak için' başvurduğu 6. stajı da bu şekilde kaybetti. Deneyimi nereden kazanacağı hâlâ belirsiz."*
+*"Ilgın, 'deneyim kazanmak için' başvurduğu 6. stajı da bu şekilde kaybetti. Deneyimi nereden kazanacağı hâlâ belirsiz."*
 
 ---
 
@@ -93,7 +93,7 @@ Ekran tekrar neşelenir, sıradaki CV gelir.
 ## TEMA 3: Maaş ve Şeffaflık
 
 ### Vaka 7 — "Beklenti Bahanesi"
-**Aday:** Emre, 35, Kıdemli Yazılım Mimarı, 12 yıl deneyim. Maaş beklentisi: piyasa ortalaması.
+**Aday:** Ozan, 35, Kıdemli Yazılım Mimarı, 12 yıl deneyim. Maaş beklentisi: piyasa ortalaması.
 **Kural:** "Maaş beklentisi 'yüksek' bulunanlar görüşmeye alınmaz." (Bütçe sana da gösterilmiyor.)
 
 > Sistem bir kumarhane krupiyesi gibi: "Maaş beklentisi: 65.000 TL! Bakalım bütçeye yeter mi? 🎰"
@@ -101,7 +101,7 @@ Ekran tekrar neşelenir, sıradaki CV gelir.
 > [ONAYLA] [REDDET]
 
 **Reddet sonucu:**
-*"Emre 3 ay sonra aynı şirkete, aynı işe, 'danışman' unvanıyla 90.000 TL'ye alınacak. Ama bunu hiçbir zaman öğrenemeyecek."*
+*"Ozan 3 ay sonra aynı şirkete, aynı işe, 'danışman' unvanıyla 90.000 TL'ye alınacak. Ama bunu hiçbir zaman öğrenemeyecek."*
 
 ---
 
@@ -119,15 +119,15 @@ Ekran tekrar neşelenir, sıradaki CV gelir.
 ---
 
 ### Vaka 9 — "Referans Maaşı Aşağı Çekme"
-**Aday:** Burak, 30, Satış Müdürü. Önceki maaşını beyan etmiş (düşük bir şirketten geliyor).
+**Aday:** Batuhan, 30, Satış Müdürü. Önceki maaşını beyan etmiş (düşük bir şirketten geliyor).
 **Kural:** "Teklif, adayın önceki maaşına göre şekillendirilir — piyasa değeri değil, geçmiş maaş baz alınır."
 
-> Sistem bir terazi animasyonuyla: "⚖️ Burak'ın geçmiş maaşı düşükmüş! O zaman biz de düşük teklif verelim, adil olsun!"
+> Sistem bir terazi animasyonuyla: "⚖️ Batuhan'ın geçmiş maaşı düşükmüş! O zaman biz de düşük teklif verelim, adil olsun!"
 > Teklif rakamı ekranda küçülerek animasyonla düşüyor: 45.000 → 38.000 → 32.000 TL.
 > [TEKLİF GÖNDER] [PİYASA DEĞERİNDE TEKLİF VER]
 
 **Düşük teklif sonucu:**
-*"Burak teklifi kabul etti — çünkü başka seçeneği yoktu. Aynı pozisyon için dışarıdan alınacak biri, sadece 'ilk teklifi' yüksek istediği için 15.000 TL daha fazla alacak."*
+*"Batuhan teklifi kabul etti — çünkü başka seçeneği yoktu. Aynı pozisyon için dışarıdan alınacak biri, sadece 'ilk teklifi' yüksek istediği için 15.000 TL daha fazla alacak."*
 
 ---
 
@@ -138,7 +138,7 @@ Ekran tekrar neşelenir, sıradaki CV gelir.
 **Kural:** "Tüm redler otomatik şablonla gönderilir: 'Şu an için olumlu sonuçlanmamıştır.'"
 
 > Sistem bir yazıcıdan mail fırlatır gibi: "🖨️ Şablon #4 gönderiliyor... Başarılar dileriz!"
-> Aynı mail metni ekranda 5 farklı isimle art arda kayar (Gizem, Ahmet, Zeynep, Emre, Selin...) — hepsi birebir aynı.
+> Aynı mail metni ekranda 5 farklı isimle art arda kayar (Gizem, Ahmet, Zeynep, Ozan, Ilgın...) — hepsi birebir aynı.
 > [GÖNDER]
 
 **Sonuç:**

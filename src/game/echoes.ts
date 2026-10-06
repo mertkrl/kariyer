@@ -60,10 +60,10 @@ export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingC
     id: `levent-${dayIndex}`,
     day: dayIndex,
     at: 150,
-    from: 'Levent Arslan',
-    address: 'levent.arslan@tavrinsalabs.test',
+    from: 'Ümit Arslan',
+    address: 'umit.arslan@tavrinsalabs.test',
     subject: invited.length ? 'Dün çağırdıkların hk.' : 'Mülakat listesi hk.',
-    body: `Merhaba,\n\n${lines.join('\n')}\n\nİyi çalışmalar,\nLevent Arslan\nYazılım Ekip Lideri`,
+    body: `Merhaba,\n\n${lines.join('\n')}\n\nİyi çalışmalar,\nÜmit Arslan\nYazılım Ekip Lideri`,
   };
 }
 

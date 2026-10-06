@@ -96,7 +96,7 @@ export const days: DayConfig[] = [
     memoFrom: 'Hakan Kaya, İK Müdürü',
     memoTo: 'İşe Alım Uzmanı (siz)',
     memoBody:
-      'Bugün mülakat günü. Hafta boyunca çağırdığınız adaylar sırayla gelecek; sorularınızı sorup cevaplarını değerlendireceksiniz. Görüşmelerde ben ve yazılım ekip lideri Levent Arslan da bulunacağız. Öneriyi siz sunacaksınız; kararı üçümüz birlikte vereceğiz.\n\nHolding dün akşam bütçeyi revize etti: yalnızca 1 kadro açık ve pozisyonun maaş tavanı aylık 50.000 TL. Bugün skor, sıralama ya da sistem önerisi yok; yalnızca adayların cevapları ve sizin kararınız.\n\nVereceğiniz karar geri alınamaz. Deneme sürenizin değerlendirmesini de bugün yapacağım.',
+      'Bugün mülakat günü. Hafta boyunca çağırdığınız adaylar sırayla gelecek; sorularınızı sorup cevaplarını değerlendireceksiniz. Görüşmelerde ben ve yazılım ekip lideri Ümit Arslan da bulunacağız. Öneriyi siz sunacaksınız; kararı üçümüz birlikte vereceğiz.\n\nHolding dün akşam bütçeyi revize etti: yalnızca 1 kadro açık ve pozisyonun maaş tavanı aylık 50.000 TL. Bugün skor, sıralama ya da sistem önerisi yok; yalnızca adayların cevapları ve sizin kararınız.\n\nVereceğiniz karar geri alınamaz. Deneme sürenizin değerlendirmesini de bugün yapacağım.',
     goals: [
       'Adayların mülakat cevaplarını oku.',
       'Yalnızca 1 kişiyi işe al.',

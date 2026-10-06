@@ -36,8 +36,8 @@
     "selin": {
       "id": "selin",
       "flaggedField": "experience",
-      "name": "Selin Güneş",
-      "initials": "SG",
+      "name": "Ilgın Güneş",
+      "initials": "IG",
       "color": "#C9A227",
       "age": 22,
       "role": "Yazılım Geliştirici adayı · junior (stajyer)",
@@ -62,15 +62,15 @@
       "verdict": "out",
       "systemLine": "Öneri: Değerlendirme dışı · Gerekçe: Deneyim 0 yıl < 5 yıl (kural) · Güven: %98",
       "outcomeNote": {
-        "reject": "Selin, \"deneyim kazanmak için\" başvurduğu 6. stajı da bu şekilde kaybetti.",
-        "approve": "Selin işe alındı ama deneyimsiz olduğu için sürekli en düşük öncelikli işlere veriliyor."
+        "reject": "Ilgın, \"deneyim kazanmak için\" başvurduğu 6. stajı da bu şekilde kaybetti.",
+        "approve": "Ilgın işe alındı ama deneyimsiz olduğu için sürekli en düşük öncelikli işlere veriliyor."
       }
     },
     "caner": {
       "id": "caner",
       "flaggedField": "questions",
-      "name": "Caner Demir",
-      "initials": "CD",
+      "name": "Caner Polat",
+      "initials": "CP",
       "color": "#7C6A8C",
       "age": 31,
       "role": "Yazılım Geliştirici adayı · kıdemli (ekip lideri deneyimi)",
@@ -97,7 +97,7 @@
     "zeynep": {
       "id": "zeynep",
       "flaggedField": "skills",
-      "name": "Zeynep Kaya",
+      "name": "Zeynep Kalkan",
       "initials": "ZK",
       "color": "#B3766B",
       "age": 29,
@@ -182,8 +182,8 @@
       "id": "emre",
       "flagIsFair": true,
       "flaggedField": "salary",
-      "name": "Emre Tan",
-      "initials": "ET",
+      "name": "Ozan Tan",
+      "initials": "OT",
       "color": "#8C8465",
       "age": 35,
       "role": "Yazılım Geliştirici adayı · kıdemli",
@@ -203,8 +203,8 @@
       "verdict": "out",
       "systemLine": "Öneri: Değerlendirme dışı · Gerekçe: Ücret beklentisi bant üstü (+%73) · Güven: %89",
       "outcomeNote": {
-        "reject": "Emre 3 ay sonra aynı şirkete, aynı işe, \"danışman\" unvanıyla %38 daha yüksek ücretle alınacak.",
-        "approve": "Emre işe başladı; kurduğu sistem şirketin altyapısını 3 yıl taşıdı. İlk yıl ekipten üç kişi onun yüzünden ayrıldı."
+        "reject": "Ozan 3 ay sonra aynı şirkete, aynı işe, \"danışman\" unvanıyla %38 daha yüksek ücretle alınacak.",
+        "approve": "Ozan işe başladı; kurduğu sistem şirketin altyapısını 3 yıl taşıdı. İlk yıl ekipten üç kişi onun yüzünden ayrıldı."
       }
     },
     "aylin": {
@@ -238,7 +238,7 @@
     "burak": {
       "id": "burak",
       "flaggedField": "salary",
-      "name": "Burak Kılıç",
+      "name": "Batuhan Kılıç",
       "initials": "BK",
       "color": "#B3766B",
       "age": 30,
@@ -259,8 +259,8 @@
       "verdict": "priority",
       "systemLine": "Öneri: Öncelikli · Not: Önceki maaş düşük; teklif önceki maaş +%5 ile sınırlandırılsın · Güven: %90",
       "outcomeNote": {
-        "reject": "Burak teklifi reddetti. Yerine alınan geliştirici, sadece ilk teklifi yüksek istediği için 15.000 TL daha fazla alıyor.",
-        "approve": "Burak düşük teklifi kabul etti. İlk çeyrekte en çok iş kapatan geliştirici oldu; maaşı hâlâ aynı."
+        "reject": "Batuhan teklifi reddetti. Yerine alınan geliştirici, sadece ilk teklifi yüksek istediği için 15.000 TL daha fazla alıyor.",
+        "approve": "Batuhan düşük teklifi kabul etti. İlk çeyrekte en çok iş kapatan geliştirici oldu; maaşı hâlâ aynı."
       }
     },
     "kerem": {
@@ -649,8 +649,8 @@
     "gokce": {
       "id": "gokce",
       "flaggedField": "motivation",
-      "name": "Gökçe Demir",
-      "initials": "GD",
+      "name": "Gökçe Yalçın",
+      "initials": "GY",
       "color": "#C9A227",
       "age": 27,
       "role": "Yazılım Geliştirici adayı · orta seviye",
@@ -796,8 +796,8 @@
     "hakan": {
       "id": "hakan",
       "flaggedField": "questions",
-      "name": "Hakan Yavuz",
-      "initials": "HY",
+      "name": "Cihan Yavuz",
+      "initials": "CY",
       "color": "#8C8465",
       "age": 39,
       "role": "Yazılım Geliştirici adayı · junior (kariyer değişikliği)",
@@ -817,8 +817,8 @@
       "verdict": "low",
       "systemLine": "Öneri: Düşük öncelik · Gerekçe: Junior rolü için yaş profili uyumsuz (39) · Güven: %75",
       "outcomeNote": {
-        "reject": "Hakan tekrar öğretmenliğe döndü. \"Denedim\" diyor, \"ama kapı hep aynı yerden kapandı.\"",
-        "approve": "Hakan'ın yazdığı iç dokümantasyon, yeni gelenlerin işe alışma süresini yarıya indirdi."
+        "reject": "Cihan tekrar öğretmenliğe döndü. \"Denedim\" diyor, \"ama kapı hep aynı yerden kapandı.\"",
+        "approve": "Cihan'ın yazdığı iç dokümantasyon, yeni gelenlerin işe alışma süresini yarıya indirdi."
       }
     }
   },

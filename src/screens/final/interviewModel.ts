@@ -22,11 +22,11 @@ export const COLLEAGUES: Finalist[] = [
 ];
 
 /*
- * The hiring manager sits in too: Levent, the software team lead. He listens to the answers,
+ * The hiring manager sits in too: Ümit, the software team lead. He listens to the answers,
  * not the flags, and says what he thinks after each interview. The hire is a panel decision —
  * you recommend, he and Hakan Bey sign (or object on the record).
  */
-export const LEAD = 'Levent Arslan';
+export const LEAD = 'Ümit Arslan';
 export const LEAD_SPECIAL: Record<string, string> = {
   emre: 'Teknik olarak açık ara en iyisi. Ama ekibi "gereksiz" bulduğunu bana da söyledi; ekibim onunla çalışmak istemez.',
   okan: 'Temel sorulara cevap veremedi. Kimin yakını olduğu umurumda değil; ekipte yeri yok.',

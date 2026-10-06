@@ -45,7 +45,7 @@ const SPECIAL: Record<string, ReferenceCheck> = {
   },
   emre: {
     who: 'Globalsoft · eski genel müdürü',
-    lines: ['Emre mi… İşinin ehli, açık ara en iyisi. Sistemimizi o ayakta tuttu.', 'Ama bunu da bilin: ekipte iki kişi onun yüzünden istifa etti. Kimseyi dinlemez, kimseyi beğenmez.', 'İşe alırsanız bir süper yıldız alırsınız. Ekip mi ister, yıldız mı? Siz bilirsiniz.'],
+    lines: ['Ozan mı… İşinin ehli, açık ara en iyisi. Sistemimizi o ayakta tuttu.', 'Ama bunu da bilin: ekipte iki kişi onun yüzünden istifa etti. Kimseyi dinlemez, kimseyi beğenmez.', 'İşe alırsanız bir süper yıldız alırsınız. Ekip mi ister, yıldız mı? Siz bilirsiniz.'],
     verdict: 'mixed',
     summary: 'Teknik olarak en iyisi — ama iki kişi onun yüzünden istifa etmiş.',
   },

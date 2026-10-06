@@ -228,7 +228,7 @@ export function FinalRoundScreen() {
           <p className={styles.subtitle}>
             Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Odada senin listen ve ekip arkadaşlarının (Ayşe, Emre) kısa listeleri var. Yapay zeka yok, puan yok — sadece adayların
             cevapları. Odada <strong>Hakan Bey</strong> ve yazılım ekip lideri <strong>{LEAD}</strong> da var. Öneriyi sen sunacaksın; karar üçünüzün. Geri alınamaz.
-            {structured && ' Bugün yapılandırılmış mülakat var: her adaya aynı sorular, Levent puan kartı tutuyor; Hakan Bey\'in listesi masada değil.'}
+            {structured && ' Bugün yapılandırılmış mülakat var: her adaya aynı sorular, Ümit puan kartı tutuyor; Hakan Bey\'in listesi masada değil.'}
           </p>
         </div>
         <div className={styles.headerRight}>

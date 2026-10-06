@@ -90,7 +90,7 @@ export function CaseCard({ c }: { c: CodeCase }) {
       </figcaption>
       <pre className="mono">{c.code}</pre>
       <p className={styles.caseWhat}>
-        Kodu senin çözmen gerekmiyor. Bak: aday hatayı buluyor mu, nedenini anlatabiliyor mu, nasıl test edeceğini söylüyor mu? Cevaptan sonra Levent'in yorumu da dosyada.
+        Kodu senin çözmen gerekmiyor. Bak: aday hatayı buluyor mu, nedenini anlatabiliyor mu, nasıl test edeceğini söylüyor mu? Cevaptan sonra Ümit'in yorumu da dosyada.
       </p>
     </figure>
   );

@@ -247,7 +247,7 @@ function Shortlist({ focus, you }: { focus: string[]; you: TeamStats }) {
                   {c.ats}
                 </td>
                 <td colSpan={2} className={styles.muted}>
-                  Levent'in incelemesi bekleniyor
+                  Ümit'in incelemesi bekleniyor
                 </td>
               </tr>
             ))}
