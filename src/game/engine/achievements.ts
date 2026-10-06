@@ -53,9 +53,13 @@ export const ACHIEVEMENTS: Achievement[] = [
 
 const STORAGE_KEY = 'kariyerweb-achievements';
 
+/** What the browser kept, keeping only ids this build knows: a damaged or edited entry is ignored. */
 export function loadUnlocked(): Set<string> {
   try {
-    return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as string[]);
+    const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+    if (!Array.isArray(stored)) return new Set();
+    const known = new Set(ACHIEVEMENTS.map((a) => a.id));
+    return new Set(stored.filter((id): id is string => typeof id === 'string' && known.has(id)));
   } catch {
     return new Set();
   }

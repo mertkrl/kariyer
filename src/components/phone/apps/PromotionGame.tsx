@@ -79,7 +79,8 @@ export function PromotionGame() {
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => {
     try {
-      return Number(localStorage.getItem(TERFI_BEST_KEY)) || 0;
+      const stored = Number(localStorage.getItem(TERFI_BEST_KEY));
+      return Number.isSafeInteger(stored) && stored > 0 ? stored : 0;
     } catch {
       return 0;
     }

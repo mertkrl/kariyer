@@ -53,3 +53,13 @@ test('bozuk başarım kaydı oyunu durdurmaz', () => {
   localStorage.setItem('kariyerweb-achievements', '{bozuk');
   assert.equal(loadUnlocked().size, 0);
 });
+
+test('rozet kaydı bozuk ya da elle değiştirilmişse yalnızca bilinen rozetler okunur', () => {
+  localStorage.setItem('kariyerweb-achievements', JSON.stringify(['spine', 'uydurma', 42, null]));
+  assert.deepEqual([...loadUnlocked()], ['spine']);
+  localStorage.setItem('kariyerweb-achievements', '"spine"');
+  assert.equal(loadUnlocked().size, 0);
+  localStorage.setItem('kariyerweb-achievements', '{bozuk');
+  assert.equal(loadUnlocked().size, 0);
+  localStorage.removeItem('kariyerweb-achievements');
+});
