@@ -237,7 +237,9 @@
 }
 
 .privacyLink {
-  padding: 0;
+  /* a 24px+ tap target (WCAG 2.5.8) without moving the text: the padding is taken back by the margin */
+  padding: 6px 4px;
+  margin: -6px -4px;
   border: 0;
   background: none;
   color: inherit;

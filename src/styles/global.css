@@ -32,6 +32,34 @@ button {
   outline-offset: 2px;
 }
 
+/* a screen's heading takes focus when the screen changes (useScreenFocus): it isn't a control, so no ring */
+h1[tabindex='-1']:focus,
+h2[tabindex='-1']:focus,
+[data-screen-focus]:focus {
+  outline: none;
+}
+
+/* the screens' <main> landmark: no box of its own */
+.app-main {
+  display: contents;
+}
+
+/*
+ * Players who asked their system for less motion get it everywhere: animations and transitions
+ * end at once (their final state still shows). Canvas scenes check the same setting in code.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* read by screen readers, not shown */
 .sr-only {
   position: absolute;

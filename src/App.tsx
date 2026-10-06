@@ -4,6 +4,8 @@ import { audioEngine } from './audio/audioEngine';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { UpdateNotice } from './components/ui/UpdateNotice';
 import { RotateHint } from './components/ui/RotateHint';
+import { useScreenFocus } from './components/ui/useScreenFocus';
+import { useModalTrap } from './components/ui/useModalTrap';
 
 // Only the welcome screen ships in the first bundle; every other screen is its own chunk.
 const SCREENS = {
@@ -31,6 +33,8 @@ const SoundToggle = lazy(() => import('./components/ui/SoundToggle').then((m) =>
 
 function App() {
   const phase = usePhase();
+  const { mainRef, announcement } = useScreenFocus(phase);
+  useModalTrap();
 
   // Music enters when the workday starts (GameplayScreen then drives work/break/paused).
   // Intro screens stay silent so the application-flood sound design reads clearly.
@@ -74,8 +78,14 @@ function App() {
 
   return (
     <>
+      {/* the landmark adds no box (display: contents), so every screen lays out as before */}
+      <main ref={mainRef} className="app-main">
+        <Suspense fallback={null}>{renderScreen()}</Suspense>
+      </main>
+      <p className="sr-only" aria-live="polite">
+        {announcement}
+      </p>
       <Suspense fallback={null}>
-        {renderScreen()}
         {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
       </Suspense>
       {phase === 'welcome' && <UpdateNotice />}

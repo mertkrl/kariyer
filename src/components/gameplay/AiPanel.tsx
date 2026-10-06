@@ -64,6 +64,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
           disabled={!hasNote}
           aria-expanded={hasNote ? noteOpen : undefined}
           title={hasNote ? (noteOpen ? 'Analiz notunu kapat' : 'Analiz notunu aç') : undefined}
+          aria-label={hasNote ? (noteOpen ? 'Analiz notunu kapat' : 'Analiz notunu aç') : aiOffline ? 'Yapay zekâ sistemi: çevrimdışı' : 'Yapay zekâ sistemi'}
         >
           {isAnalyzing && <div className={styles.systemScanRing} />}
           <AiIcon className={styles.systemIconGlyph} />

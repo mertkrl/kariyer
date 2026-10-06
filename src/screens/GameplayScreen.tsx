@@ -104,6 +104,20 @@ export function GameplayScreen() {
   const areaRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
   const { area, stageScale, deskStyle, pcStyle, stackStyle, callStackStyle } = useDeskCamera(areaRef, atPc);
+  const deskLayerRef = useRef<HTMLDivElement>(null);
+  const pcLayerRef = useRef<HTMLDivElement>(null);
+  const shownView = useRef(view);
+
+  // Turning to the computer (or back) makes the other layer inert, which drops keyboard focus
+  // to the page; it goes to the first control of the side you turned to instead.
+  useEffect(() => {
+    if (shownView.current === view) return;
+    shownView.current = view;
+    const layer = (view === 'pc' ? pcLayerRef : deskLayerRef).current;
+    const active = document.activeElement;
+    if (!layer || (active && active !== document.body && layer.contains(active))) return;
+    layer.querySelector<HTMLElement>('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')?.focus({ preventScroll: true });
+  }, [view]);
 
   const day = days[currentDayIndex];
   const itOutage = activeEvent?.kind === 'it';
@@ -260,7 +274,7 @@ export function GameplayScreen() {
         </div>
       ) : (
       <div ref={areaRef} className={styles.stageArea}>
-        <div className={styles.deskLayer} style={deskStyle} inert={atPc}>
+        <div ref={deskLayerRef} className={styles.deskLayer} style={deskStyle} inert={atPc}>
           <Desk
             scale={stageScale}
             onOpenPc={() => {
@@ -270,7 +284,7 @@ export function GameplayScreen() {
             onOpenPhone={openPhone}
           />
         </div>
-        <div className={styles.pcLayer} style={pcStyle} inert={!atPc}>
+        <div ref={pcLayerRef} className={styles.pcLayer} style={pcStyle} inert={!atPc}>
           <PcDesktop
             app={pcApp}
             onOpen={setPcApp}

@@ -71,14 +71,19 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                 }`}
                 onClick={() => selectCandidate(id)}
                 disabled={onBreak}
+                aria-current={isSelected ? 'true' : undefined}
               >
                 <span className={styles.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
                 <span className={styles.queueName}>
                   {c.name}
                   {id === NEIGHBOUR_ID && <em className={styles.queueTag}>Tavsiye</em>}
                 </span>
+                {/* the visible column is a glance (a time, a dash); a screen reader hears it in words */}
+                <span className="sr-only">
+                  {decisions[id] === 'approve' ? ', mülakata çağrıldı' : decisions[id] === 'reject' ? ', reddedildi' : isOpened ? ', açıldı' : ', henüz açılmadı'}
+                </span>
                 <span className={`${styles.queueTime} mono`}>
-                  {isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}
+                  <span aria-hidden="true">{isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}</span>
                   {wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id)) && (
                     <span className={styles.queueRead} title="Dosyayı okudun">
                       {' '}✓<span className="sr-only">okundu</span>
