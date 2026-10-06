@@ -361,7 +361,7 @@ export function WindowFrameArt() {
   );
 }
 
-export function PedestalArt({ unlocked }: { unlocked: boolean }) {
+export function PedestalArt() {
   return (
     <svg viewBox="0 0 300 100" width="100%" height="100%" aria-hidden="true" preserveAspectRatio="none">
       <rect x={0} y={0} width={300} height={100} fill="#3b3d42" />
@@ -372,12 +372,6 @@ export function PedestalArt({ unlocked }: { unlocked: boolean }) {
       <rect x={6} y={50} width={288} height={50} rx={2} fill="#666970" />
       <rect x={6} y={50} width={288} height={3} fill="rgba(255,255,255,0.18)" />
       <rect x={110} y={66} width={80} height={8} rx={4} fill="#2c2e33" />
-      {unlocked && (
-        <>
-          <rect x={30} y={47} width={120} height={4} fill="#b8322a" />
-          <rect x={30} y={47} width={120} height={1.5} fill="#e25a4c" />
-        </>
-      )}
     </svg>
   );
 }

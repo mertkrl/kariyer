@@ -56,7 +56,6 @@ export function FinalScreen() {
     aiUses,
     weekendChoice,
     difficulty,
-    evidence: story.evidence,
     hiredNephew: hiredId === NEPHEW_ID,
   });
   const input: AchievementInput = {

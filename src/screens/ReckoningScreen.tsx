@@ -6,7 +6,7 @@ import styles from './ReckoningScreen.module.css';
 
 /*
  * Friday, 18:40. The hire is done, the floor is empty, only your monitor is on. One thing
- * left: the landlord wants the rent tonight. (The red folder was decided on Thursday night.)
+ * left: the landlord wants the rent tonight.
  */
 
 export function ReckoningScreen() {

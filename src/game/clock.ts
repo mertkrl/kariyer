@@ -265,8 +265,8 @@ export function spendMinutes(minutes: number) {
 
 /**
  * How long a chat waits for your answer (workday minutes). Group chats move on quickly — an
- * answer half an hour late lands in the middle of another conversation. Hakan Bey and Zehra
- * wait: those threads carry the story.
+ * answer half an hour late lands in the middle of another conversation. Hakan Bey waits:
+ * his thread carries the story.
  */
 // in game minutes (1.3 per real second): the group chats wait about 45 real seconds for you
 export const REPLY_WINDOW: Partial<Record<ThreadId, number>> = { office: 60, birthday: 60, mom: 90, ayse: 60 };
@@ -319,12 +319,10 @@ export function deliverManagerMessages(minutes: number) {
     m.request ? [{ id: m.request.id, candidateId: m.request.candidateId, want: m.request.want, answer: null }] : [],
   );
   const momCount = messages.filter((m) => m.thread === 'mom').length;
-  const unlocks = delivered.some((m) => m.ambient?.unlock) && state.story.drawer === 'locked';
   // "let's drop it": nobody answers a closed topic
   const closed: ThreadId[] = delivered.flatMap((m) => (m.ambient?.closes ? [m.ambient.thread] : []));
   const history = closed.length ? state.phone.map((m) => (closed.includes(m.thread) && m.replies && !m.answered ? { ...m, answered: true } : m)) : state.phone;
   setState({
-    story: unlocks ? { ...state.story, drawer: 'unlocked' } : state.story,
     week: momCount ? { ...state.week, momMessages: state.week.momMessages + momCount } : state.week,
     managerScript: state.managerScript.filter((m) => !delivered.includes(m)),
     phone: [...history, ...messages],

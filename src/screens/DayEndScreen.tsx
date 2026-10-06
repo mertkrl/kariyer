@@ -7,10 +7,8 @@ import { Button } from '../components/ui/Button';
 import { DayEndBackdrop } from '../components/dayend/DayEndBackdrop';
 import { CountUp } from '../components/dayend/CountUp';
 import { CHART } from '../components/dayend/chartColors';
-import { EvidenceCard } from '../components/story/EvidenceCard';
-import { isStrong, isWronglyFlagged, wasConsidered } from '../game/engine/scoring';
+import { wasConsidered } from '../game/engine/scoring';
 import styles from './DayEndScreen.module.css';
-import { SECOND_PAGE_DAY } from '../game/weekdays';
 
 export function DayEndScreen() {
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
@@ -26,16 +24,11 @@ export function DayEndScreen() {
   const workdayMinutes = useGameStore((s) => s.workdayMinutes);
   const decisionLog = useGameStore((s) => s.decisionLog);
   const managerRequests = useGameStore((s) => s.managerRequests);
-  const managerVerdict = useGameStore((s) => s.managerVerdict);
   const dayStart = useGameStore((s) => s.dayStart);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
   const rejectionToday = useGameStore((s) => s.rejectionToday);
-  const decisionEffects = useGameStore((s) => s.decisionEffects);
   const [watching, setWatching] = useState(false);
   const story = useGameStore((s) => s.story);
-  // Thursday night: what you do with the photo can't wait for Friday
-  const photoTonight = currentDayIndex === SECOND_PAGE_DAY && story.drawer === 'photographed';
-  const photoOpen = photoTonight && story.evidence === null;
 
   const day = days[currentDayIndex];
   const lineup = lineupFor({ currentDayIndex, lineups });
@@ -66,16 +59,6 @@ export function DayEndScreen() {
   const readingSeconds = decided.reduce((n, id) => n + (timeSpent[id] ?? 0), 0);
   const longest = decided.reduce<string | null>((best, id) => (best === null || (timeSpent[id] ?? 0) > (timeSpent[best] ?? 0) ? id : best), null);
   const referencesToday = lineup.filter((id) => referenceChecks[id]).length;
-  const flagged = lineup.filter((id) => isWronglyFlagged(id) && isStrong(id));
-  const flaggedCalled = flagged.filter((id) => decisions[id] === 'approve').length;
-  const flaggedUnread = flagged.filter((id) => decisions[id] === 'reject' && !wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id))).length;
-  const kept = managerRequests.filter((r) => decisions[r.candidateId] === r.want).length;
-  const turnedDown = managerRequests.filter((r) => decisions[r.candidateId] && decisions[r.candidateId] !== r.want).length;
-  const weighty = decided
-    .map((id) => ({ id, ...(decisionEffects[id] ?? { performans: 0, vicdan: 0 }) }))
-    .filter((e) => e.performans !== 0 || e.vicdan !== 0)
-    .sort((a, b) => Math.abs(b.performans) + Math.abs(b.vicdan) - (Math.abs(a.performans) + Math.abs(a.vicdan)))
-    .slice(0, 3);
 
   return (
     <div className={styles.screen}>
@@ -92,12 +75,33 @@ export function DayEndScreen() {
               {story.overtimeToday && ' · fazla mesai'}
             </div>
             <h1 className={styles.title}>Günün Özeti</h1>
+            <p className={styles.headline}>{headline}</p>
+          </div>
+          <div className={styles.deltas}>
+            <div className={styles.delta}>
+              <span>Performans</span>
+              <b className="mono" style={{ color: CHART.performans }}>
+                {performans}
+                <small className={dPerf > 0 ? styles.up : dPerf < 0 ? styles.down : undefined}>{dPerf > 0 ? `▲${dPerf}` : dPerf < 0 ? `▼${-dPerf}` : '±0'}</small>
+              </b>
+            </div>
+            <div className={styles.delta}>
+              <span>Vicdan</span>
+              <b className="mono" style={{ color: CHART.vicdan }}>
+                {vicdan}
+                <small className={dVic > 0 ? styles.up : dVic < 0 ? styles.down : undefined}>{dVic > 0 ? `▲${dVic}` : dVic < 0 ? `▼${-dVic}` : '±0'}</small>
+              </b>
+            </div>
+            <div className={styles.delta}>
+              <span>Kısa liste</span>
+              <b className="mono">
+                {finalists.length}/{FINALIST_LIMIT}
+              </b>
+            </div>
           </div>
         </header>
 
-        <p className={styles.headline}>{headline}</p>
-
-        {/* a 2×2 of equal cards: the numbers beside the names, you beside Hakan Bey */}
+        {/* three cards side by side: the funnel, the names, and how the time went */}
         <div className={styles.grid}>
           <section className={styles.card}>
             <div className={styles.panelHead}>Başvurudan mülakata</div>
@@ -157,45 +161,6 @@ export function DayEndScreen() {
           </section>
 
           <section className={styles.card}>
-            <div className={styles.panelHead}>Sen</div>
-            <div className={styles.deltas}>
-              <div className={styles.delta}>
-                <span>Performans</span>
-                <b className="mono" style={{ color: CHART.performans }}>
-                  {performans}
-                  <small className={dPerf > 0 ? styles.up : dPerf < 0 ? styles.down : undefined}>{dPerf > 0 ? `▲${dPerf}` : dPerf < 0 ? `▼${-dPerf}` : '±0'}</small>
-                </b>
-              </div>
-              <div className={styles.delta}>
-                <span>Vicdan</span>
-                <b className="mono" style={{ color: CHART.vicdan }}>
-                  {vicdan}
-                  <small className={dVic > 0 ? styles.up : dVic < 0 ? styles.down : undefined}>{dVic > 0 ? `▲${dVic}` : dVic < 0 ? `▼${-dVic}` : '±0'}</small>
-                </b>
-              </div>
-              <div className={styles.delta}>
-                <span>Kısa liste</span>
-                <b className="mono">
-                  {finalists.length}/{FINALIST_LIMIT}
-                </b>
-              </div>
-            </div>
-            <p className={styles.mailsLine}>
-              {mailsSent === 0 && rejectionToday.none === 0
-                ? 'Bugün kimseye ret e-postası gitmedi.'
-                : [
-                    rejectionToday.personal && `${rejectionToday.personal} kişisel geri bildirim`,
-                    rejectionToday.standard && `${rejectionToday.standard} standart ret`,
-                    rejectionToday.pool && `${rejectionToday.pool} "havuzda tutacağız"`,
-                    rejectionToday.none && `${rejectionToday.none} kişiye hiçbir şey gitmedi`,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-            </p>
-            {dayStats.undecided > 0 && <p className={styles.undecidedNote}>⏱ {dayStats.undecided} dosya karar verilmeden kaldı ve otomatik reddedildi.</p>}
-          </section>
-
-          <section className={styles.card}>
             <div className={styles.panelHead}>Günün dökümü</div>
             <dl className={styles.facts}>
               <div>
@@ -211,69 +176,31 @@ export function DayEndScreen() {
                 <dd className="mono">{referencesToday}</dd>
               </div>
               <div>
-                <dt>İşaretli güçlü aday</dt>
-                <dd>
-                  {flagged.length ? (
-                    <>
-                      <span className="mono">{flaggedCalled}</span> çağrıldı
-                      {flaggedUnread > 0 && (
-                        <>
-                          {' '}
-                          · <span className="mono">{flaggedUnread}</span> okunmadan elendi
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    'bugün yoktu'
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt>Müdürün ricaları</dt>
-                <dd>{managerRequests.length ? `${kept} uyuldu · ${turnedDown} geri çevrildi` : 'bugün yoktu'}</dd>
-              </div>
-              <div>
                 <dt>En uzun incelenen</dt>
                 <dd>{longest && (timeSpent[longest] ?? 0) > 0 ? `${candidateOf(longest).name.split(' ')[0]} · ${clock(timeSpent[longest] ?? 0)}` : '—'}</dd>
               </div>
             </dl>
-
-            {(weighty.length > 0 || managerVerdict.length > 0) && (
-              <>
-                <div className={styles.subHead}>Puanı en çok etkileyenler</div>
-                <ul className={styles.effects}>
-                  {weighty.map((e) => (
-                    <li key={e.id}>
-                      <span>{decisionEffects[e.id]?.reason ?? candidateOf(e.id).name}</span>
-                      <span className={styles.effectChips}>
-                        {e.performans !== 0 && <i className={e.performans > 0 ? styles.up : styles.down}>P {signed(e.performans)}</i>}
-                        {e.vicdan !== 0 && <i className={e.vicdan > 0 ? styles.up : styles.down}>V {signed(e.vicdan)}</i>}
-                      </span>
-                    </li>
-                  ))}
-                  {managerVerdict.map((l) => (
-                    <li key={l}>
-                      <span>{l}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+            <p className={styles.mailsLine}>
+              {mailsSent === 0 && rejectionToday.none === 0
+                ? 'Bugün kimseye ret e-postası gitmedi.'
+                : [
+                    rejectionToday.personal && `${rejectionToday.personal} kişisel geri bildirim`,
+                    rejectionToday.standard && `${rejectionToday.standard} standart ret`,
+                    rejectionToday.pool && `${rejectionToday.pool} "havuzda tutacağız"`,
+                    rejectionToday.none && `${rejectionToday.none} kişiye hiçbir şey gitmedi`,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+            </p>
+            {dayStats.undecided > 0 && <p className={styles.undecidedNote}>⏱ {dayStats.undecided} dosya karar verilmeden kaldı ve otomatik reddedildi.</p>}
           </section>
         </div>
-
-        {photoTonight && (
-          <div className={styles.photoTonight}>
-            <div className={styles.eveningHead}>🌙 Gece 23:40 · Zehra "bu gece" demişti</div>
-            <EvidenceCard />
-          </div>
-        )}
 
         {days[currentDayIndex + 1]?.final && <p className={styles.finalistNote}>Yarın mülakat günü: {Math.min(finalists.length, FINALIST_LIMIT)} adaydan yalnızca 1 kişi işe alınacak.</p>}
 
         <div className={styles.footer}>
-          <Button variant="primary" sound="confirm" className={styles.cta} onClick={nextDay} disabled={photoOpen}>
-            {photoOpen ? 'Önce fotoğrafa karar ver' : days[currentDayIndex + 1]?.final ? 'MÜLAKAT GÜNÜNE GEÇ →' : 'SONRAKİ GÜN →'}
+          <Button variant="primary" sound="confirm" className={styles.cta} onClick={nextDay}>
+            {days[currentDayIndex + 1]?.final ? 'MÜLAKAT GÜNÜNE GEÇ →' : 'SONRAKİ GÜN →'}
           </Button>
         </div>
       </div>
@@ -283,4 +210,3 @@ export function DayEndScreen() {
 
 /** Seconds as m:ss (reading time is counted in seconds at the screen). */
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`);

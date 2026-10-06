@@ -167,14 +167,6 @@
   color: rgba(233, 230, 223, 0.75);
 }
 
-.eveningHead {
-  font-size: calc(12px * var(--ts, 1));
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #f4efe4;
-}
-
 /* the way forward is always on screen, however long the report gets */
 .footer {
   position: sticky;
@@ -185,10 +177,6 @@
   margin: 0 -30px;
   padding: 14px 30px 20px;
   background: linear-gradient(180deg, rgba(16, 18, 26, 0) 0%, rgba(16, 18, 26, 0.85) 35%);
-}
-
-.photoTonight {
-  margin-top: 16px;
 }
 
 .panelHead {
@@ -498,61 +486,88 @@
   color: var(--paper-muted);
 }
 
-.subHead {
-  margin: 12px 0 6px;
-  font-size: calc(var(--fs-label) * var(--ts, 1));
-  font-weight: 700;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--on-dark-muted);
-}
-
-.effects {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.effects li {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  padding-left: 10px;
-  border-left: 2px solid rgba(201, 162, 39, 0.5);
-  font-size: calc(12.5px * var(--ts, 1));
-  line-height: 1.4;
-  color: var(--paper-muted);
-}
-
-.effectChips {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.effectChips i {
-  font-style: normal;
-  font-family: var(--font-mono);
-  font-size: calc(11px * var(--ts, 1));
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-}
-
 .footer .finalistNote,
 .content > .finalistNote {
   margin: 0;
   text-align: center;
 }
 
-.effectChips i.up {
-  color: #7fd1a6;
+/* ── compact: the whole day on one screen, no scrolling ── */
+.content {
+  max-width: 1180px;
+  padding: 22px 26px 0;
+  gap: 14px;
+  overflow: visible;
+  max-height: none;
 }
 
-.effectChips i.down {
-  color: #f08a76;
+.reportHead {
+  align-items: center;
+}
+
+.reportHead > div:first-child {
+  flex: 1 1 360px;
+  min-width: 0;
+}
+
+.reportHead .headline {
+  margin-top: 6px;
+  font-size: calc(16px * var(--ts, 1));
+  color: rgba(244, 239, 228, 0.86);
+}
+
+.reportHead .deltas {
+  flex: 0 1 auto;
+  grid-template-columns: repeat(3, minmax(96px, auto));
+}
+
+.reportHead .delta {
+  padding: 8px 14px;
+}
+
+.grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-auto-rows: auto;
+  gap: 12px;
+}
+
+.card {
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.decisionList {
+  gap: 4px;
+}
+
+.decisionList li {
+  font-size: calc(12.5px * var(--ts, 1));
+}
+
+.decisionListTwo {
+  display: flex;
+  column-gap: 0;
+}
+
+.footer {
+  position: static;
+  margin: 0 -26px;
+  padding: 4px 26px 18px;
+  background: none;
+}
+
+.undecidedNote {
+  padding: 6px 10px;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+@media (max-width: 960px) {
+  .content {
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

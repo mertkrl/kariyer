@@ -53,9 +53,6 @@ export function planEvents(rand: () => number): DayEvent[] {
 export const newDesk = (): DeskState => ({ cleared: [], flower: false, lastWatered: 0, coffee: COFFEE_SIPS, sipsToday: 0, refills: 0, coolerVisits: 0, calls: {}, ringing: null, ringingSince: 0, inCall: null, notice: null });
 
 export const newStory = (): StoryState => ({
-  drawer: 'locked',
-  photoPages: 0,
-  evidence: null,
   money: START_MONEY,
   bills: {},
   wageToday: 0,
@@ -91,7 +88,7 @@ export const emptyStance = (): InterviewStance => ({ protected: 0, silent: 0, ho
 
 export const emptyStats = (): DayStats => ({ approved: 0, rejected: 0, autoRejected: 0, undecided: 0 });
 
-export const noUnread = (): Record<ThreadId, number> => ({ manager: 0, mom: 0, office: 0, zehra: 0, ayse: 0, birthday: 0 });
+export const noUnread = (): Record<ThreadId, number> => ({ manager: 0, mom: 0, office: 0, ayse: 0, birthday: 0 });
 export const clampScore = (v: number) => Math.max(0, Math.min(100, v));
 
 /** How a file was read, as the scoring weighs it. */

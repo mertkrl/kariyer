@@ -2,7 +2,6 @@ import type { Decision } from './types';
 import { NEPHEW_ID, candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { firstName } from './turkish';
-import { ZEHRA } from './story';
 import { PLAYER } from './player';
 import { AMBIENT, BIRTHDAY, FAMILY, GREETINGS, MOM_POOL, REQUESTS, TEAM_COMPLIED, TEAM_DEFIED, TONED } from './data/phoneScript';
 import type { Ambient, Grievance, ManagerRequest, ManagerTone, QuickReply, RequestTemplate, ScheduledMessage } from './phoneTypes';
@@ -34,7 +33,7 @@ export const TONE_STATUS: Record<ManagerTone, { mood: string; status: string }> 
 };
 
 const REQUEST_SLOTS = [200];
-/** Thursday's call comes after lunch: the morning already has the crash, Seda and Zehra. */
+/** Thursday's call comes after lunch: the morning already has the crash and Seda. */
 const THURSDAY_REQUEST_SLOTS = [330];
 /** Hard mode: he pushes twice on those days. */
 const HARD_REQUEST_SLOTS = [160, 380];
@@ -83,10 +82,6 @@ export function buildManagerScript(
   for (const f of FAMILY[dayIndex] ?? []) script.push({ at: f.at, kind: 'ambient', dayIndex, ambient: { thread: 'mom', text: f.text, replies: f.replies } });
   // what happened at home last night (an unpaid bill) comes up in the morning
   (homeNotes ?? []).forEach((n, i) => script.push({ at: 100 + i * 30, kind: 'ambient', dayIndex, ambient: { thread: 'mom', text: n.text, replies: n.replies } }));
-  // Zehra, the unknown number
-  for (const z of ZEHRA[dayIndex] ?? []) {
-    script.push({ at: z.at, kind: 'ambient', dayIndex, ambient: { thread: 'zehra', text: z.text, replies: z.replies, unlock: z.unlock } });
-  }
 
   // the office noticed how yesterday went with Hakan Bey — that's the office's line for the day
   const team = managerDay ? teamReaction(managerDay, dayIndex) : [];

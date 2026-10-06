@@ -5,7 +5,7 @@
 import type { Decision } from './types';
 
 /** Chats on the phone: the manager, your mother, and the office group. */
-export type ThreadId = 'manager' | 'mom' | 'office' | 'zehra' | 'ayse' | 'birthday';
+export type ThreadId = 'manager' | 'mom' | 'office' | 'ayse' | 'birthday';
 
 /** Group chats: they can be muted. */
 export const GROUP_THREADS: ThreadId[] = ['office', 'birthday'];
@@ -42,7 +42,7 @@ export interface QuickReply {
   performans?: number;
   vicdan?: number;
   /** Some things can't be said in the group: the answer comes later, in private. */
-  aside?: { thread: 'ayse' | 'zehra' | 'mom'; after: number; text: string };
+  aside?: { thread: 'ayse' | 'mom'; after: number; text: string };
   /** Saying yes puts something on today's calendar that costs time (the birthday cake). */
   event?: { at: number; minutes: number; text: string };
 }
@@ -69,7 +69,7 @@ export interface ScheduledMessage {
   /** A request call he's making again because you didn't pick up the first time. */
   retry?: boolean;
   /** Ambient chatter (mom / office group). */
-  ambient?: { thread: Exclude<ThreadId, 'manager'>; sender?: string; text: string; replies?: QuickReply[]; unlock?: boolean; closes?: boolean };
+  ambient?: { thread: Exclude<ThreadId, 'manager'>; sender?: string; text: string; replies?: QuickReply[]; closes?: boolean };
 }
 
 /**
@@ -89,7 +89,7 @@ export interface RequestTemplate {
 export type FollowUp = { after: number; sender: string; text: string; closes?: boolean };
 
 /** A line in a chat. Group lines carry follow-ups: colleagues answering each other, some at once, some much later. */
-export type Ambient = { at: number; thread: 'mom' | 'office' | 'zehra' | 'ayse' | 'birthday'; sender?: string; text: string; replies?: QuickReply[]; followUps?: FollowUp[] };
+export type Ambient = { at: number; thread: 'mom' | 'office' | 'ayse' | 'birthday'; sender?: string; text: string; replies?: QuickReply[]; followUps?: FollowUp[] };
 
 /** A request the manager made yesterday that wasn't carried out. */
 export interface Grievance {

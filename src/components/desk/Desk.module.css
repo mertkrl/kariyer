@@ -288,10 +288,10 @@
 }
 
 .orchid {
-  left: 1372px;
-  top: 112px;
-  width: 232px;
-  height: 460px;
+  left: 1350px;
+  top: 64px;
+  width: 256px;
+  height: 508px;
 }
 
 .pedestal {
@@ -299,16 +299,6 @@
   top: 822px;
   width: 300px;
   height: 100px;
-}
-
-.pedestalNew {
-  animation: drawerCall 2.4s ease-in-out infinite;
-}
-
-@keyframes drawerCall {
-  50% {
-    filter: drop-shadow(0 0 12px rgba(226, 90, 76, 0.85));
-  }
 }
 
 /* ── motion ── */
@@ -455,8 +445,8 @@
   left: 8px;
   top: 8px;
   display: grid;
-  gap: 7px;
-  width: 52px;
+  gap: 6px;
+  width: 64px;
 }
 
 .miniIcons span {
@@ -469,7 +459,8 @@
   line-height: 1.15;
   text-align: center;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: none;
 }
 
 .miniIcons i {
@@ -777,8 +768,7 @@
 @media (prefers-reduced-motion: reduce) {
   .buzzing,
 .rattle,
-.ringing,
-.pedestalNew {
+.ringing {
     animation: none;
   }
 }

@@ -186,9 +186,6 @@ export const OPTIONS: MeetingOption[] = [
 ];
 
 export const CLOSING: Line[] = [
-  { who: 'hakan', text: 'Son bir konu. Zehra Hanım\'la ilgili dışarıdan soru gelirse cevap vermiyoruz. Avukatlar ilgileniyor.', board: { page: 'off' } },
-  { who: 'selin', text: 'Anlaşıldı.' },
-  { who: 'room', text: 'Sohbette bir an "Ayşe yazıyor…" beliriyor, sonra kayboluyor.', typing: 'ayse' },
-  { who: 'hakan', text: 'Toplantı bitti. Herkes işinin başına.' },
+  { who: 'hakan', text: 'Toplantı bitti. Herkes işinin başına.', board: { page: 'off' } },
   { who: 'room', text: 'Hakan Bey görüşmeden ayrıldı.', chat: [{ who: 'system', text: 'Hakan Kaya görüşmeden ayrıldı' }] },
 ];

@@ -212,22 +212,6 @@ export const AMBIENT: Ambient[][] = [
   [
     { at: 100, thread: 'office', sender: 'Selin (İK)', text: 'Hatırlatma: 11:00\'de haftalık İK toplantısı online, bağlantı takvimde. Hakan Bey genel müdürlükten, Levent Bey evden bağlanıyor.' },
     {
-      at: 150, thread: 'office', sender: 'Ayşe', text: 'Zehra\'yı soran olmuş 👀 Son aylarda raporları hep gecikiyordu, Hakan Bey sürekli uyarıyordu. Ama çıkarıldığı hafta bir şikâyet dilekçesi vermişti… Kim bilir.',
-      replies: [
-        {
-          text: 'Ne şikâyeti?',
-          reaction: 'Burada olmaz 🤐',
-          reactionSender: 'Ayşe',
-          aside: { thread: 'ayse', after: 25, text: 'Grupta yazamadım. Ne şikâyeti olduğunu bilen yok; sadece o hafta İK\'ya kapalı bir zarf bıraktığını gördüm. Sen de pek sorma, başın ağrımasın.' },
-        },
-        { text: 'Bu konuyu burada konuşmayalım bence.', reaction: 'Haklısın. Kapatıyorum konuyu.', reactionSender: 'Ayşe' },
-      ],
-      followUps: [
-        { after: 2, sender: 'Emre', text: 'Ayşe 😬 burası iş grubu. Kurallara uyan başını belaya sokmaz, o kadar.' },
-        { after: 8, sender: 'Selin (İK)', text: 'Konuyu kapatalım lütfen.', closes: true },
-      ],
-    },
-    {
       at: 250, thread: 'office', sender: 'Emre', text: 'Toplantı odasını su basmış, sandalyeler koridorda 🌊 İyi ki toplantı online\'dı.',
       followUps: [
         { after: 5, sender: 'Ayşe', text: 'Öğle yemeğini de ayakta yeriz artık 😂' },

@@ -4,15 +4,13 @@ import { EXTRA_FEMALE } from './data/extraCandidates';
 /*
  * "Sistemin Dişlisi" — the week's story.
  *
- * Three threads run under the daily grind:
+ * Two threads run under the daily grind:
  *  1. Home: the rent went up 60%, Mom's medicine, your brother's dorm fee. The manager's
  *     "requests" come with a bonus (prim). Doing the right thing costs money.
  *  2. Five people: Okan (the manager's nephew), Kerem (45, laid off), Derya (two years caring
  *     for her mother), Seda (raising a daughter alone), Tolga (first in his family to go to
  *     university, just arrived from Kars). They come back — in your DMs, on the street after
  *     work, and a year later.
- *  3. Zehra: the HR specialist who sat at your desk before you. She knows how the system
- *     really scores people, and she left something in your drawer.
  */
 
 export type BillId = 'fatura' | 'kart' | 'yurt';
@@ -191,78 +189,6 @@ export const KEY_CHARACTERS: KeyCharacter[] = [
 ];
 
 export const keyCharacter = (id: string) => KEY_CHARACTERS.find((k) => k.id === id);
-
-/* ── Zehra ── */
-
-export interface ZehraLine {
-  at: number;
-  text: string;
-  replies?: { text: string; reaction: string }[];
-  /** This message tells you about the drawer. */
-  unlock?: boolean;
-}
-
-export const ZEHRA: ZehraLine[][] = [
-  [],
-  [],
-  [
-    {
-      at: 120,
-      text: 'Merhaba. Adım Zehra. Senden önce o masada ben oturuyordum. Sana bir şey sorayım: sistemin adaylara nasıl puan verdiğini hiç merak ettin mi?',
-      replies: [
-        { text: 'Kimsiniz? Numaramı nereden buldunuz?', reaction: 'Önemli olan bu değil. Bugün elenenlerin yaşlarına bir bak. Öğleden sonra yazarım.' },
-        { text: 'Merak ediyorum. Anlatın.', reaction: 'Öğleden sonra. Önce bugün elenenlerin yaşlarına bir bak.' },
-      ],
-    },
-    {
-      at: 310,
-      text: 'Masanın sol alt çekmecesi. Kırmızı bir dosya bıraktım. Hakan Bey\'in bundan haberi yok. Açıp açmamak sana kalmış.',
-      unlock: true,
-      replies: [
-        { text: 'Bu beni işimden edebilir.', reaction: 'Biliyorum. Beni de etti.' },
-        { text: 'Bakacağım.', reaction: 'Dikkatli ol. Kameralar çekmeceleri görmüyor ama insanlar görür.' },
-      ],
-    },
-  ],
-  [
-    {
-      at: 180,
-      text: 'Dosyanın ikinci sayfası çekmecenin tabanına bantlı. Dün görmemişsindir. Asıl mesele o sayfada.',
-      replies: [
-        { text: 'Bunu neden bana anlatıyorsun?', reaction: 'Çünkü o masada oturan herkes bir gün bunu görecekti. Sen gördün.' },
-        { text: 'Bakacağım.', reaction: 'Bak. Sonra karar ver.' },
-      ],
-    },
-    {
-      at: 445,
-      text: 'Sana açık konuşacağım: şirkete işe iade davası açtım. Fotoğrafı bana gönderirsen dosyama eklerim. Seni korurum, söz veriyorum.',
-      replies: [
-        { text: 'Seni neden kovdular, gerçekten?', reaction: '"Performans" dediler. Şikâyet ettiğim hafta performansım birden düştü. Tesadüf mü sence?' },
-        { text: 'Düşüneceğim.', reaction: 'Bu gece karar ver. Yarından sonra her şey silinebilir.' },
-      ],
-    },
-  ],
-];
-
-/**
- * The hidden scoring table in the red folder. It comes out a page at a time: Wednesday you
- * find the first page, Thursday Zehra tells you where the second one is taped.
- */
-export const WEIGHT_TABLE: { rule: string; weight: string; page: 1 | 2; decoded: string }[] = [
-  { rule: 'Kariyer evresi uyumu (40+)', weight: '−25', page: 1, decoded: '= yaş' },
-  { rule: 'Devamlılık riski (aile durumu beyanı)', weight: '−20', page: 1, decoded: '= evli / çocuklu kadın' },
-  { rule: 'Güncellik riski (12+ ay boşluk, gerekçe değerlendirilmez)', weight: '−30', page: 1, decoded: '= aile işine dönen, işsiz kalan' },
-  { rule: 'Lokasyon uyumu (tahmini ulaşım > 75 dk)', weight: '−8', page: 2, decoded: '= semt' },
-  { rule: 'Kurumsal deneyim eksikliği (serbest / gönüllü sayılmaz)', weight: '−35', page: 2, decoded: '= açık kaynak, yarı zamanlı' },
-  { rule: 'Kültür uyumu: iç referans', weight: '+40', page: 2, decoded: '= tanıdık' },
-  { rule: 'Hedef okul (Tier-1)', weight: '+15', page: 2, decoded: '= ilk 10 üniversite' },
-];
-
-/**
- * What you do with the photo on Friday night. None of it is clean: the photo itself breaks
- * the data protection law (KVKK), and every road has a price.
- */
-export type EvidenceAction = 'tihek' | 'anon' | 'zehra' | 'director' | 'delete';
 
 /** Candidates the Friday "aile planı" question is aimed at; the rest get "askerlik". */
 export const FEMALE = new Set([...EXTRA_FEMALE, 'selin', 'zeynep', 'derya', 'aylin', 'elif', 'nihan', 'pinar', 'sibel', 'ece', 'gokce', 'handan', 'asli', 'irem', 'nazli', 'duygu', 'gizem', 'seda', 'ceren', 'nehir']);

@@ -12,7 +12,7 @@ import styles from './NotificationStack.module.css';
  * pop up — they only bump the unread badge on the phone.
  */
 
-const SENDER: Record<ThreadId, string> = { manager: 'Hakan Bey', mom: 'Annem', office: 'Ofis', zehra: 'Bilinmeyen Numara', ayse: 'Ayşe', birthday: 'Emre\'ye Sürpriz' };
+const SENDER: Record<ThreadId, string> = { manager: 'Hakan Bey', mom: 'Annem', office: 'Ofis', ayse: 'Ayşe', birthday: 'Emre\'ye Sürpriz' };
 /** Group chats are named for the group; the person who wrote goes in front of the line. */
 const GROUP_NAME: Partial<Record<ThreadId, string>> = { office: 'Ofis Ekibi', birthday: 'Emre\'ye Sürpriz 🎂' };
 const LIFETIME_MS = 5000;

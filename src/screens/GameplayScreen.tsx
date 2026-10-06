@@ -3,7 +3,6 @@ import { callFor, isOnBreak, lineupFor, useGameStore } from '../game/store';
 import { days } from '../game/data/days';
 import { candidates, candidateOf } from '../game/data/candidates';
 import { BREAK_END_MIN } from '../game/time';
-import { RedFolder } from '../components/story/RedFolder';
 import { audioEngine } from '../audio/audioEngine';
 import { SettingsPanel } from '../components/ui/SettingsPanel';
 import { DailyActivity } from '../components/gameplay/DailyActivity';
@@ -69,9 +68,6 @@ export function GameplayScreen() {
   const needsOrientation = useGameStore((s) => s.currentDayIndex === 0 && !s.orientationDone);
   const activeEvent = useGameStore((s) => s.activeEvent);
   const difficulty = useGameStore((s) => s.difficulty);
-  const drawer = useGameStore((s) => s.story.drawer);
-  const photoPages = useGameStore((s) => s.story.photoPages);
-  const decideDrawer = useGameStore((s) => s.decideDrawer);
   const desk = useGameStore((s) => s.desk);
   const ringing = desk.ringing;
   const pickUpCall = useGameStore((s) => s.pickUpCall);
@@ -97,7 +93,6 @@ export function GameplayScreen() {
     setPhoneOpen(true);
   };
   const phoneProps = usePhoneProps();
-  const [folderOpen, setFolderOpen] = useState(false);
   /** The computer: the desktop, or one maximised app on it. */
   const [pcApp, setPcApp] = useState<PcApp | null>(null);
   // Every morning starts at the desk; the computer is one click away.
@@ -162,12 +157,12 @@ export function GameplayScreen() {
   useEffect(() => {
     if (view !== 'pc') return;
     function onKey(e: KeyboardEvent) {
-      if (e.key !== 'Escape' || phoneOpen || folderOpen || paused) return;
+      if (e.key !== 'Escape' || phoneOpen || paused) return;
       setView('desk');
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [view, phoneOpen, folderOpen, paused]);
+  }, [view, phoneOpen, paused]);
 
   useEffect(() => {
     const interval = setInterval(() => tick(), 1000);
@@ -175,7 +170,7 @@ export function GameplayScreen() {
   }, [tick]);
 
   // a file counts as read only while it is on screen: not from the desk, the phone or a call
-  const reading = atPc && pcApp === 'portal' && !showMails && !phoneOpen && !folderOpen && !desk.inCall && !paused;
+  const reading = atPc && pcApp === 'portal' && !showMails && !phoneOpen && !desk.inCall && !paused;
   useEffect(() => {
     useGameStore.getState().setReading(reading);
   }, [reading]);
@@ -254,9 +249,6 @@ export function GameplayScreen() {
           <MeetingRoom />
         </Suspense>
       )}
-      {folderOpen && drawer !== 'locked' && (
-        <RedFolder state={drawer} photoPages={photoPages} dayIndex={currentDayIndex} onDecide={(photo) => decideDrawer(photo)} onClose={() => setFolderOpen(false)} />
-      )}
       <EventBanner onBreak={onBreak} />
       {phoneOpen && !onBreak && !paused && !meetingActive && <PhoneOverlay {...phoneProps} thread={phoneThread} onClose={() => setPhoneOpen(false)} />}
 
@@ -276,10 +268,6 @@ export function GameplayScreen() {
               setView('pc');
             }}
             onOpenPhone={openPhone}
-            onOpenDrawer={() => {
-              audioEngine.playUi('click');
-              setFolderOpen(true);
-            }}
           />
         </div>
         <div className={styles.pcLayer} style={pcStyle} inert={!atPc}>

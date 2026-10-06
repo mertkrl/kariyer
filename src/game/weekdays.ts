@@ -13,8 +13,6 @@ export const FRIDAY = 4;
 export const BIRTHDAY_DAY = TUESDAY;
 /** Rain: the wet umbrella by the cooler, rain on the office window. */
 export const RAINY_DAY = WEDNESDAY;
-/** The red folder's second page turns up (and the photo is developed that night). */
-export const SECOND_PAGE_DAY = THURSDAY;
 /** Your neighbour's son's CV, if you said you'd pass it on, arrives in the queue. */
 export const NEIGHBOUR_DAY = THURSDAY;
 /** Someone you called to interview earlier rings to say thanks. */

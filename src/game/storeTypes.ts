@@ -3,7 +3,7 @@
  * the behaviour lives in store.ts.
  */
 import type { Decision, DayStats, Difficulty, EventKind, GamePhase } from './types';
-import type { ExpenseId, BillId, EvidenceAction } from './story';
+import type { ExpenseId, BillId } from './story';
 import type { Mail } from './mail';
 import type { ReferenceVerdict } from './references';
 import type { ReformKind } from './desk';
@@ -51,12 +51,8 @@ export interface WeekLog {
   events: number;
 }
 
-/** The story's state: the red folder, your money, the week's key decisions. */
+/** The story's state: your money, the week's key decisions. */
 export interface StoryState {
-  drawer: 'locked' | 'unlocked' | 'photographed' | 'returned';
-  /** Pages of the red folder you have on your phone (0–2). */
-  photoPages: number;
-  evidence: EvidenceAction | null;
   money: number;
   bills: Partial<Record<BillId, 'paid' | 'skipped'>>;
   /** Today's income, shown on the evening budget. */
@@ -295,11 +291,9 @@ export interface GameState {
   recordAiUse: () => void;
   setWeekendChoice: (choice: string) => void;
   answerCandidateDm: (candidateId: string, kind: DmKind) => void;
-  decideDrawer: (photo: boolean) => void;
   payBill: (id: BillId, pay: boolean) => void;
   setExpense: (id: ExpenseId, pay: boolean) => void;
   payRent: (pay: boolean) => void;
-  setEvidence: (action: EvidenceAction) => void;
   finishReckoning: () => void;
   finishWeekend: () => void;
   setMusicVolume: (value: number) => void;

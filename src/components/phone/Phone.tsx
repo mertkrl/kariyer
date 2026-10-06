@@ -42,13 +42,12 @@ const CONTACTS: Record<ThreadId, Contact> = {
   manager: { name: 'Hakan Bey', avatar: 'HB', color: '#c9a227' },
   mom: { name: 'Annem ❤️', avatar: '👩', color: '#e8b4a8' },
   office: { name: 'Ofis Ekibi 🏢', avatar: '👥', color: '#7fa7c9' },
-  zehra: { name: 'Bilinmeyen Numara', avatar: '?', color: '#5c6470' },
   ayse: { name: 'Ayşe', avatar: 'A', color: '#6f8fa3' },
   birthday: { name: 'Emre\'ye Sürpriz 🎂', avatar: '🎂', color: '#e0a458' },
 };
 
 /** Chats that only appear once someone has written in them. */
-const LATE_THREADS: ThreadId[] = ['zehra', 'ayse', 'birthday'];
+const LATE_THREADS: ThreadId[] = ['ayse', 'birthday'];
 const sumUnread = (u: Record<ThreadId, number>) => Object.values(u).reduce((a, b) => a + b, 0);
 
 const APPS: { id: AppId | 'chats'; label: string }[] = [
@@ -291,7 +290,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
         {header('Mesajlar')}
         <div className={styles.chatList}>
           {(Object.keys(CONTACTS) as ThreadId[])
-            // Zehra, Ayşe's private chat and the birthday group show up once someone has written
+            // Ayşe's private chat and the birthday group show up once someone has written
             .filter((t) => !LATE_THREADS.includes(t) || messages.some((m) => m.thread === t))
             .map((t) => {
             const last = [...messages].reverse().find((m) => m.thread === t);
@@ -328,9 +327,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
             ? `İK Müdürü · ${TONE_STATUS[tone].status}`
             : screen.thread === 'office'
               ? 'Ayşe, Emre, Selin, sen'
-              : screen.thread === 'zehra'
-                ? 'Zehra K. · senden önceki İK uzmanı'
-                : screen.thread === 'birthday'
+              : screen.thread === 'birthday'
                   ? 'Ayşe, Selin, Nurten, sen'
                   : screen.thread === 'ayse'
                     ? 'İK uzmanı'

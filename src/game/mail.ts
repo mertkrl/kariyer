@@ -162,25 +162,6 @@ Anlayışınız için teşekkür ederiz.
 İdari İşler`,
   },
   {
-    id: 'bounce',
-    day: 2,
-    at: 215,
-    from: 'Mail Delivery System',
-    address: 'postmaster@tavrinsalabs.test',
-    subject: 'Teslim edilemedi: zehra.k@tavrinsalabs.test',
-    important: true,
-    body: `Aşağıdaki alıcıya iletiniz teslim edilemedi:
-
-    zehra.k@tavrinsalabs.test
-
-Neden: Bu hesap yönetici tarafından devre dışı bırakılmıştır (İK Müdürlüğü talimatı).
-
-— Orijinal ileti —
-Kime: zehra.k@tavrinsalabs.test
-Konu: Merhaba
-"Merhaba, masanızı ben devraldım. Sizinle konuşabilir miyiz?"`,
-  },
-  {
     id: 'levent-intro',
     day: 1,
     at: 60,
@@ -237,22 +218,6 @@ Cuma günkü mülakat listesi bu akşam kesinleşecektir. Listenin "şirket kül
 
 Saygılarımla,
 Hakan Kaya`,
-  },
-  {
-    id: 'lawsuit',
-    day: 3,
-    at: 280,
-    from: 'Hukuk Müşavirliği',
-    address: 'hukuk@tavrinsalabs.test',
-    subject: 'Devam eden dava hk. — GİZLİ',
-    important: true,
-    body: `Değerli çalışanlarımız,
-
-Eski çalışanımız Z.K. tarafından şirketimize karşı işe iade davası açılmıştır.
-
-Dava süresince hiçbir çalışanın davacıyla iletişim kurmaması, beyan vermemesi ve şirket belgesi paylaşmaması gerekmektedir. Aksi davranış disiplin ve hukuki süreç konusu olacaktır.
-
-Hukuk Müşavirliği`,
   },
   {
     id: 'overtime',

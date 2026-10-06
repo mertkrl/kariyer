@@ -1,5 +1,5 @@
 /*
- * The week's story beyond the CV queue: the meeting, the red folder, money and bills, evenings, rejection notices, the interviews and the hire.
+ * The week's story beyond the CV queue: the meeting, money and bills, evenings, rejection notices, the interviews and the hire.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
@@ -11,12 +11,11 @@ import { REPLY_BACK, TEMPLATE_MINUTES, outboxMails, replyBackMail } from '../rej
 import { sound } from '../sound';
 import { candidateDetails } from '../data/candidateDetails';
 import { panelDecision } from '../managerCalls';
-import { SECOND_PAGE_DAY } from '../weekdays';
 import { later } from '../later';
 import { NEPHEW_ID } from '../data/candidates';
 import { salaryTalk } from '../interview';
 
-export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'decideDrawer' | 'payBill' | 'setExpense' | 'payRent' | 'setEvidence' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
+export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'payBill' | 'setExpense' | 'payRent' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
   doActivity: (id) => {
     const state = get();
     const a = EVENING_ACTIVITIES[state.currentDayIndex]?.find((x) => x.id === id);
@@ -30,14 +29,6 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       forbiddenAsked: state.forbiddenAsked + 1,
       performans: clampScore(state.performans + 2),
       vicdan: clampScore(state.vicdan - 4) })),
-
-  decideDrawer: (photo) =>
-    set((state) => {
-      // Wednesday only the first page is in the folder; the second turns up on Thursday
-      const available = state.currentDayIndex >= SECOND_PAGE_DAY ? 2 : 1;
-      const photoPages = photo ? Math.max(state.story.photoPages, available) : state.story.photoPages;
-      return { story: { ...state.story, drawer: photoPages > 0 ? 'photographed' : 'returned', photoPages } };
-    }),
 
   payBill: (id, pay) =>
     set((state) => {
@@ -71,7 +62,6 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       return { story: { ...state.story, rent: paid ? 'paid' : 'unpaid', money: state.story.money - (paid ? RENT : 0) } };
     }),
 
-  setEvidence: (evidence) => set((state) => ({ story: { ...state.story, evidence } })),
 
   finishReckoning: () => set({ phase: 'weekend' }),
 

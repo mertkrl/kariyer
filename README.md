@@ -67,7 +67,7 @@ src/
     desk/ pc/ phone/      Masa, bilgisayar ve telefon
     gameplay/             CV gövdesi, ret bildirimleri, üst çubuk
     meeting/              Görüntülü toplantı ve pano
-    dayend/ story/ ui/    Gün sonu sahneleri, kırmızı dosya, ortak bileşenler
+    dayend/ ui/           Gün sonu sahneleri, ortak bileşenler
   game/
     store.ts              Oyun durumu: yeni hafta, başlatma, devam etme, kayıt noktası (zustand)
     storeLoader.ts        Store'u ilk ekrandan sonra arka planda yükler; App aşamayı buradan okur

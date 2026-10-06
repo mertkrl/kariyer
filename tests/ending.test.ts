@@ -5,20 +5,9 @@ import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput }
 
 const ctx = (over: Partial<EndingContext> = {}): EndingContext => ({ refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal', ...over });
 
-test('kırmızı dosya kararı puanlardan önce gelir', () => {
-  const plain = getEnding(90, 90, ctx());
-  const tihek = getEnding(90, 90, ctx({ evidence: 'tihek' }));
-  assert.notEqual(plain.title, tihek.title);
-  assert.equal(tihek.left, true);
-});
-
-test('direktöre gitmek performansa bağlı', () => {
-  assert.notEqual(getEnding(70, 50, ctx({ evidence: 'director' })).title, getEnding(30, 50, ctx({ evidence: 'director' })).title);
-});
-
 test('kira ödenmediyse son metinde anılır', () => {
-  assert.match(getEnding(50, 50, ctx({ evidence: 'anon', rentPaid: false })).body, /kira/);
-  assert.doesNotMatch(getEnding(50, 50, ctx({ evidence: 'anon', rentPaid: true })).body, /kira hâlâ/);
+  assert.match(getEnding(70, 50, ctx({ hiredNephew: true, rentPaid: false })).body, /kira/);
+  assert.doesNotMatch(getEnding(70, 50, ctx({ hiredNephew: true, rentPaid: true })).body, /kira hâlâ/);
 });
 
 test('çok yüksek vicdan ve itirazlar istifa ile biter', () => {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as 
 import { callFor, useGameStore, TEAM_LATE_DAY } from '../../game/store';
 import { PIZZA_SLICES } from '../../game/slices/deskSlice';
 import { days } from '../../game/data/days';
-import { COFFEE_SIPS, DRAWER_LOCKED_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState } from '../../game/desk';
+import { COFFEE_SIPS, DRAWER_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState } from '../../game/desk';
 import { inbox } from '../../game/mail';
 import { formatClock } from '../../game/time';
 import { audioEngine } from '../../audio/audioEngine';
@@ -26,18 +26,16 @@ interface DeskProps {
   onOpenPc: () => void;
   /** Opens the phone — on a given chat when a notification was tapped. */
   onOpenPhone: (thread?: ThreadId | null) => void;
-  onOpenDrawer: () => void;
 }
 
 /** Your desk, seen from your chair. Everything on it is something you can pick up. */
 /** When the pizza reaches the desks on the team's late Thursday (see the office chat). */
 const PIZZA_AT = 560;
 
-export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) {
+export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   const dayIndex = useGameStore((s) => s.currentDayIndex);
   const minutes = useGameStore((s) => s.workdayMinutes);
   const desk = useGameStore((s) => s.desk);
-  const drawer = useGameStore((s) => s.story.drawer);
   const phone = useGameStore((s) => s.phone);
   const unread = useGameStore((s) => s.phoneUnread);
   const activeEvent = useGameStore((s) => s.activeEvent);
@@ -302,18 +300,16 @@ export function Desk({ scale, onOpenPc, onOpenPhone, onOpenDrawer }: DeskProps) 
         {/* ── under the desk ── */}
         <button
           key={`drawer-${drawerShake}`}
-          className={`${styles.obj} ${styles.pedestal} ${drawerShake ? styles.rattle : ''} ${drawer === 'unlocked' ? styles.pedestalNew : ''}`}
+          className={`${styles.obj} ${styles.pedestal} ${drawerShake ? styles.rattle : ''}`}
           data-label="Sol alt çekmece" aria-label="Sol alt çekmece"
           data-key="ç"
           aria-keyshortcuts="Ç"
           onClick={() => {
-            if (drawer === 'locked') {
-              setDrawerShake((n) => n + 1);
-              think(DRAWER_LOCKED_THOUGHT);
-            } else onOpenDrawer();
+            setDrawerShake((n) => n + 1);
+            think(DRAWER_THOUGHT);
           }}
         >
-          <PedestalArt unlocked={drawer !== 'locked'} />
+          <PedestalArt />
         </button>
 
         {/* light: daylight fading, the monitor and the lamp taking over */}
