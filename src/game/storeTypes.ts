@@ -3,10 +3,10 @@
  * the behaviour lives in store.ts.
  */
 import type { Decision, DayStats, Difficulty, EventKind, GamePhase } from './types';
-import type { ExpenseId, BillId } from './story';
 import type { Mail } from './mail';
 import type { ReferenceVerdict } from './references';
 import type { ReformKind } from './desk';
+import type { OfferResult } from './offer';
 import type { ManagerRequest, PhoneMessage, ScheduledMessage, Grievance, ThreadId } from './manager';
 import type { MeetingChoice, WeekEntry } from './echoes';
 import type { RejectTemplate } from './rejectionMails';
@@ -51,24 +51,12 @@ export interface WeekLog {
   events: number;
 }
 
-/** The story's state: your money, the week's key decisions. */
+/** The story's state: the week's key decisions. */
 export interface StoryState {
-  money: number;
-  bills: Partial<Record<BillId, 'paid' | 'skipped'>>;
-  /** Today's income, shown on the evening budget. */
-  wageToday: number;
-  primToday: number;
-  /** Docked today for files left open at 20:00. */
-  penaltyToday: number;
-  /** Target bonus for ending the day with high performance. */
-  bonusToday: number;
-  /** Spent this evening (dinner, coffee…). */
-  spentToday: number;
-  /** Evening activities you did, all week. */
-  activities: string[];
   /** Stayed past 17:00 today. */
   overtimeToday: boolean;
-  rent: 'paid' | 'unpaid' | null;
+  /** Friday 18:40: what you said when Hakan Bey offered the post, and how it ended. */
+  offer: OfferResult | null;
   /** Your decision on each of the five, all week. */
   keyDecisions: Record<string, Decision>;
   /** Yesterday's favours: the candidates you did them for, and those you didn't. The team notices. */
@@ -81,8 +69,6 @@ export interface StoryState {
   reform: { kind: ReformKind; accepted: boolean } | null;
   /** You told Mom the neighbour's son could send his CV. */
   neighbourCv: boolean;
-  /** The evening ledger: which everyday expenses you paid, per day. */
-  ledger: Record<number, Partial<Record<ExpenseId, boolean>>>;
 }
 
 /** The desk around the computer: the landline, the coffee mug, the welcome flowers. */
@@ -291,10 +277,9 @@ export interface GameState {
   recordAiUse: () => void;
   setWeekendChoice: (choice: string) => void;
   answerCandidateDm: (candidateId: string, kind: DmKind) => void;
-  payBill: (id: BillId, pay: boolean) => void;
-  setExpense: (id: ExpenseId, pay: boolean) => void;
-  payRent: (pay: boolean) => void;
-  finishReckoning: () => void;
+  /** Friday 18:40: your answer to Hakan Bey's offer, and what came of it. */
+  settleOffer: (result: OfferResult) => void;
+  finishOffer: () => void;
   finishWeekend: () => void;
   setMusicVolume: (value: number) => void;
   setSfxVolume: (value: number) => void;
@@ -324,8 +309,6 @@ export interface GameState {
   finishMeeting: (choice: Exclude<MeetingChoice, null>) => void;
   /** Put the notices in the outbox for 17:00 (right away if it's already past). */
   planRejectionMails: (choices: Record<string, RejectTemplate>) => void;
-  /** Spend on something after work (dinner, coffee…). */
-  doActivity: (id: string) => void;
   /** A glass of water at the cooler — the famous perk. Returns the thought. */
   visitCooler: () => string;
 }

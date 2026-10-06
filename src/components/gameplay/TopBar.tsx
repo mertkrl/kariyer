@@ -70,8 +70,6 @@ interface TopBarProps {
   overtime: boolean;
   performans: number;
   vicdan: number;
-  /** Bank balance (TL). */
-  money?: number;
   paused: boolean;
   onSettings: () => void;
   hard?: boolean;

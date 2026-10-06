@@ -9,7 +9,7 @@ export const WEDNESDAY = 2;
 export const THURSDAY = 3;
 export const FRIDAY = 4;
 
-/** Selin's birthday cake in the office; its plate is still on your desk the days after. */
+/** Emre's birthday cake in the office; its plate is still on your desk the days after. */
 export const BIRTHDAY_DAY = TUESDAY;
 /** Rain: the wet umbrella by the cooler, rain on the office window. */
 export const RAINY_DAY = WEDNESDAY;

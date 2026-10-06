@@ -17,7 +17,7 @@ const SCREENS = {
   FinalRoundScreen: () => import('./screens/FinalRoundScreen'),
   FinalScreen: () => import('./screens/FinalScreen'),
   WeekendScreen: () => import('./screens/WeekendScreen'),
-  ReckoningScreen: () => import('./screens/ReckoningScreen'),
+  OfferScreen: () => import('./screens/OfferScreen'),
 };
 const JobSelectScreen = lazy(() => SCREENS.JobSelectScreen().then((m) => ({ default: m.JobSelectScreen })));
 const ApplicationFloodScreen = lazy(() => SCREENS.ApplicationFloodScreen().then((m) => ({ default: m.ApplicationFloodScreen })));
@@ -27,7 +27,7 @@ const DayEndScreen = lazy(() => SCREENS.DayEndScreen().then((m) => ({ default: m
 const FinalRoundScreen = lazy(() => SCREENS.FinalRoundScreen().then((m) => ({ default: m.FinalRoundScreen })));
 const FinalScreen = lazy(() => SCREENS.FinalScreen().then((m) => ({ default: m.FinalScreen })));
 const WeekendScreen = lazy(() => SCREENS.WeekendScreen().then((m) => ({ default: m.WeekendScreen })));
-const ReckoningScreen = lazy(() => SCREENS.ReckoningScreen().then((m) => ({ default: m.ReckoningScreen })));
+const OfferScreen = lazy(() => SCREENS.OfferScreen().then((m) => ({ default: m.OfferScreen })));
 // reads the game's mute setting, so it comes with the game rather than with the first screen
 const SoundToggle = lazy(() => import('./components/ui/SoundToggle').then((m) => ({ default: m.SoundToggle })));
 
@@ -65,8 +65,8 @@ function App() {
         return <FinalRoundScreen />;
       case 'dayEnd':
         return <DayEndScreen />;
-      case 'reckoning':
-        return <ReckoningScreen />;
+      case 'offer':
+        return <OfferScreen />;
       case 'weekend':
         return <WeekendScreen />;
       case 'final':

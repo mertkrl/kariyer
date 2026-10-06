@@ -1,8 +1,10 @@
 import { accusative } from './turkish';
+import { leavesCompany, type OfferOutcome } from './offer';
 /*
  * Friday night: Mom calls. The conversation is assembled from how your week actually went —
  * who you hired, how many CVs no human ever saw, whether you stood up to the manager, whether
- * you answered her texts — with a few moments where you choose what to say.
+ * you answered her texts, what you told Hakan Bey at 18:40 — with a few moments where you
+ * choose what to say. The last one is how the week ends at home (engine/ending.ts).
  */
 
 export type CallLine = { who: 'mom' | 'me'; text: string };
@@ -31,8 +33,77 @@ export interface WeekSummary {
   events: number;
   dmHonest: number;
   dmIgnored: number;
-  bills: Partial<Record<'fatura' | 'kart' | 'yurt', 'paid' | 'skipped'>>;
-  rentPaid: boolean;
+  /** What came of Hakan Bey's offer at 18:40 (null: an old save). */
+  offer: OfferOutcome | null;
+}
+
+/** How she hears the news about the post, and what you can say back. */
+function offerNews(o: OfferOutcome): CallStep[] {
+  switch (o) {
+    case 'stay':
+      return [
+        me('Kadro bende anne. Pazartesi kalıcıyım.'),
+        mom('Oh çok şükür! Deneme süresi bitti yani, değil mi? …Ayşe dediğin kız ne oldu peki?'),
+        choose(
+          { label: 'Onun süresi uzatılmadı', reply: 'Vah… Ama sen ne yapacaktın, kendi işini mi bırakacaktın?' },
+          { label: 'Bilmiyorum anne, sormaya yüzüm olmadı', reply: 'Pazartesi bir çay ısmarla ona. Bir çay çok şey söyler.' },
+        ),
+      ];
+    case 'stayReform':
+      return [
+        me('Kadro bende anne. Bir de şart koydum, kabul etti.'),
+        mom('Şart mı koydun? Sen mi? Müdürüne?'),
+        choose(
+          { label: 'Mülakatlar herkese aynı olacak artık', reply: 'Aferin sana. Bizim zamanımızda kimse sormazdı bunu.' },
+          { label: 'Küçük bir şey ama başlangıç', reply: 'Küçük şeyden başlar her şey yavrum.' },
+        ),
+      ];
+    case 'stayAfterRefusal':
+      return [
+        me('Kadro bende. Bir şart koydum ama… geri aldım.'),
+        mom('Geri mi aldın? Neydi şartın?'),
+        choose(
+          { label: 'Önemli değil anne', reply: 'Önemli değilse neden sesin böyle?' },
+          { label: 'Bir gün yine soracağım', reply: 'Sor yavrum. Kapı bir kere kapanmakla kilitlenmez.' },
+        ),
+      ];
+    case 'gaveToAyse':
+      return [
+        me("Kadroyu Ayşe'ye bıraktım anne."),
+        mom('Bıraktın mı? …O kız iki yıl iş aradı demiştin, değil mi?'),
+        choose(
+          { label: 'Evet. Bir yerde durmak lazımdı', reply: 'Seninle gurur duyuyorum. Ama karnını doyuracağız, onu da düşüneceğiz.' },
+          { label: 'Doğru mu yaptım bilmiyorum', reply: 'Doğruyu bilmek için bazen önce yapmak lazım.' },
+        ),
+      ];
+    case 'quit':
+      return [
+        me('İstifa ediyorum anne. Pazartesi yazılı vereceğim.'),
+        mom('…On bir ay sonra? Yavrum, emin misin?'),
+        choose(
+          { label: 'Eminim. O masada kalamazdım', reply: 'Tamam. Ben arkandayım. Bir yolunu buluruz.' },
+          { label: 'Değilim. Ama dönmeyeceğim', reply: 'Emin olmadan da doğru yapılır bazen.' },
+        ),
+      ];
+    case 'reformRefused':
+      return [
+        me('Kadroyu bir şartla istedim, vermediler. Ben de almadım.'),
+        mom('Şart yüzünden mi? Ne şartıydı bu?'),
+        choose(
+          { label: 'İnsanlara adil davranılsın diye', reply: 'O zaman doğru yapmışsın. Gerisini konuşuruz.' },
+          { label: 'Belki fazla ileri gittim', reply: 'İleri gitmek değil o yavrum, dik durmak.' },
+        ),
+      ];
+    case 'notOffered':
+      return [
+        me('Deneme süremi uzatmadılar anne.'),
+        mom('Ah yavrum… Ne dediler peki?'),
+        choose(
+          { label: '"Uyum sorunu" dediler', reply: 'Kime uyacaktın? Neye uyacaktın? Boş ver onları.' },
+          { label: 'Rakamlar tutmadı dediler', reply: 'Rakam rakamdır. Sen insansın. Bulursun yenisini.' },
+        ),
+      ];
+  }
 }
 
 const mom = (text: string): CallStep => ({ kind: 'line', line: { who: 'mom', text } });
@@ -100,6 +171,11 @@ export function buildCall(w: WeekSummary): CallStep[] {
   } else {
     steps.push(me('Kimseyi alamadık anne…'));
     steps.push(mom('Olsun, nasipse olur. Sen üzülme.'));
+  }
+
+  if (w.offer) {
+    steps.push(mom('Bir de… deneme süren bugün bitiyordu, değil mi? Ne dediler?'));
+    steps.push(...offerNews(w.offer));
   }
 
   steps.push(mom('Kaç kişiye baktın bu hafta?'));
@@ -176,12 +252,16 @@ export function buildCall(w: WeekSummary): CallStep[] {
     );
   }
 
+  // the last thing you say is how the week ends at home
+  const left = w.offer !== null && leavesCompany(w.offer);
   steps.push(mom('Eee, hafta sonu ne yapacaksın?'));
   steps.push(
     choose(
       { label: 'Pazar kahvaltıya geliyorum', reply: 'Oh ne güzel! Menemen yaparım, sucuklu', tag: 'breakfast' },
       { label: 'Sadece uyuyacağım', reply: 'Uyu yavrum uyu, hak ettin. Ama yemeğini de ye!', tag: 'sleep' },
-      { label: 'Anne… iş değiştirmeyi düşünüyorum', reply: 'Ne karar verirsen arkandayım. Yeter ki mutlu ol', tag: 'quit' },
+      left
+        ? { label: 'Yeni başvurular yapacağım. Bu sefer CV\'leri okuyan yerlere', reply: 'Öyle yerler vardır yavrum. Sen de onlardan biri olacaksın zaten', tag: 'search' }
+        : { label: 'Anne… iş değiştirmeyi düşünüyorum', reply: 'Ne karar verirsen arkandayım. Yeter ki mutlu ol', tag: 'quit' },
     ),
   );
   steps.push(mom('Hadi, seni tutmayayım. Öpüyorum çok çok'));

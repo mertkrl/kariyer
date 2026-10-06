@@ -8,7 +8,7 @@ import type { GetState, SetState } from '../storeApi';
 import type { Finalist, GameState, StoryState, WeekLog } from '../storeTypes';
 import { days } from '../data/days';
 import { DAY_PLANS } from '../data/dayPlans';
-import { DAILY_WAGE, OPEN_FILE_PENALTY, QUOTA_CUT_BELOW, TARGET_BONUS, TARGET_BONUS_AT, PRIM, KEY_CHARACTERS } from '../story';
+import { QUOTA_CUT_BELOW, KEY_CHARACTERS } from '../story';
 import { OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, isStrong, isWronglyFlagged, unusedSlotCost, wasConsidered } from '../engine/scoring';
 import type { Mail } from '../mail';
 import { COFFEE_SIPS } from '../desk';
@@ -28,7 +28,7 @@ function defiedYesterday(state: GameState) {
   return state.currentDayIndex > 0 && defied.length > 0 && defied.length >= complied.length;
 }
 
-/** The morning's mail: Levent's note about yesterday, and Hakan Bey's after a day you went against him. */
+/** The morning's mail: Ümit's note about yesterday, and Hakan Bey's after a day you went against him. */
 function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
   const tone = managerTone(state.managerStance.refusals);
   const defied = defiedYesterday(state);
@@ -188,21 +188,10 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       reviewed: state.week.reviewed + decidedIds.length,
       managerIgnored: state.week.managerIgnored + ignored };
 
-    const prim = state.managerRequests.filter((r) => state.decisions[r.candidateId] === r.want).length * PRIM;
     const keyDecisions = { ...state.story.keyDecisions };
     for (const k of KEY_CHARACTERS) if (lineup.includes(k.id) && state.decisions[k.id]) keyDecisions[k.id] = state.decisions[k.id];
-    // files still open when you leave come out of the day's wage
-    const penalty = Math.min(DAILY_WAGE, undecided * OPEN_FILE_PENALTY);
-    // a strong day pays: the target bonus
-    const bonus = clampScore(state.performans + verdict.performans) >= TARGET_BONUS_AT ? TARGET_BONUS : 0;
     const story: StoryState = {
       ...state.story,
-      money: state.story.money,
-      wageToday: DAILY_WAGE,
-      primToday: prim,
-      bonusToday: bonus,
-      penaltyToday: penalty,
-      spentToday: 0,
       overtimeToday: state.overtime,
       keyDecisions,
       pastRequests: [...state.story.pastRequests, ...state.managerRequests.map((r) => ({ candidateId: r.candidateId, want: r.want }))],

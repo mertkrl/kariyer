@@ -16,14 +16,14 @@ export function DayBriefingScreen() {
       <div className={styles.screen}>
         <div className={`${styles.card} ${styles.intro}`}>
           <div className={styles.header}>Pazartesi · 06:40 · Bağcılar</div>
-          <h1 className={styles.title}>Sen</h1>
+          <h1 className={styles.title}>Defne Aral</h1>
           <div className={styles.divider} />
           <ul className={styles.introFacts}>
             <li>
               <b>11 ay</b> işsiz kaldın. <b>214</b> başvuru, <b>9</b> mülakat, <b>1</b> teklif.
             </li>
             <li>Başvurularının çoğuna hiç cevap gelmedi. Birine, gönderdikten 0,4 saniye sonra otomatik ret geldi.</li>
-            <li>Annenle aynı evde oturuyorsun. Kira bu ay %60 zamlandı. Sırada kardeşinin yurt taksiti, annenin kart borcu ve KYK var.</li>
+            <li>Annenle aynı evde oturuyorsun. Kardeşin üniversitede; okulu "ilk 10"da değil diye staj başvurularına kimse dönmüyor.</li>
             <li>
               Bugün iki aylık deneme süren başlıyor. Unvanın: <b>İşe Alım Uzmanı</b>.
             </li>

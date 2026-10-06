@@ -81,7 +81,7 @@ export type GamePhase =
   | 'gameplay'
   | 'finalRound'
   | 'dayEnd'
-  | 'reckoning'
+  | 'offer'
   | 'weekend'
   | 'final';
 

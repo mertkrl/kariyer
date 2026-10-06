@@ -16,12 +16,6 @@
   animation: steamRise 3.2s ease-in-out infinite;
 }
 
-.flicker {
-  animation: flicker 1.8s ease-in-out infinite;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-
 @keyframes steamRise {
   0% {
     opacity: 0;
@@ -36,25 +30,8 @@
   }
 }
 
-@keyframes flicker {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  30% {
-    opacity: 0.82;
-    transform: scale(0.95, 1.05);
-  }
-  60% {
-    opacity: 0.95;
-    transform: scale(1.03, 0.97);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .steam,
-  .flicker {
+  .steam {
     animation: none;
   }
 }

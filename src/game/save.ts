@@ -7,7 +7,7 @@ import type { GameState } from './storeTypes';
 
 const SAVE_KEY = 'kariyerweb-save';
 /** Bump when the saved shape changes, and add a step to MIGRATIONS if old saves can be carried over. */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 /** Preferences have their own storage and are not part of a save. */
 const NOT_SAVED = ['muted', 'musicVolume', 'sfxVolume'];
 
@@ -23,7 +23,18 @@ type SaveData = Record<string, unknown>;
  * How to bring a save from version n to n + 1. A version with no step here can't be carried
  * over, and its save is ignored rather than half-loaded.
  */
-const MIGRATIONS: Record<number, (data: SaveData) => SaveData> = {};
+const MIGRATIONS: Record<number, (data: SaveData) => SaveData> = {
+  // 2 → 3: the money was taken out of the story (balance, bills, rent, evening spending) and
+  // Friday's rent screen became Hakan Bey's offer.
+  2: (data) => {
+    const story = isRecord(data.story) ? { ...data.story } : data.story;
+    if (isRecord(story)) {
+      for (const key of ['money', 'bills', 'wageToday', 'primToday', 'penaltyToday', 'bonusToday', 'spentToday', 'activities', 'rent', 'ledger']) delete story[key];
+      story.offer ??= null;
+    }
+    return { ...data, story, phase: data.phase === 'reckoning' ? 'offer' : data.phase };
+  },
+};
 
 export function writeSave(state: GameState) {
   const data = Object.fromEntries(Object.entries(state).filter(([key, value]) => typeof value !== 'function' && !NOT_SAVED.includes(key)));

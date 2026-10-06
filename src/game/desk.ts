@@ -143,7 +143,7 @@ export const DESK_CALLS: DeskCall[] = [
     ],
     choices: [
       { text: 'Anlıyorum Hakan Bey. Kolay değil.', reply: 'Sağ ol. Bunu kimseye söylemedim. Yarın mülakatlar… ne yaparsan yap, bilerek yap.', performans: 2 },
-      { text: 'Bu, adaylara yapılanı haklı çıkarmaz.', reply: '…Haklısın. Ama haklı olmak kirayı ödemiyor. Kolay gelsin.', vicdan: 3 },
+      { text: 'Bu, adaylara yapılanı haklı çıkarmaz.', reply: '…Haklısın. Ama haklı olmak kimseyi bu masada tutmuyor. Kolay gelsin.', vicdan: 3 },
       { text: 'Kolay değil. Ama bir önerim var: sayıları tutturup süreci de düzeltebiliriz.', reply: '…Söyle bakalım. İki dakikan var.', next: 'reform' },
     ],
     minutes: 6,

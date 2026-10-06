@@ -12,8 +12,7 @@ import styles from './HomeScene.module.css';
 
 const WIN = { x: 110, y: 80, w: 460, h: 300 };
 
-export function HomeScene({ dark }: { dark: boolean }) {
-  const light = dark ? 0 : 1;
+export function HomeScene() {
   return (
     <svg className={styles.scene} viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
@@ -78,10 +77,6 @@ export function HomeScene({ dark }: { dark: boolean }) {
           <path d="M18 10 L27 0 L36 10 L27 20 Z" fill="#2f4a5c" />
           <path d="M5 10 L9 6 L13 10 L9 14 Z M23 10 L27 6 L31 10 L27 14 Z" fill="#e3c27a" />
         </pattern>
-        <radialGradient id="hsCandleGlow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="rgba(255,190,110,0.55)" />
-          <stop offset="1" stopColor="rgba(255,170,90,0)" />
-        </radialGradient>
         <radialGradient id="hsVignette" cx="0.5" cy="0.45" r="0.78">
           <stop offset="0.55" stopColor="rgba(0,0,0,0)" />
           <stop offset="1" stopColor="rgba(0,0,0,0.62)" />
@@ -212,7 +207,7 @@ export function HomeScene({ dark }: { dark: boolean }) {
       </g>
 
       {/* the lamp's warm wash over wall and floor */}
-      {light > 0 && <rect width="1000" height="700" fill="url(#hsLampWash)" />}
+      <rect width="1000" height="700" fill="url(#hsLampWash)" />
 
       {/* ── kilim with fringes ── */}
       <path d="M300 612 L920 612 L960 690 L260 690 Z" fill="url(#hsKilim)" />
@@ -277,12 +272,10 @@ export function HomeScene({ dark }: { dark: boolean }) {
         {[0, 1, 2, 3, 4].map((i) => (
           <ellipse key={i} cx={36 + i * 5} cy={21 + (i % 2)} rx={4} ry={2.5} fill="#9a6a3a" />
         ))}
-        {light > 0 && (
-          <g className={styles.steam}>
-            <path d="M-12 -18 C-18 -30 -6 -36 -12 -50" stroke="rgba(255,255,255,0.3)" strokeWidth={3} fill="none" strokeLinecap="round" />
-            <path d="M-4 -20 C-10 -32 2 -38 -4 -52" stroke="rgba(255,255,255,0.2)" strokeWidth={3} fill="none" strokeLinecap="round" />
-          </g>
-        )}
+        <g className={styles.steam}>
+          <path d="M-12 -18 C-18 -30 -6 -36 -12 -50" stroke="rgba(255,255,255,0.3)" strokeWidth={3} fill="none" strokeLinecap="round" />
+          <path d="M-4 -20 C-10 -32 2 -38 -4 -52" stroke="rgba(255,255,255,0.2)" strokeWidth={3} fill="none" strokeLinecap="round" />
+        </g>
       </g>
 
       {/* ── floor lamp ── */}
@@ -291,31 +284,13 @@ export function HomeScene({ dark }: { dark: boolean }) {
         <rect x="-3" y="66" width="6" height="400" fill="#2a241e" />
         <rect x="-1" y="66" width="2" height="400" fill="rgba(255,230,190,0.25)" />
         <ellipse cx="0" cy="466" rx="24" ry="6" fill="#2a241e" />
-        <path d="M-52 66 L52 66 L34 0 L-34 0 Z" fill={light ? 'url(#hsShade)' : '#6a5a4a'} />
-        {light > 0 && (
-          <>
-            <path d="M-52 66 L52 66 L34 0 L-34 0 Z" fill="rgba(255,210,140,0.5)" filter="url(#hsSoft)" />
-            <path d="M-52 66 L52 66 L110 330 L-110 330 Z" fill="rgba(255,200,130,0.07)" />
-          </>
-        )}
+        <path d="M-52 66 L52 66 L34 0 L-34 0 Z" fill="url(#hsShade)" />
+        <path d="M-52 66 L52 66 L34 0 L-34 0 Z" fill="rgba(255,210,140,0.5)" filter="url(#hsSoft)" />
+        <path d="M-52 66 L52 66 L110 330 L-110 330 Z" fill="rgba(255,200,130,0.07)" />
       </g>
 
-      {/* ── candles when the power is cut ── */}
-      {dark && (
-        <g transform="translate(360 520)">
-          <ellipse cx="0" cy="-10" rx="140" ry="120" fill="url(#hsCandleGlow)" className={styles.flicker} />
-          {[-40, 56].map((x) => (
-            <g key={x} transform={`translate(${x} -6)`}>
-              <rect x="-7" y="2" width="14" height="36" rx={2} fill="#efe6d2" />
-              <path d="M0 -14 C5 -6 5 0 0 2 C-5 0 -5 -6 0 -14 Z" fill="#ffcf6a" className={styles.flicker} />
-            </g>
-          ))}
-        </g>
-      )}
-
-      {/* the edges of the room fall into shadow; darker still without electricity */}
+      {/* the edges of the room fall into shadow */}
       <rect width="1000" height="700" fill="url(#hsVignette)" />
-      {dark && <rect width="1000" height="700" fill="rgba(5,4,8,0.5)" />}
     </svg>
   );
 }

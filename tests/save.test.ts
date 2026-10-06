@@ -24,7 +24,7 @@ test('kayıt yazılıp aynen geri okunur, ayarlar ve fonksiyonlar kayda girmez',
 test('bozuk JSON, eski sürüm ve boş kayıt yok sayılır', () => {
   localStorage.setItem(KEY, '{bozuk');
   assert.equal(readSave(), null);
-  localStorage.setItem(KEY, JSON.stringify({ version: SAVE_VERSION - 1, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 0 } }));
+  localStorage.setItem(KEY, JSON.stringify({ version: 1, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 0 } }));
   assert.equal(readSave(), null);
   localStorage.setItem(KEY, JSON.stringify({ version: SAVE_VERSION, savedAt: 1, data: 'yok' }));
   assert.equal(readSave(), null);
@@ -67,7 +67,7 @@ test('kullanılamayan kayıt oyuncuya söylenir, kayıt hiç yoksa söylenmez', 
   clearSave();
   assert.equal(readSave(), null);
   assert.equal(saveWasLost(), false);
-  localStorage.setItem(KEY, JSON.stringify({ version: SAVE_VERSION - 1, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 0 } }));
+  localStorage.setItem(KEY, JSON.stringify({ version: 1, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 0 } }));
   assert.equal(readSave(), null);
   assert.equal(saveWasLost(), true);
   clearSave();
@@ -79,4 +79,18 @@ test('kullanılamayan kayıt oyuncuya söylenir, kayıt hiç yoksa söylenmez', 
   writeSave({ ...state(), phase: 'briefing', currentDayIndex: 99 });
   assert.equal(loadSave(), null);
   assert.equal(saveWasLost(), true);
+});
+
+test('para kaldırılmadan önceki (2. sürüm) kayıt taşınır: para alanları atılır, kira ekranı teklife döner', () => {
+  localStorage.setItem(KEY, JSON.stringify({ version: 2, savedAt: 1, data: { phase: 'reckoning', currentDayIndex: 4, story: { money: 1200, bills: { kart: 'skipped' }, rent: null, keyDecisions: { kerem: 'reject' } } } }));
+  const save = readSave();
+  assert.ok(save);
+  assert.equal(save.version, SAVE_VERSION);
+  assert.equal(save.data.phase, 'offer');
+  const story = save.data.story as unknown as Record<string, unknown>;
+  assert.equal('money' in story, false);
+  assert.equal('bills' in story, false);
+  assert.equal(story.offer, null);
+  assert.deepEqual(story.keyDecisions, { kerem: 'reject' });
+  localStorage.removeItem(KEY);
 });

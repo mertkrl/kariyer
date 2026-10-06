@@ -16,7 +16,6 @@ import styles from './WeekendScreen.module.css';
 type Stage = 'ringing' | 'talking' | 'ended';
 
 export function WeekendScreen() {
-  const powerCut = useGameStore((st) => st.story.bills.fatura === 'skipped');
   const finishWeekend = useGameStore((st) => st.finishWeekend);
   const setWeekendChoice = useGameStore((st) => st.setWeekendChoice);
   // the week is over — its numbers no longer change, so the call is written once
@@ -38,8 +37,7 @@ export function WeekendScreen() {
       events: s.week.events,
       dmHonest: Object.values(s.dmHandled).filter((k) => k === 'honest').length,
       dmIgnored: Object.values(s.dmHandled).filter((k) => k === 'ignore').length,
-      bills: s.story.bills,
-      rentPaid: s.story.rent === 'paid',
+      offer: s.story.offer?.outcome ?? null,
     });
   });
   const [stage, setStage] = useState<Stage>('ringing');
@@ -112,10 +110,10 @@ export function WeekendScreen() {
   const clock = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
   return (
-    <div className={`${styles.screen} ${powerCut ? styles.powerCut : ''}`}>
+    <div className={styles.screen}>
       <div className={styles.room}>
-        <HomeScene dark={powerCut} />
-        <div className={styles.timeTag}>{powerCut ? 'Cuma · 21:40 · Evde · annen teyzende · elektrik kesik' : 'Cuma · 21:40 · Evde · annen teyzende'}</div>
+        <HomeScene />
+        <div className={styles.timeTag}>Cuma · 21:40 · Evde · annen teyzende</div>
       </div>
 
       <div className={styles.phone}>

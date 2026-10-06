@@ -17,7 +17,7 @@ export const SCREEN_NAMES: Record<GamePhase, string> = {
   gameplay: 'Masa: başvuru değerlendirme',
   finalRound: 'Final mülakatları',
   dayEnd: 'Gün sonu',
-  reckoning: 'Hesaplaşma',
+  offer: 'Kapıda Hakan Bey',
   weekend: 'Hafta sonu',
   final: 'Haftanın sonu',
 };

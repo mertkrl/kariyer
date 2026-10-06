@@ -296,9 +296,4 @@
   }
 }
 
-.powerCut .room {
-  background:
-    radial-gradient(ellipse 40% 45% at 80% 78%, rgba(255, 170, 80, 0.22), transparent 70%),
-    linear-gradient(180deg, #16110e 0%, #120e0b 62%, #0d0a08 62.2%, #0a0806 100%);
-}
 

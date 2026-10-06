@@ -4,107 +4,15 @@ import { EXTRA_FEMALE } from './data/extraCandidates';
 /*
  * "Sistemin Dişlisi" — the week's story.
  *
- * Two threads run under the daily grind:
- *  1. Home: the rent went up 60%, Mom's medicine, your brother's dorm fee. The manager's
- *     "requests" come with a bonus (prim). Doing the right thing costs money.
- *  2. Five people: Okan (the manager's nephew), Kerem (45, laid off), Derya (two years caring
- *     for her mother), Seda (raising a daughter alone), Tolga (first in his family to go to
- *     university, just arrived from Kars). They come back — in your DMs, on the street after
- *     work, and a year later.
+ * Under the daily grind run the five people the week's story hangs on: Okan (the manager's
+ * nephew), Kerem (45, laid off), Derya (two years paying off her father's failed company),
+ * Seda (raising a daughter alone), Tolga (first in his family to go to university, from Kars;
+ * his open-source code is what brings the crashed system back on Thursday). They come back —
+ * in your DMs, on the street after work, and a year later.
  */
 
-export type BillId = 'fatura' | 'kart' | 'yurt';
-
-export interface Bill {
-  id: BillId;
-  day: number;
-  title: string;
-  amount: number;
-  /** What happens if you don't pay. */
-  skipNote: string;
-}
-
-/*
- * The week's money is tuned so that doing everything right doesn't add up:
- *   20.250 savings + 5 × 1.700 wage − 4 × 500 daily costs − 10.050 bills = 16.700  →  1.800 short of the rent.
- * Skip one bill (the card, the dorm or the electricity) and you make it; take Hakan Bey's two
- * favours (2 × 1.500) and you make it comfortably. Target bonuses soften it but never close it.
- */
-export const START_MONEY = 20250;
-export const DAILY_WAGE = 1700;
-/** Paid for each of the manager's requests you carried out. */
-export const PRIM = 1500;
-export const RENT = 18500;
-/** Docked from the day's wage for every file still open at 20:00. */
-export const OPEN_FILE_PENALTY = 350;
-/** Performans of 70+ at the end of a day earns the day's target bonus. */
-export const TARGET_BONUS = 300;
-export const TARGET_BONUS_AT = 70;
 /** Below this, Hakan Bey takes an interview slot away the next morning. */
 export const QUOTA_CUT_BELOW = 35;
-
-/* ── The evening ledger: everyday costs you decide on each night ── */
-
-export type ExpenseId = 'transport' | 'food';
-
-export interface Expense {
-  id: ExpenseId;
-  icon: string;
-  title: string;
-  cost: number;
-  /** What skipping it does to tomorrow. */
-  skipNote: string;
-}
-
-export const EXPENSES: Expense[] = [
-  { id: 'transport', icon: '🚌', title: 'İstanbulkart dolumu', cost: 120, skipNote: 'Yarın aktarmalı gelip yürürsün: mesaiye 20 dk geç başlarsın.' },
-  { id: 'food', icon: '🛒', title: 'Market: akşam yemeği ve kahvaltılık', cost: 380, skipNote: 'Kahvaltısız çıkarsın: Performans −2, kupada yarım kahve.' },
-];
-
-export const BILLS: Bill[] = [
-  { id: 'fatura', day: 1, title: 'Elektrik + doğalgaz faturası', amount: 2350, skipNote: 'Ödemezsen hafta sonu elektrik kesilebilir.' },
-  { id: 'kart', day: 2, title: 'Annenin kredi kartı asgari ödemesi', amount: 2900, skipNote: 'Ödemezsen kart kullanıma kapanır.' },
-  { id: 'yurt', day: 3, title: 'Kardeşinin yurt taksiti', amount: 4800, skipNote: 'Ödemezsen kardeşin yurttan çıkarılabilir.' },
-];
-
-/** Evening notes on the budget screen, per day. */
-export const HOME_NOTES = [
-  'Ev sahibinden mesaj: "Sözleşme yenilendi, kira %60 zamlı: 18.500 TL. Cuma akşamına kadar."',
-  'Annen: "Faturalar geldi yavrum, masanın üstüne bıraktım."',
-  'Annen: "Kartın asgarisi bu hafta yavrum, banka mesaj attı."',
-  'Kardeşin: "Yurt taksiti bu hafta, yoksa kaydımı donduruyorlar."',
-];
-
-/* ── After work ── */
-
-export interface EveningActivity {
-  id: string;
-  icon: string;
-  title: string;
-  cost: number;
-  /** What it was like. */
-  after: string;
-}
-
-/** Small things you can spend on after work, a few each evening. */
-export const EVENING_ACTIVITIES: EveningActivity[][] = [
-  [
-    { id: 'coffee-karakoy', icon: '☕', title: 'Ekiple dışarıda kahve', cost: 240, after: 'Ayşe ve Emre\'yle Karaköy\'de bir kahve. İlk gün için fena değildi.' },
-    { id: 'durum', icon: '🌯', title: 'Eve dönmeden dürüm', cost: 190, after: 'Metrobüs kuyruğunda dürüm yedin. Mutfakta bulaşık yok en azından.' },
-  ],
-  [
-    { id: 'dinner-emre', icon: '🎂', title: 'Emre\'nin doğum günü yemeği', cost: 780, after: 'Emre\'nin doğum günü yemeğine gittin. Hesap bölüşülünce canın yandı ama iyi güldünüz.' },
-    { id: 'simit', icon: '🥯', title: 'Vapurda çay ve simit', cost: 70, after: 'Vapurda çay, simit, martılar. Bu şehrin hâlâ ucuz tek güzelliği.' },
-  ],
-  [
-    { id: 'taxi', icon: '🚕', title: 'Yağmurda taksiye bin', cost: 460, after: 'Servisi beklemedin, taksiye bindin. Trafikte yine kırk dakika durdunuz.' },
-    { id: 'meyhane', icon: '🍽', title: 'Eski bir arkadaşla yemek', cost: 1150, after: 'Üniversiteden bir arkadaşla yemek. İş değiştirmeyi düşünüyormuş. "Sen şanslısın" dedi.' },
-  ],
-  [
-    { id: 'dessert', icon: '🍮', title: 'Anneme tatlı al', cost: 360, after: 'Annene sütlaç aldın. Telefonda sesi bir anda değişti.' },
-    { id: 'book', icon: '📚', title: 'Kardeşine kitap al', cost: 290, after: 'Kardeşine bir mülakat kitabı aldın. "Okulun adını silme" diye not yazdın.' },
-  ],
-];
 
 /* ── The five ── */
 

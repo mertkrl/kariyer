@@ -180,34 +180,6 @@ export const PizzaBox = ({ left }: { left: number }) => {
   );
 };
 
-export const Envelope = ({ paid }: { paid: boolean }) => (
-  <svg viewBox="0 0 140 80" width="100%" height="100%" aria-hidden="true">
-    {shadow(70, 70, 64, 7)}
-    <path d="M12 12 L128 6 L134 66 L16 72 Z" fill={paid ? '#f7f3e8' : '#efe7d2'} />
-    {paid ? (
-      <>
-        <text x={40} y={32} fontSize={10} fontWeight={700} fill="#2d3a55" fontFamily="Work Sans, sans-serif" transform="rotate(-3 70 40)">
-          DEKONT
-        </text>
-        <text x={40} y={46} fontSize={8} fill="#6b6455" fontFamily="JetBrains Mono, monospace" transform="rotate(-3 70 40)">
-          Elektrik 2.350 ₺
-        </text>
-        <text x={98} y={58} fontSize={16} fill="#3f8a55" transform="rotate(-3 70 40)">
-          ✓
-        </text>
-      </>
-    ) : (
-      <>
-        <path d="M12 12 L72 42 L128 6" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth={1.5} />
-        <rect x={34} y={44} width={78} height={16} fill="#b8322a" transform="rotate(-3 70 50)" />
-        <text x={73} y={56} textAnchor="middle" fontSize={9} fontWeight={800} letterSpacing={1} fill="#fff" fontFamily="Work Sans, sans-serif" transform="rotate(-3 70 50)">
-          SON İHTAR
-        </text>
-      </>
-    )}
-  </svg>
-);
-
 export const Note = ({ color, lines, rot }: { color: string; lines: string[]; rot: number }) => (
   <svg viewBox="0 0 100 90" width="100%" height="100%" aria-hidden="true">
     <g transform={`rotate(${rot} 50 45)`}>

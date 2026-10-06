@@ -1,20 +1,35 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getEnding, type EndingContext } from '../src/game/engine/ending';
+import type { OfferOutcome } from '../src/game/offer';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../src/game/engine/achievements';
 
 const ctx = (over: Partial<EndingContext> = {}): EndingContext => ({ refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal', ...over });
 
-test('kira ödenmediyse son metinde anılır', () => {
-  assert.match(getEnding(70, 50, ctx({ hiredNephew: true, rentPaid: false })).body, /kira/);
-  assert.doesNotMatch(getEnding(70, 50, ctx({ hiredNephew: true, rentPaid: true })).body, /kira hâlâ/);
+test('sonu Hakan Bey\'in teklifine verilen cevap belirler, puanlar değil', () => {
+  const at = (outcome: OfferOutcome) => getEnding(60, 60, ctx({ offer: { outcome, vicdan: 0 } }));
+  assert.match(at('quit').title, /İstifa/);
+  assert.equal(at('quit').left, true);
+  assert.match(at('gaveToAyse').title, /Ayşe/);
+  assert.equal(at('gaveToAyse').left, true);
+  assert.match(at('reformRefused').title, /Şartını koydun/);
+  assert.match(at('stayAfterRefusal').title, /çekmece/);
+  assert.equal(at('stay').left, undefined);
+  assert.match(getEnding(60, 60, ctx({ offer: { outcome: 'stayReform', reform: 'blind', vicdan: 3 } })).body, /isimler, yaşlar/);
+  // the same scores, six different weeks: the answer decides
+  const titles = new Set((['stay', 'stayReform', 'stayAfterRefusal', 'reformRefused', 'gaveToAyse', 'quit'] as OfferOutcome[]).map((o) => at(o).title));
+  assert.equal(titles.size, 6);
 });
 
-test('çok yüksek vicdan ve itirazlar istifa ile biter', () => {
-  const e = getEnding(50, 90, ctx({ refusals: 3 }));
-  assert.equal(e.left, true);
-  assert.match(e.title, /İstifa/);
-  assert.doesNotMatch(getEnding(50, 90, ctx()).title, /İstifa/);
+test('çok yüksek vicdan tek başına istifa ettirmez: istifa bir karardır', () => {
+  assert.doesNotMatch(getEnding(50, 95, ctx({ refusals: 4 })).title, /İstifa/);
+});
+
+test('annene söylediğin son söz sonun son cümlesi olur', () => {
+  const stay = { outcome: 'stay' as const, vicdan: 0 };
+  assert.match(getEnding(60, 60, ctx({ offer: stay, weekendChoice: 'quit' })).body, /iş değiştirmeyi düşündüğünü/);
+  assert.match(getEnding(60, 60, ctx({ offer: { outcome: 'quit', vicdan: 2 }, weekendChoice: 'search' })).body, /insan tarafından değerlendirilir/);
+  assert.match(getEnding(60, 60, ctx({ offer: stay, weekendChoice: 'breakfast' })).body, /menemen/);
 });
 
 test('yüksek performans düşük vicdanla terfi değil, sistemin sonu olur', () => {

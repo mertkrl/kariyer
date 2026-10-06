@@ -58,6 +58,7 @@ export function FinalScreen() {
     weekendChoice,
     difficulty,
     hiredNephew: hiredId === NEPHEW_ID,
+    offer: story.offer,
   });
   const input: AchievementInput = {
     performans,
@@ -220,7 +221,9 @@ export function FinalScreen() {
                 Ayşe <small>· Deneme süresindeki diğer İK uzmanı. Kadro bir kişilikti.</small>
               </b>
               <span>
-                {ending.left
+                {story.offer?.outcome === 'gaveToAyse'
+                  ? 'Kadroyu sen ona bıraktın. İlk maaşıyla sana bir kahve makinesi yolladı, notuyla: "Ofisinki hâlâ bozuk. Dosyaları okuyorum, söz."'
+                  : ending.left
                   ? 'Kadro Ayşe\'ye verildi; senin masana geçti. Bir kez yazdı: "Senin masanda oturuyorum. Dosyaları okuyorum, söz."'
                   : 'Ayşe\'nin deneme süresi uzatılmadı. Başka bir şirkette İK uzmanı oldu. Geçen ay yazdı: "Burada da bir tablo var. Bu sefer ilk günden soruyorum."'}
               </span>

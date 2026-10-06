@@ -39,7 +39,6 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   const phone = useGameStore((s) => s.phone);
   const unread = useGameStore((s) => s.phoneUnread);
   const activeEvent = useGameStore((s) => s.activeEvent);
-  const story = useGameStore((s) => s.story);
   const mailRead = useGameStore((s) => s.mailRead);
   const extraMails = useGameStore((s) => s.extraMails);
   const ringingCaller = useGameStore((s) => (s.desk.ringing ? (callFor(s, s.desk.ringing)?.caller ?? null) : null));
@@ -99,7 +98,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   } as CSSProperties;
 
   // what the week has left on the desk (decided each morning, so a note doesn't vanish mid-day)
-  const [morningExtras] = useState(() => deskExtras({ dayIndex, story, cleared: desk.cleared }));
+  const [morningExtras] = useState(() => deskExtras({ dayIndex, cleared: desk.cleared }));
   // back from Emre's surprise in the kitchen, your empty plate came with you
   const backFromParty =
     dayIndex === BIRTHDAY_DAY &&

@@ -1,9 +1,8 @@
 /*
- * The week's story beyond the CV queue: the meeting, money and bills, evenings, rejection notices, the interviews and the hire.
+ * The week's story beyond the CV queue: the meeting, rejection notices, the interviews, the hire and Friday's offer.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
-import { BILLS, EVENING_ACTIVITIES, EXPENSES, RENT } from '../story';
 import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from '../storeDefaults';
 import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../clock';
 import { MEETING_MINUTES, OPTIONS } from '../meeting';
@@ -15,55 +14,17 @@ import { later } from '../later';
 import { NEPHEW_ID } from '../data/candidates';
 import { salaryTalk } from '../interview';
 
-export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'doActivity' | 'askForbidden' | 'payBill' | 'setExpense' | 'payRent' | 'finishReckoning' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
-  doActivity: (id) => {
-    const state = get();
-    const a = EVENING_ACTIVITIES[state.currentDayIndex]?.find((x) => x.id === id);
-    if (!a || state.story.activities.includes(id) || state.story.money < a.cost) return;
-    sound().playUi('confirm');
-    set({ story: { ...state.story, money: state.story.money - a.cost, spentToday: state.story.spentToday + a.cost, activities: [...state.story.activities, id] } });
-  },
-
+export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'askForbidden' | 'settleOffer' | 'finishOffer' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
   askForbidden: () =>
     set((state) => ({
       forbiddenAsked: state.forbiddenAsked + 1,
       performans: clampScore(state.performans + 2),
       vicdan: clampScore(state.vicdan - 4) })),
 
-  payBill: (id, pay) =>
-    set((state) => {
-      const bill = BILLS.find((b) => b.id === id);
-      if (!bill || state.story.bills[id]) return {};
-      const can = state.story.money >= bill.amount;
-      const paid = pay && can;
-      return {
-        story: { ...state.story, bills: { ...state.story.bills, [id]: paid ? 'paid' : 'skipped' }, money: state.story.money - (paid ? bill.amount : 0) },
-        // leaving Mom without her medicine weighs on you
-        vicdan: clampScore(state.vicdan - (!paid && id === 'kart' ? 2 : 0)) };
-    }),
+  settleOffer: (result) =>
+    set((state) => (state.story.offer ? {} : { story: { ...state.story, offer: result }, vicdan: clampScore(state.vicdan + result.vicdan) })),
 
-  setExpense: (id, pay) =>
-    set((state) => {
-      const e = EXPENSES.find((x) => x.id === id);
-      const today = state.story.ledger[state.currentDayIndex] ?? {};
-      if (!e || today[id] !== undefined) return {};
-      const paid = pay && state.story.money >= e.cost;
-      sound().playUi(paid ? 'confirm' : 'click');
-      return {
-        story: {
-          ...state.story,
-          money: state.story.money - (paid ? e.cost : 0),
-          ledger: { ...state.story.ledger, [state.currentDayIndex]: { ...today, [id]: paid } } } };
-    }),
-
-  payRent: (pay) =>
-    set((state) => {
-      const paid = pay && state.story.money >= RENT;
-      return { story: { ...state.story, rent: paid ? 'paid' : 'unpaid', money: state.story.money - (paid ? RENT : 0) } };
-    }),
-
-
-  finishReckoning: () => set({ phase: 'weekend' }),
+  finishOffer: () => set({ phase: 'weekend' }),
 
   answerCandidateDm: (candidateId, kind) =>
     set((state) => {
@@ -94,7 +55,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
   hire: (recommended, panel) => {
     const state = get();
     if (state.phase !== 'finalRound' || state.hiredId) return;
-    // you only recommend; the panel (you, Levent, Hakan Bey) decides
+    // you only recommend; the panel (you, Ümit, Hakan Bey) decides
     const id = panelDecision(recommended, state.finalists.length ? state.finalists : [{ id: NEPHEW_ID, day: 0 }], state.story.pastRequests, panel).hired;
     // How the hire actually works out moves Performans; hiring someone the system had
     // written off, and who turns out great, is what the Vicdan bar is about.
@@ -102,7 +63,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     const performans = Math.max(0, Math.min(100, state.performans + (fit - 3) * 6));
     const vicdan = Math.max(0, Math.min(100, state.vicdan + (fit >= 4 ? 4 : fit <= 2 ? -4 : 0)));
     sound().playUi('confirm');
-    set({ hiredId: id, recommendedId: recommended, performans, vicdan, phase: 'weekend' });
+    set({ hiredId: id, recommendedId: recommended, performans, vicdan, phase: 'offer' });
   },
 
   finishMeeting: (choice) => {

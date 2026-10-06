@@ -8,7 +8,6 @@ import { type DayEvent, type DeskState, type DmKind, type GameState, type Interv
 import { type DayStats, type Difficulty, type EventKind } from './types';
 import { FINALIST_LIMIT, days } from './data/days';
 import { MINUTES_PER_TICK } from './time';
-import { START_MONEY } from './story';
 import { shuffle } from './rng';
 import { type ThreadId } from './manager';
 import { THURSDAY } from './weekdays';
@@ -53,22 +52,13 @@ export function planEvents(rand: () => number): DayEvent[] {
 export const newDesk = (): DeskState => ({ cleared: [], flower: false, lastWatered: 0, coffee: COFFEE_SIPS, sipsToday: 0, refills: 0, coolerVisits: 0, calls: {}, ringing: null, ringingSince: 0, inCall: null, notice: null });
 
 export const newStory = (): StoryState => ({
-  money: START_MONEY,
-  bills: {},
-  wageToday: 0,
-  primToday: 0,
-  penaltyToday: 0,
-  bonusToday: 0,
-  spentToday: 0,
-  activities: [],
   overtimeToday: false,
-  rent: null,
+  offer: null,
   keyDecisions: {},
   managerDay: { complied: [], defied: [] },
   reform: null,
   pastRequests: [],
-  neighbourCv: false,
-  ledger: {} });
+  neighbourCv: false });
 
 export const DM_EFFECT: Record<DmKind, { performans: number; vicdan: number }> = {
   honest: { performans: -1, vicdan: 2 },
