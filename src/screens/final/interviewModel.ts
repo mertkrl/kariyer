@@ -42,10 +42,7 @@ export function leadView(id: string, fit: number) {
 /** Ekip lideri bu işe alımı destekler mi? Güçlü ve toksik değilse: evet. */
 export const leadBacks = (id: string, fit: number) => fit >= 4 && !LEAD_SPECIAL[id];
 
-/** Hakan Bey'in, senin ilk kendi sorundan sonra bir kez kulağına söylediği. */
-export const WHISPER = 'Hakan Bey kulağına eğiliyor: "Listedeki soruları da sor. Aile planı, memleket, emeklilik… Uzun vadeli uyum önemli."';
-
-/** Her mülakat aralığı kısa: soruların yalnızca bu kadarı sığar. */
+/** Senin klasik sorularından yalnızca bu kadarı sığar; teknik soruyu Ümit, uyum sorusunu Hakan Bey sorar. */
 export const QUESTION_BUDGET = 2;
 /** Hakan Bey'in listesinden gelen soru için kullanılan sıra (üç standart sorudan sonra). */
 export const FORBIDDEN = 3;
@@ -54,30 +51,35 @@ export const THINKING_MS = 900;
 
 /** Takip soruları FOLLOW + yoklama türü olarak saklanır (interview.ts: HookKind). */
 export const FOLLOW = 10;
-/** Kısa kodlama vakası: iki sorudan biri. */
+/** Ümit'in teknik sorusu: kısa bir kod vakası. */
 export const CASE = 20;
 export const SALARY_LINES: Record<SalaryMove, (offer: number) => string> = {
   match: () => 'Beklentiniz bütçemize uygun; bu rakamla ilerleyebiliriz.',
-  pass: () => 'Beklentinizi olduğu gibi Hakan Bey\'e ileteceğim.',
+  pass: () => 'Beklentinizi not aldım; kurulda olduğu gibi değerlendireceğiz.',
   cap: (o) => `Bu pozisyon için bütçemiz ${o.toLocaleString('tr-TR')} TL. Bu rakama inebilir misiniz?`,
   low: (o) => `Size ${o.toLocaleString('tr-TR')} TL teklif edebiliriz.`,
   squeeze: (o) => `Biraz aşağı çekebilir miyiz? ${o.toLocaleString('tr-TR')} TL ile başlasak?`,
 };
 export const SALARY_LABEL: Record<SalaryMove, string> = {
   match: 'Beklentiyi kabul et',
-  pass: 'Olduğu gibi Hakan Bey\'e ilet',
+  pass: 'Beklentiyi olduğu gibi kurula taşı',
   cap: 'Bütçe tavanını teklif et',
   low: 'Daha düşük teklif et',
   squeeze: 'Biraz aşağı çekmeyi dene',
 };
 
 /** Bir mülakatın tek bir anı, olduğu sırayla. */
+/**
+ * Mülakatın sırası: önce sen klasik sorularını sorarsın; söz Ümit'e geçince (handoff) teknik soruyu
+ * o, ardından "uyum" sorusunu Hakan Bey sorar; sonra maaşı konuşur ve görüşmeyi kapatırsın (end).
+ * Araya giremezsin; aday da size soru sormaz.
+ */
 export type Entry =
-  | { kind: 'q'; q: number; by?: 'hakan'; about?: string }
+  | { kind: 'q'; q: number; by?: 'hakan' | 'levent'; about?: string }
+  | { kind: 'handoff' }
   | { kind: 'salary'; move: SalaryMove | null }
   | { kind: 'note'; text: string }
-  | { kind: 'hakan'; choice: 'protect' | 'silent' | null }
-  | { kind: 'back'; choice: 'honest' | 'polished' | null };
+  | { kind: 'end' };
 
 export interface Typing {
   candidateId: string;

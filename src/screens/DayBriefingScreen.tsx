@@ -70,7 +70,7 @@ export function DayBriefingScreen() {
         </div>
 
         <Button variant="danger" sound={day.final ? 'confirm' : 'connect'} className={styles.cta} onClick={beginDay}>
-          {day.final ? 'Mülakat Dökümlerini Aç →' : 'Masana Geç →'}
+          {day.final ? 'Mülakat Gününe Başla →' : 'Masana Geç →'}
         </Button>
         </div>
         </div>

@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { HOME, ROUTES, arrival, congestionColor, smooth, trafficAt } from '../src/components/phone/apps/traffic/trafficModel';
+import { HOME, OFFICE, ROUTES, arrival, congestionColor, smooth, trafficAt } from '../src/components/phone/apps/traffic/trafficModel';
 import { clampView } from '../src/components/phone/apps/traffic/useMapView';
 import { EXPLORE_EXTRA, buildFeed, handleOf, toggled } from '../src/components/phone/apps/social/socialFeed';
 import { SOCIAL_DAYS } from '../src/components/phone/apps/socialContent';
@@ -28,8 +28,10 @@ test('trafik: ev Bağcılar\'da; metro trafikten ve havadan etkilenmez, kötü h
   const storm = trafficAt(300, 0.3);
   assert.ok(storm.incidents.some((i) => i.label.includes('Basın Ekspres')));
   assert.ok(!trafficAt(300, 0).incidents.some((i) => i.label.includes('Basın Ekspres')));
-  // her rota ofisten başlar, evde biter
-  for (const r of ROUTES) assert.match(r.d, /^M186 100 /);
+  // her rota Ataşehir'deki ofisten başlar ve Boğaz'ı geçer
+  for (const r of ROUTES) assert.match(r.d, new RegExp(`^M${OFFICE[0]} ${OFFICE[1]} `));
+  assert.ok(OFFICE[0] > 230 && HOME[0] < 180, 'ofis Anadolu, ev Avrupa yakasında');
+  assert.ok(trafficAt(540, 0).incidents.some((i) => i.label.includes('Köprü')), 'akşam köprü kilit');
   assert.ok(storm.available.includes(storm.best));
 });
 

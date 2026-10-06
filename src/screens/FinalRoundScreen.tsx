@@ -1,56 +1,57 @@
 import { useEffect, useRef, useState } from 'react';
-import { accusative } from '../game/turkish';
 import { useGameStore } from '../game/store';
 import { forbiddenAnswer, forbiddenQuestion } from '../game/story';
-import { NEPHEW_ID, candidateOf } from '../game/data/candidates';
+import { candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
 import { FINALIST_LIMIT } from '../game/data/days';
-import { followUpAnswer, FOLLOW_UP_QUESTIONS, HAKAN_INTERRUPTS, hakanTarget } from '../game/data/interviewExtras';
+import { followUpAnswer, FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
-import { caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/interview';
+import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/interview';
+import { INTERVIEWER, ownerOf } from '../game/panel';
 import { type Note as NotebookNote } from './final/InterviewParts';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
-import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, QUESTION_BUDGET, THINKING_MS, TYPING_MS_PER_CHAR, WHISPER, type Entry, type Typing } from './final/interviewModel';
+import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, QUESTION_BUDGET, THINKING_MS, TYPING_MS_PER_CHAR, type Entry, type Typing } from './final/interviewModel';
 import { PoolPicker } from './final/PoolPicker';
 import { Conversation } from './final/Conversation';
 import { Dossier } from './final/Dossier';
 import { HireModal } from './final/HireModal';
 import { InterviewConsole } from './final/InterviewConsole';
+import { ColleagueReport } from './final/ColleagueReport';
 import styles from './FinalRoundScreen.module.css';
 import { avatarStyle } from '../components/ui/avatarStyle';
 
+/*
+ * Cuma: herkes kendi adayının mülakatına girer. Senin odanda sırayla sen klasik sorularını
+ * sorarsın, Ümit teknik soruyu, Hakan Bey "uyum" sorusunu sorar; araya giremezsin. Maaşı konuşur,
+ * puanlarsın. Ayşe, Emre ve Hakan Bey kendi adaylarıyla kendi odalarında görüşür; gün sonunda
+ * kurul bütün puanları yan yana koyar ve ortak karar verir.
+ */
 export function FinalRoundScreen() {
   const finalists = useGameStore((s) => s.finalists);
   const hire = useGameStore((s) => s.hire);
-  const askForbidden = useGameStore((s) => s.askForbidden);
   const pastRequests = useGameStore((s) => s.story.pastRequests);
-  // Hakan Bey yapılandırılmış mülakatı kabul etti: herkese aynı sorular, onun listesi yok
+  // Hakan Bey yapılandırılmış mülakatı kabul etti: herkese aynı sorular, onun listesi masada değil
   const structured = useGameStore((s) => s.story.reform?.kind === 'structured' && s.story.reform.accepted);
-  // Hakan Bey gün içinde bir kez, listesinde olmayan ilk sorudan sonra kulağına eğilir
-  const [whispered, setWhispered] = useState(false);
   const forced = finalists.length === 0;
   const everyone = [...(forced ? FALLBACK : finalists), ...COLLEAGUES.filter((c) => !finalists.some((f) => f.id === c.id))];
-  // Hakan Bey'in odada istediği kişiler odada kalır: yeğeni ve sana çağırmanı söylediği herkes
-  const locked = new Set(everyone.filter((f) => f.byManager || f.id === NEPHEW_ID || pastRequests.some((r) => r.want === 'approve' && r.candidateId === f.id)).map((f) => f.id));
-  // uzun bir kısa liste, ilk görüşmeden önce bir günlük mülakata indirilir
-  const [chosen, setChosen] = useState<string[] | null>(() => (everyone.length <= INTERVIEW_LIMIT ? everyone.map((f) => f.id) : null));
-  const pool = chosen ? everyone.filter((f) => chosen.includes(f.id)) : everyone;
+  const ownerOfId = (id: string) => ownerOf(everyone.find((f) => f.id === id)!, pastRequests);
+  const mineAll = everyone.filter((f) => ownerOf(f, pastRequests) === 'you');
+  const others = everyone.filter((f) => ownerOf(f, pastRequests) !== 'you');
+  // senin günün yalnızca kendi adaylarını alır; uzun bir liste sabah kısaltılır
+  const [chosen, setChosen] = useState<string[] | null>(() => (mineAll.length <= INTERVIEW_LIMIT ? mineAll.map((f) => f.id) : null));
+  const own = chosen ? mineAll.filter((f) => chosen.includes(f.id)) : mineAll;
+  const panelPool = [...own, ...others];
 
-  const [selectedId, setSelectedId] = useState(pool[0].id);
+  const [selectedId, setSelectedId] = useState((own[0] ?? others[0]).id);
   // Her adayın şimdiye kadarki görüşmesi, sırasıyla; aynı anda yalnızca bir cevap canlı yazılır.
   const [log, setLog] = useState<Record<string, Entry[]>>({});
   const [typing, setTyping] = useState<Typing | null>(null);
   const timer = useRef<number | null>(null);
-  const hakanInterrupt = useGameStore((s) => s.hakanInterrupt);
-  const answerCandidate = useGameStore((s) => s.answerCandidate);
-  const endedFor = (id: string) => (log[id] ?? []).some((e) => e.kind === 'back' && e.choice !== null);
-  // bir aday, görüşme düzgünce kapatılınca görüşüldü sayılır
-  const interviewed = pool.filter((f) => endedFor(f.id)).length;
-  const interruptsUsed = Object.values(log).flat().filter((e) => e.kind === 'hakan').length;
+  const endedFor = (id: string) => (log[id] ?? []).some((e) => e.kind === 'end');
+  const interviewed = own.filter((f) => endedFor(f.id)).length;
   const chatRef = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
-  // not defterin, puan kartları, her kişiyle anlaşılan maaş ve kurula sunduğun gerekçe
   const [notes, setNotes] = useState<Record<string, NotebookNote[]>>({});
   const [scores, setScores] = useState<Record<string, Scores>>({});
   const [agreed, setAgreed] = useState<Record<string, number | null>>({});
@@ -58,7 +59,8 @@ export function FinalRoundScreen() {
 
   const candidate = candidateOf(selectedId);
   const details = candidateDetails[selectedId];
-  const selected = pool.find((f) => f.id === selectedId);
+  const selected = everyone.find((f) => f.id === selectedId);
+  const isMine = ownerOfId(selectedId) === 'you';
 
   useEffect(() => {
     audioEngine.setMusicMood('paused');
@@ -67,18 +69,16 @@ export function FinalRoundScreen() {
 
   const entries = log[selectedId] ?? [];
   const questions = entries.filter((e): e is Extract<Entry, { kind: 'q' }> => e.kind === 'q');
-  // kendi seçtiğin sorular hakkından düşer; takip soruları ve Hakan Bey'inkiler düşmez
-  const mine = questions.filter((e) => !e.by && (e.q < FOLLOW || e.q === CASE)).map((e) => e.q);
-  const forbiddenDone = questions.some((e) => e.q === FORBIDDEN);
+  // senin klasik soruların hakkından düşer; takip sorusu, Ümit'in ve Hakan Bey'in soruları düşmez
+  const mine = questions.filter((e) => !e.by && e.q < FOLLOW).map((e) => e.q);
   const followUsed = questions.some((e) => e.q >= FOLLOW && e.q < CASE);
+  const handedOff = entries.some((e) => e.kind === 'handoff');
   const salaryEntry = entries.find((e): e is Extract<Entry, { kind: 'salary' }> => e.kind === 'salary');
   const salaryDone = salaryEntry?.move != null;
-  const pending =
-    entries.find((e): e is Extract<Entry, { kind: 'hakan' | 'back' }> => (e.kind === 'hakan' || e.kind === 'back') && e.choice === null) ??
-    (salaryEntry && salaryEntry.move === null ? salaryEntry : undefined);
+  const salaryPending = salaryEntry !== undefined && salaryEntry.move === null;
   const ended = endedFor(selectedId);
-  const canFollow = !followUsed && !typing && !pending && !ended;
-  const poolIds = pool.map((f) => f.id);
+  const canFollow = !followUsed && !typing && !handedOff && !ended;
+  const poolIds = own.map((f) => f.id);
   const myNotes = notes[selectedId] ?? [];
   const isNoted = (sentence: string) => myNotes.some((n) => n.text === sentence);
   function toggleNote(sentence: string) {
@@ -89,7 +89,6 @@ export function FinalRoundScreen() {
       return { ...all, [id]: list.some((n) => n.text === sentence) ? list.filter((n) => n.text !== sentence) : [...list, { text: sentence, tag: tagNote(sentence) }] };
     });
   }
-  const hakanChoice = entries.find((e): e is Extract<Entry, { kind: 'hakan' }> => e.kind === 'hakan')?.choice ?? null;
 
   function finishTyping() {
     if (timer.current) window.clearInterval(timer.current);
@@ -106,6 +105,7 @@ export function FinalRoundScreen() {
   }, [log, typing, selectedId]);
 
   const push = (id: string, entry: Entry) => setLog((l) => ({ ...l, [id]: [...(l[id] ?? []), entry] }));
+  const sizeOf = (id: string) => (log[id] ?? []).length;
 
   /** Aday bir an düşünür, sonra cevabı canlı yazar. */
   function typeAnswer(id: string, entry: number, answer: string, onDone?: () => void) {
@@ -126,53 +126,35 @@ export function FinalRoundScreen() {
   }
 
   function ask(question: number, about?: string) {
-    if (typing || pending || ended) return;
+    if (typing || handedOff || ended || !isMine) return;
     const follow = question >= FOLLOW && question < CASE;
     if (follow ? !canFollow : questions.some((e) => e.q === question) || mine.length >= QUESTION_BUDGET) return;
     const id = selectedId;
-    if (question === FORBIDDEN) askForbidden();
-    // Hakan Bey, listesinin yazıldığı kişilerde senin ilk cevabından sonra araya girer
-    const interruptNext =
-      !structured && !follow && question !== FORBIDDEN && mine.length === 0 && !forbiddenDone && !selected?.byManager &&
-      hakanTarget(id, candidateOf(id).age) && interruptsUsed < HAKAN_INTERRUPTS;
-    // yoksa bir kez, listesinde olmayan ilk sorundan sonra kulağına eğilir
-    const whisperNext = !structured && !interruptNext && question !== FORBIDDEN && !whispered && mine.length === 0;
-    if (whisperNext) setWhispered(true);
     audioEngine.playUi('click');
     push(id, { kind: 'q', q: question, about });
-    typeAnswer(
-      id,
-      entries.length,
-      answerFor(id, question),
-      interruptNext ? () => push(id, { kind: 'hakan', choice: null }) : whisperNext ? () => push(id, { kind: 'note', text: WHISPER }) : undefined,
-    );
+    typeAnswer(id, entries.length, answerFor(id, question));
   }
 
-  function setChoice(kind: 'hakan' | 'back', choice: 'protect' | 'silent' | 'honest' | 'polished') {
+  /** Söz Ümit'e geçer: teknik soru, ardından (yapılandırılmış mülakat yoksa) Hakan Bey'in uyum sorusu, sonra maaş. */
+  function handOff() {
+    if (typing || handedOff || ended || mine.length === 0) return;
     const id = selectedId;
-    setLog((l) => ({ ...l, [id]: (l[id] ?? []).map((e) => (e.kind === kind && e.choice === null ? ({ ...e, choice } as Entry) : e)) }));
-  }
-
-  function respondHakan(protect: boolean) {
-    if (typing || pending?.kind !== 'hakan') return;
-    const id = selectedId;
+    const start = sizeOf(id);
     audioEngine.playUi('click');
-    setChoice('hakan', protect ? 'protect' : 'silent');
-    hakanInterrupt(protect);
-    if (!protect) {
+    push(id, { kind: 'handoff' });
+    push(id, { kind: 'q', q: CASE, by: 'levent' });
+    typeAnswer(id, start + 1, answerFor(id, CASE), () => {
+      if (structured) {
+        push(id, { kind: 'salary', move: null });
+        return;
+      }
       push(id, { kind: 'q', q: FORBIDDEN, by: 'hakan' });
-      typeAnswer(id, entries.length, forbiddenAnswer(id, candidateOf(id).age));
-    }
-  }
-
-  function openSalary() {
-    if (typing || pending || ended || salaryEntry) return;
-    audioEngine.playUi('click');
-    push(selectedId, { kind: 'salary', move: null });
+      typeAnswer(id, start + 2, answerFor(id, FORBIDDEN), () => push(id, { kind: 'salary', move: null }));
+    });
   }
 
   function talkSalary(move: SalaryMove) {
-    if (salaryEntry?.move !== null || typing) return;
+    if (!salaryPending || typing) return;
     const id = selectedId;
     const result = salaryTalk(id, move);
     audioEngine.playUi('click');
@@ -182,16 +164,9 @@ export function FinalRoundScreen() {
   }
 
   function endInterview() {
-    if (typing || pending || ended || mine.length === 0 || !salaryDone) return;
-    audioEngine.playUi('click');
-    push(selectedId, { kind: 'back', choice: null });
-  }
-
-  function answerBack(honest: boolean) {
-    if (pending?.kind !== 'back') return;
+    if (typing || ended || !salaryDone) return;
     audioEngine.playUi('confirm');
-    setChoice('back', honest ? 'honest' : 'polished');
-    answerCandidate(honest);
+    push(selectedId, { kind: 'end' });
   }
 
   function answerFor(id: string, question: number) {
@@ -208,16 +183,18 @@ export function FinalRoundScreen() {
           ? forbiddenQuestion(selectedId, candidateOf(selectedId).age)
           : FINAL_INTERVIEW_QUESTIONS[q];
   const fit = details.hireFit;
-  const leadHeard = mine.some((q) => q !== FORBIDDEN) && !typing;
+  const leadHeard = questions.some((e) => e.q === CASE) && !typing;
 
-  // bir seferde tek görüşme: bir cevap gelirken ya da bir seçim beklerken burada kalırsın
-  const busy = Boolean(typing) || Boolean(pending);
+  // bir seferde tek görüşme: bir cevap gelirken burada kalırsın
+  const busy = Boolean(typing) || (handedOff && !salaryEntry);
   function select(id: string, index: number) {
     if (busy && id !== selectedId) return;
     audioEngine.playUi('select', index % 4);
     setSelectedId(id);
   }
   const stateOf = (id: string) => (endedFor(id) ? 'done' : (log[id] ?? []).length ? 'active' : 'waiting');
+  const myScores = Object.fromEntries(own.map((f) => [f.id, average(scores[f.id])]));
+  const ready = interviewed === own.length && !busy;
 
   return (
     <div className={styles.screen}>
@@ -226,17 +203,18 @@ export function FinalRoundScreen() {
           <div className={styles.eyebrow}>Gün 5 · Cuma · Mülakatlar</div>
           <h1 className={styles.title}>Mülakat Günü</h1>
           <p className={styles.subtitle}>
-            Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Odada senin listen ve ekip arkadaşlarının (Ayşe, Emre) kısa listeleri var. Yapay zeka yok, puan yok — sadece adayların
-            cevapları. Odada <strong>Hakan Bey</strong> ve yazılım ekip lideri <strong>{LEAD}</strong> da var. Öneriyi sen sunacaksın; karar üçünüzün. Geri alınamaz.
-            {structured && ' Bugün yapılandırılmış mülakat var: her adaya aynı sorular, Ümit puan kartı tutuyor; Hakan Bey\'in listesi masada değil.'}
+            Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Herkes kendi adayının mülakatına giriyor: sen kendi çağırdıklarınla, Ayşe ve Emre kendi kısa listeleriyle, Hakan
+            Bey kendi önerdikleriyle görüşüyor. Her odada teknik soruyu <strong>{LEAD}</strong>, uyum sorusunu <strong>Hakan Bey</strong> soruyor. Gün sonunda kurul bütün puanları yan
+            yana koyup ortak karar veriyor.
+            {structured && ' Bugün yapılandırılmış mülakat var: Hakan Bey\'in listesi masada değil.'}
           </p>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.counter}>
             <span className={`${styles.counterValue} mono`}>
-              {interviewed}/{pool.length}
+              {interviewed}/{own.length}
             </span>
-            <span className={styles.counterLabel}>aday görüşüldü</span>
+            <span className={styles.counterLabel}>görüşmen tamamlandı</span>
           </div>
           <SoundToggle variant="inline" />
         </div>
@@ -244,53 +222,71 @@ export function FinalRoundScreen() {
 
       {forced && (
         <div className={styles.forcedNote}>
-          Hafta boyunca kimseyi mülakata çağırmadın (kontenjan {FINALIST_LIMIT} kişiydi). Senin listenin yerini yönetimin iç referansı
-          aldı; odadaki diğer adaylar ekip arkadaşlarının kısa listelerinden.
+          Hafta boyunca kimseyi mülakata çağırmadın (kontenjan {FINALIST_LIMIT} kişiydi). Senin listenin yerini yönetimin iç referansı aldı; bugün senin odan boş, kurulda diğerlerinin
+          görüşmelerini değerlendireceksin.
         </div>
       )}
 
       {chosen === null ? (
         <PoolPicker
-          everyone={everyone}
-          locked={locked}
+          everyone={mineAll}
+          locked={new Set()}
           onConfirm={(ids) => {
             setChosen(ids);
             setSelectedId(ids[0]);
           }}
         />
       ) : (
-      <div className={styles.body}>
+        <div className={styles.body}>
           <aside className={styles.list} aria-label="Mülakat adayları">
-            <div className={styles.listLabel}>Mülakat Adayları</div>
-            {pool.map((f, i) => {
-              const c = candidateOf(f.id);
-              const isSelected = f.id === selectedId;
-              return (
-                <button
-                  key={f.id}
-                  className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ''}`}
-                  onClick={() => select(f.id, i)}
-                  disabled={busy && !isSelected}
-                  title={busy && !isSelected ? 'Önce bu görüşmedeki konuşmayı tamamla' : undefined}
-                >
-                  <span className={styles.avatar} style={avatarStyle(c.color)}>
-                    {c.initials}
-                  </span>
-                  <span className={styles.listText}>
-                    <span className={styles.listName}>{c.name}</span>
-                    <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
-                    <span className={`${styles.listState} ${styles['state_' + stateOf(f.id)]}`}>
-                      {{ waiting: 'Görüşülmedi', active: 'Görüşme sürüyor', done: 'Görüşüldü' }[stateOf(f.id)]}
-                    </span>
-                  </span>
-                  <span className={styles.listMeta}>
-                    {f.by ? <span className={styles.teamBadge}>{f.by === 'ayse' ? 'Ayşe' : 'Emre'}</span> : f.byManager ? <span className={styles.refBadge}>Hakan Bey</span> : f.day > 0 ? <span className={`${styles.dayBadge} mono`}>G{f.day}</span> : <span className={styles.refBadge}>Referans</span>}
-                  </span>
-                </button>
-              );
-            })}
+            {[
+              { label: 'Senin görüşmelerin', items: own },
+              { label: 'Diğer odalar', items: others },
+            ].map((group) =>
+              group.items.length === 0 ? null : (
+                <div key={group.label}>
+                  <div className={styles.listLabel}>{group.label}</div>
+                  {group.items.map((f, i) => {
+                    const c = candidateOf(f.id);
+                    const isSelected = f.id === selectedId;
+                    const owner = ownerOf(f, pastRequests);
+                    return (
+                      <button
+                        key={f.id}
+                        className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ''}`}
+                        onClick={() => select(f.id, i)}
+                        disabled={busy && !isSelected}
+                        title={busy && !isSelected ? 'Önce bu görüşmedeki konuşmayı tamamla' : undefined}
+                      >
+                        <span className={styles.avatar} style={avatarStyle(c.color)}>
+                          {c.initials}
+                        </span>
+                        <span className={styles.listText}>
+                          <span className={styles.listName}>{c.name}</span>
+                          <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
+                          <span className={`${styles.listState} ${styles['state_' + (owner === 'you' ? stateOf(f.id) : 'done')]}`}>
+                            {owner === 'you'
+                              ? { waiting: 'Görüşülmedi', active: 'Görüşme sürüyor', done: 'Görüşüldü' }[stateOf(f.id)]
+                              : `${INTERVIEWER[owner].name.split(' ')[0]} görüştü`}
+                          </span>
+                        </span>
+                        <span className={styles.listMeta}>
+                          {owner === 'ayse' || owner === 'emre' ? (
+                            <span className={styles.teamBadge}>{owner === 'ayse' ? 'Ayşe' : 'Emre'}</span>
+                          ) : owner === 'hakan' ? (
+                            <span className={styles.refBadge}>Hakan Bey</span>
+                          ) : (
+                            <span className={`${styles.dayBadge} mono`}>G{f.day}</span>
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ),
+            )}
           </aside>
-  
+
           <div className={styles.room} key={selectedId} role="region" aria-label="Mülakat odası">
             <section className={styles.conversation} aria-label="Görüşme">
               <header className={styles.roomHead}>
@@ -303,52 +299,53 @@ export function FinalRoundScreen() {
                     {candidate.age} yaşında · {candidate.role}
                   </div>
                 </div>
-                <span className={`${styles.roomState} ${styles['state_' + stateOf(selectedId)]}`}>
-                  {ended ? 'Görüşme tamamlandı' : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
+                <span className={`${styles.roomState} ${styles['state_' + (isMine ? stateOf(selectedId) : 'done')]}`}>
+                  {!isMine ? `${INTERVIEWER[ownerOfId(selectedId)].name} görüştü` : ended ? 'Görüşme tamamlandı' : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
                 </span>
               </header>
-  
-              <Conversation
-                entries={entries}
-                selectedId={selectedId}
-                candidate={candidate}
-                poolIds={poolIds}
-                typing={typing}
-                canFollow={canFollow}
-                chatRef={chatRef}
-                answerFor={answerFor}
-                questionText={questionText}
-                ask={ask}
-                isNoted={isNoted}
-                toggleNote={toggleNote}
-                firstOfDay={interviewed === 0}
-              />
 
-              <InterviewConsole
-                candidate={candidate}
-                pool={pool}
-                typing={Boolean(typing)}
-                pending={pending?.kind ?? null}
-                ended={ended}
-                interviewed={interviewed}
-                mine={mine}
-                canFollow={canFollow}
-                salaryOpened={Boolean(salaryEntry)}
-                salaryDone={salaryDone}
-                structured={structured}
-                hakanAnswered={hakanChoice !== null}
-                forbiddenDone={forbiddenDone}
-                scores={scores[selectedId] ?? {}}
-                onScore={(c, v) => setScores((all) => ({ ...all, [selectedId]: { ...all[selectedId], [c]: v } }))}
-                ask={ask}
-                openSalary={openSalary}
-                talkSalary={talkSalary}
-                respondHakan={respondHakan}
-                answerBack={answerBack}
-                endInterview={endInterview}
-              />
+              {isMine ? (
+                <>
+                  <Conversation
+                    entries={entries}
+                    selectedId={selectedId}
+                    candidate={candidate}
+                    poolIds={poolIds}
+                    typing={typing}
+                    canFollow={canFollow}
+                    chatRef={chatRef}
+                    answerFor={answerFor}
+                    questionText={questionText}
+                    ask={ask}
+                    isNoted={isNoted}
+                    toggleNote={toggleNote}
+                    firstOfDay={interviewed === 0}
+                    structured={structured}
+                  />
+
+                  <InterviewConsole
+                    candidate={candidate}
+                    typing={Boolean(typing)}
+                    handedOff={handedOff}
+                    salaryPending={salaryPending}
+                    salaryDone={salaryDone}
+                    ended={ended}
+                    allDone={interviewed === own.length}
+                    mine={mine}
+                    canFollow={canFollow}
+                    scores={scores[selectedId] ?? {}}
+                    onScore={(c, v) => setScores((all) => ({ ...all, [selectedId]: { ...all[selectedId], [c]: v } }))}
+                    ask={ask}
+                    handOff={handOff}
+                    talkSalary={talkSalary}
+                    endInterview={endInterview}
+                  />
+                </>
+              ) : (
+                <ColleagueReport id={selectedId} owner={ownerOfId(selectedId) as Exclude<ReturnType<typeof ownerOf>, 'you'>} structured={structured} />
+              )}
             </section>
-  
+
             <Dossier
               candidate={candidate}
               details={details}
@@ -360,41 +357,30 @@ export function FinalRoundScreen() {
               leadHeard={leadHeard}
               fit={fit}
               followUsed={followUsed && !typing}
-              caseAsked={mine.includes(CASE) && !typing}
-              forbiddenAsked={mine.includes(FORBIDDEN)}
-              hakanChoice={hakanChoice}
+              caseAsked={leadHeard}
             />
           </div>
-  
+
           <div className={styles.hireBar}>
             <span className={styles.hireHint}>
-              {interviewed < pool.length ? `Öneri için önce herkesle görüşmeyi bitir: ${pool.length - interviewed} aday kaldı.` : 'Tüm adaylarla görüştün.'}
+              {interviewed < own.length ? `Kurula geçmeden önce kendi görüşmelerini bitir: ${own.length - interviewed} aday kaldı.` : 'Görüşmeler bitti. Kurul toplanıyor.'}
             </span>
-            <Button
-              variant="gold"
-              sound="click"
-              onClick={() => setConfirming(true)}
-              disabled={interviewed < pool.length || busy}
-              title={interviewed < pool.length ? 'Önce bütün adaylarla görüş' : undefined}
-            >
-              {accusative(candidate.name.split(' ')[0])} Öner →
+            <Button variant="gold" sound="click" onClick={() => setConfirming(true)} disabled={!ready} title={ready ? undefined : 'Önce kendi görüşmelerini bitir'}>
+              Kurula geç →
             </Button>
           </div>
         </div>
       )}
 
-
       {confirming && (
         <HireModal
-          candidate={candidate}
-          pool={pool}
-          scores={scores}
-          agreed={agreed}
-          notes={notes}
+          pool={panelPool}
           pastRequests={pastRequests}
-          fit={fit}
+          myScores={myScores}
+          structured={structured}
+          agreed={agreed}
           onClose={() => setConfirming(false)}
-          onConfirm={(convinced) => hire(selectedId, { agreed, convinced })}
+          onConfirm={(decided, recommended) => hire(recommended, { agreed, decided })}
         />
       )}
     </div>

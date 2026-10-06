@@ -647,6 +647,10 @@
   top: 50%;
   transform: translateY(-50%);
   width: min(420px, calc(100% - 32px));
+  /* sabit boy: satırlar ve seçenekler gelirken panel büyüyüp yer değiştirmez */
+  height: min(560px, 82vh);
+  display: flex;
+  flex-direction: column;
   border-radius: 16px;
   overflow: hidden;
   background: #fbf8f0;
@@ -696,7 +700,8 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px 16px;
-  max-height: 42vh;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -739,6 +744,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 0 16px 16px;
+  flex: 0 0 auto;
+  max-height: 45%;
+  overflow-y: auto;
 }
 
 .callChoice {

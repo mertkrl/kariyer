@@ -3,8 +3,8 @@ import { H, W } from './trafficModel';
 
 /** Trafik haritasının SVG'si için kaydırma (sürükleme) ve yakınlaştırma (düğmeler, imlecin çevresinde tekerlek). */
 
-// açılışta ofis (Levent) ile ev (Bağcılar) birlikte görünür
-export const HOME_VIEW = { x: 0, y: -25, k: 1.4 };
+// açılışta ofis (Ataşehir) ile ev (Bağcılar) birlikte görünür: iki yaka, arada Boğaz
+export const HOME_VIEW = { x: -10, y: -20, k: 1.05 };
 
 export interface View {
   x: number;

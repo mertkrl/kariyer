@@ -53,6 +53,7 @@ export function GameplayScreen() {
   const mutedThreads = useGameStore((s) => s.mutedThreads);
   const managerRequests = useGameStore((s) => s.managerRequests);
   const managerStance = useGameStore((s) => s.managerStance);
+  const hakanRapport = useGameStore((s) => s.hakanRapport);
   const performans = useGameStore((s) => s.performans);
   const vicdan = useGameStore((s) => s.vicdan);
   const paused = useGameStore((s) => s.paused);
@@ -231,12 +232,12 @@ export function GameplayScreen() {
     });
   }, [mailNotice, atPc, desk.notice, area.w, area.h, currentCandidateId]);
 
-  const callState = { managerRequests, managerStance, currentDayIndex, desk, performans, story, justifyRejects, finalists };
+  const callState = { managerRequests, managerStance, hakanRapport, currentDayIndex, desk, performans, story, justifyRejects, finalists };
   const ringingCall = ringing ? callFor(callState, ringing) : undefined;
   const activeCall = desk.inCall ? callFor(callState, desk.inCall) : undefined;
   const mails = inbox(currentDayIndex, workdayMinutes, extraMails);
   // yalnızca önemli e-posta omzuna dokunur; gerisi gelen kutusunda bekler
-  const importantMails = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && (m.important || m.reply));
+  const importantMails = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !m.spam && (m.important || m.reply));
 
   return (
     <div className={styles.screen}>

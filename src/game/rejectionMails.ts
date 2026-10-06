@@ -179,7 +179,9 @@ export function candidateReplies(choices: Record<string, RejectTemplate>, day: n
     const body = voice.body;
     const nextMorning = t === 'none' || at + 30 > 520;
     const when = nextMorning ? { day: day + 1, at: 40 + (h % 120) } : { day, at: at + 25 + (h % 50) };
-    return [{ id: `reply-${day}-${id}`, ...when, reply: true, from: candidateOf(id).name, address: addressOf(id), subject, body }];
+    // kişisel adreslerden gelen cevapların bir kısmı spam filtresine takılır
+    const spam = h % 4 === 0;
+    return [{ id: `reply-${day}-${id}`, ...when, reply: true, spam, from: candidateOf(id).name, address: addressOf(id), subject, body }];
   });
 }
 

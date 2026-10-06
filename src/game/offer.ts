@@ -53,7 +53,7 @@ export interface OfferBeat {
 const REFORM_LABEL: Record<ReformKind, string> = {
   structured: 'yapılandırılmış mülakat kalıcı olsun: her adaya aynı sorular, aynı puan kartı',
   blind: 'kör CV bir sonraki ilanda gerçekten uygulansın: isim, yaş, fotoğraf gizli',
-  audit: 'sistemin puan tablosunu Ümit Bey\'le birlikte açıp bakalım',
+  audit: 'aday puanlama tablosunu (yaş, semt, okul ağırlıkları) Ümit Bey\'le birlikte açıp bakalım',
 };
 
 /** Bunun altında deneme süresi yalnızca uzatılmaz ("işten çıkarıldın" satırı da bu). */
@@ -148,7 +148,7 @@ export function offerReply(c: OfferContext, choice: OfferOption['id']): { lines:
       }
       return {
         lines: [
-          kind === 'audit' ? '"O tabloyu açarsak altında ilk ben kalırım. Bunu Perşembe de söyledim."' : '"Şartla kadro olmaz. Bu şirkette işler öyle yürümüyor."',
+          kind === 'audit' ? '"Puanlama tablosunu açarsak altında ilk benim imzam çıkar. Bunu Perşembe de söyledim."' : '"Şartla kadro olmaz. Bu şirkette işler öyle yürümüyor."',
           '"Şartsız kabul ediyor musun? Etmiyorsan kadro Ayşe\'nin."',
         ],
         next: {

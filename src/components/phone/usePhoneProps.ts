@@ -3,6 +3,7 @@ import { candidateOf } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import { formatClock } from '../../game/time';
 import { rejectedEchoes } from '../../game/echoes';
+import { MAIL_SEND_AT } from '../../game/clock';
 import { dmProfile, writesBack } from './apps/candidateDms';
 
 /** Telefonun mesai boyunca gösterdiği her şey, store'dan toplanmış. */
@@ -13,9 +14,11 @@ export function usePhoneProps() {
   const phoneUnread = useGameStore((s) => s.phoneUnread);
   const managerRequests = useGameStore((s) => s.managerRequests);
   const managerStance = useGameStore((s) => s.managerStance);
+  const hakanRapport = useGameStore((s) => s.hakanRapport);
   const decisionLog = useGameStore((s) => s.decisionLog);
   const weekLog = useGameStore((s) => s.weekLog);
   const dmHandled = useGameStore((s) => s.dmHandled);
+  const extraMails = useGameStore((s) => s.extraMails);
   const mutedThreads = useGameStore((s) => s.mutedThreads);
   const typingThread = useGameStore((s) => s.typingThread);
   const gameSeed = useGameStore((s) => s.seed);
@@ -35,6 +38,7 @@ export function usePhoneProps() {
     requests: managerRequests.filter((r) => phone.some((m) => m.requestId === r.id)),
     unread: phoneUnread,
     stance: managerStance,
+    rapport: hakanRapport,
     clock: formatClock(workdayMinutes),
     dayName: `${day.dayName} · Gün ${day.day}`,
     onAnswer: answerRequest,
@@ -44,8 +48,13 @@ export function usePhoneProps() {
     weatherPenalty: [0, 0.05, 0.15, 0.25][currentDayIndex] ?? 0,
     dayIndex: currentDayIndex,
     // geri çevirdiğin insanların yalnızca bazıları yazar, her biri kendi süresi sonra ve kendi ruh hâliyle
-    dmCandidates: decisionLog
-      .filter((e) => e.decision === 'reject' && writesBack(e.id, gameSeed))
+    // aday reddedildiğini ancak ret e-postası gidince (17:00) öğrenir; bildirim almayan yazmaz.
+    // Dün reddedilenlerin mesajları akşam gelmiştir, sabah telefonda bekler.
+    dmCandidates: [
+      ...weekLog.filter((e) => e.day === currentDayIndex - 1).map((e) => ({ id: e.id, decision: e.decision, day: e.day, at: MAIL_SEND_AT - 24 * 60 })),
+      ...decisionLog.map((e) => ({ id: e.id, decision: e.decision, day: currentDayIndex, at: Math.max(e.at, MAIL_SEND_AT) })),
+    ]
+      .filter((e) => e.decision === 'reject' && writesBack(e.id, gameSeed) && extraMails.some((m) => m.id === `sent-${e.day}-${e.id}`))
       .map((e) => ({
         id: e.id,
         name: candidateOf(e.id).name,
@@ -53,7 +62,7 @@ export function usePhoneProps() {
         color: candidateOf(e.id).color,
         role: candidateOf(e.id).role.replace(' adayı', ''),
         at: e.at,
-        dayIndex: currentDayIndex,
+        dayIndex: e.day,
         ...dmProfile(e.id, gameSeed),
       })),
     dmHandled,

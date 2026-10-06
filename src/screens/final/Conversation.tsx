@@ -1,22 +1,20 @@
 import type { ReactNode, RefObject } from 'react';
 import type { Candidate } from '../../game/types';
-import { forbiddenQuestion } from '../../game/story';
-import { backQuestionFor } from '../../game/data/interviewExtras';
 import { caseFor, expectedSalary, salaryOffer, salaryTalk } from '../../game/interview';
 import { SALARY_CAP } from '../../game/store';
 import { PLAYER } from '../../game/player';
 import { AnswerText, CaseCard } from './InterviewParts';
-import { CASE, FOLLOW, FORBIDDEN, QUESTION_BUDGET, SALARY_LINES, type Entry, type Typing } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, type Entry, type Typing } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
 
 /*
  * Odadaki kişiyle şimdiye kadarki konuşma, an an: senin soruların ve onun cevapları (canlı
- * olanı yazılırken), Hakan Bey'in araya girmesi, maaş konuşması, onun sana sorusu. Biten
+ * olanı yazılırken), Ümit'in teknik sorusu, Hakan Bey'in uyum sorusu ve maaş konuşması. Biten
  * cevaplar kurcalanabilir (altı çizili ifadeler) ve not alınabilir (✎).
  */
 
 /** Konuşmanın tek satırı: kim konuşuyor, hangi rolde ve ne diyor. */
-export function Turn({ who, role, tone, children }: { who: string; role: string; tone: 'you' | 'candidate' | 'hakan'; children: ReactNode }) {
+export function Turn({ who, role, tone, children }: { who: string; role: string; tone: 'you' | 'candidate' | 'hakan' | 'lead'; children: ReactNode }) {
   return (
     <div className={`${styles.turn} ${styles['turn_' + tone]}`}>
       <div className={styles.turnWho}>
@@ -48,10 +46,11 @@ export interface ConversationProps {
   toggleNote: (sentence: string) => void;
   /** Bugün henüz kimseyle görüşülmedi: oda nasıl işlediğini anlatır. */
   firstOfDay: boolean;
+  /** Yapılandırılmış mülakat: Hakan Bey'in listesi masada değil. */
+  structured: boolean;
 }
 
-export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, isNoted, toggleNote, firstOfDay }: ConversationProps) {
-  const pool = poolIds.map((id) => ({ id }));
+export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, isNoted, toggleNote, firstOfDay, structured }: ConversationProps) {
   return (
       <div className={styles.log} ref={chatRef} aria-live="polite">
         {entries.length === 0 && (
@@ -60,47 +59,30 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
               <b>Bugün nasıl işliyor?</b>
               <ol>
                 <li>
-                  Her adaya <b>{QUESTION_BUDGET} soru</b> sorabilirsin; biri yerine kısa bir <b>kod vakası</b> da verebilirsin.
+                  Önce sen sorarsın: <b>{QUESTION_BUDGET} klasik soru</b>. Cevaplardaki <u>altı noktalı ifadeye</u> tıklarsan bir <b>takip sorusu</b> da sorabilirsin.
                 </li>
                 <li>
-                  Cevaplardaki <u>altı noktalı ifadeye</u> tıklarsan onun üzerine bir <b>takip sorusu</b> sorarsın (aday başına bir hak).
+                  Sorularını bitirince söz <b>{LEAD}</b>'a geçer: teknik soruyu o sorar.{structured ? '' : ' Ardından Hakan Bey kendi listesinden bir "uyum" sorusu sorar.'} Araya giremezsin.
                 </li>
                 <li>
-                  <b>Maaşı konuşmadan</b> görüşmeyi bitiremezsin; bütçe tavanını aşan beklentiyi pazarlık edebilirsin.
+                  Sonra <b>maaşı konuşursun</b>; bütçe tavanını aşan beklentiyi pazarlık edebilirsin.
                 </li>
                 <li>
-                  Bir cümlenin sonundaki <b>✎</b> ile not al. <b>Önerini kurulda bu notlarla savunacaksın:</b> somut notlar ağır basar, belirsiz olanlar sayılmaz. Sağdaki
-                  "kanıt gücü" ne kadar hazır olduğunu gösterir.
+                  Bir cümlenin sonundaki <b>✎</b> ile not al; görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
                 </li>
-                <li>Görüşme bitince adayı dört ölçütte puanla.</li>
               </ol>
               <span>{candidate.name.split(' ')[0]} karşında oturuyor. Aşağıdan ilk soruyu seç.</span>
             </div>
           ) : (
             <p className={styles.logEmpty}>
-              {candidate.name.split(' ')[0]} karşında oturuyor. {QUESTION_BUDGET} soru (ya da vaka), bir takip, maaş; önemli cümleleri ✎ ile not almayı unutma.
+              {candidate.name.split(' ')[0]} karşında oturuyor. Önce senin {QUESTION_BUDGET} sorun ve bir takip; sonra söz Ümit'te. Önemli cümleleri ✎ ile not almayı unutma.
             </p>
           )
         )}
         {entries.map((e, index) => {
           if (e.kind === 'note') return <Note key={index}>{e.text}</Note>;
-          if (e.kind === 'hakan')
-            return (
-              <div key={index} className={styles.exchange}>
-                <Turn who="Hakan Kaya" role="İK Müdürü" tone="hakan">
-                  {forbiddenQuestion(selectedId, candidate.age)}
-                </Turn>
-                {e.choice === 'protect' && (
-                  <>
-                    <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
-                      Hakan Bey, bu soruyu geçelim. Pozisyonla bir ilgisi yok.
-                    </Turn>
-                    <Note>Kısa bir sessizlik. Hakan Bey not defterine bir şey yazıyor: "…Peki. Devam edin."</Note>
-                  </>
-                )}
-                {e.choice === 'silent' && <Note>Bir şey demiyorsun.</Note>}
-              </div>
-            );
+          if (e.kind === 'handoff') return <Note key={index}>Söz {LEAD}'da.</Note>;
+          if (e.kind === 'end') return <Note key={index}>Görüşme tamamlandı. Aday odadan çıkıyor.</Note>;
           if (e.kind === 'salary') {
             const ask = expectedSalary(selectedId);
             const result = e.move ? salaryTalk(selectedId, e.move) : null;
@@ -126,33 +108,20 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
               </div>
             );
           }
-          if (e.kind === 'back') {
-            const back = backQuestionFor(selectedId, pool.map((f) => f.id));
-            return (
-              <div key={index} className={styles.exchange}>
-                <Turn who={candidate.name} role="Aday" tone="candidate">
-                  {back.question}
-                </Turn>
-                {e.choice && (
-                  <>
-                    <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
-                      {e.choice === 'honest' ? back.honest : back.polished}
-                    </Turn>
-                    <Turn who={candidate.name} role="Aday" tone="candidate">
-                      {e.choice === 'honest' ? back.afterHonest : back.afterPolished}
-                    </Turn>
-                    <Note>{e.choice === 'honest' ? 'Hakan Bey boğazını temizliyor.' : 'Hakan Bey onaylar gibi başını sallıyor.'}</Note>
-                  </>
-                )}
-              </div>
-            );
-          }
           const live = typing && typing.candidateId === selectedId && typing.entry === index;
           const answer = answerFor(selectedId, e.q);
           return (
             <div key={index} className={styles.exchange}>
-              {!e.by && (
-                <Turn who={PLAYER.name} role={e.q === CASE ? 'Mini vaka' : e.q >= FOLLOW ? 'Takip sorusu' : e.q === FORBIDDEN ? "Hakan Bey'in listesinden" : 'İK Uzmanı'} tone={e.q === FORBIDDEN ? 'hakan' : 'you'}>
+              {e.by === 'levent' ? (
+                <Turn who={LEAD} role="Yazılım Ekip Lideri · teknik soru" tone="lead">
+                  {questionText(e.q, e.about)}
+                </Turn>
+              ) : e.by === 'hakan' ? (
+                <Turn who="Hakan Kaya" role="İK Müdürü" tone="hakan">
+                  {questionText(e.q, e.about)}
+                </Turn>
+              ) : (
+                <Turn who={PLAYER.name} role={e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
                   {questionText(e.q, e.about)}
                 </Turn>
               )}

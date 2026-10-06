@@ -21,8 +21,10 @@ export interface Mail {
   folder?: 'inbox' | 'sent' | 'outbox';
   /** Gönderilen e-posta: kime gittiği. */
   to?: string;
-  /** Cevap yazan bir aday: önemli e-posta gibi açılır. */
+  /** Cevap yazan bir aday: kariyer@ kuralıyla "Kariyer" klasörüne yönlenir. */
   reply?: boolean;
+  /** Spam filtresine takılan e-posta: bildirim gelmez, "Spam" klasöründe bekler. */
+  spam?: boolean;
   /** E-postanın altında gösterilen ek: bu haftanın mülakat listesi ya da Hakan Bey'in soru listesi. */
   attachment?: { name: string; kind: 'finalists' | 'questions' };
 }
@@ -65,7 +67,7 @@ Sevgiler,
 • Modülün kararları bağlayıcı değildir; son karar İK uzmanına aittir.
 • "Sistem notu" alanı adaya gösterilmez.
 
-Modülün puanlama ağırlıkları lisans sağlayıcısına aittir ve tarafımızca görüntülenemez.
+Modül, adayları "Aday Puanlama Tablosu"ndaki ağırlıklara göre sıralar (yaş aralığı, ikamet ilçesi, mezun olunan okul, kariyer boşluğu vb.). Tablo holding tarafından hazırlanmış ve İK Müdürü onayıyla sisteme yüklenmiştir (onaylayan: H. Kaya). Ağırlıklar lisans sözleşmesi gereği tarafımızca görüntülenemez.
 
 İyi çalışmalar,
 Bilgi İşlem`,
@@ -97,6 +99,7 @@ Hakan Kaya
     at: 150,
     from: 'Kariyer Platformu',
     address: 'bildirim@kariyer-platform.com',
+    spam: true,
     subject: 'İlanınıza 270 yeni başvuru!',
     body: `Tebrikler! İlanınız son 24 saatte 270 yeni başvuru aldı.
 
@@ -184,16 +187,18 @@ Kolay gelsin,
     at: 510,
     from: 'Ümit Arslan',
     address: 'umit.arslan@tavrinsalabs.test',
-    subject: 'Yarın kuyruğunda Ozan Tan olacak',
+    subject: 'Çarşamba değerlendirmesi: Ozan Tan (Kıdemli Yazılım Geliştirici) hk.',
     body: `Merhaba ${PLAYER.first},
 
-Yarın kuyruğuna Ozan Tan düşecek. Sistem maaş beklentisine takılmış olabilir, referansında da bir şeyler yazıyor olabilir; takılma.
+Yarın değerlendireceğiniz dosyalar arasında Ozan Tan'ın başvurusu da yer alıyor. Sistemin maaş beklentisi nedeniyle dosyayı işaretlemiş olabileceğini, referans kontrolünde de bazı olumsuz ifadelerle karşılaşabileceğinizi biliyorum.
 
-Ozan'ın kodunu iki yıl önce bir konferansta gördüm. Bu ilana başvuranların teknik olarak en iyisi o, eminim. Referanslar bazen eski ekiplerin kırgınlığıdır.
+Ozan'ın çalışmalarını iki yıl önce bir sektör konferansında yakından inceleme fırsatım oldu. Teknik açıdan bu ilana başvuranların en güçlüsü olduğunu düşünüyorum. Referanslardaki olumsuz görüşlerin bir kısmının önceki ekipteki kişisel gerginliklerden kaynaklandığı kanaatindeyim.
 
-Çağırırsan Cuma ben de bakarım.
+Uygun görürseniz Cuma günkü mülakatlarda kendisini birlikte değerlendirmek isterim.
 
-Ümit`,
+İyi çalışmalar,
+Ümit Arslan
+Yazılım Ekip Lideri`,
   },
   {
     id: 'crash',

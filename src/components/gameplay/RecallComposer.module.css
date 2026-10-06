@@ -32,12 +32,6 @@
   font-size: calc(13px * var(--ts, 1));
 }
 
-.lock {
-  font-weight: 500;
-  font-size: calc(11px * var(--ts, 1));
-  opacity: 0.75;
-}
-
 .brief {
   display: flex;
   flex-direction: column;

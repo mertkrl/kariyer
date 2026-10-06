@@ -8,7 +8,7 @@ import styles from './TrafficApp.module.css';
 /*
  * "Trafik": navigasyon uygulaması tarzında bir İstanbul haritası. Açık renkli kara, mavi su (Boğaz,
  * Haliç, Marmara), parklar, sokak dokusu, üstünde canlı trafik katmanı olan sarı otoyollar ve
- * Levent'teki ofisten Bağcılar'daki eve yol. Sıkıştırmasız yakınlaştırma (+/−, tekerlek) ve
+ * Ataşehir'deki ofisten Bağcılar'daki eve yol: her gün Boğaz'ı geçen bir yolculuk. Sıkıştırmasız yakınlaştırma (+/−, tekerlek) ve
  * sürükleyerek kaydırma. Yoğunluk 15:30'dan itibaren artar, hava her şeyi yavaşlatır.
  *
  * Harita verisi ve trafik modeli traffic/trafficModel.ts'de, kaydırma/yakınlaştırma useMapView'da.
@@ -33,7 +33,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
           <i className={styles.dotTo} />
         </span>
         <span className={styles.searchFields}>
-          <span>Ofis · Levent</span>
+          <span>Ofis · Ataşehir</span>
           <span>Ev · Bağcılar</span>
         </span>
         <span className={styles.live}>
@@ -94,8 +94,8 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
               );
             })}
 
-            {/* Raylı sistem: M2 (yeşil, Levent → Yenikapı) ve M1B (kırmızı, Yenikapı → Bağcılar) */}
-            <path d={smooth([[186, 100], [184, 130], [178, 170], [170, 200], [156, 222]])} fill="none" stroke="#3aa655" strokeWidth={1} strokeDasharray="3 1.5" />
+            {/* Raylı sistem: M4 + Marmaray (yeşil, Ataşehir → Yenikapı, Boğaz'ın altından) ve M1B (kırmızı, Yenikapı → Bağcılar) */}
+            <path d={smooth([[312, 198], [292, 214], [266, 226], [248, 226], [224, 212], [200, 214], [180, 218], [156, 222]])} fill="none" stroke="#3aa655" strokeWidth={1} strokeDasharray="3 1.5" />
             <path d={smooth([[156, 222], [120, 214], [84, 192], [58, 170], [46, 152]])} fill="none" stroke="#d6453d" strokeWidth={1} strokeDasharray="3 1.5" />
 
             {/* Alternatif rotalar (gri), sonra seçili rota mavi */}

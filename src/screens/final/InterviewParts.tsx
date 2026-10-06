@@ -124,7 +124,7 @@ export function Scorecard({ scores, onScore }: { scores: Scores; onScore: (crite
 
 /** Bir kişi için not defterin: ne yazdığın ve bunun ne tür bir kanıt olduğu. */
 export function NotesList({ notes, onRemove }: { notes: Note[]; onRemove?: (text: string) => void }) {
-  if (!notes.length) return <p className={styles.notesEmpty}>Cevaplardaki bir cümlenin sonundaki ✎ ile not al. Kurulda önerini notlarınla savunacaksın.</p>;
+  if (!notes.length) return <p className={styles.notesEmpty}>Cevaplardaki bir cümlenin sonundaki ✎ ile not al; puanlarken notlarına bakarsın.</p>;
   return (
     <ul className={styles.notes}>
       {notes.map((n) => (

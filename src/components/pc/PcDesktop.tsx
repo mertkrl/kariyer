@@ -43,7 +43,7 @@ const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 
 export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, onAnswerMail, extraMails, finalistNames = [], beckonPortal = false }: PcDesktopProps) {
   const mails = inbox(dayIndex, minutes, extraMails);
-  const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !mailRead.includes(m.id)).length;
+  const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !m.spam && !mailRead.includes(m.id)).length;
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -180,19 +180,20 @@ function CalendarGlyph({ day }: { day: number }) {
 }
 
 function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { mails: Mail[]; read: string[]; onRead: (id: string) => void; onAnswer?: (mailId: string, kind: ReplyBack) => void; answered: Set<string>; finalistNames: string[] }) {
-  const [folder, setFolder] = useState<'inbox' | 'replies' | 'outbox' | 'sent'>('inbox');
-  // reddettiklerinin cevapları kendi klasöründe: iş e-postaları onların altında kaybolmasın
+  const [folder, setFolder] = useState<'inbox' | 'careers' | 'spam' | 'outbox' | 'sent'>('inbox');
+  // şirketin kuralı: kariyer@ adresine gelen aday yazışmaları "Kariyer"e yönlenir, filtreye takılanlar "Spam"e
   const incoming = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox');
-  const received = incoming.filter((m) => !m.reply);
-  const replies = incoming.filter((m) => m.reply);
+  const received = incoming.filter((m) => !m.reply && !m.spam);
+  const careers = incoming.filter((m) => m.reply && !m.spam);
+  const spam = incoming.filter((m) => m.spam);
   const outbox = mails.filter((m) => m.folder === 'outbox');
   const sent = mails.filter((m) => m.folder === 'sent');
-  const byFolder = { inbox: received, replies, outbox, sent };
+  const byFolder = { inbox: received, careers, spam, outbox, sent };
   const shown = byFolder[folder];
   const [openId, setOpenId] = useState<string | null>(received[0]?.id ?? null);
   const current = shown.find((m) => m.id === openId) ?? null;
   const unreadIn = received.filter((m) => !read.includes(m.id)).length;
-  const unreadReplies = replies.filter((m) => !read.includes(m.id)).length;
+  const unreadCareers = careers.filter((m) => !read.includes(m.id)).length;
   useEffect(() => {
     if (current && !read.includes(current.id)) onRead(current.id);
   }, [current, read, onRead]);
@@ -210,7 +211,8 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
         {(
           [
             ['inbox', 'Gelen Kutusu', unreadIn],
-            ['replies', 'Aday Yanıtları', unreadReplies],
+            ['careers', 'Kariyer', unreadCareers],
+            ['spam', 'Spam', spam.length],
             ['outbox', 'Giden Kutusu', outbox.length],
             ['sent', 'Gönderilenler', sent.length],
           ] as const
@@ -223,15 +225,15 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
               setOpenId(byFolder[id][0]?.id ?? null);
             }}
           >
-            <FolderIcon kind={id === 'replies' ? 'inbox' : id} />
+            <FolderIcon kind={id === 'careers' || id === 'spam' ? 'inbox' : id} />
             {label}
-            {n > 0 && <span className={`${styles.folderCount} ${id === 'inbox' || id === 'replies' ? styles.folderUnread : ''}`}>{n}</span>}
+            {n > 0 && <span className={`${styles.folderCount} ${id === 'inbox' || id === 'careers' ? styles.folderUnread : ''}`}>{n}</span>}
           </button>
         ))}
       </nav>
       <div className={styles.listPane}>
         <div className={styles.listHead}>
-          <b>{{ inbox: 'Gelen Kutusu', replies: 'Aday Yanıtları', outbox: 'Giden Kutusu', sent: 'Gönderilenler' }[folder]}</b>
+          <b>{{ inbox: 'Gelen Kutusu', careers: 'Kariyer · kariyer@tavrinsalabs.test', spam: 'Spam', outbox: 'Giden Kutusu', sent: 'Gönderilenler' }[folder]}</b>
           <span className="mono">{shown.length} ileti</span>
         </div>
         <ul className={styles.mailList}>
@@ -259,7 +261,7 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
             );
           })}
           {shown.length === 0 && (
-            <li className={styles.listEmpty}>{{ inbox: 'Gelen kutusu boş.', replies: 'Henüz bir aday yazmadı.', outbox: 'Gönderilmeyi bekleyen ileti yok.', sent: 'Henüz gönderilmiş ileti yok.' }[folder]}</li>
+            <li className={styles.listEmpty}>{{ inbox: 'Gelen kutusu boş.', careers: 'Kural: kariyer@ adresine gelen aday yazışmaları buraya taşınır. Henüz ileti yok.', spam: 'Spam klasörü boş.', outbox: 'Gönderilmeyi bekleyen ileti yok.', sent: 'Henüz gönderilmiş ileti yok.' }[folder]}</li>
           )}
         </ul>
       </div>

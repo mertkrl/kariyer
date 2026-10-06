@@ -3,7 +3,7 @@ import styles from './CommuteScene.module.css';
 
 /*
  * "Bugünün İşlemleri"nin üstünde İstanbul iş hayatından küçük hareketli bir sahne, her iş günü
- * için bir tane: Levent'teki ofis, metrobüs, M2 metrosu ve yapay zekânın çöktüğü gün sunucu odası.
+ * için bir tane: Ataşehir'deki ofis, köprüden geçen metrobüs, Marmaray ve yapay zekânın çöktüğü gün sunucu odası.
  * viewBox 300×110; her şey CSS ile döner.
  */
 
@@ -16,7 +16,7 @@ function Office() {
   return (
     <>
       <rect width="300" height="110" fill="#e9e2d0" />
-      {/* Levent silüetli cam duvar */}
+      {/* Ataşehir Finans Merkezi silüetli cam duvar */}
       <rect x="10" y="8" width="280" height="52" rx="3" fill="#bcd3e0" />
       <g fill="#9fb4c2">
         <rect x="30" y="22" width="16" height="38" />
@@ -206,9 +206,9 @@ function ServerRoom() {
 }
 
 const SCENES: SceneInfo[] = [
-  { caption: '📍 Levent · açık ofis', render: Office },
-  { caption: '🚍 Metrobüs · Zincirlikuyu', render: Metrobus },
-  { caption: '🚇 M2 · Şişhane', render: Metro },
+  { caption: '📍 Ataşehir · açık ofis', render: Office },
+  { caption: '🚍 Metrobüs · 15 Temmuz Köprüsü', render: Metrobus },
+  { caption: '🚇 Marmaray · Ayrılık Çeşmesi', render: Metro },
   { caption: '🖥 Sunucu odası · AI çevrimdışı', render: ServerRoom },
 ];
 

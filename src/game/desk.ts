@@ -19,6 +19,8 @@ export interface CallChoice {
   honestFor?: string;
   /** İki daveti geri almak: e-posta yalan söyler ("sehven gönderildi") ya da olanı söyler. */
   revoke?: 'draft';
+  /** Hakan Bey'le gizli ilişkiye etkisi (bkz. manager.ts RAPPORT). */
+  rapport?: number;
   /** Bu aday mülakat listesinden düşer (Perşembe karı: "yüz yüze şart"). */
   strand?: string;
   /** Hakan Bey'e önerdiğin bir süreç değişikliği ve onu kabul edip etmediği. */
@@ -100,9 +102,8 @@ export const DESK_CALLS: DeskCall[] = [
     stakes: 'Ret şablonu',
     lines: [
       'Selam, Selin ben. Portaldaki ret bildirimlerini sana tanımladım; şablon hazır, bir okur musun?',
-      '"Başvurunuz için teşekkür ederiz. Değerlendirmemiz sonucunda süreç şu an için olumlu sonuçlanmamıştır. Özgeçmişiniz havuzumuzda saklanacaktır. Başarılar dileriz."',
+      'Metin şöyle: Başvurunuz için teşekkür ederiz. Değerlendirmemiz sonucunda süreç şu an için olumlu sonuçlanmamıştır. Özgeçmişiniz havuzumuzda saklanacaktır. Başarılar dileriz.',
       'Otomatik gönderim de açık: biri elenince sistem saniyesinde atıyor. Sen hiç uğraşma diye.',
-      '(Bu cümleyi biliyorsun. Kelimesi kelimesine. Bir gece 02:14\'te, başvurudan 0,4 saniye sonra gelmişti.)',
     ],
     choices: [
       { text: 'Otomatik gönderimi kapat Selin. Bildirimleri ben planlayacağım.', reply: 'Emin misin? …Peki, kapattım. Hakan Bey sorarsa senin isteğin, bilsin.', vicdan: 2, performans: -1 },
@@ -149,27 +150,29 @@ export const DESK_CALLS: DeskCall[] = [
     line: 'İK Müdürü · dahili 210',
     lines: ['Sistem çökmüş. Bugün kararları siz vereceksiniz.', 'Yanlış birini çağırırsanız hesabını da siz verirsiniz. Ona göre.'],
     choices: [
-      { text: 'Anlaşıldı Hakan Bey.', reply: 'Güzel.' },
-      { text: 'Belki bu sefer kararlar daha adil olur.', reply: '…Ne demek istiyorsunuz? Neyse. İşinize bakın.', vicdan: 1, performans: -1 },
+      { text: 'Anlaşıldı Hakan Bey.', reply: 'Güzel.', rapport: 2 },
+      { text: 'Belki bu sefer kararlar daha adil olur.', reply: 'Ne demek istiyorsunuz? Sistemimiz adil değil mi? Bu cümleyi bir daha duymayayım. İşinize bakın.', vicdan: 1, performans: -1, rapport: -6 },
     ],
     minutes: 3,
     missed: { note: 'Hakan Bey aradı, açmadın. Sonra koridorda yüzüne baktı, bir şey demedi.', performans: -2 },
   },
   {
+    // sistemin çöktüğü sabah, kararların ilk kez tamamen insanlara kaldığı gün: öneriler güne yayılır
     id: 'hakan-confession',
     day: 3,
-    at: 375,
+    at: 130,
     caller: 'Hakan Bey',
     line: 'İK Müdürü · dahili 210 · kapısı kapalı',
     lines: [
       'Hakan ben. Kapımı kapattım, telefonda konuşalım. Bir dakikan var mı? Resmî değil bu.',
       'Holding bu çeyrek %15 kadro kesintisi istiyor. Sayıları tutturamazsak "maliyet" diye bizim ekipten üç kişi gidecek. Sen dahil.',
-      'Ben de 45 yaşımda bir sabah işsiz kaldım. Kimse CV\'me bakmadı. O tabloyu ben yazmadım ama… imzaladım.',
+      'Sistemin aday puanlama tablosunu biliyorsun; kimin kaç yaşında, hangi semtte oturduğuna, hangi okuldan mezun olduğuna kaç puan verileceğini o belirliyor.',
+      'O tabloyu holding gönderdi, ben yazmadım. Ama altında benim imzam var. Ben de 45 yaşımda bir sabah işsiz kaldım, kimse CV\'me bakmadı. Yine de imzaladım.',
     ],
     choices: [
-      { text: 'Anlıyorum Hakan Bey. Kolay değil.', reply: 'Sağ ol. Bunu kimseye söylemedim. Yarın mülakatlar… ne yaparsan yap, bilerek yap.', performans: 2 },
-      { text: 'Bu, adaylara yapılanı haklı çıkarmaz.', reply: '…Haklısın. Ama haklı olmak kimseyi bu masada tutmuyor. Kolay gelsin.', vicdan: 3 },
-      { text: 'Kolay değil. Ama bir önerim var: sayıları tutturup süreci de düzeltebiliriz.', reply: '…Söyle bakalım. İki dakikan var.', next: 'reform' },
+      { text: 'Anlıyorum Hakan Bey. Kolay değil.', reply: 'Sağ ol. Bunu kimseye söylemedim. Yarın mülakatlar var; ne yaparsan yap, bilerek yap.', performans: 2, rapport: 8 },
+      { text: 'Bu, adaylara yapılanı haklı çıkarmaz.', reply: 'Haklısın. Ama haklı olmak kimseyi bu masada tutmuyor. Kolay gelsin.', vicdan: 3, rapport: -5 },
+      { text: 'Kolay değil. Ama bir önerim var: sayıları tutturup süreci de düzeltebiliriz.', reply: 'Söyle bakalım. İki dakikan var.', next: 'reform' },
     ],
     minutes: 6,
     missed: { note: 'Hakan Bey aradı, açmadın. Sonra kapısının önünden geçerken seni gördü; bir şey demedi.' },

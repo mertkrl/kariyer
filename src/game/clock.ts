@@ -6,7 +6,7 @@
 import { getState, setState } from './storeApi';
 import { BREAK_END_MIN, BREAK_START_MIN, OVERTIME_END_MIN, WORKDAY_END_MIN, isBreakTime } from './time';
 import { CALLBACK_MINUTES, REQUEST_CALL_PREFIX, RING_MINUTES, callsForDay } from './desk';
-import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies } from './manager';
+import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies, RAPPORT, clampRapport } from './manager';
 import { type GameState } from './storeTypes';
 import { REVOKE_AT, REVOKE_DAY, SNOW_CALL_AT, SNOW_CALL_ID, callFor, revokeInvites, revokeTargets, strandFinalist } from './managerCalls';
 import { type RejectTemplate, candidateReplies, sentMails } from './rejectionMails';
@@ -68,6 +68,7 @@ function letRing(state: GameState, minutes: number): Patch | null {
     const r = state.managerRequests.find((x) => x.id === id.slice(REQUEST_CALL_PREFIX.length));
     return {
       desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: 'Hakan Bey aradı, açmadın. Birazdan tekrar arar.', noticeKind: 'missed' },
+      hakanRapport: clampRapport(state.hakanRapport + RAPPORT.missedCall),
       managerScript: r
         ? [...state.managerScript, { at: minutes + CALLBACK_MINUTES, kind: 'request' as const, dayIndex: state.currentDayIndex, retry: true, request: { id: r.id, candidateId: r.candidateId, want: r.want, template: r.template ?? 0 } }]
         : state.managerScript };
@@ -79,6 +80,8 @@ function letRing(state: GameState, minutes: number): Patch | null {
     ...(id === SNOW_CALL_ID ? strandFinalist(state, 'tolga') : {}),
     performans: clampScore(state.performans + (call.missed.performans ?? 0)),
     vicdan: addVicdan(state.vicdan, (call.missed.vicdan ?? 0)),
+    // Hakan Bey'in aramasını açmamak
+    hakanRapport: clampRapport(state.hakanRapport + (call.caller === 'Hakan Bey' ? RAPPORT.missedCall : 0)),
     desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: call.missed.note, noticeKind: 'missed', flower: desk.flower || !!call.flower, lastWatered: call.flower ? state.currentDayIndex : desk.lastWatered } };
 }
 
@@ -269,18 +272,18 @@ export function spendMinutes(minutes: number) {
 }
 
 /**
- * Bir sohbetin cevabını ne kadar beklediği (mesai dakikası). Grup sohbetleri hızlı ilerler;
- * yarım saat gecikmiş bir cevap başka bir konuşmanın ortasına düşer. Hakan Bey bekler: hikâyeyi
- * onun sohbeti taşır.
+ * Bir grup sohbetinin cevabını ne kadar beklediği (mesai dakikası). Gruplar hızlı ilerler; yarım
+ * saat gecikmiş bir cevap başka bir konuşmanın ortasına düşer. Özel mesajlar (annen, Ayşe, Hakan
+ * Bey) beklemeye devam eder: geç de olsa cevap verilebilir.
  */
 // oyun dakikası cinsinden (gerçek saniyede 1.3): grup sohbetleri seni yaklaşık 45 gerçek saniye bekler
-export const REPLY_WINDOW: Partial<Record<ThreadId, number>> = { office: 60, birthday: 60, mom: 90, ayse: 60 };
+export const REPLY_WINDOW: Partial<Record<ThreadId, number>> = { office: 60, birthday: 60 };
 
 export function expireReplies(minutes: number) {
   const state = getState();
   const stale = (m: PhoneMessage) => {
     const window = REPLY_WINDOW[m.thread];
-    return window !== undefined && m.from === 'them' && m.replies && !m.answered && !m.expired && (m.day ?? state.currentDayIndex) === state.currentDayIndex && minutes - m.at > window;
+    return window !== undefined && !m.first && m.from === 'them' && m.replies && !m.answered && !m.expired && (m.day ?? state.currentDayIndex) === state.currentDayIndex && minutes - m.at > window;
   };
   if (state.phone.some(stale)) setState({ phone: state.phone.map((m) => (stale(m) ? { ...m, expired: true } : m)) });
 }
@@ -289,7 +292,7 @@ export function deliverManagerMessages(minutes: number) {
   const state = getState();
   const lineup = lineupFor(state);
   const open = lineup.filter((id) => !state.decisions[id]).length;
-  const tone = managerTone(state.managerStance.refusals);
+  const tone = managerTone(state.hakanRapport);
   const awaiting = managerAwaiting(state);
 
   if (state.desk.ringing || state.desk.inCall) {
@@ -313,7 +316,8 @@ export function deliverManagerMessages(minutes: number) {
     sender: m.ambient?.sender,
     text: renderManagerMessage(m, tone, { lineupSize: lineup.length, openFiles: open }),
     requestId: m.request?.id,
-    replies: m.ambient?.replies ?? (m.kind === 'reprimand' ? reprimandReplies(tone) : managerQuickReplies(m.kind, tone, open)) }));
+    replies: m.ambient?.replies ?? (m.kind === 'reprimand' ? reprimandReplies(tone) : managerQuickReplies(m.kind, tone, open)),
+    first: m.ambient?.first }));
 
   const nudged = state.managerNudged;
   if (messages.length === 0) return;

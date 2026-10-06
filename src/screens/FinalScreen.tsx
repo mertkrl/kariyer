@@ -42,7 +42,7 @@ export function FinalScreen() {
   const finalists = useGameStore((s) => s.finalists);
   const dmHandled = useGameStore((s) => s.dmHandled);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
-  const forbiddenAsked = useGameStore((s) => s.forbiddenAsked);
+  const structuredInterview = useGameStore((s) => s.story.reform?.kind === 'structured' && s.story.reform.accepted);
   const stance = useGameStore((s) => s.interviewStance);
   const meetingChoice = useGameStore((s) => s.meeting.choice);
   const rejections = useGameStore((s) => s.rejectionStats);
@@ -272,7 +272,9 @@ export function FinalScreen() {
               Reddettiğin adaylardan <b>{Object.values(dmHandled).filter((k) => k === 'honest').length}</b> kişiye dürüst geri bildirim verdin.
             </li>
             <li>
-              Mülakatta <b>{forbiddenAsked}</b> kez aile planı, memleket ya da emeklilik sordun.
+              {structuredInterview
+                ? 'Cuma mülakatları yapılandırılmıştı: Hakan Bey\'in aile planı, memleket, emeklilik soruları masada değildi.'
+                : 'Cuma her mülakatta Hakan Bey aile planı, memleket ya da emeklilik sordu; kurulda bu soruların "uyum" puanı toplamın üçte biriydi.'}
             </li>
             {rejections.standard + rejections.personal + rejections.pool + rejections.none > 0 && (
               <li>

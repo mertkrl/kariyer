@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { DeskCall as Call } from '../../game/desk';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from './Desk.module.css';
@@ -8,6 +8,7 @@ export function DeskCall({ call, onHangUp }: { call: Call; onHangUp: (choice: nu
   const [shown, setShown] = useState(1);
   const [picked, setPicked] = useState<number | null>(null);
   const [seconds, setSeconds] = useState(0);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = window.setInterval(() => setSeconds((s) => s + 1), 1000);
@@ -30,6 +31,11 @@ export function DeskCall({ call, onHangUp }: { call: Call; onHangUp: (choice: nu
   }, [picked, onHangUp, call.inPerson]);
 
   const ready = shown >= call.lines.length && picked === null;
+  // yeni satır geldikçe konuşma kendi içinde aşağı kayar; panel yerinde durur
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [shown, picked, ready]);
   return (
     <div className={styles.call} role="dialog" aria-label={`${call.caller} ile ${call.inPerson ? 'yüz yüze konuşma' : 'telefon görüşmesi'}`}>
       <div className={styles.callHead}>
@@ -46,7 +52,7 @@ export function DeskCall({ call, onHangUp }: { call: Call; onHangUp: (choice: nu
         </span>
       </div>
       {call.stakes && <div className={styles.callStakes}>📌 {call.stakes}</div>}
-      <div className={styles.callBody}>
+      <div className={styles.callBody} ref={bodyRef}>
         {call.lines.slice(0, shown).map((l) => (
           <p key={l} className={styles.callSays}>
             {l}

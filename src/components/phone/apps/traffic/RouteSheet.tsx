@@ -53,8 +53,8 @@ export function RouteSheet({ route, best, eta, rush, minutes, onPick }: RouteShe
               ? `Normalden ${delay} dk daha yavaş${rush > 0.5 ? ' · akşam trafiği zirvede' : ''}.`
               : 'Trafik normal seyrinde.'
             : route.mode === 'bus'
-              ? 'Metrobüs kendi yolunda gider; Cevizlibağ\'da tramvaya aktarma var.'
-              : 'Trafikten ve havadan etkilenmez; Yenikapı aktarması dahil.'}
+              ? 'Metrobüs köprüyü kendi şeridinde geçer; Cevizlibağ\'da tramvaya aktarma var.'
+              : 'Boğaz\'ı denizin altından geçer; trafikten ve havadan etkilenmez. Ayrılık Çeşmesi ve Yenikapı aktarmaları dahil.'}
         </span>
       </div>
       <div className={styles.arrive}>

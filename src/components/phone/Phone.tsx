@@ -69,6 +69,8 @@ interface PhoneProps {
   requests: ManagerRequest[];
   unread: Record<ThreadId, number>;
   stance: { refusals: number; complies: number };
+  /** Hakan Bey'le gizli ilişki: yalnızca sesinin tonunu belirler, hiçbir yerde gösterilmez. */
+  rapport: number;
   clock: string;
   dayName: string;
   onAnswer: (requestId: string, answer: 'comply' | 'refuse') => void;
@@ -209,7 +211,7 @@ export function PhoneDock(props: PhoneProps & { onOpen: () => void }) {
 /** Eline alınmış telefon. */
 /** `thread`, telefonu doğrudan o konuşmada açar (bir bildirime dokunmak). */
 export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?: ThreadId | null }) {
-  const { messages, requests, unread, stance, clock, onAnswer, onQuickReply, onRead, onClose, minutes, weatherPenalty, rejectedAuthors, echoes, dayIndex, dmCandidates, dmHandled, onDm, muted = [], onToggleMute, typing } = props;
+  const { messages, requests, unread, stance, rapport, clock, onAnswer, onQuickReply, onRead, onClose, minutes, weatherPenalty, rejectedAuthors, echoes, dayIndex, dmCandidates, dmHandled, onDm, muted = [], onToggleMute, typing } = props;
   const dms = dmCandidates.filter((d) => minutes - d.at >= d.delay);
   const dmPending = dms.filter((d) => !dmHandled[d.id]).length;
   const [screen, setScreen] = useState<Screen>(props.thread ? { kind: 'chat', thread: props.thread } : { kind: 'home' });
@@ -218,7 +220,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
     void loadSocial();
     void loadTraffic();
   }, []);
-  const tone = managerTone(stance.refusals);
+  const tone = managerTone(rapport);
 
   const device = useDialog<HTMLDivElement>(onClose);
 
@@ -234,7 +236,9 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   const pending = thread === 'manager' ? requests.find((r) => r.answer === null) : undefined;
   // Anne / ofis: hızlı cevaplı en son cevapsız mesaj (cevap vermek isteğe bağlı).
   // Herhangi bir sohbet: hızlı cevaplı en son cevapsız mesaj (müdürle, yalnızca bekleyen bir rica yokken).
-  const quick = thread && !pending ? [...threadMessages].reverse().find((m) => m.replies && !m.answered && !m.expired) : undefined;
+  // önce karşılamaya cevap verilir (ilk gün: teşekkür); sonra sohbetin en son cevapsız mesajı
+  const gate = threadMessages.find((m) => m.first && m.replies && !m.answered);
+  const quick = thread && !pending ? (gate ?? [...threadMessages].reverse().find((m) => m.replies && !m.answered && !m.expired)) : undefined;
   const totalUnread = sumUnread(unread);
 
   function header(title: string, subtitle?: string, avatar?: ReactNode, action?: ReactNode) {

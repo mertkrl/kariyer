@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { WORKDAY_END_MIN } from '../../game/time';
 
 /*
- * Ofis penceresi: Büyükdere Caddesi'nin karşısında Levent'in kuleleri. Gökyüzü saati izler (soluk
+ * Ofis penceresi: Ataşehir Finans Merkezi'nin kuleleri. Gökyüzü saati izler (soluk
  * bir kış sabahı, düz bir öğlen, üç buçukta altın, beşte mavi) ve günün havasını; hava kararırken
  * ofis ışıkları kat kat yanar. Çarşamba camdan yağmur süzülür, Perşembe kar geçer.
  */

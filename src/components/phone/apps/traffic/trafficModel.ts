@@ -100,31 +100,32 @@ export interface Route {
   tag: Pt;
 }
 
-// Yol indeksleri: 0 Büyükdere · 3 TEM Avrupa · 6 D-100 Avrupa · 8 Basın Ekspres
+// Yol indeksleri: 1 15 Temmuz Köprüsü · 2 D-100 Anadolu · 3 TEM Avrupa · 4 FSM Köprüsü · 5 TEM Anadolu · 6 D-100 Avrupa · 8 Basın Ekspres
+// Ofis Anadolu yakasında (Ataşehir Finans Merkezi), ev Avrupa yakasında (Bağcılar): her rota Boğaz'ı geçer.
 export const ROUTES: Route[] = [
   {
-    id: 'carTem', label: 'TEM', mode: 'car', via: 'Seyrantepe · TEM · Mahmutbey üzerinden', km: '19,6 km',
-    d: smooth([[186, 100], [185, 86], [178, 80], [160, 88], [120, 98], [60, 106], [54, 128], [46, 152]]),
-    roads: [0, 3, 8], baseMinutes: 32, tag: [104, 90],
+    id: 'carD100', label: 'D-100', mode: 'car', via: 'D-100 · 15 Temmuz Şehitler Köprüsü · Basın Ekspres üzerinden', km: '36,8 km',
+    d: smooth([[312, 198], [312, 206], [286, 190], [262, 164], [242, 146], [226, 136], [192, 138], [176, 150], [158, 168], [130, 188], [90, 204], [56, 210], [42, 186], [46, 152]]),
+    roads: [2, 1, 6, 8], baseMinutes: 52, tag: [128, 200],
   },
   {
-    id: 'carD100', label: 'D-100', mode: 'car', via: 'Zincirlikuyu · D-100 (E-5) üzerinden', km: '24,3 km',
-    d: smooth([[186, 100], [189, 118], [192, 138], [176, 150], [158, 168], [130, 188], [90, 204], [56, 210], [42, 186], [46, 152]]),
-    roads: [0, 6, 8], baseMinutes: 36, tag: [118, 200],
+    id: 'carTem', label: 'TEM', mode: 'car', via: 'TEM · Fatih Sultan Mehmet Köprüsü · Mahmutbey üzerinden', km: '41,2 km',
+    d: smooth([[312, 198], [310, 204], [296, 164], [278, 122], [258, 88], [234, 70], [198, 74], [186, 78], [160, 88], [120, 98], [60, 106], [54, 128], [46, 152]]),
+    roads: [5, 4, 3, 8], baseMinutes: 56, tag: [278, 104],
   },
   {
-    id: 'bus', label: 'Metrobüs+T1', mode: 'bus', via: 'Metrobüs Zincirlikuyu → Cevizlibağ · T1 tramvay Bağcılar', km: '23,1 km',
-    d: smooth([[186, 100], [189, 118], [192, 138], [176, 152], [158, 170], [134, 192], [108, 200], [80, 184], [58, 166], [46, 152]]),
-    roads: [], baseMinutes: 58, tag: [150, 172],
+    id: 'bus', label: 'Metrobüs+T1', mode: 'bus', via: 'Söğütlüçeşme → köprü → Cevizlibağ metrobüs · T1 tramvay Bağcılar', km: '38,5 km',
+    d: smooth([[312, 198], [296, 214], [266, 234], [268, 204], [262, 164], [242, 146], [226, 136], [192, 138], [176, 152], [158, 170], [134, 192], [108, 200], [80, 184], [58, 166], [46, 152]]),
+    roads: [], baseMinutes: 82, tag: [212, 124],
   },
   {
-    id: 'rail', label: 'Metro', mode: 'rail', via: 'M2 Levent → Yenikapı · M1B Bağcılar', km: '22,4 km',
-    d: smooth([[186, 100], [184, 130], [178, 170], [170, 200], [156, 222], [120, 214], [84, 192], [58, 170], [46, 152]]),
-    roads: [], baseMinutes: 54, tag: [100, 218],
+    id: 'rail', label: 'Marmaray', mode: 'rail', via: 'M4 Kozyatağı → Ayrılık Çeşmesi · Marmaray Yenikapı · M1B Bağcılar', km: '34,9 km',
+    d: smooth([[312, 198], [292, 214], [266, 226], [248, 226], [224, 212], [200, 214], [180, 218], [156, 222], [120, 214], [84, 192], [58, 170], [46, 152]]),
+    roads: [], baseMinutes: 74, tag: [214, 236],
   },
 ];
 
-export const OFFICE: Pt = [186, 100];
+export const OFFICE: Pt = [312, 198];
 export const HOME: Pt = [46, 152];
 
 export const DISTRICTS: { name: string; at: Pt }[] = [
@@ -156,8 +157,8 @@ export interface Incident {
 
 /**
  * Bir mesai dakikasındaki trafik: yoğunluk 15:30'dan itibaren artar ve 17:00–18:00'de zirve
- * yapar; kötü hava her yolu yavaşlatır. Metrobüs kendi yolunda gider, trafikten az etkilenir;
- * metro trafikten de havadan da etkilenmez, yalnızca akşam kalabalığında aktarmalar uzar.
+ * yapar; kötü hava her yolu yavaşlatır. Metrobüs köprüyü kendi şeridinde geçer, trafikten az etkilenir;
+ * Marmaray Boğaz'ın altından geçer: trafikten de havadan da etkilenmez, yalnızca akşam kalabalığında aktarmalar uzar.
  */
 export function trafficAt(minutes: number, weatherPenalty: number) {
   const rush = Math.max(0, Math.min(1, (minutes - 450) / 90));
@@ -172,6 +173,7 @@ export function trafficAt(minutes: number, weatherPenalty: number) {
   const best = available.reduce((a, b) => (eta(a) <= eta(b) ? a : b));
   const incidents: Incident[] = [
     ...(rush > 0.3 ? [{ at: [140, 182] as Pt, label: 'Kaza · D-100 Okmeydanı, sol şerit kapalı', icon: '!' }] : []),
+    ...(rush > 0.2 ? [{ at: [209, 131] as Pt, label: '15 Temmuz Köprüsü · Avrupa yönü kilit, köprü geçişi 45 dk', icon: '!' }] : []),
     { at: [96, 102], label: 'Yol çalışması · TEM Mahmutbey, 2 şerit kapalı', icon: '⛏' },
     ...(weatherPenalty > 0.1 ? [{ at: [74, 232] as Pt, label: 'Kaygan yol · Sahil Yolu Yeşilköy', icon: '≋' }] : []),
     ...(weatherPenalty >= 0.25 ? [{ at: [44, 182] as Pt, label: 'Su birikintisi · Basın Ekspres Yolu, tek şerit açık', icon: '≋' }] : []),

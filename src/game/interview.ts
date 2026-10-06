@@ -190,11 +190,18 @@ const GIVE: Record<'strong' | 'solid' | 'unsure' | 'weak', number> = { strong: 0
 
 export const expectedSalary = (id: string) => salaryOf(id);
 
+/** 2026 net asgari ücret (aylık, TL). Hiçbir teklif bunun altına inemez. */
+export const MIN_WAGE = 28075;
+/** Teklifler 500 TL'lik adımlarla yazılır; asgari ücretin üstündeki ilk adım. */
+const MIN_OFFER = Math.ceil(MIN_WAGE / 500) * 500;
+
 /** İsteğin bütçeye sığıp sığmamasına göre masadaki hamleler. */
 export function salaryMoves(id: string): SalaryMove[] {
   const ask = expectedSalary(id);
   if (ask === null) return ['match'];
-  return ask > SALARY_CAP ? ['cap', 'low', 'pass'] : ['match', 'squeeze'];
+  if (ask > SALARY_CAP) return ['cap', 'low', 'pass'];
+  // asgari ücrete yakın bir beklentiden aşağı pazarlık edilemez
+  return salaryOffer(id, 'squeeze')! < ask ? ['match', 'squeeze'] : ['match'];
 }
 
 export function salaryOffer(id: string, move: SalaryMove): number | null {
@@ -205,7 +212,7 @@ export function salaryOffer(id: string, move: SalaryMove): number | null {
     pass: ask,
     cap: SALARY_CAP,
     low: Math.round((SALARY_CAP * 0.88) / 500) * 500,
-    squeeze: Math.round((ask * 0.9) / 500) * 500,
+    squeeze: Math.max(MIN_OFFER, Math.round((ask * 0.9) / 500) * 500),
   }[move];
 }
 
@@ -218,7 +225,7 @@ export function salaryTalk(id: string, move: SalaryMove): SalaryResult {
     return { move, agreed: null, reply: 'Rakamı size bırakıyorum; ilanda yazan aralık benim için uygun.', effect: { performans: 0, vicdan: 0 } };
   }
   if (move === 'match') return { move, agreed: ask, reply: 'Teşekkür ederim, bu benim için uygun.', effect: { performans: 0, vicdan: 0 } };
-  if (move === 'pass') return { move, agreed: ask, reply: `Anladım. ${tl(ask)} benim alt sınırım; Hakan Bey'e iletmeniz yeterli.`, effect: { performans: 0, vicdan: 0 } };
+  if (move === 'pass') return { move, agreed: ask, reply: `Anladım. ${tl(ask)} benim alt sınırım; kararı sizin kurulunuz verir.`, effect: { performans: 0, vicdan: 0 } };
   const cut = 1 - offer / ask;
   const accepts = cut <= GIVE[tier(fitOf(id))];
   const effect = move === 'cap' ? { performans: 1, vicdan: 0 } : move === 'low' ? { performans: accepts ? 2 : 0, vicdan: -1 } : { performans: accepts ? 1 : 0, vicdan: -1 };

@@ -130,7 +130,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
               </g>
             ))}
             <rect x="222" y="12" width="14" height="10" rx="2" fill="#ffc34a" />
-            <text x="10" y="-6" fill="#fff" fontSize="14" fontWeight="800" fontFamily="sans-serif">34 · Zincirlikuyu</text>
+            <text x="10" y="-6" fill="#fff" fontSize="14" fontWeight="800" fontFamily="sans-serif">34 · Söğütlüçeşme</text>
             {[26, 94, 150, 214].map((x) => (
               <circle key={x} cx={x} cy="74" r="11" fill="#141418" />
             ))}
@@ -413,7 +413,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
             </g>
           ))}
           <text x="20" y="60" fill="#ffffff" fontSize="18" fontWeight="800" fontFamily="sans-serif" opacity="0.9">17:30</text>
-          <text x="20" y="80" fill="#c9cdd6" fontSize="11" fontFamily="sans-serif">Levent · servis çıkışı</text>
+          <text x="20" y="80" fill="#c9cdd6" fontSize="11" fontFamily="sans-serif">Ataşehir · servis çıkışı</text>
         </>
       )}
     </svg>

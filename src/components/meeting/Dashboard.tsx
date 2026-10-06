@@ -4,6 +4,7 @@ import {
   COLLEAGUE_STATS,
   PLAYER,
   DAILY_APPLICATIONS,
+  HOLDING_TARGETS,
   SHORTLIST,
   TOTAL_APPLICATIONS,
   type Board,
@@ -21,6 +22,7 @@ import styles from './Dashboard.module.css';
  */
 
 const PAGES: { id: Exclude<BoardPage, 'off'>; label: string }[] = [
+  { id: 'summary', label: 'Yönetici Özeti' },
   { id: 'overview', label: 'Genel Bakış' },
   { id: 'people', label: 'Kişi Bazında' },
   { id: 'shortlist', label: 'Cuma Kısa Liste' },
@@ -142,6 +144,57 @@ function Overview({ team, focus }: { team: Record<string, TeamStats>; focus: str
             </li>
           </ul>
         </div>
+      </Card>
+    </div>
+  );
+}
+
+/** Hedefe göre sapma: iyi yönde yeşil, kötü yönde kırmızı. */
+function deltaOf(t: (typeof HOLDING_TARGETS)[number]) {
+  const diff = ((t.actual - t.target) / t.target) * 100;
+  const good = t.better === 'lower' ? diff <= 0 : diff >= 0;
+  return { diff, good };
+}
+
+/** Yönetim için ilk sayfa: holding hedefleri, hedefe göre sapma ve otomatik çıkarılan öne çıkanlar. */
+function Summary({ team, focus }: { team: Record<string, TeamStats>; focus: string[] }) {
+  const reviewed = Object.values(team).reduce((n, t) => n + t.files, 0);
+  const human = (reviewed / TOTAL_APPLICATIONS) * 100;
+  const missed = HOLDING_TARGETS.filter((t) => !deltaOf(t).good);
+  return (
+    <div className={styles.gridSummary}>
+      {HOLDING_TARGETS.map((t) => {
+        const { diff, good } = deltaOf(t);
+        const hot = focus.includes(t.id);
+        return (
+          <section key={t.id} className={`${styles.card} ${styles.exec} ${hot ? styles.hot : ''}`} data-hot={hot || undefined}>
+            <small>{t.label}</small>
+            <b>
+              <Count value={t.actual} suffix={t.unit === '%' ? '' : t.unit} prefix={t.unit === '%' ? '%' : ''} />
+            </b>
+            <span className={`${styles.delta} ${good ? styles.deltaGood : styles.deltaBad}`}>
+              {diff >= 0 ? '▲' : '▼'} %{nf.format(Math.abs(diff))} hedefe göre
+            </span>
+            <span className={styles.targetTrack} aria-hidden="true">
+              <span className={good ? styles.targetFillGood : styles.targetFillBad} style={{ width: `${Math.min(100, (t.actual / Math.max(t.actual, t.target)) * 100)}%` }} />
+              <i style={{ left: `${Math.min(100, (t.target / Math.max(t.actual, t.target)) * 100)}%` }} />
+            </span>
+            <em>Hedef: {t.unit === '%' ? `%${nf.format(t.target)}` : `${nf.format(t.target)}${t.unit}`}</em>
+          </section>
+        );
+      })}
+      <Card title="Öne çıkanlar" className={styles.span4}>
+        <ol className={styles.takeaways}>
+          <li>
+            <b>{missed.length} / {HOLDING_TARGETS.length}</b> holding hedefinin gerisindeyiz; en büyük sapma işe alım başına maliyette.
+          </li>
+          <li>
+            Bir insanın incelediği başvuru oranı yalnızca <b>%{nf.format(human)}</b>; ön elemenin kalanı otomatik.
+          </li>
+          <li>
+            Cuma kısa listesinde <b>{SHORTLIST.length + (team.you.picks?.length ?? 0)}</b> aday var; karar kurulu: İK Müdürü, Yazılım Ekip Lideri, İşe Alım Uzmanı.
+          </li>
+        </ol>
       </Card>
     </div>
   );
@@ -366,12 +419,14 @@ export function Dashboard({ board, you }: { board: Board; you: TeamStats }) {
     <div className={styles.report}>
       <div className={styles.titleBar}>
         <span className={styles.logo}>▮▮▮</span>
-        <b>İK Operasyon Panosu</b>
-        <span className={styles.crumb}>/ Hafta 39 · Yazılım Geliştirici</span>
-        <span className={styles.refresh}>Son yenileme 10:58</span>
+        <b>Haftalık İşe Alım Performans Raporu</b>
+        <span className={styles.crumb}>Tavrinsa Labs · İnsan Kaynakları · Hafta 41 · Yazılım Geliştirici</span>
+        <span className={styles.confidential}>GİZLİ · Yönetim</span>
+        <span className={styles.refresh}>Sunan: Selin Aksoy · veri 10:58</span>
       </div>
       <div ref={canvasRef} className={styles.canvas}>
         <div key={board.page} className={styles.page}>
+          {board.page === 'summary' && <Summary team={team} focus={focus} />}
           {board.page === 'overview' && <Overview team={team} focus={focus} />}
           {board.page === 'people' && <People team={team} focus={focus} metric={board.metric ?? 'avg'} />}
           {board.page === 'shortlist' && <Shortlist focus={focus} you={you} />}

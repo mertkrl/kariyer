@@ -5,7 +5,7 @@ import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
 import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../desk';
 import { referenceFor } from '../references';
-import { REPLY_EFFECT, requestIsFair } from '../manager';
+import { RAPPORT, REPLY_EFFECT, clampRapport, requestIsFair } from '../manager';
 import { sound } from '../sound';
 import { callFor, revokeInvites, revokeTargets, strandFinalist } from '../managerCalls';
 import { clampScore, addVicdan } from '../storeDefaults';
@@ -50,6 +50,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
         managerStance: {
           refusals: state.managerStance.refusals + (answer === 'refuse' ? 1 : 0),
           complies: state.managerStance.complies + (answer === 'comply' ? 1 : 0) },
+        hakanRapport: clampRapport(state.hakanRapport + (answer === 'comply' ? RAPPORT.comply : req && requestIsFair(req) ? RAPPORT.refuseFair : RAPPORT.refuse)),
         performans: clampScore(state.performans + effect.performans),
         vicdan: addVicdan(state.vicdan, effect.vicdan),
         desk: { ...state.desk, inCall: null, calls: { ...state.desk.calls, [id]: 'answered' } } });
@@ -62,6 +63,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     set({
       performans: clampScore(state.performans + (c?.performans ?? 0)),
       vicdan: addVicdan(state.vicdan, (c?.vicdan ?? 0)),
+      hakanRapport: clampRapport(state.hakanRapport + (c?.rapport ?? 0)),
       // onlara gerçeği yüz yüze söylemek dürüst geri bildirim sayılır
       dmHandled: c?.honestFor ? { ...state.dmHandled, [c.honestFor]: 'honest' } : state.dmHandled,
       story: c?.reform ? { ...state.story, reform: c.reform } : state.story,
@@ -138,6 +140,8 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     set({
       ...revokeInvites(state, honest),
       revokeDraft: null,
-      vicdan: addVicdan(state.vicdan, (honest ? -1 : -3)) });
+      vicdan: addVicdan(state.vicdan, (honest ? -1 : -3)),
+      // doğruyu yazmak onun talimatını yazılı olarak çiğnemektir
+      hakanRapport: clampRapport(state.hakanRapport + (honest ? -5 : 2)) });
   },
 });

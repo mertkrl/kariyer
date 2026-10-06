@@ -3,7 +3,7 @@
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
-import { REPLY_EFFECT, managerReaction, managerTone, replyText } from '../manager';
+import { RAPPORT, REPLY_EFFECT, clampRapport, managerReaction, managerTone, replyText } from '../manager';
 import { sound } from '../sound';
 import { clampScore, addVicdan } from '../storeDefaults';
 import { takeMessageId } from '../clock';
@@ -18,6 +18,8 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
     const msg = state.phone.find((m) => m.id === messageId);
     const reply = msg?.replies?.[replyIndex];
     if (!msg || !reply || msg.answered || msg.expired) return;
+    // önce karşılamaya cevap verilir (ilk gün: teşekkür)
+    if (!msg.first && state.phone.some((m) => m.first && m.thread === msg.thread && !m.answered)) return;
     const stance = reply.stance
       ? {
           refusals: state.managerStance.refusals + (reply.stance === 'refuse' ? 1 : 0),
@@ -29,6 +31,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
       performans: clampScore(state.performans + (reply.performans ?? 0)),
       vicdan: addVicdan(state.vicdan, (reply.vicdan ?? 0) + momCare),
       managerStance: stance,
+      hakanRapport: clampRapport(state.hakanRapport + (reply.stance === 'comply' ? RAPPORT.comply : reply.stance === 'refuse' ? RAPPORT.refuse : 0)),
       story: reply.neighbourCv ? { ...state.story, neighbourCv: true } : state.story,
       typingThread: msg.thread,
       dayEvents:
@@ -78,6 +81,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
         { id: takeMessageId(), thread: 'manager', at: now, day: state.currentDayIndex, from: 'me', text: replyText(answer, state.managerStance), requestId },
       ],
       managerStance: stance,
+      hakanRapport: clampRapport(state.hakanRapport + (answer === 'comply' ? RAPPORT.comply : RAPPORT.refuse)),
       performans: clampScore(state.performans + effect.performans),
       vicdan: addVicdan(state.vicdan, effect.vicdan) });
     sound().playUi('click');
@@ -94,7 +98,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
             at: s2.workdayMinutes,
             day: s2.currentDayIndex,
             from: 'them',
-            text: managerReaction(answer, managerTone(stance.refusals)) },
+            text: managerReaction(answer, managerTone(s2.hakanRapport)) },
         ],
         phoneUnread: { ...s2.phoneUnread, manager: s2.phoneUnread.manager + 1 } });
       sound().playPhoneBuzz();

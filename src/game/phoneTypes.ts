@@ -27,6 +27,8 @@ export interface PhoneMessage {
   answered?: boolean;
   /** An geçti: sohbet ilerledi ve şimdi verilecek bir cevabın anlamı kalmadı. */
   expired?: boolean;
+  /** Sohbette önce bu cevaplanır; bkz. Ambient.first. */
+  first?: boolean;
 }
 
 export interface QuickReply {
@@ -69,7 +71,7 @@ export interface ScheduledMessage {
   /** İlk seferde açmadığın için yeniden yaptığı bir rica araması. */
   retry?: boolean;
   /** Ortam sohbeti (anne / ofis grubu). */
-  ambient?: { thread: Exclude<ThreadId, 'manager'>; sender?: string; text: string; replies?: QuickReply[]; closes?: boolean };
+  ambient?: { thread: Exclude<ThreadId, 'manager'>; sender?: string; text: string; replies?: QuickReply[]; closes?: boolean; first?: boolean };
 }
 
 /**
@@ -89,7 +91,8 @@ export interface RequestTemplate {
 export type FollowUp = { after: number; sender: string; text: string; closes?: boolean };
 
 /** Sohbette bir satır. Grup satırları devamını taşır: birbirine cevap veren iş arkadaşları, kimi hemen, kimi çok sonra. */
-export type Ambient = { at: number; thread: 'mom' | 'office' | 'ayse' | 'birthday'; sender?: string; text: string; replies?: QuickReply[]; followUps?: FollowUp[] };
+/** `first`: sohbette önce bu cevaplanır (ilk günün karşılaması); süresi dolmaz, cevaplanana kadar diğerlerine cevap verilemez. */
+export type Ambient = { at: number; thread: 'mom' | 'office' | 'ayse' | 'birthday'; sender?: string; text: string; replies?: QuickReply[]; followUps?: FollowUp[]; first?: boolean };
 
 /** Müdürün dün istediği ve yapılmayan bir rica. */
 export interface Grievance {

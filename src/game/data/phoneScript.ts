@@ -165,13 +165,14 @@ export const AMBIENT: Ambient[][] = [
     },
     {
       at: 8, thread: 'office', sender: 'Selin (İK)', text: `Aramıza yeni katılan İK uzmanı arkadaşımız ${PLAYER.first}'ye hoş geldin diyoruz 👋 Bir ihtiyacın olursa sormaktan çekinme.`,
+      followUps: [{ after: 2, sender: 'Emre', text: 'Hoş geldin! 🙌' }],
+    },
+    {
+      // herkes hoş geldin dedikten sonra: ilk cevabın teşekkür, ondan önce gruptaki hiçbir şeye cevap verilmez
+      at: 14, thread: 'office', first: true, sender: 'Ayşe', text: 'Hoş geldin, kolay gelsin. Öğle yemeğinde tanışırız 🙂',
       replies: [
-        { text: 'Teşekkür ederim, herkese iyi çalışmalar.', reaction: 'Biz teşekkür ederiz, kolay gelsin 🙂', reactionSender: 'Ayşe' },
-        { text: 'Çok teşekkürler. Sorularım olursa sizi rahatsız edeceğim.', reaction: 'Rahatsızlık değil, rica ederim 🙂', reactionSender: 'Selin (İK)' },
-      ],
-      followUps: [
-        { after: 2, sender: 'Emre', text: 'Hoş geldin! 🙌' },
-        { after: 6, sender: 'Ayşe', text: 'Hoş geldin, kolay gelsin. Öğle yemeğinde tanışırız 🙂' },
+        { text: 'Hepinize çok teşekkür ederim, iyi çalışmalar.', reaction: 'Biz teşekkür ederiz, kolay gelsin 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Teşekkürler, sıcak karşılamanız için sağ olun. Sorularım olursa sizi rahatsız edeceğim.', reaction: 'Rahatsızlık değil, rica ederim 🙂', reactionSender: 'Selin (İK)' },
       ],
     },
     {
@@ -194,14 +195,14 @@ export const AMBIENT: Ambient[][] = [
       ],
     },
     {
-      at: 200, thread: 'office', sender: 'Ayşe', text: 'Metrobüs yine tıklım tıklımdı, ayakta geldim 😩',
+      at: 200, thread: 'office', sender: 'Ayşe', text: 'Köprü yine kilitti, metrobüste köprünün ortasında 25 dakika durduk 😩',
       replies: [
-        { text: 'Ben de. Zincirlikuyu\'da nefes almak zordu.', reaction: 'Her sabah aynı 🤝', reactionSender: 'Ayşe' },
-        { text: 'Erken çıkmak lazım, 6\'da boş oluyor.', reaction: '6\'da mı?? Sen insan mısın 😂', reactionSender: 'Emre' },
+        { text: 'Ben de. Bağcılar\'dan çıkıp köprüyü geçmek 1,5 saat sürdü.', reaction: 'Avrupa yakasından gelenler kulübüne hoş geldin 🤝', reactionSender: 'Ayşe' },
+        { text: 'Marmaray\'a geçin, denizin altı daha sakin.', reaction: 'Ayrılık Çeşmesi aktarması da ayrı bir maraton ama 😂', reactionSender: 'Emre' },
       ],
       followUps: [
-        { after: 2, sender: 'Emre', text: 'Bugün bir de arıza vardı, 20 dakika durduk.' },
-        { after: 25, sender: 'Selin (İK)', text: 'Ben vapura geçtim, daha sakin. Tavsiye ederim.' },
+        { after: 2, sender: 'Emre', text: 'Ben Kadıköy\'deyim, köprü derdim yok 😎 Ama D-100\'de kaza vardı, ona ben de takıldım.' },
+        { after: 25, sender: 'Selin (İK)', text: 'Ben vapura geçtim; Karaköy–Kadıköy, sonra metro. Köprüden daha hızlı.' },
       ],
     },
     {
@@ -496,7 +497,7 @@ export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] 
   [
     {
       after: 15,
-      text: 'Çıktın mı işten? Vapur yine aksıyor diyorlar, seni yemeğe bekleyelim mi?',
+      text: 'Çıktın mı işten? Köprü yine kilitmiş diyorlar, seni yemeğe bekleyelim mi?',
       replies: [
         { text: 'Beklemeyin anne, geç çıkacağım.', reaction: 'Peki. Tabağını fırına koydum, ısıtırsın.' },
         { text: 'Birazdan çıkıyorum.', reaction: 'Tamam, sofrayı kurmuyorum o zaman, gelince kurarız' },
@@ -532,7 +533,7 @@ export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] 
   [
     {
       after: 15,
-      text: 'Yollar buz tutmuş, haberlerde söylüyor. Çıkabildin mi?',
+      text: 'Yollar buz tutmuş, köprüde araçlar kaymış diyor haberler. Çıkabildin mi?',
       replies: [
         { text: 'Daha çıkamadım anne, dosyalar var.', reaction: 'Karda gece yolculuğu… Ne olur dikkat et. Çıkınca yaz.' },
         { text: 'Birazdan çıkarım, merak etme.', reaction: 'Merak etmemek elimde değil ki. Yaz ama.' },

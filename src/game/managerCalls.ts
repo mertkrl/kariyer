@@ -8,7 +8,7 @@ import type { Mail } from './mail';
 import { NEPHEW_ID, candidateOf, candidates } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
 import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
-import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
+import { RAPPORT, managerReaction, managerTone, replyText, requestCallLines, requestIsFair, type ManagerTone } from './manager';
 import { referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
 import type { Finalist, GameState, StoryState } from './storeTypes';
@@ -29,7 +29,7 @@ export function reformCall(performans: number, refusals: number, day: number): D
     at: 0,
     caller: 'Hakan Bey',
     line: 'İK Müdürü · dahili 210',
-    lines: ['"Dinliyorum."'],
+    lines: ['Dinliyorum.'],
     choices: [
       {
         text: 'Yapılandırılmış mülakat: yarın her adaya aynı sorular, Ümit Bey\'le aynı puan kartı.',
@@ -48,10 +48,11 @@ export function reformCall(performans: number, refusals: number, day: number): D
         reform: { kind: 'blind', accepted: blind },
       },
       {
-        text: 'Sistemin skorlarını bir insan denetlesin: hangi kriter kimi eliyor, görelim.',
-        reply: 'O tabloyu açarsak altında ilk ben kalırım. Hayır. Bu konuşma olmadı.',
+        text: 'Aday puanlama tablosunu bir insan denetlesin: hangi ağırlık kimi eliyor, görelim.',
+        reply: 'O tabloyu açarsak altında ilk benim imzam çıkar. Hayır. Bu konuşma hiç olmadı.',
         vicdan: 2,
         performans: -1,
+        rapport: -6,
         reform: { kind: 'audit', accepted: false },
       },
     ],
@@ -75,15 +76,15 @@ export function reviewCall(defied: string[], tone: ManagerTone, justify: boolean
     line: 'İK Müdürü · dahili 210',
     lines: [
       'Hakan Kaya. Kısa bir değerlendirme yapmak istiyorum, telefonda halledelim.',
-      `"Dünkü dosyalara baktım${names ? `: ${names}` : ''}. Kararlarınızı gerekçeleriyle birlikte değerlendirdim."`,
+      `Dünkü dosyalara baktım${names ? `: ${names}` : ''}. Kararlarınızı gerekçeleriyle birlikte değerlendirdim.`,
       tone >= 2
-        ? '"Deneme sürecinizin nasıl ilerlediğini ikimiz de görüyoruz. Bu ekip bir bütün; herkes aynı yöne bakmak zorunda."'
-        : '"Deneme sürecinde herkes kendi tarzını bulmaya çalışır, anlıyorum. Ama bu ekip bir bütün. Kararlarınızın ekiple uyumlu olmasını bekliyorum."',
-      ...(justify ? ['"Bundan sonra her ret kararınıza kısa bir gerekçe notu ekleyin. Yazılı."'] : []),
+        ? 'Deneme sürecinizin nasıl ilerlediğini ikimiz de görüyoruz. Bu ekip bir bütün; herkes aynı yöne bakmak zorunda.'
+        : 'Deneme sürecinde herkes kendi tarzını bulmaya çalışır, anlıyorum. Ama bu ekip bir bütün. Kararlarınızın ekiple uyumlu olmasını bekliyorum.',
+      ...(justify ? ['Bundan sonra her ret kararınıza kısa bir gerekçe notu ekleyin. Yazılı olarak.'] : []),
     ],
     choices: [
-      { text: 'Anlaşıldı Hakan Bey. Daha dikkatli olacağım.', reply: '"Güzel. Kolay gelsin."', performans: 1, vicdan: -1 },
-      { text: 'Kararlarımın gerekçeleri dosyalarda yazılı. İsterseniz birlikte bakalım.', reply: '"…Gerek yok. Anlaşıldı." Kısa bir sessizlik; kalem sesi. Sonra hat kapanıyor.', performans: -1, vicdan: 1 },
+      { text: 'Anlaşıldı Hakan Bey. Daha dikkatli olacağım.', reply: 'Güzel. Kolay gelsin.', performans: 1, vicdan: -1, rapport: 5 },
+      { text: 'Kararlarımın gerekçeleri dosyalarda yazılı. İsterseniz birlikte bakalım.', reply: tone >= 2 ? 'Dosyalarınızı okumak için sizi işe almadım. Gerekçeyi ben belirlerim. Anlaşıldı mı?' : 'Gerek yok. Anlaşıldı. İyi çalışmalar.', rapport: -6, performans: -1, vicdan: 1 },
     ],
     minutes: 25,
     missed: { note: '' },
@@ -111,6 +112,8 @@ export function salaryOf(id: string): number | null {
 export interface PanelInput {
   agreed?: Record<string, number | null>;
   convinced?: boolean;
+  /** Kurulun puan toplamıyla verdiği ortak karar (bkz. panel.ts); varsa işe alınan odur. */
+  decided?: string;
 }
 
 export function panelDecision(recommended: string, finalists: Finalist[], requests: { candidateId: string; want: Decision }[], input: PanelInput = {}) {
@@ -125,7 +128,7 @@ export function panelDecision(recommended: string, finalists: Finalist[], reques
       ? recommended
       : (pool.find((id) => fitOf(id) === best) ?? recommended);
   const his = ids.includes(NEPHEW_ID) ? NEPHEW_ID : (requests.find((r) => r.want === 'approve' && ids.includes(r.candidateId))?.candidateId ?? recommended);
-  const hired = recommended === lead || recommended === his ? recommended : lead === his ? lead : lead;
+  const hired = input.decided ?? (recommended === lead || recommended === his ? recommended : lead === his ? lead : lead);
   return { lead, his, hired, overBudget: !affordable(recommended) };
 }
 
@@ -168,7 +171,7 @@ export function revokeTargets(finalists: Finalist[]) {
   return [...mine].sort((a, b) => candidateOf(b.id).age - candidateOf(a.id).age).slice(0, 2).map((f) => f.id);
 }
 
-export function revokeCall(finalists: Finalist[], refusals: number, day: number): DeskCall {
+export function revokeCall(finalists: Finalist[], rapport: number, day: number): DeskCall {
   const ids = revokeTargets(finalists);
   const names = ids.map((id) => candidateOf(id).name).join(' ve ');
   return {
@@ -178,13 +181,13 @@ export function revokeCall(finalists: Finalist[], refusals: number, day: number)
     caller: 'Hakan Bey',
     line: 'İK Müdürü · dahili 210',
     lines: [
-      managerTone(refusals) >= 2 ? 'Hakan Kaya. Kısa bir talimat.' : 'Merhaba, Hakan ben. Kısa bir konu.',
+      managerTone(rapport) >= 2 ? 'Hakan Kaya. Kısa bir talimat.' : 'Merhaba, Hakan ben. Kısa bir konu.',
       `Dün davet gönderdiğiniz ${names}. Holding kadro planını revize etti; ikisinin daveti geri alınacak.`,
       'Bugün bir e-posta atın: "Davetiniz sehven gönderilmiştir." Gerekçe yazmayın, uzatmayın.',
     ],
     choices: [
-      { text: 'Anlaşıldı, e-postayı hazırlıyorum.', reply: 'Teşekkür ederim. Bu tür şeyler olur.', revoke: 'draft' },
-      { text: 'Gerekçesiz bir iptal adaylara haksızlık olur.', reply: 'Haksızlık olup olmadığına ben karar veririm. Gönderin.', vicdan: 1, performans: -1, revoke: 'draft' },
+      { text: 'Anlaşıldı, e-postayı hazırlıyorum.', reply: 'Teşekkür ederim. Bu tür şeyler olur.', revoke: 'draft', rapport: 3 },
+      { text: 'Gerekçesiz bir iptal adaylara haksızlık olur.', reply: managerTone(rapport) >= 2 ? 'Size fikrinizi sormadım. Gönderin, bugün.' : 'Haksızlık olup olmadığına ben karar veririm. Gönderin.', vicdan: 1, performans: -1, revoke: 'draft', rapport: -6 },
     ],
     minutes: 4,
     missed: { note: 'Hakan Bey aradı, açmadın. Davetleri geri alan e-postayı kendisi göndermiş: "sehven gönderilmiştir."', vicdan: -1 },
@@ -239,13 +242,13 @@ export function tolgaSnowCall(day: number): DeskCall {
 
 /** Bir sabit hat kimliğinin arkasındaki arama: senaryolu bir arama ya da rica isteyen müdür. */
 export function callFor(
-  state: Pick<GameState, 'managerRequests' | 'managerStance' | 'currentDayIndex' | 'desk'> & { performans?: number; story?: StoryState; justifyRejects?: boolean; finalists?: Finalist[]; decisions?: Record<string, Decision> },
+  state: Pick<GameState, 'managerRequests' | 'managerStance' | 'hakanRapport' | 'currentDayIndex' | 'desk'> & { performans?: number; story?: StoryState; justifyRejects?: boolean; finalists?: Finalist[]; decisions?: Record<string, Decision> },
   id: string,
 ): DeskCall | undefined {
-  if (id === 'revoke') return revokeCall(state.finalists ?? [], state.managerStance.refusals, state.currentDayIndex);
+  if (id === 'revoke') return revokeCall(state.finalists ?? [], state.hakanRapport, state.currentDayIndex);
   if (id === SNOW_CALL_ID) return tolgaSnowCall(state.currentDayIndex);
   if (id === 'reform') return reformCall(state.performans ?? 50, state.managerStance.refusals, state.currentDayIndex);
-  if (id === 'review') return reviewCall(state.story?.managerDay.defied ?? [], managerTone(state.managerStance.refusals), !!state.justifyRejects, state.currentDayIndex);
+  if (id === 'review') return reviewCall(state.story?.managerDay.defied ?? [], managerTone(state.hakanRapport), !!state.justifyRejects, state.currentDayIndex);
   if (id.startsWith('ref:')) {
     const cid = id.slice(4);
     const ref = referenceFor(cid);
@@ -285,18 +288,19 @@ export function callFor(
   if (!id.startsWith(REQUEST_CALL_PREFIX)) return deskCall(id);
   const r = state.managerRequests.find((x) => x.id === id.slice(REQUEST_CALL_PREFIX.length));
   if (!r) return undefined;
-  const refusals = state.managerStance.refusals;
+  const rapport = state.hakanRapport;
   const name = candidateOf(r.candidateId).name.split(' ')[0];
+  const refuseDrop = requestIsFair(r) ? RAPPORT.refuseFair : RAPPORT.refuse;
   return {
     id,
     day: state.currentDayIndex,
     at: 0,
     caller: 'Hakan Bey',
     line: 'İK Müdürü · dahili 210',
-    lines: requestCallLines(r.template ?? 0, r.candidateId, managerTone(refusals), state.desk.calls[id] === 'missed'),
+    lines: requestCallLines(r.template ?? 0, r.candidateId, managerTone(rapport), state.desk.calls[id] === 'missed'),
     choices: [
-      { text: replyText('comply', state.managerStance), reply: managerReaction('comply', managerTone(refusals)) },
-      { text: replyText('refuse', state.managerStance), reply: managerReaction('refuse', managerTone(refusals + 1)) },
+      { text: replyText('comply', state.managerStance), reply: managerReaction('comply', managerTone(rapport)) },
+      { text: replyText('refuse', state.managerStance), reply: managerReaction('refuse', managerTone(rapport + refuseDrop)) },
     ],
     minutes: 4,
     missed: { note: `Hakan Bey iki kez aradı, açmadın. Sekreteri not bırakmış: "${name} konusunda sizinle görüşmek istedi."`, performans: -2 },

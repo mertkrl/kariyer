@@ -67,7 +67,6 @@ export const DM_EFFECT: Record<DmKind, { performans: number; vicdan: number }> =
 
 /** Bu kadar düşük bir vicdan geceleri uyutmaz: ertesi güne geç başlarsın. */
 export const SLEEPLESS_BELOW = 35;
-export const SLEEPLESS_MINUTES = 25;
 /** Perşembe bütün ekip geç saate kadar kalır (yapay zekâ yok): 19:00'a kadar. */
 export const TEAM_LATE_DAY = THURSDAY;
 export const TEAM_LATE_END = 11 * 60;

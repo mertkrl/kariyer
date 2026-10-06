@@ -160,6 +160,8 @@ export interface GameState {
   managerVerdict: string[];
   /** Müdüre nasıl cevap verdiğinin bütün haftalık kaydı: iki tarafın tonunu da belirler. */
   managerStance: { refusals: number; complies: number };
+  /** Hakan Bey'le ilişki, oyuncudan gizli (bkz. manager.ts RAPPORT). */
+  hakanRapport: number;
   /** Müdürün zaten dürttüğü mesaj kimlikleri (her birine bir dürtme). */
   managerNudged: number[];
   /** Annenin haftalık konuları (oyun başına bir kez karışır; günde iki, hiç tekrar yok). */

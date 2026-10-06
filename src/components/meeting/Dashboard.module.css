@@ -585,3 +585,110 @@
     font-size: calc(17px * var(--ts, 1));
   }
 }
+
+/* ── Yönetici Özeti ── */
+.confidential {
+  margin-left: 10px;
+  padding: 2px 7px;
+  border: 1px solid #e05a4f;
+  border-radius: 3px;
+  color: #ff8b80;
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.gridSummary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  height: 100%;
+}
+
+.span4 {
+  grid-column: span 4;
+}
+
+.exec {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 3px solid #12239e;
+}
+
+.exec small {
+  color: #605e5c;
+  font-size: calc(11px * var(--ts, 1));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.exec b {
+  font-size: calc(24px * var(--ts, 1));
+  font-weight: 600;
+  color: #252423;
+  font-variant-numeric: tabular-nums;
+}
+
+.exec em {
+  font-style: normal;
+  color: #605e5c;
+  font-size: calc(11px * var(--ts, 1));
+}
+
+.delta {
+  font-size: calc(11.5px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.deltaGood {
+  color: #1a7f37;
+}
+
+.deltaBad {
+  color: #c4314b;
+}
+
+.targetTrack {
+  position: relative;
+  height: 6px;
+  margin: 4px 0 2px;
+  border-radius: 3px;
+  background: #edebe9;
+}
+
+.targetFillGood,
+.targetFillBad {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  transition: width 0.7s ease;
+}
+
+.targetFillGood {
+  background: #1a7f37;
+}
+
+.targetFillBad {
+  background: #c4314b;
+}
+
+.targetTrack i {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  background: #252423;
+}
+
+.takeaways {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.45;
+  color: #323130;
+}

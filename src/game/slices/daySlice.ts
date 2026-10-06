@@ -14,10 +14,10 @@ import type { Mail } from '../mail';
 import { COFFEE_SIPS } from '../desk';
 import { NEIGHBOUR_ID, candidateOf } from '../data/candidates';
 import { buildManagerScript, evaluateRequests, managerTone, reprimandText, type PhoneMessage } from '../manager';
-import { BREAK_END_MIN, formatClock } from '../time';
+import { BREAK_END_MIN } from '../time';
 import { leventMail, type WeekEntry } from '../echoes';
 import { rngFor } from '../rng';
-import { SLEEPLESS_BELOW, SLEEPLESS_MINUTES, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../storeDefaults';
+import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../storeDefaults';
 import { dispatchRejections, isOnBreak } from '../clock';
 import { NEIGHBOUR_DAY } from '../weekdays';
 import { tick } from '../tick';
@@ -33,7 +33,7 @@ function defiedYesterday(state: GameState) {
 
 /** Sabahın e-postaları: Ümit'in dünle ilgili notu ve ona karşı çıktığın bir günün ardından Hakan Bey'inki. */
 function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
-  const tone = managerTone(state.managerStance.refusals);
+  const tone = managerTone(state.hakanRapport);
   const defied = defiedYesterday(state);
   const levent = leventMail(state.currentDayIndex, state.weekLog, state.meeting.choice);
   // ona karşı çıktıktan sonra Hakan Bey: alıntılanacak hiçbir şey söylemeyen bir e-posta, "kısa" bir görüşme
@@ -88,8 +88,9 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
     const quotaCut = state.currentDayIndex > 0 && state.performans < QUOTA_CUT_BELOW;
     // ona karşı geçen bir günden sonra sert bir müdür her "hayır"ı yazılı ister
     const defied = defiedYesterday(state);
-    const justifyRejects = state.justifyRejects || (defied && managerTone(state.managerStance.refusals) >= 2);
-    const lateMinutes = sleepless ? SLEEPLESS_MINUTES : 0;
+    const justifyRejects = state.justifyRejects || (defied && managerTone(state.hakanRapport) >= 2);
+    // mesai her gün 08:00'de başlar; uykusuz gece yalnızca sabah kartında anlatılır
+    const lateMinutes = 0;
     const lineups = todaysLineups(state);
     set({
       phase: 'gameplay',
@@ -123,7 +124,7 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       workdayMinutes: lateMinutes,
       dayEvents: todaysEvents(state),
       activeEvent: null,
-      lateReason: sleepless ? `Gece uyuyamadın; gözünün önünden dosyalar geçti. Masana ${formatClock(SLEEPLESS_MINUTES)}'te oturabildin.` : null,
+      lateReason: sleepless ? 'Gece uyuyamadın; gözünün önünden dosyalar geçti. Masaya gözlerin kızarmış oturdun.' : null,
       story: sleepless ? { ...state.story, sleptBadly: true } : state.story });
   },
 

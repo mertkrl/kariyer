@@ -1,6 +1,7 @@
 /*
  * CV kuyruğunun ötesinde haftanın hikâyesi: toplantı, ret bildirimleri, mülakatlar, işe alım ve Cuma'nın teklifi.
  */
+import { clampRapport } from '../manager';
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
 import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from '../storeDefaults';
@@ -74,7 +75,8 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       meeting: { state: 'done', choice },
       workdayMinutes: state.workdayMinutes + MEETING_MINUTES,
       performans: clampScore(state.performans + (option?.performans ?? 0)),
-      vicdan: addVicdan(state.vicdan, (option?.vicdan ?? 0)) });
+      vicdan: addVicdan(state.vicdan, (option?.vicdan ?? 0)),
+      hakanRapport: clampRapport(state.hakanRapport + (option?.rapport ?? 0)) });
   },
 
   planRejectionMails: (choices) => {

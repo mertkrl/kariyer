@@ -4,6 +4,7 @@
  * (decisionSlice), telefon, masa, hikâye ve ayarlar. Saatin saniyesi tick.ts'dir; saatin
  * tetiklediği şeyler clock.ts'dir.
  */
+import { RAPPORT_START, RAPPORT_START_HARD } from './manager';
 import { create } from 'zustand';
 import { days } from './data/days';
 import { AD_EFFECT } from './data/jobs';
@@ -65,6 +66,7 @@ function freshWeek(): WeekData {
     managerScript: [],
     managerVerdict: [],
     managerStance: { refusals: 0, complies: 0 },
+    hakanRapport: RAPPORT_START,
     managerNudged: [],
     momOrder: [],
     managerGrievances: [],
@@ -162,7 +164,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         : state.lineups,
       phase: 'applicationFlood',
       // Zor modda ilk sabahtan itibaren sert bir müdür.
-      managerStance: state.difficulty === 'hard' ? { refusals: 1, complies: 0 } : { refusals: 0, complies: 0 } })),
+      managerStance: state.difficulty === 'hard' ? { refusals: 1, complies: 0 } : { refusals: 0, complies: 0 },
+      hakanRapport: state.difficulty === 'hard' ? RAPPORT_START_HARD : RAPPORT_START })),
 
   proceedToBriefing: () => set({ phase: 'briefing' }),
 

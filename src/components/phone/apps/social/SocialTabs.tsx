@@ -105,7 +105,7 @@ export function ProfileTab({ savedPosts, followers, followingCount, onOpen }: Pr
         <span>CV'leri gerçekten okuyan son insan 📄👀</span>
       </div>
       <div className={styles.bioChips}>
-        <span>📍 Levent</span>
+        <span>📍 Ataşehir</span>
         <span>☕ çaycı</span>
         <span>🤝 İK</span>
       </div>

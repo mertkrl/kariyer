@@ -33,7 +33,6 @@ export function RecallComposer({ to, onSend }: { to: string[]; onSend: (honest: 
       <div className={styles.window}>
         <div className={styles.titleBar}>
           <span id="recall-title">Yeni ileti · Mülakat davetiniz hk.</span>
-          <span className={styles.lock}>Gönderilmeden kapatılamaz</span>
         </div>
 
         <div className={styles.brief}>

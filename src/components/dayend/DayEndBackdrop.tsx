@@ -16,9 +16,9 @@ import styles from './DayEndBackdrop.module.css';
 
 const SCENES: (() => CityScene)[] = [bridgeScene, e5Scene, servisScene, karakoyScene];
 const CAPTIONS = [
-  'Ortaköy · 15 Temmuz Şehitler Köprüsü — Anadolu yakasına dönüş başladı.',
-  'Zincirlikuyu · E-5 — köprü yönü kilit, metrobüs tıklım tıklım.',
-  'Servisin içinden · Büyükdere Caddesi — 40 dakikadır aynı plazanın önündeyiz.',
+  'Ortaköy · 15 Temmuz Şehitler Köprüsü — Avrupa yakasına dönüş başladı, köprü kilit.',
+  'Zincirlikuyu · E-5 — köprüden inen metrobüs tıklım tıklım, Bağcılar daha çok uzak.',
+  'Servisin içinden · Ataşehir — 40 dakikadır köprü bağlantısında bekliyoruz.',
   'Karaköy İskelesi · Kar yağıyor — son vapura yetişmeye çalışanlar.',
 ];
 /** Yavaş yaklaşma için pay, böylece katmanlar son yakınlaşmaya yetecek netlikte çizilir. */

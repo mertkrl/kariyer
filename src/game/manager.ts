@@ -21,9 +21,29 @@ export { OVERTIME_MOM } from './data/phoneScript';
  * gün sonunda müdür gerçekte ne yaptığını kontrol eder.
  */
 
-export function managerTone(refusals: number): ManagerTone {
-  return Math.min(3, refusals) as ManagerTone;
+/**
+ * Hakan Bey'in sana karşı tutumu, oyuncudan gizli (0–100). Ricalarına uymak, onu desteklemek ve
+ * aramalarını açmak yükseltir; karşı çıkmak, özellikle haklı olduğu bir ricada, düşürür. Sesinin
+ * dozu (selam, tepki, uyarı) buna göre ayarlanır.
+ */
+export const RAPPORT_START = 55;
+export const RAPPORT_START_HARD = 40;
+
+export const clampRapport = (r: number) => Math.max(0, Math.min(100, r));
+
+/** İlişkiden tona: 60 ve üstü sıcak, 45 resmî, 30 soğuk, altı düşmanca. */
+export function managerTone(rapport: number): ManagerTone {
+  return (rapport >= 60 ? 0 : rapport >= 45 ? 1 : rapport >= 30 ? 2 : 3) as ManagerTone;
 }
+
+/** Hakan Bey'in ilişkiye verdiği ağırlık: rica cevapları, aramalar, toplantı. */
+export const RAPPORT = {
+  comply: 7,
+  refuse: -9,
+  /** Dosyanın da desteklediği bir ricaya (Barış) karşı çıkmak: "bu sefer haklıydım". */
+  refuseFair: -13,
+  missedCall: -4,
+} as const;
 
 export const TONE_STATUS: Record<ManagerTone, { mood: string; status: string }> = {
   0: { mood: '😊', status: 'çevrimiçi' },
@@ -84,7 +104,7 @@ export function buildManagerScript(
   // ofis, dün Hakan Bey'le işlerin nasıl gittiğini fark etti: günün ofis cümlesi bu
   const team = managerDay ? teamReaction(managerDay, dayIndex) : [];
   for (const a of [...team, ...(AMBIENT[dayIndex] ?? []), ...(dayIndex === BIRTHDAY_DAY ? BIRTHDAY : [])]) {
-    script.push({ at: a.at, kind: 'ambient', dayIndex, ambient: { thread: a.thread, sender: a.sender, text: a.text, replies: a.replies } });
+    script.push({ at: a.at, kind: 'ambient', dayIndex, ambient: { thread: a.thread, sender: a.sender, text: a.text, replies: a.replies, first: a.first } });
     for (const f of a.followUps ?? []) script.push({ at: a.at + f.after, kind: 'ambient', dayIndex, ambient: { thread: a.thread, sender: f.sender, text: f.text, closes: f.closes } });
   }
 
@@ -267,10 +287,10 @@ export function managerReaction(answer: 'comply' | 'refuse', tone: ManagerTone) 
     ][tone];
   }
   return [
-    'Anlaşıldı. Bu konuyu performans değerlendirmesinde konuşuruz.',
-    'Yeni başladınız; bu şirketin nasıl işlediğini henüz bilmiyorsunuz. Not alınmıştır.',
-    'Sayın uzman, talimatlara uyulmadığı kayda geçmiştir.',
-    'Yarın saat 09:00\'da İK direktörüyle birlikte odamda olunuz.',
+    'Peki. Bu kararın sorumluluğu sizde. Deneme sürecinizde bunu da konuşacağız.',
+    'Deneme süresindeki birinin müdürüne hayır demesi… İlginç bir tercih. Not aldım.',
+    'Talimatıma ikinci kez uymuyorsunuz. Bu, deneme değerlendirmenize aynen bu şekilde yazılacak.',
+    'Yeter. Bu ekipte benimle değil bana karşı çalışıyorsunuz. Yarın sabah İK direktörüyle birlikte odamdasınız.',
   ][tone];
 }
 
