@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 
-/** Counts from 0 to `value` with an ease-out, once. */
+const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+/** Counts from 0 to `value` with an ease-out, once — or shows it at once when motion is reduced. */
 export function CountUp({ value, duration = 1200, format = (n: number) => n.toLocaleString('tr-TR') }: { value: number; duration?: number; format?: (n: number) => string }) {
   const [shown, setShown] = useState(0);
+  const still = reducedMotion();
   useEffect(() => {
+    if (still) return;
     let raf = 0;
     const start = performance.now();
     const step = (now: number) => {
@@ -13,6 +17,6 @@ export function CountUp({ value, duration = 1200, format = (n: number) => n.toLo
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [value, duration]);
-  return <>{format(Math.round(shown))}</>;
+  }, [value, duration, still]);
+  return <>{format(Math.round(still ? value : shown))}</>;
 }
