@@ -3,27 +3,27 @@ import { NEIGHBOUR_ID, NEPHEW_ID, candidateOf } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
 
 /*
- * What a single decision is worth. The two scores measure different things on purpose:
+ * Tek bir kararın değeri. İki puan bilerek farklı şeyleri ölçer:
  *
- * Performans is how the company sees you, and the company sees you through its system. Going
- * along with the system's recommendation ("Öncelikli" in, a flagged file out) earns a little;
- * going against it costs more — the system is what your manager reads. It does not care whether
- * the file was any good: that shows on Friday, in who you end up hiring.
+ * Performans, şirketin seni nasıl gördüğüdür; şirket de seni kendi sistemi üzerinden görür.
+ * Sistemin önerisine uymak ("Öncelikli" içeri, işaretli bir dosya dışarı) biraz kazandırır; ona
+ * karşı gitmek daha fazlasına mal olur, çünkü müdürünün okuduğu şey sistemdir. Dosyanın iyi olup
+ * olmadığını umursamaz: bu Cuma, kimi işe aldığında ortaya çıkar.
  *
- * Vicdan is how you decided, not what. There are three interview slots a day and nearly
- * everyone is good, so turning people away is unavoidable and, done after reading the file,
- * costs nothing. What costs you is turning a strong person away for a biased proxy ("career
- * stage", "continuity risk", a gap) without even reading them, or signing off the system's
- * favourite unread. What earns you something is looking past the flag and giving that person
- * the slot, checking a reference, refusing a favour.
+ * Vicdan neye değil, nasıl karar verdiğindir. Günde üç mülakat hakkı var ve neredeyse herkes iyi;
+ * bu yüzden insanları geri çevirmek kaçınılmazdır ve dosyayı okuduktan sonra yapılırsa hiçbir şeye
+ * mal olmaz. Sana mal olan, güçlü birini önyargılı bir vekil ("kariyer aşaması", "devamlılık
+ * riski", bir boşluk) yüzünden okumadan bile geri çevirmek ya da sistemin gözdesini okumadan
+ * onaylamaktır. Sana bir şey kazandıran, işaretin ötesine bakıp o kişiye hakkı vermek, bir
+ * referansı kontrol etmek, bir ricayı reddetmektir.
  *
- * Neither score moves for simply closing a file, so neither one climbs just by working fast.
+ * Bir dosyayı yalnızca kapatmak iki puanı da oynatmaz; böylece ikisi de sadece hızlı çalışarak tırmanmaz.
  */
 
 export interface DecisionEffect {
   performans: number;
   vicdan: number;
-  /** One line shown right after you decide. */
+  /** Karar verdikten hemen sonra gösterilen tek satır. */
   reason: string;
 }
 
@@ -35,7 +35,7 @@ export function systemVerdict(c: Pick<Candidate, 'verdict'>): SystemVerdict {
 
 const NEPHEW = NEPHEW_ID;
 const NEIGHBOUR = NEIGHBOUR_ID;
-/** The system's concern about this file is real: rejecting it is not rejecting a proxy. */
+/** Sistemin bu dosya hakkındaki kaygısı gerçek: onu reddetmek bir vekili reddetmek değil. */
 const fairFlag = (id: string) => !!candidateOf(id).flagIsFair;
 
 const FLAG_WORDS: Record<string, string> = {
@@ -46,26 +46,26 @@ const FLAG_WORDS: Record<string, string> = {
   questions: 'şirket sorularına verdiği cevaplar',
 };
 
-/** Seconds of reading (with the CV on screen) before a decision counts as considered. */
+/** Bir kararın düşünülmüş sayılması için gereken okuma saniyesi (CV ekrandayken). */
 export const CONSIDERED_SECONDS = 12;
 
 export interface ReadingContext {
   secondsSpent: number;
-  /** The CV was seen to its end: scrolled down, or it fit on the screen. */
+  /** CV sonuna kadar görüldü: aşağı kaydırıldı ya da ekrana sığdı. */
   readThrough: boolean;
   referenceChecked: boolean;
 }
 
 /**
- * Was the file actually read? Time alone can be waited out with the CV half off screen, so it
- * also has to have been seen to the end — the company's questions sit at the bottom. A
- * reference call counts on its own: you didn't take the file at its word.
+ * Dosya gerçekten okundu mu? Süre, CV yarı ekran dışındayken beklenerek doldurulabilir; bu yüzden
+ * sonuna kadar görülmüş de olmalı, şirketin soruları en altta durur. Bir referans araması kendi
+ * başına sayılır: dosyaya olduğu gibi inanmadın.
  */
 export function wasConsidered(ctx: ReadingContext) {
   return (ctx.secondsSpent >= CONSIDERED_SECONDS && ctx.readThrough) || ctx.referenceChecked;
 }
 
-/** How the company scores going with (or against) its system. */
+/** Şirketin, sistemine uymayı (ya da karşı gitmeyi) nasıl puanladığı. */
 const COMPANY: Record<SystemVerdict, Record<Decision, number>> = {
   priority: { approve: 2, reject: -2 },
   review: { approve: 0, reject: 1 },
@@ -73,13 +73,13 @@ const COMPANY: Record<SystemVerdict, Record<Decision, number>> = {
   out: { approve: -2, reject: 1 },
 };
 
-/** A strong file (by how the person actually turns out; the CV shows it to whoever reads it). */
+/** Güçlü bir dosya (kişinin gerçekte nasıl çıktığına göre; CV bunu okuyana gösterir). */
 export const isStrong = (id: string) => (candidateDetails[id]?.hireFit ?? 3) >= 4;
 const isWeak = (id: string) => (candidateDetails[id]?.hireFit ?? 3) <= 2;
 
 /**
- * A file the system pushed down for a proxy rather than a real concern — the people the
- * week is about. Rejecting one of them is where reading the file matters.
+ * Sistemin gerçek bir kaygı yerine bir vekil yüzünden aşağı ittiği bir dosya: haftanın konusu olan
+ * insanlar. Bunlardan birini reddetmek, dosyayı okumanın önemli olduğu yerdir.
  */
 export function isWronglyFlagged(id: string) {
   const verdict = systemVerdict(candidateOf(id));
@@ -94,7 +94,9 @@ export function decisionEffect(id: string, decision: Decision, ctx: ReadingConte
   const verdict = systemVerdict(c);
   const considered = wasConsidered(ctx);
   const checked = ctx.referenceChecked ? 1 : 0;
-  const performans = COMPANY[verdict][decision];
+  // sistemin gözdesini okuyup gerçekten zayıf bulmak: şirket yine sever onu, ama Ümit'in ekibi seni haklı bulur
+  const seenThrough = decision === 'reject' && verdict === 'priority' && considered && isWeak(id);
+  const performans = seenThrough ? -1 : COMPANY[verdict][decision];
 
   if (id === NEPHEW) {
     return decision === 'approve'
@@ -121,7 +123,7 @@ export function decisionEffect(id: string, decision: Decision, ctx: ReadingConte
     return { performans, vicdan: checked, reason: verdict === 'priority' ? `${first}: sistemin önerisiyle mülakata çağrıldı.` : `${first}: mülakata çağrıldı.` };
   }
 
-  // rejected
+  // reddedildi
   if (isWronglyFlagged(id) && isStrong(id)) {
     if (!considered) return { performans, vicdan: -2, reason: `${first}: dosyası okunmadan, "${flag}" gerekçesiyle elendi.` };
     return { performans, vicdan: checked, reason: `${first}: güçlü bir aday elendi. En azından dosyasını okuyarak karar verdin.` };
@@ -138,11 +140,11 @@ export function decisionEffect(id: string, decision: Decision, ctx: ReadingConte
   return { performans, vicdan: checked, reason: isWeak(id) ? `${first}: dosya gerçekten zayıftı. Yerinde bir ret.` : `${first}: elendi.` };
 }
 
-/** End of day: interview slots left empty while strong, wrongly flagged people were turned away. */
+/** Gün sonu: güçlü ve haksız işaretlenmiş insanlar geri çevrilirken boş kalan mülakat hakları. */
 export function unusedSlotCost(slotsLeft: number, strongRejected: number): number {
   return strongRejected > 0 ? Math.min(slotsLeft, strongRejected) : 0;
 }
 
-/** End of day: files still open when you leave. The company counts every one. */
+/** Gün sonu: çıkarken hâlâ açık olan dosyalar. Şirket her birini sayar. */
 export const OPEN_FILE_PERFORMANS = 2;
 export const OPEN_FILE_PERFORMANS_CAP = 6;

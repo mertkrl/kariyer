@@ -1,9 +1,9 @@
 /*
- * The week's story beyond the CV queue: the meeting, rejection notices, the interviews, the hire and Friday's offer.
+ * CV kuyruğunun ötesinde haftanın hikâyesi: toplantı, ret bildirimleri, mülakatlar, işe alım ve Cuma'nın teklifi.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
-import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from '../storeDefaults';
+import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from '../storeDefaults';
 import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../clock';
 import { MEETING_MINUTES, OPTIONS } from '../meeting';
 import { REPLY_BACK, TEMPLATE_MINUTES, outboxMails, replyBackMail } from '../rejectionMails';
@@ -19,10 +19,10 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     set((state) => ({
       forbiddenAsked: state.forbiddenAsked + 1,
       performans: clampScore(state.performans + 2),
-      vicdan: clampScore(state.vicdan - 4) })),
+      vicdan: addVicdan(state.vicdan, -4) })),
 
   settleOffer: (result) =>
-    set((state) => (state.story.offer ? {} : { story: { ...state.story, offer: result }, vicdan: clampScore(state.vicdan + result.vicdan) })),
+    set((state) => (state.story.offer ? {} : { story: { ...state.story, offer: result }, vicdan: addVicdan(state.vicdan, result.vicdan) })),
 
   finishOffer: () => set({ phase: 'weekend' }),
 
@@ -33,7 +33,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       return {
         dmHandled: { ...state.dmHandled, [candidateId]: kind },
         performans: clampScore(state.performans + e.performans),
-        vicdan: clampScore(state.vicdan + e.vicdan) };
+        vicdan: addVicdan(state.vicdan, e.vicdan) };
     }),
 
   finishWeekend: () => set({ phase: 'final' }),
@@ -44,21 +44,21 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     set((state) => ({
       interviewStance: { ...state.interviewStance, [protect ? 'protected' : 'silent']: state.interviewStance[protect ? 'protected' : 'silent'] + 1 },
       performans: clampScore(state.performans + (protect ? -3 : 0)),
-      vicdan: clampScore(state.vicdan + (protect ? 3 : -3)) })),
+      vicdan: addVicdan(state.vicdan, (protect ? 3 : -3)) })),
 
   answerCandidate: (honest) =>
     set((state) => ({
       interviewStance: { ...state.interviewStance, [honest ? 'honest' : 'polished']: state.interviewStance[honest ? 'honest' : 'polished'] + 1 },
       performans: clampScore(state.performans + (honest ? -1 : 1)),
-      vicdan: clampScore(state.vicdan + (honest ? 2 : -2)) })),
+      vicdan: addVicdan(state.vicdan, (honest ? 2 : -2)) })),
 
   hire: (recommended, panel) => {
     const state = get();
     if (state.phase !== 'finalRound' || state.hiredId) return;
-    // you only recommend; the panel (you, Ümit, Hakan Bey) decides
+    // sen yalnızca önerirsin; kurul (sen, Ümit, Hakan Bey) karar verir
     const id = panelDecision(recommended, state.finalists.length ? state.finalists : [{ id: NEPHEW_ID, day: 0 }], state.story.pastRequests, panel).hired;
-    // How the hire actually works out moves Performans; hiring someone the system had
-    // written off, and who turns out great, is what the Vicdan bar is about.
+    // İşe alınanın gerçekte nasıl çıktığı Performans'ı oynatır; sistemin silip attığı
+    // birini işe almak ve onun harika çıkması ise Vicdan çubuğunun konusudur.
     const fit = candidateDetails[id]?.hireFit ?? 3;
     const performans = Math.max(0, Math.min(100, state.performans + (fit - 3) * 6));
     const vicdan = Math.max(0, Math.min(100, state.vicdan + (fit >= 4 ? 4 : fit <= 2 ? -4 : 0)));
@@ -74,14 +74,14 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
       meeting: { state: 'done', choice },
       workdayMinutes: state.workdayMinutes + MEETING_MINUTES,
       performans: clampScore(state.performans + (option?.performans ?? 0)),
-      vicdan: clampScore(state.vicdan + (option?.vicdan ?? 0)) });
+      vicdan: addVicdan(state.vicdan, (option?.vicdan ?? 0)) });
   },
 
   planRejectionMails: (choices) => {
     const state = get();
     if (state.rejectionMailsSent) return;
     const day = state.currentDayIndex;
-    // writing takes time: only for notices that are new or changed
+    // yazmak zaman alır: yalnızca yeni ya da değişen bildirimler için
     const minutes = Object.entries(choices).reduce((m, [id, t]) => m + (state.plannedRejections[id] === t ? 0 : TEMPLATE_MINUTES[t]), 0);
     const count = Object.values(choices).filter((t) => t !== 'none').length;
     const late = state.workdayMinutes >= MAIL_SEND_AT;
@@ -97,7 +97,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     sound().playUi('confirm');
     spendMinutes(Math.round(minutes));
     const after = get();
-    // past 17:00 there is nothing to wait for
+    // 17:00'den sonra beklenecek bir şey yok
     if (after.workdayMinutes >= MAIL_SEND_AT && !mailsPending(after)) {
       dispatchRejections();
       const done = get();
@@ -112,12 +112,12 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     const state = get();
     if (state.phase !== 'finalRound') return;
     const { effect } = salaryTalk(id, move);
-    set({ performans: clampScore(state.performans + effect.performans), vicdan: clampScore(state.vicdan + effect.vicdan) });
+    set({ performans: clampScore(state.performans + effect.performans), vicdan: addVicdan(state.vicdan, effect.vicdan) });
   },
   answerCandidateMail: (mailId, kind) => {
     const state = get();
     const reply = state.extraMails.find((m) => m.id === mailId);
-    // one answer per mail: it is already in "Gönderilenler"
+    // e-posta başına bir cevap: zaten "Gönderilenler"de
     if (!reply || state.extraMails.some((m) => m.id === `answer-${mailId}`)) return;
     const sent = replyBackMail(reply, kind, state.currentDayIndex, state.workdayMinutes);
     const option = REPLY_BACK.find((o) => o.kind === kind);
@@ -126,7 +126,7 @@ export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 
     set({
       extraMails: [...state.extraMails, sent],
       performans: clampScore(state.performans + option.effect.performans),
-      vicdan: clampScore(state.vicdan + option.effect.vicdan),
+      vicdan: addVicdan(state.vicdan, option.effect.vicdan),
     });
   },
 

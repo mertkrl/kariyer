@@ -1,7 +1,7 @@
 /*
- * The company inbox on your computer: onboarding, IT notices, the manager's formal side (the
- * favours come by phone), the building, a colleague's cake — and a bounce from an address that
- * no longer exists. Mail arrives at its time of day and stays in the inbox all week.
+ * Bilgisayarındaki şirket gelen kutusu: oryantasyon, bilgi işlem duyuruları, müdürün resmî
+ * yüzü (ricalar telefonla gelir), bina ve bir iş arkadaşının pastası. E-posta günün kendi
+ * saatinde gelir ve bütün hafta gelen kutusunda kalır.
  */
 
 import { PLAYER } from './player';
@@ -9,21 +9,21 @@ import { PLAYER } from './player';
 export interface Mail {
   id: string;
   day: number;
-  /** Workday minute it arrives. */
+  /** Geldiği mesai dakikası. */
   at: number;
   from: string;
   address: string;
   subject: string;
   body: string;
-  /** Flagged in red in the list. */
+  /** Listede kırmızıyla işaretli. */
   important?: boolean;
-  /** Mail you sent sits in "Gönderilenler", mail waiting for 17:00 in "Giden Kutusu"; everything else is the inbox. */
+  /** Gönderdiğin e-posta "Gönderilenler"de, 17:00'yi bekleyen e-posta "Giden Kutusu"nda durur; geri kalan her şey gelen kutusudur. */
   folder?: 'inbox' | 'sent' | 'outbox';
-  /** Sent mail: who it went to. */
+  /** Gönderilen e-posta: kime gittiği. */
   to?: string;
-  /** A candidate writing back: it pops up like important mail. */
+  /** Cevap yazan bir aday: önemli e-posta gibi açılır. */
   reply?: boolean;
-  /** An attachment shown under the mail: this week's interview list, or Hakan Bey's question list. */
+  /** E-postanın altında gösterilen ek: bu haftanın mülakat listesi ya da Hakan Bey'in soru listesi. */
   attachment?: { name: string; kind: 'finalists' | 'questions' };
 }
 
@@ -178,6 +178,24 @@ Kolay gelsin,
 Ümit`,
   },
   {
+    // Ümit'in yanıldığı tek dosya: Perşembe e-postasında bunu kendisi söyler (echoes.leventMail)
+    id: 'levent-ozan',
+    day: 1,
+    at: 510,
+    from: 'Ümit Arslan',
+    address: 'umit.arslan@tavrinsalabs.test',
+    subject: 'Yarın kuyruğunda Ozan Tan olacak',
+    body: `Merhaba ${PLAYER.first},
+
+Yarın kuyruğuna Ozan Tan düşecek. Sistem maaş beklentisine takılmış olabilir, referansında da bir şeyler yazıyor olabilir; takılma.
+
+Ozan'ın kodunu iki yıl önce bir konferansta gördüm. Bu ilana başvuranların teknik olarak en iyisi o, eminim. Referanslar bazen eski ekiplerin kırgınlığıdır.
+
+Çağırırsan Cuma ben de bakarım.
+
+Ümit`,
+  },
+  {
     id: 'crash',
     day: 3,
     at: 0,
@@ -256,7 +274,7 @@ Güvenlik kameralarının kayıtları düzenli olarak incelenmektedir.
   },
 ];
 
-/** Everything in the inbox by now (this week, up to this minute), newest first. */
+/** Şimdiye kadar gelen kutusundaki her şey (bu hafta, bu dakikaya kadar), en yeni önce. */
 export function inbox(dayIndex: number, minutes: number, extra: Mail[] = []): Mail[] {
   return [...MAILS, ...extra].filter((m) => m.day < dayIndex || (m.day === dayIndex && m.at <= minutes)).sort((a, b) => b.day - a.day || b.at - a.at);
 }

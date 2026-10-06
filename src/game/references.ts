@@ -1,10 +1,10 @@
 import { candidateOf } from './data/candidates';
 
 /*
- * Reference checks over the landline: you dial a candidate's former employer to test a claim
- * on the CV. It costs time — and it's the only way to learn that Derya's gap really was her
- * mother, that Kerem was cut for his salary rather than his work, or that one of Volkan's
- * glowing references has never heard of him.
+ * Sabit hattan referans kontrolü: CV'deki bir iddiayı sınamak için adayın eski işvereni aranır.
+ * Zamana mal olur ve şunları öğrenmenin tek yolu budur: Derya'nın boşluğunun gerçekten babasının
+ * batan şirketi olduğu, Kerem'in işi yüzünden değil maaşı yüzünden çıkarıldığı ya da Volkan'ın
+ * parlak referanslarından birinin onu hiç duymadığı.
  */
 
 export type ReferenceVerdict = 'ok' | 'mixed' | 'warn';
@@ -13,7 +13,7 @@ export interface ReferenceCheck {
   who: string;
   lines: string[];
   verdict: ReferenceVerdict;
-  /** Shown on the candidate's card afterwards. */
+  /** Sonrasında adayın kartında gösterilir. */
   summary: string;
 }
 
@@ -43,7 +43,7 @@ const SPECIAL: Record<string, ReferenceCheck> = {
     verdict: 'ok',
     summary: 'Yarı zamanlı ama kütüphanenin yarısını yazmış. "Maaşlı deneyim" görünmüyor, işi kıdemli.',
   },
-  emre: {
+  ozan: {
     who: 'Globalsoft · eski genel müdürü',
     lines: ['Ozan mı… İşinin ehli, açık ara en iyisi. Sistemimizi o ayakta tuttu.', 'Ama bunu da bilin: ekipte iki kişi onun yüzünden istifa etti. Kimseyi dinlemez, kimseyi beğenmez.', 'İşe alırsanız bir süper yıldız alırsınız. Ekip mi ister, yıldız mı? Siz bilirsiniz.'],
     verdict: 'mixed',
@@ -65,7 +65,7 @@ const SPECIAL: Record<string, ReferenceCheck> = {
 
 const NONE = /^(Yok|Belirtilmemiş)/;
 
-/** The reference you'd get on the phone, or null when there is nobody to call. */
+/** Telefonda alacağın referans ya da aranacak kimse yoksa null. */
 export function referenceFor(id: string): ReferenceCheck | null {
   if (SPECIAL[id]) return SPECIAL[id];
   const c = candidateOf(id);

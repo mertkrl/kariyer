@@ -1,7 +1,7 @@
 /*
- * The store's starting values and small pure helpers: fresh desk/story/week records, score
- * clamping, today's lineup and interview quota, hard mode's surprises. Sound preferences live in
- * prefs.ts.
+ * Store'un başlangıç değerleri ve küçük saf yardımcılar: yeni masa/hikâye/hafta kayıtları, puan
+ * sınırlama, bugünün kadrosu ve mülakat kontenjanı, zor modun sürprizleri. Ses tercihleri
+ * prefs.ts'de yaşar.
  */
 import { COFFEE_SIPS } from './desk';
 import { type DayEvent, type DeskState, type DmKind, type GameState, type InterviewStance, type StoryState, type WeekLog } from './storeTypes';
@@ -12,12 +12,12 @@ import { shuffle } from './rng';
 import { type ThreadId } from './manager';
 import { THURSDAY } from './weekdays';
 import type { ReadingContext } from './engine/scoring';
-/** Today's candidate queue (randomised per game; see lineups.ts). */
+/** Bugünün aday kuyruğu (her oyunda rastgele; bkz. lineups.ts). */
 export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>, dayIndex = state.currentDayIndex): string[] {
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;
 }
 
-/** Remaining final-round slots: today's daily cap and the week-wide cap, whichever is tighter. */
+/** Kalan final yuvaları: bugünün günlük sınırı ile haftalık sınırdan hangisi daha darsa. */
 export function approvalQuota(state: Pick<GameState, 'currentDayIndex' | 'decisions' | 'finalists' | 'lineups'> & { quotaCut?: boolean }) {
   const day = days[state.currentDayIndex];
   const approvedToday = lineupFor(state).filter((id) => state.decisions[id] === 'approve').length;
@@ -34,14 +34,14 @@ export function approvalQuota(state: Pick<GameState, 'currentDayIndex' | 'decisi
 
 export const emptyWeek = (): WeekLog => ({ reviewTicks: 0, reviewed: 0, momMessages: 0, momAnswered: 0, managerIgnored: 0, events: 0 });
 
-/** Game minutes that pass per second of play. */
+/** Oyunun her saniyesinde geçen oyun dakikası. */
 const CLOCK_SPEED: Record<Difficulty, number> = { relaxed: 0.6, normal: 1, hard: 1.35 };
 export const minutesPerTick = (d: Difficulty) => MINUTES_PER_TICK * CLOCK_SPEED[d];
 
 export const EVENT_LENGTH: Record<EventKind, number> = { power: 20, meeting: 4, it: 60, calendar: 5, weather: 6 };
 
 export function planEvents(rand: () => number): DayEvent[] {
-  // hard mode's surprises: nothing that just eats the clock (no "5-minute" meetings)
+  // zor modun sürprizleri: yalnızca saati yiyen hiçbir şey yok ("5 dakikalık" toplantı yok)
   const kinds = shuffle<EventKind>(['power', 'it'], rand);
   return [
     { kind: kinds[0], at: Math.round(90 + rand() * 120) },
@@ -65,13 +65,13 @@ export const DM_EFFECT: Record<DmKind, { performans: number; vicdan: number }> =
   template: { performans: 0, vicdan: 0 },
   ignore: { performans: 0, vicdan: -1 } };
 
-/** A conscience this low keeps you up at night: you start the next day late. */
+/** Bu kadar düşük bir vicdan geceleri uyutmaz: ertesi güne geç başlarsın. */
 export const SLEEPLESS_BELOW = 35;
 export const SLEEPLESS_MINUTES = 25;
-/** Thursday the whole team stays late (no AI): until 19:00. */
+/** Perşembe bütün ekip geç saate kadar kalır (yapay zekâ yok): 19:00'a kadar. */
 export const TEAM_LATE_DAY = THURSDAY;
 export const TEAM_LATE_END = 11 * 60;
-/** Writing up a reason for a rejection, once Hakan Bey asks for one. */
+/** Hakan Bey istedikten sonra bir ret için gerekçe yazmak. */
 export const JUSTIFY_MINUTES = 3;
 
 export const emptyStance = (): InterviewStance => ({ protected: 0, silent: 0, honest: 0, polished: 0 });
@@ -81,7 +81,21 @@ export const emptyStats = (): DayStats => ({ approved: 0, rejected: 0, autoRejec
 export const noUnread = (): Record<ThreadId, number> => ({ manager: 0, mom: 0, office: 0, ayse: 0, birthday: 0 });
 export const clampScore = (v: number) => Math.max(0, Math.min(100, v));
 
-/** How a file was read, as the scoring weighs it. */
+/** Bunun altında Vicdan kayıpları küçülür: gösterge dibe yapışıp susmasın, toparlanma hep mümkün kalsın. */
+export const VICDAN_SOFT_FLOOR = 40;
+
+/**
+ * Vicdan'a bir değişiklik uygular. Kazançlar olduğu gibi işler; kayıplar VICDAN_SOFT_FLOOR'un altında
+ * orantılı olarak hafifler (en az dörtte birine). Hızlı ama kayıtsız bir hafta yine düşük biter,
+ * ama Salı sabahı sıfırda kilitlenmez.
+ */
+export function addVicdan(current: number, delta: number) {
+  if (delta >= 0 || current >= VICDAN_SOFT_FLOOR) return clampScore(current + delta);
+  const factor = Math.max(0.25, current / VICDAN_SOFT_FLOOR);
+  return clampScore(current + Math.round(delta * factor));
+}
+
+/** Bir dosyanın, puanlamanın tarttığı biçimde nasıl okunduğu. */
 export function readingOf(state: Pick<GameState, 'timeSpent' | 'readThrough' | 'referenceChecks'>, id: string): ReadingContext {
   return { secondsSpent: state.timeSpent[id] ?? 0, readThrough: Boolean(state.readThrough[id]), referenceChecked: Boolean(state.referenceChecks[id]) };
 }

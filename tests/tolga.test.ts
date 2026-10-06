@@ -1,35 +1,44 @@
 /*
- * Tolga's thread: on the day the AI is down, IT's fix turns out to be his open-source patch,
- * and the call that says so knows what you did with his file that morning.
+ * Tolga'nın hikâyesi: onu mülakata çağırdıysan Perşembe Kars'ta kar yolu kapatır ve görüşmeyi
+ * ekrandan yapmayı rica eder. "Yüz yüze şart" dersen ya da açmazsan listeden düşer.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { callsForDay } from '../src/game/desk';
-import { callFor, tolgaPatchCall } from '../src/game/managerCalls';
+import { SNOW_CALL_AT, SNOW_CALL_ID, callFor, strandFinalist, tolgaSnowCall } from '../src/game/managerCalls';
 import { days } from '../src/game/data/days';
 import { THURSDAY } from '../src/game/weekdays';
 import { KEY_CHARACTERS } from '../src/game/story';
+import type { GameState } from '../src/game/storeTypes';
 
-test('tolga: yama araması yapay zekânın çöktüğü gün, öğleden sonra çalar', () => {
-  const call = callsForDay(THURSDAY).find((c) => c.id === 'it-patch');
-  assert.ok(call);
-  assert.equal(days[THURSDAY].aiDown, true);
+test('tolga: kar araması Perşembe öğleden sonra, 17:00\'den önce', () => {
   assert.ok(days[THURSDAY].candidateIds.includes('tolga'));
-  assert.ok(call.at > 6 * 60 && call.at < 9 * 60, 'öğle arasından sonra, 17:00\'den önce');
+  assert.ok(SNOW_CALL_AT > 6 * 60 && SNOW_CALL_AT < 9 * 60);
 });
 
-test('tolga: arama, sabah dosyasıyla ne yaptığını bilir', () => {
-  const text = (d: 'approve' | 'reject' | undefined) => tolgaPatchCall(d, THURSDAY).lines.join(' ');
-  assert.match(text('reject'), /kuyruğunda değil miydi/);
-  assert.match(text('approve'), /Mülakata çağırmışsın/);
-  assert.match(text(undefined), /duruyor olabilir mi/);
-  for (const d of ['approve', 'reject', undefined] as const) assert.equal(tolgaPatchCall(d, THURSDAY).choices.length, 2);
-  const viaStore = callFor({ managerRequests: [], managerStance: { refusals: 0, complies: 0 } as never, currentDayIndex: THURSDAY, desk: { calls: {} } as never, decisions: { tolga: 'reject' } }, 'it-patch');
-  assert.match(viaStore?.lines.join(' ') ?? '', /kuyruğunda değil miydi/);
+test('tolga: arama ekrandan görüşme ister; biri kabul, biri listeden düşürür', () => {
+  const call = tolgaSnowCall(THURSDAY);
+  assert.match(call.lines.join(' '), /Kars/);
+  assert.equal(call.choices.length, 2);
+  assert.equal(call.choices.filter((c) => c.strand === 'tolga').length, 1);
+  const viaStore = callFor({ managerRequests: [], managerStance: { refusals: 0, complies: 0 } as never, currentDayIndex: THURSDAY, desk: { calls: {} } as never }, SNOW_CALL_ID);
+  assert.equal(viaStore?.caller, 'Tolga Şen');
 });
 
-test('tolga: bir yıl sonrası yamayı hatırlar', () => {
+test('tolga: listeden düşen aday hikâyeye "gelemedi" diye yazılır', () => {
+  const state = { finalists: [{ id: 'tolga' }, { id: 'kerem' }], story: { stranded: undefined } } as unknown as GameState;
+  const patch = strandFinalist(state, 'tolga');
+  assert.deepEqual(patch.finalists?.map((f) => f.id), ['kerem']);
+  assert.deepEqual(patch.story?.stranded, ['tolga']);
   const tolga = KEY_CHARACTERS.find((k) => k.id === 'tolga');
-  assert.ok(tolga);
-  for (const line of Object.values(tolga.epilogue)) assert.match(line, /yama|sistem/i);
+  assert.ok(tolga?.stranded);
+  assert.doesNotMatch(Object.values(tolga.epilogue).join(' '), /yama/);
+});
+
+test('tolga: bütün hafta oynanınca, Perşembe çağrılan Tolga için kar araması gerçekten çalar', async () => {
+  const { playWeek } = await import('./support/bot');
+  const { useGameStore } = await import('../src/game/store');
+  playWeek(4242, { read: () => 3, decide: (id) => (id === 'tolga' ? 'approve' : 'reject'), comply: () => false });
+  const st = useGameStore.getState();
+  assert.equal(st.desk.calls[SNOW_CALL_ID], 'answered');
+  assert.ok(st.finalists.some((f) => f.id === 'tolga'), 'ekrandan görüşmeyi kabul edince listede kalır');
 });

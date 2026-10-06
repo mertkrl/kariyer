@@ -1,6 +1,6 @@
 import type { DayConfig } from '../types';
 
-/** Across days 1–4 at most this many candidates can be advanced to the final. */
+/** 1–4. günler boyunca finale en fazla bu kadar aday ilerletilebilir. */
 export const FINALIST_LIMIT = 10;
 
 export const days: DayConfig[] = [
@@ -60,7 +60,7 @@ export const days: DayConfig[] = [
       'Maaş beklentisini bütçeyle birlikte değerlendir.',
     ],
     approvalLimit: 3,
-    candidateIds: ['emre', 'cem', 'aylin', 'nihan', 'burak', 'duygu', 'yusuf', 'murat', 'ferhat', 'seda'],
+    candidateIds: ['ozan', 'cem', 'aylin', 'nihan', 'burak', 'duygu', 'yusuf', 'murat', 'ferhat', 'seda'],
     companyQuestions: [
       'Maaş beklentinizin gerekçesi nedir?',
       'Bu teklifi neden kabul etmelisiniz, biz neden sizi seçmeliyiz?',

@@ -1,11 +1,11 @@
 /*
- * The phones: answering texts and the manager's requests, reading, muting group chats.
+ * Telefonlar: mesajları ve müdürün ricalarını cevaplamak, okumak, grup sohbetlerini sessize almak.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
 import { REPLY_EFFECT, managerReaction, managerTone, replyText } from '../manager';
 import { sound } from '../sound';
-import { clampScore } from '../storeDefaults';
+import { clampScore, addVicdan } from '../storeDefaults';
 import { takeMessageId } from '../clock';
 import { later } from '../later';
 
@@ -23,11 +23,11 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
           refusals: state.managerStance.refusals + (reply.stance === 'refuse' ? 1 : 0),
           complies: state.managerStance.complies + (reply.stance === 'comply' ? 1 : 0) }
       : state.managerStance;
-    // what you say matters — and so does writing back to Mom at all
+    // ne söylediğin önemli; anneye geri yazıp yazmadığın da
     const momCare = msg.thread === 'mom' ? 1 : 0;
     set({
       performans: clampScore(state.performans + (reply.performans ?? 0)),
-      vicdan: clampScore(state.vicdan + (reply.vicdan ?? 0) + momCare),
+      vicdan: addVicdan(state.vicdan, (reply.vicdan ?? 0) + momCare),
       managerStance: stance,
       story: reply.neighbourCv ? { ...state.story, neighbourCv: true } : state.story,
       typingThread: msg.thread,
@@ -51,7 +51,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
         ],
         typingThread: s2.typingThread === msg.thread ? null : s2.typingThread,
         phoneUnread: { ...s2.phoneUnread, [msg.thread]: s2.phoneUnread[msg.thread] + 1 },
-        // the private half of the answer arrives later, through the normal message pacing
+        // cevabın özel yarısı sonra, normal mesaj temposuyla gelir
         managerScript: reply.aside
           ? [
               ...s2.managerScript,
@@ -79,9 +79,9 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
       ],
       managerStance: stance,
       performans: clampScore(state.performans + effect.performans),
-      vicdan: clampScore(state.vicdan + effect.vicdan) });
+      vicdan: addVicdan(state.vicdan, effect.vicdan) });
     sound().playUi('click');
-    // The manager "types" for a moment before reacting.
+    // Müdür tepki vermeden önce bir an "yazıyor".
     later(() => {
       const s2 = get();
       if (s2.phase !== 'gameplay') return;

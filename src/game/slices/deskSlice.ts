@@ -1,5 +1,5 @@
 /*
- * The desk: the landline and its calls, coffee, the flower, the water cooler, reference calls.
+ * Masa: sabit hat ve aramaları, kahve, çiçek, sebil, referans aramaları.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
@@ -7,11 +7,11 @@ import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THO
 import { referenceFor } from '../references';
 import { REPLY_EFFECT, requestIsFair } from '../manager';
 import { sound } from '../sound';
-import { callFor, revokeInvites, revokeTargets } from '../managerCalls';
-import { clampScore } from '../storeDefaults';
+import { callFor, revokeInvites, revokeTargets, strandFinalist } from '../managerCalls';
+import { clampScore, addVicdan } from '../storeDefaults';
 import { isOnBreak, spendMinutes } from '../clock';
 
-/** Your share of the team's pizza: three slices, a few minutes each. */
+/** Ekibin pizzasından payın: üç dilim, her biri birkaç dakika. */
 export const PIZZA_SLICES = 3;
 const PIZZA_MINUTES = 4;
 const PIZZA_THOUGHTS = [
@@ -36,14 +36,14 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
       set({
         referenceChecks: ref ? { ...state.referenceChecks, [cid]: ref.verdict } : state.referenceChecks,
         desk: { ...state.desk, inCall: null, calls: { ...state.desk.calls, [id]: 'answered' } } });
-      // checking a reference costs no time on the clock: the check is the point, not a penalty
+      // bir referansı kontrol etmek saatten zaman almaz: önemli olan kontrol, ceza değil
       return;
     }
     if (id?.startsWith(REQUEST_CALL_PREFIX)) {
       const requestId = id.slice(REQUEST_CALL_PREFIX.length);
       const answer = choice === 0 ? 'comply' : 'refuse';
       const req = state.managerRequests.find((r) => r.id === requestId);
-      // saying yes to a request the file backs up isn't a compromise
+      // dosyanın desteklediği bir ricaya evet demek bir taviz değil
       const effect = req && requestIsFair(req) ? { performans: REPLY_EFFECT[answer].performans, vicdan: 0 } : REPLY_EFFECT[answer];
       set({
         managerRequests: state.managerRequests.map((r) => (r.id === requestId ? { ...r, answer } : r)),
@@ -51,7 +51,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
           refusals: state.managerStance.refusals + (answer === 'refuse' ? 1 : 0),
           complies: state.managerStance.complies + (answer === 'comply' ? 1 : 0) },
         performans: clampScore(state.performans + effect.performans),
-        vicdan: clampScore(state.vicdan + effect.vicdan),
+        vicdan: addVicdan(state.vicdan, effect.vicdan),
         desk: { ...state.desk, inCall: null, calls: { ...state.desk.calls, [id]: 'answered' } } });
       spendMinutes(4);
       return;
@@ -61,11 +61,12 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     const c = call.choices[choice];
     set({
       performans: clampScore(state.performans + (c?.performans ?? 0)),
-      vicdan: clampScore(state.vicdan + (c?.vicdan ?? 0)),
-      // telling them the truth face to face counts as honest feedback
+      vicdan: addVicdan(state.vicdan, (c?.vicdan ?? 0)),
+      // onlara gerçeği yüz yüze söylemek dürüst geri bildirim sayılır
       dmHandled: c?.honestFor ? { ...state.dmHandled, [c.honestFor]: 'honest' } : state.dmHandled,
       story: c?.reform ? { ...state.story, reform: c.reform } : state.story,
       ...(c?.revoke ? { revokeDraft: revokeTargets(state.finalists) } : {}),
+      ...(c?.strand ? strandFinalist(state, c.strand) : {}),
       desk: {
         ...state.desk,
         inCall: c?.next ?? null,
@@ -79,7 +80,7 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     const state = get();
     const desk = state.desk;
     if (desk.coffee <= 0) {
-      // the kitchen: a fresh mug costs a few minutes
+      // mutfak: taze bir kupa birkaç dakikaya mal olur
       set({ desk: { ...desk, coffee: COFFEE_SIPS, refills: desk.refills + 1 } });
       const pour = sound().startPour('brew');
       pour.setFill(0.6);
@@ -137,6 +138,6 @@ export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, '
     set({
       ...revokeInvites(state, honest),
       revokeDraft: null,
-      vicdan: clampScore(state.vicdan + (honest ? -1 : -3)) });
+      vicdan: addVicdan(state.vicdan, (honest ? -1 : -3)) });
   },
 });

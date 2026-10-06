@@ -14,7 +14,7 @@ import { SessionReport } from './final/SessionReport';
 import styles from './FinalScreen.module.css';
 import { avatarStyle } from '../components/ui/avatarStyle';
 
-/** One year later — how the hire actually turned out (hidden fit revealed by the interviews). */
+/** Bir yıl sonra: işe alınan kişinin gerçekte nasıl çıktığı (mülakatların ortaya çıkardığı gizli uyum). */
 const HIRE_VERDICT: Record<number, string> = {
   5: 'Bir yıl sonra: ekibin en güvenilir ismi oldu. Yönetim "bu kişiyi nasıl bulduk?" diye soruyor.',
   4: 'Bir yıl sonra: sağlam, istikrarlı ve ekibin sevdiği biri. İyi bir seçimdi.',
@@ -48,7 +48,7 @@ export function FinalScreen() {
   const rejections = useGameStore((s) => s.rejectionStats);
   const story = useGameStore((s) => s.story);
   const selectedJobId = useGameStore((s) => s.selectedJobId);
-  // Hard mode starts the manager one refusal in; don't count that against you.
+  // Zor mod müdürü bir karşı çıkışla başlatır; o senin hanene yazılmaz.
   const refusals = Math.max(0, managerStance.refusals - (difficulty === 'hard' ? 1 : 0));
 
   const ending = getEnding(performans, vicdan, {
@@ -79,7 +79,7 @@ export function FinalScreen() {
     dmHonest: Object.values(dmHandled).filter((k) => k === 'honest').length,
   };
   const earned = ACHIEVEMENTS.filter((a) => a.test(input)).map((a) => a.id);
-  // Which of this week's achievements are brand new (read before we store them).
+  // Bu haftanın başarımlarından hangileri yepyeni (kaydetmeden önce okunur).
   const [fresh] = useState(() => {
     const before = loadUnlocked();
     return earned.filter((id) => !before.has(id));
@@ -94,11 +94,11 @@ export function FinalScreen() {
   }, []);
   const totalProcessed = totalStats.approved + totalStats.rejected;
 
-  // the game's address without the seed: a shared card invites people to their own week
+  // oyunun tohumsuz adresi: paylaşılan kart, insanları kendi haftalarına davet eder
   const gameUrl = `${window.location.origin}${window.location.pathname}`;
   const canShareFiles = typeof navigator.canShare === 'function';
 
-  /** On a phone: the system share sheet with the card attached. Elsewhere: download the card. */
+  /** Telefonda: kart ekli sistem paylaşım menüsü. Başka yerde: kartı indir. */
   const handleShareCard = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -117,7 +117,7 @@ export function FinalScreen() {
         await navigator.share({ files: [file], title: GAME_NAME, text: `"${ending.title}" — Performans ${performans} · Vicdan ${vicdan}. Sen olsan ne yapardın? ${gameUrl}` });
         return;
       } catch (e) {
-        // the player closed the share sheet: nothing more to do
+        // oyuncu paylaşım menüsünü kapattı: yapılacak bir şey yok
         if (e instanceof DOMException && e.name === 'AbortError') return;
       }
     }
@@ -195,7 +195,7 @@ export function FinalScreen() {
           {KEY_CHARACTERS.map((k) => {
             const c = candidateOf(k.id);
             const outcome = hiredId === k.id ? 'hired' : (story.keyDecisions[k.id] ?? 'none');
-            // turned away, but told the truth: honest feedback is the thing that helps
+            // geri çevrildi ama gerçek söylendi: işe yarayan şey dürüst geri bildirimdir
             const helped = outcome === 'reject' && dmHandled[k.id] === 'honest';
             return (
               <div key={k.id} className={`${styles.epiRow} ${outcome === 'reject' ? styles.epiReject : outcome === 'hired' ? styles.epiHired : ''}`}>
@@ -206,12 +206,12 @@ export function FinalScreen() {
                   <b>
                     {c.name} <small>· {k.who}</small>
                   </b>
-                  <span>{helped ? k.honest : k.epilogue[outcome]}</span>
+                  <span>{helped ? k.honest : outcome === 'approve' && k.stranded && story.stranded?.includes(k.id) ? k.stranded : k.epilogue[outcome]}</span>
                 </span>
               </div>
             );
           })}
-          {/* the other trial-period hire: the post had room for one of you */}
+          {/* deneme süresindeki diğer kişi: kadro ikinizden birine yetiyordu */}
           <div className={styles.epiRow}>
             <span className={styles.epiAvatar} style={avatarStyle('#6f8fa3')}>
               A

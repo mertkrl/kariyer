@@ -2,29 +2,31 @@ import type { Decision } from './types';
 import { EXTRA_FEMALE } from './data/extraCandidates';
 
 /*
- * "Sistemin Dişlisi" — the week's story.
+ * "Sistemin Dişlisi": haftanın hikâyesi.
  *
- * Under the daily grind run the five people the week's story hangs on: Okan (the manager's
- * nephew), Kerem (45, laid off), Derya (two years paying off her father's failed company),
- * Seda (raising a daughter alone), Tolga (first in his family to go to university, from Kars;
- * his open-source code is what brings the crashed system back on Thursday). They come back —
- * in your DMs, on the street after work, and a year later.
+ * Gündelik koşturmanın altında haftanın hikâyesinin asıldığı beş kişi var: Okan (müdürün yeğeni),
+ * Kerem (45, işten çıkarılmış), Derya (iki yıl babasının batan şirketinin borcunu kapatmış),
+ * Seda (kızını tek başına büyütüyor), Tolga (Kars'tan, ailesinin ilk üniversite mezunu; çağırırsan
+ * Perşembe kar yolunu kapatır ve görüşmeyi ekrandan yapmayı rica eder). Geri dönerler: özel mesajlarında, lobide,
+ * telefonda ve bir yıl sonra.
  */
 
-/** Below this, Hakan Bey takes an interview slot away the next morning. */
+/** Bunun altında Hakan Bey ertesi sabah bir mülakat hakkını geri alır. */
 export const QUOTA_CUT_BELOW = 35;
 
-/* ── The five ── */
+/* ── Beşi ── */
 
 export interface KeyCharacter {
   id: string;
   day: number;
-  /** One line that explains who they are, for the final screen. */
+  /** Final ekranı için kim olduklarını anlatan tek satır. */
   who: string;
   epilogue: Record<Decision | 'hired' | 'none', string>;
-  /** Their DM, if you rejected them. */
+  /** Çağırdın ama mülakata gelemedi (Perşembe karı). */
+  stranded?: string;
+  /** Reddettiysen özel mesajları. */
   dm: string;
-  /** Rejected — but you told them the truth in their DMs, and it helped. */
+  /** Reddedildi, ama özel mesajlarında ona gerçeği söyledin ve işe yaradı. */
   honest: string;
 }
 
@@ -84,24 +86,25 @@ export const KEY_CHARACTERS: KeyCharacter[] = [
   {
     id: 'tolga',
     day: 3,
-    who: 'Kars\'tan gelen, ailesinin ilk üniversite mezunu. Perşembe çöken sistemi gece onun yaması ayağa kaldırdı.',
+    who: 'Kars\'tan gelen, ailesinin ilk üniversite mezunu. 1.200 commit\'lik açık kaynak katkısı var, maaşlı deneyimi yok.',
     epilogue: {
-      approve: 'Tolga mülakata geldi. Ümit Bey o gece atılan yamayı ekrana açtı, satır satır sordu; Tolga hepsini anlattı. Başka bir ekibe önerildi, orada işe başladı.',
-      reject: 'Tolga Kars\'a döndü. Şirketin sistemi hâlâ onun yamasıyla CV okuyor: her gün, onun gibi yüzlerce başvuruyu. Adını kimse bilmiyor.',
-      hired: 'Tolga ilk ayında erişilebilirlik hatalarının yarısını kapattı. Ailesi onu görmek için Kars\'tan ilk kez İstanbul\'a geldi; Burak onlara sunucu odasını gezdirdi, "sistemimiz bu çocuğun kodunda koşuyor" dedi.',
-      none: 'Tolga\'nın dosyası Perşembe hiç açılmadı. Ertesi sabah sistem onun yamasıyla geri geldi ve dosyasını kendisi eledi.',
+      approve: 'Tolga Cuma sabahı karlı bir Kars sabahında, köy kahvesinin internetinden bağlandı. Ümit Bey kodunu ekrana açtı, satır satır sordu; Tolga hepsini anlattı. Başka bir ekibe önerildi, orada işe başladı.',
+      reject: 'Tolga Kars\'ta kaldı. Uzaktan çalışan bir yabancı şirkete girdi; İstanbul\'daki ilanlara artık başvurmuyor.',
+      hired: 'Tolga ilk ayında erişilebilirlik hatalarının yarısını kapattı. Ailesi onu görmek için Kars\'tan ilk kez İstanbul\'a geldi; bu kez uçak kalktı.',
+      none: 'Tolga\'nın dosyası Perşembe hiç açılmadı. Ertesi hafta sistem geri geldi ve dosyasını kendisi eledi.',
     },
-    dm: 'Merhaba, ailemin ilk üniversite mezunuyum. Babam "İstanbul seni istemezse dön gel" dedi. Dönmem mi gerekiyor?',
-    honest: 'Ona dürüst yazdın: "Açık kaynak katkını CV\'nin en üstüne yaz." Yazdı. Kütüphanesini kullanan bir şirket onu buldu. Kars\'a dönmedi; ailesi İstanbul\'a onu görmeye geldi.',
+    stranded: 'Tolga\'yı çağırdın, ama Kars\'ta kar yolu kapadı; ekrandan görüşme isteğine "kural yüz yüze" dendi. Bir yıl sonra uzaktan çalıştığı şirkette ekip lideri. İlk işi: mülakatları ekrandan da yapılabilir kılmak.',
+    dm: 'Merhaba. Burada kar bütün yolları kapattı; çağrılsaydım bile gelemezdim belki. Ailemin ilk üniversite mezunuyum. Babam "İstanbul seni istemezse dön gel" dedi. Dönmem mi gerekiyor?',
+    honest: 'Ona dürüst yazdın: "Açık kaynak katkını CV\'nin en üstüne yaz." Yazdı. Kodunu kullanan bir şirket onu buldu. Kars\'a dönmedi; ailesi İstanbul\'a onu görmeye geldi.',
   },
 ];
 
 export const keyCharacter = (id: string) => KEY_CHARACTERS.find((k) => k.id === id);
 
-/** Candidates the Friday "aile planı" question is aimed at; the rest get "askerlik". */
+/** Cuma'nın "aile planı" sorusunun hedef aldığı adaylar; geri kalanlar "askerlik" sorusunu alır. */
 export const FEMALE = new Set([...EXTRA_FEMALE, 'selin', 'zeynep', 'derya', 'aylin', 'elif', 'nihan', 'pinar', 'sibel', 'ece', 'gokce', 'handan', 'asli', 'irem', 'nazli', 'duygu', 'gizem', 'seda', 'ceren', 'nehir']);
 
-/* ── Friday: the questions on Hakan Bey's list ── */
+/* ── Cuma: Hakan Bey'in listesindeki sorular ── */
 
 export function forbiddenQuestion(id: string, age = 0) {
   if (FEMALE.has(id)) return 'Evlilik ve çocuk planınız var mı?';

@@ -1,7 +1,7 @@
 /*
- * The day's frame: the morning that sets it up, the clock (tick.ts) that runs it, the evening
- * that counts it, and the step to the next one. A new day's rules mostly live in data
- * (data/days.ts, data/dayPlans.ts, weekdays.ts); what changes here is how a morning is put together.
+ * Günün çerçevesi: onu kuran sabah, onu işleten saat (tick.ts), onu sayan akşam ve bir sonrakine
+ * geçiş. Yeni bir günün kuralları çoğunlukla veride yaşar (data/days.ts, data/dayPlans.ts,
+ * weekdays.ts); burada değişen, bir sabahın nasıl kurulduğudur.
  */
 import type { DayStats } from '../types';
 import type { GetState, SetState } from '../storeApi';
@@ -17,23 +17,26 @@ import { buildManagerScript, evaluateRequests, managerTone, reprimandText, type 
 import { BREAK_END_MIN, formatClock } from '../time';
 import { leventMail, type WeekEntry } from '../echoes';
 import { rngFor } from '../rng';
-import { SLEEPLESS_BELOW, SLEEPLESS_MINUTES, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf } from '../storeDefaults';
+import { SLEEPLESS_BELOW, SLEEPLESS_MINUTES, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../storeDefaults';
 import { dispatchRejections, isOnBreak } from '../clock';
 import { NEIGHBOUR_DAY } from '../weekdays';
 import { tick } from '../tick';
 
-/** Yesterday, as the manager saw it: did you go against him more than with him? */
+/** Okuyarak çağrılan ve gerçekten güçlü çıkan aday başına: ekip liderinin olumlu notu. */
+export const SPOTTED_PERFORMANS = 1;
+
+/** Müdürün gördüğü hâliyle dün: ona uyduğundan çok mu karşı çıktın? */
 function defiedYesterday(state: GameState) {
   const { complied, defied } = state.story.managerDay;
   return state.currentDayIndex > 0 && defied.length > 0 && defied.length >= complied.length;
 }
 
-/** The morning's mail: Ümit's note about yesterday, and Hakan Bey's after a day you went against him. */
+/** Sabahın e-postaları: Ümit'in dünle ilgili notu ve ona karşı çıktığın bir günün ardından Hakan Bey'inki. */
 function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
   const tone = managerTone(state.managerStance.refusals);
   const defied = defiedYesterday(state);
   const levent = leventMail(state.currentDayIndex, state.weekLog, state.meeting.choice);
-  // Hakan Bey, after you went against him: a mail that says nothing quotable, a "short" meeting
+  // ona karşı çıktıktan sonra Hakan Bey: alıntılanacak hiçbir şey söylemeyen bir e-posta, "kısa" bir görüşme
   const reprimand: Mail[] =
     state.managerGrievances.length > 0 || defied
       ? [
@@ -55,14 +58,14 @@ function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
   return [...state.extraMails.filter((m) => m.id !== `levent-${state.currentDayIndex}`), ...reprimand, ...(levent ? [levent] : [])];
 }
 
-/** Today's files: the neighbour's son joins his day if you passed his CV on. */
+/** Bugünün dosyaları: CV'sini ilettiysen komşunun oğlu kendi gününe katılır. */
 function todaysLineups(state: GameState): string[][] {
   return state.currentDayIndex === NEIGHBOUR_DAY && state.story.neighbourCv && !lineupFor(state).includes(NEIGHBOUR_ID)
     ? state.lineups.map((l, i) => (i === NEIGHBOUR_DAY ? [...l, NEIGHBOUR_ID] : l))
     : state.lineups;
 }
 
-/** What will interrupt the day: the calendar's meetings, and hard mode's surprises. */
+/** Günü ne kesecek: takvimin toplantıları ve zor modun sürprizleri. */
 function todaysEvents(state: GameState): GameState['dayEvents'] {
   const plan = DAY_PLANS[state.currentDayIndex] ?? { calendar: [] };
   return [
@@ -79,11 +82,11 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       set({ phase: 'finalRound', paused: false });
       return;
     }
-    // a bad conscience costs you sleep — once; after that you're too tired not to sleep
+    // kötü bir vicdan uykuna mal olur, bir kez; ondan sonra uyumamak için fazla yorgunsun
     const sleepless = state.currentDayIndex > 0 && state.vicdan < SLEEPLESS_BELOW && !state.story.sleptBadly;
-    // performance too low: the manager trusts you with one interview slot fewer
+    // performans çok düşük: müdür sana bir mülakat hakkı eksik emanet eder
     const quotaCut = state.currentDayIndex > 0 && state.performans < QUOTA_CUT_BELOW;
-    // after a day against him, a harsh manager wants every "no" in writing
+    // ona karşı geçen bir günden sonra sert bir müdür her "hayır"ı yazılı ister
     const defied = defiedYesterday(state);
     const justifyRejects = state.justifyRejects || (defied && managerTone(state.managerStance.refusals) >= 2);
     const lateMinutes = sleepless ? SLEEPLESS_MINUTES : 0;
@@ -108,7 +111,6 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       managerScript: buildManagerScript(state.currentDayIndex, lineupFor({ currentDayIndex: state.currentDayIndex, lineups }), {
         momOrder: state.momOrder.length ? state.momOrder : undefined,
         hard: state.difficulty === 'hard',
-        homeNotes: [],
         managerDay: state.currentDayIndex > 0 ? state.story.managerDay : undefined }, rngFor(state.seed, `manager-${state.currentDayIndex}`)),
       managerGrievances: [],
       desk: { ...state.desk, coffee: COFFEE_SIPS, sipsToday: 0, refills: 0, ringing: null, inCall: null, notice: null, pizzaEaten: 0 },
@@ -117,7 +119,7 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       overtimeWarned: false,
       quotaCut,
       decisionEffects: {},
-      // weather can make you late — and so can a bad conscience, or an empty travel card
+      // hava seni geciktirebilir, kötü bir vicdan da
       workdayMinutes: lateMinutes,
       dayEvents: todaysEvents(state),
       activeEvent: null,
@@ -130,35 +132,35 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
   skipBreak: () => {
     const state = get();
     if (state.phase !== 'gameplay' || !isOnBreak(state)) return;
-    // back to the desk early — but the afternoon still starts at 13:00
+    // masaya erken dönüldü, ama öğleden sonra yine 13:00'te başlar
     set({ breakOver: true, workdayMinutes: BREAK_END_MIN });
   },
 
   finishDay: () => {
     if (get().phase !== 'gameplay') return;
-    // the outbox goes out with the day (stamped 17:00); anyone without a notice hears nothing
+    // giden kutusu günle birlikte gider (17:00 damgasıyla); bildirimi olmayan hiçbir şey duymaz
     dispatchRejections();
     const state = get();
     const day = days[state.currentDayIndex];
-    // The AI's cut: every application from the flood counter that never reached a human.
+    // Yapay zekânın elediği: başvuru sayacındaki, hiçbir insana ulaşmamış her başvuru.
     const lineup = lineupFor(state);
     const autoRejected = Math.max(0, day.applicationTarget - lineup.length);
     const undecided = lineup.filter((id) => !state.decisions[id]).length;
     const today = (m: PhoneMessage) => (m.day ?? state.currentDayIndex) === state.currentDayIndex;
     const ignored = state.phone.filter((m) => today(m) && m.thread === 'manager' && m.from === 'them' && m.replies && !m.answered).length;
     const verdict = evaluateRequests(state.managerRequests, state.decisions, ignored, state.referenceChecks);
-    // a message from home left on "seen"
+    // evden gelen ve "görüldü"de bırakılan bir mesaj
     const momIgnored = state.phone.filter((m) => today(m) && m.thread === 'mom' && m.from === 'them' && m.replies && !m.answered).length;
     if (momIgnored > 0) {
       verdict.vicdan -= momIgnored;
       verdict.lines.push(`Annenin ${momIgnored} mesajını cevapsız bıraktın.`);
     }
-    // the company counts the files you left open
+    // şirket açık bıraktığın dosyaları sayar
     if (undecided > 0) {
       verdict.performans -= Math.min(OPEN_FILE_PERFORMANS_CAP, undecided * OPEN_FILE_PERFORMANS);
       verdict.lines.push(`${undecided} dosyayı açık bıraktın. Raporda "tamamlanmadı" yazıyor.`);
     }
-    // an interview slot nobody got, while strong people were turned away for a flag
+    // güçlü insanlar bir işaret yüzünden geri çevrilirken kimsenin almadığı bir mülakat hakkı
     const quota = approvalQuota(state);
     const strongRejected = lineup.filter((id) => state.decisions[id] === 'reject' && isWronglyFlagged(id) && isStrong(id)).length;
     const emptySlots = unusedSlotCost(Math.min(quota.dailyLeft, quota.totalLeft), strongRejected);
@@ -167,11 +169,19 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       verdict.lines.push(`${emptySlots} mülakat hakkın boş kaldı; o sırada işaretli ${strongRejected} güçlü adayı eledin.`);
     }
 
+    // ekip liderinin sesi: okuyarak çağırdığın ve gerçekten güçlü çıkan her aday deneme değerlendirmene yazılır
+    const spotted = lineup.filter((id) => state.decisions[id] === 'approve' && isStrong(id) && wasConsidered(readingOf(state, id))).length;
+    if (spotted > 0) {
+      verdict.performans += spotted * SPOTTED_PERFORMANS;
+      verdict.lines.push(`Ümit Bey'in ekibi bugün çağırdığın ${spotted} adayın dosyasını beğendi; deneme değerlendirmene not düştü.`);
+    }
+
     const dayStats: DayStats = { ...state.dayStats, autoRejected, undecided };
     const advanced = state.decisionLog
-      .filter((e) => e.decision === 'approve' && state.decisions[e.id] === 'approve')
+      // Perşembe karında yolu kapanan aday çağrılmış olsa da gelemez
+      .filter((e) => e.decision === 'approve' && state.decisions[e.id] === 'approve' && !state.story.stranded?.includes(e.id))
       .map((e) => ({ id: e.id, day: day.day }) as Finalist);
-    // the people he asked you to call come to the interviews anyway
+    // çağırmanı istediği kişiler mülakatlara yine de gelir
     for (const r of state.managerRequests)
       if (r.want === 'approve' && state.decisions[r.candidateId] !== 'approve' && !state.finalists.some((f) => f.id === r.candidateId))
         advanced.push({ id: r.candidateId, day: day.day, byManager: true });
@@ -209,7 +219,7 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
       totalStats,
       finalists: [...state.finalists, ...advanced],
       performans: clampScore(state.performans + verdict.performans),
-      vicdan: clampScore(state.vicdan + verdict.vicdan),
+      vicdan: addVicdan(state.vicdan, verdict.vicdan),
       managerVerdict: verdict.lines,
       managerGrievances: state.managerRequests
         .filter((r) => state.decisions[r.candidateId] !== r.want)
@@ -228,7 +238,7 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
     const logged: WeekEntry[] = Object.entries(state.decisions).map(([id, decision]) => ({ id, day: state.currentDayIndex, decision, considered: wasConsidered(readingOf(state, id)) }));
     set({
       weekLog: [...state.weekLog.filter((e) => e.day !== state.currentDayIndex), ...logged],
-      // The final day has no new applications — straight to the memo.
+      // Son günde yeni başvuru yok: doğrudan memoya.
       phase: days[nextIndex].final ? 'briefing' : 'applicationFlood',
       currentDayIndex: nextIndex,
       workdayMinutes: 0,

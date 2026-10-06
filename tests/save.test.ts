@@ -94,3 +94,14 @@ test('para kaldırılmadan önceki (2. sürüm) kayıt taşınır: para alanlar�
   assert.deepEqual(story.keyDecisions, { kerem: 'reject' });
   localStorage.removeItem(KEY);
 });
+
+test('3. sürüm kayıt taşınır: Ozan\'ın eski "emre" kimliği "ozan" olur, kısa listedeki Emre kalır', () => {
+  localStorage.setItem(KEY, JSON.stringify({ version: 3, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 3, decisions: { emre: 'approve', kerem: 'reject' }, finalists: [{ id: 'emre', day: 2 }, { id: 'sarp', day: 0, by: 'emre' }], lineups: [['emre', 'cem']] } }));
+  const save = readSave();
+  assert.ok(save);
+  assert.equal(save.version, SAVE_VERSION);
+  assert.deepEqual(save.data.decisions, { ozan: 'approve', kerem: 'reject' });
+  assert.deepEqual(save.data.finalists, [{ id: 'ozan', day: 2 }, { id: 'sarp', day: 0, by: 'emre' }]);
+  assert.deepEqual(save.data.lineups, [['ozan', 'cem']]);
+  localStorage.removeItem(KEY);
+});

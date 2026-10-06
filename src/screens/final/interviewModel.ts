@@ -1,19 +1,19 @@
 /*
- * The Friday interview's fixed parts: who is in the room besides you, what the team lead makes
- * of people, the question budget and the codes each kind of question is logged under, the lines
- * of the salary talk, and the shape of the interview log. The screen (FinalRoundScreen) and its
- * pieces in this folder share them.
+ * Cuma mülakatının sabit parçaları: odada senden başka kimlerin olduğu, ekip liderinin insanlar
+ * hakkında ne düşündüğü, soru hakkı ve her soru türünün kaydedildiği kodlar, maaş konuşmasının
+ * cümleleri ve mülakat kaydının biçimi. Ekran (FinalRoundScreen) ve bu klasördeki parçaları
+ * bunları paylaşır.
  */
 import type { Finalist } from '../../game/store';
 import { NEPHEW_ID } from '../../game/data/candidates';
 import type { SalaryMove } from '../../game/interview';
 
-/** When nobody was advanced all week, management fills the final with its internal reference. */
+/** Bütün hafta kimse ilerletilmediyse yönetim finali kendi iç referansıyla doldurur. */
 export const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];
-/** How many people one interview day holds; a longer list is cut down in the morning. */
+/** Bir mülakat gününün kaç kişi aldığı; daha uzun bir liste sabah kısaltılır. */
 export const INTERVIEW_LIMIT = 6;
 
-/** The rest of the team screened too: their shortlists sit in the same room on Friday. */
+/** Ekibin geri kalanı da eleme yaptı: kısa listeleri Cuma aynı odada oturur. */
 export const COLLEAGUES: Finalist[] = [
   { id: 'nehir', day: 0, by: 'ayse' },
   { id: 'berk', day: 0, by: 'ayse' },
@@ -22,13 +22,13 @@ export const COLLEAGUES: Finalist[] = [
 ];
 
 /*
- * The hiring manager sits in too: Ümit, the software team lead. He listens to the answers,
- * not the flags, and says what he thinks after each interview. The hire is a panel decision —
- * you recommend, he and Hakan Bey sign (or object on the record).
+ * İşe alımı yapacak yönetici de odada: yazılım ekip lideri Ümit. İşaretlere değil cevaplara
+ * kulak verir ve her mülakattan sonra ne düşündüğünü söyler. İşe alım bir kurul kararıdır: sen
+ * önerirsin, o ve Hakan Bey imzalar (ya da kayda geçecek şekilde itiraz eder).
  */
 export const LEAD = 'Ümit Arslan';
 export const LEAD_SPECIAL: Record<string, string> = {
-  emre: 'Teknik olarak açık ara en iyisi. Ama ekibi "gereksiz" bulduğunu bana da söyledi; ekibim onunla çalışmak istemez.',
+  ozan: 'Teknik olarak açık ara en iyisi. Ama ekibi "gereksiz" bulduğunu bana da söyledi; ekibim onunla çalışmak istemez.',
   okan: 'Temel sorulara cevap veremedi. Kimin yakını olduğu umurumda değil; ekipte yeri yok.',
   volkan: 'Çok iyi konuşuyor ama tek bir rakam, tek bir somut örnek vermedi. Referanslarını aramadan ben ikna olmadım.',
 };
@@ -39,22 +39,22 @@ export function leadView(id: string, fit: number) {
   if (fit === 3) return 'Potansiyeli var ama henüz hazır değil; yanına bir mentor vermemiz gerekir.';
   return 'Somut hiçbir şey anlatmadı. Bu cevaplarla ben ikna olmadım.';
 }
-/** Does the team lead back this hire? Strong and not toxic: yes. */
+/** Ekip lideri bu işe alımı destekler mi? Güçlü ve toksik değilse: evet. */
 export const leadBacks = (id: string, fit: number) => fit >= 4 && !LEAD_SPECIAL[id];
 
-/** What Hakan Bey says into your ear, once, after your first own question. */
+/** Hakan Bey'in, senin ilk kendi sorundan sonra bir kez kulağına söylediği. */
 export const WHISPER = 'Hakan Bey kulağına eğiliyor: "Listedeki soruları da sor. Aile planı, memleket, emeklilik… Uzun vadeli uyum önemli."';
 
-/** Each interview slot is short: only this many of the questions fit. */
+/** Her mülakat aralığı kısa: soruların yalnızca bu kadarı sığar. */
 export const QUESTION_BUDGET = 2;
-/** Index used for the question from Hakan Bey's list (after the three standard ones). */
+/** Hakan Bey'in listesinden gelen soru için kullanılan sıra (üç standart sorudan sonra). */
 export const FORBIDDEN = 3;
 export const TYPING_MS_PER_CHAR = 16;
 export const THINKING_MS = 900;
 
-/** Follow-ups are stored as FOLLOW + the kind of probe (interview.ts: HookKind). */
+/** Takip soruları FOLLOW + yoklama türü olarak saklanır (interview.ts: HookKind). */
 export const FOLLOW = 10;
-/** The short coding case: one of the two questions. */
+/** Kısa kodlama vakası: iki sorudan biri. */
 export const CASE = 20;
 export const SALARY_LINES: Record<SalaryMove, (offer: number) => string> = {
   match: () => 'Beklentiniz bütçemize uygun; bu rakamla ilerleyebiliriz.',
@@ -71,7 +71,7 @@ export const SALARY_LABEL: Record<SalaryMove, string> = {
   squeeze: 'Biraz aşağı çekmeyi dene',
 };
 
-/** One beat of an interview, in the order it happened. */
+/** Bir mülakatın tek bir anı, olduğu sırayla. */
 export type Entry =
   | { kind: 'q'; q: number; by?: 'hakan'; about?: string }
   | { kind: 'salary'; move: SalaryMove | null }
@@ -81,8 +81,8 @@ export type Entry =
 
 export interface Typing {
   candidateId: string;
-  /** Index of the entry whose answer is being typed. */
+  /** Cevabı yazılmakta olan kaydın sırası. */
   entry: number;
-  /** Characters revealed so far; -1 while the candidate is still "thinking". */
+  /** Şimdiye kadar gösterilen karakter sayısı; aday hâlâ "düşünürken" -1. */
   shown: number;
 }

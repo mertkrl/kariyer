@@ -1,7 +1,7 @@
 /*
- * The Friday interview as a set of small rules, kept apart from the screen so they can be tested:
- * which phrases in an answer are worth digging into, what a note you take is worth as evidence,
- * the short coding case, the salary talk, and whether your case in front of the panel holds.
+ * Ekrandan ayrı tutulmuş küçük kurallar olarak Cuma mülakatı, test edilebilsin diye: bir
+ * cevaptaki hangi ifadelerin kurcalanmaya değdiği, aldığın bir notun kanıt olarak değeri, kısa
+ * kodlama vakası, maaş konuşması ve kurulun önündeki gerekçenin tutup tutmadığı.
  */
 import { candidateDetails } from './data/candidateDetails';
 import { candidateOf } from './data/candidates';
@@ -10,39 +10,38 @@ import { SALARY_CAP, salaryOf } from './managerCalls';
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
 const hash = (s: string) => [...s].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 100003, 7);
 
-/* ── Follow-ups from the answer itself ─────────────────────────────────────────────────── */
+/* ── Cevabın kendisinden takip soruları ────────────────────────────────────────────────── */
 
 /**
- * The kind of probe a phrase invites. The index is the follow-up question it maps to in
- * FOLLOW_UP_QUESTIONS: 0 "your share, who measured it", 1 "what would you do differently",
- * 2 "how would you start in week one".
+ * Bir ifadenin davet ettiği yoklama türü. Sıra, FOLLOW_UP_QUESTIONS'taki karşılık gelen takip
+ * sorusudur: 0 "payın neydi, kim ölçtü", 1 "neyi farklı yapardın", 2 "ilk hafta nasıl başlardın".
  */
 export type HookKind = 0 | 1 | 2;
 
 export interface Hook {
-  /** Character range of the phrase in the answer. */
+  /** İfadenin cevaptaki karakter aralığı. */
   start: number;
   end: number;
   kind: HookKind;
 }
 
 const HOOK_RULES: [RegExp, HookKind][] = [
-  // a number, a percentage, a before/after: who measured it, and what was your part?
+  // bir sayı, bir yüzde, bir önce/sonra: kim ölçtü ve senin payın neydi?
   [/(%\s?\d+|\d[\d.,]*\s?(?:milisaniye|saniye|dakika|saat|gün|hafta|ay|yıl|kat|kişi|öğrenci|ülke|proje|ms)\p{L}*|(?:iki|üç|dört) kat\p{L}*|yarıya|tamamen kalktı|sıfırla\p{L}*)/iu, 0],
-  // a big claim with nothing behind it: same question
+  // arkasında hiçbir şey olmayan büyük bir iddia: aynı soru
   [/(çok başarılı|herkes memnun\p{L}*)/iu, 0],
-  // "we", "the team": whose work was it?
+  // "biz", "ekip": iş kimindi?
   [/(ekip(?:imiz|çe| olarak)|hep birlikte)/iu, 0],
-  // a mistake or a hard lesson: what would you do differently?
+  // bir hata ya da zor bir ders: neyi farklı yapardın?
   [/(hata(?! sayı)(?!ları sıfır)\p{L}*|yanlış\p{L}*|kırılma|zorland\p{L}*|başarısız\p{L}*|tükendi|atladım|aceleyle|görmezden geldim|fark etmedim|abarttım|kaybettim|zorunda kaldı\p{L}*|\p{L}+(?:madan|meden) )/iu, 1],
-  // a plan: how would it start, who would you ask?
+  // bir plan: nasıl başlardı, kime sorardın?
   [/(ilk (?:ay|hafta|90 gün|hedef)\p{L}*|^önce [^;,.]{3,40}|\p{L}+(?:rdım|rdim|rdum|rdüm)\b)/iu, 2],
 ];
 
 /**
- * Up to two phrases in an answer that invite a follow-up, at most one of each kind. If none of
- * the rules catch anything, the answer's first clause is the thing to dig into, as whatever
- * the question it answers was about (`fallback`: 0 an achievement, 1 a mistake, 2 a plan).
+ * Bir cevapta takip sorusu davet eden en fazla iki ifade, her türden en fazla bir tane.
+ * Kuralların hiçbiri bir şey yakalamazsa, cevabın ilk yan cümlesi kurcalanacak şey olur;
+ * cevapladığı soru ne hakkındaysa o türden (`fallback`: 0 başarı, 1 hata, 2 plan).
  */
 export function hooksIn(answer: string, fallback?: HookKind): Hook[] {
   const out: Hook[] = [];
@@ -63,9 +62,9 @@ export function hooksIn(answer: string, fallback?: HookKind): Hook[] {
   return out.sort((a, b) => a.start - b.start);
 }
 
-/* ── Notes ─────────────────────────────────────────────────────────────────────────────── */
+/* ── Notlar ────────────────────────────────────────────────────────────────────────────── */
 
-/** What a sentence you wrote down is worth when you argue for someone. */
+/** Birini savunurken yazdığın bir cümlenin değeri. */
 export type NoteTag = 'concrete' | 'general' | 'vague' | 'redflag';
 
 export const NOTE_TAG_NAME: Record<NoteTag, string> = {
@@ -75,32 +74,32 @@ export const NOTE_TAG_NAME: Record<NoteTag, string> = {
   redflag: 'dikkat',
 };
 
-/** Evidence weight of each kind of note in front of the panel. */
+/** Kurulun önünde her not türünün kanıt ağırlığı. */
 export const NOTE_WEIGHT: Record<NoteTag, number> = { concrete: 2, general: 1, vague: 0, redflag: -1 };
 
 export function tagNote(sentence: string): NoteTag {
   if (/(gereksiz|hepsi\.|payım mı|paylaşamıyorum|hatırlayamadım|küçümse|umurumda)/iu.test(sentence)) return 'redflag';
   if (/(inanın|çok etkiliydi|galiba|sanırım|bir şekilde|hızlı öğrenirim|merak etmeyin)/iu.test(sentence)) return 'vague';
-  // a figure (in digits or words), a before/after, a measurement or an audit
+  // bir rakam (sayıyla ya da yazıyla), bir önce/sonra, bir ölçüm ya da bir denetim
   if (/(\d|%|yarıya|sıfırla|ölçt|denetim\p{L}*|test yaz|(?:iki|üç|dört|beş|altı|on|yarım) (?:gün|saat|hafta|ay|yıl|kat)|(?:indi|düştü|kısaldı|azaldı|kalktı)\b)/iu.test(sentence)) return 'concrete';
   return 'general';
 }
 
-/** An answer split into its sentences, each keeping its place in the answer. */
+/** Cümlelerine bölünmüş bir cevap; her cümle cevaptaki yerini korur. */
 export function sentencesOf(answer: string): { text: string; start: number }[] {
   const out: { text: string; start: number }[] = [];
-  // a sentence ends at . ! ? … followed by a space or the end — not inside "12.50" or "1,2"
+  // cümle . ! ? … ve ardından boşluk ya da sonla biter; "12.50" ya da "1,2" içinde değil
   const re = /.+?(?:[.!?…]+(?=\s|$)|$)\s*/gsu;
   for (let m = re.exec(answer); m; m = re.exec(answer)) if (m[0].trim()) out.push({ text: m[0], start: m.index });
   return out;
 }
 
-/* ── The short coding case ─────────────────────────────────────────────────────────────── */
+/* ── Kısa kodlama vakası ───────────────────────────────────────────────────────────────── */
 
 export interface CodeCase {
   title: string;
   code: string;
-  /** How the candidate works through it, by how good they really are. */
+  /** Adayın vakayı nasıl çözdüğü, gerçekte ne kadar iyi olduğuna göre. */
   answers: Record<'strong' | 'solid' | 'unsure' | 'weak', string>;
 }
 
@@ -150,7 +149,7 @@ export const CODE_CASES: CodeCase[] = [
 type Tier = 'strong' | 'solid' | 'unsure' | 'weak';
 const tier = (fit: number): Tier => (fit >= 5 ? 'strong' : fit === 4 ? 'solid' : fit === 3 ? 'unsure' : 'weak');
 
-/** Each candidate on a given day gets a different case (like their closing question). */
+/** Aynı gündeki her aday farklı bir vaka alır (kapanış sorusu gibi). */
 export function caseFor(id: string, day: readonly string[]): CodeCase {
   const order = [...day].sort();
   const start = order.reduce((n, x) => n + hash(x), 0) % CODE_CASES.length;
@@ -158,38 +157,40 @@ export function caseFor(id: string, day: readonly string[]): CodeCase {
 }
 
 export function caseAnswer(id: string, c: CodeCase): string {
-  if (id === 'emre') return `${c.answers.strong} Açıkçası bu seviyede bir soru beklemiyordum.`;
+  if (id === 'ozan') return `${c.answers.strong} Açıkçası bu seviyede bir soru beklemiyordum.`;
   if (id === 'volkan') return 'Böyle şeyleri genelde ekipteki arkadaşlar hallediyordu, ben daha çok büyük resme bakıyordum. Ama çözülür, zor bir şey değil.';
   return c.answers[tier(fitOf(id))];
 }
 
-/** What the team lead makes of the case. */
+/** Ekip liderinin vakadan çıkardığı. */
 export function caseVerdict(id: string): string {
   if (id === 'volkan') return 'Vakaya hiç girmedi.';
+  // teknik olarak kusursuz; sorun vakada değil, ekipte
+  if (id === 'ozan') return 'Vakayı çözdü; anlatırken ekibi iki kez küçümsedi.';
   const t = tier(fitOf(id));
   return t === 'strong' ? 'Vakayı çözdü ve nedenini de anlattı.' : t === 'solid' ? 'Vakadaki hatayı buldu.' : t === 'unsure' ? 'Vakada takıldı.' : 'Vakadaki hatayı görmedi.';
 }
 
-/* ── Salary ────────────────────────────────────────────────────────────────────────────── */
+/* ── Maaş ──────────────────────────────────────────────────────────────────────────────── */
 
 export type SalaryMove = 'match' | 'cap' | 'low' | 'pass' | 'squeeze';
 
-/** The talk's outcome: what was agreed (or not), and how it moves the scores. */
+/** Konuşmanın sonucu: neyin üzerinde anlaşıldığı (ya da anlaşılmadığı) ve puanları nasıl oynattığı. */
 export interface SalaryResult {
   move: SalaryMove;
-  /** Agreed monthly figure, or null if the candidate wouldn't go down to it. */
+  /** Anlaşılan aylık tutar ya da aday o tutara inmediyse null. */
   agreed: number | null;
-  /** What the candidate says back. */
+  /** Adayın karşılık olarak söylediği. */
   reply: string;
   effect: { performans: number; vicdan: number };
 }
 
-/** How far below their ask a person can be talked; the stronger they are, the less they'll give. */
+/** Birinin isteğinin ne kadar altına ikna edilebileceği; ne kadar güçlüyse o kadar az verir. */
 const GIVE: Record<'strong' | 'solid' | 'unsure' | 'weak', number> = { strong: 0.06, solid: 0.12, unsure: 0.2, weak: 0.3 };
 
 export const expectedSalary = (id: string) => salaryOf(id);
 
-/** The moves on the table, depending on whether the ask fits the budget. */
+/** İsteğin bütçeye sığıp sığmamasına göre masadaki hamleler. */
 export function salaryMoves(id: string): SalaryMove[] {
   const ask = expectedSalary(id);
   if (ask === null) return ['match'];
@@ -237,7 +238,7 @@ export function salaryTalk(id: string, move: SalaryMove): SalaryResult {
   return { move, agreed: null, reply, effect };
 }
 
-/* ── Scorecard ─────────────────────────────────────────────────────────────────────────── */
+/* ── Puan kartı ────────────────────────────────────────────────────────────────────────── */
 
 export const CRITERIA = ['Teknik yetkinlik', 'Somut deneyim', 'İletişim', 'Ekip uyumu'] as const;
 export type Scores = Partial<Record<(typeof CRITERIA)[number], number>>;
@@ -248,8 +249,8 @@ export const average = (s: Scores | undefined) => {
 };
 
 /**
- * Did you score the people Hakan Bey's list was written for (women, 40 and over) lower than
- * the rest? Returns the gap in points when it is big enough to mention, else null.
+ * Hakan Bey'in listesinin yazıldığı kişilere (kadınlar, 40 yaş ve üstü) diğerlerinden düşük
+ * puan verdin mi? Söz etmeye değecek kadar büyükse farkı puan olarak döndürür, değilse null.
  */
 export function scoreGap(scores: Record<string, Scores>, targets: (id: string) => boolean): number | null {
   const avg = (ids: string[]) => {
@@ -264,14 +265,14 @@ export function scoreGap(scores: Record<string, Scores>, targets: (id: string) =
   return gap >= 0.75 ? Math.round(gap * 10) / 10 : null;
 }
 
-/* ── Defending your pick in front of the panel ─────────────────────────────────────────── */
+/* ── Seçimini kurulun önünde savunmak ──────────────────────────────────────────────────── */
 
 export const DEFENSE_THRESHOLD = 3;
 
 /**
- * How much your notes on someone would weigh in front of the panel: the best three, as the
- * defence counts them (the scorecard's extra point comes on top). Shown as you take notes, so
- * the rule is learnt while it can still be acted on, not at the end.
+ * Birisi hakkındaki notlarının kurulun önünde ne kadar ağırlık taşıyacağı: savunmanın saydığı
+ * gibi en iyi üçü (puan kartının ek puanı bunun üstüne gelir). Not alırken gösterilir; böylece
+ * kural sonda değil, hâlâ işe yarayabilecekken öğrenilir.
  */
 export function evidenceStrength(tags: NoteTag[]): number {
   return [...tags]
@@ -282,9 +283,9 @@ export function evidenceStrength(tags: NoteTag[]): number {
 }
 
 /**
- * Does your case convince the team lead? Notes on the person you recommend count by their
- * weight; your scorecard counts once if it puts them on top. A weak candidate can't be argued
- * into the job, however good the notes sound.
+ * Gerekçen ekip liderini ikna ediyor mu? Önerdiğin kişi hakkındaki notlar ağırlıklarıyla
+ * sayılır; puan kartın onu en üste koyuyorsa bir kez sayılır. Zayıf bir aday, notlar ne kadar
+ * iyi görünürse görünsün işe savunularak sokulamaz.
  */
 export function defenseHolds(id: string, notes: NoteTag[], scoredTop: boolean): { score: number; holds: boolean } {
   const score = notes.reduce((n, t) => n + NOTE_WEIGHT[t], 0) + (scoredTop ? 1 : 0);

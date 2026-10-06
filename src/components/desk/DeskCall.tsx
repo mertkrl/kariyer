@@ -3,7 +3,7 @@ import type { DeskCall as Call } from '../../game/desk';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from './Desk.module.css';
 
-/** The handset at your ear: the caller talks, you pick what to say, they answer, you hang up. */
+/** Kulağındaki ahize: arayan konuşur, ne diyeceğini seçersin, o cevap verir, kapatırsın. */
 export function DeskCall({ call, onHangUp }: { call: Call; onHangUp: (choice: number) => void }) {
   const [shown, setShown] = useState(1);
   const [picked, setPicked] = useState<number | null>(null);
@@ -45,7 +45,7 @@ export function DeskCall({ call, onHangUp }: { call: Call; onHangUp: (choice: nu
           {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}
         </span>
       </div>
-      {call.stakes && <div className={styles.callStakes}>💰 {call.stakes}</div>}
+      {call.stakes && <div className={styles.callStakes}>📌 {call.stakes}</div>}
       <div className={styles.callBody}>
         {call.lines.slice(0, shown).map((l) => (
           <p key={l} className={styles.callSays}>

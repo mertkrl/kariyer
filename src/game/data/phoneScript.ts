@@ -1,14 +1,14 @@
 /*
- * Everything that is said over the phones, as text: the favours Hakan Bey asks, his greetings
- * in every mood, mom's messages, the office group, the birthday surprise, the team's reaction
- * to what you did yesterday. No behaviour here — manager.ts decides what is sent and when.
+ * Telefonlarda söylenen her şey, metin olarak: Hakan Bey'in istediği ricalar, her ruh hâlindeki
+ * selamları, annenin mesajları, ofis grubu, doğum günü sürprizi, ekibin dün yaptıklarına tepkisi.
+ * Burada davranış yok: neyin ne zaman gönderileceğine manager.ts karar verir.
  */
 import { accusative, genitive } from '../turkish';
 import { PLAYER } from '../player';
 import type { Ambient, ManagerTone, QuickReply, RequestTemplate } from '../phoneTypes';
 
-// Requests target a specific bias the game is about; the first candidate from `ids` who is in
-// today's queue becomes the target.
+// Ricalar oyunun konusu olan belirli bir önyargıyı hedefler; `ids`ten bugünün kuyruğunda olan
+// ilk aday hedef olur.
 export const REQUESTS: RequestTemplate[] = [
   {
     ids: ['okan'],
@@ -31,7 +31,7 @@ export const REQUESTS: RequestTemplate[] = [
     text: (n) => `${accusative(n)} süreçten çıkarmanızı rica ederim. Aile durumu göz önüne alındığında devamlılık riski yüksek görünüyor. Bu hususun yazışmalarda kalmasını tercih ederim.`,
   },
   {
-    ids: ['cem', 'nihan', 'emre', 'duygu'],
+    ids: ['cem', 'nihan', 'ozan', 'duygu'],
     want: 'reject',
     text: (n) => `${genitive(n)} ücret beklentisi bütçemizin üzerindedir. Mülakat aşamasına alınmamasını rica ederim.`,
   },
@@ -92,7 +92,7 @@ export const REQUESTS: RequestTemplate[] = [
   },
 ];
 
-// Morning greeting per day (courteous-formal); colder tones override it below.
+// Gün başına sabah selamı (nazik-resmî); daha soğuk tonlar aşağıda onu ezer.
 export const GREETINGS = [
   'Günaydın. Bugün kuyrukta {n} başvuru bulunmaktadır. Tüm dosyaların mesai bitimine kadar sonuçlandırılmasını rica ederim. İyi çalışmalar.',
   'Günaydın. Dünkü raporunuzu inceledim. Bugün {n} dosya sizi bekliyor; aynı özeni göstermenizi rica ederim.',
@@ -187,6 +187,13 @@ export const AMBIENT: Ambient[][] = [
   ],
   [
     {
+      at: 90, thread: 'ayse', text: 'Gruba yazmak istemedim. Nurten Hanım söyledi: deneme süresi bitince ikimizden sadece biri kalıyormuş. Kadro bir kişilik 😬',
+      replies: [
+        { text: 'Ciddi misin?', reaction: 'Keşke olmasa. Hakan Bey cuma akşamı söyleyecekmiş. Haftanın daha ilk günü bitti, düşünsene 😩' },
+        { text: 'Kim kalırsa kalsın, birbirimizi ezmeyelim.', reaction: 'Anlaştık. Ama sayılarımı tutturmam lazım, bilmiş ol 😅' },
+      ],
+    },
+    {
       at: 200, thread: 'office', sender: 'Ayşe', text: 'Metrobüs yine tıklım tıklımdı, ayakta geldim 😩',
       replies: [
         { text: 'Ben de. Zincirlikuyu\'da nefes almak zordu.', reaction: 'Her sabah aynı 🤝', reactionSender: 'Ayşe' },
@@ -223,6 +230,21 @@ export const AMBIENT: Ambient[][] = [
       replies: [{ text: 'Ben alabilirim, çıkışta uğrarım. Teşekkürler.', reaction: 'Masamda, mavi olan senin ☂️', reactionSender: 'Ayşe' }],
       followUps: [{ after: 10, sender: 'Emre', text: 'Bende de bir tane var, lazım olan alsın.' }],
     },
+    // Çarşamba, yağmur dinmeden, ıslak toplantı odasının önünde ofisin iki tarafı kendini anlatır
+    {
+      at: 470, thread: 'office', sender: 'Ayşe', text: 'Emre, sen neden hep kurallardan yanasın? Merak ettim sadece 🙂',
+      followUps: [
+        { after: 3, sender: 'Emre', text: 'Önceki işimde bir adayı "ama çok iyi biri" diye kuralın dışında aldırdım. İki ayda ayrıldı; hesabı sorulan ilk isim ben oldum.' },
+        { after: 4, sender: 'Emre', text: 'O günden beri kural neyse o. Kimse de bana bir şey diyemiyor.' },
+        { after: 7, sender: 'Ayşe', text: 'Bilmiyordum… Ben de iki yıl iş aradım, bir kişi bile CV\'mi okumadı. Belki ondan bu kadar takılıyorum.' },
+        { after: 9, sender: 'Selin (İK)', text: 'İkiniz de kendi yerinden haklısınız. Çaylar soğuyor ☕' },
+      ],
+      replies: [
+        { text: 'Bence ikiniz de aynı şeyden korkuyorsunuz: yanlış kişiye haksızlık etmekten.', reaction: 'Hiç böyle düşünmemiştim. Haklısın galiba.', reactionSender: 'Emre' },
+        { text: 'Ben de iş ararken aynısını yaşadım Ayşe. Ondan her CV\'yi okumaya çalışıyorum.', reaction: 'Biliyordum 🙂 Cuma mülakatta aynı tarafta olacağız.', reactionSender: 'Ayşe' },
+        { text: 'Kurallar olmasa 600 dosyayı nasıl bitirirdik, Emre haklı.', reaction: 'Sağ ol. Bunu söyleyen ilk kişi sensin.', reactionSender: 'Emre' },
+      ],
+    },
   ],
   [
     {
@@ -235,13 +257,6 @@ export const AMBIENT: Ambient[][] = [
         { after: 4, sender: 'Selin (İK)', text: 'Bugün herkes gerçekten CV okuyacak desenize.' },
         { after: 10, sender: 'Emre', text: 'Sistem yokken iş iki katına çıkıyor. O sistemi boşuna almadı şirket.' },
         { after: 25, sender: 'Ayşe', text: 'IT "öğleden sonra belki" diyor. Belki 🙃' },
-      ],
-    },
-    {
-      at: 215, thread: 'ayse', text: 'Gruba yazmak istemedim. Nurten Hanım söyledi: deneme süresi bitince ikimizden sadece biri kalıyormuş. Kadro bir kişilik 😬',
-      replies: [
-        { text: 'Ciddi misin?', reaction: 'Keşke olmasa. Hakan Bey cuma akşamı söyleyecekmiş.' },
-        { text: 'Kim kalırsa kalsın, birbirimizi ezmeyelim.', reaction: 'Anlaştık. Ama sayılarımı tutturmam lazım, bilmiş ol 😅' },
       ],
     },
     {
@@ -265,21 +280,6 @@ export const AMBIENT: Ambient[][] = [
       ],
     },
     { at: 560, thread: 'office', sender: 'Emre', text: 'Pizzalar geldi, herkesin masasına bir kutu bıraktım 🍕', followUps: [{ after: 20, sender: 'Selin (İK)', text: 'Teşekkürler Emre, masada yiyorum, bir dosyam kaldı.' }] },
-    // late, over pizza, the two sides of the office explain themselves
-    {
-      at: 575, thread: 'office', sender: 'Ayşe', text: 'Emre, sen neden hep kurallardan yanasın? Merak ettim sadece 🙂',
-      followUps: [
-        { after: 3, sender: 'Emre', text: 'Önceki işimde bir adayı "ama çok iyi biri" diye kuralın dışında aldırdım. İki ayda ayrıldı; hesabı sorulan ilk isim ben oldum.' },
-        { after: 4, sender: 'Emre', text: 'O günden beri kural neyse o. Kimse de bana bir şey diyemiyor.' },
-        { after: 7, sender: 'Ayşe', text: 'Bilmiyordum… Ben de iki yıl iş aradım, bir kişi bile CV\'mi okumadı. Belki ondan bu kadar takılıyorum.' },
-        { after: 9, sender: 'Selin (İK)', text: 'İkiniz de kendi yerinden haklısınız. Pizzalar soğuyor 🍕' },
-      ],
-      replies: [
-        { text: 'Bence ikiniz de aynı şeyden korkuyorsunuz: yanlış kişiye haksızlık etmekten.', reaction: 'Hiç böyle düşünmemiştim. Haklısın galiba.', reactionSender: 'Emre' },
-        { text: 'Ben de iş ararken aynısını yaşadım Ayşe. Ondan her CV\'yi okumaya çalışıyorum.', reaction: 'Biliyordum 🙂 Yarın mülakatta aynı tarafta olacağız.', reactionSender: 'Ayşe' },
-        { text: 'Kurallar olmasa 600 dosyayı nasıl bitirirdik, Emre haklı.', reaction: 'Sağ ol. Bunu söyleyen ilk kişi sensin.', reactionSender: 'Emre' },
-      ],
-    },
     {
       at: 630, thread: 'office', sender: 'Ayşe', text: 'Saat yediye geliyor. Kimde dosya kaldı?',
       replies: [
@@ -298,11 +298,11 @@ export const AMBIENT: Ambient[][] = [
   ],
 ];
 
-/** 14:30, a quarter of an hour in the kitchen. */
+/** 14:30, mutfakta çeyrek saat. */
 export const BIRTHDAY_PARTY = { at: 390, minutes: 15 };
 export const BIRTHDAY_YES = 'Ben de geliyorum.';
 
-/** Tuesday: Ayşe sets up a surprise for Emre's birthday (Emre's not in it). Going costs a quarter of an hour. */
+/** Salı: Ayşe, Emre'nin doğum günü için bir sürpriz hazırlar (Emre grupta yok). Gitmek çeyrek saate mal olur. */
 export const BIRTHDAY: Ambient[] = [
   {
     at: 70, thread: 'birthday', sender: 'Ayşe', text: 'Selam herkese! Bugün Emre\'nin doğum günü 🎂 14:30\'da mutfakta sürpriz pasta yapıyoruz, sakın çaktırmayın 🤫 Kimler geliyor?',
@@ -325,8 +325,8 @@ export const BIRTHDAY: Ambient[] = [
 ];
 
 /**
- * Everyday life from mom. The pool is shuffled once per game (see `momOrder` in the store) and
- * each workday takes the next two — so she writes twice a day, never about the same thing twice.
+ * Anneden gündelik hayat. Havuz oyun başına bir kez karıştırılır (store'daki `momOrder`) ve her
+ * iş günü sıradaki ikisini alır; böylece günde iki kez yazar, hiçbir zaman aynı şeyi iki kez değil.
  */
 export const MOM_POOL: { text: string; replies: QuickReply[] }[] = [
   {
@@ -406,9 +406,9 @@ export const MOM_POOL: { text: string; replies: QuickReply[] }[] = [
 ];
 
 /*
- * The team notices which way you went with Hakan Bey's favours — nobody says it out loud.
- * Went along: Hakan Bey is suddenly warm with you and Ayşe gets a little polite. Held your
- * ground: the late light in his office, and a quiet coffee offer.
+ * Ekip, Hakan Bey'in ricalarında hangi yöne gittiğini fark eder; kimse bunu yüksek sesle söylemez.
+ * Uyduysan: Hakan Bey birden sana sıcak davranır, Ayşe biraz resmîleşir. Direndiysen: odasının
+ * geç saatteki ışığı ve sessiz bir kahve teklifi.
  */
 export const TEAM_COMPLIED: Ambient[] = [
   {
@@ -473,7 +473,7 @@ export const TEAM_DEFIED: Ambient[] = [
   },
 ];
 
-/** Mom, when 17:00 passes and you're still at the office: once soon after, once later on. */
+/** 17:00 geçip hâlâ ofisteyken annen: bir kez hemen ardından, bir kez daha sonra. */
 export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] }[][] = [
   [
     {

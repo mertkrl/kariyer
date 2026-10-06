@@ -1,6 +1,6 @@
 /*
- * The shape of the game's state: what the store holds and the actions it offers. Types only —
- * the behaviour lives in store.ts.
+ * Oyun durumunun biçimi: store'un tuttukları ve sunduğu eylemler. Yalnızca tipler; davranış
+ * store.ts'de yaşar.
  */
 import type { Decision, DayStats, Difficulty, EventKind, GamePhase } from './types';
 import type { Mail } from './mail';
@@ -16,33 +16,33 @@ import type { SalaryMove } from './interview';
 
 export interface Finalist {
   id: string;
-  /** 1-based day the candidate was advanced on. */
+  /** Adayın ilerletildiği gün (1'den başlar). */
   day: number;
-  /** Put on the list by Hakan Bey, not by you. */
+  /** Listeye sen değil Hakan Bey koydu. */
   byManager?: boolean;
-  /** Brought by a colleague from their own shortlist. */
+  /** Bir iş arkadaşının kendi kısa listesinden getirdiği. */
   by?: 'ayse' | 'emre';
 }
 
 export interface DayEvent {
   kind: EventKind;
-  /** Workday minute it strikes. */
+  /** Patlak verdiği mesai dakikası. */
   at: number;
-  /** Calendar items: minutes taken and the toast text. */
+  /** Takvim öğeleri: aldığı dakikalar ve bildirim metni. */
   minutes?: number;
   text?: string;
 }
 
 export interface ActiveEvent {
   kind: EventKind;
-  /** Workday minute it ends. */
+  /** Bittiği mesai dakikası. */
   until: number;
   text?: string;
 }
 
-/** What happened over the whole week — for the weekend call, achievements and endings. */
+/** Bütün hafta boyunca olanlar: hafta sonu araması, başarımlar ve sonlar için. */
 export interface WeekLog {
-  /** Ticks spent on decided candidates, and how many were decided. */
+  /** Karar verilen adaylara harcanan tikler ve kaç tanesine karar verildiği. */
   reviewTicks: number;
   reviewed: number;
   momMessages: number;
@@ -51,61 +51,63 @@ export interface WeekLog {
   events: number;
 }
 
-/** The story's state: the week's key decisions. */
+/** Hikâyenin durumu: haftanın kilit kararları. */
 export interface StoryState {
-  /** Stayed past 17:00 today. */
+  /** Bugün 17:00'den sonra kaldın. */
   overtimeToday: boolean;
-  /** Friday 18:40: what you said when Hakan Bey offered the post, and how it ended. */
+  /** Cuma 18:40: Hakan Bey kadroyu teklif ettiğinde ne dediğin ve nasıl bittiği. */
   offer: OfferResult | null;
-  /** Your decision on each of the five, all week. */
+  /** Beşinin her biri hakkındaki kararın, bütün hafta. */
   keyDecisions: Record<string, Decision>;
-  /** Yesterday's favours: the candidates you did them for, and those you didn't. The team notices. */
+  /** Dünkü ricalar: yaptığın adaylar ve yapmadıkların. Ekip fark eder. */
   managerDay: { complied: string[]; defied: string[] };
-  /** Every candidate Hakan Bey asked you to call this week (his side of the panel). */
+  /** Hakan Bey'in bu hafta çağırmanı istediği her aday (kurulda onun tarafı). */
   pastRequests: { candidateId: string; want: Decision }[];
-  /** You lost a night's sleep this week (it only happens once). */
+  /** Bu hafta bir gece uykusuz kaldın (yalnızca bir kez olur). */
   sleptBadly?: boolean;
-  /** The change you pitched to Hakan Bey on Thursday. */
+  /** Perşembe Hakan Bey'e önerdiğin değişiklik. */
   reform: { kind: ReformKind; accepted: boolean } | null;
-  /** You told Mom the neighbour's son could send his CV. */
+  /** Annene komşunun oğlunun CV'sini gönderebileceğini söyledin. */
   neighbourCv: boolean;
+  /** Çağırdığın ama yolu kapandığı için mülakata gelemeyen adaylar (Perşembe karı). */
+  stranded?: string[];
 }
 
-/** The desk around the computer: the landline, the coffee mug, the welcome flowers. */
+/** Bilgisayarın çevresindeki masa: sabit hat, kahve kupası, hoş geldin çiçekleri. */
 export interface DeskState {
   flower: boolean;
-  /** Day index the flowers last got fresh water. */
+  /** Çiçeklerin en son taze su aldığı günün sırası. */
   lastWatered: number;
-  /** Sips left in the mug. */
+  /** Kupada kalan yudumlar. */
   coffee: number;
-  /** Sips taken today — picks the day's next thought. */
+  /** Bugün alınan yudumlar: günün sıradaki düşüncesini seçer. */
   sipsToday: number;
-  /** Refills today. */
+  /** Bugünkü doldurmalar. */
   refills: number;
-  /** Trips to the water cooler, all week. */
+  /** Sebile gidişler, bütün hafta. */
   coolerVisits: number;
-  /** How each landline call went, all week. */
+  /** Her sabit hat aramasının nasıl geçtiği, bütün hafta. */
   calls: Record<string, 'answered' | 'missed'>;
   ringing: string | null;
   ringingSince: number;
-  /** Things you threw away or put in your bag (the cake plate, the final notice). */
+  /** Attığın ya da çantana koyduğun şeyler (pasta tabağı). */
   cleared: string[];
   inCall: string | null;
-  /** What happened while you weren't looking — shown on the desk. */
+  /** Sen bakmazken olanlar: masada gösterilir. */
   notice: string | null;
-  /** What kind of notice it is. */
+  /** Bildirimin türü. */
   noticeKind?: 'missed' | 'overtime' | 'overtimeWarning' | 'scheduled' | 'sent';
-  /** Slices of Thursday's late-night pizza you ate. */
+  /** Perşembe geceki pizzadan yediğin dilimler. */
   pizzaEaten?: number;
 }
 
-/** Replying to a rejected candidate's DM: the truth (against policy), the template, or silence. */
+/** Reddedilen bir adayın özel mesajına cevap: gerçek (politikaya aykırı), şablon ya da sessizlik. */
 export type DmKind = 'honest' | 'template' | 'ignore';
 
 export interface DecisionLogEntry {
   id: string;
   decision: Decision;
-  /** Workday minutes when the decision was (last) made. */
+  /** Kararın (en son) verildiği mesai dakikası. */
   at: number;
 }
 
@@ -117,132 +119,132 @@ export interface GameState {
   vicdan: number;
 
   workdayMinutes: number;
-  /** You went back to your desk before 13:00 — the rest of the hour is work time again. */
+  /** 13:00'ten önce masana döndün: saatin geri kalanı yine mesai. */
   breakOver: boolean;
-  /** Past 17:00 with files still open: you stay until 20:00. */
+  /** 17:00 geçti ve hâlâ açık dosya var: 20:00'ye kadar kalırsın. */
   overtime: boolean;
-  /** Today's one-hour warning (16:00) has been shown. */
+  /** Bugünün bir saat önceki uyarısı (16:00) gösterildi. */
   overtimeWarned: boolean;
-  /** Extra files Hakan Bey added after you closed the queue early, by day index. */
+  /** Kuyruğu erken kapattıktan sonra Hakan Bey'in eklediği dosyalar, gün sırasına göre. */
   extraFiles: Record<number, string[]>;
   openedIds: string[];
   currentCandidateId: string | null;
   decisions: Record<string, Decision>;
-  /** Today's decisions, newest last. Re-deciding a candidate moves them to the end. */
+  /** Bugünün kararları, en yenisi sonda. Bir adaya yeniden karar vermek onu sona taşır. */
   decisionLog: DecisionLogEntry[];
-  /** Seconds each of today's files spent open on the portal screen. */
+  /** Bugünün her dosyasının portal ekranında açık kaldığı saniye. */
   timeSpent: Record<string, number>;
-  /** Files whose CV was seen to the end (see `wasConsidered`). */
+  /** CV'si sonuna kadar görülen dosyalar (bkz. `wasConsidered`). */
   readThrough: Record<string, true>;
-  /** The portal is on screen with a file open: only then does reading time count. */
+  /** Portal ekranda ve bir dosya açık: okuma süresi yalnızca o zaman sayılır. */
   reading: boolean;
 
   dayStats: DayStats;
   totalStats: DayStats;
 
-  /** Candidates advanced to the final round on previous days. */
+  /** Önceki günlerde final turuna ilerletilen adaylar. */
   finalists: Finalist[];
-  /** The one person hired on the final day. */
+  /** Son gün işe alınan tek kişi. */
   hiredId: string | null;
-  /** Who you put forward on Friday (the panel may have picked someone else). */
+  /** Cuma öne sürdüğün kişi (kurul başka birini seçmiş olabilir). */
   recommendedId: string | null;
-  /** This game's candidate queue per day. */
+  /** Bu oyunun gün gün aday kuyruğu. */
   lineups: string[][];
 
-  /** The manager's texts on the desk phone. */
+  /** Müdürün masa telefonuna gelen mesajları. */
   phone: PhoneMessage[];
   phoneUnread: Record<ThreadId, number>;
   managerRequests: ManagerRequest[];
   managerScript: ScheduledMessage[];
-  /** End-of-day summary of how the manager's requests went. */
+  /** Müdürün ricalarının nasıl gittiğinin gün sonu özeti. */
   managerVerdict: string[];
-  /** Whole-week record of how you've answered the manager — drives both sides' tone. */
+  /** Müdüre nasıl cevap verdiğinin bütün haftalık kaydı: iki tarafın tonunu da belirler. */
   managerStance: { refusals: number; complies: number };
-  /** Message ids the manager has already chased up (one nudge each). */
+  /** Müdürün zaten dürttüğü mesaj kimlikleri (her birine bir dürtme). */
   managerNudged: number[];
-  /** Mom's topics for the week (shuffled once per game; two per day, never repeated). */
+  /** Annenin haftalık konuları (oyun başına bir kez karışır; günde iki, hiç tekrar yok). */
   momOrder: number[];
-  /** Yesterday's requests that weren't carried out — the manager brings them up next morning. */
+  /** Dünün yapılmayan ricaları: müdür ertesi sabah açar. */
   managerGrievances: Grievance[];
 
   difficulty: Difficulty;
-  /** How many times the AI analysis was asked for, all week. */
+  /** Yapay zekâ analizinin kaç kez istendiği, bütün hafta. */
   aiUses: number;
   week: WeekLog;
-  /** Hard mode: today's surprises, and the one happening right now. */
+  /** Zor mod: bugünün sürprizleri ve şu an olanı. */
   dayEvents: DayEvent[];
   activeEvent: ActiveEvent | null;
-  /** What you told your mother on Friday night. */
+  /** Cuma gecesi annene ne dediğin. */
   weekendChoice: string | null;
-  /** How you answered rejected candidates who messaged you on Kariyergram. */
+  /** Kariyergram'dan sana yazan reddedilmiş adaylara nasıl cevap verdiğin. */
   dmHandled: Record<string, DmKind>;
   story: StoryState;
   desk: DeskState;
-  /** E-mails you've opened (all week). */
+  /** Açtığın e-postalar (bütün hafta). */
   mailRead: string[];
-  /** What the reference calls you made turned up, by candidate. */
+  /** Yaptığın referans aramalarının ortaya çıkardıkları, adaya göre. */
   referenceChecks: Record<string, ReferenceVerdict>;
-  /** Questions you asked on Friday that no interviewer should ask. */
+  /** Cuma sorduğun, hiçbir mülakatçının sormaması gereken sorular. */
   forbiddenAsked: number;
-  /** Friday: how you handled Hakan Bey cutting in, and the candidates' own questions. */
+  /** Cuma: Hakan Bey'in araya girmesini ve adayların kendi sorularını nasıl karşıladığın. */
   interviewStance: InterviewStance;
-  /** What each of today's decisions did to the scores (to take it back exactly). */
-  /** What each of today's decisions did to the scores (as applied, so undo restores them exactly) and why. */
+  /** Bugünün her kararının puanlara yaptığı (tam olarak geri alabilmek için). */
+  /** Bugünün her kararının puanlara yaptığı (uygulandığı hâliyle, geri alma tam geri yüklesin diye) ve nedeni. */
   decisionEffects: Record<string, { performans: number; vicdan: number; reason?: string }>;
-  /** Performance fell too low: one interview slot fewer today. */
+  /** Performans çok düştü: bugün bir mülakat hakkı eksik. */
   quotaCut: boolean;
 
   muted: boolean;
   paused: boolean;
-  /** The clock waits until you press "Mesaiye başla" in the portal. */
+  /** Saat, portalda "Mesaiye başla"ya basana kadar bekler. */
   shiftStarted: boolean;
-  /** Why you're at your desk late this morning, said on the clock-in card (not as a notification). */
+  /** Bu sabah masana neden geç oturduğun; bildirim olarak değil, mesai kartında söylenir. */
   lateReason: string | null;
-  /** This game's roll of the dice: who writes to you, and in what temper. */
+  /** Bu oyunun zar atışı: sana kim yazıyor ve hangi ruh hâlinde. */
   seed: number;
-  /** The id the next phone message gets. */
+  /** Sıradaki telefon mesajının alacağı kimlik. */
   messageSeq: number;
-  /** Workday minute the landline last rang or was in use today (null: not yet). */
+  /** Sabit hattın bugün en son çaldığı ya da kullanıldığı mesai dakikası (null: henüz değil). */
   lastLandlineAt: number | null;
-  /** Scores when the day began (the evening report shows what the day did to them). */
+  /** Gün başladığındaki puanlar (akşam raporu günün onlara ne yaptığını gösterir). */
   dayStart: { performans: number; vicdan: number };
-  /** Group chats you muted: they still arrive, they just don't pop up. */
+  /** Sessize aldığın grup sohbetleri: yine gelirler, yalnızca açılmazlar. */
   mutedThreads: ThreadId[];
-  /** Someone is typing an answer to you in this chat. */
+  /** Bu sohbette biri sana cevap yazıyor. */
   typingThread: ThreadId | null;
-  /** Mail written for this playthrough (Hakan Bey's morning-after notes). */
+  /** Bu oyun için yazılmış e-postalar (Hakan Bey'in ertesi sabah notları). */
   extraMails: Mail[];
-  /** Every decision of the week, by day: what the echoes during the week are built from. */
+  /** Haftanın her kararı, gün gün: hafta içindeki yankılar bundan kurulur. */
   weekLog: WeekEntry[];
-  /** Today's rejection mails: the day doesn't close until they have gone out (or you chose not to). */
+  /** Bugünün ret e-postaları: gidene kadar (ya da göndermemeyi seçene kadar) gün kapanmaz. */
   rejectionMailsSent: boolean;
-  /** Rejection notices written today and waiting in the outbox for 17:00; decisions can still change until then. */
+  /** Bugün yazılıp giden kutusunda 17:00'yi bekleyen ret bildirimleri; kararlar o zamana kadar değişebilir. */
   plannedRejections: Record<string, RejectTemplate>;
-  /** Day 1's walk-through of the portal, done once per playthrough. */
+  /** 1. günün portal tanıtımı, oyun başına bir kez yapılır. */
   orientationDone: boolean;
-  /** Across the week, how you told people no. */
+  /** Hafta boyunca insanlara nasıl hayır dediğin. */
   rejectionStats: Record<RejectTemplate, number>;
-  /** The same, for today only (the day-end report). */
+  /** Aynısı, yalnızca bugün için (gün sonu raporu). */
   rejectionToday: Record<RejectTemplate, number>;
-  /** Wednesday's team meeting, held as a video call. */
+  /** Çarşamba'nın ekip toplantısı, görüntülü görüşme olarak yapılır. */
   meeting: { state: 'pending' | 'active' | 'done'; choice: MeetingChoice };
-  /** Hakan Bey wants a written reason for every rejection: each one costs a few minutes. */
+  /** Hakan Bey her ret için yazılı gerekçe istiyor: her biri birkaç dakikaya mal olur. */
   justifyRejects: boolean;
-  /** After you went against him: when he calls you into his office this morning. */
+  /** Ona karşı çıktıktan sonra: seni bu sabah odasına ne zaman çağırdığı. */
   reviewAt: number | null;
-  /** Two invitations you sent, taken back on Hakan Bey's call: who, and how you worded it. */
+  /** Gönderdiğin ve Hakan Bey'in aramasıyla geri alınan iki davet: kimler ve nasıl yazdığın. */
   revoked: { ids: string[]; honest: boolean | null } | null;
-  /** The recall mail you still have to write (opens in the mail app). */
+  /** Hâlâ yazman gereken geri çekme e-postası (e-posta uygulamasında açılır). */
   revokeDraft: string[] | null;
-  /** 0–1 slider values, persisted. */
+  /** 0–1 kaydırıcı değerleri, kalıcı. */
   musicVolume: number;
   sfxVolume: number;
 
   selectedJobId: string | null;
 
-  /** A new week; with `replaySeed`, the same week as that seed's (same files, same calls). */
+  /** Yeni bir hafta; `replaySeed` ile o tohumun haftasının aynısı (aynı dosyalar, aynı aramalar). */
   startGame: (replaySeed?: number) => void;
-  /** Picks the week up from this browser's last checkpoint (the start of a day). */
+  /** Haftayı bu tarayıcının son kontrol noktasından (bir günün başı) devralır. */
   continueGame: () => void;
   publishJob: (jobId: string) => void;
   proceedToBriefing: () => void;
@@ -251,14 +253,14 @@ export interface GameState {
   tick: () => void;
   skipBreak: () => void;
   decide: (decision: Decision) => void;
-  /** Takes back the decision on the currently open candidate. */
+  /** O an açık adaydaki kararı geri alır. */
   undoDecision: () => void;
-  /** Final day: recommend one finalist to the panel; what the interview settled (pay, your case) goes with it. */
+  /** Son gün: kurula bir finalist öner; mülakatta belirlenenler (maaş, gerekçen) onunla gider. */
   hire: (id: string, panel?: PanelInput) => void;
-  /** Friday: what the salary talk with one candidate did to your scores. */
+  /** Cuma: bir adayla maaş konuşmasının puanlarına yaptığı. */
   settleSalary: (id: string, move: SalaryMove) => void;
   answerRequest: (requestId: string, answer: 'comply' | 'refuse') => void;
-  /** Optional quick reply to a mom / office message. */
+  /** Anne / ofis mesajına isteğe bağlı hızlı cevap. */
   answerMessage: (messageId: number, replyIndex: number) => void;
   markPhoneRead: (thread: ThreadId) => void;
   finishDay: () => void;
@@ -271,45 +273,45 @@ export interface GameState {
   startShift: () => void;
   finishOrientation: () => void;
   toggleMuteThread: (thread: ThreadId) => void;
-  /** Send the recall mail, lying ("sent by mistake") or saying what happened. */
+  /** Geri çekme e-postasını gönder: yalan söyleyerek ("sehven gönderildi") ya da olanı söyleyerek. */
   sendRevoke: (honest: boolean) => void;
   setDifficulty: (d: Difficulty) => void;
   recordAiUse: () => void;
   setWeekendChoice: (choice: string) => void;
   answerCandidateDm: (candidateId: string, kind: DmKind) => void;
-  /** Friday 18:40: your answer to Hakan Bey's offer, and what came of it. */
+  /** Cuma 18:40: Hakan Bey'in teklifine cevabın ve bundan ne çıktığı. */
   settleOffer: (result: OfferResult) => void;
   finishOffer: () => void;
   finishWeekend: () => void;
   setMusicVolume: (value: number) => void;
   setSfxVolume: (value: number) => void;
-  /** Lift the ringing landline's handset. */
+  /** Çalan sabit hattın ahizesini kaldır. */
   pickUpCall: () => void;
-  /** Say your piece and hang up. */
+  /** Söyleyeceğini söyle ve kapat. */
   answerCall: (choice: number) => void;
-  /** A sip of coffee and a thought — or, with an empty mug, a trip to the kitchen (a few minutes). */
+  /** Bir yudum kahve ve bir düşünce; ya da kupa boşsa mutfağa bir yürüyüş (birkaç dakika). */
   drinkCoffee: () => string;
-  /** A slice of the team's pizza on Thursday evening. Returns the thought. */
+  /** Perşembe akşamı ekibin pizzasından bir dilim. Düşünceyi döndürür. */
   eatPizza: () => string;
   waterFlower: () => void;
   clearDeskNotice: () => void;
   clearDeskItem: (id: string) => void;
   readMail: (id: string) => void;
-  /** Write back to a candidate who answered their rejection (rejectionMails.ts: REPLY_BACK). */
+  /** Reddine cevap veren bir adaya yaz (rejectionMails.ts: REPLY_BACK). */
   answerCandidateMail: (mailId: string, kind: ReplyBack) => void;
-  /** Dial a candidate's former employer. False when the line is busy or there's nobody to call. */
+  /** Bir adayın eski işverenini ara. Hat meşgulse ya da aranacak kimse yoksa false. */
   callReference: (candidateId: string) => boolean;
-  /** Friday: ask a question no interviewer should ask. */
+  /** Cuma: hiçbir mülakatçının sormaması gereken bir soru sor. */
   askForbidden: () => void;
-  /** Hakan Bey asks a question from his list mid-interview: step in, or let it stand. */
+  /** Hakan Bey mülakatın ortasında listesinden bir soru sorar: araya gir ya da öyle kalsın. */
   hakanInterrupt: (protect: boolean) => void;
-  /** The candidate asks you something: the plain truth, or the brochure. */
+  /** Aday sana bir şey sorar: düz gerçek ya da broşür. */
   answerCandidate: (honest: boolean) => void;
-  /** Leave the Wednesday meeting having said what you said. */
+  /** Çarşamba toplantısından, söylediğini söylemiş olarak ayrıl. */
   finishMeeting: (choice: Exclude<MeetingChoice, null>) => void;
-  /** Put the notices in the outbox for 17:00 (right away if it's already past). */
+  /** Bildirimleri 17:00 için giden kutusuna koy (saat geçtiyse hemen). */
   planRejectionMails: (choices: Record<string, RejectTemplate>) => void;
-  /** A glass of water at the cooler — the famous perk. Returns the thought. */
+  /** Sebilde bir bardak su, meşhur yan hak. Düşünceyi döndürür. */
   visitCooler: () => string;
 }
 

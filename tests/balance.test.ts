@@ -1,9 +1,9 @@
 /*
- * The two scores have to tell players apart. Bots with different habits play the same weeks;
- * the tests check the order they finish in and that nobody's score runs into a wall, so a
- * change to any single number that breaks the balance shows up here.
+ * İki puan oyuncuları birbirinden ayırmalı. Farklı alışkanlıkları olan botlar aynı haftaları oynar;
+ * testler bitirdikleri sırayı ve kimsenin puanının duvara dayanmadığını kontrol eder, böylece dengeyi
+ * bozan tek bir sayı değişikliği burada ortaya çıkar.
  *
- * Performans: how closely you followed the company's system. Vicdan: how carefully you decided.
+ * Performans: şirketin sistemine ne kadar yakın uyduğun. Vicdan: ne kadar dikkatli karar verdiğin.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,24 +15,24 @@ import { playWeek, type BotStyle } from './support/bot';
 
 const SEEDS = [7919, 15838, 23757];
 const priority = (id: string) => systemVerdict(candidates[id]) === 'priority';
-/** A strong file the system pushed down for a proxy: the people the week is about. */
+/** Sistemin bir vekil yüzünden aşağı ittiği güçlü bir dosya: haftanın konusu olan insanlar. */
 const deserving = (id: string) => isWronglyFlagged(id) && isStrong(id);
 const quick = () => 2;
 const careful = () => CONSIDERED_SECONDS + 1;
 
 const STYLES: Record<string, (seed: number) => BotStyle> = {
-  /** Does what the system says, without reading. */
+  /** Sistemin dediğini okumadan yapar. */
   hastyFollower: () => ({ read: quick, decide: (id) => (priority(id) ? 'approve' : 'reject'), comply: () => true }),
-  /** Does what the system says — after reading every file. */
+  /** Sistemin dediğini, her dosyayı okuduktan sonra yapar. */
   carefulFollower: () => ({ read: careful, decide: (id) => (priority(id) ? 'approve' : 'reject'), comply: () => true }),
-  /** Reads, takes the system's picks and some of the people it flagged, says yes to the manager half the time. */
+  /** Okur, sistemin seçtiklerini ve işaretlediklerinin bazılarını alır, müdüre yarı yarıya evet der. */
   balanced: (seed) => {
     const rand = rngFor(seed, 'balanced');
     return { read: careful, decide: (id) => (priority(id) || (deserving(id) && rand() < 0.4) ? 'approve' : 'reject'), comply: () => rand() < 0.5 };
   },
-  /** Reads everything, gives every slot to someone the system flagged unfairly, refuses every favour. */
+  /** Her şeyi okur, her hakkı sistemin haksızca işaretlediği birine verir, her ricayı reddeder. */
   advocate: () => ({ read: careful, decide: (id) => (deserving(id) ? 'approve' : 'reject'), comply: () => false }),
-  /** Never decides anything. */
+  /** Hiçbir şeye karar vermez. */
   idle: () => ({ read: () => Infinity, decide: () => 'reject', comply: () => true }),
 };
 
@@ -46,9 +46,11 @@ const results = Object.fromEntries(
 const { hastyFollower, carefulFollower, balanced, advocate, idle } = results;
 if (process.env.BALANCE) console.log(results);
 
+// Aralıklar bilerek dar değil, geniş de değil: okuyarak güçlü birini bulan oyuncu Ümit'in notuyla
+// biraz geri kazanır (SPOTTED_PERFORMANS), ama sisteme uyan yine en yukarıdadır.
 test('performans sisteme uyumu ölçer: takipçi > dengeli > savunucu', () => {
-  assert.ok(carefulFollower.p > balanced.p + 10, JSON.stringify(results));
-  assert.ok(balanced.p > advocate.p + 10, JSON.stringify(results));
+  assert.ok(carefulFollower.p > balanced.p + 5, JSON.stringify(results));
+  assert.ok(balanced.p > advocate.p + 5, JSON.stringify(results));
 });
 
 test('vicdan özeni ölçer: savunucu > dengeli > okuyan takipçi > okumayan takipçi', () => {

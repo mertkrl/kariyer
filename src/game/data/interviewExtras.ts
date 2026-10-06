@@ -1,13 +1,13 @@
 /*
- * The parts of the Friday interview that go past the script:
- *  - one follow-up per candidate, which is where rehearsed answers fall apart,
- *  - the candidate's own question at the end, which you answer honestly or smoothly,
- *  - Hakan Bey cutting in with a question from his list.
+ * Cuma mülakatının senaryonun ötesine geçen parçaları:
+ *  - aday başına bir takip sorusu; ezber cevaplar burada dağılır,
+ *  - adayın sonda kendi sorusu; dürüstçe ya da cilalayarak cevaplarsın,
+ *  - Hakan Bey'in listesinden bir soruyla araya girmesi.
  */
 import { FEMALE } from '../story';
 import { NEPHEW_ID } from './candidates';
 
-/** Follow-up to each of FINAL_INTERVIEW_QUESTIONS, in order. */
+/** FINAL_INTERVIEW_QUESTIONS'ın her birine sırasıyla takip sorusu. */
 export const FOLLOW_UP_QUESTIONS: [string, string, string] = [
   'Bunda sizin payınız tam olarak neydi, sonucu kim ölçtü?',
   'Aynı durum bugün olsa neyi farklı yapardınız?',
@@ -17,7 +17,7 @@ export const FOLLOW_UP_QUESTIONS: [string, string, string] = [
 type Tier = 'strong' | 'solid' | 'unsure' | 'weak';
 const tierOf = (fit: number): Tier => (fit >= 5 ? 'strong' : fit === 4 ? 'solid' : fit === 3 ? 'unsure' : 'weak');
 
-/** Two phrasings per tier and question, so a room of candidates doesn't sound like one person. */
+/** Seviye ve soru başına iki ifade; böylece bir oda dolusu aday tek bir kişi gibi konuşmaz. */
 const FOLLOW_UP_ANSWERS: Record<Tier, [string, string][]> = {
   strong: [
     [
@@ -77,11 +77,11 @@ const FOLLOW_UP_ANSWERS: Record<Tier, [string, string][]> = {
   ],
 };
 
-/** The three people whose follow-up says the most. */
+/** Takip sorusu en çok şey söyleyen üç kişi. */
 const FOLLOW_UP_SPECIAL: Record<string, string> = {
   volkan: 'Rakamlar şirkete özel, paylaşamıyorum. Ama inanın çok etkiliydi; müşteri de çok memnun kaldı.',
   okan: '…Onu şimdi tam hatırlayamadım. Ama ben hızlı öğrenirim, merak etmeyin.',
-  emre: 'Payım mı? Hepsi. Ekipteki diğerleri o sırada toplantıdaydı zaten.',
+  ozan: 'Payım mı? Hepsi. Ekipteki diğerleri o sırada toplantıdaydı zaten.',
 };
 
 const hash = (id: string) => [...id].reduce((n, ch) => n + ch.charCodeAt(0), 0);
@@ -90,10 +90,10 @@ export function followUpAnswer(id: string, question: number, fit: number) {
   return FOLLOW_UP_SPECIAL[id] ?? FOLLOW_UP_ANSWERS[tierOf(fit)][question][hash(id) % 2];
 }
 
-/** What the team lead makes of the follow-up. */
+/** Ekip liderinin takip sorusundan çıkardığı. */
 export function followUpVerdict(id: string, fit: number) {
   if (id === 'volkan') return 'Takip sorusunda yine tek bir rakam vermedi.';
-  if (id === 'emre') return 'Takip sorusunda ekibi yine küçümsedi.';
+  if (id === 'ozan') return 'Takip sorusunda ekibi yine küçümsedi.';
   return fit >= 4 ? 'Takip sorusunda daha da netleşti.' : 'Takip sorusunda dağıldı.';
 }
 
@@ -101,7 +101,7 @@ export interface BackQuestion {
   question: string;
   honest: string;
   polished: string;
-  /** How the candidate takes each answer. */
+  /** Adayın her cevabı nasıl karşıladığı. */
   afterHonest: string;
   afterPolished: string;
 }
@@ -204,9 +204,9 @@ const BACK_SPECIAL: Record<string, BackQuestion> = {
 };
 
 /**
- * The question a candidate asks you at the end. Across one interview day nobody asks the same
- * thing as anyone else: the day's people (`day`) share out the questions in turn, starting at
- * a point fixed by the day's line-up. Someone with a question of their own (BACK_SPECIAL) asks it.
+ * Bir adayın sonda sana sorduğu soru. Bir mülakat gününde kimse bir başkasıyla aynı şeyi sormaz:
+ * günün kişileri (`day`) soruları sırayla paylaşır, başlangıç noktası günün kadrosuyla sabitlenir.
+ * Kendine ait bir sorusu olan (BACK_SPECIAL) onu sorar.
  */
 export function backQuestionFor(id: string, day: readonly string[] = [id]): BackQuestion {
   if (BACK_SPECIAL[id]) return BACK_SPECIAL[id];
@@ -216,6 +216,6 @@ export function backQuestionFor(id: string, day: readonly string[] = [id]): Back
   return BACK_QUESTIONS[(start + turn) % BACK_QUESTIONS.length];
 }
 
-/** Hakan Bey cuts in on the people his list was written for, at most this many times. */
+/** Hakan Bey listesinin yazıldığı kişilerde en fazla bu kadar kez araya girer. */
 export const HAKAN_INTERRUPTS = 2;
 export const hakanTarget = (id: string, age: number) => id !== NEPHEW_ID && (FEMALE.has(id) || age >= 40);

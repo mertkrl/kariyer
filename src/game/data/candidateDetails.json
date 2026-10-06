@@ -486,7 +486,7 @@
     }
   },
   "Gün 3": {
-    "emre": {
+    "ozan": {
       "location": "İstanbul, Ataşehir",
       "languages": "İngilizce (C1)",
       "workHistory": [
@@ -512,7 +512,7 @@
         "Bir teknolojiyi moda olduğu için seçtim, ekip öğrenemedi ve geri döndük. Mimarinin ekibin gücüne göre seçilmesi gerektiğini öğrendim.",
         "Önce mevcut sistemin en kırılgan noktalarını belgeleyip ekiple önceliklendirirdim. İlk 90 günde büyük bir yeniden yazım değil, üç net iyileştirme."
       ],
-      "hireFit": 5
+      "hireFit": 2
     },
     "cem": {
       "location": "İstanbul, Kadıköy (uzaktan çalışabilir)",

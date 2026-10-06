@@ -1,14 +1,14 @@
 /*
- * The save: one checkpoint at the start of each day, kept in this browser's localStorage.
- * Nothing leaves the device — there is no server. A private window or cleared site data
- * simply means there is nothing to continue.
+ * Kayıt: her günün başında bir kontrol noktası, bu tarayıcının localStorage'ında tutulur. Hiçbir
+ * şey cihazdan çıkmaz, sunucu yok. Gizli pencere ya da temizlenmiş site verisi yalnızca devam
+ * edilecek bir şey olmadığı anlamına gelir.
  */
 import type { GameState } from './storeTypes';
 
 const SAVE_KEY = 'kariyerweb-save';
-/** Bump when the saved shape changes, and add a step to MIGRATIONS if old saves can be carried over. */
-export const SAVE_VERSION = 3;
-/** Preferences have their own storage and are not part of a save. */
+/** Kaydedilen biçim değişince artır; eski kayıtlar taşınabiliyorsa MIGRATIONS'a bir adım ekle. */
+export const SAVE_VERSION = 4;
+/** Tercihlerin kendi depoları var, kaydın parçası değiller. */
 const NOT_SAVED = ['muted', 'musicVolume', 'sfxVolume'];
 
 export interface SaveFile {
@@ -20,12 +20,12 @@ export interface SaveFile {
 type SaveData = Record<string, unknown>;
 
 /**
- * How to bring a save from version n to n + 1. A version with no step here can't be carried
- * over, and its save is ignored rather than half-loaded.
+ * Bir kaydı n sürümünden n + 1'e nasıl taşıyacağın. Burada adımı olmayan bir sürüm taşınamaz;
+ * kaydı yarım yüklenmek yerine yok sayılır.
  */
 const MIGRATIONS: Record<number, (data: SaveData) => SaveData> = {
-  // 2 → 3: the money was taken out of the story (balance, bills, rent, evening spending) and
-  // Friday's rent screen became Hakan Bey's offer.
+  // 2 → 3: para hikâyeden çıkarıldı (bakiye, faturalar, kira, akşam harcamaları) ve
+  // Cuma'nın kira ekranı Hakan Bey'in teklifine dönüştü.
   2: (data) => {
     const story = isRecord(data.story) ? { ...data.story } : data.story;
     if (isRecord(story)) {
@@ -34,7 +34,17 @@ const MIGRATIONS: Record<number, (data: SaveData) => SaveData> = {
     }
     return { ...data, story, phase: data.phase === 'reckoning' ? 'offer' : data.phase };
   },
+  // 3 → 4: Ozan Tan'ın aday kimliği "emre"ydi (ofisteki Emre'yle karışıyordu); artık "ozan".
+  // Kısa listedeki `by: 'emre'` ofisteki Emre'dir, ona dokunulmaz.
+  3: (data) => renameOzan(data) as SaveData,
 };
+
+function renameOzan(value: unknown, key?: string): unknown {
+  if (value === 'emre') return key === 'by' ? value : 'ozan';
+  if (Array.isArray(value)) return value.map((v) => renameOzan(v));
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(Object.entries(value).map(([k, v]) => [k === 'emre' ? 'ozan' : k, renameOzan(v, k)]));
+}
 
 export function writeSave(state: GameState) {
   const data = Object.fromEntries(Object.entries(state).filter(([key, value]) => typeof value !== 'function' && !NOT_SAVED.includes(key)));
@@ -49,9 +59,9 @@ const isRecord = (v: unknown): v is SaveData => typeof v === 'object' && v !== n
 const kind = (v: unknown) => (v === null || v === undefined ? 'empty' : Array.isArray(v) ? 'array' : typeof v);
 
 /**
- * The save's fields that fit the game as it is now. `fresh` is a new week's state: a field the
- * game no longer has is dropped, and a field whose kind changed (a list that became a record,
- * say) makes the whole save unusable. Empty values (null) are allowed either way.
+ * Kaydın oyunun şimdiki hâline uyan alanları. `fresh` yeni bir haftanın durumudur: oyunun artık
+ * sahip olmadığı bir alan atılır, türü değişen bir alan (kayda dönüşmüş bir liste gibi) bütün
+ * kaydı kullanılmaz kılar. Boş değerlere (null) her iki durumda da izin verilir.
  */
 export function checkSave(data: unknown, fresh: object): Partial<GameState> | null {
   if (!isRecord(data)) return null;
@@ -59,7 +69,7 @@ export function checkSave(data: unknown, fresh: object): Partial<GameState> | nu
   const shape = fresh as SaveData;
   const kept: SaveData = {};
   for (const [key, value] of Object.entries(data)) {
-    // own fields only: "__proto__" or "constructor" in a save must not reach the game's state
+    // yalnızca kendi alanlar: kayıttaki "__proto__" ya da "constructor" oyunun durumuna ulaşmamalı
     if (!Object.hasOwn(shape, key)) continue;
     const want = kind(shape[key]);
     const got = kind(value);
@@ -70,9 +80,9 @@ export function checkSave(data: unknown, fresh: object): Partial<GameState> | nu
 }
 
 /**
- * Set when there was a save but this build couldn't continue it (an older version, a damaged
- * file, a day or a candidate the game no longer has), so the player is told rather than
- * finding their week silently gone.
+ * Bir kayıt vardı ama bu derleme onu sürdüremedi (eski bir sürüm, bozuk bir dosya, oyunun artık
+ * sahip olmadığı bir gün ya da aday) ise ayarlanır; böylece oyuncu haftasının sessizce kaybolduğunu
+ * fark etmek yerine bilgilendirilir.
  */
 let lost = false;
 export const saveWasLost = () => lost;
@@ -98,7 +108,7 @@ function unusable(): null {
   return null;
 }
 
-/** Removes a save that turned out not to fit the game (see `saveWasLost`). */
+/** Oyuna uymadığı anlaşılan bir kaydı siler (bkz. `saveWasLost`). */
 export function discardSave(): null {
   clearSave();
   return unusable();

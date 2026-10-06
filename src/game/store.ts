@@ -1,14 +1,14 @@
 /*
- * The game's state (zustand): a new week, starting and continuing one, and the checkpoint. The
- * actions live in slices: the day's frame (daySlice: morning, clock, evening), the files
- * (decisionSlice), the phone, the desk, the story and the settings. The clock's second is tick.ts;
- * what the clock sets off is clock.ts.
+ * Oyunun durumu (zustand): yeni bir hafta, birini başlatmak ve sürdürmek, kontrol noktası.
+ * Eylemler dilimlerde yaşar: günün çerçevesi (daySlice: sabah, saat, akşam), dosyalar
+ * (decisionSlice), telefon, masa, hikâye ve ayarlar. Saatin saniyesi tick.ts'dir; saatin
+ * tetiklediği şeyler clock.ts'dir.
  */
 import { create } from 'zustand';
 import { days } from './data/days';
 import { AD_EFFECT } from './data/jobs';
 import { candidateOf, candidates } from './data/candidates';
-import { defaultLineups, makeLineups, KEY_CAST } from './lineups';
+import { defaultLineups, makeLineups, KEY_CAST, STORY_FIXED } from './lineups';
 import { MOM_POOL_SIZE } from './manager';
 import { sound } from './sound';
 import type { GameState } from './storeTypes';
@@ -30,11 +30,11 @@ export { TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, lineupFor, minutesPerTick,
 export { MAIL_SEND_AT, isOnBreak, mailsPending } from './clock';
 export { callFor, panelDecision, revokeTargets, salaryOf, SALARY_CAP } from './managerCalls';
 
-/** What a player's settings don't include: everything a new week starts over. */
+/** Bir oyuncunun ayarlarının içermediği: yeni bir haftanın baştan başlattığı her şey. */
 type DataKey = { [K in keyof GameState]: GameState[K] extends (...args: never[]) => unknown ? never : K }[keyof GameState];
 type WeekData = Omit<Pick<GameState, DataKey>, 'muted' | 'musicVolume' | 'sfxVolume' | 'difficulty'>;
 
-/** A new week's state. Typed so that a field added to GameState can't be forgotten here. */
+/** Yeni bir haftanın durumu. GameState'e eklenen bir alan burada unutulamasın diye tiplenmiştir. */
 function freshWeek(): WeekData {
   return {
     phase: 'welcome',
@@ -108,8 +108,8 @@ function freshWeek(): WeekData {
 }
 
 /**
- * The checkpoint, if this build of the game can continue it: its fields fit today's state, its day
- * exists, and everyone it names is still in the cast. One that doesn't is removed.
+ * Bu oyun derlemesi sürdürebiliyorsa kontrol noktası: alanları bugünün durumuna uyar, günü vardır
+ * ve adını verdiği herkes hâlâ kadrodadır. Uymayan silinir.
  */
 export function loadSave(): SaveFile | null {
   const save = readSave();
@@ -156,12 +156,12 @@ export const useGameStore = create<GameState>((set, get) => ({
   publishJob: (jobId) =>
     set((state) => ({
       selectedJobId: jobId,
-      // how the ad was worded decides who never applies
+      // ilanın nasıl yazıldığı, kimin hiç başvurmayacağına karar verir
       lineups: AD_EFFECT[jobId]
-        ? state.lineups.map((day) => day.filter((id) => KEY_CAST.includes(id) || id === 'baris' || !AD_EFFECT[jobId].skip(candidateOf(id))))
+        ? state.lineups.map((day) => day.filter((id) => KEY_CAST.includes(id) || STORY_FIXED.includes(id) || !AD_EFFECT[jobId].skip(candidateOf(id))))
         : state.lineups,
       phase: 'applicationFlood',
-      // A harsh manager from the first morning on in hard mode.
+      // Zor modda ilk sabahtan itibaren sert bir müdür.
       managerStance: state.difficulty === 'hard' ? { refusals: 1, complies: 0 } : { refusals: 0, complies: 0 } })),
 
   proceedToBriefing: () => set({ phase: 'briefing' }),
@@ -184,7 +184,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
 bindStore(useGameStore);
 
-// Checkpoint at the start of each day; a finished or abandoned week leaves nothing to continue.
+// Her günün başında kontrol noktası; biten ya da bırakılan bir hafta devam edilecek bir şey bırakmaz.
 useGameStore.subscribe((state, prev) => {
   if (state.phase === prev.phase) return;
   if (state.phase === 'applicationFlood' || state.phase === 'briefing') writeSave(state);

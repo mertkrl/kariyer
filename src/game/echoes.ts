@@ -1,7 +1,7 @@
 /*
- * Decisions come back during the week, not only in the ending: the team lead reads yesterday's
- * invitations (and notices a strong file you turned away), and people you rejected turn up on
- * Kariyergram having found work somewhere else.
+ * Kararlar yalnızca sonda değil, hafta içinde de geri döner: ekip lideri dünün davetlerini okur
+ * (ve geri çevirdiğin güçlü bir dosyayı fark eder), reddettiğin insanlar başka bir yerde iş bulup
+ * Kariyergram'da görünür.
  */
 import { candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
@@ -12,14 +12,14 @@ import { MEETING_DAY } from './meeting';
 
 export interface WeekEntry {
   id: string;
-  /** Day index the decision was made on. */
+  /** Kararın verildiği günün sırası. */
   day: number;
   decision: Decision;
-  /** The file was read before the decision (`wasConsidered`); missing in saves from before. */
+  /** Dosya karardan önce okundu mu (`wasConsidered`); eski kayıtlarda yok. */
   considered?: boolean;
 }
 
-/** How the Wednesday meeting went for you, if it has happened. */
+/** Çarşamba toplantısının senin için nasıl geçtiği, olduysa. */
 export type MeetingChoice = 'sample' | 'praise' | 'observe' | null;
 
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
@@ -27,7 +27,7 @@ const first = (id: string) => candidateOf(id).name.split(' ')[0];
 
 const LEVENT_SPECIAL: Record<string, string> = {
   okan: 'bu dosyayı sen mi seçtin? Neyse, Cuma görürüz.',
-  emre: 'teknik olarak çok iyi. Ekibe nasıl uyar, ondan emin değilim.',
+  ozan: 'aşağıda yazdım.',
   volkan: 'CV\'si parlak ama somut hiçbir şey yok. Referansını aradın mı?',
 };
 
@@ -40,18 +40,28 @@ function leventOn(id: string) {
   return 'açıkçası neden çağrıldığını anlamadım.';
 }
 
-/** The team lead's mid-morning mail about yesterday's files. */
+/** Ekip liderinin dünkü dosyalar hakkındaki öğleden önceki e-postası. */
 export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingChoice): Mail | null {
   if (dayIndex < TUESDAY || dayIndex > THURSDAY) return null;
   const yesterday = log.filter((e) => e.day === dayIndex - 1);
   const invited = yesterday.filter((e) => e.decision === 'approve').map((e) => e.id);
-  // the one that got away: a strong file turned down, which he happened to see
+  // kaçan: geri çevrilen güçlü bir dosya, tesadüfen gördüğü
   const missed = yesterday.find((e) => e.decision === 'reject' && fitOf(e.id) >= 5 && !LEVENT_SPECIAL[e.id]);
   const lines = invited.length
     ? ['Dün mülakata çağırdığın adayların CV\'lerine ekip olarak baktık:', '', ...invited.map((id) => `• ${first(id)}: ${leventOn(id)}`)]
     : ['Dün kimseyi mülakata çağırmamışsın. Ekip Cuma\'yı bekliyor; boş gelmeyelim.'];
   if (missed) {
     lines.push('', `Bir de: ${candidateOf(missed.id).name} dün elenmiş. Profilini tesadüfen gördüm; aradığımız tam oydu. Ne oldu?`);
+  }
+  // Ozan: Ümit'in dün sana önerdiği aday; eski ekibinden iki kişiyle konuştu ve yanıldığını yazar
+  const ozan = yesterday.find((e) => e.id === 'ozan');
+  if (ozan) {
+    lines.push(
+      '',
+      ozan.decision === 'approve'
+        ? 'Ozan konusunda yanılmışım. Dün akşam eski ekibinden iki kişiyle konuştum; referans abartmıyormuş. Onu sana ben önerdim, Cuma bunu ben üstleneceğim.'
+        : 'Ozan konusunda yanılmışım. Dün akşam eski ekibinden iki kişiyle konuştum; referans abartmıyormuş. Sen dosyaya bakmışsın, ben konferanstaki koda. Haklıymışsın.',
+    );
   }
   if (dayIndex === MEETING_DAY + 1 && meeting === 'sample') {
     lines.push('', 'Toplantıdaki rastgele kontrol fikrin iyiydi. Hakan Bey bir şey demedi ama ben not aldım.');
@@ -74,7 +84,7 @@ const FOUND_WORK = [
   (co: string) => `Uzun bir hafta bitti: ${co} ile anlaştık 🙏 Reddedildiğim her yere bir teşekkür borçluyum sanırım. Belki de değil.`,
 ];
 
-/** Strong people you turned away on earlier days, posting that they found work. */
+/** Önceki günlerde geri çevirdiğin güçlü insanlar, iş bulduklarını paylaşıyor. */
 export function rejectedEchoes(log: WeekEntry[], dayIndex: number) {
   return log
     .filter((e) => e.decision === 'reject' && e.day < dayIndex && fitOf(e.id) >= 5)

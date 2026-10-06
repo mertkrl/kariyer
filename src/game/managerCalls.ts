@@ -1,13 +1,13 @@
 /*
- * The landline calls Hakan Bey makes that depend on how the week is going — the reform pitch,
- * the morning review, the revoked invitations — and Friday's panel arithmetic. Pure functions
- * of the state; the store decides when they ring.
+ * Hakan Bey'in, haftanın nasıl gittiğine bağlı sabit hat aramaları — değişiklik önerisi,
+ * sabah değerlendirmesi, geri alınan davetler — ve Cuma kurulunun hesabı. Durumun saf
+ * fonksiyonları; ne zaman çalacaklarına store karar verir.
  */
 import type { Decision } from './types';
 import type { Mail } from './mail';
 import { NEPHEW_ID, candidateOf, candidates } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
-import { REQUEST_CALL_PREFIX, deskCall, type CallChoice, type DeskCall } from './desk';
+import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
 import { referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
@@ -15,9 +15,9 @@ import type { Finalist, GameState, StoryState } from './storeTypes';
 import { WEDNESDAY } from './weekdays';
 
 /**
- * After his confession you can pitch a fix instead of just agreeing or objecting. He mostly
- * says no: only someone he trusts (good numbers, few refusals) gets the small change through,
- * and the bigger one needs even more. Asking to audit his own table never works.
+ * İtirafından sonra sadece onaylamak ya da itiraz etmek yerine bir düzeltme önerebilirsin.
+ * Çoğunlukla hayır der: küçük değişikliği yalnızca güvendiği biri (iyi rakamlar, az ret)
+ * geçirebilir, büyüğü daha fazlasını ister. Kendi tablosunun denetlenmesini istemek hiç işe yaramaz.
  */
 export function reformCall(performans: number, refusals: number, day: number): DeskCall {
   const trust = performans >= 60 && refusals <= 2;
@@ -61,9 +61,9 @@ export function reformCall(performans: number, refusals: number, day: number): D
 }
 
 /**
- * The morning after you went against him: his office, door closed, nothing said that could be
- * quoted. He names the files, talks about "the team", and — if it's gone on — wants every
- * rejection in writing from now on.
+ * Ona karşı çıktığın günün ertesi sabahı: odası, kapı kapalı, alıntılanabilecek hiçbir şey
+ * söylenmez. Dosyaların adını sayar, "ekip"ten söz eder ve — bu sürdüyse — bundan sonra her
+ * reddin yazılı gerekçesini ister.
  */
 export function reviewCall(defied: string[], tone: ManagerTone, justify: boolean, day: number): DeskCall {
   const names = defied.map((id) => candidates[id]?.name.split(' ')[0]).filter(Boolean).join(', ');
@@ -90,23 +90,23 @@ export function reviewCall(defied: string[], tone: ManagerTone, justify: boolean
   };
 }
 
-/** The position's budget: the most the company will pay a month. */
+/** Pozisyonun bütçesi: şirketin ayda ödeyeceği en yüksek tutar. */
 export const SALARY_CAP = 50000;
 
-/** A candidate's stated monthly expectation in TL, or null if they didn't give a number. */
+/** Bir adayın belirttiği aylık beklenti (TL) ya da rakam vermediyse null. */
 export function salaryOf(id: string): number | null {
   const m = /(\d{1,3}(?:\.\d{3})+|\d{4,})\s*TL/.exec(candidates[id]?.salary ?? '');
   return m ? Number(m[1].replace(/\./g, '')) : null;
 }
 
 /**
- * The Friday panel. Ümit backs whoever answered best among those the budget can pay (if
- * yours is among the best of them, he backs yours); Hakan Bey backs his nephew if he's in the
- * room, otherwise the candidate he asked you to call, otherwise you. Two votes carry it; if all
- * three disagree, the team lead — whose team it is — decides.
+ * Cuma kurulu. Ümit, bütçenin ödeyebileceği kişiler arasında en iyi cevap vereni destekler
+ * (seninki onların en iyileri arasındaysa seninkini); Hakan Bey yeğeni odadaysa onu, yoksa sana
+ * çağırmanı söylediği adayı, o da yoksa seni destekler. İki oy kazanır; üçü de ayrı düşerse
+ * ekibin sahibi olan ekip lideri karar verir.
  *
- * From the interview: `agreed` is the pay talked down to (or kept) per person, null where they
- * wouldn't come down; `convinced` means you argued Ümit round to your pick with your notes.
+ * Mülakattan: `agreed` kişi başına pazarlıkla indirilen (ya da korunan) maaş, inmediği yerde
+ * null; `convinced` Ümit'i notlarınla kendi seçimine ikna ettiğin anlamına gelir.
  */
 export interface PanelInput {
   agreed?: Record<string, number | null>;
@@ -129,7 +129,7 @@ export function panelDecision(recommended: string, finalists: Finalist[], reques
   return { lead, his, hired, overBudget: !affordable(recommended) };
 }
 
-/** Takes the two invitations back; one of them writes back the next morning. */
+/** İki daveti geri alır; içlerinden biri ertesi sabah cevap yazar. */
 export function revokeInvites(state: GameState, honest: boolean | null): Partial<GameState> {
   const ids = revokeTargets(state.finalists);
   if (ids.length < 2) return {};
@@ -154,11 +154,11 @@ export function revokeInvites(state: GameState, honest: boolean | null): Partial
 }
 
 /*
- * Wednesday afternoon: "the holding revised the headcount plan" — two people you already invited
- * are to get a mail saying the invitation was sent by mistake. He picks the two oldest of the
- * ones you chose yourself. The mail goes either way; what you can decide is whether it lies.
+ * Çarşamba öğleden sonra: "holding kadro planını revize etti". Zaten davet ettiğin iki kişiye
+ * davetin sehven gönderildiğini söyleyen bir e-posta gidecek. Kendi seçtiklerinin en yaşlı
+ * ikisini seçer. E-posta her durumda gider; senin karar verebileceğin, yalan söyleyip söylemeyeceği.
  */
-/** Wednesday afternoon: two of your invitations are to be taken back. */
+/** Çarşamba öğleden sonra: davetlerinden ikisi geri alınacak. */
 export const REVOKE_DAY = WEDNESDAY;
 export const REVOKE_AT = 420;
 
@@ -192,58 +192,58 @@ export function revokeCall(finalists: Finalist[], refusals: number, day: number)
 }
 
 /**
- * Thursday 15:40. IT got the crashed system back: the bug nobody in the building could find was
- * in an open-source library, and someone patched it overnight — Tolga Şen, the boy from Kars
- * whose CV says "paid experience: 0". The call knows what you did with his file this morning.
- * Rejected is still undoable until 17:00; the call doesn't say so, it only hopes.
+ * Perşembe 15:40, yalnızca Tolga'yı mülakata çağırdıysan: Kars'ta kar, havalimanı kapandı, Sarıkamış
+ * yolu da. Cuma sabahı İstanbul'da olamayacak; görüşmeyi ekrandan yapmayı rica eder. Hakan Bey'in
+ * kuralı "yüz yüze"; istisnayı isteyecek olan sensin. Hayır dersen ya da açmazsan listeden düşer.
  */
-export function tolgaPatchCall(decision: Decision | undefined, day: number): DeskCall {
-  const tail =
-    decision === 'reject'
-      ? ['Dur bir dakika… Tolga Şen. Bu isim bugün senin kuyruğunda değil miydi? Sistem "maaşlı deneyim: 0" diye işaretlemişti hani.']
-      : decision === 'approve'
-        ? ['Bu isim bugün senin kuyruğundaydı, değil mi? Mülakata çağırmışsın. Ümit Bey duyunca çok sevinecek.']
-        : ['Bu isim bugün senin kuyruğunda duruyor olabilir mi? Sistem onu "maaşlı deneyim: 0" diye işaretlemişti.'];
-  const choices: CallChoice[] =
-    decision === 'reject'
-      ? [
-          { text: 'Evet. Reddettim.', reply: 'Ha… Bizi kurtaran kod, kuyruktan elenen çocuğun kodu. Neyse. Kolay gelsin.', vicdan: -1 },
-          { text: 'Dosyasına bir daha bakacağım.', reply: 'Bak bence. Saat daha beş olmadı.', vicdan: 1 },
-        ]
-      : decision === 'approve'
-        ? [
-            { text: 'Dosyası zaten her şeyi anlatıyordu.', reply: 'Belli ki sen okumuşsun. Biz okumamışız. Cuma görüşürüz o zaman.', vicdan: 1 },
-            { text: "Bunu Ümit Bey'e sen anlat, olur mu?", reply: "Anlatırım. Commit'i ekrana yansıtıp anlatırım hatta." },
-          ]
-        : [
-            { text: 'Bakacağım, sağ ol Burak.', reply: 'Kolay gelsin. Bence bak.' },
-            { text: 'Sistem onu elemişti zaten.', reply: 'Sistem dün çöktü ama. Bugün kimi elediyse… sen bilirsin.', vicdan: -1 },
-          ];
+export const SNOW_CALL_ID = 'tolga-snow';
+export const SNOW_CALL_AT = 460;
+
+/** Yolu kapanan aday listeden düşer; final ekranı onun gelemediğini bilir. */
+export function strandFinalist(state: Pick<GameState, 'finalists' | 'story'>, id: string): Partial<GameState> {
+  return { finalists: state.finalists.filter((f) => f.id !== id), story: { ...state.story, stranded: [...(state.story.stranded ?? []), id] } };
+}
+
+export function tolgaSnowCall(day: number): DeskCall {
   return {
-    id: 'it-patch',
+    id: SNOW_CALL_ID,
     day,
     at: 0,
-    caller: 'Burak',
-    line: 'Bilgi İşlem · dahili 330',
+    caller: 'Tolga Şen',
+    line: 'Dış hat · Kars · santralden aktarıldı',
+    stakes: 'Yarınki mülakat',
     lines: [
-      'Selam, IT\'den Burak. Müjde: sistemi ayağa kaldırdık, yarın sabah açılıyor.',
-      'Bütün gün çözemediğimiz hata bizde değilmiş; CV\'leri okuyan açık kaynak kütüphanedeymiş. Biri gece yamamış, biz sadece güncelledik.',
-      'Commit\'in sahibi "tolga-sen". Profilinde Kars yazıyor. Kütüphanenin yarısı onun; bizim sistem dört yıldır onun koduyla CV okuyormuş, kimsenin haberi yok.',
-      ...tail,
+      'İyi günler, ben Tolga Şen. Kusura bakmayın, santrale üç kez anlatmam gerekti.',
+      'Yarınki mülakat için akşam uçağına biletim vardı. Kar yüzünden Kars\'ta bütün seferler iptal; Sarıkamış yolu da kapandı, otobüs de kalkmıyor.',
+      'Yarın sabah orada olamayacağım. Görüşmeyi ekrandan yapabilir miyiz? Kameram var, internet… köy kahvesinden de bağlanırım gerekirse.',
     ],
-    choices,
+    choices: [
+      {
+        text: 'Ekrandan bağlanın. Hakan Bey\'e ben anlatırım.',
+        reply: 'Gerçekten mi? …Çok sağ olun. Sabah dokuzda hazır olurum, kar dursa da durmasa da.',
+        vicdan: 2,
+        performans: -1,
+      },
+      {
+        text: 'Mülakatlar yüz yüze, kural böyle. Gelemezseniz listeden düşmeniz gerekecek.',
+        reply: '…Anlıyorum. Karı ben yağdırmadım ama… anlıyorum. İyi günler.',
+        vicdan: -3,
+        performans: 1,
+        strand: 'tolga',
+      },
+    ],
     minutes: 4,
-    missed: { note: 'IT aramış: "Sistem yarın sabah açılıyor. Bir de sana söyleyeceğim bir şey vardı" demiş.' },
+    missed: { note: 'Santral not bırakmış: "Kars\'tan Tolga Şen aradı, ulaşamadı. Yarın gelemeyecekmiş, kar." Listeden düşürüldü.', vicdan: -2 },
   };
 }
 
-/** The call behind a landline id: a scripted one, or the manager asking a favour. */
+/** Bir sabit hat kimliğinin arkasındaki arama: senaryolu bir arama ya da rica isteyen müdür. */
 export function callFor(
   state: Pick<GameState, 'managerRequests' | 'managerStance' | 'currentDayIndex' | 'desk'> & { performans?: number; story?: StoryState; justifyRejects?: boolean; finalists?: Finalist[]; decisions?: Record<string, Decision> },
   id: string,
 ): DeskCall | undefined {
   if (id === 'revoke') return revokeCall(state.finalists ?? [], state.managerStance.refusals, state.currentDayIndex);
-  if (id === 'it-patch') return tolgaPatchCall(state.decisions?.tolga, state.currentDayIndex);
+  if (id === SNOW_CALL_ID) return tolgaSnowCall(state.currentDayIndex);
   if (id === 'reform') return reformCall(state.performans ?? 50, state.managerStance.refusals, state.currentDayIndex);
   if (id === 'review') return reviewCall(state.story?.managerDay.defied ?? [], managerTone(state.managerStance.refusals), !!state.justifyRejects, state.currentDayIndex);
   if (id.startsWith('ref:')) {

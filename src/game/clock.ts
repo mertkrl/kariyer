@@ -1,32 +1,32 @@
 /*
- * What happens as the workday clock runs: texts arriving, the landline ringing, replies
- * expiring, rejection notices going out at 17:00, the day ending. Called from the store's
- * tick and actions; reads and writes the store through storeApi.
+ * Mesai saati işlerken olanlar: mesajların gelmesi, sabit hattın çalması, cevapların süresinin
+ * dolması, ret bildirimlerinin 17:00'de gitmesi, günün bitmesi. Store'un tik'inden ve
+ * eylemlerinden çağrılır; store'u storeApi üzerinden okur ve yazar.
  */
 import { getState, setState } from './storeApi';
 import { BREAK_END_MIN, BREAK_START_MIN, OVERTIME_END_MIN, WORKDAY_END_MIN, isBreakTime } from './time';
 import { CALLBACK_MINUTES, REQUEST_CALL_PREFIX, RING_MINUTES, callsForDay } from './desk';
 import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies } from './manager';
 import { type GameState } from './storeTypes';
-import { REVOKE_AT, REVOKE_DAY, callFor, revokeInvites, revokeTargets } from './managerCalls';
+import { REVOKE_AT, REVOKE_DAY, SNOW_CALL_AT, SNOW_CALL_ID, callFor, revokeInvites, revokeTargets, strandFinalist } from './managerCalls';
 import { type RejectTemplate, candidateReplies, sentMails } from './rejectionMails';
-import { TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor } from './storeDefaults';
+import { TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from './storeDefaults';
 import { sound } from './sound';
 import { visitorsToday } from './visits';
 import { days } from './data/days';
 import { EXTRA_CANDIDATES } from './data/extraCandidates';
 import { rngFor, shuffle } from './rng';
 import { THANKS_DAY } from './weekdays';
-/** 13:00 on the thanks day: the call comes after lunch. */
+/** Teşekkür gününde 13:00: arama öğle arasından sonra gelir. */
 const THANKS_AT = 300;
-/** Hands out the next phone message id. */
+/** Bir sonraki telefon mesajı kimliğini verir. */
 export function takeMessageId() {
   const id = getState().messageSeq;
   setState({ messageSeq: id + 1 });
   return id;
 }
 
-/** True when the manager is waiting for your answer (pending request or an unanswered message). */
+/** Müdür cevabını bekliyorsa (bekleyen bir rica ya da cevapsız bir mesaj) true. */
 export function managerAwaiting(state: GameState) {
   const pendingRequest = state.managerRequests.find((r) => r.answer === null);
   if (pendingRequest) return state.phone.find((m) => m.requestId === pendingRequest.id) ?? null;
@@ -34,24 +34,23 @@ export function managerAwaiting(state: GameState) {
 }
 
 /**
- * Delivers the scripted texts whose time has come.
- * Mom/office messages always arrive. The manager, though, never opens a new topic while he is
- * still waiting for your answer: his next messages stay queued, and if you keep him waiting for
- * an hour he sends a single nudge instead.
+ * Zamanı gelen yazılı mesajları iletir.
+ * Annenin ve ofisin mesajları her zaman gelir. Müdür ise senin cevabını beklerken asla yeni bir
+ * konu açmaz: sonraki mesajları sırada bekler, onu bir saat bekletirsen tek bir dürtme yollar.
  */
-/** Lunch: 12:00–13:00, unless you've already gone back to your desk. */
+/** Öğle arası: 12:00–13:00, masana çoktan dönmediysen. */
 export const isOnBreak = (state: Pick<GameState, 'workdayMinutes' | 'breakOver'>) => isBreakTime(state.workdayMinutes) && !state.breakOver;
 
 /*
- * One thing at a time: the mobile and the landline never go off together. A text waits while
- * the desk phone rings (or you're on it) and for a moment after; a call waits for a moment
- * after the last text. Texts that fall due together arrive one by one.
+ * Aynı anda tek şey: cep telefonu ve sabit hat hiçbir zaman birlikte çalmaz. Masa telefonu
+ * çalarken (ya da sen konuşurken) ve hemen sonrasında mesaj bekler; arama da son mesajdan sonra
+ * bir an bekler. Aynı anda vadesi gelen mesajlar tek tek gelir.
  */
 export const QUIET_GAP = 10;
 export const TEXT_GAP = 8;
 
-// only today's messages count: the phone keeps last night's texts, and their late clock times
-// would otherwise hold back the whole next morning and release it in one burst
+// yalnızca bugünün mesajları sayılır: telefon dün geceki mesajları tutar, onların geç saatleri
+// yoksa bütün ertesi sabahı tutar ve tek bir patlamada bırakırdı
 export const lastTextAt = (state: GameState) =>
   state.phone.reduce((at, m) => (m.from === 'them' && (m.day ?? state.currentDayIndex) === state.currentDayIndex ? Math.max(at, m.at) : at), -Infinity);
 
@@ -59,13 +58,13 @@ type Patch = Partial<GameState>;
 type Desk = GameState['desk'];
 const ring = (desk: Desk, id: string, minutes: number): Patch => ({ desk: { ...desk, ringing: id, ringingSince: minutes } });
 
-/** A call left ringing too long is missed; the manager's favour calls ring back later. */
+/** Çok uzun çalan arama cevapsız kalır; müdürün rica aramaları sonra yeniden çalar. */
 function letRing(state: GameState, minutes: number): Patch | null {
   const desk = state.desk;
   const id = desk.ringing;
   if (!id || minutes - desk.ringingSince < RING_MINUTES) return null;
   if (id.startsWith(REQUEST_CALL_PREFIX) && desk.calls[id] !== 'missed') {
-    // he'll ring back
+    // geri arayacak
     const r = state.managerRequests.find((x) => x.id === id.slice(REQUEST_CALL_PREFIX.length));
     return {
       desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: 'Hakan Bey aradı, açmadın. Birazdan tekrar arar.', noticeKind: 'missed' },
@@ -77,41 +76,47 @@ function letRing(state: GameState, minutes: number): Patch | null {
   if (!call) return null;
   return {
     ...(id === 'revoke' ? revokeInvites(state, null) : {}),
+    ...(id === SNOW_CALL_ID ? strandFinalist(state, 'tolga') : {}),
     performans: clampScore(state.performans + (call.missed.performans ?? 0)),
-    vicdan: clampScore(state.vicdan + (call.missed.vicdan ?? 0)),
+    vicdan: addVicdan(state.vicdan, (call.missed.vicdan ?? 0)),
     desk: { ...desk, ringing: null, calls: { ...desk.calls, [id]: 'missed' }, notice: call.missed.note, noticeKind: 'missed', flower: desk.flower || !!call.flower, lastWatered: call.flower ? state.currentDayIndex : desk.lastWatered } };
 }
 
 /**
- * Who calls next, most urgent first: the first source that has a call due wins the line.
- * A new kind of call is a new entry here, placed where it should cut in.
+ * Sıradaki arayan, en acilden başlayarak: araması vadesi gelen ilk kaynak hattı alır.
+ * Yeni bir arama türü buraya, araya gireceği yere yeni bir kayıt olarak eklenir.
  */
 const CALL_SOURCES: ((state: GameState, minutes: number) => Patch | null)[] = [
-  // Wednesday afternoon: two of your invitations are to be taken back
+  // Çarşamba öğleden sonra: davetlerinden ikisi geri alınacak
   (state, minutes) =>
     state.currentDayIndex === REVOKE_DAY && minutes >= REVOKE_AT && !state.desk.calls.revoke && !state.revoked && revokeTargets(state.finalists).length === 2
       ? ring(state.desk, 'revoke', minutes)
       : null,
-  // called into his office the morning after you went against him
+  // ona karşı çıktığın günün ertesi sabahı odasına çağrılırsın
   (state, minutes) => (state.reviewAt !== null && minutes >= state.reviewAt && !state.desk.calls.review ? ring(state.desk, 'review', minutes) : null),
-  // Thursday afternoon: someone you called to interview earlier in the week rings to say thanks
+  // Perşembe öğleden sonra: hafta başında mülakata çağırdığın biri teşekkür etmek için arar
   (state, minutes) => {
     if (state.currentDayIndex !== THANKS_DAY || minutes < THANKS_AT || Object.keys(state.desk.calls).some((k) => k.startsWith('thanks:'))) return null;
-    const early = state.finalists.find((f) => f.day <= THANKS_DAY - 1);
+    const early = state.finalists.find((f) => f.day <= THANKS_DAY - 1 && !f.byManager);
     return early ? ring(state.desk, `thanks:${early.id}`, minutes) : null;
   },
-  // someone you turned away yesterday is waiting in the lobby
+  // Perşembe öğleden sonra: mülakata çağırdığın Tolga Kars'ta karda kaldı
+  (state, minutes) =>
+    state.currentDayIndex === THANKS_DAY && minutes >= SNOW_CALL_AT && !state.desk.calls[SNOW_CALL_ID] && state.decisions.tolga === 'approve'
+      ? ring(state.desk, SNOW_CALL_ID, minutes)
+      : null,
+  // dün geri çevirdiğin biri lobide bekliyor
   (state, minutes) => {
     const due = visitorsToday(state.currentDayIndex, state.story.keyDecisions, state.dmHandled).find((v) => !state.desk.calls[v.id] && v.at <= minutes);
     return due ? ring(state.desk, due.id, minutes) : null;
   },
-  // the day's scripted calls and the manager's favours, whichever fell due first
+  // günün senaryolu aramaları ve müdürün ricaları, hangisinin vadesi önce geldiyse
   (state, minutes) => {
     const desk = state.desk;
     const dueStatic = callsForDay(state.currentDayIndex).find((c) => !desk.calls[c.id] && c.at <= minutes);
     const dueRequest = state.managerScript.find((m) => m.kind === 'request' && m.at <= minutes);
     if (dueRequest?.request && (!dueStatic || dueRequest.at <= dueStatic.at)) {
-      // the manager wants a favour: that's a phone call, never a message
+      // müdür bir rica istiyor: bu bir telefon aramasıdır, asla bir mesaj değil
       const r = dueRequest.request;
       const known = state.managerRequests.some((x) => x.id === r.id);
       return {
@@ -120,12 +125,12 @@ const CALL_SOURCES: ((state: GameState, minutes: number) => Patch | null)[] = [
         ...ring(desk, REQUEST_CALL_PREFIX + r.id, minutes) };
     }
     if (!dueStatic) return null;
-    // someone walking up to your desk doesn't ring — the conversation just starts
+    // masana yürüyüp gelen biri çalmaz: konuşma hemen başlar
     return dueStatic.walkIn ? { desk: { ...desk, inCall: dueStatic.id } } : ring(desk, dueStatic.id, minutes);
   },
 ];
 
-/** Starts today's next landline call when it's due; a call left ringing too long is missed. */
+/** Bugünün sıradaki sabit hat aramasını zamanı gelince başlatır; çok uzun çalan arama cevapsız kalır. */
 export function ringLandline(minutes: number) {
   const state = getState();
   if (state.desk.inCall) return;
@@ -134,7 +139,7 @@ export function ringLandline(minutes: number) {
     if (missed) setState(missed);
     return;
   }
-  // the line stays quiet right after a text, and around lunch
+  // bir mesajın hemen ardından ve öğle arası civarında hat sessiz kalır
   if (minutes - lastTextAt(state) < QUIET_GAP) return;
   if (minutes >= BREAK_START_MIN - 15 && minutes < BREAK_END_MIN) return;
   for (const source of CALL_SOURCES) {
@@ -144,20 +149,20 @@ export function ringLandline(minutes: number) {
 }
 
 /**
- * The clock's end of the day. At 17:00 you go home if every file is closed; otherwise you
- * stay (unpaid) until 20:00, and whatever is still open then comes out of your wage.
+ * Saatin gün sonu. 17:00'de her dosya kapalıysa eve gidersin; değilse 20:00'ye kadar (ücretsiz)
+ * kalırsın ve o saatte hâlâ açık olan her dosya Performans'tan düşer.
  */
-/** People rejected today who haven't been sent anything yet. */
+/** Bugün reddedilip henüz kendisine hiçbir şey gönderilmeyenler. */
 export function mailsPending(state: Pick<GameState, 'currentDayIndex' | 'lineups' | 'decisions' | 'rejectionMailsSent' | 'plannedRejections'>) {
   return !state.rejectionMailsSent && lineupFor(state).some((id) => state.decisions[id] === 'reject' && !state.plannedRejections[id]);
 }
 
-/** When the outbox goes out: end of the working day. */
+/** Giden kutusunun gittiği an: iş gününün sonu. */
 export const MAIL_SEND_AT = WORKDAY_END_MIN;
 
 /**
- * 17:00 (or the day closing early): the outbox goes out. Anyone rejected without a planned
- * notice gets nothing. Effects land now, not when the notices were written.
+ * 17:00 (ya da gün erken kapanırken): giden kutusu gider. Bildirimi planlanmadan reddedilen
+ * hiçbir şey almaz. Etkiler bildirimlerin yazıldığı anda değil, şimdi işler.
  */
 export function dispatchRejections() {
   const state = getState();
@@ -186,18 +191,18 @@ export function dispatchRejections() {
       personal: state.rejectionStats.personal + personal,
       pool: state.rejectionStats.pool + count('pool'),
       none: state.rejectionStats.none + none },
-    // honest feedback costs a little of the pace; silence costs something else
-    vicdan: clampScore(state.vicdan + personal - none),
-    performans: clampScore(state.performans - Math.floor(personal / 2)) });
+    // dürüst geri bildirim temponun biraz yavaşlamasına mal olur; sessizlik başka bir şeye
+    vicdan: addVicdan(state.vicdan, personal - none),
+    performans: clampScore(state.performans - Math.floor(personal / 3)) });
 }
 
-/** 16:00: the one-hour warning before overtime. */
+/** 16:00: fazla mesaiden bir saat önceki uyarı. */
 const OVERTIME_WARN_AT = WORKDAY_END_MIN - 60;
 
 export function checkDayEnd(minutes: number) {
   const state = getState();
   if (state.phase !== 'gameplay') return;
-  // an hour before the end: what's still open, and what happens if it stays open
+  // bitişten bir saat önce: hâlâ açık olanlar ve açık kalırsa ne olacağı
   if (!state.overtime && !state.overtimeWarned && minutes >= OVERTIME_WARN_AT && minutes < WORKDAY_END_MIN && state.currentDayIndex !== TEAM_LATE_DAY) {
     const open = lineupFor(state).filter((id) => !state.decisions[id]).length;
     const pending = mailsPending(state);
@@ -215,7 +220,7 @@ export function checkDayEnd(minutes: number) {
   }
   if (!state.overtime && minutes >= WORKDAY_END_MIN) {
     const open = lineupFor(state).filter((id) => !state.decisions[id]).length;
-    // Thursday, no system: the whole team stays until 19:00
+    // Perşembe, sistem yok: bütün ekip 19:00'a kadar kalır
     const teamLate = state.currentDayIndex === TEAM_LATE_DAY;
     const pending = mailsPending(state);
     if (open === 0 && !pending) dispatchRejections();
@@ -223,7 +228,7 @@ export function checkDayEnd(minutes: number) {
       state.finishDay();
       return;
     }
-    // mom notices you're not home
+    // annen evde olmadığını fark eder
     const momLate = (OVERTIME_MOM[state.currentDayIndex] ?? []).map((m) => ({
       at: minutes + m.after,
       kind: 'ambient' as const,
@@ -250,7 +255,7 @@ export function checkDayEnd(minutes: number) {
 
 export const dayLimit = (state: Pick<GameState, 'overtime'>) => (state.overtime ? OVERTIME_END_MIN : WORKDAY_END_MIN);
 
-/** Time spent away from the screen (a call, a sip, the flowers) — stops at lunch and at 17:00. */
+/** Ekrandan uzakta geçen zaman (bir arama, bir yudum, çiçekler); öğle arasında ve 17:00'de durur. */
 export function spendMinutes(minutes: number) {
   const state = getState();
   if (state.phase !== 'gameplay' || isOnBreak(state) || !state.shiftStarted) return;
@@ -264,11 +269,11 @@ export function spendMinutes(minutes: number) {
 }
 
 /**
- * How long a chat waits for your answer (workday minutes). Group chats move on quickly — an
- * answer half an hour late lands in the middle of another conversation. Hakan Bey waits:
- * his thread carries the story.
+ * Bir sohbetin cevabını ne kadar beklediği (mesai dakikası). Grup sohbetleri hızlı ilerler;
+ * yarım saat gecikmiş bir cevap başka bir konuşmanın ortasına düşer. Hakan Bey bekler: hikâyeyi
+ * onun sohbeti taşır.
  */
-// in game minutes (1.3 per real second): the group chats wait about 45 real seconds for you
+// oyun dakikası cinsinden (gerçek saniyede 1.3): grup sohbetleri seni yaklaşık 45 gerçek saniye bekler
 export const REPLY_WINDOW: Partial<Record<ThreadId, number>> = { office: 60, birthday: 60, mom: 90, ayse: 60 };
 
 export function expireReplies(minutes: number) {
@@ -292,9 +297,9 @@ export function deliverManagerMessages(minutes: number) {
     return;
   }
   if (state.lastLandlineAt !== null && minutes - state.lastLandlineAt < QUIET_GAP) return;
-  // favours for candidates come over the landline (ringLandline), never in writing
+  // adaylar için ricalar sabit hattan gelir (ringLandline), asla yazılı değil
   const next = state.managerScript.find((m) => m.at <= minutes && (m.kind === 'ambient' || (!awaiting && m.kind !== 'request')));
-  // group chats run at their own pace (colleagues answer each other within a minute); everything else keeps its distance
+  // grup sohbetleri kendi temposunda akar (iş arkadaşları birbirine bir dakika içinde cevap verir); geri kalan her şey mesafesini korur
   const group = next?.ambient && GROUP_THREADS.includes(next.ambient.thread);
   if (minutes - lastTextAt(state) < (group ? 1 : TEXT_GAP)) return;
   const delivered = next ? [next] : [];
@@ -319,7 +324,7 @@ export function deliverManagerMessages(minutes: number) {
     m.request ? [{ id: m.request.id, candidateId: m.request.candidateId, want: m.request.want, answer: null }] : [],
   );
   const momCount = messages.filter((m) => m.thread === 'mom').length;
-  // "let's drop it": nobody answers a closed topic
+  // "konuyu kapatalım": kapanmış bir konuya kimse cevap vermez
   const closed: ThreadId[] = delivered.flatMap((m) => (m.ambient?.closes ? [m.ambient.thread] : []));
   const history = closed.length ? state.phone.map((m) => (closed.includes(m.thread) && m.replies && !m.answered ? { ...m, answered: true } : m)) : state.phone;
   setState({
@@ -332,16 +337,16 @@ export function deliverManagerMessages(minutes: number) {
   sound().playPhoneBuzz();
 }
 
-/** Closing the queue before 15:30 counts as "early"; Hakan Bey only checks from 14:00 on. */
+/** Kuyruğu 15:30'dan önce kapatmak "erken" sayılır; Hakan Bey yalnızca 14:00'ten itibaren kontrol eder. */
 const EXTRA_FILES_BEFORE = WORKDAY_END_MIN - 90;
 export const EXTRA_FILES_FROM = 6 * 60;
 
 /**
- * You closed today's queue early: Hakan Bey notices and "finds" 2–4 more files in the system's
- * waiting list. Once a day, only on a screening day, never someone already in the week.
- * The files go to the top of the queue; if they aren't closed by 17:00, overtime as usual.
- * Only while you're still at your desk: "Günü Bitir" with every file closed sends you home.
- * Returns whether files were added.
+ * Bugünün kuyruğunu erken kapattın: Hakan Bey fark eder ve sistemin bekleme listesinde 2–4 dosya
+ * daha "bulur". Günde bir kez, yalnızca eleme günlerinde, asla haftada zaten görünmüş biri değil.
+ * Dosyalar kuyruğun en üstüne gider; 17:00'ye kadar kapatılmazsa her zamanki gibi fazla mesai.
+ * Yalnızca hâlâ masandayken: her dosya kapalıyken "Günü Bitir" seni eve gönderir.
+ * Dosya eklenip eklenmediğini döndürür.
  */
 export function addExtraFiles(): boolean {
   const s = getState();
@@ -356,7 +361,7 @@ export function addExtraFiles(): boolean {
   const text = `İşi bitirmişsin, bakıyorum. O zaman biraz daha CV'ye bak bakalım: sistemin bekleme listesinden ${picked.length} dosya daha portalına düştü. Mesai bitmeden kapat.`;
   setState({
     extraFiles: { ...s.extraFiles, [day]: picked },
-    // the new files land at the top of the queue, where they're seen
+    // yeni dosyalar kuyruğun en üstüne, görüldükleri yere düşer
     lineups: s.lineups.map((l, i) => (i === day ? [...picked, ...l] : l)),
     phone: [...s.phone, { id: takeMessageId(), thread: 'manager', at: s.workdayMinutes, day, from: 'them', text }],
     phoneUnread: { ...s.phoneUnread, manager: s.phoneUnread.manager + 1 },

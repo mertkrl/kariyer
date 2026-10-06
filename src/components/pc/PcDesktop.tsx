@@ -9,9 +9,9 @@ import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/rejectionMai
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
- * The work computer. A desktop like any office PC: a wallpaper nobody chose, the recruitment
- * portal, the company mail, a spreadsheet that won't open and a recycle bin someone emptied in
- * a hurry. Apps open maximised; the taskbar keeps the clock.
+ * İş bilgisayarı. Her ofis bilgisayarı gibi bir masaüstü: kimsenin seçmediği bir duvar kâğıdı,
+ * işe alım portalı, şirket e-postası, açılmayan bir hesap tablosu ve birinin aceleyle boşalttığı
+ * bir geri dönüşüm kutusu. Uygulamalar tam ekran açılır; görev çubuğu saati tutar.
  */
 
 export type PcApp = 'portal' | 'mail' | 'calendar';
@@ -22,20 +22,20 @@ interface PcDesktopProps {
   app: PcApp | null;
   onOpen: (app: PcApp) => void;
   onClose: () => void;
-  /** The recruitment portal's contents (the candidate screen). */
+  /** İşe alım portalının içeriği (aday ekranı). */
   portal: ReactNode;
   dayIndex: number;
   minutes: number;
   mailRead: string[];
   onReadMail: (id: string) => void;
-  /** Write back to a candidate's reply. */
+  /** Bir adayın cevabına geri yaz. */
   onAnswerMail?: (mailId: string, kind: ReplyBack) => void;
-  /** Mail written during this playthrough. */
+  /** Bu oyun sırasında yazılan e-postalar. */
   extraMails?: Mail[];
-  /** A recall mail you have to write: to whom, and the send action. */
-  /** Who is on the interview list right now (for the list attached to Hakan Bey's mail). */
+  /** Yazman gereken bir geri çekme e-postası: kime ve gönderme eylemi. */
+  /** Şu anda mülakat listesinde kimler var (Hakan Bey'in e-postasına ekli liste için). */
   finalistNames?: string[];
-  /** Before the shift starts: point at the portal, where the day begins. */
+  /** Mesai başlamadan önce: günün başladığı portalı işaret et. */
   beckonPortal?: boolean;
 }
 
@@ -52,8 +52,8 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
     return () => window.clearTimeout(id);
   }, [toast]);
 
-  // Opening an app takes keyboard focus to its title (not into it: in the portal the first
-  // control is a decision, and Enter must not make one); closing it returns focus to its icon.
+  // Bir uygulamayı açmak klavye odağını içine değil başlığına götürür (portalda ilk kontrol bir
+  // karardır ve Enter bir karar vermemeli); kapatmak odağı simgesine geri verir.
   const titleRef = useRef<HTMLSpanElement>(null);
   const iconsRef = useRef<HTMLDivElement>(null);
   const lastApp = useRef(app);
@@ -166,7 +166,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
   );
 }
 
-/** The calendar's desktop icon: a tear-off page showing the weekday. */
+/** Takvimin masaüstü simgesi: haftanın gününü gösteren koparmalı bir yaprak. */
 function CalendarGlyph({ day }: { day: number }) {
   return (
     <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
@@ -180,15 +180,19 @@ function CalendarGlyph({ day }: { day: number }) {
 }
 
 function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { mails: Mail[]; read: string[]; onRead: (id: string) => void; onAnswer?: (mailId: string, kind: ReplyBack) => void; answered: Set<string>; finalistNames: string[] }) {
-  const [folder, setFolder] = useState<'inbox' | 'outbox' | 'sent'>('inbox');
-  const received = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox');
+  const [folder, setFolder] = useState<'inbox' | 'replies' | 'outbox' | 'sent'>('inbox');
+  // reddettiklerinin cevapları kendi klasöründe: iş e-postaları onların altında kaybolmasın
+  const incoming = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox');
+  const received = incoming.filter((m) => !m.reply);
+  const replies = incoming.filter((m) => m.reply);
   const outbox = mails.filter((m) => m.folder === 'outbox');
   const sent = mails.filter((m) => m.folder === 'sent');
-  const byFolder = { inbox: received, outbox, sent };
+  const byFolder = { inbox: received, replies, outbox, sent };
   const shown = byFolder[folder];
   const [openId, setOpenId] = useState<string | null>(received[0]?.id ?? null);
   const current = shown.find((m) => m.id === openId) ?? null;
   const unreadIn = received.filter((m) => !read.includes(m.id)).length;
+  const unreadReplies = replies.filter((m) => !read.includes(m.id)).length;
   useEffect(() => {
     if (current && !read.includes(current.id)) onRead(current.id);
   }, [current, read, onRead]);
@@ -206,6 +210,7 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
         {(
           [
             ['inbox', 'Gelen Kutusu', unreadIn],
+            ['replies', 'Aday Yanıtları', unreadReplies],
             ['outbox', 'Giden Kutusu', outbox.length],
             ['sent', 'Gönderilenler', sent.length],
           ] as const
@@ -218,15 +223,15 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
               setOpenId(byFolder[id][0]?.id ?? null);
             }}
           >
-            <FolderIcon kind={id} />
+            <FolderIcon kind={id === 'replies' ? 'inbox' : id} />
             {label}
-            {n > 0 && <span className={`${styles.folderCount} ${id === 'inbox' ? styles.folderUnread : ''}`}>{n}</span>}
+            {n > 0 && <span className={`${styles.folderCount} ${id === 'inbox' || id === 'replies' ? styles.folderUnread : ''}`}>{n}</span>}
           </button>
         ))}
       </nav>
       <div className={styles.listPane}>
         <div className={styles.listHead}>
-          <b>{{ inbox: 'Gelen Kutusu', outbox: 'Giden Kutusu', sent: 'Gönderilenler' }[folder]}</b>
+          <b>{{ inbox: 'Gelen Kutusu', replies: 'Aday Yanıtları', outbox: 'Giden Kutusu', sent: 'Gönderilenler' }[folder]}</b>
           <span className="mono">{shown.length} ileti</span>
         </div>
         <ul className={styles.mailList}>
@@ -254,7 +259,7 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
             );
           })}
           {shown.length === 0 && (
-            <li className={styles.listEmpty}>{{ inbox: 'Gelen kutusu boş.', outbox: 'Gönderilmeyi bekleyen ileti yok.', sent: 'Henüz gönderilmiş ileti yok.' }[folder]}</li>
+            <li className={styles.listEmpty}>{{ inbox: 'Gelen kutusu boş.', replies: 'Henüz bir aday yazmadı.', outbox: 'Gönderilmeyi bekleyen ileti yok.', sent: 'Henüz gönderilmiş ileti yok.' }[folder]}</li>
           )}
         </ul>
       </div>
@@ -327,7 +332,7 @@ function MailApp({ mails, read, onRead, onAnswer, answered, finalistNames }: { m
 
 const AVATAR_COLORS = ['#4c7fb0', '#3f6b63', '#b3766b', '#7c6a8c', '#c9a227', '#6fa37a', '#a8402f', '#5d6f86'];
 
-/** A round avatar with one or two initials that always fit. */
+/** Bir ya da iki baş harfi her zaman sığan yuvarlak bir avatar. */
 function Initials({ name }: { name: string }) {
   const clean = name.replace(/[^\p{L}\s]/gu, ' ').trim();
   const letters = clean

@@ -1,12 +1,12 @@
 /*
- * The files: opening one, deciding on it, taking a decision back, and what counts as reading it.
+ * Dosyalar: birini açmak, hakkında karar vermek, bir kararı geri almak ve neyin okuma sayıldığı.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';
 import { decisionEffect } from '../engine/scoring';
 import { sound } from '../sound';
 import { later } from '../later';
-import { JUSTIFY_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, lineupFor, readingOf } from '../storeDefaults';
+import { JUSTIFY_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, lineupFor, readingOf, addVicdan } from '../storeDefaults';
 import { addExtraFiles, isOnBreak, mailsPending, spendMinutes } from '../clock';
 
 export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameState, 'selectCandidate' | 'decide' | 'undoDecision' | 'setReading' | 'markReadThrough'> => ({
@@ -33,7 +33,7 @@ export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameStat
     if (!id) return;
 
     const prevDecision = state.decisions[id];
-    // Final-round quota: today's cap and the week-wide cap of FINALIST_LIMIT.
+    // Final turu kontenjanı: bugünün sınırı ve FINALIST_LIMIT'in haftalık sınırı.
     if (decision === 'approve' && prevDecision !== 'approve' && !approvalQuota(state).canApprove) {
       sound().playUi('click');
       return;
@@ -52,11 +52,11 @@ export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameStat
       else dayStats.rejected -= 1;
     }
 
-    // how you decided matters as much as what: reading the file, checking a reference
+    // nasıl karar verdiğin ne karar verdiğin kadar önemli: dosyayı okumak, bir referansı kontrol etmek
     const effect = decisionEffect(id, decision, readingOf(state, id));
     const before = { performans, vicdan };
     performans = clampScore(performans + effect.performans);
-    vicdan = clampScore(vicdan + effect.vicdan);
+    vicdan = addVicdan(vicdan, effect.vicdan);
     if (decision === 'approve') dayStats.approved += 1;
     else dayStats.rejected += 1;
 
@@ -69,11 +69,11 @@ export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameStat
       vicdan,
       dayStats,
       decisionEffects: { ...state.decisionEffects, [id]: { performans: performans - before.performans, vicdan: vicdan - before.vicdan, reason: effect.reason } } });
-    // Hakan Bey wants every "no" in writing now
+    // Hakan Bey artık her "hayır"ı yazılı istiyor
     if (state.justifyRejects && decision === 'reject' && prevDecision !== 'reject') spendMinutes(JUSTIFY_MINUTES);
-    // closing the queue early: a few more files are on their way
+    // kuyruğu erken kapatmak: birkaç dosya daha yolda
     later(addExtraFiles, 1500);
-    // staying late: closing the last open file sends you home
+    // geç kalmak: son açık dosyayı kapatmak seni eve gönderir
     const after = get();
     if (after.overtime && lineupFor(after).every((cid) => after.decisions[cid]) && !mailsPending(after) && !(after.currentDayIndex === TEAM_LATE_DAY && after.workdayMinutes < TEAM_LATE_END)) {
       later(() => get().finishDay(), 1400);
@@ -100,7 +100,7 @@ export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameStat
 
     sound().playUndo();
 
-    // a notice waiting in the outbox for this person is pulled back with the decision
+    // giden kutusunda bu kişi için bekleyen bildirim kararla birlikte geri çekilir
     const plannedRejections = { ...state.plannedRejections };
     delete plannedRejections[id];
     set({

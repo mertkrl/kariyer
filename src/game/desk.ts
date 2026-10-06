@@ -1,12 +1,11 @@
 /*
- * The desk: what sits on it besides the computer.
+ * Masa: bilgisayarın yanında üzerinde duran şeyler.
  *
- *  - The landline rings with calls the mobile never gets: reception, IT, payroll, once a
- *    candidate who found the number — and the manager, whenever he wants a favour for (or
- *    against) a candidate. Those never come in writing. Let it ring too
- *    long and it's a missed call — which has its own consequences.
- *  - The coffee mug: a few sips a day, each one costs a few minutes and lets a thought through.
- *  - The flower reception brings up on your first morning. Nobody else will water it.
+ *  - Sabit hat, cep telefonunun hiç almadığı aramalarla çalar: resepsiyon, bilgi işlem, muhasebe,
+ *    bir kez numarayı bulan bir aday ve bir adayın lehine (ya da aleyhine) rica isteyen müdür.
+ *    Bunlar asla yazılı gelmez. Çok uzun çalarsa cevapsız arama olur, onun da kendi sonuçları var.
+ *  - Kahve kupası: günde birkaç yudum; her biri birkaç dakikaya mal olur ve bir düşünceyi geçirir.
+ *  - İlk sabah resepsiyonun getirdiği çiçek. Onu başka kimse sulamayacak.
  */
 
 export interface CallChoice {
@@ -14,47 +13,49 @@ export interface CallChoice {
   reply: string;
   performans?: number;
   vicdan?: number;
-  /** Hand over to another scene right away (reception → the lobby). */
+  /** Hemen başka bir sahneye geçir (resepsiyon → lobi). */
   next?: string;
-  /** Counts as honest feedback to this candidate. */
+  /** Bu adaya dürüst geri bildirim sayılır. */
   honestFor?: string;
-  /** Taking back two invitations: the mail lies ("sent by mistake") or says what happened. */
+  /** İki daveti geri almak: e-posta yalan söyler ("sehven gönderildi") ya da olanı söyler. */
   revoke?: 'draft';
-  /** A process change you pitched to Hakan Bey, and whether he took it. */
+  /** Bu aday mülakat listesinden düşer (Perşembe karı: "yüz yüze şart"). */
+  strand?: string;
+  /** Hakan Bey'e önerdiğin bir süreç değişikliği ve onu kabul edip etmediği. */
   reform?: { kind: ReformKind; accepted: boolean };
 }
 
-/** What you can pitch after Hakan Bey's confession instead of just going along or refusing. */
+/** Hakan Bey'in itirafından sonra sadece uymak ya da reddetmek yerine önerebileceğin. */
 export type ReformKind = 'blind' | 'structured' | 'audit';
 
 export interface DeskCall {
   id: string;
-  /** What's riding on it, shown on the handset (e.g. the bonus a favour pays). */
+  /** Aramada neyin söz konusu olduğu; ahizede gösterilir. */
   stakes?: string;
-  /** You dialled this one. */
+  /** Bunu sen aradın. */
   outgoing?: boolean;
-  /** Face to face, not over the phone. */
+  /** Telefonda değil, yüz yüze. */
   inPerson?: boolean;
-  /** Someone walks up to your desk: it starts right away instead of ringing. */
+  /** Biri masana yürüyüp gelir: çalmak yerine hemen başlar. */
   walkIn?: boolean;
   day: number;
-  /** Workday minute it starts ringing. */
+  /** Çalmaya başladığı mesai dakikası. */
   at: number;
   caller: string;
-  /** Shown under the caller's name while it rings. */
+  /** Çalarken arayanın adının altında gösterilir. */
   line: string;
   lines: string[];
   choices: CallChoice[];
-  /** Game minutes the call takes. */
+  /** Aramanın sürdüğü oyun dakikası. */
   minutes: number;
   missed: { note: string; performans?: number; vicdan?: number };
-  /** This call brings the welcome flowers. */
+  /** Bu arama hoş geldin çiçeklerini getirir. */
   flower?: boolean;
 }
 
-/** Game minutes the landline rings before it counts as a missed call. */
+/** Sabit hattın cevapsız sayılmadan önce çaldığı oyun dakikası. */
 export const RING_MINUTES = 25;
-/** The manager rings back this long after you let a favour call ring out. */
+/** Bir rica aramasını çalmaya bıraktığında müdürün bu kadar sonra geri araması. */
 export const CALLBACK_MINUTES = 45;
 export const REQUEST_CALL_PREFIX = 'req:';
 
@@ -90,6 +91,43 @@ export const DESK_CALLS: DeskCall[] = [
   },
 
   {
+    // Pazartesi: on bir ay önce gece 02:14'te, başvurudan 0,4 saniye sonra gelen cümle, bu kez gönderen tarafta
+    id: 'reject-template',
+    day: 0,
+    at: 380,
+    caller: 'Selin (İK)',
+    line: 'İnsan Kaynakları · dahili 214',
+    stakes: 'Ret şablonu',
+    lines: [
+      'Selam, Selin ben. Portaldaki ret bildirimlerini sana tanımladım; şablon hazır, bir okur musun?',
+      '"Başvurunuz için teşekkür ederiz. Değerlendirmemiz sonucunda süreç şu an için olumlu sonuçlanmamıştır. Özgeçmişiniz havuzumuzda saklanacaktır. Başarılar dileriz."',
+      'Otomatik gönderim de açık: biri elenince sistem saniyesinde atıyor. Sen hiç uğraşma diye.',
+      '(Bu cümleyi biliyorsun. Kelimesi kelimesine. Bir gece 02:14\'te, başvurudan 0,4 saniye sonra gelmişti.)',
+    ],
+    choices: [
+      { text: 'Otomatik gönderimi kapat Selin. Bildirimleri ben planlayacağım.', reply: 'Emin misin? …Peki, kapattım. Hakan Bey sorarsa senin isteğin, bilsin.', vicdan: 2, performans: -1 },
+      { text: 'Tamam, teşekkürler. Açık kalsın.', reply: 'Süper. Bu işin en kolay kısmı bu zaten 🙂', vicdan: -1, performans: 1 },
+      { text: 'Bu şablon… ben de almıştım. Gece yarısı.', reply: '…Herkes almıştır bence. Ben de. Kapatayım mı, bırakayım mı? Sen söyle.', next: 'reject-template-2' },
+    ],
+    minutes: 4,
+    missed: { note: 'Selin aramış: "Ret şablonunu tanımladım, otomatik gönderim açık" diye not bırakmış.' },
+  },
+  {
+    // yukarıdaki aramanın devamı; kendi başına hiç çalmaz (gün -1)
+    id: 'reject-template-2',
+    day: -1,
+    at: 0,
+    caller: 'Selin (İK)',
+    line: 'İnsan Kaynakları · dahili 214',
+    lines: ['Ben de üç yıl önce, otuz küsur tane. Hepsi aynı metin. Sonra buraya girdim, şimdi ben gönderiyorum. Komik, değil mi?'],
+    choices: [
+      { text: 'Kapat. Kimse bunu gece 02:14\'te bir daha almasın.', reply: 'Tamam. Kapattım. …İyi ki söyledin aslında.', vicdan: 3, performans: -1 },
+      { text: 'Açık kalsın. Elle yetişemem zaten.', reply: 'Haklısın, 340 başvuru var. Kolay gelsin.', vicdan: -1, performans: 1 },
+    ],
+    minutes: 3,
+    missed: { note: '' },
+  },
+  {
     id: 'seda-call',
     day: 2,
     at: 300,
@@ -118,19 +156,6 @@ export const DESK_CALLS: DeskCall[] = [
     missed: { note: 'Hakan Bey aradı, açmadın. Sonra koridorda yüzüne baktı, bir şey demedi.', performans: -2 },
   },
   {
-    // the day the AI is down, the fix comes from a stranger's commit: managerCalls.tolgaPatchCall
-    // fills in the lines from what you did with Tolga's file this morning
-    id: 'it-patch',
-    day: 3,
-    at: 460,
-    caller: 'Burak',
-    line: 'Bilgi İşlem · dahili 330',
-    lines: [],
-    choices: [],
-    minutes: 4,
-    missed: { note: 'IT aramış: "Sistem yarın sabah açılıyor. Bir de sana söyleyeceğim bir şey vardı" demiş.' },
-  },
-  {
     id: 'hakan-confession',
     day: 3,
     at: 375,
@@ -154,11 +179,11 @@ export const DESK_CALLS: DeskCall[] = [
 export const callsForDay = (day: number) => DESK_CALLS.filter((c) => c.day === day);
 export const deskCall = (id: string) => DESK_CALLS.find((c) => c.id === id);
 
-/* ── Coffee ── */
+/* ── Kahve ── */
 
-/** Sips in a full mug. Sipping is free; walking to the kitchen for a refill is not. */
+/** Dolu bir kupadaki yudum sayısı. Yudumlamak bedava; doldurmak için mutfağa yürümek değil. */
 export const COFFEE_SIPS = 6;
-/** Game minutes a refill takes (the kitchen, the queue at the machine, small talk). */
+/** Doldurmanın sürdüğü oyun dakikası (mutfak, makinedeki sıra, ayaküstü sohbet). */
 export const REFILL_MINUTES = 5;
 
 export const REFILL_THOUGHTS = [
@@ -167,10 +192,10 @@ export const REFILL_THOUGHTS = [
   'Mutfakta biri "yeni İK sen misin?" diye sordu. Kupanı doldurup kaçtın.',
 ];
 
-/** When the day's thoughts run out. */
+/** Günün düşünceleri tükenince. */
 export const IDLE_THOUGHTS = ['Kahve iyi geldi.', 'Bir yudum daha. Ekrana dönmen lazım.', 'Kupanın sıcaklığı ellerinde.'];
 
-/** What goes through your head over the day's coffee, per day. */
+/** Günün kahvesi boyunca aklından geçenler, gün gün. */
 export const COFFEE_THOUGHTS: string[][] = [
   ['Filtre kahve. On bir ay işsizlikten sonra ilk sabah kahvesi.', 'Ofisin kahvesi berbat ama sıcak.', 'İki ay deneme süresi. İki ay boyunca hiçbir şeyi yanlış yapmamalısın.', 'Kira %60 zamlanmış, KYK borcu duruyor. Kahve bile acı geliyor.', 'Son yudum soğumuş.'],
   ['Dün kaç kişiyi elediğimi saymamaya çalışıyorum.', 'Masadaki telefona bakmamaya çalışıyorum.', 'Kahve dünkünden daha sert. Ya da ben daha yorgunum.', 'Annemin kart borcu… Asgariyi bu hafta yatırmam lazım.', 'Kupanın dibinde telve kalmış. Fal bakacak vakit yok.'],
@@ -178,11 +203,11 @@ export const COFFEE_THOUGHTS: string[][] = [
   ['Kar yağıyor. Pencereden bakınca her şey sessiz.', 'Ekran boş. Yapay zekâ yok. Sadece ben ve dosyalar.', 'Bugün sistem yok. Kararlar gerçekten benim.', 'Kardeşimin yurt taksiti… Yine hesap yapıyorum.', 'Son yudum. Yarın cuma.'],
 ];
 
-/* ── The flower ── */
+/* ── Çiçek ── */
 
 export type FlowerState = 'fresh' | 'tired' | 'wilted' | 'dead';
 
-/** Every day without fresh water takes it one step further. */
+/** Taze su almadan geçen her gün onu bir adım daha ileri götürür. */
 export function flowerState(currentDay: number, lastWatered: number): FlowerState {
   const dry = currentDay - lastWatered;
   return dry <= 0 ? 'fresh' : dry === 1 ? 'tired' : dry === 2 ? 'wilted' : 'dead';
@@ -196,9 +221,9 @@ export const FLOWER_STATE_TEXT: Record<FlowerState, string> = {
 };
 
 export const FLOWER_CARD = 'Aramıza hoş geldin!\nTavrinsa Labs ailesi olarak yeni görevinde başarılar dileriz.\n— İnsan Kaynakları';
-/** Walking to the water cooler with a glass and back. */
+/** Bir bardakla sebile yürüyüp geri gelmek. */
 export const WATER_MINUTES = 4;
-/** A glass of water for yourself at the cooler. */
+/** Sebilde kendin için bir bardak su. */
 export const COOLER_MINUTES = 2;
 export const COOLER_THOUGHTS = [
   'İlanda "rekabetçi yan haklar" yazıyordu. Sebilin üstünde gerçekten "Yan haklar: su sebili" yazıyor. Şaka sanmıştın.',
@@ -207,5 +232,5 @@ export const COOLER_THOUGHTS = [
   'Sebilin fokurtusu ofisteki tek sakin ses.',
 ];
 
-/** Nothing in the drawer but what every office drawer has. */
+/** Çekmecede her ofis çekmecesinde olandan başka bir şey yok. */
 export const DRAWER_THOUGHT = 'Birkaç kalem, eski bir zımba, kurumuş bir sakız. Çekmeceyi kapattın.';

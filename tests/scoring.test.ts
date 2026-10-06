@@ -57,8 +57,10 @@ test('performans sistemin önerisini izler, dosyanın kalitesini değil', () => 
     const reject = decisionEffect(id, 'reject', read).performans;
     if (v === 'priority') assert.ok(approve > reject, id);
     if (v === 'low' || v === 'out') assert.ok(reject > approve, id);
-    // reading longer never changes how the company scores a decision
-    assert.equal(decisionEffect(id, 'reject', hasty).performans, reject, id);
+    // daha uzun okumak şirketin bir kararı nasıl puanladığını değiştirmez; tek istisna, sistemin
+    // gözdesini okuyup gerçekten zayıf bulmak (Serkan): ceza yarıya iner
+    if (v === 'priority' && (candidateDetails[id]?.hireFit ?? 3) <= 2) assert.equal(decisionEffect(id, 'reject', hasty).performans + 1, reject, id);
+    else assert.equal(decisionEffect(id, 'reject', hasty).performans, reject, id);
   }
 });
 
@@ -79,9 +81,9 @@ test('işarete rağmen güçlü adaya şans vermek vicdan kazandırır, performa
 });
 
 test('dosya okunmuş sayılmak için hem süre hem de sonuna kadar görülmek gerekir', () => {
-  // waiting out the clock with the CV half off screen is not reading it
+  // CV yarı ekran dışındayken saati beklemek onu okumak değildir
   assert.equal(wasConsidered({ secondsSpent: 60, readThrough: false, referenceChecked: false }), false);
-  // scrolling straight to the bottom is not reading it either
+  // doğrudan en alta kaydırmak da okumak değildir
   assert.equal(wasConsidered({ secondsSpent: CONSIDERED_SECONDS - 1, readThrough: true, referenceChecked: false }), false);
   assert.equal(wasConsidered(read), true);
   assert.equal(wasConsidered(checked), true);
