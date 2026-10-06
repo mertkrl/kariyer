@@ -9,8 +9,9 @@
     "typecheck": "tsc -b",
     "lint": "oxlint --report-unused-disable-directives",
     "test": "node --import ./tests/setup/register.mjs --test \"tests/**/*.test.ts\"",
+    "test:coverage": "node --import ./tests/setup/register.mjs --test --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-lines=75 --test-coverage-branches=80 --test-coverage-functions=65 \"tests/**/*.test.ts\"",
     "check": "npm run typecheck && npm run lint && npm test",
-    "ci": "npm run check && npm run build && npm run size && npm audit --audit-level=high",
+    "ci": "npm run typecheck && npm run lint && npm run test:coverage && npm run build && npm run size && npm audit --audit-level=high",
     "preview": "vite preview",
     "size": "node scripts/check-size.mjs",
     "package": "npm run build && node scripts/package.mjs"
