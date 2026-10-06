@@ -47,8 +47,12 @@ const PETALS: [number, number, number][] = [
   [14, 97, -20],
 ];
 
-/** The window is to the left: the plant throws a soft shadow to the right, onto the wall. */
-const CAST = 'drop-shadow(5px 3px 4px rgba(45, 28, 12, 0.22))';
+/**
+ * Office light on a studio photo: a touch warmer and softer so it sits in the room, and the
+ * window to the left throws a soft shadow to the right — a close contact one and a wide one on
+ * the wall behind.
+ */
+const CAST = 'sepia(0.08) saturate(0.92) contrast(0.96) drop-shadow(2px 1px 1.5px rgba(45, 28, 12, 0.28)) drop-shadow(14px 6px 10px rgba(45, 28, 12, 0.16))';
 const withCast = (style: CSSProperties): CSSProperties => ({ ...style, filter: [style.filter, CAST].filter(Boolean).join(' ') });
 
 const IMG: CSSProperties = {
@@ -89,14 +93,20 @@ export function OrchidArt({ state }: { state: FlowerState }) {
       />
       {/* the gift card on its plastic fork */}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden="true">
-        <line x1={70} y1={71.5} x2={64} y2={64} stroke="#d8d8d8" strokeWidth={0.7} />
-        <g transform="rotate(-8 60 62)">
-          <rect x={50} y={58} width={20} height={7} rx={0.6} fill="#fffdf7" stroke="rgba(0,0,0,0.12)" strokeWidth={0.2} />
-          <text x={60} y={62.8} textAnchor="middle" fontSize={3.2} fill="#8a6a2b" fontStyle="italic" fontFamily="Fraunces, serif">
+        <defs>
+          <linearGradient id="orchidCard" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fffdf8" />
+            <stop offset="1" stopColor="#efe8da" />
+          </linearGradient>
+        </defs>
+        <line x1={68.5} y1={73} x2={63} y2={65.5} stroke="#bfc3c6" strokeWidth={0.45} strokeLinecap="round" />
+        <g transform="rotate(-7 60 62)">
+          <rect x={52.6} y={59.4} width={15} height={5.6} rx={0.3} fill="rgba(40,24,10,0.22)" transform="translate(0.5 0.45)" />
+          <rect x={52.6} y={59.4} width={15} height={5.6} rx={0.3} fill="url(#orchidCard)" />
+          <text x={60.1} y={63.1} textAnchor="middle" fontSize={2.4} fill="#6d5a3a" fontStyle="italic" fontFamily="Fraunces, serif">
             Hoş geldin
           </text>
         </g>
-        <rect x={55.6} y={76} width={40} height={2.2} fill="#c9a227" opacity={0.95} />
       </svg>
     </div>
   );

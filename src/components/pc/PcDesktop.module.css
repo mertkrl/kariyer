@@ -49,7 +49,7 @@
   left: 22px;
   display: grid;
   /* every icon gets the same cell, whatever the length of its name: an even column */
-  grid-auto-rows: 100px;
+  grid-auto-rows: minmax(100px, 1fr);
   gap: 8px;
   width: 100px;
 }
