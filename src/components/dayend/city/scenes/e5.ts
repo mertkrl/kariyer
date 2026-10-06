@@ -59,6 +59,7 @@ export function e5Scene(): CityScene {
   const beacons: { x: number; y: number; ph: number }[] = [];
   let sky: HTMLCanvasElement;
   let cloudLayer: HTMLCanvasElement;
+  let skyline: HTMLCanvasElement;
   let road: HTMLCanvasElement;
   let lampGlow: HTMLCanvasElement;
   let rail: HTMLCanvasElement;
@@ -140,6 +141,9 @@ export function e5Scene(): CityScene {
         g.stroke();
         g.fillStyle = 'rgba(30,24,36,0.9)';
         g.fillRect(620, 430, 360, 2.5);
+      });
+      // the towers stand in front of the clouds: their own layer, drawn after the clouds drift by
+      skyline = makeLayer(px, (g) => {
         // Levent: the towers on the left
         const left: [number, number, number, 'flat' | 'slant' | 'spire' | 'pyramid' | 'step'][] = [
           [30, 58, 250, 'step'],
@@ -221,18 +225,40 @@ export function e5Scene(): CityScene {
         wall(g, -23, 0, 7, Z0 - 10, Z1);
         g.fillStyle = '#1a171d';
         wall(g, 23, 0, 3, Z0 - 10, Z1);
-        g.fillStyle = '#0b0d0c';
-        for (let z = 30; z < 900; z *= 1.09) {
-          for (const X of [27, 33, 40]) {
-            const h = range(rb, 9, 17);
-            const [x0, yb, k] = pr(X + range(rb, -1, 1), 3, z);
-            const w = 1.6 * k;
+        // far ones first, so nearer trees overlap them; each a slightly different green, its
+        // road-facing edge picking up the orange of the sodium lamps
+        const cypresses: [number, number][] = [];
+        for (let z = 30; z < 900; z *= 1.09) for (const X of [27, 33, 40]) cypresses.push([X + range(rb, -1.2, 1.2), z * range(rb, 0.97, 1.03)]);
+        cypresses.sort((a, b) => b[1] - a[1]);
+        for (const [X, z] of cypresses) {
+          const h = range(rb, 9, 18);
+          const [x0, yb, k] = pr(X, 3, z);
+          const w = range(rb, 1.3, 1.9) * k;
+          const shade = range(rb, 0.8, 1.25);
+          const fog = Math.min(1, z / 900);
+          const body = [16 * shade + fog * 40, 24 * shade + fog * 30, 18 * shade + fog * 36].map(Math.round);
+          const shape = () => {
             g.beginPath();
             g.moveTo(x0 - w, yb);
-            g.quadraticCurveTo(x0 - w * 0.9, yb - h * k * 0.6, x0, yb - h * k);
-            g.quadraticCurveTo(x0 + w * 0.9, yb - h * k * 0.6, x0 + w, yb);
-            g.fill();
-          }
+            g.quadraticCurveTo(x0 - w * 1.05, yb - h * k * 0.55, x0, yb - h * k);
+            g.quadraticCurveTo(x0 + w * 1.05, yb - h * k * 0.55, x0 + w, yb);
+            g.closePath();
+          };
+          g.fillStyle = `rgb(${body.join(',')})`;
+          shape();
+          g.fill();
+          g.save();
+          shape();
+          g.clip();
+          const lit = g.createLinearGradient(x0 - w, 0, x0 + w, 0);
+          lit.addColorStop(0, 'rgba(255,150,80,0.22)');
+          lit.addColorStop(0.45, 'rgba(255,150,80,0)');
+          g.fillStyle = lit;
+          g.fillRect(x0 - w, yb - h * k, w * 2, h * k);
+          // foliage texture: short darker strokes
+          g.fillStyle = 'rgba(0,0,0,0.25)';
+          for (let i = 0; i < 10; i++) g.fillRect(x0 + range(rb, -w, w), yb - range(rb, 0, h * k), Math.max(0.6, w * 0.4), Math.max(0.6, k * 0.5));
+          g.restore();
         }
         // street-light poles on the busway barriers
         g.strokeStyle = '#2a2830';
@@ -314,6 +340,7 @@ export function e5Scene(): CityScene {
       g.drawImage(cloudLayer, -PAD + off, -PAD, W + PAD * 2, H + PAD * 2);
       g.drawImage(cloudLayer, -PAD + off - (W + PAD * 2), -PAD, W + PAD * 2, H + PAD * 2);
       g.restore();
+      drawLayer(g, skyline, cam, 0.35);
       // aviation lights + bridge LEDs
       g.globalCompositeOperation = 'lighter';
       g.save();

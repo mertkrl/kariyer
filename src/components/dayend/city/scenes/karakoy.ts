@@ -428,9 +428,11 @@ export function karakoyScene(): CityScene {
       g.save();
       g.translate(cam.x, cam.y);
       // the last ferry of the evening crossing in front of Eminönü
-      const ft = (t / 110 + 0.1) % 1;
-      const fp = project(P, -420 - ft * 640, 0, 560);
-      g.globalAlpha = Math.min(1, ft * 12);
+      // (it stays in the open water left of the bridge's far end, where it can be seen, and
+      // fades in and out with the snow at either end of its run)
+      const ft = (t / 90 + 0.1) % 1;
+      const fp = project(P, -320 - ft * 250, 0, 600);
+      g.globalAlpha = Math.min(1, ft * 8, (1 - ft) * 8);
       ferry(g, fp[0], fp[1], fp[2] * 0.3, t);
       g.globalAlpha = 1;
 

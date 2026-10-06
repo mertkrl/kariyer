@@ -102,9 +102,55 @@ export function servisScene(): CityScene {
           b.fillRect(wx, y, 3.4, 4.2);
         }
       }
-      // lobby / shop at street level
-      b.fillStyle = 'rgba(255,214,160,0.85)';
-      b.fillRect(x + 4, 82, w - 10, 14);
+      // shops at street level: each its own light, some already shuttered for the night
+      b.fillStyle = '#17141a';
+      b.fillRect(x, 80, w - 2, 16);
+      for (let sx = x + 3; sx < x + w - 8; ) {
+        const sw = Math.min(x + w - 5 - sx, range(rb, 14, 30));
+        if (rb() < 0.22) {
+          // a rolled-down steel shutter
+          b.fillStyle = '#4a4850';
+          b.fillRect(sx, 83, sw, 13);
+          b.fillStyle = 'rgba(0,0,0,0.3)';
+          for (let ly = 84; ly < 96; ly += 1.6) b.fillRect(sx, ly, sw, 0.5);
+        } else {
+          const tone = pick(rb, [
+            [255, 214, 160],
+            [255, 236, 200],
+            [210, 232, 255],
+            [255, 190, 130],
+          ] as RGB[]);
+          const shop = b.createLinearGradient(0, 83, 0, 96);
+          shop.addColorStop(0, rgba(tone, 0.95));
+          shop.addColorStop(1, rgba(tone, 0.6));
+          b.fillStyle = shop;
+          b.fillRect(sx, 83, sw, 13);
+          // shelves and people's shapes inside, the mullions, the door
+          b.fillStyle = 'rgba(60,40,30,0.35)';
+          for (let k = 0; k < 3; k++) b.fillRect(sx + range(rb, 1, sw - 4), range(rb, 86, 91), range(rb, 2, 5), range(rb, 3, 8));
+          b.fillStyle = '#211d22';
+          for (let mx = sx + 6; mx < sx + sw - 2; mx += 6) b.fillRect(mx, 83, 0.8, 13);
+          b.fillRect(sx + sw * 0.62, 84, sw * 0.18, 12);
+          // a striped awning on some
+          if (rb() < 0.4) {
+            const [ar, ag, ab] = pick(rb, [
+              [170, 40, 40],
+              [40, 110, 80],
+              [40, 70, 150],
+            ] as RGB[]);
+            for (let ax = sx - 1; ax < sx + sw + 1; ax += 2) {
+              b.fillStyle = (ax - sx) % 4 < 2 ? `rgb(${ar},${ag},${ab})` : '#e9e2d4';
+              b.beginPath();
+              b.moveTo(ax, 81);
+              b.lineTo(ax + 2, 81);
+              b.lineTo(ax + 2.6, 84.5);
+              b.lineTo(ax + 0.6, 84.5);
+              b.fill();
+            }
+          }
+        }
+        sx += sw + 1.5;
+      }
       if (rb() < 0.7) {
         const [name, c] = pick(rb, SIGNS);
         b.fillStyle = '#0d0c10';
