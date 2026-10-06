@@ -2,6 +2,7 @@ import type { Candidate } from '../../game/types';
 import { SALARY_CAP } from '../../game/store';
 import { FINAL_INTERVIEW_QUESTIONS } from '../../game/data/candidateDetails';
 import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/interview';
+import type { BackQuestion } from '../../game/data/interviewExtras';
 import { Scorecard } from './InterviewParts';
 import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
@@ -18,7 +19,11 @@ export interface InterviewConsoleProps {
   /** Söz Ümit'e geçti: senin soruların bitti. */
   handedOff: boolean;
   salaryPending: boolean;
+  /** Maaş konuşuldu ve adayın soruları cevaplandı: puanlama sırası. */
   salaryDone: boolean;
+  /** Adayın şu an cevap bekleyen sorusu. */
+  back: BackQuestion | null;
+  answerBack: (honest: boolean) => void;
   ended: boolean;
   /** Bütün görüşmelerin bitti: kurul bekliyor. */
   allDone: boolean;
@@ -33,13 +38,27 @@ export interface InterviewConsoleProps {
   endInterview: () => void;
 }
 
-export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, ended, allDone, mine, canFollow, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
+export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, canFollow, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
   const first = candidate.name.split(' ')[0];
   const scored = Object.keys(scores).length > 0;
   return (
     <div className={styles.console}>
       {typing ? (
         <p className={styles.consoleWait}>{first} cevaplıyor…</p>
+      ) : back ? (
+        <>
+          <p className={styles.consoleTitle}>{first} bir soru soruyor. Nasıl cevaplıyorsun?</p>
+          <div className={styles.options}>
+            <button className={styles.option} onClick={() => answerBack(true)}>
+              <b>Olduğu gibi anlat</b>
+              <span>{back.honest}</span>
+            </button>
+            <button className={styles.option} onClick={() => answerBack(false)}>
+              <b>Şirketi iyi göster</b>
+              <span>{back.polished}</span>
+            </button>
+          </div>
+        </>
       ) : handedOff && !salaryPending && !salaryDone ? (
         <p className={styles.consoleWait}>Söz {LEAD}'da. Dinliyorsun.</p>
       ) : salaryPending ? (

@@ -102,12 +102,22 @@ test('her ilan maaş aralığını açıkça yazar', () => {
   }
 });
 
-test('mülakat günü aynı soruyu iki aday sormaz', async () => {
-  const { backQuestionFor } = await import('../src/game/data/interviewExtras');
+test('adayların karşı soruları deneyime bağlı: yeniler az ve amatörce, deneyimliler çok ve keskin', async () => {
+  const { backQuestionsFor, backQuestionCount, experienceYears, seniorityOf } = await import('../src/game/data/interviewExtras');
+  assert.equal(experienceYears('9 yıl (2 yıllık boşluk var)'), 9);
+  assert.equal(experienceYears('15 yıl öğretmenlik, 1 yıl yazılım'), 1);
+  assert.equal(experienceYears('0 yıl (bootcamp mezunu)'), 0);
   const ids = Object.keys(candidates);
-  for (let start = 0; start + 6 <= ids.length; start += 3) {
-    const day = ids.slice(start, start + 6);
-    const asked = day.map((id) => backQuestionFor(id, day).question);
-    assert.equal(new Set(asked).size, asked.length, day.join(','));
+  const avg = (level: string) => {
+    const xs = ids.filter((id) => seniorityOf(experienceYears(candidates[id].experience)) === level).map((id) => backQuestionCount(id, experienceYears(candidates[id].experience)));
+    return xs.reduce((a, b) => a + b, 0) / xs.length;
+  };
+  assert.ok(avg('junior') < avg('mid') && avg('mid') < avg('senior'), `junior ${avg('junior')} · mid ${avg('mid')} · senior ${avg('senior')}`);
+  // herkes sormaz: her seviyede soru sormayan biri var
+  assert.ok(ids.some((id) => backQuestionCount(id, experienceYears(candidates[id].experience)) === 0));
+  // bir aday aynı soruyu iki kez sormaz
+  for (const id of ids) {
+    const qs = backQuestionsFor(id, experienceYears(candidates[id].experience), ids.slice(0, 6)).map((q) => q.question);
+    assert.equal(new Set(qs).size, qs.length, id);
   }
 });

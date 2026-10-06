@@ -7,6 +7,9 @@
 import { FEMALE } from '../story';
 import { NEPHEW_ID } from './candidates';
 
+/** Haftanın hikâyesinin kişileri (lineups.ts KEY_CAST ile aynı; döngüsel içe aktarmadan kaçınmak için burada). */
+const KEY_CAST = ['okan', 'kerem', 'derya', 'seda', 'tolga'];
+
 /** FINAL_INTERVIEW_QUESTIONS'ın her birine sırasıyla takip sorusu. */
 export const FOLLOW_UP_QUESTIONS: [string, string, string] = [
   'Bunda sizin payınız tam olarak neydi, sonucu kim ölçtü?',
@@ -106,27 +109,46 @@ export interface BackQuestion {
   afterPolished: string;
 }
 
-const BACK_QUESTIONS: BackQuestion[] = [
+/** Yeni mezun ve junior adayların soruları: pratik, biraz amatörce. */
+const BACK_JUNIOR: BackQuestion[] = [
   {
-    question: 'Benim de bir sorum olacak: bu pozisyon neden boşaldı?',
-    honest: 'Önceki arkadaş yoğunluktan ayrıldı. Açık konuşayım, dönem sonlarında fazla mesai oluyor.',
-    polished: 'Ekip büyüyor, bu yüzden yeni bir kadro açtık.',
-    afterHonest: 'Açık söylediğiniz için teşekkür ederim. Bilerek başlamayı tercih ederim.',
-    afterPolished: 'Anladım, teşekkürler.',
+    question: 'Şey… sonucu ne zaman öğrenirim acaba?',
+    honest: 'Kurul bugün karar veriyor ama yazılı dönüş birkaç gün sürebilir.',
+    polished: 'En kısa sürede size döneceğiz.',
+    afterHonest: 'Tamam, teşekkür ederim. Telefonumu açık tutarım.',
+    afterPolished: 'Tamam, bekliyorum o zaman.',
   },
+  {
+    question: 'Yemek kartı veriliyor mu? Bir de servis var mı?',
+    honest: 'Yemek kartı var ama tutarı pek yetmiyor; servis yalnızca birkaç hatta.',
+    polished: 'Tabii, yan haklarımız oldukça kapsamlı.',
+    afterHonest: 'Anladım, sağ olun.',
+    afterPolished: 'Süper, teşekkürler!',
+  },
+  {
+    question: 'Ofiste kıyafet kuralı var mı? Takım elbise mi gerekiyor?',
+    honest: 'Resmî bir kural yok ama müşteri toplantılarında Hakan Bey ceket bekliyor.',
+    polished: 'Rahat bir ofisiz, istediğiniz gibi gelebilirsiniz.',
+    afterHonest: 'İyi ki sordum, teşekkürler.',
+    afterPolished: 'Oh, rahatladım.',
+  },
+  {
+    question: 'İlk maaş ne zaman yatıyor? Bir de deneme süresinde de tam maaş mı alınıyor?',
+    honest: 'Ayın 15\'inde yatıyor; deneme süresinde de tam maaş, ama yan haklar üçüncü aydan sonra başlıyor.',
+    polished: 'Deneme süresinde de bütün haklarınız eksiksiz.',
+    afterHonest: 'Bunu bilmek iyi oldu, planımı yaparım.',
+    afterPolished: 'Harika, teşekkürler.',
+  },
+];
+
+/** Orta seviye adayların soruları: işin gündelik gerçeği. */
+const BACK_MID: BackQuestion[] = [
   {
     question: 'Bir şey sorabilir miyim? Ekipte fazla mesai ne sıklıkta oluyor?',
     honest: "Oluyor. Bu hafta bütün ekip bir akşam 19:00'a kadar kaldı.",
     polished: 'Nadiren. İş-yaşam dengesine önem veren bir şirketiz.',
     afterHonest: 'Dürüstlüğünüz için teşekkürler. Planımı ona göre yaparım.',
     afterPolished: 'Güzel, bunu duymak iyi oldu.',
-  },
-  {
-    question: 'Son bir sorum var: deneme süresinin sonunda değerlendirme nasıl yapılıyor?',
-    honest: 'Yazılı bir süreç henüz yok; büyük ölçüde yöneticinin kanaatine bağlı.',
-    polished: 'Şeffaf ve ölçülebilir bir performans sistemimiz var.',
-    afterHonest: 'Anlıyorum. Açık söylemeniz güven verdi.',
-    afterPolished: 'Tamam, çok iyi.',
   },
   {
     question: 'İlanda "hibrit" yazıyordu. Haftada kaç gün ofiste olmamız bekleniyor?',
@@ -163,6 +185,24 @@ const BACK_QUESTIONS: BackQuestion[] = [
     afterHonest: 'Bağımsız çalışmaya alışığım, bunu bilmek iyi oldu.',
     afterPolished: 'Birebir ilgi çok değerli, teşekkürler.',
   },
+];
+
+/** Kıdemli adayların soruları: şirketin yapısı, riskleri, karar alma biçimi. */
+const BACK_SENIOR: BackQuestion[] = [
+  {
+    question: 'Benim de bir sorum olacak: bu pozisyon neden boşaldı?',
+    honest: 'Önceki arkadaş yoğunluktan ayrıldı. Açık konuşayım, dönem sonlarında fazla mesai oluyor.',
+    polished: 'Ekip büyüyor, bu yüzden yeni bir kadro açtık.',
+    afterHonest: 'Açık söylediğiniz için teşekkür ederim. Bilerek başlamayı tercih ederim.',
+    afterPolished: 'Anladım, teşekkürler.',
+  },
+  {
+    question: 'Son bir sorum var: deneme süresinin sonunda değerlendirme nasıl yapılıyor?',
+    honest: 'Yazılı bir süreç henüz yok; büyük ölçüde yöneticinin kanaatine bağlı.',
+    polished: 'Şeffaf ve ölçülebilir bir performans sistemimiz var.',
+    afterHonest: 'Anlıyorum. Açık söylemeniz güven verdi.',
+    afterPolished: 'Tamam, çok iyi.',
+  },
   {
     question: 'Burada terfi nasıl oluyor? Bir kariyer basamağı tanımlı mı?',
     honest: 'Tanımlı bir basamak yok; terfiler daha çok bir kadro boşaldığında oluyor.',
@@ -191,9 +231,30 @@ const BACK_QUESTIONS: BackQuestion[] = [
     afterHonest: 'Anlıyorum, en azından ne beklemem gerektiğini biliyorum.',
     afterPolished: 'Çok güzel, katkı sunabilmek benim için önemli.',
   },
+  {
+    question: 'Teknik borç ne durumda, ve onu kim önceliklendiriyor: ürün mü, ekip mi?',
+    honest: 'Epey birikmiş durumda; öncelik çoğu zaman yeni özelliklerde, borç sona kalıyor.',
+    polished: 'Her sprintte teknik borca düzenli zaman ayırıyoruz.',
+    afterHonest: 'Açık söylediğiniz için teşekkürler. Bu, ilk aylarımı nasıl planlayacağımı belirler.',
+    afterPolished: 'Bunu duymak iyi, teşekkürler.',
+  },
+  {
+    question: 'Bu ekibin geçen çeyrek hedefleri neydi, ve tutturuldu mu?',
+    honest: 'Tutmadı; holding kadro ve maliyet hedeflerini sıkılaştırdı, bu çeyrek baskı fazla.',
+    polished: 'Hedeflerimizin büyük kısmını aştık, büyüme dönemindeyiz.',
+    afterHonest: 'Bunu söylemeniz önemli. Baskının nereden geldiğini bilmek isterim.',
+    afterPolished: 'Güzel, teşekkür ederim.',
+  },
 ];
 
 const BACK_SPECIAL: Record<string, BackQuestion> = {
+  tolga: {
+    question: 'Kısmen uzaktan çalışmak mümkün mü? Ailem Kars\'ta, bazen yanlarında olmam gerekiyor.',
+    honest: 'Kâğıt üzerinde hibritiz ama pratikte çoğu hafta ofisteyiz; uzaktan çalışma istisna.',
+    polished: 'Tabii, esnek bir modelimiz var.',
+    afterHonest: 'Açık söylediğiniz için teşekkürler; ona göre düşünürüm.',
+    afterPolished: 'Bunu duymak çok iyi geldi, teşekkürler.',
+  },
   seda: {
     question: 'Esnek çalışma saati mümkün mü? Kızımı okuldan almam gerekiyor.',
     honest: 'Resmî bir esnek çalışma politikamız yok; yöneticiyle konuşularak çözülüyor.',
@@ -203,19 +264,50 @@ const BACK_SPECIAL: Record<string, BackQuestion> = {
   },
 };
 
-/**
- * Bir adayın sonda sana sorduğu soru. Bir mülakat gününde kimse bir başkasıyla aynı şeyi sormaz:
- * günün kişileri (`day`) soruları sırayla paylaşır, başlangıç noktası günün kadrosuyla sabitlenir.
- * Kendine ait bir sorusu olan (BACK_SPECIAL) onu sorar.
- */
-export function backQuestionFor(id: string, day: readonly string[] = [id]): BackQuestion {
-  if (BACK_SPECIAL[id]) return BACK_SPECIAL[id];
-  const askers = [...day].filter((x) => !BACK_SPECIAL[x]).sort();
-  const start = askers.reduce((n, x) => n + hash(x), 0) % BACK_QUESTIONS.length;
-  const turn = Math.max(0, askers.indexOf(id));
-  return BACK_QUESTIONS[(start + turn) % BACK_QUESTIONS.length];
+/** Deneyim yılı: "9 yıl", "0 yıl (staj)", "15 yıl öğretmenlik, 1 yıl yazılım" → yazılımdaki yıl. */
+export function experienceYears(text: string): number {
+  const software = /(\d+(?:,\d+)?)\s*yıl\s*yazılım/.exec(text);
+  const first = /(\d+(?:,\d+)?)\s*yıl/.exec(text);
+  const m = software ?? first;
+  return m ? Number(m[1].replace(',', '.')) : 0;
 }
 
-/** Hakan Bey listesinin yazıldığı kişilerde en fazla bu kadar kez araya girer. */
-export const HAKAN_INTERRUPTS = 2;
+export type Seniority = 'junior' | 'mid' | 'senior';
+export const seniorityOf = (years: number): Seniority => (years < 3 ? 'junior' : years < 8 ? 'mid' : 'senior');
+
+const POOLS: Record<Seniority, BackQuestion[]> = { junior: BACK_JUNIOR, mid: BACK_MID, senior: BACK_SENIOR };
+
+/**
+ * Adayın sonda kaç soru sorduğu, deneyime göre ve her aday için sabit: yeni mezunların yarısı
+ * hiç sormaz, soranlar bir şey sorar; orta seviye çoğunlukla bir; kıdemliler çoğunlukla iki.
+ */
+export function backQuestionCount(id: string, years: number): number {
+  const roll = hash(`${id}:back`) % 10;
+  const level = seniorityOf(years);
+  if (BACK_SPECIAL[id]) return level === 'senior' ? 2 : 1;
+  // haftanın kilit adayları (Kerem, Derya, Seda, Tolga) söyleyecek bir şeyi olan insanlardır: hep sorar
+  const story = KEY_CAST.includes(id) && id !== NEPHEW_ID;
+  if (level === 'junior') return roll < 5 && !story ? 0 : 1;
+  if (level === 'mid') return roll < 2 && !story ? 0 : 1;
+  return roll < 2 && !story ? 0 : roll < 4 ? 1 : 2;
+}
+
+/**
+ * Bir adayın sonda sana sorduğu sorular (deneyimine göre sayısı ve tarzı). Bir mülakat gününde
+ * aynı seviyedekiler aynı şeyi sormaz: günün kişileri soruları sırayla paylaşır. Kendine ait bir
+ * sorusu olan (BACK_SPECIAL) önce onu sorar.
+ */
+export function backQuestionsFor(id: string, years: number, day: readonly string[] = [id]): BackQuestion[] {
+  const count = backQuestionCount(id, years);
+  if (count === 0) return [];
+  const level = seniorityOf(years);
+  const pool = POOLS[level];
+  const askers = [...day].filter((x) => !BACK_SPECIAL[x]).sort();
+  const start = askers.reduce((n, x) => n + hash(x), 0) % pool.length;
+  const turn = Math.max(0, askers.indexOf(id));
+  const own = BACK_SPECIAL[id] ? [BACK_SPECIAL[id]] : [];
+  const rest = Array.from({ length: count - own.length }, (_, k) => pool[(start + turn * 2 + k) % pool.length]);
+  return [...own, ...rest];
+}
+
 export const hakanTarget = (id: string, age: number) => id !== NEPHEW_ID && (FEMALE.has(id) || age >= 40);

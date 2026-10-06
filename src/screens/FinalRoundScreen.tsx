@@ -4,7 +4,7 @@ import { forbiddenAnswer, forbiddenQuestion } from '../game/story';
 import { candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
 import { FINALIST_LIMIT } from '../game/data/days';
-import { followUpAnswer, FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
+import { backQuestionsFor, experienceYears, followUpAnswer, FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
 import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/interview';
 import { INTERVIEWER, ownerOf } from '../game/panel';
@@ -56,6 +56,7 @@ export function FinalRoundScreen() {
   const [scores, setScores] = useState<Record<string, Scores>>({});
   const [agreed, setAgreed] = useState<Record<string, number | null>>({});
   const settleSalary = useGameStore((s) => s.settleSalary);
+  const answerCandidate = useGameStore((s) => s.answerCandidate);
 
   const candidate = candidateOf(selectedId);
   const details = candidateDetails[selectedId];
@@ -77,6 +78,11 @@ export function FinalRoundScreen() {
   const salaryDone = salaryEntry?.move != null;
   const salaryPending = salaryEntry !== undefined && salaryEntry.move === null;
   const ended = endedFor(selectedId);
+  // adayın sonda sorduğu sorular: sayısı ve tarzı deneyimine bağlı
+  const backs = backQuestionsFor(selectedId, experienceYears(candidate.experience), own.map((f) => f.id));
+  const backEntries = entries.filter((e): e is Extract<Entry, { kind: 'back' }> => e.kind === 'back');
+  const backPending = backEntries.find((e) => e.choice === null) ?? null;
+  const backsDone = salaryDone && !backPending && backEntries.length >= backs.length;
   const canFollow = !followUsed && !typing && !handedOff && !ended;
   const poolIds = own.map((f) => f.id);
   const myNotes = notes[selectedId] ?? [];
@@ -161,10 +167,24 @@ export function FinalRoundScreen() {
     setLog((l) => ({ ...l, [id]: (l[id] ?? []).map((e) => (e.kind === 'salary' && e.move === null ? { kind: 'salary', move } : e)) }));
     setAgreed((a) => ({ ...a, [id]: result.agreed }));
     settleSalary(id, move);
+    // maaştan sonra, sorusu olan aday sorar
+    if (backs.length > 0) push(id, { kind: 'back', n: 0, choice: null });
+  }
+
+  function answerBack(honest: boolean) {
+    if (!backPending || typing) return;
+    const id = selectedId;
+    const next = backPending.n + 1;
+    audioEngine.playUi('click');
+    answerCandidate(honest);
+    setLog((l) => {
+      const list = (l[id] ?? []).map((e) => (e.kind === 'back' && e.choice === null ? { ...e, choice: honest ? ('honest' as const) : ('polished' as const) } : e));
+      return { ...l, [id]: next < backs.length ? [...list, { kind: 'back', n: next, choice: null }] : list };
+    });
   }
 
   function endInterview() {
-    if (typing || ended || !salaryDone) return;
+    if (typing || ended || !backsDone) return;
     audioEngine.playUi('confirm');
     push(selectedId, { kind: 'end' });
   }
@@ -321,6 +341,7 @@ export function FinalRoundScreen() {
                     toggleNote={toggleNote}
                     firstOfDay={interviewed === 0}
                     structured={structured}
+                    backs={backs}
                   />
 
                   <InterviewConsole
@@ -328,7 +349,9 @@ export function FinalRoundScreen() {
                     typing={Boolean(typing)}
                     handedOff={handedOff}
                     salaryPending={salaryPending}
-                    salaryDone={salaryDone}
+                    salaryDone={backsDone}
+                    back={backPending ? backs[backPending.n] : null}
+                    answerBack={answerBack}
                     ended={ended}
                     allDone={interviewed === own.length}
                     mine={mine}

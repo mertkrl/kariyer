@@ -71,14 +71,16 @@ export const SALARY_LABEL: Record<SalaryMove, string> = {
 /** Bir mülakatın tek bir anı, olduğu sırayla. */
 /**
  * Mülakatın sırası: önce sen klasik sorularını sorarsın; söz Ümit'e geçince (handoff) teknik soruyu
- * o, ardından "uyum" sorusunu Hakan Bey sorar; sonra maaşı konuşur ve görüşmeyi kapatırsın (end).
- * Araya giremezsin; aday da size soru sormaz.
+ * o, ardından "uyum" sorusunu Hakan Bey sorar; sonra maaşı konuşursun. Aday deneyimine göre
+ * sana soru sorabilir (back: n'inci sorusu ve senin cevabın); sonra puanlar ve kapatırsın (end).
+ * Araya giremezsin.
  */
 export type Entry =
   | { kind: 'q'; q: number; by?: 'hakan' | 'levent'; about?: string }
   | { kind: 'handoff' }
   | { kind: 'salary'; move: SalaryMove | null }
   | { kind: 'note'; text: string }
+  | { kind: 'back'; n: number; choice: 'honest' | 'polished' | null }
   | { kind: 'end' };
 
 export interface Typing {

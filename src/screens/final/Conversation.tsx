@@ -1,6 +1,7 @@
 import type { ReactNode, RefObject } from 'react';
 import type { Candidate } from '../../game/types';
 import { caseFor, expectedSalary, salaryOffer, salaryTalk } from '../../game/interview';
+import type { BackQuestion } from '../../game/data/interviewExtras';
 import { SALARY_CAP } from '../../game/store';
 import { PLAYER } from '../../game/player';
 import { AnswerText, CaseCard } from './InterviewParts';
@@ -48,9 +49,11 @@ export interface ConversationProps {
   firstOfDay: boolean;
   /** Yapılandırılmış mülakat: Hakan Bey'in listesi masada değil. */
   structured: boolean;
+  /** Adayın sonda soracağı sorular (deneyimine göre 0–2). */
+  backs: BackQuestion[];
 }
 
-export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, isNoted, toggleNote, firstOfDay, structured }: ConversationProps) {
+export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, isNoted, toggleNote, firstOfDay, structured, backs }: ConversationProps) {
   return (
       <div className={styles.log} ref={chatRef} aria-live="polite">
         {entries.length === 0 && (
@@ -65,7 +68,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   Sorularını bitirince söz <b>{LEAD}</b>'a geçer: teknik soruyu o sorar.{structured ? '' : ' Ardından Hakan Bey kendi listesinden bir "uyum" sorusu sorar.'} Araya giremezsin.
                 </li>
                 <li>
-                  Sonra <b>maaşı konuşursun</b>; bütçe tavanını aşan beklentiyi pazarlık edebilirsin.
+                  Sonra <b>maaşı konuşursun</b>; bütçe tavanını aşan beklentiyi pazarlık edebilirsin. Aday da sana soru sorabilir: deneyimli adaylar daha çok ve daha keskin sorar.
                 </li>
                 <li>
                   Bir cümlenin sonundaki <b>✎</b> ile not al; görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
@@ -83,6 +86,27 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
           if (e.kind === 'note') return <Note key={index}>{e.text}</Note>;
           if (e.kind === 'handoff') return <Note key={index}>Söz {LEAD}'da.</Note>;
           if (e.kind === 'end') return <Note key={index}>Görüşme tamamlandı. Aday odadan çıkıyor.</Note>;
+          if (e.kind === 'back') {
+            const back = backs[e.n];
+            if (!back) return null;
+            return (
+              <div key={index} className={styles.exchange}>
+                <Turn who={candidate.name} role="Aday soruyor" tone="candidate">
+                  {back.question}
+                </Turn>
+                {e.choice && (
+                  <>
+                    <Turn who={PLAYER.name} role="İK Uzmanı" tone="you">
+                      {e.choice === 'honest' ? back.honest : back.polished}
+                    </Turn>
+                    <Turn who={candidate.name} role="Aday" tone="candidate">
+                      {e.choice === 'honest' ? back.afterHonest : back.afterPolished}
+                    </Turn>
+                  </>
+                )}
+              </div>
+            );
+          }
           if (e.kind === 'salary') {
             const ask = expectedSalary(selectedId);
             const result = e.move ? salaryTalk(selectedId, e.move) : null;
