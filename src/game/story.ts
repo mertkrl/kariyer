@@ -176,12 +176,12 @@ export const KEY_CHARACTERS: KeyCharacter[] = [
   {
     id: 'tolga',
     day: 3,
-    who: 'Kars\'tan gelen, ailesinin ilk üniversite mezunu. Açık kaynak katkıcısı.',
+    who: 'Kars\'tan gelen, ailesinin ilk üniversite mezunu. Perşembe çöken sistemi gece onun yaması ayağa kaldırdı.',
     epilogue: {
-      approve: 'Tolga mülakata geldi; açık kaynak projesini gösterince ekip ağzı açık dinledi. Başka bir ekibe önerildi, orada işe başladı.',
-      reject: 'Tolga Kars\'a döndü. Katkı verdiği kütüphaneyi şirketiniz hâlâ kullanıyor; adını kimse bilmiyor.',
-      hired: 'Tolga ilk ayında erişilebilirlik hatalarının yarısını kapattı. Ailesi onu görmek için Kars\'tan ilk kez İstanbul\'a geldi.',
-      none: 'Tolga\'nın dosyası sistem çöküşünün ortasında kayboldu.',
+      approve: 'Tolga mülakata geldi. Ümit Bey o gece atılan yamayı ekrana açtı, satır satır sordu; Tolga hepsini anlattı. Başka bir ekibe önerildi, orada işe başladı.',
+      reject: 'Tolga Kars\'a döndü. Şirketin sistemi hâlâ onun yamasıyla CV okuyor: her gün, onun gibi yüzlerce başvuruyu. Adını kimse bilmiyor.',
+      hired: 'Tolga ilk ayında erişilebilirlik hatalarının yarısını kapattı. Ailesi onu görmek için Kars\'tan ilk kez İstanbul\'a geldi; Burak onlara sunucu odasını gezdirdi, "sistemimiz bu çocuğun kodunda koşuyor" dedi.',
+      none: 'Tolga\'nın dosyası Perşembe hiç açılmadı. Ertesi sabah sistem onun yamasıyla geri geldi ve dosyasını kendisi eledi.',
     },
     dm: 'Merhaba, ailemin ilk üniversite mezunuyum. Babam "İstanbul seni istemezse dön gel" dedi. Dönmem mi gerekiyor?',
     honest: 'Ona dürüst yazdın: "Açık kaynak katkını CV\'nin en üstüne yaz." Yazdı. Kütüphanesini kullanan bir şirket onu buldu. Kars\'a dönmedi; ailesi İstanbul\'a onu görmeye geldi.',

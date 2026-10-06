@@ -118,6 +118,19 @@ export const DESK_CALLS: DeskCall[] = [
     missed: { note: 'Hakan Bey aradı, açmadın. Sonra koridorda yüzüne baktı, bir şey demedi.', performans: -2 },
   },
   {
+    // the day the AI is down, the fix comes from a stranger's commit: managerCalls.tolgaPatchCall
+    // fills in the lines from what you did with Tolga's file this morning
+    id: 'it-patch',
+    day: 3,
+    at: 460,
+    caller: 'Burak',
+    line: 'Bilgi İşlem · dahili 330',
+    lines: [],
+    choices: [],
+    minutes: 4,
+    missed: { note: 'IT aramış: "Sistem yarın sabah açılıyor. Bir de sana söyleyeceğim bir şey vardı" demiş.' },
+  },
+  {
     id: 'hakan-confession',
     day: 3,
     at: 375,

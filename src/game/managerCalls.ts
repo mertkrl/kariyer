@@ -7,7 +7,7 @@ import type { Decision } from './types';
 import type { Mail } from './mail';
 import { NEPHEW_ID, candidateOf, candidates } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
-import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
+import { REQUEST_CALL_PREFIX, deskCall, type CallChoice, type DeskCall } from './desk';
 import { managerReaction, managerTone, replyText, requestCallLines, type ManagerTone } from './manager';
 import { referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
@@ -32,9 +32,9 @@ export function reformCall(performans: number, refusals: number, day: number): D
     lines: ['"Dinliyorum."'],
     choices: [
       {
-        text: 'Yapılandırılmış mülakat: yarın her adaya aynı sorular, Levent Bey\'le aynı puan kartı.',
+        text: 'Yapılandırılmış mülakat: yarın her adaya aynı sorular, Ümit Bey\'le aynı puan kartı.',
         reply: structured
-          ? '…Yarın deneyelim. Levent de sever bunu. Listemdeki soruları da çıkar o zaman. Ama sonuç kötü çıkarsa bu senin fikrindi.'
+          ? '…Yarın deneyelim. Ümit de sever bunu. Listemdeki soruları da çıkar o zaman. Ama sonuç kötü çıkarsa bu senin fikrindi.'
           : '"Yapılandırılmış" mülakat mı? Yarın sabah mülakat var, form mu yetiştireceğiz? Başka bahara.',
         vicdan: structured ? 3 : 2,
         reform: { kind: 'structured', accepted: structured },
@@ -100,13 +100,13 @@ export function salaryOf(id: string): number | null {
 }
 
 /**
- * The Friday panel. Levent backs whoever answered best among those the budget can pay (if
+ * The Friday panel. Ümit backs whoever answered best among those the budget can pay (if
  * yours is among the best of them, he backs yours); Hakan Bey backs his nephew if he's in the
  * room, otherwise the candidate he asked you to call, otherwise you. Two votes carry it; if all
  * three disagree, the team lead — whose team it is — decides.
  *
  * From the interview: `agreed` is the pay talked down to (or kept) per person, null where they
- * wouldn't come down; `convinced` means you argued Levent round to your pick with your notes.
+ * wouldn't come down; `convinced` means you argued Ümit round to your pick with your notes.
  */
 export interface PanelInput {
   agreed?: Record<string, number | null>;
@@ -191,12 +191,59 @@ export function revokeCall(finalists: Finalist[], refusals: number, day: number)
   };
 }
 
+/**
+ * Thursday 15:40. IT got the crashed system back: the bug nobody in the building could find was
+ * in an open-source library, and someone patched it overnight — Tolga Şen, the boy from Kars
+ * whose CV says "paid experience: 0". The call knows what you did with his file this morning.
+ * Rejected is still undoable until 17:00; the call doesn't say so, it only hopes.
+ */
+export function tolgaPatchCall(decision: Decision | undefined, day: number): DeskCall {
+  const tail =
+    decision === 'reject'
+      ? ['Dur bir dakika… Tolga Şen. Bu isim bugün senin kuyruğunda değil miydi? Sistem "maaşlı deneyim: 0" diye işaretlemişti hani.']
+      : decision === 'approve'
+        ? ['Bu isim bugün senin kuyruğundaydı, değil mi? Mülakata çağırmışsın. Ümit Bey duyunca çok sevinecek.']
+        : ['Bu isim bugün senin kuyruğunda duruyor olabilir mi? Sistem onu "maaşlı deneyim: 0" diye işaretlemişti.'];
+  const choices: CallChoice[] =
+    decision === 'reject'
+      ? [
+          { text: 'Evet. Reddettim.', reply: 'Ha… Bizi kurtaran kod, kuyruktan elenen çocuğun kodu. Neyse. Kolay gelsin.', vicdan: -1 },
+          { text: 'Dosyasına bir daha bakacağım.', reply: 'Bak bence. Saat daha beş olmadı.', vicdan: 1 },
+        ]
+      : decision === 'approve'
+        ? [
+            { text: 'Dosyası zaten her şeyi anlatıyordu.', reply: 'Belli ki sen okumuşsun. Biz okumamışız. Cuma görüşürüz o zaman.', vicdan: 1 },
+            { text: "Bunu Ümit Bey'e sen anlat, olur mu?", reply: "Anlatırım. Commit'i ekrana yansıtıp anlatırım hatta." },
+          ]
+        : [
+            { text: 'Bakacağım, sağ ol Burak.', reply: 'Kolay gelsin. Bence bak.' },
+            { text: 'Sistem onu elemişti zaten.', reply: 'Sistem dün çöktü ama. Bugün kimi elediyse… sen bilirsin.', vicdan: -1 },
+          ];
+  return {
+    id: 'it-patch',
+    day,
+    at: 0,
+    caller: 'Burak',
+    line: 'Bilgi İşlem · dahili 330',
+    lines: [
+      'Selam, IT\'den Burak. Müjde: sistemi ayağa kaldırdık, yarın sabah açılıyor.',
+      'Bütün gün çözemediğimiz hata bizde değilmiş; CV\'leri okuyan açık kaynak kütüphanedeymiş. Biri gece yamamış, biz sadece güncelledik.',
+      'Commit\'in sahibi "tolga-sen". Profilinde Kars yazıyor. Kütüphanenin yarısı onun; bizim sistem dört yıldır onun koduyla CV okuyormuş, kimsenin haberi yok.',
+      ...tail,
+    ],
+    choices,
+    minutes: 4,
+    missed: { note: 'IT aramış: "Sistem yarın sabah açılıyor. Bir de sana söyleyeceğim bir şey vardı" demiş.' },
+  };
+}
+
 /** The call behind a landline id: a scripted one, or the manager asking a favour. */
 export function callFor(
-  state: Pick<GameState, 'managerRequests' | 'managerStance' | 'currentDayIndex' | 'desk'> & { performans?: number; story?: StoryState; justifyRejects?: boolean; finalists?: Finalist[] },
+  state: Pick<GameState, 'managerRequests' | 'managerStance' | 'currentDayIndex' | 'desk'> & { performans?: number; story?: StoryState; justifyRejects?: boolean; finalists?: Finalist[]; decisions?: Record<string, Decision> },
   id: string,
 ): DeskCall | undefined {
   if (id === 'revoke') return revokeCall(state.finalists ?? [], state.managerStance.refusals, state.currentDayIndex);
+  if (id === 'it-patch') return tolgaPatchCall(state.decisions?.tolga, state.currentDayIndex);
   if (id === 'reform') return reformCall(state.performans ?? 50, state.managerStance.refusals, state.currentDayIndex);
   if (id === 'review') return reviewCall(state.story?.managerDay.defied ?? [], managerTone(state.managerStance.refusals), !!state.justifyRejects, state.currentDayIndex);
   if (id.startsWith('ref:')) {
