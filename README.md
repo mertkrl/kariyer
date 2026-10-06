@@ -55,7 +55,7 @@ Oyun mantığı ses çalmak için `game/sound.ts` üzerinden konuşur; ses motor
 1. **Karşılama → ilan seçimi → başvuru seli → gün brifingi**
 2. **Mesai** (`GameplayScreen`): masa, bilgisayar (İşe Alım Portalı, e-posta), sabit hat ve cep telefonu. CV'leri incele, mülakata çağır ya da reddet; öğle arası, müdürün ricaları, ret bildirimleri.
 3. **Çarşamba 11:00 — haftalık İK toplantısı**: görüntülü görüşme; Selin'in paylaştığı pano konuşmayı takip eder.
-4. **Gün sonu** özetleri, **Cuma mülakatları**, hesaplaşma, hafta sonu ve **final** ekranları
+4. **Gün sonu** özetleri, **Cuma mülakatları**, Cuma 18:40'ta **Hakan Bey'in kadro teklifi**, annenle telefon (hafta sonu) ve **final** ekranları
 
 ## Kod yapısı
 

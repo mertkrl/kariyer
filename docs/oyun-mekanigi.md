@@ -73,12 +73,22 @@ Teknik olarak: her vaka bir `id` + `decision` + `revealDay` (kaç gün sonra son
 
 ## 6. Sonlar (Ending Variations)
 
-Oyun sonunda (gün 5-6 bitince) final ekranı **iki skora göre** değişir:
+Son, puan eşiklerinden değil **Defne'nin iki kararından** çıkar (`src/game/offer.ts`, `src/game/engine/ending.ts`):
 
-1. **Yüksek Performans + Düşük Vicdan:** "Sen artık sistemin mükemmel bir parçasısın." (rahatsız edici, ironik övgü tonunda) + istatistik: kaç kişinin hayatını nasıl etkilediğin
-2. **Düşük Performans + Yüksek Vicdan:** "İşten çıkarıldın. Ama 12 kişi senin yüzünden ikinci bir şans buldu." (oyuncu kaybetmiş gibi hissetmez, anlamlı bir kayıp)
-3. **Orta/Dengeli:** "Sistemde kaldın, tam olarak uyum sağlamadın. Bazı geceler uyuyamadın." — en gerçekçi/yaygın son
-4. **Gizli/Nadiren:** Oyuncu belirli bir eşiği geçerse (çok yüksek vicdan + belirli "itiraz et" aksiyonlarını kullanmışsa) → "İstifa ettin ve bu deneyimi anlatan bir yazı yazdın" (meta-referans: tam da oyuncunun şu an oynadığı oyunun kendisine gönderme)
+1. **Cuma 18:40 — Hakan Bey'in kadro teklifi (iş).** Kadro tek kişilik: Defne ya da Ayşe. Seçenekler: *Kabul ediyorum* · *Bir şartla kabul* (Perşembe önerdiğin değişiklik; öneri yapmadıysan puan tablosunun açılması) · *Kadro Ayşe'nin olsun* · *Ben ayrılıyorum*. Şart reddedilirse son bir soru gelir: şartsız kabul mü, yoksa hiç mi?
+2. **Cuma 21:40 — annenle telefon (ev).** Kadro haberini duyar; son cümlen sonun son satırı olur (kahvaltı / uyku / iş değiştirmeyi düşünmek ya da ayrıldıysan yeni başvurular).
+
+**Puanların rolü:** neyin masada olduğunu ve sonun tonunu belirlemek. Performans 35'in altındaysa (ya da 5+ itiraz ve Performans 55'in altı) teklif hiç gelmez. Şartın kabulü güvene bağlıdır: Perşembe kabul edilen öneri tutulur; reddedilen öneri ancak Performans ≥65 ve en fazla 3 itirazla ikinci kez dinlenir; puan tablosunu açmak hiç kabul edilmez. *Kabul ettiysen* hangi tür kalan olduğun haftandan okunur: yeğeni aldıysan "Dayının gözdesi", yüksek Performans + düşük Vicdan "Sistemin mükemmel bir parçası", iyi işe alım "Terfi aldın" / "Bir hayatı değiştirdin", yoğun yapay zekâ "Algoritmanın gölgesinde", yoksa "Sistemde kaldın".
+
+| Karar | Son |
+|---|---|
+| Kabul | Haftana göre yukarıdaki kalış sonlarından biri |
+| Şartla kabul, şart tuttu | *İçeriden bir kural değiştirdin.* |
+| Şart reddedildi, yine de imzaladın | *Şartını çekmeceye koydun.* |
+| Şart reddedildi, almadın | *Şartını koydun, kapı kapandı.* |
+| Kadro Ayşe'nin olsun | *Yerini Ayşe'ye bıraktın.* |
+| Ayrılıyorum | *İstifa ettin.* (meta-referans: oynadığın oyun, o yazının kendisi) |
+| Teklif yok | *İşten çıkarıldın.* / *Müdürle yolların ayrıldı.* |
 
 Son ekranında ayrıca **toplam oyun istatistiği** (tüm günler toplamı):
 - Kaç CV işlendi / kaç tanesi hiç açılmadan elendi
