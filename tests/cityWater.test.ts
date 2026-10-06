@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FERRY_HALF, boatAfloat, ferryAt, isWater, spawnBoats, stepBoat } from '../src/components/dayend/city/scenes/bridge';
+import { FERRY_HALF, boatAfloat, ferryAt, isWater, spawnBoats, stepBoat } from '../src/components/dayend/city/scenes/bosphorus';
 import { makeRng } from '../src/components/dayend/city/kit';
 
 test('the Ortaköy vapur never runs aground', () => {

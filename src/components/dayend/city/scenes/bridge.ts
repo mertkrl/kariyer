@@ -21,8 +21,10 @@ import {
   type Cam,
   type Reflection,
 } from '../kit';
-import { drawTraffic, jostle, populate, project, stepLane, type Lane, type Persp } from '../traffic';
+import { drawTraffic, jostle, populate, project, stepLane, type Lane } from '../traffic';
 import type { CityScene } from '../scene';
+import { ASIA_COAST, EURO_COAST, P, euroBottom, ferryAt, isWater, spawnBoats, stepBoat } from './bosphorus';
+import { boat, ferry } from './bosphorusBoats';
 
 /*
  * Ortaköy, 17:10 — the 15 Temmuz Şehitler Köprüsü at sunset, seen from the hillside above the
@@ -31,7 +33,6 @@ import type { CityScene } from '../scene';
  * hang over the water and the lamps come on along the empty promenade below.
  */
 
-const P: Persp = { vpx: 800, vpy: 400, f: 900, camH: 110 };
 // Bridge axis in world metres: near (European) tower N → far (Asian) tower F.
 const N = { X: -170, Z: 260 };
 const F = { X: 546, Z: 1060 };
@@ -52,37 +53,6 @@ const cableY = (s: number) => {
   if (s > 1) return 66 + (TOWER - 66) * Math.pow(Math.max(0, (1.22 - s) / 0.22), 1.7);
   return TOWER - 4 * (TOWER - 70) * s * (1 - s);
 };
-
-// Coastlines (screen space): Europe on the left, Asia on the right, water in between.
-const EURO_COAST: [number, number][] = [
-  [560, 910],
-  [470, 820],
-  [498, 778],
-  [512, 768],
-  [540, 700],
-  [560, 672],
-  [576, 662],
-  [610, 560],
-  [628, 538],
-  [642, 526],
-  [660, 470],
-  [684, 440],
-  [700, 404],
-];
-const ASIA_COAST: [number, number][] = [
-  [840, 402],
-  [930, 414],
-  [1000, 430],
-  [1080, 446],
-  [1110, 444],
-  [1160, 470],
-  [1260, 492],
-  [1300, 490],
-  [1360, 520],
-  [1460, 546],
-  [1560, 580],
-  [W + PAD, 610],
-];
 
 export function bridgeScene(): CityScene {
   const r = makeRng(1973);
@@ -517,217 +487,4 @@ export function bridgeScene(): CityScene {
       g.restore();
     },
   };
-}
-
-/** Screen point over open water (not on either shore or the quay)? */
-export function isWater(x: number, y: number) {
-  if (y < P.vpy + 3 || y > H + PAD) return false;
-  if (y < polyY(ASIA_COAST, x)) return false;
-  if (x < 560 && y > 830) return false;
-  const coast = EURO_COAST.slice(1).sort((a, b) => a[1] - b[1]).map(([cx, cy]) => [cy, cx] as [number, number]);
-  return x > polyY(coast, y);
-}
-
-function euroBottom(x: number) {
-  return x < 470 ? 836 : polyY(EURO_COAST.slice(1).sort((p, q) => p[0] - q[0]), x);
-}
-
-/** Perspective size of something floating at screen height y (the horizon is at P.vpy). */
-const depthScale = (y: number) => 0.5 + (y - P.vpy) / 400;
-
-/* ── the vapur's route ── */
-
-/** Piers (where the hull's middle berths): Beylerbeyi on the Asian side, Ortaköy below the mosque. */
-const PIER_ASIA = { x: 1420, y: 592 };
-const PIER_EURO = { x: 720, y: 694 };
-const FERRY_CYCLE = 150;
-/** Half the drawn ferry's length at scale 1 (the hull runs from -72 to 80). */
-export const FERRY_HALF = 80;
-
-/** Where the vapur is at time t: berthed, or crossing with an eased start and stop. */
-export function ferryAt(t: number) {
-  const u = (t / FERRY_CYCLE + 0.08) % 1;
-  // 0–0.1 berthed in Asia, 0.1–0.5 crossing west, 0.5–0.6 berthed at Ortaköy, 0.6–1 crossing east
-  let k: number;
-  let dir: 1 | -1;
-  let moving = true;
-  if (u < 0.1) {
-    k = 0;
-    dir = -1;
-    moving = false;
-  } else if (u < 0.5) {
-    k = (u - 0.1) / 0.4;
-    dir = -1;
-  } else if (u < 0.6) {
-    k = 1;
-    dir = 1;
-    moving = false;
-  } else {
-    k = 1 - (u - 0.6) / 0.4;
-    dir = 1;
-  }
-  const e = k * k * (3 - 2 * k);
-  // a slight arc downstream rather than a ruler-straight line
-  const x = PIER_ASIA.x + (PIER_EURO.x - PIER_ASIA.x) * e;
-  const y = PIER_ASIA.y + (PIER_EURO.y - PIER_ASIA.y) * e + Math.sin(e * Math.PI) * 26;
-  return { x, y, s: depthScale(y), dir, moving };
-}
-
-/* ── small boats ── */
-
-export interface SmallBoat {
-  x: number;
-  y: number;
-  /** Screen speed along x (sign is the heading). */
-  v: number;
-  len: number;
-  kind: 0 | 1;
-}
-
-/** A boat's hull, bow to stern, is all over water. */
-export function boatAfloat(x: number, y: number, len: number) {
-  const s = depthScale(y);
-  return isWater(x - len * s, y) && isWater(x + len * s, y) && isWater(x, y + 4 * s);
-}
-
-/** Motorboats and fishing boats, placed only where there is water around their whole hull. */
-export function spawnBoats(r: () => number): SmallBoat[] {
-  const boats: SmallBoat[] = [];
-  for (let tries = 0; boats.length < 6 && tries < 2000; tries++) {
-    const b: SmallBoat = { x: range(r, 560, 1560), y: range(r, 450, 820), v: (r() < 0.5 ? -1 : 1) * range(r, 6, 16), len: range(r, 9, 15), kind: r() < 0.6 ? 0 : 1 };
-    if (boatAfloat(b.x, b.y, b.len + 8)) boats.push(b);
-  }
-  return boats;
-}
-
-/** Move a boat on; before its bow would touch a shore, it comes about. */
-export function stepBoat(b: SmallBoat, dt: number) {
-  const nx = b.x + b.v * dt * depthScale(b.y);
-  if (boatAfloat(nx + Math.sign(b.v) * 8, b.y, b.len)) b.x = nx;
-  else b.v = -b.v;
-}
-
-function boat(g: CanvasRenderingContext2D, b: SmallBoat, t: number) {
-  const s = depthScale(b.y);
-  const dir = Math.sign(b.v) || 1;
-  const L = b.len * s;
-  const bob = Math.sin(t * 1.3 + b.x * 0.05) * 0.6 * s;
-  g.save();
-  g.translate(b.x, b.y + bob);
-  g.scale(dir, 1);
-  // wake: two pale lines opening out behind
-  g.strokeStyle = `rgba(255,220,200,${0.18 + 0.1 * Math.sin(t * 3)})`;
-  g.lineWidth = Math.max(0.6, s);
-  g.beginPath();
-  g.moveTo(-L, 0.5 * s);
-  g.lineTo(-L * 4, -2 * s);
-  g.moveTo(-L, 1.5 * s);
-  g.lineTo(-L * 4, 4 * s);
-  g.stroke();
-  // hull and cabin
-  g.fillStyle = b.kind ? '#2d3c5a' : '#d9d2c8';
-  g.beginPath();
-  g.moveTo(-L, -1.5 * s);
-  g.lineTo(L * 0.7, -1.5 * s);
-  g.lineTo(L, -3 * s);
-  g.lineTo(L * 0.8, 1.5 * s);
-  g.lineTo(-L * 0.95, 1.5 * s);
-  g.closePath();
-  g.fill();
-  g.fillStyle = b.kind ? '#cfc6b8' : '#efe8dc';
-  g.fillRect(-L * 0.5, -5 * s, L * 0.6, 3.5 * s);
-  g.globalCompositeOperation = 'lighter';
-  glow(g, -L * 0.2, -3.4 * s, 2.6 * s, [255, 214, 150], 0.7);
-  // navigation lights: a white masthead, green to starboard / red to port as seen from the side
-  glow(g, L * 0.1, -8 * s, 2.2 * s, [255, 240, 220], 0.9, true);
-  glow(g, L * 0.75, -2.5 * s, 1.8 * s, dir > 0 ? [60, 255, 120] : [255, 50, 40], 0.9);
-  glowRect(g, 0, 14 * s, 2.4 * s, 24 * s, [255, 220, 170], 0.18);
-  g.globalCompositeOperation = 'source-over';
-  g.restore();
-}
-
-/** A Şehir Hatları vapur side-on at dusk: dark hull, cream upper works, two rows of warm windows. */
-function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: number, dir: 1 | -1, moving: boolean, t: number) {
-  const sway = Math.sin(t * 0.9) * 1.2 * s;
-  g.save();
-  g.translate(x, y + sway);
-  g.scale(s * dir, s);
-  g.globalCompositeOperation = 'lighter';
-  if (moving) {
-    // wake behind the stern and the bow wave
-    glowRect(g, -170, 20, 220, 10, [255, 210, 180], 0.22);
-    g.strokeStyle = 'rgba(255,225,205,0.35)';
-    g.lineWidth = 1.4;
-    g.beginPath();
-    g.moveTo(-72, 18);
-    g.lineTo(-260, 10);
-    g.moveTo(-72, 22);
-    g.lineTo(-260, 32);
-    g.moveTo(80, 18);
-    g.quadraticCurveTo(88, 24, 74, 26);
-    g.stroke();
-  }
-  g.globalCompositeOperation = 'source-over';
-  // hull: black below, a white band, a raked bow at +x
-  g.fillStyle = '#16181f';
-  g.beginPath();
-  g.moveTo(-72, 8);
-  g.lineTo(80, 8);
-  g.lineTo(72, 22);
-  g.lineTo(-66, 22);
-  g.quadraticCurveTo(-72, 18, -72, 8);
-  g.fill();
-  g.fillStyle = '#ece6da';
-  g.fillRect(-72, 2, 150, 7);
-  // main deck house and windows
-  g.fillStyle = '#e4ddcf';
-  g.fillRect(-60, -14, 124, 16);
-  g.fillStyle = '#ffd08a';
-  for (let i = 0; i < 15; i++) g.fillRect(-56 + i * 8, -10, 5, 7);
-  // upper deck, its windows, the wheelhouse forward
-  g.fillStyle = '#ddd5c6';
-  g.fillRect(-44, -28, 92, 14);
-  g.fillStyle = '#f6c47c';
-  for (let i = 0; i < 10; i++) g.fillRect(-40 + i * 8, -25, 5, 6);
-  g.fillStyle = '#e8e1d3';
-  g.fillRect(34, -38, 16, 10);
-  g.fillStyle = '#2b3442';
-  g.fillRect(36, -36, 12, 4);
-  // railing on the top deck
-  g.strokeStyle = 'rgba(240,235,225,0.7)';
-  g.lineWidth = 0.8;
-  g.beginPath();
-  g.moveTo(-44, -32);
-  g.lineTo(32, -32);
-  for (let i = -44; i <= 32; i += 6) {
-    g.moveTo(i, -32);
-    g.lineTo(i, -28);
-  }
-  g.stroke();
-  // funnel: cream with a black top
-  g.fillStyle = '#d9c38f';
-  g.beginPath();
-  g.moveTo(-8, -28);
-  g.lineTo(-6, -50);
-  g.lineTo(8, -50);
-  g.lineTo(8, -28);
-  g.fill();
-  g.fillStyle = '#121212';
-  g.fillRect(-6, -54, 14, 6);
-  // mast with its white light, the flag at the stern
-  g.strokeStyle = '#d8d2c4';
-  g.beginPath();
-  g.moveTo(52, -38);
-  g.lineTo(52, -58);
-  g.stroke();
-  g.fillStyle = '#c8202a';
-  g.fillRect(-74, -6, 7, 5);
-  g.globalCompositeOperation = 'lighter';
-  glow(g, 52, -59, 4, [255, 245, 225], 0.95, true);
-  glow(g, 76, -2, 3, [60, 255, 120], 0.8);
-  glowRect(g, 0, -6, 190, 34, [255, 190, 120], 0.22);
-  // the windows' reflection broken up by the swell
-  for (let i = 0; i < 15; i++) glowRect(g, -54 + i * 8, 34 + Math.sin(t * 3 + i) * 2, 5, 22, [255, 190, 120], 0.16);
-  g.globalCompositeOperation = 'source-over';
-  g.restore();
 }

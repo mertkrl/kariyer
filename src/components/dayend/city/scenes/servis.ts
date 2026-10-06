@@ -1,5 +1,8 @@
-import { H, PAD, W, glow, glowRect, makeRng, pick, range, rgba, vGradient, type Cam, type RGB } from '../kit';
+import { H, PAD, W, glow, glowRect, makeRng, range, vGradient, type Cam } from '../kit';
 import type { CityScene } from '../scene';
+import { BH, BW, KB, KS, PILLAR, WIN } from './servisLayout';
+import { makeCars, sideCar } from './servisCars';
+import { paintStreet } from './servisStreet';
 
 /*
  * Wednesday, 17:50 — inside the company servis, stuck on Büyükdere Caddesi in the rain.
@@ -9,37 +12,6 @@ import type { CityScene } from '../scene';
  * the street upside down, and rivulets run down in jerks. The bus creeps, stops, creeps.
  */
 
-// The window, in stage coordinates
-const WIN = { x: 130, y: 118, w: 1340, h: 520 };
-const PILLAR = 812;
-// The outside world is rendered into a small buffer (wet-glass blur for free)
-const BW = 420;
-const BH = 164;
-const KB = 5.2; // px per metre: buildings across the street
-const KS = 9; // pavement
-const KC = 19; // next lane
-const STRIP_M = 700; // length of the pre-rendered street
-
-type VKind = 'car' | 'taxi' | 'servis' | 'van';
-
-interface Car {
-  rx: number;
-  v: number;
-  kind: VKind;
-  len: number;
-  body: RGB;
-  brake: number;
-}
-
-const PAINT: RGB[] = [
-  [205, 206, 210],
-  [30, 30, 34],
-  [118, 124, 134],
-  [150, 22, 26],
-  [26, 44, 88],
-  [90, 60, 40],
-];
-
 export function servisScene(): CityScene {
   const r = makeRng(3131);
   let s = 0; // our position along the road (m)
@@ -47,15 +19,7 @@ export function servisScene(): CityScene {
   let go = false;
   let phaseT = 2;
 
-  // the next lane, positions relative to us (m, positive = ahead = to the left of the window)
-  const cars: Car[] = [];
-  for (let x = -38; x < 42; ) {
-    const roll = r();
-    const kind: VKind = roll < 0.35 ? 'servis' : roll < 0.55 ? 'taxi' : roll < 0.65 ? 'van' : 'car';
-    const len = kind === 'servis' ? 8.4 : kind === 'van' ? 5.2 : 4.5;
-    cars.push({ rx: x + len / 2, v: 0, kind, len, body: kind === 'servis' ? [234, 234, 228] : kind === 'taxi' ? [236, 184, 20] : pick(r, PAINT), brake: 1 });
-    x += len + range(r, 1.2, 2.6);
-  }
+  const cars = makeCars(r);
 
   // raindrops on the glass
   const drops = Array.from({ length: 170 }, () => ({ x: range(r, WIN.x, WIN.x + WIN.w), y: range(r, WIN.y, WIN.y + WIN.h), r: Math.pow(r(), 2.2) * 9 + 1.6 }));
@@ -67,139 +31,6 @@ export function servisScene(): CityScene {
   let pavement: HTMLCanvasElement;
   let interior: HTMLCanvasElement;
 
-  const buildStrips = () => {
-    const rb = makeRng(12);
-    // buildings across the street, one long strip
-    buildings = document.createElement('canvas');
-    buildings.width = Math.round(STRIP_M * KB);
-    buildings.height = BH;
-    const b = buildings.getContext('2d')!;
-    b.fillStyle = vGradient(b, 0, 40, [
-      [0, '#2b1f26'],
-      [1, '#4a3334'],
-    ]);
-    b.fillRect(0, 0, buildings.width, 40);
-    const SIGNS: [string, RGB][] = [
-      ['ECZANE', [60, 255, 120]],
-      ['DÖNER', [255, 120, 40]],
-      ['KAFE', [255, 190, 90]],
-      ['MARKET', [90, 200, 255]],
-      ['BANKA', [120, 170, 255]],
-      ['SİMİT', [255, 210, 120]],
-      ['KUAFÖR', [255, 90, 200]],
-    ];
-    for (let x = 0; x < buildings.width; ) {
-      const w = range(rb, 18, 44) * KB;
-      const glass = rb() < 0.6;
-      const top = range(rb, -10, 30);
-      b.fillStyle = glass ? '#1d2436' : '#3a3130';
-      b.fillRect(x, top, w - 2, 96 - top);
-      for (let y = top + 4; y < 80; y += 7) {
-        const floorLit = rb() < 0.6;
-        for (let wx = x + 3; wx < x + w - 6; wx += 5) {
-          const lit = floorLit ? rb() < 0.85 : rb() < 0.1;
-          b.fillStyle = lit ? rgba(glass ? ([210, 228, 255] as RGB) : ([255, 206, 140] as RGB), range(rb, 0.5, 0.9)) : 'rgba(20,24,34,0.9)';
-          b.fillRect(wx, y, 3.4, 4.2);
-        }
-      }
-      // shops at street level: each its own light, some already shuttered for the night
-      b.fillStyle = '#17141a';
-      b.fillRect(x, 80, w - 2, 16);
-      for (let sx = x + 3; sx < x + w - 8; ) {
-        const sw = Math.min(x + w - 5 - sx, range(rb, 14, 30));
-        if (rb() < 0.22) {
-          // a rolled-down steel shutter
-          b.fillStyle = '#4a4850';
-          b.fillRect(sx, 83, sw, 13);
-          b.fillStyle = 'rgba(0,0,0,0.3)';
-          for (let ly = 84; ly < 96; ly += 1.6) b.fillRect(sx, ly, sw, 0.5);
-        } else {
-          const tone = pick(rb, [
-            [255, 214, 160],
-            [255, 236, 200],
-            [210, 232, 255],
-            [255, 190, 130],
-          ] as RGB[]);
-          const shop = b.createLinearGradient(0, 83, 0, 96);
-          shop.addColorStop(0, rgba(tone, 0.95));
-          shop.addColorStop(1, rgba(tone, 0.6));
-          b.fillStyle = shop;
-          b.fillRect(sx, 83, sw, 13);
-          // shelves and people's shapes inside, the mullions, the door
-          b.fillStyle = 'rgba(60,40,30,0.35)';
-          for (let k = 0; k < 3; k++) b.fillRect(sx + range(rb, 1, sw - 4), range(rb, 86, 91), range(rb, 2, 5), range(rb, 3, 8));
-          b.fillStyle = '#211d22';
-          for (let mx = sx + 6; mx < sx + sw - 2; mx += 6) b.fillRect(mx, 83, 0.8, 13);
-          b.fillRect(sx + sw * 0.62, 84, sw * 0.18, 12);
-          // a striped awning on some
-          if (rb() < 0.4) {
-            const [ar, ag, ab] = pick(rb, [
-              [170, 40, 40],
-              [40, 110, 80],
-              [40, 70, 150],
-            ] as RGB[]);
-            for (let ax = sx - 1; ax < sx + sw + 1; ax += 2) {
-              b.fillStyle = (ax - sx) % 4 < 2 ? `rgb(${ar},${ag},${ab})` : '#e9e2d4';
-              b.beginPath();
-              b.moveTo(ax, 81);
-              b.lineTo(ax + 2, 81);
-              b.lineTo(ax + 2.6, 84.5);
-              b.lineTo(ax + 0.6, 84.5);
-              b.fill();
-            }
-          }
-        }
-        sx += sw + 1.5;
-      }
-      if (rb() < 0.7) {
-        const [name, c] = pick(rb, SIGNS);
-        b.fillStyle = '#0d0c10';
-        b.fillRect(x + 6, 74, Math.min(w - 12, 40), 7);
-        b.fillStyle = rgba(c);
-        b.font = '700 6px sans-serif';
-        b.textBaseline = 'middle';
-        b.fillText(name, x + 8, 77.6, Math.min(w - 16, 36));
-        b.globalCompositeOperation = 'lighter';
-        glowRect(b, x + 6 + Math.min(w - 12, 40) / 2, 77, Math.min(w - 12, 40) * 1.4, 18, c, 0.5);
-        b.globalCompositeOperation = 'source-over';
-      }
-      x += w;
-    }
-    // pavement strip: kerb, lamp posts, bus stop, bollards
-    pavement = document.createElement('canvas');
-    pavement.width = Math.round(STRIP_M * KS);
-    pavement.height = BH;
-    const p = pavement.getContext('2d')!;
-    p.fillStyle = vGradient(p, 96, 118, [
-      [0, '#2c2a30'],
-      [1, '#3a3840'],
-    ]);
-    p.fillRect(0, 96, pavement.width, 22);
-    p.fillStyle = '#56545c';
-    p.fillRect(0, 117, pavement.width, 3);
-    for (let x = 30; x < pavement.width; x += 30 * KS) {
-      p.fillStyle = '#16151a';
-      p.fillRect(x, 20, 2.2, 97);
-      p.fillRect(x - 10, 20, 12, 2);
-      p.globalCompositeOperation = 'lighter';
-      glow(p, x - 9, 23, 14, [235, 238, 255], 0.9, true);
-      glowRect(p, x - 9, 112, 70, 14, [210, 220, 245], 0.2);
-      p.globalCompositeOperation = 'source-over';
-    }
-    for (let x = 200; x < pavement.width; x += 170 * KS) {
-      // bus stop with a lit ad panel
-      p.fillStyle = 'rgba(160,190,210,0.15)';
-      p.fillRect(x, 70, 60, 46);
-      p.fillStyle = '#16151a';
-      p.fillRect(x, 68, 62, 3);
-      p.fillStyle = 'rgba(250,246,236,0.9)';
-      p.fillRect(x + 44, 76, 14, 32);
-      p.globalCompositeOperation = 'lighter';
-      glowRect(p, x + 51, 92, 40, 50, [255, 250, 235], 0.35);
-      p.globalCompositeOperation = 'source-over';
-    }
-  };
-
   const drawStrip = (g: CanvasRenderingContext2D, strip: HTMLCanvasElement, k: number, offsetM: number) => {
     const L = strip.width;
     // screen x = BW/2 − (X − s)·k  →  the strip's origin sits at BW/2 + s·k (mod its length)
@@ -210,93 +41,6 @@ export function servisScene(): CityScene {
     if (x0 + L * 2 < BW) g.drawImage(strip, x0 + L * 2, 0);
   };
 
-  function sideCar(g: CanvasRenderingContext2D, c: Car, t: number) {
-    // front of the car points left (ahead); rear on the right
-    const x = BW / 2 - c.rx * KC - (c.len * KC) / 2;
-    const len = c.len * KC;
-    const ground = 158;
-    if (x > BW + 10 || x + len < -10) return;
-    const shade = (f: number) => rgba([c.body[0] * f, c.body[1] * f, c.body[2] * f]);
-    if (c.kind === 'servis' || c.kind === 'van') {
-      const h = (c.kind === 'servis' ? 2.85 : 2.2) * KC;
-      g.fillStyle = shade(0.5);
-      g.beginPath();
-      g.roundRect(x, ground - h, len, h - 6, [10, 5, 3, 3]);
-      g.fill();
-      // dark tinted window band: nothing inside shows, only the street reflected in it
-      g.fillStyle = c.kind === 'servis' ? '#161a22' : '#1a1f28';
-      g.fillRect(x + 12, ground - h + 8, len - 22, h * 0.36);
-      if (c.kind === 'servis') {
-        g.fillStyle = 'rgba(190,200,225,0.12)';
-        g.fillRect(x + 12, ground - h + 8, len - 22, h * 0.09);
-        g.fillStyle = 'rgba(255,170,120,0.07)';
-        g.fillRect(x + 12, ground - h + 8 + h * 0.27, len - 22, h * 0.09);
-        g.fillStyle = 'rgba(8,9,12,0.9)';
-        for (let px = x + 12 + (len - 22) / 3; px < x + len - 12; px += (len - 22) / 3) g.fillRect(px, ground - h + 8, 2.5, h * 0.36);
-        g.fillStyle = 'rgba(40,80,150,0.8)';
-        g.fillRect(x + 4, ground - h * 0.42, len - 8, 3);
-        g.fillStyle = '#121216';
-        g.fillRect(x + 6, ground - h + 1, 40, 7);
-        g.fillStyle = '#ffae4a';
-        g.font = '800 5.5px monospace';
-        g.textBaseline = 'middle';
-        g.fillText('SERVİS', x + 9, ground - h + 4.6);
-      }
-    } else {
-      // sedan profile: body + cabin
-      g.fillStyle = shade(0.42);
-      g.beginPath();
-      g.moveTo(x + 4, ground - 8);
-      g.lineTo(x + 2, ground - 20);
-      g.quadraticCurveTo(x + 6, ground - 26, x + len * 0.22, ground - 27);
-      g.lineTo(x + len * 0.34, ground - 40);
-      g.lineTo(x + len * 0.72, ground - 41);
-      g.lineTo(x + len * 0.88, ground - 28);
-      g.quadraticCurveTo(x + len - 2, ground - 26, x + len - 2, ground - 16);
-      g.lineTo(x + len - 4, ground - 8);
-      g.closePath();
-      g.fill();
-      g.fillStyle = '#141922';
-      g.beginPath();
-      g.moveTo(x + len * 0.36, ground - 37);
-      g.lineTo(x + len * 0.52, ground - 38);
-      g.lineTo(x + len * 0.52, ground - 28);
-      g.lineTo(x + len * 0.27, ground - 28);
-      g.closePath();
-      g.moveTo(x + len * 0.55, ground - 38);
-      g.lineTo(x + len * 0.7, ground - 38);
-      g.lineTo(x + len * 0.83, ground - 28);
-      g.lineTo(x + len * 0.55, ground - 28);
-      g.closePath();
-      g.fill();
-      g.fillStyle = 'rgba(255,255,255,0.12)';
-      g.fillRect(x + 6, ground - 24, len - 12, 1.2);
-      if (c.kind === 'taxi') {
-        g.fillStyle = '#ffe08a';
-        g.fillRect(x + len * 0.45, ground - 45, 14, 4);
-      }
-    }
-    // wheels
-    g.fillStyle = '#0b0b0e';
-    for (const wx of [x + len * 0.18, x + len * 0.8]) {
-      g.beginPath();
-      g.arc(wx, ground - 4, 7, 0, Math.PI * 2);
-      g.fill();
-    }
-    // lights: tail (right end), head (left end)
-    g.globalCompositeOperation = 'lighter';
-    const tail = 0.55 + c.brake * 0.45;
-    glow(g, x + len - 2, ground - 20, 6 + c.brake * 6, [255, 34, 26], tail, true);
-    glowRect(g, x + len - 2, ground + 4, 10, 24, [255, 40, 30], 0.35 * tail);
-    glow(g, x + 3, ground - 18, 8, [255, 240, 220], 0.9, true);
-    glowRect(g, x - 30, ground - 4, 80, 10, [255, 230, 200], 0.18);
-    if (c.kind === 'taxi') glow(g, x + len * 0.45 + 7, ground - 43, 8, [255, 214, 90], 0.7);
-    if (c.kind === 'servis' || c.kind === 'van') {
-      if (Math.sin(t * 5 + c.rx) > 0) glow(g, x + len - 3, ground - 30, 7, [255, 170, 40], 0.9, true);
-    }
-    g.globalCompositeOperation = 'source-over';
-  }
-
   return {
     caption: 'Servisin içinden · Büyükdere Caddesi — 40 dakikadır aynı plazanın önündeyiz.',
     build(px) {
@@ -304,7 +48,7 @@ export function servisScene(): CityScene {
       buffer.width = BW;
       buffer.height = BH;
       bctx = buffer.getContext('2d')!;
-      buildStrips();
+      ({ buildings, pavement } = paintStreet());
       // the bus interior, drawn once at full resolution
       interior = document.createElement('canvas');
       interior.width = Math.ceil((W + PAD * 2) * px);
