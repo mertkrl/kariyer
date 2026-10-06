@@ -24,101 +24,88 @@ export function JobSelectScreen() {
           <p className={styles.subtitle}>Şirket 3 taslak hazırladı. Seçtiğin ilan hafta boyunca yayında kalacak.</p>
         </div>
 
-        <div className={styles.tabs} role="tablist" aria-label="İlan taslakları">
-          {jobDrafts.map((job, index) => {
-            const isSelected = job.id === selectedId;
-            return (
-              <button
-                key={job.id}
-                role="tab"
-                aria-selected={isSelected}
-                className={`${styles.tab} ${isSelected ? styles.tabSelected : ''}`}
-                style={{ '--accent': job.accent } as CSSProperties}
-                onClick={() => {
-                  audioEngine.init();
-                  audioEngine.playUi('select', index);
-                  setSelectedId(job.id);
-                }}
-              >
-                <span className={styles.tabDot} />
-                {TAB_LABELS[job.id] ?? job.tag}
-              </button>
-            );
-          })}
-        </div>
+        <div className={styles.workspace}>
+          <div className={styles.drafts} role="tablist" aria-label="İlan taslakları" aria-orientation="vertical">
+            {jobDrafts.map((job, index) => {
+              const isSelected = job.id === selectedId;
+              return (
+                <button
+                  key={job.id}
+                  role="tab"
+                  aria-selected={isSelected}
+                  className={`${styles.draft} ${isSelected ? styles.draftSelected : ''}`}
+                  style={{ '--accent': job.accent } as CSSProperties}
+                  onClick={() => {
+                    audioEngine.init();
+                    audioEngine.playUi('select', index);
+                    setSelectedId(job.id);
+                  }}
+                >
+                  <span className={styles.draftTop}>
+                    <span className={styles.draftNo}>Taslak {index + 1}</span>
+                    <span className={styles.draftTag}>{TAB_LABELS[job.id] ?? job.tag}</span>
+                  </span>
+                  <span className={styles.draftTitle}>{job.title}</span>
+                  <span className={styles.draftSummary}>{job.summary}</span>
+                  <span className={styles.draftMeta}>
+                    <span>{job.location}</span>
+                    <span>{salaryText(job)}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-        <div className={styles.postingPreview} key={selectedJob.id}>
-          <div className={styles.postingAccentBar} style={{ background: selectedJob.accent }} />
+          <div className={styles.window} style={{ '--accent': selectedJob.accent } as CSSProperties}>
+            <div className={styles.titleBar}>
+              <span className={styles.titleGlyph}>İK</span>
+              <span className={styles.titleText}>İşe Alım Portalı — İlan Önizlemesi</span>
+              <span className={styles.titleState}>Taslak</span>
+            </div>
 
-          <div className={styles.postingBody}>
-            <div className={styles.postingEyebrow}>Aktif İlan Önizlemesi</div>
-
-            <div className={styles.postingHeader}>
-              <div className={styles.postingHeaderLeft}>
-                <div className={styles.postingLogo} style={{ background: selectedJob.accent }}>
-                  {selectedJob.companyLine.charAt(0)}
-                </div>
-                <div>
-                  <div className={styles.postingTitle}>{selectedJob.title}</div>
+            <article className={styles.posting} key={selectedJob.id} role="tabpanel">
+              <header className={styles.postingHeader}>
+                <div className={styles.postingLogo}>{selectedJob.companyLine.charAt(0)}</div>
+                <div className={styles.postingHeading}>
+                  <h2 className={styles.postingTitle}>{selectedJob.title}</h2>
                   <div className={styles.postingMeta}>{selectedJob.companyLine}</div>
                 </div>
-              </div>
-              <div className={styles.postingFacts}>
-                <div className={styles.postingFact}>
-                  <span className={styles.postingFactIcon}>📍</span>
-                  {selectedJob.location}
-                </div>
-                <div className={styles.postingFact}>
-                  <span className={styles.postingFactIcon}>🕒</span>
-                  {selectedJob.employmentType}
-                </div>
-                <div className={`${styles.postingFact} ${styles.postingFactSalary}`}>
-                  <span className={styles.postingFactIcon}>💰</span>
-                  <span className="sr-only">Maaş aralığı: </span>
-                  {salaryText(selectedJob)}
-                </div>
-              </div>
-            </div>
+              </header>
 
-            <div className={styles.postingDivider} />
+              <dl className={styles.facts}>
+                <div>
+                  <dt>Konum</dt>
+                  <dd>{selectedJob.location}</dd>
+                </div>
+                <div>
+                  <dt>Çalışma şekli</dt>
+                  <dd>{selectedJob.employmentType}</dd>
+                </div>
+                <div className={styles.factSalary}>
+                  <dt>Maaş aralığı</dt>
+                  <dd>{salaryText(selectedJob)}</dd>
+                </div>
+              </dl>
 
-            <p className={styles.postingAbout}>{selectedJob.aboutRole}</p>
+              <p className={styles.postingAbout}>{selectedJob.aboutRole}</p>
 
-            <div className={styles.postingGrid}>
-              <div className={styles.postingSection}>
-                <div className={styles.postingSectionLabel}>
-                  <span className={styles.postingSectionDot} style={{ background: selectedJob.accent }} />
-                  Görev ve Sorumluluklar
-                </div>
-                <ul className={styles.postingList}>
-                  {selectedJob.responsibilities.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className={styles.postingSection}>
-                <div className={styles.postingSectionLabel}>
-                  <span className={styles.postingSectionDot} style={{ background: selectedJob.accent }} />
-                  Aranan Nitelikler
-                </div>
-                <ul className={styles.postingList}>
-                  {selectedJob.requirements.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className={styles.postingSection}>
-                <div className={styles.postingSectionLabel}>
-                  <span className={styles.postingSectionDot} style={{ background: selectedJob.accent }} />
-                  Sunduklarımız
-                </div>
-                <ul className={styles.postingList}>
-                  {selectedJob.benefits.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+              {(
+                [
+                  ['Görev ve Sorumluluklar', selectedJob.responsibilities],
+                  ['Aranan Nitelikler', selectedJob.requirements],
+                  ['Sunduklarımız', selectedJob.benefits],
+                ] as const
+              ).map(([label, items]) => (
+                <section key={label} className={styles.postingSection}>
+                  <h3 className={styles.postingSectionLabel}>{label}</h3>
+                  <ul className={styles.postingList}>
+                    {items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </article>
           </div>
         </div>
 
