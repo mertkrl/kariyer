@@ -6,9 +6,9 @@ import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
 
 /*
- * The portal's left column: the manager's note for the day, today's queue with the time spent
- * on each file, and the way out of the day (or back to the rejection notices). It reads what
- * it shows from the store itself, so the rest of the screen doesn't carry it around.
+ * Portalın sol sütunu: müdürün günün notu, her dosyaya harcanan süreyle bugünün kuyruğu ve
+ * günden çıkış yolu (ya da ret bildirimlerine geri dönüş). Gösterdiğini store'dan kendisi okur;
+ * böylece ekranın geri kalanı onu taşımak zorunda kalmaz.
  */
 
 function formatTime(totalSeconds: number) {
@@ -18,7 +18,7 @@ function formatTime(totalSeconds: number) {
 }
 
 interface Props {
-  /** The notices screen is tucked away (the player went back to the files). */
+  /** Bildirimler ekranı bir kenara kaldırılmış (oyuncu dosyalara geri döndü). */
   mailsHidden: boolean;
   onShowMails: () => void;
   editingMails: boolean;
@@ -38,7 +38,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   const finishDay = useGameStore((s) => s.finishDay);
   const plannedRejections = useGameStore((s) => s.plannedRejections);
   const rejectionMailsSent = useGameStore((s) => s.rejectionMailsSent);
-  // only whether it matters, not the minute: the column doesn't redraw with the clock
+  // dakikanın kendisi değil yalnızca önemli olup olmadığı: sütun saatle birlikte yeniden çizilmez
   const onBreak = useGameStore((s) => isOnBreak(s));
   const stayingLate = useGameStore((s) => s.currentDayIndex === TEAM_LATE_DAY && s.workdayMinutes < TEAM_LATE_END);
 
@@ -78,7 +78,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                   {c.name}
                   {id === NEIGHBOUR_ID && <em className={styles.queueTag}>Tavsiye</em>}
                 </span>
-                {/* the visible column is a glance (a time, a dash); a screen reader hears it in words */}
+                {/* görünen sütun bir bakışlıktır (bir süre, bir çizgi); ekran okuyucu onu sözcüklerle duyar */}
                 <span className="sr-only">
                   {decisions[id] === 'approve' ? ', mülakata çağrıldı' : decisions[id] === 'reject' ? ', reddedildi' : isOpened ? ', açıldı' : ', henüz açılmadı'}
                 </span>
@@ -119,7 +119,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   );
 }
 
-/** The end of the day: how far the queue is, what still stands in the way, and the button. */
+/** Günün sonu: kuyruğun ne kadar ilerlediği, hâlâ neyin engel olduğu ve düğme. */
 function DayFinish({ decided, total, blocker, onFinish }: { decided: number; total: number; blocker: string | null; onFinish: () => void }) {
   const ready = blocker === null;
   const pct = total ? Math.round((decided / total) * 100) : 100;

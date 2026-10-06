@@ -130,7 +130,7 @@
 }
 
 
-/* memo on the left, today's goals and the button on the right: the whole page in one screen */
+/* solda memo, sağda bugünün hedefleri ve düğme: bütün sayfa tek ekranda */
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
@@ -150,7 +150,7 @@
   }
 }
 
-/* the first morning: who you are */
+/* ilk sabah: kim olduğun */
 .intro {
   max-width: 640px;
 }

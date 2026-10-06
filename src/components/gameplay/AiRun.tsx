@@ -4,15 +4,15 @@ import { AD_KEYWORDS, aiScore, atsReport } from '../../game/ats';
 import styles from './AiRun.module.css';
 
 /*
- * The AI at work and its result, inside the AI box. While it runs, the steps a screening
- * system actually goes through (parse, extract, match, score, rank) tick off one by one with a
- * progress bar and a running log; when it's done, a score out of 100 counts up on a dial.
- * The steps are timed against the same duration as the scan over the CV.
+ * Yapay zekâ işte ve sonucu, yapay zekâ kutusunun içinde. Çalışırken bir eleme sisteminin gerçekte
+ * geçtiği adımlar (ayrıştır, çıkar, eşleştir, puanla, sırala) bir ilerleme çubuğu ve akan bir
+ * günlükle tek tek işaretlenir; bitince 100 üzerinden bir puan bir kadranda sayarak yükselir.
+ * Adımlar CV üzerindeki taramayla aynı süreye göre zamanlanır.
  */
 
 const reduceMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-/** When each step starts, as a share of the run. */
+/** Her adımın başladığı an, çalışmanın payı olarak. */
 const STEP_AT = [0, 0.2, 0.42, 0.64, 0.84];
 
 function stepsFor(c: Candidate, applications: number) {
@@ -74,7 +74,7 @@ const VERDICT_NAME: Record<Candidate['verdict'], string> = {
   out: 'Değerlendirme dışı',
 };
 
-/** The result: the score on a dial, the verdict, and the way into the full report. */
+/** Sonuç: kadranda puan, karar ve tam rapora giden yol. */
 export function ScoreDial({ candidate, reportOpen, onToggleReport }: { candidate: Candidate; reportOpen: boolean; onToggleReport: () => void }) {
   const score = aiScore(candidate);
   const [shown, setShown] = useState(() => (reduceMotion() ? score : 0));

@@ -314,7 +314,7 @@
   height: 26px;
 }
 
-/* the draft reads like the message it would be */
+/* taslak, olacağı mesaj gibi okunur */
 .preview > span {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -369,7 +369,7 @@
   height: 14px;
 }
 
-/* your answer flies up from the buttons; theirs lands with a small bounce */
+/* senin cevabın düğmelerden yukarı uçar; onunki küçük bir zıplamayla düşer */
 .sent {
   animation: dmSend 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
   transform-origin: bottom right;

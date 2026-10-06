@@ -7,15 +7,15 @@ import styles from './WelcomeScreen.module.css';
 import { clearAllGameData } from '../game/privacy';
 
 export function WelcomeScreen() {
-  // This screen draws before the game has loaded; the game is fetched meanwhile.
+  // Bu ekran oyun yüklenmeden çizilir; oyun bu sırada indirilir.
   const store = useLoadedStore();
   useEffect(() => {
     void loadStore();
   }, []);
   const startGame = () => withStore((m) => m.useGameStore.getState().startGame());
   const continueGame = () => withStore((m) => m.useGameStore.getState().continueGame());
-  // a checkpoint from an earlier visit, kept in this browser: taken at its word at first, then
-  // checked against the game once it has loaded (a save this build can't continue disappears)
+  // önceki bir ziyaretten, bu tarayıcıda tutulan kayıt: önce olduğu gibi kabul edilir, sonra
+  // oyun yüklenince oyuna göre kontrol edilir (bu derlemenin sürdüremeyeceği bir kayıt kaybolur)
   const save = useMemo(() => (store ? store.loadSave() : readSave()), [store]);
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });

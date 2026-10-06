@@ -2,13 +2,13 @@ import type { Candidate } from '../types';
 import type { CandidateDetails } from './candidateDetails';
 
 /*
- * The extra pile. When you close the day's queue early, Hakan Bey "finds" a few more files
- * for you: applications the system had parked in a waiting list. They are drawn from here
- * (2–4 a day, never the same person twice in a week), so they come with the same kind of
- * story as everyone else — a system note that is quietly wrong about something.
+ * Ek yığın. Günün kuyruğunu erken kapatınca Hakan Bey senin için birkaç dosya daha "bulur":
+ * sistemin bekleme listesine park ettiği başvurular. Buradan çekilirler (günde 2–4, haftada hiç
+ * aynı kişi iki kez değil), böylece herkesle aynı türden bir hikâyeyle gelirler: bir şey hakkında
+ * sessizce yanılan bir sistem notu.
  *
- * Their CV answers reply to the week's standing questions (what motivates you, where do you
- * see yourself in five years).
+ * CV cevapları haftanın sabit sorularına yanıt verir (seni ne motive ediyor, beş yıl sonra
+ * kendini nerede görüyorsun).
  */
 
 export const EXTRA_CANDIDATES: Record<string, Candidate> = {
@@ -432,5 +432,5 @@ export const EXTRA_DETAILS: Record<string, CandidateDetails> = {
   },
 };
 
-/** Women in the extra pile (for the Turkish pronouns elsewhere). */
+/** Ek yığındaki kadınlar (başka yerlerdeki Türkçe ifadeler için). */
 export const EXTRA_FEMALE = ['busra', 'gamze', 'nurdan', 'meltem', 'sevgi'];

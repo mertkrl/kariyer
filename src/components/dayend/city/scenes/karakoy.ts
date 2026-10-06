@@ -26,19 +26,19 @@ import type { CityScene } from '../scene';
 import { dash, ferry } from './karakoyPieces';
 
 /*
- * Karaköy, 17:45 — snow, from the ferry pier, looking across the Golden Horn at Galata Bridge.
- * Composed after a real photograph from this spot: the bridge runs from big on the right to
- * small on the left in true perspective; its lower level of fish restaurants is a long band of
- * gold, lamp posts line the upper deck; Yeni Cami glows at the far end, with
- * Süleymaniye on the hill above; the dark water throws everything back in broken gold.
+ * Karaköy, 17:45: kar yağıyor; vapur iskelesinden Haliç'in karşısındaki Galata Köprüsü'ne bakış.
+ * Bu noktadan çekilmiş gerçek bir fotoğrafa göre kuruldu: köprü gerçek perspektifle sağda büyükten
+ * solda küçüğe uzanır; alt katındaki balık restoranları uzun bir altın şerit, üst güverteyi lamba
+ * direkleri çizer; uzak ucunda Yeni Cami parlar, üstündeki tepede Süleymaniye; karanlık su her şeyi
+ * kırık altın olarak geri yansıtır.
  */
 
 const P: Persp = { vpx: 820, vpy: 474, f: 900, camH: 3 };
-// Bridge axis (world metres): near end at Karaköy (right), far end at Eminönü (left).
+// Köprü ekseni (dünya metresi): yakın uç Karaköy'de (sağ), uzak uç Eminönü'nde (sol).
 const NEAR = { X: 34, Z: 36 };
 const FAR = { X: -340, Z: 620 };
 const LEN = Math.hypot(FAR.X - NEAR.X, FAR.Z - NEAR.Z);
-// the side of the bridge that faces us
+// köprünün bize bakan yanı
 const SX = -(FAR.Z - NEAR.Z) / LEN;
 const SZ = (FAR.X - NEAR.X) / LEN;
 const HALF = 20;
@@ -49,7 +49,7 @@ const BAY = 6;
 const SODIUM: RGB = [255, 186, 110];
 const WARM: RGB = [255, 200, 130];
 const WATER_Y = P.vpy + 3;
-const S0 = -0.022; // the bridge runs on past the right edge of the frame
+const S0 = -0.022; // köprü çerçevenin sağ kenarının ötesine uzanır
 const SHOP_LIGHT: RGB[] = [
   [255, 196, 118],
   [255, 214, 150],
@@ -64,7 +64,7 @@ const at = (s: number, off = HALF, Y = 0) => {
   const Z = NEAR.Z + (FAR.Z - NEAR.Z) * s + SZ * off;
   return project(P, X, Y, Z);
 };
-// sample positions along the bridge at even world spacing
+// köprü boyunca eşit dünya aralıklı örnek konumlar
 const along = (step: number, from = S0 * LEN) => {
   const out: number[] = [];
   for (let d = from; d <= LEN; d += step) out.push(d / LEN);
@@ -79,7 +79,7 @@ const quad = (g: CanvasRenderingContext2D, pts: Pt[]) => {
   g.closePath();
   g.fill();
 };
-/** A band along the whole bridge face between two heights. */
+/** Bütün köprü yüzü boyunca iki yükseklik arasında bir şerit. */
 const band = (g: CanvasRenderingContext2D, y0: number, y1: number, off = HALF, s0 = S0, s1 = 1) =>
   quad(g, [at(s0, off, y0), at(s1, off, y0), at(s1, off, y1), at(s0, off, y1)]);
 
@@ -103,7 +103,7 @@ export function karakoyScene(): CityScene {
     build(px) {
       const rb = makeRng(8);
       skyL = makeLayer(px, (g) => {
-        // blue hour under snow clouds, the city's sodium glow along the horizon
+        // kar bulutlarının altında mavi saat, ufuk boyunca şehrin sodyum parıltısı
         g.fillStyle = vGradient(g, -PAD, WATER_Y, [
           [0, '#0c162c'],
           [0.4, '#1b2d4c'],
@@ -122,7 +122,7 @@ export function karakoyScene(): CityScene {
         clouds(g, rc, { y0: 200, y1: 340, n: 14, w0: 240, w1: 480, flat: 0.22, color: [66, 78, 108], alpha: 0.35, lit: [190, 150, 130], litAlpha: 0.2, blur: 16 });
       });
       cityL = makeLayer(px, (g) => {
-        // the historic peninsula beyond the bridge, snow on its roofs
+        // köprünün ötesinde tarihi yarımada, çatılarında kar
         const hill = hillTown(g, rb, {
           ridge: [
             [-PAD, 404],
@@ -147,7 +147,7 @@ export function karakoyScene(): CityScene {
           size: 0.6,
           snow: true,
         });
-        // Karaköy's waterfront on the right, mostly hidden behind the bridge's near end
+        // sağda Karaköy sahili, çoğu köprünün yakın ucunun arkasında gizli
         hillTown(g, rb, {
           ridge: [
             [1200, 466],
@@ -167,13 +167,13 @@ export function karakoyScene(): CityScene {
           size: 0.85,
           snow: true,
         });
-        // Süleymaniye crowning the hill, Yeni Cami at the water by the bridge's far end
+        // tepeyi taçlandıran Süleymaniye, köprünün uzak ucunda suyun kenarında Yeni Cami
         mosque(g, 520, 352, 0.9, { stone: [168, 160, 170], lit: [255, 210, 150], litA: 0.85, minarets: 4, windows: true, minaretH: 118, snow: true });
         mosque(g, 300, WATER_Y - 6, 0.82, { stone: [176, 164, 160], lit: [255, 206, 146], litA: 0.95, minarets: 2, windows: true, minaretH: 104, snow: true });
-        // Eminönü quay
+        // Eminönü rıhtımı
         g.fillStyle = '#0e111c';
         g.fillRect(-PAD, WATER_Y - 6, 520, 8);
-        // water
+        // su
         g.fillStyle = vGradient(g, WATER_Y, H + PAD, [
           [0, '#26304a'],
           [0.08, '#131a2d'],
@@ -181,7 +181,7 @@ export function karakoyScene(): CityScene {
           [1, '#04060c'],
         ]);
         g.fillRect(-PAD, WATER_Y, W + PAD * 2, H - WATER_Y + PAD);
-        // choppy surface: short dark and light strokes that widen towards us
+        // dalgalı yüzey: bize doğru genişleyen kısa koyu ve açık darbeler
         for (let i = 0; i < 1300; i++) {
           const y = range(rb, WATER_Y + 1, H + PAD);
           const d = (y - WATER_Y) / (H - WATER_Y);
@@ -196,10 +196,10 @@ export function karakoyScene(): CityScene {
       });
 
       bridgeL = makeLayer(px, (g) => {
-        // underside and the low quay the restaurants stand on
+        // alt yüz ve restoranların durduğu alçak rıhtım
         g.fillStyle = '#090a10';
         band(g, 0.2, LOW[0] + 0.1);
-        // restaurant bays: glass fronts lit from inside, dark columns between them
+        // restoran bölmeleri: içeriden aydınlanmış cam cepheler, aralarında koyu sütunlar
         for (const b of bays) {
           const s0 = b.s - (BAY - 0.7) / LEN;
           const s1 = b.s;
@@ -213,7 +213,7 @@ export function karakoyScene(): CityScene {
           g.fillStyle = gr;
           band(g, LOW[0], LOW[1], HALF - 1.2, s0, s1);
           if (k < 2) continue;
-          // what's inside: the counter and a row of hanging lamps (no one at the tables in this snow)
+          // içeride olan: tezgâh ve bir sıra sarkıt lamba (bu karda masalarda kimse yok)
           g.fillStyle = 'rgba(70,34,20,0.55)';
           band(g, LOW[0], LOW[0] + 1, HALF - 1.2, s0, s1);
           for (let i = 0; i < 3; i++) {
@@ -223,15 +223,15 @@ export function karakoyScene(): CityScene {
             g.ellipse(p[0], p[1], k * 0.12, k * 0.08, 0, 0, Math.PI * 2);
             g.fill();
           }
-          // mullions and transom
+          // kayıtlar ve vasistas
           g.fillStyle = 'rgba(30,20,18,0.8)';
           for (let i = 1; i < 3; i++) band(g, LOW[0], LOW[1], HALF - 1.2, s0 + (i * (BAY - 0.7)) / 3 / LEN - 0.06 / LEN, s0 + (i * (BAY - 0.7)) / 3 / LEN + 0.06 / LEN);
           band(g, LOW[1] - 0.95, LOW[1] - 0.85, HALF - 1.2, s0, s1);
         }
-        // columns between bays
+        // bölmeler arasındaki sütunlar
         g.fillStyle = '#121320';
         for (const b of bays) band(g, LOW[0], LOW[1], HALF - 1.1, b.s, b.s + 0.7 / LEN);
-        // awnings and the sign band with the restaurants' names
+        // tenteler ve restoranların adlarının yazdığı tabela şeridi
         g.fillStyle = '#1a1417';
         band(g, LOW[1], LOW[1] + 0.5, HALF - 0.6);
         g.fillStyle = '#15171f';
@@ -259,7 +259,7 @@ export function karakoyScene(): CityScene {
           }
         }
         g.globalCompositeOperation = 'source-over';
-        // the upper deck's steel fascia
+        // üst güvertenin çelik kaplaması
         const fg = g.createLinearGradient(0, at(0, HALF, DECK)[1], 0, at(0, HALF, LOW[1] + 1.3)[1]);
         fg.addColorStop(0, '#2a2f40');
         fg.addColorStop(1, '#171a26');
@@ -270,7 +270,7 @@ export function karakoyScene(): CityScene {
       });
 
       railL = makeLayer(px, (g) => {
-        // the parapet along the deck, snow along its top
+        // güverte boyunca korkuluk duvarı, üstünde kar
         g.fillStyle = 'rgba(20,23,34,0.96)';
         band(g, DECK, DECK + 0.25);
         band(g, RAIL - 0.2, RAIL);
@@ -292,7 +292,7 @@ export function karakoyScene(): CityScene {
       });
 
       pierL = makeLayer(px, (g) => {
-        // the floating pier we stand on: snowy deck, tyre fenders, railing, the pier's sign
+        // üstünde durduğumuz yüzen iskele: karlı güverte, lastik usturmaçalar, korkuluk, iskelenin tabelası
         g.fillStyle = vGradient(g, 820, H + PAD, [
           [0, '#8f98b2'],
           [0.3, '#5e6682'],
@@ -322,7 +322,7 @@ export function karakoyScene(): CityScene {
           g.fillStyle = rb() < 0.6 ? 'rgba(255,255,255,0.5)' : 'rgba(30,34,50,0.35)';
           g.fillRect(range(rb, 1090 - (y - 830) * 0.6 + 60, W + PAD), y, range(rb, 4, 24), 1.3);
         }
-        // railing along the edge
+        // kenar boyunca korkuluk
         g.strokeStyle = '#0c0e15';
         g.lineWidth = 3;
         g.beginPath();
@@ -343,7 +343,7 @@ export function karakoyScene(): CityScene {
         g.moveTo(1160, 790);
         g.lineTo(W + PAD, 776);
         g.stroke();
-        // lamp post and the yellow pier sign
+        // lamba direği ve sarı iskele tabelası
         g.strokeStyle = '#0d0f16';
         g.lineWidth = 5;
         g.beginPath();
@@ -393,9 +393,9 @@ export function karakoyScene(): CityScene {
 
       g.save();
       g.translate(cam.x, cam.y);
-      // the last ferry of the evening crossing in front of Eminönü
-      // (it stays in the open water left of the bridge's far end, where it can be seen, and
-      // fades in and out with the snow at either end of its run)
+      // akşamın son vapuru Eminönü'nün önünden geçiyor
+      // (köprünün uzak ucunun solundaki açık suda kalır, orada görünür;
+      // rotasının iki ucunda karla birlikte belirip kaybolur)
       const ft = (t / 90 + 0.1) % 1;
       const fp = project(P, -320 - ft * 250, 0, 600);
       g.globalAlpha = Math.min(1, ft * 8, (1 - ft) * 8);
@@ -404,7 +404,7 @@ export function karakoyScene(): CityScene {
 
       g.drawImage(bridgeL, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.drawImage(railL, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
-      // lamp posts on the upper deck
+      // üst güvertedeki lamba direkleri
       g.strokeStyle = '#1c202d';
       for (const s of lamps) {
         const b = at(s, HALF - 0.5, RAIL);
@@ -419,7 +419,7 @@ export function karakoyScene(): CityScene {
       }
 
       g.globalCompositeOperation = 'lighter';
-      // the restaurant band spills gold onto the water: broken, wobbling streaks
+      // restoran şeridi suya altın döker: kırık, titreyen çizgiler
       for (const b of bays) {
         const sm = b.s - BAY / 2 / LEN;
         const m = at(sm, HALF - 1.2, 3.3);
@@ -439,7 +439,7 @@ export function karakoyScene(): CityScene {
           dash(g, m[0] + wob, yy, w0 * (0.55 + 0.35 * Math.sin(b.seed * 4 + j * 2.1)), Math.max(1.2, k * 0.28), b.c, a);
         }
       }
-      // lamp heads: white-hot cores with a starburst, and their columns on the water
+      // lamba başları: yıldız patlamalı beyaz sıcak çekirdekler ve sudaki sütunları
       for (const s of lamps) {
         const tp = at(s, HALF - 0.5, DECK + 7.9);
         const k = tp[2];
@@ -456,13 +456,13 @@ export function karakoyScene(): CityScene {
       }
       g.globalCompositeOperation = 'source-over';
 
-      // gulls in the lamplight
+      // lamba ışığında martılar
       for (const b of gulls) {
         const a = t * b.sp + b.ph;
         gull(g, b.cx + Math.cos(a) * b.rad, b.cy + Math.sin(a) * b.rad * 0.3, b.s, t * 7 + b.ph, 'rgba(236,238,246,0.8)');
       }
 
-      // our pier
+      // bizim iskelemiz
       g.drawImage(pierL, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.globalCompositeOperation = 'lighter';
       glow(g, 1520, 636, 14, [255, 226, 180], 1, true);
@@ -473,7 +473,7 @@ export function karakoyScene(): CityScene {
       g.restore();
 
       snow(g, flakes, lastDt, t, 0.9);
-      // cold mist hanging over the water
+      // suyun üstünde asılı soğuk bir sis
       g.fillStyle = vGradient(g, 380, 560, [
         [0, 'rgba(120,130,160,0)'],
         [0.5, 'rgba(120,130,160,0.1)'],

@@ -4,16 +4,16 @@ import type { teaColors } from './teaPour';
 import type { Weather } from './weather';
 
 interface Props {
-  /** Makes an SVG id unique to this room (several can't share the page, but ids are global). */
+  /** Bir SVG kimliğini bu odaya özgü yapar (birkaçı sayfayı paylaşamaz, ama kimlikler globaldir). */
   id: (name: string) => string;
   weather: Weather;
   teaTint: ReturnType<typeof teaColors>;
-  /** Hands the tea gradient's stops to the pour animation. */
+  /** Çay gradyanının duraklarını dökme animasyonuna verir. */
   setStop: (i: 0 | 1 | 2, node: SVGStopElement | null) => void;
   bread: number[];
 }
 
-/** Gradients, patterns and clip paths the room is painted with. */
+/** Odanın boyandığı gradyanlar, desenler ve kırpma yolları. */
 export function RoomDefs({ id, weather, teaTint, setStop, bread }: Props) {
   return (
     <defs>

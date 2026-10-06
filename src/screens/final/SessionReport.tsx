@@ -4,8 +4,8 @@ import { useDialog } from '../../components/ui/useDialog';
 import styles from './SessionReport.module.css';
 
 /*
- * The session report over the final screen: a sheet of paper to print (or save as PDF) and a
- * button to copy it as text. Made on the device; nothing is sent.
+ * Final ekranının üstündeki oturum raporu: yazdırılacak (ya da PDF olarak kaydedilecek) bir
+ * kâğıt ve onu metin olarak kopyalayan bir düğme. Cihazda hazırlanır; hiçbir şey gönderilmez.
  */
 
 const DIFFICULTY_NAME = { relaxed: 'Rahat', normal: 'Normal', hard: 'Zor' } as const;

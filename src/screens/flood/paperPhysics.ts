@@ -1,8 +1,8 @@
 import { PAPER_H, PAPER_W } from './paperTextures';
 
 /*
- * Physics for the paper storm: the state of each sheet and how it moves. No canvas, no DOM —
- * the renderer (paperRender.ts) draws what this produces, and tests can step it directly.
+ * Kâğıt fırtınasının fiziği: her sayfanın durumu ve nasıl hareket ettiği. Canvas yok, DOM yok;
+ * çizici (paperRender.ts) bunun ürettiğini çizer, testler de doğrudan adım adım ilerletir.
  */
 
 export interface Point {
@@ -16,8 +16,8 @@ export interface ClearZone {
   below: number;
 }
 
-export const G = 1500; // px/s², gravity towards the desk
-export const CAMERA = 1500; // camera height above the desk (px) — sets the perspective
+export const G = 1500; // px/s², masaya doğru yerçekimi
+export const CAMERA = 1500; // kameranın masadan yüksekliği (px): perspektifi belirler
 export const LIGHT = norm(-0.38, -0.55, 0.74);
 
 function norm(x: number, y: number, z: number): [number, number, number] {
@@ -46,7 +46,7 @@ export interface Sheet {
   wYaw: number;
   wa: number;
   wb: number;
-  // glide (falling leaf)
+  // süzülme (düşen yaprak)
   phase: number;
   omega: number;
   ampA: number;
@@ -61,7 +61,7 @@ export interface Sheet {
   ty: number;
   lands: boolean;
   landedAt: number;
-  // "in" mode path
+  // "in" modunun yolu
   life: number;
   r0: number;
   th0: number;
@@ -103,7 +103,7 @@ export function makeOut(origin: Point, vw: number, vh: number, count: number, ch
     let tx = 0;
     let ty = 0;
     if (lands) {
-      // anywhere on the desk except the zone around the core and its UI
+      // masanın her yeri, çekirdeğin ve arayüzünün çevresindeki alan hariç
       for (let k = 0; k < 40; k++) {
         tx = rand(30, vw - 30);
         ty = rand(40, vh - 30);
@@ -192,7 +192,7 @@ function blank(p: Partial<Sheet>): Sheet {
   };
 }
 
-/** Corners (TL, TR, BL) and normal of a sheet in world space. */
+/** Bir sayfanın dünya uzayındaki köşeleri (sol üst, sağ üst, sol alt) ve normali. */
 export function pose(s: Sheet, shrink = 1) {
   const ca = Math.cos(s.a);
   const sa = Math.sin(s.a);
@@ -214,7 +214,7 @@ export function pose(s: Sheet, shrink = 1) {
   return { tl: tf(-hw, -hh), tr: tf(hw, -hh), bl: tf(-hw, hh), n };
 }
 
-/** Advances an "out" sheet by dt. Returns true on the step it touches the desk. */
+/** "out" sayfasını dt kadar ilerletir. Masaya değdiği adımda true döner. */
 export function stepOut(s: Sheet, t: number, dt: number, vw: number, vh: number): boolean {
   let landedNow = false;
   if (s.state === 'wait') {
@@ -237,11 +237,11 @@ export function stepOut(s: Sheet, t: number, dt: number, vw: number, vh: number)
     s.wa *= spin;
     s.wb *= spin;
     if (s.vz < 0 && (Math.hypot(s.vx, s.vy) < 380 || s.z < 110)) {
-      // from tumbling to fluttering: settle towards the nearer flat side
+      // takla atmaktan süzülmeye: daha yakın düz yüzüne doğru yerleşir
       s.state = 'glide';
       s.a = wrap(s.a);
       s.b = wrap(s.b);
-      // most sheets flip face-up as they catch the air; a few land on their back
+      // sayfaların çoğu havayı yakalayınca yüzü yukarı döner; birkaçı sırt üstü düşer
       const faceDown = Math.abs(s.a) > 2.5 && Math.random() < 0.5;
       s.restA = faceDown ? Math.PI * Math.sign(s.a) : 0;
       if (!faceDown && Math.abs(s.a) > Math.PI / 2) s.a -= Math.PI * 2 * Math.sign(s.a) * (Math.abs(s.a) > Math.PI ? 1 : 0);
@@ -258,7 +258,7 @@ export function stepOut(s: Sheet, t: number, dt: number, vw: number, vh: number)
     const toB = s.restB + s.ampB * Math.sin(s.phase * 0.8 + 1.3);
     s.a += (toA - s.a) * approach(5, dt);
     s.b += (toB - s.b) * approach(5, dt);
-    // pendulum: glide sideways along the swing, drop fastest mid-swing
+    // sarkaç: salınım boyunca yana süzül, en hızlı salınımın ortasında düş
     const steer = s.lands ? 1.3 : 0;
     const txv = s.swayX * s.sway * Math.cos(s.phase) + clamp((s.tx - s.x) * steer, -170, 170) + (s.lands ? 0 : s.swayX * 160);
     const tyv = s.swayY * s.sway * Math.cos(s.phase) + clamp((s.ty - s.y) * steer, -170, 170) + (s.lands ? 0 : s.swayY * 160);
@@ -291,8 +291,8 @@ export function stepOut(s: Sheet, t: number, dt: number, vw: number, vh: number)
 }
 
 /**
- * Places an "in" sheet on its spiral at time t. Returns how to draw it, 'waiting' before it
- * spawns, or 'absorbed' on the frame it reaches the core.
+ * "in" sayfasını t anında sarmalı üzerine yerleştirir. Nasıl çizileceğini döndürür; doğmadan
+ * önce 'waiting', çekirdeğe ulaştığı karede 'absorbed'.
  */
 export function stepIn(s: Sheet, t: number, o: Point): { shrink: number; fade: number } | 'waiting' | 'absorbed' {
   const u = (t - s.spawn) / s.life;

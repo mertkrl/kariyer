@@ -13,15 +13,15 @@ import { TeaSet } from './TeaSet';
 import styles from './BreakRoom.module.css';
 
 /*
- * Lunch in the canteen: a tabldot tray, soup with lemon, bread, ayran and a glass of tea, by a
- * window onto the city. The logic lives in useLunch / useTea, the drawing in the pieces below.
+ * Yemekhanede öğle yemeği: tabldot tepsisi, limonlu çorba, ekmek, ayran ve bir bardak çay,
+ * şehre bakan bir pencerenin yanında. Mantık useLunch / useTea'de, çizim aşağıdaki parçalarda.
  */
 
 interface BreakRoomProps {
   dayIndex: number;
   dayNumber: number;
   onFinish: () => void;
-  /** Game minutes until 13:00 — lunch runs on the clock. */
+  /** 13:00'e kadar kalan oyun dakikası: öğle arası saate bağlıdır. */
   minutesLeft: number;
 }
 
@@ -29,7 +29,7 @@ export function BreakRoom({ dayIndex, dayNumber, onFinish, minutesLeft }: BreakR
   const menu: LunchMenu = lunchMenus[dayIndex % lunchMenus.length];
   const weather = weatherForDay(dayIndex);
 
-  // Weather you can hear through the window.
+  // Pencereden duyulan hava.
   useEffect(() => audioEngine.startWeatherAmbience(weather.kind), [weather.kind]);
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const id = (name: string) => `${name}-${uid}`;
@@ -44,8 +44,8 @@ export function BreakRoom({ dayIndex, dayNumber, onFinish, minutesLeft }: BreakR
       <svg
         className={styles.scene}
         viewBox="0 0 1200 740"
-        /* Always show the whole scene; the wall and table are drawn far past the viewBox,
-           so on any aspect ratio the spare space continues the room instead of letterboxing. */
+        /* Sahnenin tamamı hep görünür; duvar ve masa viewBox'ın çok ötesine çizilir, böylece her
+           en-boy oranında artan alan siyah şerit yerine odayı sürdürür. */
         preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label="Yemekhane masası"
@@ -54,7 +54,7 @@ export function BreakRoom({ dayIndex, dayNumber, onFinish, minutesLeft }: BreakR
         <RoomBackdrop id={id} weather={weather} menu={menu} dayNumber={dayNumber} />
         <LunchTray id={id} menu={menu} dayIndex={dayIndex} lunch={lunch} bumped={bumped} />
         <TeaSet id={id} tea={tea} bumped={bumped} />
-        {/* Daylight from outside tints the whole room (dim and cool when it rains, crisp when it snows) */}
+        {/* Dışarıdan gelen gün ışığı bütün odayı renklendirir (yağmurda loş ve soğuk, karda berrak) */}
         {weather.roomTint && <rect x="-4000" y="-4000" width="9200" height="9000" fill={weather.roomTint} pointerEvents="none" />}
       </svg>
 

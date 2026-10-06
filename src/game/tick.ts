@@ -1,9 +1,9 @@
 /*
- * One second of the workday. The game calls tick() once a second while the day screen is up;
- * each step below looks at the same moment and either ends the second there (the clock stands
- * still, lunch, the meeting door) or lets it run on to the next. Their order is the rule: a new
- * kind of interruption is a new step, put where it should cut in. What a minute sets off once it
- * has passed (calls, texts, the end of the day) is the AFTER_MINUTE list at the bottom.
+ * Mesainin bir saniyesi. Gün ekranı açıkken oyun tick()'i saniyede bir çağırır; aşağıdaki her
+ * adım aynı ana bakar ve ya saniyeyi orada bitirir (saat durur, öğle arası, toplantı kapısı) ya da
+ * bir sonrakine geçmesine izin verir. Sıraları kuraldır: yeni bir kesinti türü, araya gireceği yere
+ * konan yeni bir adımdır. Bir dakika geçtikten sonra tetiklediği şeyler (aramalar, mesajlar, günün
+ * sonu) en alttaki AFTER_MINUTE listesidir.
  */
 import { getState, setState } from './storeApi';
 import type { GameState } from './storeTypes';
@@ -13,20 +13,20 @@ import { MEETING_AT, MEETING_DAY } from './meeting';
 import { EVENT_LENGTH, minutesPerTick } from './storeDefaults';
 import { addExtraFiles, checkDayEnd, dayLimit, deliverManagerMessages, expireReplies, isOnBreak, ringLandline } from './clock';
 
-/** A step of the second: true when the second ends with it. */
+/** Saniyenin bir adımı: saniye onunla bitiyorsa true. */
 type Step = (state: GameState) => boolean;
 
-/** Nothing moves: another screen, the pause menu, before the shift, the recall mail, the meeting. */
+/** Hiçbir şey kıpırdamaz: başka bir ekran, duraklatma menüsü, mesaiden önce, geri çekme e-postası, toplantı. */
 const clockStopped: Step = (state) =>
   state.phase !== 'gameplay' ||
   state.paused ||
   !state.shiftStarted ||
-  // the recall mail is open over everything: the day waits until it's sent
+  // geri çekme e-postası her şeyin üstünde açık: gün, gönderilene kadar bekler
   Boolean(state.revokeDraft && !state.desk.inCall) ||
-  // the clock stops at the conference room door; the meeting takes its time when it ends
+  // saat toplantı odasının kapısında durur; toplantı bitince süresini alır
   state.meeting.state === 'active';
 
-/** Wednesday 11:00: the weekly meeting starts (not over lunch). */
+/** Çarşamba 11:00: haftalık toplantı başlar (öğle arasında değil). */
 const meetingStarts: Step = (state) => {
   if (state.currentDayIndex !== MEETING_DAY || state.meeting.state !== 'pending' || state.workdayMinutes < MEETING_AT || isOnBreak(state)) return false;
   setState({ meeting: { ...state.meeting, state: 'active' } });
@@ -34,7 +34,7 @@ const meetingStarts: Step = (state) => {
   return true;
 };
 
-/** Lunch is an hour of the clock too: eat fast, or eat into your break. The landline waits. */
+/** Öğle arası da saatin bir saatidir: hızlı ye ya da molandan ye. Sabit hat bekler. */
 const lunchHour: Step = (state) => {
   if (!isOnBreak(state)) return false;
   const next = Math.min(BREAK_END_MIN, state.workdayMinutes + minutesPerTick(state.difficulty));
@@ -43,7 +43,7 @@ const lunchHour: Step = (state) => {
   return true;
 };
 
-/** A working minute: the clock moves (an event can take a bite out of it), and so does reading. */
+/** Bir çalışma dakikası: saat ilerler (bir olay ondan bir parça koparabilir), okuma da. */
 const workingMinute: Step = (state) => {
   const clock = nextClock(state);
   setState({ ...clock, timeSpent: readingTime(state) });
@@ -58,7 +58,7 @@ export function tick() {
   for (const step of STEPS) if (step(state)) return;
 }
 
-/** Where the clock lands this second, with the day's events (hard mode, the calendar) worked in. */
+/** Saatin bu saniye nereye vardığı; günün olayları (zor mod, takvim) hesaba katılarak. */
 function nextClock(state: GameState): Pick<GameState, 'workdayMinutes' | 'activeEvent' | 'dayEvents' | 'week'> {
   let workdayMinutes = state.workdayMinutes + minutesPerTick(state.difficulty);
   let activeEvent = state.activeEvent && workdayMinutes < state.activeEvent.until ? state.activeEvent : null;
@@ -69,7 +69,7 @@ function nextClock(state: GameState): Pick<GameState, 'workdayMinutes' | 'active
     dayEvents = dayEvents.filter((e) => e !== due);
     week = { ...week, events: week.events + 1 };
     if (due.kind === 'meeting') {
-      // Dragged into an "urgent" meeting: half an hour gone in a blink.
+      // "Acil" bir toplantıya sürüklendin: göz açıp kapayıncaya kadar yarım saat gitti.
       workdayMinutes += 30;
       sound().playPhoneBuzz();
     } else if (due.kind === 'calendar') {
@@ -80,27 +80,27 @@ function nextClock(state: GameState): Pick<GameState, 'workdayMinutes' | 'active
     }
     activeEvent = { kind: due.kind, until: workdayMinutes + EVENT_LENGTH[due.kind], text: due.text };
   }
-  // the morning stops at noon: lunch starts on the hour
+  // sabah öğlen durur: öğle arası tam saatte başlar
   if (state.workdayMinutes < BREAK_START_MIN && workdayMinutes >= BREAK_START_MIN) workdayMinutes = BREAK_START_MIN;
   return { workdayMinutes: Math.min(workdayMinutes, dayLimit(state)), activeEvent, dayEvents, week };
 }
 
-/** Reading time counts only while the open, undecided file is actually on screen. */
+/** Okuma süresi yalnızca açık ve karar verilmemiş dosya gerçekten ekrandayken sayılır. */
 function readingTime(state: GameState): GameState['timeSpent'] {
   const id = state.currentCandidateId;
   if (!id || state.decisions[id] || !state.reading) return state.timeSpent;
   return { ...state.timeSpent, [id]: (state.timeSpent[id] ?? 0) + 1 };
 }
 
-/** What lunch lets through: replies running out, texts arriving. */
+/** Öğle arasının geçirdikleri: süresi dolan cevaplar, gelen mesajlar. */
 const DURING_LUNCH: ((minutes: number) => void)[] = [expireReplies, deliverManagerMessages];
 
-/** What a working minute sets off, in this order (see clock.ts for each). */
+/** Bir çalışma dakikasının tetikledikleri, bu sırayla (her biri için bkz. clock.ts). */
 const AFTER_MINUTE: ((minutes: number) => void)[] = [
   ringLandline,
   expireReplies,
   deliverManagerMessages,
   checkDayEnd,
-  // a queue closed in the morning: at 14:00 Hakan Bey notices, and finds more files
+  // sabah kapanmış bir kuyruk: 14:00'te Hakan Bey fark eder ve daha fazla dosya bulur
   () => void addExtraFiles(),
 ];

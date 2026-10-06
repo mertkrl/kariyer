@@ -1,7 +1,7 @@
 import { glow, glowRect } from '../kit';
 import { depthScale, type SmallBoat } from './bosphorus';
 
-/** The boats on the Bosphorus at dusk: small motor and fishing boats, and the Şehir Hatları vapur. */
+/** Alacakaranlıkta Boğaz'daki tekneler: küçük motorlu ve balıkçı tekneleri ve Şehir Hatları vapuru. */
 
 export function boat(g: CanvasRenderingContext2D, b: SmallBoat, t: number) {
   const s = depthScale(b.y);
@@ -11,7 +11,7 @@ export function boat(g: CanvasRenderingContext2D, b: SmallBoat, t: number) {
   g.save();
   g.translate(b.x, b.y + bob);
   g.scale(dir, 1);
-  // wake: two pale lines opening out behind
+  // dümen suyu: arkada açılan iki soluk çizgi
   g.strokeStyle = `rgba(255,220,200,${0.18 + 0.1 * Math.sin(t * 3)})`;
   g.lineWidth = Math.max(0.6, s);
   g.beginPath();
@@ -20,7 +20,7 @@ export function boat(g: CanvasRenderingContext2D, b: SmallBoat, t: number) {
   g.moveTo(-L, 1.5 * s);
   g.lineTo(-L * 4, 4 * s);
   g.stroke();
-  // hull and cabin
+  // tekne ve kabin
   g.fillStyle = b.kind ? '#2d3c5a' : '#d9d2c8';
   g.beginPath();
   g.moveTo(-L, -1.5 * s);
@@ -34,7 +34,7 @@ export function boat(g: CanvasRenderingContext2D, b: SmallBoat, t: number) {
   g.fillRect(-L * 0.5, -5 * s, L * 0.6, 3.5 * s);
   g.globalCompositeOperation = 'lighter';
   glow(g, -L * 0.2, -3.4 * s, 2.6 * s, [255, 214, 150], 0.7);
-  // navigation lights: a white masthead, green to starboard / red to port as seen from the side
+  // seyir fenerleri: beyaz bir direk feneri, yandan bakınca sancakta yeşil / iskelede kırmızı
   glow(g, L * 0.1, -8 * s, 2.2 * s, [255, 240, 220], 0.9, true);
   glow(g, L * 0.75, -2.5 * s, 1.8 * s, dir > 0 ? [60, 255, 120] : [255, 50, 40], 0.9);
   glowRect(g, 0, 14 * s, 2.4 * s, 24 * s, [255, 220, 170], 0.18);
@@ -42,7 +42,7 @@ export function boat(g: CanvasRenderingContext2D, b: SmallBoat, t: number) {
   g.restore();
 }
 
-/** A Şehir Hatları vapur side-on at dusk: dark hull, cream upper works, two rows of warm windows. */
+/** Alacakaranlıkta yandan bir Şehir Hatları vapuru: koyu tekne, krem üst yapı, iki sıra sıcak pencere. */
 export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: number, dir: 1 | -1, moving: boolean, t: number) {
   const sway = Math.sin(t * 0.9) * 1.2 * s;
   g.save();
@@ -50,7 +50,7 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
   g.scale(s * dir, s);
   g.globalCompositeOperation = 'lighter';
   if (moving) {
-    // wake behind the stern and the bow wave
+    // kıçın arkasında dümen suyu ve pruva dalgası
     glowRect(g, -170, 20, 220, 10, [255, 210, 180], 0.22);
     g.strokeStyle = 'rgba(255,225,205,0.35)';
     g.lineWidth = 1.4;
@@ -64,7 +64,7 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
     g.stroke();
   }
   g.globalCompositeOperation = 'source-over';
-  // hull: black below, a white band, a raked bow at +x
+  // tekne: altı siyah, beyaz bir şerit, +x'te yatık bir pruva
   g.fillStyle = '#16181f';
   g.beginPath();
   g.moveTo(-72, 8);
@@ -75,12 +75,12 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
   g.fill();
   g.fillStyle = '#ece6da';
   g.fillRect(-72, 2, 150, 7);
-  // main deck house and windows
+  // ana güverte binası ve pencereleri
   g.fillStyle = '#e4ddcf';
   g.fillRect(-60, -14, 124, 16);
   g.fillStyle = '#ffd08a';
   for (let i = 0; i < 15; i++) g.fillRect(-56 + i * 8, -10, 5, 7);
-  // upper deck, its windows, the wheelhouse forward
+  // üst güverte, pencereleri, önde kaptan köşkü
   g.fillStyle = '#ddd5c6';
   g.fillRect(-44, -28, 92, 14);
   g.fillStyle = '#f6c47c';
@@ -89,7 +89,7 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
   g.fillRect(34, -38, 16, 10);
   g.fillStyle = '#2b3442';
   g.fillRect(36, -36, 12, 4);
-  // railing on the top deck
+  // üst güvertedeki korkuluk
   g.strokeStyle = 'rgba(240,235,225,0.7)';
   g.lineWidth = 0.8;
   g.beginPath();
@@ -100,7 +100,7 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
     g.lineTo(i, -28);
   }
   g.stroke();
-  // funnel: cream with a black top
+  // baca: krem, üstü siyah
   g.fillStyle = '#d9c38f';
   g.beginPath();
   g.moveTo(-8, -28);
@@ -110,7 +110,7 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
   g.fill();
   g.fillStyle = '#121212';
   g.fillRect(-6, -54, 14, 6);
-  // mast with its white light, the flag at the stern
+  // beyaz fenerli direk, kıçta bayrak
   g.strokeStyle = '#d8d2c4';
   g.beginPath();
   g.moveTo(52, -38);
@@ -122,7 +122,7 @@ export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: numb
   glow(g, 52, -59, 4, [255, 245, 225], 0.95, true);
   glow(g, 76, -2, 3, [60, 255, 120], 0.8);
   glowRect(g, 0, -6, 190, 34, [255, 190, 120], 0.22);
-  // the windows' reflection broken up by the swell
+  // dalgayla kırılan pencere yansıması
   for (let i = 0; i < 15; i++) glowRect(g, -54 + i * 8, 34 + Math.sin(t * 3 + i) * 2, 5, 22, [255, 190, 120], 0.16);
   g.globalCompositeOperation = 'source-over';
   g.restore();

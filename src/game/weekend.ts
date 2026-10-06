@@ -1,10 +1,10 @@
 import { accusative } from './turkish';
 import { leavesCompany, type OfferOutcome } from './offer';
 /*
- * Friday night: Mom calls. The conversation is assembled from how your week actually went —
- * who you hired, how many CVs no human ever saw, whether you stood up to the manager, whether
- * you answered her texts, what you told Hakan Bey at 18:40 — with a few moments where you
- * choose what to say. The last one is how the week ends at home (engine/ending.ts).
+ * Cuma gecesi: annen arar. Konuşma haftanın gerçekte nasıl geçtiğinden kurulur: kimi işe aldığın,
+ * kaç CV'ye hiçbir insanın bakmadığı, müdüre karşı durup durmadığın, mesajlarına cevap verip
+ * vermediğin, 18:40'ta Hakan Bey'e ne dediğin; arada ne söyleyeceğini seçtiğin birkaç an var.
+ * Sonuncusu haftanın evde nasıl bittiğidir (engine/ending.ts).
  */
 
 export type CallLine = { who: 'mom' | 'me'; text: string };
@@ -17,9 +17,9 @@ export type CallStep = { kind: 'line'; line: CallLine } | { kind: 'choice'; choi
 
 export interface WeekSummary {
   hiredName: string | null;
-  /** Who you recommended, if the panel went another way. */
+  /** Kurul başka yöne gittiyse kimi önerdiğin. */
   recommendedName?: string | null;
-  /** The hire is the neighbour's son. */
+  /** İşe alınan, komşunun oğlu. */
   hiredNeighbour?: boolean;
   processed: number;
   autoRejected: number;
@@ -33,11 +33,11 @@ export interface WeekSummary {
   events: number;
   dmHonest: number;
   dmIgnored: number;
-  /** What came of Hakan Bey's offer at 18:40 (null: an old save). */
+  /** 18:40'ta Hakan Bey'in teklifinden ne çıktığı (null: eski bir kayıt). */
   offer: OfferOutcome | null;
 }
 
-/** How she hears the news about the post, and what you can say back. */
+/** Kadro haberini nasıl duyduğu ve senin ne cevap verebileceğin. */
 function offerNews(o: OfferOutcome): CallStep[] {
   switch (o) {
     case 'stay':
@@ -120,7 +120,7 @@ export function buildCall(w: WeekSummary): CallStep[] {
     ),
   ];
 
-  // a conversation, not a monologue: she says one thing, you answer, she answers that
+  // monolog değil konuşma: o bir şey söyler, sen cevap verirsin, o da buna cevap verir
   if (w.momMessages > 0) {
     if (w.momAnswered >= w.momMessages) {
       steps.push(mom('Bu hafta mesajlarımın hepsine cevap verdin, o kadar işin arasında.'));
@@ -252,7 +252,7 @@ export function buildCall(w: WeekSummary): CallStep[] {
     );
   }
 
-  // the last thing you say is how the week ends at home
+  // söylediğin son şey, haftanın evde nasıl bittiğidir
   const left = w.offer !== null && leavesCompany(w.offer);
   steps.push(mom('Eee, hafta sonu ne yapacaksın?'));
   steps.push(

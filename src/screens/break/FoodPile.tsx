@@ -2,14 +2,14 @@ import { useId, useMemo, type ReactNode } from 'react';
 import type { FoodKind } from '../../game/data/lunchMenus';
 
 /*
- * Tabldot food renderer. Each dish is a "recipe":
- *   base   — an irregular mound (noise-perturbed blob) shaded with a radial gradient,
- *            a contact shadow on the steel, and an optional glossy sauce sheen;
- *   layers — pieces (beans, grains, köfte, leaves…) each drawn with its own drop shadow,
- *            body and specular highlight so they read as 3D;
- *   dust   — fine garnish (cinnamon, paprika, dill) scattered on top.
- * Drawn in the tray's squashed coordinates, so everything is naturally foreshortened.
- * As the portion is eaten the mound shrinks and pieces disappear, leaving a smear.
+ * Tabldot yemeği çizici. Her yemek bir "tarif":
+ *   base   — düzensiz bir tümsek (gürültüyle bozulmuş damla), radyal gradyanla gölgelenir;
+ *            çeliğin üstünde bir temas gölgesi ve isteğe bağlı parlak bir sos ışıltısı;
+ *   layers — parçalar (fasulye, tane, köfte, yaprak…) her biri kendi gölgesi, gövdesi ve
+ *            parlamasıyla çizilir, böylece 3B görünür;
+ *   dust   — üstüne serpilmiş ince süs (tarçın, pul biber, dereotu).
+ * Tepsinin basık koordinatlarında çizilir, böylece her şey doğal olarak kısalır.
+ * Porsiyon yendikçe tümsek küçülür ve parçalar kaybolur, geriye bir leke kalır.
  */
 
 type PieceShape =
@@ -38,9 +38,9 @@ interface Layer {
   count: number;
   colors: string[];
   size: number;
-  /** Fraction of the mound radius the pieces spread over. */
+  /** Parçaların yayıldığı, tümsek yarıçapının payı. */
   spread?: number;
-  /** Lay pieces out in an even row instead of scattering (big items: köfte, eggplants). */
+  /** Parçaları dağıtmak yerine düzgün bir sıraya diz (büyük parçalar: köfte, patlıcan). */
   row?: boolean;
   shadow?: boolean;
 }
@@ -160,7 +160,7 @@ const RECIPES: Record<FoodKind, Recipe> = {
   },
 };
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── yardımcılar ──────────────────────────────────────────────────────────────
 
 function mulberry32(seed: number) {
   let a = seed;
@@ -173,7 +173,7 @@ function mulberry32(seed: number) {
   };
 }
 
-/** Closed smooth blob through noisy radial points (Catmull-Rom → cubic Bézier). */
+/** Gürültülü radyal noktalardan geçen kapalı yumuşak damla (Catmull-Rom → kübik Bézier). */
 function blobPath(cx: number, cy: number, rx: number, ry: number, rand: () => number, jag = 0.1, points = 14) {
   const pts = Array.from({ length: points }, (_, i) => {
     const a = (i / points) * Math.PI * 2;
@@ -196,7 +196,7 @@ function blobPath(cx: number, cy: number, rx: number, ry: number, rand: () => nu
 const HIGHLIGHT = 'rgba(255, 255, 255, 0.45)';
 const SHADOW = 'rgba(40, 20, 10, 0.28)';
 
-/** Draws one piece centred on 0,0 (caller positions/rotates it). */
+/** 0,0 merkezli tek bir parça çizer (konumu/dönüşü çağıran verir). */
 function Piece({ shape, size: s, color, rand }: { shape: PieceShape; size: number; color: string; rand: () => number }): ReactNode {
   switch (shape) {
     case 'bean':
@@ -301,12 +301,12 @@ function Piece({ shape, size: s, color, rand }: { shape: PieceShape; size: numbe
         <>
           <path d={`M${-s / 2} 0 C${-s / 2} ${-s / 4} ${s / 2.2} ${-s / 4} ${s / 2} ${-s / 20} C${s / 2} ${s / 5} ${-s / 2} ${s / 5} ${-s / 2} 0 Z`} fill={color} stroke="#1f0d21" strokeWidth="1" />
           <path d={`M${-s / 2.4} ${-s / 7} C${-s / 5} ${-s / 4.4} ${s / 5} ${-s / 4.4} ${s / 2.6} ${-s / 7}`} stroke="rgba(230,200,240,0.55)" strokeWidth="2" fill="none" strokeLinecap="round" />
-          {/* Mince filling */}
+          {/* Kıymalı iç */}
           <path d={blobPath(0, -s / 40, s / 2.6, s / 9, rand, 0.18, 12)} fill="#7e3a22" />
           {Array.from({ length: 14 }).map((_, i) => (
             <circle key={i} cx={(rand() - 0.5) * s * 0.66} cy={(rand() - 0.5) * s * 0.14} r={1.4 + rand() * 1.2} fill={rand() > 0.5 ? '#5e2a17' : '#9a4a2c'} />
           ))}
-          {/* Tomato slice + green pepper on top */}
+          {/* Üstünde domates dilimi + yeşil biber */}
           <circle cx={-s / 7} cy={-s / 30} r={s / 12} fill="#d23a20" />
           <circle cx={-s / 7} cy={-s / 30} r={s / 18} fill="#ec7a5f" />
           <path d={`M${s / 18} ${-s / 20} Q${s / 6} ${-s / 7} ${s / 3.4} ${-s / 22}`} stroke="#4f8d38" strokeWidth={s / 16} strokeLinecap="round" fill="none" />
@@ -359,7 +359,7 @@ interface FoodPileProps {
   y: number;
   w: number;
   h: number;
-  /** 0 = eaten, 1 = full portion. */
+  /** 0 = yendi, 1 = tam porsiyon. */
   ratio: number;
   seed: number;
 }
@@ -372,7 +372,7 @@ export function FoodPile({ kind, x, y, w, h, ratio, seed }: FoodPileProps) {
   const rx = w * 0.42;
   const ry = h * 0.38;
 
-  // Everything random is generated once per dish so it never reshuffles.
+  // Rastgele her şey yemek başına bir kez üretilir, hiç yeniden karışmaz.
   const layout = useMemo(() => {
     const rand = mulberry32(seed);
     const outline = blobPath(0, 0, 1, 1, rand, 0.09, 16);
@@ -441,13 +441,13 @@ export function FoodPile({ kind, x, y, w, h, ratio, seed }: FoodPileProps) {
         </defs>
       )}
 
-      {/* Contact shadow on the steel */}
+      {/* Çeliğin üstünde temas gölgesi */}
       <path d={layout.outline} transform={`translate(${cx + 3} ${cy + 6}) scale(${mrx * 1.02} ${mry * 1.02})`} fill={SHADOW} />
 
       {recipe.base && (
         <>
           <path d={layout.outline} transform={`translate(${cx} ${cy}) scale(${mrx} ${mry})`} fill={`url(#${baseId})`} />
-          {/* Mound volume: a lighter crown for heaped dishes */}
+          {/* Tümsek hacmi: yığma yemekler için daha açık bir tepe */}
           {recipe.base.height > 0.8 && (
             <ellipse cx={cx - mrx * 0.12} cy={cy - mry * 0.15} rx={mrx * 0.55} ry={mry * 0.5} fill={recipe.base.light} opacity="0.35" />
           )}
@@ -473,7 +473,7 @@ export function FoodPile({ kind, x, y, w, h, ratio, seed }: FoodPileProps) {
           );
         })}
 
-      {/* Glossy sauce sheen */}
+      {/* Parlak sos ışıltısı */}
       {recipe.base?.glossy &&
         layout.sheen.map((h, i) => (
           <ellipse

@@ -4,9 +4,9 @@ import { getState } from '../../game/storeApi';
 import styles from './ErrorBoundary.module.css';
 
 /*
- * If a screen throws while rendering, the player gets this instead of a blank page: what
- * happened, and a way back. The checkpoint from the start of the day is still in the browser,
- * so reloading lands on the welcome screen with "Devam et".
+ * Bir ekran çizilirken hata verirse oyuncu boş bir sayfa yerine bunu görür: ne olduğu ve geri
+ * dönüş yolu. Günün başındaki kontrol noktası hâlâ tarayıcıda; bu yüzden yeniden yüklemek
+ * "Devam et"li karşılama ekranına götürür.
  */
 interface State {
   error: Error | null;
@@ -14,7 +14,7 @@ interface State {
   copied: boolean | null;
 }
 
-/** Everything needed to reproduce the crash: the game code (seed) replays the same week. */
+/** Çökmeyi yeniden üretmek için gereken her şey: oyun kodu (tohum) aynı haftayı yeniden oynatır. */
 function report(error: Error, componentStack: string) {
   let where = 'oyun durumu okunamadı';
   try {

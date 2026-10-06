@@ -18,17 +18,17 @@
   --red-hover: #8f3527;
   --teal: #3f6b63;
   --blue: #4c7fb0;
-  /* the blue as small text on paper: 5:1 (the plain blue is 3.5:1) */
+  /* kâğıt üzerinde küçük metin olarak mavi: 5:1 (düz mavi 3.5:1) */
   --blue-ink: #3b6894;
   --clay: #b3766b;
   --plum: #7c6a8c;
   --green: #6fa37a;
 
-  /* on paper: 4.7:1 */
+  /* kâğıt üzerinde: 4.7:1 */
   --text-muted: #6e664d;
-  --text-dim: #5f594b; /* 5:1 on --paper-dim, the darkest paper (WCAG AA) */
+  --text-dim: #5f594b; /* en koyu kâğıt olan --paper-dim üzerinde 5:1 (WCAG AA) */
   --text-faint: #4a453b;
-  /* the same greys for text on the dark screens (report, top bar, title screens) */
+  /* koyu ekranlardaki metinler için aynı griler (rapor, üst çubuk, başlık ekranları) */
   --on-dark-muted: rgba(233, 230, 223, 0.74);
   --on-dark-faint: rgba(233, 230, 223, 0.6);
 
@@ -40,7 +40,7 @@
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  /* one type and spacing scale for every screen */
+  /* her ekran için tek bir yazı ve boşluk ölçeği */
   --fs-label: 11px;
   --tracking-label: 1.2px;
   --fs-small: 12.5px;
@@ -52,13 +52,13 @@
   --space-4: 16px;
   --space-5: 24px;
 
-  /* choices you say out loud: interview, landline, meeting */
+  /* sesli söylediğin seçimler: mülakat, sabit hat, toplantı */
   --choice-radius: 12px;
   --choice-pad: 10px 14px;
   --choice-hover: var(--gold);
 }
 
-/* reading size, set from Settings: every text-heavy screen multiplies its font sizes by it */
+/* okuma boyutu, Ayarlar'dan gelir: metin ağırlıklı her ekran yazı boyutlarını bununla çarpar */
 :root {
   --ts: 1;
 }

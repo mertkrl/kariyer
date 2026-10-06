@@ -1,12 +1,12 @@
 /*
- * Small canvas toolkit for the day-end city scenes: a 1600×900 virtual stage, pre-rendered
- * static layers with parallax, cached light sprites (every light in the city is an additive
- * glow), seeded randomness, and the drawing helpers the rest builds on.
+ * Gün sonu şehir sahneleri için küçük canvas araç takımı: 1600×900 sanal sahne, paralakslı önceden
+ * çizilmiş sabit katmanlar, önbelleğe alınmış ışık sprite'ları (şehirdeki her ışık eklemeli bir
+ * parıltıdır), tohumlu rastgelelik ve geri kalanın üstüne kurulduğu çizim yardımcıları.
  */
 
 export const W = 1600;
 export const H = 900;
-/** Extra margin rendered around every layer so the camera can drift without showing edges. */
+/** Kamera kenarları göstermeden kayabilsin diye her katmanın çevresine çizilen ek pay. */
 export const PAD = 90;
 
 export type RGB = readonly [number, number, number];
@@ -41,7 +41,7 @@ export function hsl(h: number, s: number, l: number): RGB {
   return [f(0), f(8), f(4)];
 }
 
-/** Piecewise-linear y(x) through points sorted by x. */
+/** x'e göre sıralı noktalardan geçen parçalı doğrusal y(x). */
 export function polyY(pts: readonly (readonly [number, number])[], x: number) {
   if (x <= pts[0][0]) return pts[0][1];
   for (let i = 1; i < pts.length; i++) {
@@ -54,7 +54,7 @@ export function polyY(pts: readonly (readonly [number, number])[], x: number) {
   return pts[pts.length - 1][1];
 }
 
-/** Smooth closed/open path through points (Catmull-Rom). */
+/** Noktalardan geçen yumuşak kapalı/açık yol (Catmull-Rom). */
 export function smoothPath(g: CanvasRenderingContext2D, pts: readonly (readonly [number, number])[], close = false) {
   g.moveTo(pts[0][0], pts[0][1]);
   for (let i = 0; i < pts.length - 1; i++) {
@@ -72,7 +72,7 @@ export interface Cam {
   y: number;
 }
 
-/** A pre-rendered layer covering the stage plus PAD on every side. */
+/** Sahneyi ve her yanında PAD kadar payı kaplayan önceden çizilmiş bir katman. */
 export function makeLayer(px: number, draw: (g: CanvasRenderingContext2D) => void): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = Math.ceil((W + PAD * 2) * px);
@@ -95,11 +95,11 @@ export function vGradient(g: CanvasRenderingContext2D, y0: number, y1: number, s
   return gr;
 }
 
-/* ── Light sprites ─────────────────────────────────────────────────────────── */
+/* ── Işık sprite'ları ──────────────────────────────────────────────────────── */
 
 const sprites = new Map<string, HTMLCanvasElement>();
 
-/** Radial glow sprite; `hot` adds a white-hot core like a real lamp or headlight. */
+/** Radyal parıltı sprite'ı; `hot` gerçek bir lamba ya da far gibi beyaz sıcak bir çekirdek ekler. */
 export function glowSprite(c: RGB, hot = false): HTMLCanvasElement {
   const key = `${c[0] | 0},${c[1] | 0},${c[2] | 0}${hot ? 'h' : ''}`;
   let s = sprites.get(key);
@@ -126,7 +126,7 @@ export function glowSprite(c: RGB, hot = false): HTMLCanvasElement {
   return s;
 }
 
-/** Additive glow; the caller sets globalCompositeOperation = 'lighter'. */
+/** Eklemeli parıltı; çağıran globalCompositeOperation = 'lighter' ayarlar. */
 export function glow(g: CanvasRenderingContext2D, x: number, y: number, r: number, c: RGB, a = 1, hot = false) {
   if (r < 0.3 || a < 0.01) return;
   g.globalAlpha = a > 1 ? 1 : a;
@@ -134,7 +134,7 @@ export function glow(g: CanvasRenderingContext2D, x: number, y: number, r: numbe
   g.globalAlpha = 1;
 }
 
-/** Stretched glow: reflections on water / wet asphalt, lens streaks, light pools. */
+/** Gerilmiş parıltı: suda / ıslak asfaltta yansımalar, mercek çizgileri, ışık havuzları. */
 export function glowRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, c: RGB, a = 1) {
   if (w < 0.3 || h < 0.3 || a < 0.01) return;
   g.globalAlpha = a > 1 ? 1 : a;
@@ -142,7 +142,7 @@ export function glowRect(g: CanvasRenderingContext2D, x: number, y: number, w: n
   g.globalAlpha = 1;
 }
 
-/* ── Sky & atmosphere ──────────────────────────────────────────────────────── */
+/* ── Gökyüzü ve atmosfer ───────────────────────────────────────────────────── */
 
 export function stars(g: CanvasRenderingContext2D, r: Rng, n: number, y1: number, alpha: number) {
   for (let i = 0; i < n; i++) {
@@ -167,13 +167,13 @@ export interface CloudOpts {
 }
 
 /**
- * Soft cloud banks; lit from below by the sunset or the city's orange glow. The layer tiles
- * seamlessly (scenes scroll two copies side by side): every puff is also drawn one layer-width
- * to the left and right, so nothing is cut where the copies meet.
+ * Yumuşak bulut kümeleri; gün batımıyla ya da şehrin turuncu parıltısıyla alttan aydınlanmış.
+ * Katman kesintisiz döşenir (sahneler iki kopyayı yan yana kaydırır): her öbek bir katman genişliği
+ * solda ve sağda da çizilir, böylece kopyaların buluştuğu yerde hiçbir şey kesilmez.
  */
 export function clouds(g: CanvasRenderingContext2D, r: Rng, o: CloudOpts) {
   const span = W + PAD * 2;
-  // softness comes from each puff's own falloff (a blur filter would fade the layer's edges)
+  // yumuşaklık her öbeğin kendi azalmasından gelir (bulanıklık filtresi katmanın kenarlarını soldururdu)
   const soft = 1 + o.blur / 40;
   const puff = (px: number, py: number, rx: number, ry: number, c: RGB, a: number) => {
     for (const dx of [-span, 0, span]) {

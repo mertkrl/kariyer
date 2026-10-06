@@ -4,7 +4,7 @@ import { formatClock } from '../../game/time';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from '../../screens/GameplayScreen.module.css';
 
-/** The card over the portal before the clock starts: the day, the queue, "Mesaiye Başla". */
+/** Saat başlamadan önce portalın üstündeki kart: gün, kuyruk, "Mesaiye Başla". */
 export function ShiftGate() {
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
   const workdayMinutes = useGameStore((s) => s.workdayMinutes);

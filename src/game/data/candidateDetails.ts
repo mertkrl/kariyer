@@ -1,13 +1,12 @@
 /*
- * Extended CV data + final-round interview answers.
+ * Genişletilmiş CV verisi + final turu mülakat cevapları.
  *
- * `hireFit` (1–5) is hidden from the player: it is how the person actually performs once hired.
- * The interview answers are written to reveal it — concrete, owned, measurable answers come
- * from strong candidates; buzzwords and deflection from weak ones — regardless of how the
- * algorithm scored their CV.
+ * `hireFit` (1–5) oyuncudan gizlidir: kişinin işe alındıktan sonra gerçekte nasıl çalıştığıdır.
+ * Mülakat cevapları bunu ortaya çıkaracak şekilde yazılmıştır: somut, sahiplenilmiş, ölçülebilir
+ * cevaplar güçlü adaylardan; moda sözcükler ve konuyu saptırma zayıflardan gelir; algoritmanın
+ * CV'lerine ne puan verdiğinden bağımsız olarak.
  *
- * The entries live in candidateDetails.json, under the day's heading; they are checked as the
- * game loads.
+ * Kayıtlar candidateDetails.json'da, günün başlığı altında durur; oyun yüklenirken denetlenir.
  */
 
 import { EXTRA_DETAILS } from './extraCandidates';
@@ -26,7 +25,7 @@ export interface CandidateDetails {
   languages: string;
   workHistory: WorkEntry[];
   highlights: string[];
-  /** Answers to FINAL_INTERVIEW_QUESTIONS, in order. */
+  /** FINAL_INTERVIEW_QUESTIONS'a sırasıyla verilen cevaplar. */
   interview: [string, string, string];
   hireFit: 1 | 2 | 3 | 4 | 5;
 }
@@ -37,7 +36,7 @@ export const FINAL_INTERVIEW_QUESTIONS: [string, string, string] = [
   'Bu pozisyonda ilk 90 gününüzde neyi değiştirirdiniz?',
 ];
 
-/** Checks one entry of candidateDetails.json against the CandidateDetails shape. */
+/** candidateDetails.json'daki bir kaydı CandidateDetails biçimine göre denetler. */
 export function checkDetails(id: string, entry: unknown): CandidateDetails {
   const f = fieldsOf('candidateDetails.json', id, entry);
   f.unknownKeys(['location', 'languages', 'workHistory', 'highlights', 'interview', 'hireFit']);
@@ -58,5 +57,5 @@ export const candidateDetails: Record<string, CandidateDetails> = Object.fromEnt
   Object.entries(flattenSections('candidateDetails.json', data)).map(([id, entry]) => [id, checkDetails(id, entry)]),
 );
 
-// the extra pile's CVs and interview answers
+// ek yığının CV'leri ve mülakat cevapları
 Object.assign(candidateDetails, EXTRA_DETAILS);

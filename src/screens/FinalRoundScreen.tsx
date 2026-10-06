@@ -25,32 +25,32 @@ export function FinalRoundScreen() {
   const hire = useGameStore((s) => s.hire);
   const askForbidden = useGameStore((s) => s.askForbidden);
   const pastRequests = useGameStore((s) => s.story.pastRequests);
-  // Hakan Bey agreed to a structured interview: same questions for everyone, his list is out
+  // Hakan Bey yapılandırılmış mülakatı kabul etti: herkese aynı sorular, onun listesi yok
   const structured = useGameStore((s) => s.story.reform?.kind === 'structured' && s.story.reform.accepted);
-  // Hakan Bey leans over once in the day, after the first question that isn't on his list
+  // Hakan Bey gün içinde bir kez, listesinde olmayan ilk sorudan sonra kulağına eğilir
   const [whispered, setWhispered] = useState(false);
   const forced = finalists.length === 0;
   const everyone = [...(forced ? FALLBACK : finalists), ...COLLEAGUES.filter((c) => !finalists.some((f) => f.id === c.id))];
-  // who Hakan Bey wants in the room stays in it: his nephew and everyone he asked you to call
+  // Hakan Bey'in odada istediği kişiler odada kalır: yeğeni ve sana çağırmanı söylediği herkes
   const locked = new Set(everyone.filter((f) => f.byManager || f.id === NEPHEW_ID || pastRequests.some((r) => r.want === 'approve' && r.candidateId === f.id)).map((f) => f.id));
-  // a long shortlist is cut down to a day's worth of interviews before the first one
+  // uzun bir kısa liste, ilk görüşmeden önce bir günlük mülakata indirilir
   const [chosen, setChosen] = useState<string[] | null>(() => (everyone.length <= INTERVIEW_LIMIT ? everyone.map((f) => f.id) : null));
   const pool = chosen ? everyone.filter((f) => chosen.includes(f.id)) : everyone;
 
   const [selectedId, setSelectedId] = useState(pool[0].id);
-  // Each candidate's interview so far, in order; one answer typing live at a time.
+  // Her adayın şimdiye kadarki görüşmesi, sırasıyla; aynı anda yalnızca bir cevap canlı yazılır.
   const [log, setLog] = useState<Record<string, Entry[]>>({});
   const [typing, setTyping] = useState<Typing | null>(null);
   const timer = useRef<number | null>(null);
   const hakanInterrupt = useGameStore((s) => s.hakanInterrupt);
   const answerCandidate = useGameStore((s) => s.answerCandidate);
   const endedFor = (id: string) => (log[id] ?? []).some((e) => e.kind === 'back' && e.choice !== null);
-  // a candidate counts as interviewed once the conversation has been closed properly
+  // bir aday, görüşme düzgünce kapatılınca görüşüldü sayılır
   const interviewed = pool.filter((f) => endedFor(f.id)).length;
   const interruptsUsed = Object.values(log).flat().filter((e) => e.kind === 'hakan').length;
   const chatRef = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
-  // your notebook, scorecards, the pay agreed with each person, and the case you put to the panel
+  // not defterin, puan kartları, her kişiyle anlaşılan maaş ve kurula sunduğun gerekçe
   const [notes, setNotes] = useState<Record<string, NotebookNote[]>>({});
   const [scores, setScores] = useState<Record<string, Scores>>({});
   const [agreed, setAgreed] = useState<Record<string, number | null>>({});
@@ -67,7 +67,7 @@ export function FinalRoundScreen() {
 
   const entries = log[selectedId] ?? [];
   const questions = entries.filter((e): e is Extract<Entry, { kind: 'q' }> => e.kind === 'q');
-  // the questions you chose yourself count against the slot; follow-ups and Hakan Bey's don't
+  // kendi seçtiğin sorular hakkından düşer; takip soruları ve Hakan Bey'inkiler düşmez
   const mine = questions.filter((e) => !e.by && (e.q < FOLLOW || e.q === CASE)).map((e) => e.q);
   const forbiddenDone = questions.some((e) => e.q === FORBIDDEN);
   const followUsed = questions.some((e) => e.q >= FOLLOW && e.q < CASE);
@@ -107,7 +107,7 @@ export function FinalRoundScreen() {
 
   const push = (id: string, entry: Entry) => setLog((l) => ({ ...l, [id]: [...(l[id] ?? []), entry] }));
 
-  /** The candidate thinks for a beat, then types the answer out live. */
+  /** Aday bir an düşünür, sonra cevabı canlı yazar. */
   function typeAnswer(id: string, entry: number, answer: string, onDone?: () => void) {
     setTyping({ candidateId: id, entry, shown: -1 });
     timer.current = window.setTimeout(() => {
@@ -131,11 +131,11 @@ export function FinalRoundScreen() {
     if (follow ? !canFollow : questions.some((e) => e.q === question) || mine.length >= QUESTION_BUDGET) return;
     const id = selectedId;
     if (question === FORBIDDEN) askForbidden();
-    // Hakan Bey cuts in after your first answer with the people his list was written for
+    // Hakan Bey, listesinin yazıldığı kişilerde senin ilk cevabından sonra araya girer
     const interruptNext =
       !structured && !follow && question !== FORBIDDEN && mine.length === 0 && !forbiddenDone && !selected?.byManager &&
       hakanTarget(id, candidateOf(id).age) && interruptsUsed < HAKAN_INTERRUPTS;
-    // otherwise he leans over once, after your first question that isn't on his list
+    // yoksa bir kez, listesinde olmayan ilk sorundan sonra kulağına eğilir
     const whisperNext = !structured && !interruptNext && question !== FORBIDDEN && !whispered && mine.length === 0;
     if (whisperNext) setWhispered(true);
     audioEngine.playUi('click');
@@ -210,7 +210,7 @@ export function FinalRoundScreen() {
   const fit = details.hireFit;
   const leadHeard = mine.some((q) => q !== FORBIDDEN) && !typing;
 
-  // one conversation at a time: while an answer is coming or a choice is waiting, you stay
+  // bir seferde tek görüşme: bir cevap gelirken ya da bir seçim beklerken burada kalırsın
   const busy = Boolean(typing) || Boolean(pending);
   function select(id: string, index: number) {
     if (busy && id !== selectedId) return;

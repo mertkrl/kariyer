@@ -1,12 +1,12 @@
 /*
- * The lunch table's numbers and lines: how many bites, sips and sugar cubes there are, where the
- * tray's compartments sit, and what you think while eating.
+ * Yemek masasının sayıları ve cümleleri: kaç lokma, kaç yudum ve kaç küp şeker olduğu,
+ * tepsinin bölmelerinin nerede durduğu ve yemek yerken aklından geçenler.
  */
 import type { SoupKind } from '../../game/data/lunchMenus';
 
-/** One sip takes a fifth of a full glass. */
+/** Bir yudum, dolu bir bardağın beşte birini alır. */
 export const SIP_VOLUME = 0.2;
-/** How long a reaction line stays up without further interaction. */
+/** Bir tepki cümlesinin, başka bir etkileşim olmadan ekranda kaldığı süre. */
 export const MESSAGE_LINGER_MS = 4200;
 export const TEA_HOT_MS = 45_000;
 export const SOUP_SIPS = 5;
@@ -17,7 +17,7 @@ export const MAX_SUGAR = 5;
 export const DISH_BITES = { main: 5, side: 4, salad: 3, meze: 3, dessert: 3 } as const;
 export type DishKey = keyof typeof DISH_BITES;
 
-/** Compartments of the tabldot tray, in the tray's own (unsquished) coordinates. */
+/** Tabldot tepsisinin bölmeleri, tepsinin kendi (sıkıştırılmamış) koordinatlarında. */
 export const COMPARTMENTS: Record<DishKey, { x: number; y: number; w: number; h: number }> = {
   salad: { x: -240, y: -150, w: 152, h: 108 },
   meze: { x: -76, y: -150, w: 152, h: 108 },

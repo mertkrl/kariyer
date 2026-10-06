@@ -1,8 +1,8 @@
 /*
- * The web build as one zip, ready to upload to itch.io (Kind of project: HTML) or any host that
- * takes an archive. Run `npm run package`: it builds first. Uses the system `zip`, which macOS
- * and Linux have; nothing to install. itch.io plays the game in a frame from its own address, so
- * the zip leaves out `_headers` (a Netlify/Cloudflare file that would refuse that frame).
+ * Web derlemesi tek bir zip olarak; itch.io'ya (Proje türü: HTML) ya da arşiv kabul eden herhangi
+ * bir sunucuya yüklenmeye hazır. `npm run package` ile çalıştır: önce derler. macOS ve Linux'ta olan
+ * sistem `zip`ini kullanır; kurulacak bir şey yok. itch.io oyunu kendi adresinden bir çerçevede
+ * oynatır; bu yüzden zip `_headers`ı dışarıda bırakır (o çerçeveyi reddedecek bir Netlify/Cloudflare dosyası).
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, statSync } from 'node:fs';
@@ -14,7 +14,7 @@ mkdirSync('release', { recursive: true });
 rmSync(out, { force: true });
 
 try {
-  // index.html at the zip's root, as itch.io expects
+  // itch.io'nun beklediği gibi index.html zip'in kökünde
   execFileSync('zip', ['-r', '-X', '-q', out, '.', '-x', '_headers', '-x', '*.DS_Store', '-x', '*.map'], { cwd: 'dist', stdio: 'inherit' });
 } catch {
   console.error('zip bulunamadı ya da çalışmadı. dist/ klasörünü (index.html kökte olacak şekilde) elle sıkıştırabilirsin.');

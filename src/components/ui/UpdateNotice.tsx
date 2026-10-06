@@ -1,7 +1,7 @@
 import { applyUpdate, useUpdateReady } from '../../swUpdate';
 import styles from './UpdateNotice.module.css';
 
-/** A newer build is ready: shown on the welcome screen only, so no week is cut short. */
+/** Daha yeni bir derleme hazır: yalnızca karşılama ekranında gösterilir, böylece hiçbir hafta yarıda kesilmez. */
 export function UpdateNotice() {
   const ready = useUpdateReady();
   if (!ready) return null;

@@ -1,6 +1,6 @@
-/* ── an answer you can dig into and take notes from ── */
+/* ── kurcalanıp not alınabilen bir cevap ── */
 .hook {
-  /* a taller hit area than the line it sits on, without moving the text */
+  /* metni kaydırmadan, durduğu satırdan daha yüksek bir tıklama alanı */
   padding: 4px 0;
   margin: -4px 0;
   border: 0;
@@ -37,7 +37,7 @@
 }
 
 .pin {
-  /* at least 24×24 (WCAG 2.2 target size), sitting in the line as a small glyph */
+  /* en az 24×24 (WCAG 2.2 hedef boyutu), satırın içinde küçük bir işaret olarak durur */
   display: inline-grid;
   place-items: center;
   min-width: 24px;
@@ -72,7 +72,7 @@
   color: #8a6b00;
 }
 
-/* ── the coding case ── */
+/* ── kodlama vakası ── */
 .case {
   margin: 0;
   border-radius: 10px;
@@ -104,7 +104,7 @@
   overflow-x: auto;
 }
 
-/* ── scorecard ── */
+/* ── puan kartı ── */
 .scorecard {
   display: flex;
   flex-direction: column;
@@ -141,7 +141,7 @@
   color: #fff;
 }
 
-/* ── notebook and evidence ── */
+/* ── not defteri ve kanıt ── */
 .notes,
 .evidence {
   list-style: none;
@@ -239,7 +239,7 @@
   color: var(--red);
 }
 
-/* a finger, not a mouse: bigger targets, and the pin always in view */
+/* fare değil parmak: daha büyük hedefler, iğne her zaman görünür */
 @media (pointer: coarse) {
   .pin,
   .noteRemove {

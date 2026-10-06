@@ -2,13 +2,13 @@ import type { EngineCore } from '../engineCore';
 import { RAIN_SRC } from '../engineCore';
 import { playFerryHorn, playGullCall } from './harbour';
 
-/* After work: the city on the way home, one sound bed per day-end scene. */
+/* İş çıkışı: eve giden yolda şehir, gün sonu sahnesi başına bir ses yatağı. */
 
 /**
- * "İş çıkışı hengamesi": the city at 17:05. A traffic bed with cars whooshing past left→right,
- * horns (short taps and the odd long angry one), crowd murmur, footsteps clattering down
- * stairs, Istanbulkart turnstile beeps — plus one signature per scene: office elevator dings,
- * metrobüs air brakes, the metro arriving + station chime, the ferry horn and gulls.
+ * "İş çıkışı hengamesi": 17:05'te şehir. Soldan sağa hızla geçen arabalarla bir trafik yatağı,
+ * kornalar (kısa dokunuşlar ve arada bir uzun öfkeli bir tane), kalabalık mırıltısı, merdivenden
+ * inen ayak sesleri, İstanbulkart turnike bip'leri; artı sahne başına bir imza: ofis asansörü
+ * çanları, metrobüs havalı frenleri, gelen metro + istasyon anonsu, vapur düdüğü ve martılar.
  */
 export function startRushHourAmbience(engine: EngineCore, scene: 0 | 1 | 2 | 3): () => void {
   const ctx = engine.ensureContext();
@@ -54,7 +54,7 @@ export function startRushHourAmbience(engine: EngineCore, scene: 0 | 1 | 2 | 3):
     timers.push(window.setTimeout(loop, first * 1000));
   };
 
-  // Car passing: a band-passed whoosh that pans across and swells as it goes by.
+  // Geçen araba: yanından geçerken kayan ve kabaran bant geçiren bir vınlama.
   const carPass = () => {
     const now = ctx.currentTime;
     const dur = 1.6 + Math.random() * 1.4;
@@ -79,7 +79,7 @@ export function startRushHourAmbience(engine: EngineCore, scene: 0 | 1 | 2 | 3):
     pan.connect(bus);
     engine.startNoise(src, now, dur + 0.1);
   };
-  // Car horn: two detuned square tones through a small-speaker band-pass.
+  // Araba kornası: küçük bir hoparlör bant geçireninden geçen, akordu kaymış iki kare dalga.
   const horn = () => {
     const now = ctx.currentTime;
     const long = Math.random() < 0.2;
@@ -113,7 +113,7 @@ export function startRushHourAmbience(engine: EngineCore, scene: 0 | 1 | 2 | 3):
       }
     }
   };
-  // Footsteps down concrete stairs: quick heel thumps with a stairwell echo.
+  // Beton merdivenden inen ayak sesleri: merdiven boşluğu yankılı hızlı topuk vuruşları.
   const stairs = () => {
     const steps = 6 + Math.floor(Math.random() * 7);
     const pan = Math.random() * 1.2 - 0.6;
@@ -125,7 +125,7 @@ export function startRushHourAmbience(engine: EngineCore, scene: 0 | 1 | 2 | 3):
       engine.noiseHit({ filter: 'lowpass', freq: 700, when: t + 0.12, attack: 0.002, decay: 0.08, peak: 0.02, pan: -pan });
     }
   };
-  // Istanbulkart validator: two short high beeps.
+  // İstanbulkart okuyucusu: iki kısa tiz bip.
   const turnstile = () => {
     const now = ctx.currentTime;
     const pan = Math.random() * 1.2 - 0.6;
@@ -133,8 +133,8 @@ export function startRushHourAmbience(engine: EngineCore, scene: 0 | 1 | 2 | 3):
     engine.tone({ type: 'square', freq: 2350, when: now + 0.11, attack: 0.002, decay: 0.08, peak: 0.018, pan });
   };
 
-  bed('lowpass', 380, 0.6, 0.05, 0.07, 0.02); // city traffic rumble
-  bed('bandpass', 650, 0.9, 0.02, 0.19, 0.01); // crowd murmur
+  bed('lowpass', 380, 0.6, 0.05, 0.07, 0.02); // şehir trafiğinin gümbürtüsü
+  bed('bandpass', 650, 0.9, 0.02, 0.19, 0.01); // kalabalık mırıltısı
   every(1.8, 4.5, carPass, 0.6);
   every(4, 10, horn, 2);
   every(6, 13, stairs, 1.5);

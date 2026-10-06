@@ -61,7 +61,7 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
 }
 
-/* ── the table ── */
+/* ── tablo ── */
 .tablePane {
   display: flex;
   flex-direction: column;
@@ -170,7 +170,7 @@
   text-overflow: ellipsis;
 }
 
-/* avatars hold their initials at any text size */
+/* avatarlar her yazı boyutunda baş harflerini tutar */
 .initials {
   flex-shrink: 0;
   width: 32px;
@@ -201,7 +201,7 @@
   color: #8f3527;
 }
 
-/* ── the mail as it will arrive ── */
+/* ── varacağı hâliyle e-posta ── */
 .preview {
   display: flex;
   flex-direction: column;

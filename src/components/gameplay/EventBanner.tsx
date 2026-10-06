@@ -1,7 +1,7 @@
 import { useGameStore } from '../../game/store';
 import styles from '../../screens/GameplayScreen.module.css';
 
-/** The day's interruptions: a power cut over everything, or a toast for the rest. */
+/** Günün kesintileri: her şeyin üstünde bir elektrik kesintisi ya da geri kalanlar için bir bildirim. */
 export function EventBanner({ onBreak }: { onBreak: boolean }) {
   const activeEvent = useGameStore((s) => s.activeEvent);
   if (!activeEvent || onBreak) return null;

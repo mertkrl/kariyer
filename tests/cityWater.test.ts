@@ -1,7 +1,7 @@
 /*
- * The day-end city scenes: boats stay on the water. The Ortaköy vapur is followed through a
- * whole crossing-and-back cycle and the small boats through ten minutes of drifting; at every
- * step both ends of each hull must be over the Bosphorus, never on either shore.
+ * Gün sonu şehir sahneleri: tekneler suda kalır. Ortaköy vapuru bütün bir geçiş-dönüş döngüsü,
+ * küçük tekneler on dakikalık süzülme boyunca izlenir; her adımda her teknenin iki ucu da Boğaz'ın
+ * üstünde olmalı, asla iki kıyıdan birinde değil.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

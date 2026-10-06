@@ -1,4 +1,4 @@
-/** The player: the new HR specialist on a two-month trial, as the office knows her. */
+/** Oyuncu: iki aylık deneme süresindeki yeni İK uzmanı, ofisin onu tanıdığı hâliyle. */
 export const PLAYER = {
   first: 'Defne',
   name: 'Defne Aral',

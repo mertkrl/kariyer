@@ -1,6 +1,6 @@
 import styles from '../SocialApp.module.css';
 
-/** Line icons for Kariyergram's tab bar and post actions. */
+/** Kariyergram'ın sekme çubuğu ve gönderi eylemleri için çizgi simgeler. */
 
 export type IconName = 'home' | 'search' | 'heart' | 'heartFill' | 'user' | 'comment' | 'send' | 'bookmark' | 'bookmarkFill';
 

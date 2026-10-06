@@ -2,7 +2,7 @@ import { ART_KINDS } from '../artKinds';
 import { AYSE, EMRE, REJECTION_POSTS, SELIN, type DayContent, type PostSeed } from '../socialContent';
 import type { Comment, Post, SocialAuthor } from './socialTypes';
 
-/** Builds Kariyergram's posts from the day's content and the people you turned away. Pure. */
+/** Kariyergram'ın gönderilerini günün içeriğinden ve geri çevirdiğin insanlardan kurar. Saf. */
 
 let seq = 1000;
 const P = (p: Omit<Post, 'id' | 'comments'> & { comments?: Comment[] }): Post => ({ comments: [], ...p, id: seq++ });
@@ -21,7 +21,7 @@ export const EXPLORE_EXTRA: Post[] = ART_KINDS.map((kind, i) =>
   }),
 );
 
-/** A handle from a display name: the first name, lower-cased, Turkish letters kept. */
+/** Görünen addan bir kullanıcı adı: ilk ad, küçük harfle, Türkçe harfler korunur. */
 export const handleOf = (name: string) =>
   name
     .toLowerCase()
@@ -43,7 +43,7 @@ export function buildFeed(content: DayContent, rejected: SocialAuthor[], echoes:
       candidate: true,
     }),
   );
-  // Interleave rejected candidates into the feed.
+  // Reddedilen adayları akışa serpiştir.
   const out: Post[] = [];
   feed.forEach((p, i) => {
     out.push(p);
@@ -63,7 +63,7 @@ export function buildFeed(content: DayContent, rejected: SocialAuthor[], echoes:
   return [...found, ...out, ...cands.slice(feed.length)];
 }
 
-/** Returns a copy of the set with id toggled. */
+/** Kümenin, id'si tersine çevrilmiş bir kopyasını döndürür. */
 export function toggled<T>(set: Set<T>, id: T, on = !set.has(id)): Set<T> {
   const n = new Set(set);
   if (on) n.add(id);

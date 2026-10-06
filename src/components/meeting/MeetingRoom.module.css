@@ -31,7 +31,7 @@
 }
 
 .call {
-  /* the dialog sits below the call and takes the room it needs: nothing overlaps */
+  /* pencere görüşmenin altında durur ve ihtiyacı olan yeri alır: hiçbir şey üst üste binmez */
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
@@ -85,7 +85,7 @@
 }
 
 .tiles {
-  /* the tiles take the column; the chat keeps a small fixed strip under them */
+  /* kareler sütunu alır; sohbet altlarında küçük sabit bir şerit tutar */
   flex: 1;
   min-height: 0;
   display: grid;
@@ -456,8 +456,8 @@
   }
 }
 
-/* a phone held upright: the tiles and chat go under the shared screen. On its side (≤520 high)
-   the side-by-side layout stays, or the shared screen would have no room at all. */
+/* dik tutulan telefon: kareler ve sohbet paylaşılan ekranın altına geçer. Yan çevrilmişken
+   (≤520 yükseklik) yan yana düzen kalır, yoksa paylaşılan ekranın hiç yeri kalmazdı. */
 @media (max-width: 760px) and (min-height: 521px) {
   .call {
     grid-template-columns: 1fr;
@@ -505,8 +505,8 @@
   }
 }
 
-/* A phone on its side (≤520 high): the shared screen keeps the room. The people become a thin
-   strip of names, the chat takes what is left of the column, and the dialog tightens. */
+/* Yan çevrilmiş telefon (≤520 yükseklik): paylaşılan ekran yerini korur. İnsanlar ince bir isim
+   şeridine dönüşür, sohbet sütundan kalanı alır ve pencere sıkılaşır. */
 @media (max-height: 520px) {
   .call {
     padding: 44px 12px 8px;

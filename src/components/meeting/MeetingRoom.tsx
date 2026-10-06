@@ -8,8 +8,8 @@ import { CallScene } from './CallScene';
 import styles from './MeetingRoom.module.css';
 
 /*
- * The Wednesday meeting, held online: Selin shares a live report that follows what is said,
- * everyone sits in a small tile, Hakan Bey's camera stays off. Whoever talks lights up.
+ * Çevrimiçi yapılan Çarşamba toplantısı: Selin söylenenleri izleyen canlı bir rapor paylaşır,
+ * herkes küçük bir karede oturur, Hakan Bey'in kamerası kapalı kalır. Konuşan yanar.
  */
 
 type Stage = 'opening' | 'choice' | 'replies' | 'closing';
@@ -18,13 +18,13 @@ const TICK_MS = 22;
 
 export function MeetingRoom() {
   const finishMeeting = useGameStore((s) => s.finishMeeting);
-  // your week so far, frozen as the meeting starts
+  // şimdiye kadarki haftan, toplantı başlarken dondurulmuş hâliyle
   const [you] = useState<TeamStats>(() => {
     const g = useGameStore.getState();
     const today = Object.entries(g.decisions);
     const files = g.weekLog.length + today.length;
     const seconds = g.week.reviewTicks + today.reduce((n, [id]) => n + (g.timeSpent[id] ?? 0), 0);
-    // who you invited this week: they are the rows under your name on Friday's shortlist
+    // bu hafta davet ettiklerin: Cuma'nın kısa listesinde adının altındaki satırlar onlar
     const invited = [...g.weekLog.filter((e) => e.decision === 'approve').map((e) => e.id), ...today.filter(([, d]) => d === 'approve').map(([id]) => id)];
     const picks = invited
       // someone a colleague already put on the list is not listed twice
@@ -36,7 +36,7 @@ export function MeetingRoom() {
   const [stage, setStage] = useState<Stage>('opening');
   const [index, setIndex] = useState(0);
   const [choice, setChoice] = useState<MeetingOption | null>(null);
-  // the line is typed out; a click first completes it, the next one moves on
+  // satır yazılarak gelir; ilk tık onu tamamlar, sonraki ilerletir
   const [full, setFull] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -44,7 +44,7 @@ export function MeetingRoom() {
     stage === 'opening' ? OPENING : stage === 'replies' && choice ? [{ who: 'you', text: choice.text }, ...choice.replies] : stage === 'closing' ? CLOSING : [];
   const line = lines[index] ?? null;
   const active: Speaker | null = stage === 'choice' ? 'hakan' : (line?.who ?? null);
-  // everything said so far: the shared screen shows the latest board, the chat keeps every message
+  // şimdiye kadar söylenen her şey: paylaşılan ekran en son panoyu gösterir, sohbet her mesajı tutar
   const replyLines: Line[] = choice ? [{ who: 'you', text: choice.text }, ...choice.replies] : [];
   const seen: Line[] = [
     ...(stage === 'opening' ? OPENING.slice(0, index + 1) : OPENING),

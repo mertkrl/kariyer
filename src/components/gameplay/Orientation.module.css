@@ -11,7 +11,7 @@
   animation: fade 0.3s ease both;
 }
 
-/* the lit part: a hole cut by a huge shadow */
+/* aydınlatılan kısım: dev bir gölgenin açtığı bir delik */
 .spot {
   position: absolute;
   border-radius: 12px;
@@ -46,7 +46,7 @@
   transform: translateX(-50%);
 }
 
-/* while the CV is lit, the card waits over the right-hand panel */
+/* CV aydınlatılmışken kart sağdaki panelin üstünde bekler */
 .aside {
   top: 34%;
   right: 16px;

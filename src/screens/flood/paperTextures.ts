@@ -1,6 +1,6 @@
 /*
- * Pre-rendered A4 résumé textures for the paper simulation: a photo, a name and title, section
- * headings, body text, skill chips — plus the blank back of a sheet and an "ELENDİ" stamp.
+ * Kâğıt simülasyonu için önceden çizilmiş A4 özgeçmiş dokuları: fotoğraf, ad ve unvan, bölüm
+ * başlıkları, metin, beceri etiketleri; ayrıca sayfanın boş arkası ve bir "ELENDİ" damgası.
  */
 
 export const PAPER_W = 58;
@@ -37,7 +37,7 @@ function paper(g: CanvasRenderingContext2D, tint = '#fbf9f3') {
   gr.addColorStop(1, '#efebe1');
   g.fillStyle = gr;
   g.fillRect(0, 0, PAPER_W, PAPER_H);
-  // paper grain
+  // kâğıt dokusu
   for (let i = 0; i < 90; i++) {
     g.fillStyle = `rgba(120,110,90,${(Math.random() * 0.05).toFixed(3)})`;
     g.fillRect(Math.random() * PAPER_W, Math.random() * PAPER_H, 0.6, 0.6);
@@ -57,10 +57,10 @@ function front(i: number, tint?: string): HTMLCanvasElement {
   const { c, g } = canvas(PAPER_W, PAPER_H);
   paper(g, tint);
   const accent = ACCENTS[i % ACCENTS.length];
-  // header band
+  // başlık şeridi
   g.fillStyle = accent;
   g.fillRect(0, 0, PAPER_W, 2.2);
-  // photo
+  // fotoğraf
   g.fillStyle = '#dfe3e8';
   g.fillRect(4, 5, 12, 15);
   g.fillStyle = SKIN[i % SKIN.length];
@@ -75,7 +75,7 @@ function front(i: number, tint?: string): HTMLCanvasElement {
   g.beginPath();
   g.ellipse(10, 20, 5.6, 4.4, 0, Math.PI, 0);
   g.fill();
-  // name + title
+  // ad + unvan
   g.fillStyle = '#23201b';
   g.font = '700 5.2px "Work Sans", Arial, sans-serif';
   g.fillText(NAMES[i % NAMES.length], 19, 9.5, PAPER_W - 22);
@@ -122,7 +122,7 @@ function stamp(text: string, color: string): HTMLCanvasElement {
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.fillText(text, 0, 0.4);
-  // ink texture: knock out a few specks
+  // mürekkep dokusu: birkaç benek sil
   g.globalCompositeOperation = 'destination-out';
   for (let i = 0; i < 70; i++) {
     g.fillStyle = `rgba(0,0,0,${(0.3 + Math.random() * 0.6).toFixed(2)})`;

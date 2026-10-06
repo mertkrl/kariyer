@@ -212,7 +212,7 @@
   color: var(--paper-muted);
 }
 
-/* ── Achievements ── */
+/* ── Başarımlar ── */
 
 .achievements {
   width: 100%;
@@ -313,7 +313,7 @@
   }
 }
 
-/* ── One year later ── */
+/* ── Bir yıl sonra ── */
 
 .epilogue {
   width: 100%;
@@ -376,7 +376,7 @@
   font-size: calc(11.5px * var(--ts, 1));
 }
 
-/* ── your week in numbers, and what this means outside the game ── */
+/* ── sayılarla haftan ve bunun oyun dışında ne anlama geldiği ── */
 .week,
 .realWorld {
   width: 100%;

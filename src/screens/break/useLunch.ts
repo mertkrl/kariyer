@@ -4,7 +4,7 @@ import { audioEngine } from '../../audio/audioEngine';
 import { AYRAN_SIPS, BREAD_BITES, DISH_BITES, DISH_LINES, SOUP_COLORS, SOUP_SIPS, pick, type DishKey } from './lunch';
 import type { Reactions } from './useReactions';
 
-/** The tabldot: soup (with lemon), the tray's five dishes, two slices of bread and an ayran. */
+/** Tabldot: çorba (limonlu), tepsinin beş yemeği, iki dilim ekmek ve bir ayran. */
 export function useLunch(menu: LunchMenu, { say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'later'>) {
   const [dishes, setDishes] = useState<Record<DishKey, number>>({ ...DISH_BITES });
   const [soup, setSoup] = useState(SOUP_SIPS);
@@ -56,7 +56,7 @@ export function useLunch(menu: LunchMenu, { say, bump, later }: Pick<Reactions, 
       say('Limonun suyu kalmadı.');
       return;
     }
-    // Lift over the bowl → squeeze (juice drips into the soup) → back to the plate.
+    // Kâsenin üstüne kaldır → sık (suyu çorbaya damlar) → tabağa geri koy.
     setLemonPhase('lift');
     later(() => {
       setLemonPhase('squeeze');

@@ -1,24 +1,24 @@
 /*
- * Weather shapes each workday: a storm makes the servis late. (Calendar items that simply ate
- * the clock — meetings, the cake, the fire drill — were cut: the day is short enough.)
+ * Hava her iş gününü biçimlendirir: fırtına servisi geciktirir. (Yalnızca saati yiyen takvim
+ * öğeleri, yani toplantılar, pasta ve yangın tatbikatı çıkarıldı: gün zaten yeterince kısa.)
  */
 
 export interface CalendarItem {
-  /** Workday minute it happens. */
+  /** Olduğu mesai dakikası. */
   at: number;
-  /** Game minutes it takes from you. */
+  /** Senden aldığı oyun dakikası. */
   minutes: number;
   icon: string;
   title: string;
-  /** Shown as a toast when it happens. */
+  /** Olduğu anda bildirim olarak gösterilir. */
   text: string;
-  /** Not in the morning memo — it just happens. */
+  /** Sabah memosunda yok: kendiliğinden olur. */
   surprise?: boolean;
 }
 
 export interface DayPlan {
   weather: { icon: string; text: string };
-  /** You start the day late by this many minutes. */
+  /** Güne bu kadar dakika geç başlarsın. */
   lateStart?: { minutes: number; text: string };
   calendar: CalendarItem[];
 }

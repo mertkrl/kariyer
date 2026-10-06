@@ -2,12 +2,12 @@ import { BH, KB, KS, STRIP_M } from './servisLayout';
 import { glow, glowRect, makeRng, pick, range, rgba, vGradient, type RGB } from '../kit';
 
 /**
- * The street outside, pre-rendered as two long strips that scroll past: the buildings across
- * the road (plaza lobbies, neon, shops) and the pavement with its umbrellas.
+ * Dışarıdaki sokak, kayarak geçen iki uzun şerit olarak önceden çizilir: yolun karşısındaki binalar
+ * (plaza lobileri, neon, dükkânlar) ve şemsiyeleriyle kaldırım.
  */
 export function paintStreet(): { buildings: HTMLCanvasElement; pavement: HTMLCanvasElement } {
   const rb = makeRng(12);
-  // buildings across the street, one long strip
+  // sokağın karşısındaki binalar, tek uzun bir şerit
   const buildings = document.createElement('canvas');
   buildings.width = Math.round(STRIP_M * KB);
   buildings.height = BH;
@@ -40,13 +40,13 @@ export function paintStreet(): { buildings: HTMLCanvasElement; pavement: HTMLCan
         b.fillRect(wx, y, 3.4, 4.2);
       }
     }
-    // shops at street level: each its own light, some already shuttered for the night
+    // sokak seviyesindeki dükkânlar: her birinin kendi ışığı, bazıları gece için kepenk indirmiş
     b.fillStyle = '#17141a';
     b.fillRect(x, 80, w - 2, 16);
     for (let sx = x + 3; sx < x + w - 8; ) {
       const sw = Math.min(x + w - 5 - sx, range(rb, 14, 30));
       if (rb() < 0.22) {
-        // a rolled-down steel shutter
+        // indirilmiş çelik bir kepenk
         b.fillStyle = '#4a4850';
         b.fillRect(sx, 83, sw, 13);
         b.fillStyle = 'rgba(0,0,0,0.3)';
@@ -63,13 +63,13 @@ export function paintStreet(): { buildings: HTMLCanvasElement; pavement: HTMLCan
         shop.addColorStop(1, rgba(tone, 0.6));
         b.fillStyle = shop;
         b.fillRect(sx, 83, sw, 13);
-        // shelves and people's shapes inside, the mullions, the door
+        // içerideki raflar ve insan silüetleri, kayıtlar, kapı
         b.fillStyle = 'rgba(60,40,30,0.35)';
         for (let k = 0; k < 3; k++) b.fillRect(sx + range(rb, 1, sw - 4), range(rb, 86, 91), range(rb, 2, 5), range(rb, 3, 8));
         b.fillStyle = '#211d22';
         for (let mx = sx + 6; mx < sx + sw - 2; mx += 6) b.fillRect(mx, 83, 0.8, 13);
         b.fillRect(sx + sw * 0.62, 84, sw * 0.18, 12);
-        // a striped awning on some
+        // bazılarında çizgili bir tente
         if (rb() < 0.4) {
           const [ar, ag, ab] = pick(rb, [
             [170, 40, 40],
@@ -103,7 +103,7 @@ export function paintStreet(): { buildings: HTMLCanvasElement; pavement: HTMLCan
     }
     x += w;
   }
-  // pavement strip: kerb, lamp posts, bus stop, bollards
+  // kaldırım şeridi: bordür, lamba direkleri, otobüs durağı, babalar
   const pavement = document.createElement('canvas');
   pavement.width = Math.round(STRIP_M * KS);
   pavement.height = BH;
@@ -125,7 +125,7 @@ export function paintStreet(): { buildings: HTMLCanvasElement; pavement: HTMLCan
     p.globalCompositeOperation = 'source-over';
   }
   for (let x = 200; x < pavement.width; x += 170 * KS) {
-    // bus stop with a lit ad panel
+    // ışıklı reklam panolu otobüs durağı
     p.fillStyle = 'rgba(160,190,210,0.15)';
     p.fillRect(x, 70, 60, 46);
     p.fillStyle = '#16151a';

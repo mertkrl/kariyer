@@ -1,9 +1,9 @@
 import { glow, glowRect, rgba, type RGB } from '../kit';
 
-/** Karaköy's moving lights: broken gold dashes of reflection on the Golden Horn, and the night ferry. */
+/** Karaköy'ün hareketli ışıkları: Haliç'te kırık altın yansıma çizgileri ve gece vapuru. */
 
 const streaks = new Map<string, HTMLCanvasElement>();
-/** A soft horizontal dash of light: flat bright core, feathered ends — one broken ripple of reflection. */
+/** Yumuşak yatay bir ışık çizgisi: düz parlak çekirdek, tüylenmiş uçlar; yansımanın kırık bir dalgacığı. */
 function streak(c: RGB) {
   const key = c.join();
   let s = streaks.get(key);
@@ -37,7 +37,7 @@ export const dash = (g: CanvasRenderingContext2D, x: number, y: number, w: numbe
   g.globalAlpha = 1;
 };
 
-/** A Şehir Hatları ferry side-on at night: dark hull, black band, two decks of warm windows, cream funnel with a black top. */
+/** Gece yandan bir Şehir Hatları vapuru: koyu tekne, siyah şerit, iki güverte sıcak pencere, üstü siyah krem baca. */
 export function ferry(g: CanvasRenderingContext2D, x: number, y: number, s: number, t: number) {
   if (s < 0.08 || x < -300) return;
   const fade = g.globalAlpha;

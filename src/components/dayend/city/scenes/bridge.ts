@@ -27,19 +27,19 @@ import { ASIA_COAST, EURO_COAST, P, euroBottom, ferryAt, isWater, spawnBoats, st
 import { boat, ferry } from './bosphorusBoats';
 
 /*
- * Ortaköy, 17:10 — the 15 Temmuz Şehitler Köprüsü at sunset, seen from the hillside above the
- * mosque. The Europe → Asia lanes are a solid river of brake lights (everyone going home to the
- * Anatolian side), the other way flows. The bridge's LEDs cycle colours, a vapur crosses, gulls
- * hang over the water and the lamps come on along the empty promenade below.
+ * Ortaköy, 17:10: caminin üstündeki yamaçtan gün batımında 15 Temmuz Şehitler Köprüsü. Avrupa →
+ * Asya şeritleri kesintisiz bir fren lambası nehri (herkes Anadolu yakasındaki evine gidiyor), öbür
+ * yön akıyor. Köprünün LED'leri renk değiştirir, bir vapur geçer, martılar suyun üstünde asılı durur
+ * ve aşağıdaki boş sahil yolunda lambalar yanar.
  */
 
-// Bridge axis in world metres: near (European) tower N → far (Asian) tower F.
+// Dünya metresinde köprü ekseni: yakın (Avrupa) kule N → uzak (Asya) kule F.
 const N = { X: -170, Z: 260 };
 const F = { X: 546, Z: 1060 };
 const SPAN = Math.hypot(F.X - N.X, F.Z - N.Z);
 const AX = (F.X - N.X) / SPAN;
 const AZ = (F.Z - N.Z) / SPAN;
-// right-hand side of the axis direction (towards the camera)
+// eksen yönünün sağ tarafı (kameraya doğru)
 const RX = AZ;
 const RZ = -AX;
 const DECK = 64;
@@ -71,13 +71,13 @@ export function bridgeScene(): CityScene {
     return { at, length: L, Y: DECK + 0.3, vehicles: [] };
   };
   const lanes: Lane[] = [];
-  // Europe → Asia (away from us, right side of the deck = camera side): jammed
+  // Avrupa → Asya (bizden uzağa, tabliyenin sağı = kamera tarafı): kilitli
   for (const off of [2.4, 5.9, 9.4]) {
     const l = lane(off, 1);
     populate(l, r, { spacing: [2.6, 6], v0: [4, 7.5], taxi: 0.16, bus: 0.03, van: 0.1 });
     lanes.push(l);
   }
-  // Asia → Europe: moving
+  // Asya → Avrupa: akıyor
   for (const off of [-2.4, -5.9, -9.4]) {
     const l = lane(off, -1);
     populate(l, r, { spacing: [14, 32], v0: [14, 19], taxi: 0.14 });
@@ -88,7 +88,7 @@ export function bridgeScene(): CityScene {
     jostle(lanes, 0.05, 0.8);
   }
 
-  // coastal roads (Çırağan / Beylerbeyi): streams of head- and tail-lights along the shore
+  // sahil yolları (Çırağan / Beylerbeyi): kıyı boyunca far ve stop lambası akıntıları
   const roads = [
     { pts: EURO_COAST.slice(1).map(([x, y]) => [x - 9, y - 4] as [number, number]), cars: [] as { u: number; v: number; dir: 1 | -1 }[] },
     { pts: ASIA_COAST.map(([x, y]) => [x, y - 6] as [number, number]), cars: [] as { u: number; v: number; dir: 1 | -1 }[] },
@@ -163,7 +163,7 @@ export function bridgeScene(): CityScene {
         ]);
         g.fillRect(-PAD, -PAD, W + PAD * 2, P.vpy + PAD + 12);
         stars(g, rb, 60, 160, 0.5);
-        // sun sinking behind the far hills, right on the Bosphorus
+        // uzak tepelerin ardına, tam Boğaz'ın üstüne batan güneş
         g.globalCompositeOperation = 'lighter';
         glow(g, 770, 398, 520, [255, 120, 60], 0.35);
         glow(g, 770, 398, 220, [255, 170, 90], 0.55);
@@ -173,7 +173,7 @@ export function bridgeScene(): CityScene {
         g.beginPath();
         g.arc(770, 400, 26, Math.PI, 0);
         g.fill();
-        // far northern hills + the FSM bridge in the haze
+        // uzak kuzey tepeleri + pusun içinde FSM köprüsü
         g.fillStyle = '#6b4a66';
         g.beginPath();
         smoothPath(g, [
@@ -204,7 +204,7 @@ export function bridgeScene(): CityScene {
         clouds(g, rc, { y0: 250, y1: 360, n: 12, w0: 200, w1: 420, flat: 0.16, color: [150, 80, 100], alpha: 0.3, lit: [255, 180, 120], litAlpha: 0.5, blur: 9 });
       });
       landL = makeLayer(px, (g) => {
-        // the Bosphorus, reflecting the sunset
+        // gün batımını yansıtan Boğaz
         g.fillStyle = vGradient(g, P.vpy, H + PAD, [
           [0, '#f0a068'],
           [0.08, '#b86a74'],
@@ -213,18 +213,18 @@ export function bridgeScene(): CityScene {
           [1, '#101226'],
         ]);
         g.fillRect(-PAD, P.vpy, W + PAD * 2, H - P.vpy + PAD);
-        // sun path on the water
+        // suyun üstünde güneş yolu
         g.globalCompositeOperation = 'lighter';
         glowRect(g, 770, 470, 90, 160, [255, 160, 90], 0.35);
         g.globalCompositeOperation = 'source-over';
-        // ripples
+        // dalgacıklar
         for (let i = 0; i < 700; i++) {
           const y = range(rb, P.vpy + 4, H + PAD);
           const d = (y - P.vpy) / (H - P.vpy);
           g.fillStyle = rb() < 0.5 ? `rgba(255,190,150,${0.05 + d * 0.05})` : `rgba(10,10,30,${0.1 + d * 0.1})`;
           g.fillRect(range(rb, -PAD, W + PAD), y, range(rb, 10, 60) * (0.3 + d), 0.8 + d * 1.2);
         }
-        // Europe: Ortaköy / Beşiktaş / Etiler hillside
+        // Avrupa: Ortaköy / Beşiktaş / Etiler yamacı
         const euro = hillTown(g, rb, {
           ridge: [
             [-PAD, 250],
@@ -244,7 +244,7 @@ export function bridgeScene(): CityScene {
           haze: [240, 150, 120],
           hazeA: 0.4,
         });
-        // Asia: Beylerbeyi / Çamlıca
+        // Asya: Beylerbeyi / Çamlıca
         const asia = hillTown(g, rb, {
           ridge: [
             [838, 402],
@@ -264,7 +264,7 @@ export function bridgeScene(): CityScene {
           haze: [240, 160, 130],
           hazeA: 0.45,
         });
-        // stone quays catch the last light
+        // taş rıhtımlar son ışığı yakalar
         g.strokeStyle = 'rgba(255,190,150,0.35)';
         g.lineWidth = 1.4;
         g.beginPath();
@@ -273,7 +273,7 @@ export function bridgeScene(): CityScene {
         g.beginPath();
         ASIA_COAST.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
         g.stroke();
-        // Çamlıca tower
+        // Çamlıca kulesi
         g.fillStyle = '#231b2c';
         g.beginPath();
         g.moveTo(1484, 300);
@@ -284,8 +284,8 @@ export function bridgeScene(): CityScene {
         g.fillRect(1486, 172, 20, 14);
         g.fillRect(1494, 96, 4, 56);
         beacons.push({ x: 1496, y: 96, ph: 0 }, { x: 1496, y: 176, ph: 1.4 });
-        // shoreline lights reflected
-        // lights close to the water throw shimmering columns across it
+        // yansıyan kıyı ışıkları
+        // suya yakın ışıklar üstüne parıldayan sütunlar düşürür
         refl = [
           ...euro.filter((l) => l.x > 470 && euroBottom(l.x) - l.y < 40).map((l) => ({ ...l, shore: euroBottom(l.x) })),
           ...asia.filter((l) => polyY(ASIA_COAST, l.x) - l.y < 40).map((l) => ({ ...l, shore: polyY(ASIA_COAST, l.x) })),
@@ -293,7 +293,7 @@ export function bridgeScene(): CityScene {
           .filter((l) => l.a > 0.5 && rb() < 0.7)
           .slice(0, 320)
           .map((l) => ({ x: l.x, y: l.shore + 2, c: l.c, a: 0.5, w: 4, len: 30 + rb() * 90, seed: rb() * 10 }));
-        // Ortaköy mosque on the waterfront + quay
+        // sahildeki Ortaköy camisi + rıhtım
         g.fillStyle = '#1c1622';
         g.beginPath();
         smoothPath(g, [
@@ -310,12 +310,12 @@ export function bridgeScene(): CityScene {
         mosque(g, 420, 842, 0.95, { stone: [150, 128, 132], lit: [255, 214, 160], litA: 0.75, minarets: 2, windows: true, minaretH: 118 });
       });
       bridgeBack = makeLayer(px, (g) => {
-        // far tower legs, far cable, then the deck
+        // uzak kule ayakları, uzak kablo, sonra tabliye
         g.strokeStyle = 'rgba(62,52,70,0.95)';
         drawLeg(g, 0, -17);
         drawLeg(g, 1, -17);
         drawCable(g, -15.5, 2.2);
-        // deck: underside fascia (camera side) + road surface
+        // tabliye: alt yüz kaplaması (kamera tarafı) + yol yüzeyi
         const a0 = pa(S0, 16.5, DECK);
         const a1 = pa(1.4, 16.5, DECK);
         const b0 = pa(S0, -16.5, DECK);
@@ -356,7 +356,7 @@ export function bridgeScene(): CityScene {
         drawCable(g, 15.5, 3);
         drawLeg(g, 0, 17);
         drawLeg(g, 1, 17);
-        // cross beams
+        // enine kirişler
         g.strokeStyle = '#40354a';
         for (const s of [0, 1]) {
           for (const Y of [TOWER - 4, 118]) {
@@ -373,7 +373,7 @@ export function bridgeScene(): CityScene {
         }
       });
       fg = makeLayer(px, (g) => {
-        // promenade lamps
+        // sahil yolu lambaları
         g.strokeStyle = '#0d0b10';
         g.lineWidth = 3;
         for (let x = 30; x < 540; x += 120) {
@@ -410,7 +410,7 @@ export function bridgeScene(): CityScene {
       g.drawImage(landL, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.globalCompositeOperation = 'lighter';
       reflections(g, refl, t);
-      // sun glitter
+      // güneş pırıltısı
       for (let i = 0; i < 70; i++) {
         const y = 410 + ((i * 37.7 + t * 9) % 240);
         const spread = 16 + (y - 410) * 0.55;
@@ -420,7 +420,7 @@ export function bridgeScene(): CityScene {
       }
       g.globalCompositeOperation = 'source-over';
 
-      // shore roads and small boats
+      // sahil yolları ve küçük tekneler
       g.globalCompositeOperation = 'lighter';
       for (const rd of roads) {
         const segs = rd.pts.length - 1;
@@ -439,7 +439,7 @@ export function bridgeScene(): CityScene {
       g.globalCompositeOperation = 'source-over';
       for (const b of boats) boat(g, b, t);
 
-      // the Beylerbeyi – Ortaköy vapur: crossing, berthing, crossing back
+      // Beylerbeyi–Ortaköy vapuru: geçiyor, yanaşıyor, geri geçiyor
       const f = ferryAt(t);
       ferry(g, f.x, f.y, f.s, f.dir, f.moving, t);
 
@@ -447,7 +447,7 @@ export function bridgeScene(): CityScene {
       drawTraffic(g, P, lanes, { ambient: [255, 150, 110], ambientA: 0.18, haze: 2400, boost: 3 }, 50, 3000, 5);
       g.drawImage(bridgeFront, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
 
-      // LED show on the cables and fascia
+      // kablolarda ve kaplamada LED gösterisi
       g.globalCompositeOperation = 'lighter';
       for (let s = -0.18; s < 1.2; s += 0.025) {
         const c = hsl((t * 30 + s * 240) % 360, 0.85, 0.62);
@@ -456,7 +456,7 @@ export function bridgeScene(): CityScene {
         glow(g, x, y, Math.max(2.4, k * 2.2), c, 0.8);
         const [dx, dy, dk] = pa(s, 16.6, DECK - 2);
         glow(g, dx, dy, Math.max(2, dk * 1.8), c, 0.55);
-        // mirror images on the Bosphorus: the same point below the waterline
+        // Boğaz'daki ayna görüntüleri: aynı nokta su çizgisinin altında
         const [rx, ry, rk] = pa(s, 16.6, -(DECK - 2));
         if (isWater(rx, ry)) {
           const wob = Math.sin(t * 2 + s * 40) * rk * 1.5;
@@ -469,14 +469,14 @@ export function bridgeScene(): CityScene {
         const on = Math.sin(t * 2 + b.ph) > 0.5;
         glow(g, b.x, b.y, on ? 10 : 4, [255, 40, 30], on ? 1 : 0.3, on);
       }
-      // mosque floodlights
+      // cami projektörleri
       glowRect(g, 420, 815, 260, 110, [255, 190, 120], 0.25);
       g.globalCompositeOperation = 'source-over';
 
-      // gulls
+      // martılar
       for (const b of gulls) gull(g, b.x, b.y + Math.sin(t * 0.8 + b.bob) * 10, b.s, t * 6 + b.ph, 'rgba(30,20,34,0.85)');
 
-      // promenade lamps
+      // sahil yolu lambaları
       g.drawImage(fg, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.globalCompositeOperation = 'lighter';
       for (let x = 30; x < 540; x += 120) {

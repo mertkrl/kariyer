@@ -2,9 +2,9 @@ import type { EngineCore } from '../engineCore';
 import { FLOOD_BOOST } from '../engineCore';
 import type { ScatterPaper } from '../engineCore';
 
-/* The application flood that opens each day: a riser under the counter, paper flying in and landing. */
+/* Her günü açan başvuru yağmuru: sayacın altında bir yükseliş, uçarak gelen ve düşen kâğıtlar. */
 
-/** Tension riser under the incoming-applications counter. */
+/** Gelen başvuru sayacının altında gerilim yükselişi. */
 export function startFloodRiser(engine: EngineCore, duration: number) {
   const ctx = engine.ensureContext();
   if (!engine.sfxIn) return;
@@ -62,31 +62,31 @@ export function stopFloodRiser(engine: EngineCore, fade = 0.15) {
 }
 
 /**
- * Mechanical counter tick. `pitch` 0–1 moves it up (counting up) or down (counting down),
- * so the listener "hears" the direction of the number.
+ * Mekanik sayaç tıkırtısı. `pitch` 0–1 onu yukarı (sayarak artarken) ya da aşağı (sayarak
+ * azalırken) götürür, böylece dinleyen sayının yönünü "duyar".
  */
 export function playCounterTick(engine: EngineCore, pitch: number) {
   engine.noiseHit({ filter: 'bandpass', freq: 3800, q: 2, attack: 0.001, decay: 0.012, peak: 0.07 * FLOOD_BOOST });
   engine.tone({ type: 'triangle', freq: 900 + pitch * 900, attack: 0.001, decay: 0.03, peak: 0.035 * FLOOD_BOOST });
 }
 
-/** A single CV sliding in: short downward "fwip" of paper, panned to where it came from. */
+/** İçeri kayan tek bir CV: geldiği yöne kaydırılmış kısa, aşağı doğru bir kâğıt "fışırtısı". */
 export function playPaperIn(engine: EngineCore, pan: number) {
   engine.noiseHit({ filter: 'bandpass', freq: 3400, freqEnd: 900, q: 1.4, attack: 0.02, decay: 0.08, peak: 0.07 * FLOOD_BOOST, pan });
-  // Soft "gulp" as the core swallows it
+  // Çekirdek onu yutarken yumuşak bir "yutkunma"
   engine.tone({ freq: 240, freqEnd: 120, attack: 0.005, decay: 0.07, peak: 0.05 * FLOOD_BOOST, pan: pan * 0.3 });
 }
 
-/** A sheet of paper settling onto a surface: soft, dry, low "tap-shhh". */
+/** Bir yüzeye oturan kâğıt: yumuşak, kuru, alçak bir "tık-şşş". */
 export function playPaperLand(engine: EngineCore, pan: number) {
   engine.noiseHit({ filter: 'lowpass', freq: 1800, attack: 0.002, decay: 0.05, peak: 0.07 * FLOOD_BOOST, pan });
   engine.noiseHit({ filter: 'bandpass', freq: 3000, freqEnd: 1500, q: 0.9, attack: 0.01, decay: 0.12, peak: 0.025 * FLOOD_BOOST, pan });
 }
 
 /**
- * The AI flings rejected CVs away: sub impact + air "whoomp", then one fluttering paper
- * per CV, each panned to its flight direction. `chaotic` (AI crash day) adds a glitchy
- * failing-machine layer and an error beep.
+ * Yapay zekâ reddedilen CV'leri fırlatıp atar: alçak bir çarpma + hava "vuuumu", sonra CV başına
+ * uçuş yönüne kaydırılmış çırpınan bir kâğıt. `chaotic` (yapay zekânın çöktüğü gün) aksayan,
+ * bozulan bir makine katmanı ve bir hata bip'i ekler.
  */
 export function playScatter(engine: EngineCore, papers: ScatterPaper[], chaotic: boolean) {
   const ctx = engine.ensureContext();
@@ -96,7 +96,7 @@ export function playScatter(engine: EngineCore, papers: ScatterPaper[], chaotic:
   engine.noiseHit({ filter: 'lowpass', freq: 1400, freqEnd: 200, attack: 0.004, decay: 0.3, peak: 0.35 * FLOOD_BOOST });
   engine.noiseHit({ filter: 'bandpass', freq: 500, freqEnd: 140, q: 1.2, attack: 0.03, decay: 0.45, peak: 0.25 * FLOOD_BOOST });
 
-  // Paper flutter: amplitude-modulated band-limited noise (a flapping sheet, ~16–28 Hz).
+  // Kâğıt çırpınması: genliği modüle edilmiş bant sınırlı gürültü (çırpınan bir sayfa, ~16–28 Hz).
   const papersToVoice = papers.slice(0, 28);
   for (const p of papersToVoice) {
     const duration = 0.22 + Math.random() * 0.3;
@@ -129,7 +129,7 @@ export function playScatter(engine: EngineCore, papers: ScatterPaper[], chaotic:
     const shape = new Float32Array(256);
     for (let i = 0; i < 256; i++) {
       const x = (i / 255) * 2 - 1;
-      shape[i] = Math.round(((1 + k) * x) / (1 + k * Math.abs(x)) * 4) / 4; // drive + crude bit reduction
+      shape[i] = Math.round(((1 + k) * x) / (1 + k * Math.abs(x)) * 4) / 4; // sürüş + kaba bit azaltma
     }
     shaper.curve = shape;
     const g = ctx.createGain();

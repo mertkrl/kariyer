@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { GamePhase } from '../../game/types';
 
 /*
- * When the game moves to another screen, the button that was pressed disappears and keyboard
- * focus falls back to the page: a screen-reader user hears nothing and has to start tabbing
- * from the top. This moves focus to the new screen's heading (or the screen itself) and gives
- * a short spoken name for a polite live region, so the change is heard and the next Tab goes
- * into the new screen.
+ * Oyun başka bir ekrana geçince basılan düğme kaybolur ve klavye odağı sayfaya düşer: ekran
+ * okuyucu kullanan biri hiçbir şey duymaz ve Tab'a en baştan başlamak zorunda kalır. Bu, odağı yeni
+ * ekranın başlığına (ya da ekranın kendisine) taşır ve kibar bir canlı bölge için kısa bir ad verir;
+ * böylece değişiklik duyulur ve bir sonraki Tab yeni ekrana girer.
  */
 
 export const SCREEN_NAMES: Record<GamePhase, string> = {
@@ -22,10 +21,10 @@ export const SCREEN_NAMES: Record<GamePhase, string> = {
   final: 'Haftanın sonu',
 };
 
-/** How long to keep looking for the new screen (screens load lazily). */
+/** Yeni ekranı ne kadar süre arayacağı (ekranlar tembel yüklenir). */
 const WAIT_MS = 1500;
 
-/** Moves focus into `root`'s first heading, or the root itself; true if it found somewhere to go. */
+/** Odağı `root`un ilk başlığına ya da kökün kendisine taşır; gidecek bir yer bulduysa true. */
 export function focusScreen(root: HTMLElement): boolean {
   const target = root.querySelector<HTMLElement>('h1, h2, [data-screen-focus]') ?? (root.firstElementChild as HTMLElement | null);
   if (!target) return false;
@@ -40,19 +39,19 @@ export function useScreenFocus(phase: GamePhase) {
   const shown = useRef(phase);
 
   useEffect(() => {
-    // the first screen of a visit is the page itself: leave focus where the browser put it
+    // bir ziyaretin ilk ekranı sayfanın kendisidir: odağı tarayıcının koyduğu yerde bırak
     if (shown.current === phase) return;
     shown.current = phase;
     setAnnouncement(SCREEN_NAMES[phase]);
     const started = performance.now();
-    // the button that was pressed: it may linger a frame or two while the next screen loads
+    // basılan düğme: sonraki ekran yüklenirken bir iki kare daha kalabilir
     const before = document.activeElement;
     let raf = 0;
     const tryFocus = () => {
       const root = mainRef.current;
       const active = document.activeElement;
       const lost = !active || active === document.body || !document.contains(active);
-      // a screen that placed focus itself (a dialog, an input) keeps it
+      // odağı kendisi yerleştiren bir ekran (bir pencere, bir giriş alanı) onu korur
       if (root && !lost && active !== before) return;
       if (root && lost && focusScreen(root)) return;
       if (performance.now() - started < WAIT_MS) raf = requestAnimationFrame(tryFocus);
@@ -61,13 +60,13 @@ export function useScreenFocus(phase: GamePhase) {
     return () => cancelAnimationFrame(raf);
   }, [phase]);
 
-  // Within a screen, too: a step that removes the focused button ("Memoyu Oku →" giving way to
-  // the memo) would drop focus to the page; it goes to the screen's heading instead.
+  // Ekran içinde de: odaktaki düğmeyi kaldıran bir adım ("Memoyu Oku →" yerini memoya bırakırken)
+  // odağı sayfaya düşürürdü; bunun yerine ekranın başlığına gider.
   useEffect(() => {
     const root = mainRef.current;
     if (!root) return;
-    // browsers don't reliably fire focusout when the focused element is removed, so watch the
-    // screen for removals and check where focus went
+    // tarayıcılar odaktaki öğe kaldırılınca focusout'u güvenilir şekilde tetiklemez; bu yüzden
+    // ekrandaki kaldırmaları izle ve odağın nereye gittiğine bak
     let last: Element | null = null;
     const onFocusIn = (e: FocusEvent) => {
       last = e.target as Element;

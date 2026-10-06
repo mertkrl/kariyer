@@ -41,7 +41,7 @@
   font-weight: 700;
 }
 
-/* the app row on top: which app, group or private, when */
+/* üstteki uygulama satırı: hangi uygulama, grup mu özel mi, ne zaman */
 .app {
   display: flex;
   align-items: center;
@@ -68,7 +68,7 @@
   flex-shrink: 0;
 }
 
-/* call notices keep their plain two-line layout */
+/* arama bildirimleri sade iki satırlık düzenini korur */
 .missed span,
 .ring span {
   font-size: calc(13px * var(--ts, 1));
@@ -116,7 +116,7 @@
   }
 }
 
-/* a system confirmation from the mail client: calm, blue, professional */
+/* e-posta istemcisinden bir sistem onayı: sakin, mavi, profesyonel */
 .scheduled {
   background: #eef3fb;
   border-left: 4px solid #2f5f8f;

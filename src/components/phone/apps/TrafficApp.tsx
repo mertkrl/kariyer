@@ -6,19 +6,19 @@ import { RouteSheet } from './traffic/RouteSheet';
 import styles from './TrafficApp.module.css';
 
 /*
- * "Trafik" — a navigation-app style map of Istanbul. Light land, blue water (Bosphorus, Golden
- * Horn, Marmara), parks, a street texture, yellow highways with a live traffic layer on top, and
- * the commute from the Levent office to home in Moda/Kadıköy. Pinch-free zoom (+/−, wheel) and
- * drag to pan. Congestion builds from 15:30 and weather makes everything slower.
+ * "Trafik": navigasyon uygulaması tarzında bir İstanbul haritası. Açık renkli kara, mavi su (Boğaz,
+ * Haliç, Marmara), parklar, sokak dokusu, üstünde canlı trafik katmanı olan sarı otoyollar ve
+ * Levent'teki ofisten Bağcılar'daki eve yol. Sıkıştırmasız yakınlaştırma (+/−, tekerlek) ve
+ * sürükleyerek kaydırma. Yoğunluk 15:30'dan itibaren artar, hava her şeyi yavaşlatır.
  *
- * Map data and the traffic model live in traffic/trafficModel.ts, pan/zoom in useMapView.
+ * Harita verisi ve trafik modeli traffic/trafficModel.ts'de, kaydırma/yakınlaştırma useMapView'da.
  */
 
 export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weatherPenalty: number }) {
-  const [routeId, setRouteId] = useState('car15');
+  const [routeId, setRouteId] = useState('carTem');
   const [incident, setIncident] = useState<string | null>(null);
   const { view, svgRef, zoom, reset, handlers } = useMapView();
-  const { rush, levels, ferryCancelled, eta, available, best, incidents } = trafficAt(minutes, weatherPenalty);
+  const { rush, levels, eta, available, best, incidents } = trafficAt(minutes, weatherPenalty);
   const route = available.find((r) => r.id === routeId) ?? available[0];
 
   const k = view.k;
@@ -34,7 +34,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
         </span>
         <span className={styles.searchFields}>
           <span>Ofis · Levent</span>
-          <span>Ev · Moda, Kadıköy</span>
+          <span>Ev · Bağcılar</span>
         </span>
         <span className={styles.live}>
           <i /> CANLI
@@ -71,7 +71,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
           <g transform={`translate(${view.x} ${view.y}) scale(${k})`}>
             <StaticLayers />
 
-            {/* Roads: casing + base + traffic layer + flow */}
+            {/* Yollar: kenar + taban + trafik katmanı + akış */}
             {ROADS.map((r, i) => {
               const hw = r.kind === 'highway';
               return (
@@ -94,15 +94,15 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
               );
             })}
 
-            {/* Rail: M2 metro + Marmaray, ferry line */}
-            <path d={smooth([[186, 100], [184, 130], [181, 160], [178, 186], [180, 204]])} fill="none" stroke="#3aa655" strokeWidth={1} strokeDasharray="3 1.5" />
-            <path d="M184 216 Q210 222 230 242" fill="none" stroke={ferryCancelled ? '#c0392b' : '#3b7fbf'} strokeWidth={0.9} strokeDasharray="1.6 1.6" />
+            {/* Raylı sistem: M2 (yeşil, Levent → Yenikapı) ve M1B (kırmızı, Yenikapı → Bağcılar) */}
+            <path d={smooth([[186, 100], [184, 130], [178, 170], [170, 200], [156, 222]])} fill="none" stroke="#3aa655" strokeWidth={1} strokeDasharray="3 1.5" />
+            <path d={smooth([[156, 222], [120, 214], [84, 192], [58, 170], [46, 152]])} fill="none" stroke="#d6453d" strokeWidth={1} strokeDasharray="3 1.5" />
 
-            {/* Alternative routes (grey), then the selected route in blue */}
+            {/* Alternatif rotalar (gri), sonra seçili rota mavi */}
             {available
               .filter((r) => r.id !== route.id)
               .map((r) => (
-                // a mouse/touch shortcut for the mode buttons below, which are the keyboard way
+                // aşağıdaki mod düğmelerine fare/dokunma kısayolu; klavyeyle onlar kullanılır
                 <g key={r.id} className={styles.altRoute} onClick={() => setRouteId(r.id)} aria-hidden="true">
                   <path d={r.d} fill="none" stroke="#ffffff" strokeWidth={4.6} strokeLinecap="round" strokeLinejoin="round" />
                   <path d={r.d} fill="none" stroke="#a9bfdc" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={r.mode === 'car' ? undefined : '0.1 4'} />
@@ -122,7 +122,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
               key={route.id}
             />
 
-            {/* Labels */}
+            {/* Etiketler */}
             <text x="206" y="112" transform="rotate(-82 206 112)" className={styles.water} style={label(6)}>
               İstanbul Boğazı
             </text>
@@ -138,7 +138,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
               </text>
             ))}
 
-            {/* Incidents */}
+            {/* Olaylar */}
             {incidents.map((inc) => (
               <g
                 key={inc.label}
@@ -157,7 +157,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
               </g>
             ))}
 
-            {/* Time bubbles */}
+            {/* Süre baloncukları */}
             {available.map((r) => {
               const on = r.id === route.id;
               return (
@@ -170,7 +170,7 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
               );
             })}
 
-            {/* Home pin + you (office) */}
+            {/* Ev iğnesi + sen (ofis) */}
             <g transform={`translate(${HOME[0]} ${HOME[1]}) scale(${1 / k})`}>
               <path d="M0 0 C-2 -5 -7 -8 -7 -13 A7 7 0 1 1 7 -13 C7 -8 2 -5 0 0 Z" fill="#ea4335" stroke="#b3261e" strokeWidth="0.8" />
               <circle cy="-13" r="2.6" fill="#7a1a14" />
@@ -219,19 +219,19 @@ export function TrafficApp({ minutes, weatherPenalty }: { minutes: number; weath
         )}
       </div>
 
-      <RouteSheet route={route} best={best} eta={eta} rush={rush} minutes={minutes} ferryCancelled={ferryCancelled} onPick={setRouteId} />
+      <RouteSheet route={route} best={best} eta={eta} rush={rush} minutes={minutes} onPick={setRouteId} />
     </div>
   );
 }
 
 /**
- * Land, parks, water and streets: they never change, so they are drawn once and skipped when the
- * map re-renders on every drag or zoom step.
+ * Kara, parklar, su ve sokaklar: hiç değişmezler; bu yüzden bir kez çizilirler ve harita her
+ * sürükleme ya da yakınlaştırma adımında yeniden çizilirken atlanırlar.
  */
 const StaticLayers = memo(function StaticLayers() {
   return (
     <>
-      {/* Land with district-specific street grids */}
+      {/* İlçeye özgü sokak ızgaralarıyla kara */}
       <rect x="-40" y="-40" width={W + 80} height={H + 80} fill="#f1efe9" />
       <rect x="-40" y="40" width="190" height="220" fill="url(#trBlocksA)" />
       <rect x="130" y="40" width="80" height="200" fill="url(#trBlocksB)" />
@@ -241,7 +241,7 @@ const StaticLayers = memo(function StaticLayers() {
         <path key={i} d={d} fill="#c9e7c1" />
       ))}
 
-      {/* Water */}
+      {/* Su */}
       <path d={SEA} fill="#aad3df" />
       <path d={HALIC} fill="#aad3df" />
       <path d={SEA} fill="none" stroke="#9cc6d3" strokeWidth={0.8} />
@@ -249,14 +249,14 @@ const StaticLayers = memo(function StaticLayers() {
       <ellipse cx="300" cy="292" rx="7" ry="4" fill="#f1efe9" />
       <ellipse cx="318" cy="286" rx="4" ry="2.5" fill="#f1efe9" />
 
-      {/* Streets */}
+      {/* Sokaklar */}
       {STREETS.map((d, i) => (
         <g key={i}>
           <path d={d} fill="none" stroke="#d9d4c8" strokeWidth={2.4} strokeLinecap="round" />
           <path d={d} fill="none" stroke="#ffffff" strokeWidth={1.6} strokeLinecap="round" />
         </g>
       ))}
-      {/* Galata bridge */}
+      {/* Galata köprüsü */}
       <path d="M178 224 L186 214" stroke="#ffffff" strokeWidth={1.6} />
     </>
   );

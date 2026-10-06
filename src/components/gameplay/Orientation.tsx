@@ -3,13 +3,13 @@ import { audioEngine } from '../../audio/audioEngine';
 import styles from './Orientation.module.css';
 
 /*
- * Day 1, first time at the portal: the kind of orientation a new hire gets from a colleague.
- * The real portal stays on screen; one part at a time is lit, the rest dimmed, and a card says
- * what it is. The last step starts the working day.
+ * 1. gün, portalda ilk sefer: yeni işe başlayan birinin bir iş arkadaşından aldığı türden bir
+ * oryantasyon. Gerçek portal ekranda kalır; her seferinde bir parçası aydınlatılır, gerisi
+ * karartılır ve bir kart onun ne olduğunu söyler. Son adım iş gününü başlatır.
  */
 
 interface Step {
-  /** Selector inside the portal; no target = a centred card. */
+  /** Portalın içindeki seçici; hedef yoksa ortada bir kart. */
   target?: string;
   title: string;
   text: string;
@@ -35,7 +35,7 @@ const STEPS: Step[] = [
 ];
 
 interface Props {
-  /** The portal area the steps point into. */
+  /** Adımların işaret ettiği portal alanı. */
   container: RefObject<HTMLElement | null>;
   onDone: () => void;
 }
@@ -83,7 +83,7 @@ export function Orientation({ container, onDone }: Props) {
     setIndex(index + 1);
   }
 
-  // the card keeps one place; only while the CV itself is lit does it step aside to the right
+  // kart tek bir yerde durur; yalnızca CV'nin kendisi aydınlatılmışken sağa çekilir
   const aside = step.target === '[data-tour="cv"]';
 
   return (

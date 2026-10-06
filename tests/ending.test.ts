@@ -16,7 +16,7 @@ test('sonu Hakan Bey\'in teklifine verilen cevap belirler, puanlar değil', () =
   assert.match(at('stayAfterRefusal').title, /çekmece/);
   assert.equal(at('stay').left, undefined);
   assert.match(getEnding(60, 60, ctx({ offer: { outcome: 'stayReform', reform: 'blind', vicdan: 3 } })).body, /isimler, yaşlar/);
-  // the same scores, six different weeks: the answer decides
+  // aynı puanlar, altı farklı hafta: cevap karar verir
   const titles = new Set((['stay', 'stayReform', 'stayAfterRefusal', 'reformRefused', 'gaveToAyse', 'quit'] as OfferOutcome[]).map((o) => at(o).title));
   assert.equal(titles.size, 6);
 });

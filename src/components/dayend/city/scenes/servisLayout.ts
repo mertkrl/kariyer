@@ -1,12 +1,12 @@
-/** Where things sit in the servis scene: the window on the stage, and the outside world's buffer and scales. */
+/** Servis sahnesinde şeylerin durduğu yer: sahnedeki pencere ve dış dünyanın tamponu ile ölçekleri. */
 
-// The window, in stage coordinates
+// Pencere, sahne koordinatlarında
 export const WIN = { x: 130, y: 118, w: 1340, h: 520 };
 export const PILLAR = 812;
-// The outside world is rendered into a small buffer (wet-glass blur for free)
+// Dış dünya küçük bir tampona çizilir (ıslak cam bulanıklığı bedavaya gelir)
 export const BW = 420;
 export const BH = 164;
-export const KB = 5.2; // px per metre: buildings across the street
-export const KS = 9; // pavement
-export const KC = 19; // next lane
-export const STRIP_M = 700; // length of the pre-rendered street
+export const KB = 5.2; // metre başına px: sokağın karşısındaki binalar
+export const KS = 9; // kaldırım
+export const KC = 19; // yan şerit
+export const STRIP_M = 700; // önceden çizilen sokağın uzunluğu

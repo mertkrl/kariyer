@@ -10,23 +10,23 @@ interface Props {
   bumped: string | null;
 }
 
-/** The çaydanlık, the sugar bowl, the tea glass and its spoon. */
+/** Çaydanlık, şekerlik, çay bardağı ve kaşığı. */
 export function TeaSet({ id, tea, bumped }: Props) {
   const { pourTea, bindPour, bindPool, addSugar, sipTea, pouring, teaFrac, teaTint, teaHeight, teaSurfaceScale, teaEmpty, undissolved, drops, stirring, teaHot, stir } = tea;
   return (
     <>
-      {/* Çaydanlık (double teapot) — click to pour. The demlik lifts off for the brew,
-          then the whole kettle tilts for the water; poses are driven by teaPour.ts. */}
+      {/* Çaydanlık (iki katlı): dökmek için tıkla. Dem için demlik kalkar, sonra su için bütün
+          çaydanlık eğilir; duruşları teaPour.ts yönetir. */}
       <Hit label="Çaydanlık — çay koy" onActivate={pourTea} bumped={false}>
         <g transform="translate(1100 480)">
           <g ref={bindPour('kettle')}>
-            {/* Bottom kettle */}
+            {/* Alttaki çaydanlık */}
             <path d="M-54,0 C-60,-30 -50,-64 -36,-68 L36,-68 C50,-64 60,-30 54,0 Z" fill={`url(#${id('kettle')})`} stroke="#7d858b" />
             <rect x="-40" y="-74" width="80" height="8" rx="3" fill="#b5bcc1" stroke="#7d858b" />
             <path d="M54,-50 C80,-50 80,-14 52,-12" stroke="#5a4a3a" strokeWidth="6" fill="none" strokeLinecap="round" />
             <path d="M-54,-30 L-74,-50" stroke="#a8afb4" strokeWidth="8" strokeLinecap="round" />
             <path d="M-54,-30 L-74,-50" stroke="#e6e9eb" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
-            {/* Porcelain demlik */}
+            {/* Porselen demlik */}
             <g ref={bindPour('demlik')}>
               <path d="M-30,-74 C-38,-96 -26,-124 0,-124 C26,-124 38,-96 30,-74 Z" fill={`url(#${id('porcelain')})`} stroke="#cfc8b8" />
               <path d="M-30,-104 C-44,-106 -52,-116 -62,-126" stroke="#f3f1ea" strokeWidth="7" strokeLinecap="round" fill="none" />
@@ -34,7 +34,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
               <path d="M28,-112 C46,-112 46,-86 30,-84" stroke="#e8e4da" strokeWidth="5" fill="none" />
               <ellipse cx="0" cy="-124" rx="20" ry="5" fill="#f3f1ea" stroke="#cfc8b8" />
               <circle cx="0" cy="-131" r="5" fill="#b8402c" />
-              {/* Tulip motif */}
+              {/* Lale motifi */}
               <g transform="translate(0 -98)">
                 <path d="M0,6 C-8,0 -7,-10 -3,-12 L0,-7 L3,-12 C7,-10 8,0 0,6 Z" fill="#b8402c" />
                 <path d="M0,6 V14 M0,11 Q-6,8 -8,12 M0,11 Q6,8 8,12" stroke="#3f8a7a" strokeWidth="1.5" fill="none" />
@@ -44,7 +44,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
         </g>
       </Hit>
 
-      {/* Sugar bowl */}
+      {/* Şekerlik */}
       <Hit label="Şekerlik — kesme şeker at" onActivate={addSugar} bumped={bumped === 'sugar'}>
         <g transform="translate(1112 604)">
           <path d="M-32,-30 C-32,-6 -18,0 -14,0 L14,0 C18,0 32,-6 32,-30 Z" fill={`url(#${id('porcelain')})`} stroke="#cfc8b8" />
@@ -72,7 +72,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
         </g>
       </Hit>
 
-      {/* Tea glass on its saucer */}
+      {/* Tabağının üstünde çay bardağı */}
       <ellipse cx="990" cy="590" rx="62" ry="14" fill="#fbfaf6" stroke="#c9a227" strokeWidth="2" />
       <ellipse cx="990" cy="588" rx="30" ry="6" fill="#ebe7dc" />
       <Hit label="Çay bardağı — bir yudum al" onActivate={sipTea} bumped={bumped === 'tea'}>
@@ -89,7 +89,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
               style={{ transform: `scaleY(${teaFrac})`, opacity: teaTint.opacity }}
               ref={bindPour('fill')}
             />
-            {/* Depth: the column darkens toward the bottom */}
+            {/* Derinlik: sütun dibe doğru koyulaşır */}
             <rect x="-30" y={-teaHeight} width="60" height={teaHeight} fill="url(#teaDepth)" pointerEvents="none" />
             <ellipse
               cx="0"
@@ -104,7 +104,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
               }}
               ref={bindPour('surface')}
             />
-            {/* Pour FX pools (splash droplets, impact rings, foam) — animated by teaPour.ts */}
+            {/* Dökme efekti havuzları (sıçrama damlaları, çarpma halkaları, köpük); teaPour.ts canlandırır */}
             <g pointerEvents="none">
               {Array.from({ length: 6 }).map((_, i) => (
                 <ellipse
@@ -167,7 +167,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
               style={{ '--drop-y': `${132 - teaHeight}px` } as CSSProperties}
             />
           ))}
-          {/* The falling stream: in front of the liquid, behind the glass wall */}
+          {/* Düşen akış: sıvının önünde, bardak duvarının arkasında */}
           <g pointerEvents="none">
             <path ref={bindPour('stream')} d="" strokeLinejoin="round" />
             <path
@@ -192,7 +192,7 @@ export function TeaSet({ id, tea, bumped }: Props) {
       </Hit>
       {!teaEmpty && teaHot && !pouring && <Steam x={990} y={452} />}
 
-      {/* Teaspoon on the saucer */}
+      {/* Tabaktaki çay kaşığı */}
       {!stirring && (
         <Hit label="Çay kaşığı — karıştır" onActivate={stir} bumped={false}>
           <g>

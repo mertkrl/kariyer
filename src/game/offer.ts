@@ -1,33 +1,32 @@
 import type { ReformKind } from './desk';
 
 /*
- * Friday, 18:40. The hire is done and the floor is empty; Hakan Bey stops at your door with his
- * coat on his arm. The trial is over and the post is for one: you or Ayşe, from Monday.
+ * Cuma, 18:40. İşe alım bitti, kat boşaldı; Hakan Bey ceketi kolunda kapında durur. Deneme
+ * süresi bitti ve kadro tek kişilik: Pazartesi'den itibaren sen ya da Ayşe.
  *
- * This is where the week ends — by something Defne says, not by a score crossing a line. The
- * scores decide what's on the table (no offer at all for a week that sank; whether he can take
- * a condition) and how he says it; the choice is yours. Pure: the screen plays it, the ending
- * reads the result.
+ * Hafta burada biter: bir puanın bir çizgiyi geçmesiyle değil, Defne'nin söylediği bir şeyle.
+ * Puanlar masada ne olduğunu (batan bir haftada hiç teklif yok; bir şartı kabul edip
+ * edemeyeceği) ve onu nasıl söylediğini belirler; seçim senindir. Saf: ekran oynatır, son sonucu okur.
  */
 
 export type OfferChoice = 'accept' | 'condition' | 'ayse' | 'quit';
 
-/** Below this Performans the trial ends with you (no offer; also the "fired" ending). */
+/** Bu Performans'ın altında deneme süresi seninle biter (teklif yok; aynı zamanda "işten çıkarıldın" sonu). */
 export const FIRED_BELOW = 35;
 
 /**
- * stay — took the post as offered · stayReform — took it, and the condition stood ·
- * stayAfterRefusal — the condition was refused and you signed anyway · reformRefused — the
- * condition was refused and you walked · gaveToAyse — told him to give it to her · quit ·
- * notOffered — the week ended with no offer.
+ * stay: kadroyu teklif edildiği gibi aldın · stayReform: aldın ve şart tuttu ·
+ * stayAfterRefusal: şart reddedildi ve yine de imzaladın · reformRefused: şart reddedildi ve
+ * çekip gittin · gaveToAyse: kadroyu ona vermesini söyledin · quit: istifa ·
+ * notOffered: hafta teklifsiz bitti.
  */
 export type OfferOutcome = 'stay' | 'stayReform' | 'stayAfterRefusal' | 'reformRefused' | 'gaveToAyse' | 'quit' | 'notOffered';
 
 export interface OfferResult {
   outcome: OfferOutcome;
-  /** What the condition was, when you set one. */
+  /** Bir şart koyduysan şartın ne olduğu. */
   reform?: ReformKind;
-  /** How saying it weighed on (or lifted) the conscience. */
+  /** Bunu söylemenin vicdana ne kadar ağır geldiği (ya da onu ne kadar hafiflettiği). */
   vicdan: number;
 }
 
@@ -35,7 +34,7 @@ export interface OfferContext {
   performans: number;
   refusals: number;
   complies: number;
-  /** Thursday's pitch, if you made one. */
+  /** Perşembe'nin önerisi, yaptıysan. */
   reform: { kind: ReformKind; accepted: boolean } | null;
   hiredNephew: boolean;
 }
@@ -46,7 +45,7 @@ export interface OfferOption {
 }
 
 export interface OfferBeat {
-  /** Hakan Bey's lines (and the stage directions between them). */
+  /** Hakan Bey'in satırları (ve aralarındaki sahne yönergeleri). */
   lines: string[];
   options: OfferOption[];
 }
@@ -57,16 +56,16 @@ const REFORM_LABEL: Record<ReformKind, string> = {
   audit: 'sistemin puan tablosunu Ümit Bey\'le birlikte açıp bakalım',
 };
 
-/** Below this the trial simply isn't renewed (also the "fired" line). */
+/** Bunun altında deneme süresi yalnızca uzatılmaz ("işten çıkarıldın" satırı da bu). */
 export const offerWithheld = (c: OfferContext) => c.performans < FIRED_BELOW || (c.refusals >= 5 && c.performans < 55);
 
-/** What you would ask for: Thursday's pitch again, or — if you never made one — opening the table. */
+/** Ne isteyeceğin: yine Perşembe'nin önerisi ya da hiç öneri yapmadıysan tabloyu açmak. */
 export const conditionOf = (c: OfferContext): ReformKind => c.reform?.kind ?? 'audit';
 
 /**
- * Whether he can say yes to the condition. What he already agreed to on Thursday he keeps; a
- * refused pitch gets a second hearing only from someone whose numbers carry it; the table
- * itself he never opens ("O tabloyu açarsak altında ilk ben kalırım").
+ * Şarta evet diyip diyemeyeceği. Perşembe kabul ettiği şeyi tutar; reddedilmiş bir öneri ancak
+ * rakamları onu taşıyan birinden ikinci kez dinlenir; tablonun kendisini hiç açmaz
+ * ("O tabloyu açarsak altında ilk ben kalırım").
  */
 export function conditionHolds(c: OfferContext): boolean {
   const kind = conditionOf(c);
@@ -116,7 +115,7 @@ export function offerOpening(c: OfferContext): OfferBeat {
   };
 }
 
-/** His answer, and either the result or — when he turns the condition down — one more question. */
+/** Cevabı; ya sonuç ya da şartı reddettiğinde bir soru daha. */
 export function offerReply(c: OfferContext, choice: OfferOption['id']): { lines: string[]; result?: OfferResult; next?: OfferBeat } {
   const kind = conditionOf(c);
   switch (choice) {
@@ -170,5 +169,5 @@ export function offerReply(c: OfferContext, choice: OfferOption['id']): { lines:
   }
 }
 
-/** You're no longer at the company after this outcome. */
+/** Bu sonuçtan sonra artık şirkette değilsin. */
 export const leavesCompany = (o: OfferOutcome) => o === 'reformRefused' || o === 'gaveToAyse' || o === 'quit' || o === 'notOffered';

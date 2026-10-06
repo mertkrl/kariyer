@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import styles from './CommuteScene.module.css';
 
 /*
- * A small animated scene of Istanbul work life at the top of "Bugünün İşlemleri",
- * one per workday: the office in Levent, the metrobüs, the M2 metro, and — on the day the AI
- * crashes — the server room. viewBox 300×110; everything loops with CSS.
+ * "Bugünün İşlemleri"nin üstünde İstanbul iş hayatından küçük hareketli bir sahne, her iş günü
+ * için bir tane: Levent'teki ofis, metrobüs, M2 metrosu ve yapay zekânın çöktüğü gün sunucu odası.
+ * viewBox 300×110; her şey CSS ile döner.
  */
 
 interface SceneInfo {
@@ -16,7 +16,7 @@ function Office() {
   return (
     <>
       <rect width="300" height="110" fill="#e9e2d0" />
-      {/* Window wall with the Levent skyline */}
+      {/* Levent silüetli cam duvar */}
       <rect x="10" y="8" width="280" height="52" rx="3" fill="#bcd3e0" />
       <g fill="#9fb4c2">
         <rect x="30" y="22" width="16" height="38" />
@@ -32,14 +32,14 @@ function Office() {
           <line key={x} x1={x} y1="8" x2={x} y2="60" />
         ))}
       </g>
-      {/* Ceiling lamps */}
+      {/* Tavan lambaları */}
       {[70, 150, 230].map((x) => (
         <g key={x}>
           <line x1={x} y1="0" x2={x} y2="6" stroke="#6b6455" />
           <rect x={x - 14} y="5" width="28" height="3" rx="1.5" fill="#fff4cf" />
         </g>
       ))}
-      {/* Desks with monitors and people */}
+      {/* Monitörlü masalar ve insanlar */}
       {[40, 120, 200].map((x, i) => (
         <g key={x}>
           <rect x={x - 4} y="80" width="72" height="5" rx="1" fill="#b89b6e" />
@@ -48,14 +48,14 @@ function Office() {
           <rect x={x + 18} y="60" width="30" height="19" rx="2" fill="#2d3a44" />
           <rect x={x + 20} y="62" width="26" height="15" rx="1" className={styles.screen} style={{ animationDelay: `${i * 0.7}s` }} />
           <rect x={x + 31} y="79" width="4" height="2" fill="#2d3a44" />
-          {/* Colleague seen from behind */}
+          {/* Arkadan görülen iş arkadaşı */}
           <g className={styles.typist} style={{ animationDelay: `${i * 0.4}s` }}>
             <circle cx={x + 33} cy="86" r="6" fill={['#3f3a33', '#6b4a33', '#2a2622'][i]} />
             <path d={`M${x + 22} 110 Q${x + 22} 92 ${x + 33} 92 Q${x + 44} 92 ${x + 44} 110 Z`} fill={['#4c7fb0', '#b3766b', '#3f6b63'][i]} />
           </g>
         </g>
       ))}
-      {/* Plant + coffee */}
+      {/* Bitki + kahve */}
       <path d="M280 110 L276 92 H292 L288 110 Z" fill="#b8643e" />
       <ellipse cx="280" cy="84" rx="4" ry="11" fill="#4a7a3a" transform="rotate(-20 280 90)" />
       <ellipse cx="290" cy="82" rx="4" ry="12" fill="#5c8c46" transform="rotate(18 290 90)" />
@@ -69,7 +69,7 @@ function Metrobus() {
   return (
     <>
       <rect width="300" height="110" fill="#c9d8e2" />
-      {/* Skyline + Bosphorus bridge */}
+      {/* Silüet + Boğaz köprüsü */}
       <g fill="#a7bac6">
         <rect x="20" y="30" width="14" height="36" />
         <rect x="38" y="22" width="10" height="44" />
@@ -81,7 +81,7 @@ function Metrobus() {
         <line x1="150" y1="30" x2="150" y2="60" strokeWidth="3" />
         <line x1="80" y1="58" x2="220" y2="58" strokeWidth="2" />
       </g>
-      {/* Road: opposite lanes + dedicated metrobüs lane */}
+      {/* Yol: karşı şeritler + metrobüse ayrılmış şerit */}
       <rect y="66" width="300" height="44" fill="#5d6166" />
       <rect y="84" width="300" height="3" fill="#e0c35a" />
       <rect y="88" width="300" height="22" fill="#6a4a44" opacity="0.35" />
@@ -90,13 +90,13 @@ function Metrobus() {
           <rect key={i} x={i * 30} y="74" width="14" height="2" fill="#f4efe3" />
         ))}
       </g>
-      {/* Oncoming cars */}
+      {/* Karşıdan gelen arabalar */}
       <g className={styles.carsLeft}>
         <rect x="0" y="68" width="18" height="8" rx="3" fill="#e9e5dc" />
         <rect x="60" y="70" width="16" height="7" rx="3" fill="#c9a227" />
         <rect x="140" y="68" width="20" height="8" rx="3" fill="#8a3a2c" />
       </g>
-      {/* The metrobüs: articulated, red, with its bellow joint */}
+      {/* Metrobüs: körüklü, kırmızı, körük bağlantısıyla */}
       <g className={styles.bus}>
         <rect x="0" y="86" width="56" height="18" rx="3" fill="#c63a2f" />
         <rect x="58" y="86" width="50" height="18" rx="3" fill="#c63a2f" />
@@ -119,7 +119,7 @@ function Metro() {
   return (
     <>
       <rect width="300" height="110" fill="#e4e1d8" />
-      {/* Tiled wall */}
+      {/* Fayanslı duvar */}
       <g stroke="#d2cdc0" strokeWidth="0.6">
         {Array.from({ length: 16 }).map((_, i) => (
           <line key={`v${i}`} x1={i * 20} y1="0" x2={i * 20} y2="62" />
@@ -129,7 +129,7 @@ function Metro() {
         ))}
       </g>
       <rect x="0" y="22" width="300" height="5" fill="#3f8a4a" />
-      {/* Station sign */}
+      {/* İstasyon tabelası */}
       <rect x="102" y="6" width="96" height="14" rx="2" fill="#1f2a36" />
       <circle cx="112" cy="13" r="5" fill="#3f8a4a" />
       <text x="112" y="16" textAnchor="middle" className={styles.signM}>
@@ -138,10 +138,10 @@ function Metro() {
       <text x="152" y="17" textAnchor="middle" className={styles.signText}>
         ŞİŞHANE
       </text>
-      {/* Track + platform edge */}
+      {/* Ray + peron kenarı */}
       <rect y="62" width="300" height="48" fill="#3b3833" />
       <rect y="62" width="300" height="4" fill="#e0c35a" />
-      {/* Train sliding in, dwelling, sliding out */}
+      {/* Kayarak giren, bekleyen, kayarak çıkan tren */}
       <g className={styles.train}>
         <rect x="0" y="30" width="240" height="30" rx="5" fill="#c9ced2" />
         <rect x="0" y="50" width="240" height="4" fill="#3f8a4a" />
@@ -153,7 +153,7 @@ function Metro() {
         ))}
         <rect x="232" y="36" width="8" height="10" rx="2" fill="#ffe8a0" />
       </g>
-      {/* People waiting on the platform */}
+      {/* Peronda bekleyen insanlar */}
       {[30, 58, 190, 262].map((x, i) => (
         <g key={x} className={styles.waiter} style={{ animationDelay: `${i * 0.8}s` }}>
           <circle cx={x} cy="76" r="5" fill="#3f3a33" />
@@ -169,7 +169,7 @@ function ServerRoom() {
     <>
       <rect width="300" height="110" fill="#15191d" />
       <rect y="96" width="300" height="14" fill="#1f252a" />
-      {/* Racks */}
+      {/* Kabinler */}
       {[20, 90, 160, 230].map((x, r) => (
         <g key={x}>
           <rect x={x} y="14" width="54" height="84" rx="2" fill="#23292f" stroke="#343c43" />
@@ -188,10 +188,10 @@ function ServerRoom() {
           ))}
         </g>
       ))}
-      {/* Alarm beacon sweep */}
+      {/* Alarm işaretinin taraması */}
       <circle cx="150" cy="7" r="4" fill="#e0574a" className={styles.beacon} />
       <rect width="300" height="110" fill="#e0574a" className={styles.alarmWash} />
-      {/* Crash monitor */}
+      {/* Çökme monitörü */}
       <g className={styles.glitch}>
         <rect x="118" y="44" width="64" height="30" rx="2" fill="#0b0d10" stroke="#e0574a" />
         <text x="150" y="58" textAnchor="middle" className={styles.crashText}>

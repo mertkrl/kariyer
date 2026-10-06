@@ -19,12 +19,12 @@ import styles from './Phone.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
- * The desk phone. In the right column it sits locked (clock + notification cards); clicking it
- * picks it up into a full phone you can actually use: WhatsApp-style chats (contacts list →
- * conversation), and a few time-wasting apps. The workday clock keeps running meanwhile.
+ * Masa telefonu. Sağ sütunda kilitli durur (saat + bildirim kartları); tıklayınca gerçekten
+ * kullanabileceğin tam bir telefona dönüşür: WhatsApp tarzı sohbetler (kişi listesi → konuşma)
+ * ve vakit öldüren birkaç uygulama. Mesai saati bu arada işlemeye devam eder.
  */
 
-// The two big apps load when the phone is first picked up, not with the workday screen.
+// İki büyük uygulama mesai ekranıyla değil, telefon ilk kez alındığında yüklenir.
 const loadSocial = () => import('./apps/SocialApp');
 const loadTraffic = () => import('./apps/TrafficApp');
 const SocialApp = lazy(() => loadSocial().then((m) => ({ default: m.SocialApp })));
@@ -47,7 +47,7 @@ const CONTACTS: Record<ThreadId, Contact> = {
   birthday: { name: 'Emre\'ye Sürpriz 🎂', avatar: '🎂', color: '#e0a458' },
 };
 
-/** Chats that only appear once someone has written in them. */
+/** Yalnızca biri içine yazınca görünen sohbetler. */
 const LATE_THREADS: ThreadId[] = ['ayse', 'birthday'];
 const sumUnread = (u: Record<ThreadId, number>) => Object.values(u).reduce((a, b) => a + b, 0);
 
@@ -58,10 +58,10 @@ const APPS: { id: AppId | 'chats'; label: string }[] = [
   { id: 'traffic', label: 'Trafik' },
 ];
 
-/** The two apps kept in the dock at the bottom of the home screen. */
+/** Ana ekranın altındaki dokta tutulan iki uygulama. */
 const DOCK: (AppId | 'chats')[] = ['chats', 'social'];
 
-/** The colour each screen puts behind the status bar. */
+/** Her ekranın durum çubuğunun arkasına koyduğu renk. */
 const STATUS_THEME: Record<AppId, StatusTheme> = { terfi: 'dark', social: 'light', traffic: 'light' };
 
 interface PhoneProps {
@@ -74,28 +74,28 @@ interface PhoneProps {
   onAnswer: (requestId: string, answer: 'comply' | 'refuse') => void;
   onQuickReply: (messageId: number, replyIndex: number) => void;
   onRead: (thread: ThreadId) => void;
-  /** Workday minute (traffic app) and weather slowdown. */
+  /** Mesai dakikası (trafik uygulaması) ve hava kaynaklı yavaşlama. */
   minutes: number;
   weatherPenalty: number;
-  /** Candidates you rejected today — they show up on social media. */
+  /** Bugün reddettiğin adaylar: sosyal medyada görünürler. */
   rejectedAuthors: SocialAuthor[];
   echoes?: (SocialAuthor & { id: string; text: string })[];
-  /** Today's index — Kariyergram shows that day's posts. */
+  /** Bugünün sırası: Kariyergram o günün gönderilerini gösterir. */
   dayIndex: number;
-  /** Today's rejected candidates (they may DM you) and how you answered. */
+  /** Bugün reddedilen adaylar (sana özel mesaj atabilirler) ve nasıl cevap verdiğin. */
   dmCandidates: DmCandidate[];
   dmHandled: Record<string, DmKind>;
   onDm: (id: string, kind: DmKind) => void;
-  /** Group chats you muted, and the switch. */
+  /** Sessize aldığın grup sohbetleri ve anahtar. */
   muted?: ThreadId[];
   onToggleMute?: (thread: ThreadId) => void;
-  /** Someone is typing back in this chat. */
+  /** Bu sohbette biri cevap yazıyor. */
   typing?: ThreadId | null;
 }
 
 const DAY_NAMES = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
 
-/** A message, with a day label above it when the chat moves on to a new day. */
+/** Bir mesaj; sohbet yeni bir güne geçince üstünde gün etiketiyle. */
 function MessageRow({ m, newDay, children }: { m: PhoneMessage; newDay: boolean; children: ReactNode }) {
   return (
     <>
@@ -105,7 +105,7 @@ function MessageRow({ m, newDay, children }: { m: PhoneMessage; newDay: boolean;
   );
 }
 
-/** The mute switch: a bell, struck through when the group is muted. */
+/** Sessiz anahtarı: bir zil, grup sessizdeyken üstü çizili. */
 function BellIcon({ muted }: { muted: boolean }) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -116,7 +116,7 @@ function BellIcon({ muted }: { muted: boolean }) {
   );
 }
 
-/** What the status bar sits on: the wallpaper, a light app, a dark app, or the chats' green bar. */
+/** Durum çubuğunun üstünde durduğu şey: duvar kâğıdı, açık bir uygulama, koyu bir uygulama ya da sohbetlerin yeşil çubuğu. */
 type StatusTheme = 'wallpaper' | 'light' | 'dark' | 'chat';
 
 function StatusBar({ clock, theme }: { clock: string; theme: StatusTheme }) {
@@ -142,10 +142,10 @@ function StatusBar({ clock, theme }: { clock: string; theme: StatusTheme }) {
   );
 }
 
-/** A phone at work is never quite full. */
+/** İşteki bir telefon hiçbir zaman tam dolu değildir. */
 const BATTERY = '64';
 
-/** Locked phone in the right column: clock + the latest unread notifications. */
+/** Sağ sütunda kilitli telefon: saat + en son okunmamış bildirimler. */
 export function PhoneDock(props: PhoneProps & { onOpen: () => void }) {
   const { messages, unread, clock, dayName, onOpen } = props;
   const shakeRef = useRef<HTMLButtonElement>(null);
@@ -206,8 +206,8 @@ export function PhoneDock(props: PhoneProps & { onOpen: () => void }) {
   );
 }
 
-/** The picked-up phone. */
-/** `thread` opens the phone straight into that conversation (tapping a notification). */
+/** Eline alınmış telefon. */
+/** `thread`, telefonu doğrudan o konuşmada açar (bir bildirime dokunmak). */
 export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?: ThreadId | null }) {
   const { messages, requests, unread, stance, clock, onAnswer, onQuickReply, onRead, onClose, minutes, weatherPenalty, rejectedAuthors, echoes, dayIndex, dmCandidates, dmHandled, onDm, muted = [], onToggleMute, typing } = props;
   const dms = dmCandidates.filter((d) => minutes - d.at >= d.delay);
@@ -225,15 +225,15 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   const thread = screen.kind === 'chat' ? screen.thread : null;
   const threadMessages = thread ? messages.filter((m) => m.thread === thread) : [];
 
-  // Reading a chat clears its badge; keep it cleared while new messages arrive.
+  // Bir sohbeti okumak rozetini temizler; yeni mesajlar gelirken de temiz tut.
   useEffect(() => {
     if (thread && unread[thread] > 0) onRead(thread);
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
   }, [thread, unread, onRead, threadMessages.length]);
 
   const pending = thread === 'manager' ? requests.find((r) => r.answer === null) : undefined;
-  // Mom / office: the latest unanswered message with quick replies (answering is optional).
-  // Any chat: the latest unanswered message with quick replies (with the manager, only when no request is pending).
+  // Anne / ofis: hızlı cevaplı en son cevapsız mesaj (cevap vermek isteğe bağlı).
+  // Herhangi bir sohbet: hızlı cevaplı en son cevapsız mesaj (müdürle, yalnızca bekleyen bir rica yokken).
   const quick = thread && !pending ? [...threadMessages].reverse().find((m) => m.replies && !m.answered && !m.expired) : undefined;
   const totalUnread = sumUnread(unread);
 
@@ -387,7 +387,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
       </>
     );
   } else {
-    // the app owns the whole screen; the home indicator at the bottom takes you back
+    // uygulama bütün ekranın sahibi; alttaki ana ekran çizgisi seni geri götürür
     body = (
       <>
         <div className={styles.appBody}>
@@ -404,7 +404,7 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   return (
     <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Telefon">
       <div className={styles.device} ref={device} onClick={(e) => e.stopPropagation()}>
-        {/* One display clips everything (status bar, app, home indicator) to the rounded glass. */}
+        {/* Tek bir ekran her şeyi (durum çubuğu, uygulama, ana ekran çizgisi) yuvarlatılmış cama kırpar. */}
         <div className={`${styles.display} ${screen.kind === 'home' ? styles.displayHome : ''}`}>
           <div className={styles.notch} />
           <StatusBar clock={clock} theme={screen.kind === 'home' ? 'wallpaper' : screen.kind === 'app' ? STATUS_THEME[screen.app] : 'chat'} />

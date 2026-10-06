@@ -1,6 +1,6 @@
 /*
- * The rest of the office: the water cooler (standing on the carpet by the desk), the air conditioner, a desk lamp, a big plant in the
- * corner, the fire extinguisher on the wall and the shared printer on a filing cabinet.
+ * Ofisin geri kalanı: sebil (masanın yanında halının üstünde), klima, bir masa lambası, köşede büyük
+ * bir bitki, duvarda yangın söndürücü ve bir dosya dolabının üstünde ortak yazıcı.
  */
 
 const blur = 'url(#deskBlur)';
@@ -9,7 +9,7 @@ export function WaterCoolerArt() {
   return (
     <svg viewBox="0 0 140 316" width="100%" height="100%" aria-hidden="true">
       <ellipse cx={72} cy={306} rx={66} ry={9} fill="rgba(20,22,28,0.45)" filter={blur} />
-      {/* the 19-litre bottle, upside down */}
+      {/* ters çevrilmiş 19 litrelik damacana */}
       <defs>
         <linearGradient id="bottle" x1="0" x2="1">
           <stop offset="0" stopColor="rgba(90,150,210,0.55)" />
@@ -27,7 +27,7 @@ export function WaterCoolerArt() {
       <path d="M30 44 H110 M30 70 H110" stroke="rgba(255,255,255,0.35)" strokeWidth={3} />
       <path d="M40 16 Q42 60 40 100" stroke="rgba(255,255,255,0.6)" strokeWidth={5} strokeLinecap="round" fill="none" />
       <ellipse cx={70} cy={56} rx={34} ry={4} fill="rgba(255,255,255,0.25)" className="deskBubble" />
-      {/* the dispenser */}
+      {/* sebil */}
       <rect x={16} y={132} width={108} height={170} rx={8} fill="url(#coolerBody)" />
       <rect x={16} y={292} width={108} height={12} rx={3} fill="#8e929a" />
       <rect x={20} y={302} width={10} height={6} fill="#3b3e44" />
@@ -69,7 +69,7 @@ export function DeskLampArt({ on }: { on: boolean }) {
       <path d="M66 272 L50 150 L150 70" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={50} cy={150} r={9} fill="#44484e" />
       <circle cx={150} cy={70} r={8} fill="#44484e" />
-      {/* shade */}
+      {/* abajur */}
       <path d="M140 60 L190 42 L214 110 L150 128 Z" fill="#2c2f35" />
       <path d="M150 128 L214 110" stroke={on ? '#fff3cf' : '#4a4d53'} strokeWidth={6} strokeLinecap="round" />
       <path d="M140 60 L190 42" stroke="rgba(255,255,255,0.2)" strokeWidth={2} />
@@ -91,11 +91,11 @@ export function PlantArt() {
   return (
     <svg viewBox="0 0 240 380" width="100%" height="100%" aria-hidden="true">
       <ellipse cx={122} cy={370} rx={80} ry={10} fill="rgba(20,22,28,0.45)" filter={blur} />
-      {/* stems */}
+      {/* saplar */}
       {leaves.map(([x, y], i) => (
         <path key={`s${i}`} d={`M120 290 Q${(120 + x) / 2} ${(290 + y) / 2 + 30} ${x} ${y}`} stroke="#3c5a2c" strokeWidth={4} fill="none" />
       ))}
-      {/* split monstera leaves */}
+      {/* yırtmaçlı deve tabanı yaprakları */}
       {leaves.map(([x, y, rot, s], i) => (
         <g key={i} transform={`translate(${x} ${y}) rotate(${rot}) scale(${s})`}>
           <path d="M0 0 C-40 -10 -52 -58 -18 -78 C0 -86 22 -82 34 -64 C54 -34 36 6 0 0 Z" fill={i % 2 ? '#2f6b3a' : '#3b7d45'} />
@@ -103,7 +103,7 @@ export function PlantArt() {
           <path d="M-8 -30 l-26 -6 M-6 -50 l-24 -12 M10 -30 l26 -4 M10 -50 l22 -12" stroke="#e9e4d6" strokeWidth={4} strokeLinecap="round" opacity={0.85} />
         </g>
       ))}
-      {/* tall matte pot */}
+      {/* uzun mat saksı */}
       <path d="M72 280 L172 280 L162 366 L82 366 Z" fill="#4a4d52" />
       <path d="M72 280 L172 280 L162 366 L82 366 Z" fill="url(#alu)" opacity={0.25} />
       <rect x={68} y={274} width={108} height={12} rx={3} fill="#5a5d63" />
@@ -135,13 +135,13 @@ export function PrinterCabinetArt() {
   return (
     <svg viewBox="0 0 280 230" width="100%" height="100%" aria-hidden="true">
       <ellipse cx={140} cy={222} rx={130} ry={8} fill="rgba(20,22,28,0.45)" filter={blur} />
-      {/* filing cabinet */}
+      {/* dosya dolabı */}
       <rect x={20} y={90} width={240} height={130} rx={3} fill="#8b8f96" />
       <rect x={28} y={98} width={224} height={54} rx={2} fill="#9a9ea5" />
       <rect x={28} y={158} width={224} height={54} rx={2} fill="#9a9ea5" />
       <rect x={120} y={118} width={40} height={7} rx={3} fill="#4a4d53" />
       <rect x={120} y={178} width={40} height={7} rx={3} fill="#4a4d53" />
-      {/* printer on top */}
+      {/* üstünde yazıcı */}
       <rect x={50} y={30} width={180} height={62} rx={8} fill="#e8e8e6" />
       <rect x={50} y={30} width={180} height={12} rx={6} fill="#f7f7f5" />
       <rect x={70} y={72} width={140} height={14} rx={3} fill="#c9cac7" />

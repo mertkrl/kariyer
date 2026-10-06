@@ -12,9 +12,9 @@ function readDismissed() {
 }
 
 /**
- * The desk, the computer and the meeting are laid out for a landscape screen. On a phone held
- * upright this covers them and asks to turn it; CSS decides when (portrait and narrow), so the
- * hint goes away by itself as soon as the phone is turned. It can be waved off for the session.
+ * Masa, bilgisayar ve toplantı yatay ekran için yerleştirilmiştir. Dik tutulan bir telefonda bu
+ * onların üstünü kaplar ve çevrilmesini ister; ne zaman olacağına CSS karar verir (dikey ve dar),
+ * böylece ipucu telefon çevrilir çevrilmez kendiliğinden kaybolur. Oturum boyunca geçilebilir.
  */
 export function RotateHint() {
   const [dismissed, setDismissed] = useState(readDismissed);

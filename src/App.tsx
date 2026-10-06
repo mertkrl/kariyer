@@ -7,7 +7,7 @@ import { RotateHint } from './components/ui/RotateHint';
 import { useScreenFocus } from './components/ui/useScreenFocus';
 import { useModalTrap } from './components/ui/useModalTrap';
 
-// Only the welcome screen ships in the first bundle; every other screen is its own chunk.
+// İlk pakete yalnızca karşılama ekranı girer; diğer her ekran kendi parçasıdır.
 const SCREENS = {
   JobSelectScreen: () => import('./screens/JobSelectScreen'),
   ApplicationFloodScreen: () => import('./screens/ApplicationFloodScreen'),
@@ -28,7 +28,7 @@ const FinalRoundScreen = lazy(() => SCREENS.FinalRoundScreen().then((m) => ({ de
 const FinalScreen = lazy(() => SCREENS.FinalScreen().then((m) => ({ default: m.FinalScreen })));
 const WeekendScreen = lazy(() => SCREENS.WeekendScreen().then((m) => ({ default: m.WeekendScreen })));
 const OfferScreen = lazy(() => SCREENS.OfferScreen().then((m) => ({ default: m.OfferScreen })));
-// reads the game's mute setting, so it comes with the game rather than with the first screen
+// oyunun ses kapatma ayarını okur; bu yüzden ilk ekranla değil oyunla birlikte gelir
 const SoundToggle = lazy(() => import('./components/ui/SoundToggle').then((m) => ({ default: m.SoundToggle })));
 
 function App() {
@@ -36,14 +36,14 @@ function App() {
   const { mainRef, announcement } = useScreenFocus(phase);
   useModalTrap();
 
-  // Music enters when the workday starts (GameplayScreen then drives work/break/paused).
-  // Intro screens stay silent so the application-flood sound design reads clearly.
+  // Müzik mesai başlayınca girer (sonra iş/mola/duraklatma hâllerini GameplayScreen yönetir).
+  // Giriş ekranları sessiz kalır; başvuru yağmurunun ses tasarımı net duyulsun diye.
   useEffect(() => {
     if (phase === 'gameplay' || phase === 'finalRound') return;
     audioEngine.setMusicMood(phase === 'dayEnd' || phase === 'final' ? 'work' : phase === 'weekend' ? 'break' : 'off');
   }, [phase]);
 
-  // Once the welcome screen is up, fetch the rest in the background so no phase change waits on the network.
+  // Karşılama ekranı açılınca geri kalanı arka planda indir; hiçbir ekran geçişi ağı beklemesin.
   useEffect(() => {
     const id = window.setTimeout(() => Object.values(SCREENS).forEach((load) => void load()), 1500);
     return () => window.clearTimeout(id);
@@ -78,7 +78,7 @@ function App() {
 
   return (
     <>
-      {/* the landmark adds no box (display: contents), so every screen lays out as before */}
+      {/* bu bölge kutu oluşturmaz (display: contents), ekranların yerleşimi aynen kalır */}
       <main ref={mainRef} className="app-main">
         <Suspense fallback={null}>{renderScreen()}</Suspense>
       </main>

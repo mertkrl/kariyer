@@ -1,6 +1,6 @@
 /*
- * A whole week played by a bot, tick by tick, the way the screens drive the store: open each
- * file, read for a while, decide, answer what blocks the clock. Same seed, same week.
+ * Bir bot tarafından tik tik oynanan bütün bir hafta, ekranların store'u yönettiği gibi: her dosyayı
+ * aç, bir süre oku, karar ver, saati tutan her şeyi cevapla. Aynı tohum, aynı hafta.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +11,7 @@ import { rngFor } from '../src/game/rng';
 
 const store = useGameStore;
 
-/** The three bots these tests use: read briefly, then approve, reject, or a bit of both. */
+/** Bu testlerin kullandığı üç bot: kısa oku, sonra onayla, reddet ya da ikisinden biraz. */
 function bot(seed: number, kind: 'approve' | 'reject' | 'mixed'): BotStyle {
   const rand = rngFor(seed, 'bot');
   return {

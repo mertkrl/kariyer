@@ -1,7 +1,7 @@
 /*
- * The week's days by name. Story beats belong to a weekday ("Wednesday it rains", "Thursday the
- * team stays late"); the code compares against these rather than bare day indices, so moving a
- * beat is one edit here and a search for the name shows everything that happens that day.
+ * Haftanın günleri, adlarıyla. Hikâye anları bir haftanın gününe aittir ("Çarşamba yağmur yağar",
+ * "Perşembe ekip geç kalır"); kod çıplak gün sıraları yerine bunlarla karşılaştırır, böylece bir
+ * anı taşımak burada tek bir düzenlemedir ve adı aramak o gün olan her şeyi gösterir.
  */
 export const MONDAY = 0;
 export const TUESDAY = 1;
@@ -9,11 +9,11 @@ export const WEDNESDAY = 2;
 export const THURSDAY = 3;
 export const FRIDAY = 4;
 
-/** Emre's birthday cake in the office; its plate is still on your desk the days after. */
+/** Ofiste Emre'nin doğum günü pastası; tabağı sonraki günlerde hâlâ masanda durur. */
 export const BIRTHDAY_DAY = TUESDAY;
-/** Rain: the wet umbrella by the cooler, rain on the office window. */
+/** Yağmur: sebilin yanında ıslak şemsiye, ofis penceresinde yağmur. */
 export const RAINY_DAY = WEDNESDAY;
-/** Your neighbour's son's CV, if you said you'd pass it on, arrives in the queue. */
+/** Komşunun oğlunun CV'si, ileteceğini söylediysen, kuyruğa düşer. */
 export const NEIGHBOUR_DAY = THURSDAY;
-/** Someone you called to interview earlier rings to say thanks. */
+/** Daha önce mülakata çağırdığın biri teşekkür etmek için arar. */
 export const THANKS_DAY = THURSDAY;

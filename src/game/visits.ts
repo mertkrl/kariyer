@@ -2,11 +2,10 @@ import type { DeskCall } from './desk';
 import { candidateOf } from './data/candidates';
 
 /*
- * The people you turned away come back. The morning after you reject Kerem, Derya or Seda,
- * the switchboard rings: they're on an outside line asking for you. You can have them put
- * through (and then decide what to tell them), leave word that you're busy, or tell the
- * switchboard never to put them through. Answering a DM honestly the night before settles it —
- * they don't call.
+ * Geri çevirdiğin insanlar geri gelir. Kerem'i, Derya'yı ya da Seda'yı reddettiğin günün ertesi
+ * sabahı santral çalar: dış hatta seni soruyorlar. Onları bağlatabilir (ve sonra ne söyleyeceğine
+ * karar verebilir), meşgul olduğunu iletebilir ya da santrale onları asla bağlamamasını
+ * söyleyebilirsin. Bir önceki gece özel mesaja dürüst cevap vermek işi çözer: aramazlar.
  */
 
 export const VISIT_PREFIX = 'visit:';
@@ -14,16 +13,16 @@ export const LOBBY_PREFIX = 'lobby:';
 
 interface Visitor {
   id: string;
-  /** Day index they come in (the day after the rejection). */
+  /** Geldikleri günün sırası (redden sonraki gün). */
   day: number;
-  /** Workday minute reception rings. */
+  /** Resepsiyonun aradığı mesai dakikası. */
   at: number;
   reception: string[];
-  /** What they say once put through.  */
+  /** Bağlandıktan sonra söyledikleri. */
   lobby: string[];
   honest: { text: string; reply: string };
   template: { text: string; reply: string };
-  /** You sent word that you were busy. */
+  /** Meşgul olduğunu ilettin. */
   busy: string;
   missed: string;
 }
@@ -93,9 +92,9 @@ const VISITORS: Visitor[] = [
 
 const RECEPTION = { caller: 'Gülay Hanım', line: 'Santral · dahili 100' };
 
-/** Visitors due today: rejected the day before, and not already answered honestly. */
+/** Bugün gelecek ziyaretçiler: bir gün önce reddedilen ve henüz dürüstçe cevaplanmamış olanlar. */
 export function visitorsToday(dayIndex: number, keyDecisions: Record<string, string>, dmHandled: Record<string, string>) {
-  // one visitor a day at most: the lobby isn't a queue
+  // günde en fazla bir ziyaretçi: lobi bir sıra değil
   return VISITORS.filter((v) => v.day === dayIndex && keyDecisions[v.id] === 'reject' && dmHandled[v.id] !== 'honest').map((v) => ({
     id: VISIT_PREFIX + v.id,
     at: v.at,

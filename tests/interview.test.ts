@@ -14,12 +14,12 @@ test('cevapların çoğunda üzerine sorulacak bir ifade bulunur, ifadeler cevab
     for (const a of candidateDetails[id].interview) {
       answers++;
       const hooks = hooksIn(a);
-      // with the question's own kind as fallback, every answer has something to ask about
+      // yedek olarak sorunun kendi türüyle, her cevapta sorulacak bir şey olur
       assert.ok(hooksIn(a, 0).length >= 1, `${id}: ${a}`);
       if (hooks.length) withHook++;
       assert.ok(hooks.length <= 2);
       for (const h of hooks) assert.ok(h.start >= 0 && h.end <= a.length && h.end > h.start, `${id}: ${a}`);
-      // no two hooks overlap
+      // hiçbir iki kanca üst üste binmez
       for (let i = 1; i < hooks.length; i++) assert.ok(hooks[i].start >= hooks[i - 1].end);
     }
   assert.ok(withHook / answers > 0.8, `yalnızca ${withHook}/${answers} cevapta ifade var`);
@@ -29,9 +29,9 @@ test('cümlelere bölme cevabı kaybetmez; notların etiketi anlamına uyar', ()
   for (const id of ids)
     for (const a of candidateDetails[id].interview) assert.equal(sentencesOf(a).map((s) => s.text).join(''), a);
   assert.equal(tagNote('6 haftalık döngüyü 2 haftaya indirdik.'), 'concrete');
-  // a decimal point is not the end of a sentence
+  // ondalık nokta bir cümlenin sonu değildir
   assert.deepEqual(sentencesOf('Toplam "12.50" oldu. Sonra 1,2 saniyeye indi.').map((x) => x.text.trim()), ['Toplam "12.50" oldu.', 'Sonra 1,2 saniyeye indi.']);
-  // "the error count halved" is an achievement, not a mistake to dig into
+  // "hata sayısı yarıya indi" bir başarıdır, kurcalanacak bir hata değil
   assert.ok(!hooksIn('Üretimdeki hata sayısı yarıya düştü.').some((h) => h.kind === 1));
   assert.equal(tagNote('Payım mı? Hepsi.'), 'redflag');
   assert.equal(tagNote('Ama inanın çok etkiliydi.'), 'vague');
@@ -89,7 +89,7 @@ test('puan kartı: Hakan Bey\'in hedeflerine belirgin düşük puan fark edilir'
 
 test('kanıt gücü göstergesi savunmanın saydığıyla aynı: en iyi üç not', () => {
   assert.equal(evidenceStrength(['concrete', 'general']), 3);
-  // only the best three count, a fourth general note adds nothing
+  // yalnızca en iyi üçü sayılır, dördüncü genel bir not hiçbir şey eklemez
   assert.equal(evidenceStrength(['concrete', 'concrete', 'general', 'general']), 5);
   assert.equal(evidenceStrength(['vague', 'redflag']), -1);
   const ok = ids.find((id) => candidateDetails[id].hireFit >= 4)!;

@@ -14,10 +14,10 @@ import {
 import styles from './Dashboard.module.css';
 
 /*
- * Selin's shared screen: a BI report the way these tools look — a dark title bar, visuals on
- * white cards, page tabs along the bottom. It follows the conversation: whoever is being talked
- * about gets cross-filtered (everything else fades), the numbers count up to the new values,
- * and Selin's pointer drifts to what she is showing.
+ * Selin'in paylaştığı ekran: bu araçların göründüğü gibi bir BI raporu; koyu başlık çubuğu, beyaz
+ * kartlarda görseller, altta sayfa sekmeleri. Konuşmayı izler: kimden söz ediliyorsa ona göre
+ * süzülür (diğer her şey solar), sayılar yeni değerlerine doğru sayar ve Selin'in imleci
+ * gösterdiği şeye kayar.
  */
 
 const PAGES: { id: Exclude<BoardPage, 'off'>; label: string }[] = [
@@ -34,11 +34,11 @@ const METRICS: { id: BoardMetric; label: string; unit: string; fmt: (t: TeamStat
   { id: 'ai', label: 'YZ kullanımı', unit: '%', fmt: (t) => Math.round(t.ai * 100) },
 ];
 
-/** The report's colour theme (a BI tool's default categorical palette). */
+/** Raporun renk teması (bir BI aracının varsayılan kategorik paleti). */
 const PERSON_COLOR: Record<string, string> = { emre: '#118dff', ayse: '#12239e', you: '#e66c37' };
 const nf = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 });
 
-/** A number that counts from its previous value to the new one. */
+/** Önceki değerinden yenisine doğru sayan bir sayı. */
 function Count({ value, prefix = '', suffix = '', decimals = 0 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
@@ -96,7 +96,7 @@ function Overview({ team, focus }: { team: Record<string, TeamStats>; focus: str
   const human = (reviewed / TOTAL_APPLICATIONS) * 100;
   const max = Math.max(...DAILY_APPLICATIONS.map(([, v]) => v));
   const hot = focus.includes('human');
-  // donut: who made the call on this week's applications
+  // halka grafik: bu haftanın başvurularında kararı kim verdi
   const r = 38;
   const c = 2 * Math.PI * r;
   const humanArc = (reviewed / TOTAL_APPLICATIONS) * c;
@@ -153,7 +153,7 @@ function People({ team, focus, metric }: { team: Record<string, TeamStats>; focu
   const max = Math.max(1, ...rows.map((r) => m.fmt(r.t)));
   const filtered = focus.filter((f) => f in team);
   const dim = (id: string) => filtered.length > 0 && !filtered.includes(id);
-  // with one person selected, the cards show that person (a cross-filter); otherwise the team
+  // bir kişi seçiliyken kartlar o kişiyi gösterir (çapraz süzme); değilse ekibi
   const one = filtered.length === 1 ? team[filtered[0]] : null;
   const sum = (f: (t: TeamStats) => number) => rows.reduce((n, r) => n + f(r.t), 0);
   const files = one ? one.files : sum((t) => t.files);
@@ -202,7 +202,7 @@ function People({ team, focus, metric }: { team: Record<string, TeamStats>; focu
 
 function Shortlist({ focus, you }: { focus: string[]; you: TeamStats }) {
   const dim = (id: string) => focus.length > 0 && !focus.includes(id);
-  // the table has room for a few of your own; the rest are counted
+  // tabloda senin kendi birkaç satırına yer var; geri kalanı sayılır
   const picks = (you.picks ?? []).slice(0, 3);
   const more = (you.picks?.length ?? 0) - picks.length;
   const all = [...SHORTLIST.map((c) => c.ats), ...(you.picks ?? []).map((c) => c.ats)];
@@ -336,7 +336,7 @@ export function Dashboard({ board, you }: { board: Board; you: TeamStats }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
 
-  // Selin's pointer goes to whatever is being talked about
+  // Selin'in imleci konuşulan şeye gider
   useLayoutEffect(() => {
     const root = canvasRef.current;
     if (!root) return;

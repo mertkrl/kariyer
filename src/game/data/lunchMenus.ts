@@ -30,7 +30,7 @@ export interface LunchMenu {
   dessert: LunchDish;
 }
 
-/** One tabldot menu per workday, indexed by currentDayIndex. */
+/** Her iş günü için bir tabldot menüsü, currentDayIndex ile sıralanır. */
 export const lunchMenus: LunchMenu[] = [
   {
     soup: { name: 'Mercimek Çorbası', kind: 'mercimek' },

@@ -1,8 +1,8 @@
 import type { Difficulty } from '../types';
 
 /*
- * Achievements: computed once the week is over, and remembered across playthroughs so the
- * final screen can show which ones you've collected over all your weeks.
+ * Başarımlar: hafta bitince bir kez hesaplanır ve oyunlar arasında hatırlanır; böylece final
+ * ekranı bütün haftaların boyunca hangilerini topladığını gösterebilir.
  */
 
 export interface AchievementInput {
@@ -13,7 +13,7 @@ export interface AchievementInput {
   complies: number;
   undecided: number;
   reviewed: number;
-  /** Average seconds of reading per decided candidate. */
+  /** Karar verilen aday başına ortalama okuma saniyesi. */
   avgSeconds: number;
   hireFit: number;
   momMessages: number;
@@ -22,7 +22,7 @@ export interface AchievementInput {
   weekendChoice: string | null;
   finalists: number;
   events: number;
-  /** Rejected candidates you answered honestly on Kariyergram. */
+  /** Kariyergram'da dürüstçe cevap verdiğin reddedilmiş adaylar. */
   dmHonest: number;
 }
 
@@ -53,7 +53,7 @@ export const ACHIEVEMENTS: Achievement[] = [
 
 const STORAGE_KEY = 'kariyerweb-achievements';
 
-/** What the browser kept, keeping only ids this build knows: a damaged or edited entry is ignored. */
+/** Tarayıcının tuttuğu, yalnızca bu derlemenin bildiği kimliklerle: bozuk ya da elle değiştirilmiş kayıt yok sayılır. */
 export function loadUnlocked(): Set<string> {
   try {
     const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
@@ -65,7 +65,7 @@ export function loadUnlocked(): Set<string> {
   }
 }
 
-/** Unlocks this week's achievements; returns the ids that are new this time. */
+/** Bu haftanın başarımlarını açar; bu sefer yeni olan kimlikleri döndürür. */
 export function unlockAchievements(input: AchievementInput): { earned: string[]; fresh: string[]; all: Set<string> } {
   const earned = ACHIEVEMENTS.filter((a) => a.test(input)).map((a) => a.id);
   const all = loadUnlocked();

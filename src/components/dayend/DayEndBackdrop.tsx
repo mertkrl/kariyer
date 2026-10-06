@@ -9,9 +9,9 @@ import { servisScene } from './city/scenes/servis';
 import styles from './DayEndBackdrop.module.css';
 
 /*
- * Day-end backdrop: a live, canvas-rendered Istanbul rush hour — one tableau per day.
- * Static layers (sky, skyline, road) are pre-rendered once per resize; traffic, crowds,
- * weather, water and lights are simulated and drawn every frame, with a slow camera drift.
+ * Gün sonu arka planı: canvas'ta çizilen canlı bir İstanbul akşam trafiği, her gün için bir sahne.
+ * Sabit katmanlar (gökyüzü, silüet, yol) her yeniden boyutlandırmada bir kez çizilir; trafik,
+ * kalabalık, hava, su ve ışıklar her karede canlandırılıp çizilir, yavaş bir kamera kaymasıyla.
  */
 
 const SCENES: (() => CityScene)[] = [bridgeScene, e5Scene, servisScene, karakoyScene];
@@ -21,15 +21,14 @@ const CAPTIONS = [
   'Servisin içinden · Büyükdere Caddesi — 40 dakikadır aynı plazanın önündeyiz.',
   'Karaköy İskelesi · Kar yağıyor — son vapura yetişmeye çalışanlar.',
 ];
-/** Headroom for the slow push-in, so layers are rendered sharp enough for the final zoom. */
+/** Yavaş yaklaşma için pay, böylece katmanlar son yakınlaşmaya yetecek netlikte çizilir. */
 const MAX_ZOOM = 1.06;
 
-export function DayEndBackdrop({ dayIndex, note }: { dayIndex: number; note?: string }) {
+export function DayEndBackdrop({ dayIndex }: { dayIndex: number }) {
   const index = (dayIndex % SCENES.length) as 0 | 1 | 2 | 3;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const captionRef = useRef<HTMLDivElement>(null);
 
-  // The rush-hour soundscape plays for as long as the report is on screen.
+  // Akşam trafiğinin ses manzarası rapor ekrandayken çalar.
   useEffect(() => audioEngine.startRushHourAmbience(index), [index]);
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export function DayEndBackdrop({ dayIndex, note }: { dayIndex: number; note?: st
       scene.update(dt, t);
       const cw = canvas.width;
       const ch = canvas.height;
-      // slow cinematic push-in and a hand-held drift
+      // yavaş, sinematik bir yaklaşma ve elde tutulmuş gibi bir kayma
       const zoom = 1 + (MAX_ZOOM - 1) * (1 - Math.exp(-t / 35));
       const s = base * zoom;
       g.setTransform(1, 0, 0, 1, 0, 0);
@@ -74,7 +73,7 @@ export function DayEndBackdrop({ dayIndex, note }: { dayIndex: number; note?: st
     };
 
     resize();
-    // warm the simulation up so the first frame already looks lived-in
+    // ilk kare yaşanmış görünsün diye simülasyonu ısıt
     for (let i = 0; i < 40; i++) scene.update(0.05, i * 0.05);
     raf = requestAnimationFrame(frame);
     let resizeTimer = 0;
@@ -90,19 +89,12 @@ export function DayEndBackdrop({ dayIndex, note }: { dayIndex: number; note?: st
     };
   }, [index]);
 
-  // the caption: the place — or, if you turned someone away today, who you saw there
-  useEffect(() => {
-    if (!captionRef.current) return;
-    captionRef.current.textContent = note ? `👁 ${note}` : CAPTIONS[index];
-    captionRef.current.classList.toggle(styles.sighting, Boolean(note));
-  }, [note, index]);
-
   return (
     <div className={styles.backdrop} aria-hidden="true">
       <canvas ref={canvasRef} className={styles.canvas} />
       <div className={styles.vignette} />
       <div className={styles.grain} />
-      <div className={styles.caption} ref={captionRef} />
+      <div className={styles.caption}>{CAPTIONS[index]}</div>
     </div>
   );
 }

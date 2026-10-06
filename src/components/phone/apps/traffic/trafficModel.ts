@@ -1,9 +1,9 @@
 import { WORK_START_HOUR } from '../../../../game/time';
 
 /*
- * Istanbul for the "Trafik" app: coastlines, parks, roads, streets, commute routes and district
- * labels in a 360×300 map space, plus the traffic model that turns the time of day and the
- * weather into congestion and travel times. Pure data and maths — no React.
+ * "Trafik" uygulaması için İstanbul: 360×300 harita uzayında kıyılar, parklar, yollar, sokaklar,
+ * işe gidiş rotaları ve ilçe etiketleri; artı günün saatini ve havayı yoğunluğa ve yolculuk
+ * sürelerine çeviren trafik modeli. Saf veri ve matematik, React yok.
  */
 
 export const W = 360;
@@ -11,7 +11,7 @@ export const H = 300;
 
 export type Pt = [number, number];
 
-/** Catmull-Rom → cubic Bézier, so hand-placed coast points become smooth shorelines. */
+/** Catmull-Rom → kübik Bézier; elle yerleştirilmiş kıyı noktaları yumuşak kıyı çizgilerine dönüşür. */
 export function smooth(pts: Pt[], closed = false) {
   const p = closed ? [pts[pts.length - 1], ...pts, pts[0], pts[1]] : [pts[0], ...pts, pts[pts.length - 1]];
   let d = `M${pts[0][0]} ${pts[0][1]}`;
@@ -25,7 +25,7 @@ export function smooth(pts: Pt[], closed = false) {
   return closed ? `${d} Z` : d;
 }
 
-// Marmara + Bosphorus as one water body (corners pushed outside the frame).
+// Marmara + Boğaz tek bir su kütlesi olarak (köşeler çerçevenin dışına itilmiş).
 export const SEA = smooth(
   [
     [-30, 238], [40, 236], [80, 240], [120, 235], [150, 239], [174, 234], [186, 228],
@@ -70,10 +70,11 @@ export const ROADS: Road[] = [
   { name: 'TEM Anadolu', d: smooth([[234, 70], [258, 88], [278, 122], [296, 164], [310, 204]]), base: 0.35, rush: 0.4, kind: 'highway' },
   { name: 'D-100 Avrupa', d: smooth([[-20, 212], [40, 212], [90, 204], [130, 188], [158, 168], [176, 150], [192, 138]]), base: 0.5, rush: 0.4, kind: 'highway' },
   { name: 'Sahil Yolu', d: smooth([[-20, 233], [60, 231], [120, 229], [160, 230], [180, 226]]), base: 0.3, rush: 0.35, kind: 'arterial' },
+  { name: 'Basın Ekspres Yolu', d: smooth([[60, 106], [54, 128], [46, 152], [42, 180], [40, 212]]), base: 0.45, rush: 0.4, kind: 'arterial' },
   { name: 'Kadıköy bağlantısı', d: smooth([[286, 190], [270, 204], [254, 222], [238, 240]]), base: 0.4, rush: 0.35, kind: 'arterial' },
 ];
 
-// Minor arterials (no traffic layer) — give the map its texture of real streets.
+// Küçük ara yollar (trafik katmanı yok): haritaya gerçek sokak dokusunu verir.
 export const STREETS = [
   smooth([[182, 226], [188, 206], [190, 186], [191, 164], [192, 150]]),
   smooth([[224, 138], [222, 170], [219, 200], [216, 222], [230, 244]]),
@@ -82,55 +83,55 @@ export const STREETS = [
   smooth([[120, 98], [130, 130], [140, 160], [158, 168]]),
   smooth([[262, 164], [300, 140], [360, 132]]),
   smooth([[244, 250], [270, 240], [312, 206]]),
-  smooth([[40, 212], [50, 170], [60, 106]]),
   smooth([[150, 60], [160, 88]]),
 ];
 
 export interface Route {
   id: string;
   label: string;
-  mode: 'car' | 'bus' | 'ferry';
+  mode: 'car' | 'bus' | 'rail';
   via: string;
   km: string;
   d: string;
-  /** Road indices whose congestion slows this route (empty = unaffected by traffic). */
+  /** Yoğunluğu bu rotayı yavaşlatan yolların sıraları (boş = trafikten etkilenmez). */
   roads: number[];
   baseMinutes: number;
-  /** Where the time bubble sits. */
+  /** Süre baloncuğunun durduğu yer. */
   tag: Pt;
 }
 
+// Yol indeksleri: 0 Büyükdere · 3 TEM Avrupa · 6 D-100 Avrupa · 8 Basın Ekspres
 export const ROUTES: Route[] = [
   {
-    id: 'car15', label: 'Araba', mode: 'car', via: '15 Temmuz Köprüsü üzerinden', km: '17,4 km',
-    d: smooth([[186, 100], [189, 118], [192, 138], [226, 136], [242, 146], [262, 164], [286, 190], [270, 204], [254, 222], [238, 242]]),
-    roads: [0, 1, 2, 8], baseMinutes: 30, tag: [250, 150],
+    id: 'carTem', label: 'TEM', mode: 'car', via: 'Seyrantepe · TEM · Mahmutbey üzerinden', km: '19,6 km',
+    d: smooth([[186, 100], [185, 86], [178, 80], [160, 88], [120, 98], [60, 106], [54, 128], [46, 152]]),
+    roads: [0, 3, 8], baseMinutes: 32, tag: [104, 90],
   },
   {
-    id: 'carFsm', label: 'Araba', mode: 'car', via: 'FSM Köprüsü · TEM üzerinden', km: '24,1 km',
-    d: smooth([[186, 100], [185, 84], [198, 74], [234, 70], [258, 88], [278, 122], [296, 164], [304, 196], [286, 190], [270, 204], [254, 222], [238, 242]]),
-    roads: [0, 4, 5, 8], baseMinutes: 34, tag: [286, 118],
+    id: 'carD100', label: 'D-100', mode: 'car', via: 'Zincirlikuyu · D-100 (E-5) üzerinden', km: '24,3 km',
+    d: smooth([[186, 100], [189, 118], [192, 138], [176, 150], [158, 168], [130, 188], [90, 204], [56, 210], [42, 186], [46, 152]]),
+    roads: [0, 6, 8], baseMinutes: 36, tag: [118, 200],
   },
   {
-    id: 'bus', label: 'Metrobüs', mode: 'bus', via: 'Zincirlikuyu → Söğütlüçeşme', km: '16,8 km',
-    d: smooth([[186, 100], [189, 118], [192, 138], [226, 136], [242, 148], [260, 168], [268, 196], [252, 224], [238, 242]]),
-    roads: [], baseMinutes: 44, tag: [270, 200],
+    id: 'bus', label: 'Metrobüs+T1', mode: 'bus', via: 'Metrobüs Zincirlikuyu → Cevizlibağ · T1 tramvay Bağcılar', km: '23,1 km',
+    d: smooth([[186, 100], [189, 118], [192, 138], [176, 152], [158, 170], [134, 192], [108, 200], [80, 184], [58, 166], [46, 152]]),
+    roads: [], baseMinutes: 58, tag: [150, 172],
   },
   {
-    id: 'ferry', label: 'Metro + Vapur', mode: 'ferry', via: 'M2 Şişhane · Karaköy iskelesi', km: '11,2 km',
-    d: smooth([[186, 100], [184, 130], [181, 160], [178, 186], [180, 204], [184, 216], [196, 226], [214, 236], [230, 242], [238, 242]]),
-    roads: [], baseMinutes: 48, tag: [150, 190],
+    id: 'rail', label: 'Metro', mode: 'rail', via: 'M2 Levent → Yenikapı · M1B Bağcılar', km: '22,4 km',
+    d: smooth([[186, 100], [184, 130], [178, 170], [170, 200], [156, 222], [120, 214], [84, 192], [58, 170], [46, 152]]),
+    roads: [], baseMinutes: 54, tag: [100, 218],
   },
 ];
 
 export const OFFICE: Pt = [186, 100];
-export const HOME: Pt = [238, 242];
+export const HOME: Pt = [46, 152];
 
 export const DISTRICTS: { name: string; at: Pt }[] = [
   { name: 'SARIYER', at: [178, 30] }, { name: 'MASLAK', at: [160, 62] }, { name: 'LEVENT', at: [166, 110] },
   { name: 'KAĞITHANE', at: [138, 128] }, { name: 'ŞİŞLİ', at: [164, 156] }, { name: 'BEŞİKTAŞ', at: [174, 176] },
   { name: 'BEYOĞLU', at: [160, 196] }, { name: 'FATİH', at: [130, 218] }, { name: 'EYÜPSULTAN', at: [100, 160] },
-  { name: 'BAĞCILAR', at: [44, 150] }, { name: 'BAKIRKÖY', at: [50, 224] }, { name: 'AVCILAR', at: [14, 190] },
+  { name: 'BAĞCILAR', at: [22, 140] }, { name: 'BAKIRKÖY', at: [50, 224] }, { name: 'AVCILAR', at: [14, 190] },
   { name: 'BEYKOZ', at: [276, 72] }, { name: 'KAVACIK', at: [244, 96] }, { name: 'ÜMRANİYE', at: [300, 146] },
   { name: 'ÜSKÜDAR', at: [240, 176] }, { name: 'ATAŞEHİR', at: [318, 190] }, { name: 'KADIKÖY', at: [262, 244] },
 ];
@@ -139,13 +140,13 @@ export function congestionColor(c: number) {
   return c < 0.45 ? '#2fb266' : c < 0.7 ? '#f5a623' : c < 0.85 ? '#e8542f' : '#a4161a';
 }
 
-/** Clock time for a workday minute, not clamped to the end of the shift. */
+/** Bir mesai dakikasının saati, mesai sonuna sınırlanmadan. */
 export function arrival(workdayMinutes: number) {
   const t = WORK_START_HOUR * 60 + workdayMinutes;
   return `${String(Math.floor(t / 60) % 24).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 }
 
-export const MODE_ICON = { car: '🚗', bus: '🚌', ferry: '⛴' } as const;
+export const MODE_ICON = { car: '🚗', bus: '🚌', rail: '🚇' } as const;
 
 export interface Incident {
   at: Pt;
@@ -154,26 +155,26 @@ export interface Incident {
 }
 
 /**
- * Traffic at a workday minute: rush builds from 15:30 and peaks at 17:00–18:00; bad weather
- * slows every road and, past a point, cancels the ferry.
+ * Bir mesai dakikasındaki trafik: yoğunluk 15:30'dan itibaren artar ve 17:00–18:00'de zirve
+ * yapar; kötü hava her yolu yavaşlatır. Metrobüs kendi yolunda gider, trafikten az etkilenir;
+ * metro trafikten de havadan da etkilenmez, yalnızca akşam kalabalığında aktarmalar uzar.
  */
 export function trafficAt(minutes: number, weatherPenalty: number) {
   const rush = Math.max(0, Math.min(1, (minutes - 450) / 90));
   const levels = ROADS.map((r) => Math.min(1, r.base + r.rush * rush + weatherPenalty));
-  const ferryCancelled = weatherPenalty >= 0.25;
   const eta = (r: Route) => {
-    if (r.mode === 'ferry') return Math.round(r.baseMinutes * (1 + weatherPenalty * 1.2));
+    if (r.mode === 'rail') return Math.round(r.baseMinutes * (1 + rush * 0.1));
     if (r.mode === 'bus') return Math.round(r.baseMinutes * (1 + rush * 0.15 + weatherPenalty * 0.5));
     const avg = r.roads.reduce((s, i) => s + levels[i], 0) / r.roads.length;
     return Math.round(r.baseMinutes * (0.7 + avg * 1.1));
   };
-  const available = ROUTES.filter((r) => !(r.mode === 'ferry' && ferryCancelled));
+  const available = ROUTES;
   const best = available.reduce((a, b) => (eta(a) <= eta(b) ? a : b));
   const incidents: Incident[] = [
-    ...(rush > 0.3 ? [{ at: [210, 137] as Pt, label: 'Kaza · 15 Temmuz Köprüsü Anadolu yönü, sağ şerit kapalı', icon: '!' }] : []),
+    ...(rush > 0.3 ? [{ at: [140, 182] as Pt, label: 'Kaza · D-100 Okmeydanı, sol şerit kapalı', icon: '!' }] : []),
     { at: [96, 102], label: 'Yol çalışması · TEM Mahmutbey, 2 şerit kapalı', icon: '⛏' },
     ...(weatherPenalty > 0.1 ? [{ at: [74, 232] as Pt, label: 'Kaygan yol · Sahil Yolu Yeşilköy', icon: '≋' }] : []),
-    ...(ferryCancelled ? [{ at: [206, 236] as Pt, label: 'Olumsuz hava · Karaköy–Kadıköy vapur seferleri iptal', icon: '⛴' }] : []),
+    ...(weatherPenalty >= 0.25 ? [{ at: [44, 182] as Pt, label: 'Su birikintisi · Basın Ekspres Yolu, tek şerit açık', icon: '≋' }] : []),
   ];
-  return { rush, levels, ferryCancelled, eta, available, best, incidents };
+  return { rush, levels, eta, available, best, incidents };
 }

@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 import { CSP } from './csp.ts'
 
-/** Every file under `dir`, as paths relative to it. */
+/** `dir` altındaki her dosya, ona göreli yollar olarak. */
 function filesIn(dir: string, root = dir): string[] {
   return readdirSync(dir).flatMap((name) => {
     const path = join(dir, name)
@@ -14,12 +14,12 @@ function filesIn(dir: string, root = dir): string[] {
 }
 
 /*
- * Offline play without a PWA library: at build time this writes `sw.js`, a service worker that
- * keeps the whole game (the page, its scripts, styles, fonts and icons) in the browser's cache.
- * The music and rain (a few MB) are not part of that first download: each is kept the first time
- * it plays, so a phone on mobile data doesn't fetch sound it may never hear. The cache is named
- * after a hash of the file list, so a new build replaces the old one. The page itself is fetched
- * from the network first; a new build waits for the player (swUpdate.ts).
+ * PWA kütüphanesi olmadan çevrimdışı oyun: derleme sırasında bu, oyunun tamamını (sayfa, scriptleri,
+ * stilleri, yazı tipleri ve simgeleri) tarayıcının önbelleğinde tutan bir service worker olan
+ * `sw.js`'i yazar. Müzik ve yağmur (birkaç MB) bu ilk indirmenin parçası değildir: her biri ilk
+ * çaldığında saklanır, böylece mobil veri kullanan bir telefon belki hiç duymayacağı sesi indirmez.
+ * Önbellek dosya listesinin bir özetiyle adlandırılır, böylece yeni bir derleme eskisinin yerini alır.
+ * Sayfanın kendisi önce ağdan alınır; yeni bir derleme oyuncuyu bekler (swUpdate.ts).
  */
 function offlineCache(): Plugin {
   return {
@@ -79,10 +79,11 @@ self.addEventListener('fetch', (event) => {
 }
 
 /*
- * What only the published page needs. The Content-Security-Policy (csp.ts), added at build
- * time only — the dev server injects styles and a websocket the policy would block. And when SITE_URL is set (the address the build is
- * published at, e.g. SITE_URL=https://sen-iksin.example npm run build), the share preview gets
- * absolute addresses, which link previews on social sites require.
+ * Yalnızca yayınlanan sayfanın ihtiyaç duyduğu şeyler. İçerik Güvenliği Politikası (csp.ts) yalnızca
+ * derleme sırasında eklenir; geliştirme sunucusu politikanın engelleyeceği stiller ve bir websocket
+ * ekler. SITE_URL ayarlıysa (derlemenin yayınlandığı adres, ör. SITE_URL=https://sen-iksin.example
+ * npm run build), paylaşım önizlemesi sosyal sitelerdeki bağlantı önizlemelerinin istediği mutlak
+ * adresleri alır.
  */
 
 function publishedPage(): Plugin {
@@ -90,7 +91,7 @@ function publishedPage(): Plugin {
     name: 'published-page',
     apply: 'build',
     transformIndexHtml: {
-      // after Vite has rewritten the page's own addresses to relative ones
+      // Vite sayfanın kendi adreslerini göreli olanlarla değiştirdikten sonra
       order: 'post',
       handler(html) {
         let out = html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`)
@@ -108,7 +109,7 @@ function publishedPage(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // relative paths, so the build works from any folder of any static host
+  // göreli yollar, böylece derleme herhangi bir statik sunucunun herhangi bir klasöründen çalışır
   base: './',
   define: {
     __APP_VERSION__: JSON.stringify((JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version),

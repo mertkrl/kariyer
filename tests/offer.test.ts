@@ -1,6 +1,6 @@
 /*
- * Friday 18:40: what Hakan Bey can offer depends on the week, what happens depends on Defne's
- * answer, and the phone call with Mom that night hears about it.
+ * Cuma 18:40: Hakan Bey'in ne teklif edebileceği haftaya, ne olacağı Defne'nin cevabına bağlıdır;
+ * o gece annenle telefon konuşması da bunu duyar.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

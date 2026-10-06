@@ -7,21 +7,21 @@ export interface Weather {
   icon: string;
   sky: [string, string];
   sea: [string, string];
-  /** Far (Asian) shore, near shore + landmarks. */
+  /** Uzak (Anadolu) kıyısı, yakın kıyı + simge yapılar. */
   farShore: string;
   nearShore: string;
   landmarks: string;
   cloud: string;
   cloudCount: number;
-  /** Seconds for a cloud to cross — lower is windier. */
+  /** Bir bulutun pencereyi geçme süresi (saniye); düştükçe rüzgâr artar. */
   cloudSpeed: number;
   sun: boolean;
-  /** Multiplier on ripple speed; >1 is choppier. */
+  /** Dalgacık hızı çarpanı; >1 daha dalgalı. */
   waveSpeed: number;
   whitecaps: boolean;
   gulls: boolean;
   ships: ('cargo' | 'ferry' | 'sail' | 'fishing')[];
-  /** Light cast over the whole cafeteria (rgba) — rainy days are dimmer and cooler. */
+  /** Bütün yemekhaneye düşen ışık (rgba); yağmurlu günler daha loş ve soğuk. */
   roomTint: string | null;
 }
 
@@ -108,7 +108,7 @@ export const WEATHERS: Record<WeatherKind, Weather> = {
   },
 };
 
-/** One weather per workday (days 1–4 have a lunch break). */
+/** Her iş günü için bir hava (1–4. günlerde öğle arası var). */
 const WEATHER_BY_DAY: WeatherKind[] = ['sunny', 'windy', 'rainy', 'snowy'];
 
 export function weatherForDay(dayIndex: number): Weather {

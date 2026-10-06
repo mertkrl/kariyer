@@ -1,4 +1,4 @@
-/* the screening service's log over the arena, while the system comes apart (CrashLog.tsx) */
+/* sistem dağılırken arenanın üstünde eleme servisinin günlüğü (CrashLog.tsx) */
 .wrap {
   position: absolute;
   inset: 0;
@@ -51,7 +51,7 @@
   animation: blink 0.8s steps(2) infinite;
 }
 
-/* the picture tearing: slices of the screen jumping sideways, the colour channels split */
+/* görüntü yırtılıyor: ekran dilimleri yana sıçrıyor, renk kanalları ayrışıyor */
 .tearing {
   animation: tear 0.42s steps(1) infinite;
 }
@@ -84,7 +84,7 @@
   }
 }
 
-/* the screen goes dark: no signal */
+/* ekran kararır: sinyal yok */
 .dark {
   background: #000;
   align-items: center;
@@ -107,7 +107,7 @@
   color: #6f7787;
 }
 
-/* CRT-like scanlines over everything */
+/* her şeyin üstünde tüplü ekran benzeri tarama çizgileri */
 .scan {
   position: absolute;
   inset: 0;

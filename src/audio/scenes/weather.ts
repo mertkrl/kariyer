@@ -2,14 +2,14 @@ import type { EngineCore } from '../engineCore';
 import { RAIN_SRC } from '../engineCore';
 import { playFerryHorn, playGullCall, playThunder } from './harbour';
 
-/* Weather heard through the cafeteria window. */
+/* Yemekhane penceresinden duyulan hava. */
 
 /**
- * Starts the weather bed for the break room and returns a stop function.
- * - sunny:  distant gull calls + an occasional Bosphorus ferry horn
- * - windy:  gusting wind (slowly modulated band-passed noise) + the odd gull
- * - rainy:  rain hiss + drops ticking on the glass + rare distant thunder
- * - snowy:  near-silence — soft, muffled wind (snow absorbs sound)
+ * Mola odası için hava ses yatağını başlatır ve bir durdurma fonksiyonu döndürür.
+ * - sunny:  uzak martı çığlıkları + ara sıra bir Boğaz vapuru düdüğü
+ * - windy:  esen rüzgâr (yavaşça modüle edilmiş bant geçiren gürültü) + arada bir martı
+ * - rainy:  yağmur hışırtısı + camda tıkırdayan damlalar + nadir uzak gök gürültüsü
+ * - snowy:  sessizliğe yakın; yumuşak, boğuk bir rüzgâr (kar sesi emer)
  */
 export function startWeatherAmbience(engine: EngineCore, kind: 'sunny' | 'windy' | 'rainy' | 'snowy'): () => void {
   const ctx = engine.ensureContext();
@@ -17,7 +17,7 @@ export function startWeatherAmbience(engine: EngineCore, kind: 'sunny' | 'windy'
   const bus = ctx.createGain();
   bus.gain.setValueAtTime(0, ctx.currentTime);
   bus.gain.linearRampToValueAtTime(1, ctx.currentTime + 1.5);
-  // Everything outside is heard through glass: roll off the top end.
+  // Dışarıdaki her şey camın arkasından duyulur: tizleri kıs.
   const glass = ctx.createBiquadFilter();
   glass.type = 'lowpass';
   glass.frequency.value = kind === 'snowy' ? 1400 : 5200;
@@ -68,15 +68,15 @@ export function startWeatherAmbience(engine: EngineCore, kind: 'sunny' | 'windy'
     lfo(0.043, level * 0.4, gain.gain);
   };
 
-  // declared before the switch: the rain recording loads asynchronously and must not start after stop
+  // switch'ten önce tanımlanır: yağmur kaydı eşzamansız yüklenir ve durdurulduktan sonra başlamamalıdır
   let stopped = false;
 
-  /** Synthesized rain, used only if the recording can't be loaded: layered beds, glass ticks, fat drops. */
+  /** Sentezlenmiş yağmur; yalnızca kayıt yüklenemezse kullanılır: katmanlı yataklar, cam tıkırtıları, iri damlalar. */
   const synthRain = () => {
-    const body = noiseBed('lowpass', 850, 0.4, 0.045); // roofs, pavement
-    const sheet = noiseBed('bandpass', 1700, 0.35, 0.035); // the falling sheet
-    noiseBed('highpass', 6200, 0.3, 0.011); // fine sizzle
-    lfo(0.07, 0.014, sheet.gain.gain); // gusts of heavier rain
+    const body = noiseBed('lowpass', 850, 0.4, 0.045); // çatılar, kaldırım
+    const sheet = noiseBed('bandpass', 1700, 0.35, 0.035); // düşen perde
+    noiseBed('highpass', 6200, 0.3, 0.011); // ince cızırtı
+    lfo(0.07, 0.014, sheet.gain.gain); // daha ağır yağmur sağanakları
     lfo(0.031, 0.012, body.gain.gain);
     const tickTimer = window.setInterval(() => {
       if (Math.random() < 0.9)
@@ -87,7 +87,7 @@ export function startWeatherAmbience(engine: EngineCore, kind: 'sunny' | 'windy'
 
   switch (kind) {
     case 'sunny':
-      noiseBed('lowpass', 500, 0.5, 0.012); // distant city/sea air
+      noiseBed('lowpass', 500, 0.5, 0.012); // uzak şehir/deniz havası
       every(5, 11, () => playGullCall(engine, Math.random() * 1.4 - 0.7, 0.6), 2);
       every(26, 40, () => playFerryHorn(engine), 7);
       break;
@@ -96,8 +96,8 @@ export function startWeatherAmbience(engine: EngineCore, kind: 'sunny' | 'windy'
       every(9, 16, () => playGullCall(engine, Math.random() * 1.4 - 0.7, 0.4), 5);
       break;
     case 'rainy':
-      // the real recording, heard through the glass; a rare distant thunder on top
-      // straight to the output, not through the glass filter: this is the recording as it is
+      // gerçek kayıt, camın arkasından duyulur; üstünde nadir uzak bir gök gürültüsü
+      // cam filtresinden değil doğrudan çıkışa: bu, kaydın olduğu hâli
       engine.loopSample(RAIN_SRC, engine.sfxIn, 0.9, sources, () => !stopped, synthRain);
       every(28, 55, () => playThunder(engine), 14);
       break;

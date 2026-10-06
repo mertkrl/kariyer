@@ -8,10 +8,10 @@ import type { Decision } from '../../game/types';
 import styles from './CalendarApp.module.css';
 
 /*
- * The work calendar: this week, Monday to Friday, 08:00–20:00. The fixed things (the working
- * day, lunch, Wednesday's online meeting, Friday's interviews, Thursday's late evening once it
- * is announced) and whatever today added. Pick a day to see its files: today's queue with where
- * each file stands, the decisions of the days behind you, and Friday's interview list.
+ * İş takvimi: bu hafta, Pazartesi'den Cuma'ya, 08:00–20:00. Sabit şeyler (iş günü, öğle arası,
+ * Çarşamba'nın çevrimiçi toplantısı, Cuma'nın mülakatları, duyurulunca Perşembe'nin geç akşamı)
+ * ve bugünün eklediği her şey. Dosyalarını görmek için bir gün seç: her dosyanın nerede durduğuyla
+ * bugünün kuyruğu, geride bıraktığın günlerin kararları ve Cuma'nın mülakat listesi.
  */
 
 const START = 0; // 08:00
@@ -27,7 +27,7 @@ interface CalEvent {
   kind: 'meeting' | 'interview' | 'late' | 'lunch' | 'personal';
 }
 
-/** Friday's interviews: a morning and an afternoon block. */
+/** Cuma'nın mülakatları: bir sabah ve bir öğleden sonra bloğu. */
 const INTERVIEWS: [number, number][] = [
   [60, 240],
   [300, 480],
@@ -48,7 +48,7 @@ export function CalendarApp() {
     const out: CalEvent[] = [];
     if (!days[d].final) out.push({ at: BREAK_START_MIN, end: BREAK_END_MIN, title: 'Öğle arası', kind: 'lunch' });
     if (d === MEETING_DAY) out.push({ at: MEETING_AT, end: MEETING_AT + MEETING_MINUTES, title: 'Haftalık İK toplantısı', place: 'Görüntülü görüşme', kind: 'meeting' });
-    // announced on Thursday afternoon; it isn't in anyone's calendar before that
+    // Perşembe öğleden sonra duyurulur; ondan önce kimsenin takviminde değildir
     if (d === TEAM_LATE_DAY && dayIndex >= TEAM_LATE_DAY) out.push({ at: WORKDAY_END_MIN, end: TEAM_LATE_END, title: 'Ekipçe geç mesai', place: 'Sistem arızası · yemek şirketten', kind: 'late' });
     if (days[d].final) {
       out.push({ at: INTERVIEWS[0][0], end: INTERVIEWS[0][1], title: 'Final mülakatları', place: 'Toplantı odası · Ümit Arslan, Hakan Kaya', kind: 'interview' });
@@ -92,7 +92,7 @@ export function CalendarApp() {
                 {hours.map((h) => (
                   <i key={h} className={styles.hourLine} style={{ top: y(h) }} />
                 ))}
-                {/* the working day */}
+                {/* iş günü */}
                 <i className={styles.workBand} style={{ top: y(0), height: y(WORKDAY_END_MIN) }} />
                 {eventsFor(d).map((e, i) => (
                   <span key={i} className={`${styles.event} ${styles[e.kind]}`} style={{ top: y(e.at), height: Math.max(16, y(e.end) - y(e.at)) }} title={`${formatClock(e.at)}–${formatClock(e.end)} · ${e.title}`}>

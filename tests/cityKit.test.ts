@@ -1,6 +1,6 @@
 /*
- * The day-end city's helpers that don't need a canvas: seeded randomness (a scene looks the
- * same every evening), colour maths, coastline lookup, and the servis scene's lane of cars.
+ * Gün sonu şehrinin canvas gerektirmeyen yardımcıları: tohumlu rastgelelik (bir sahne her akşam aynı
+ * görünür), renk matematiği, kıyı çizgisi okuma ve servis sahnesinin araba şeridi.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MESSAGE_LINGER_MS } from './lunch';
 
 /*
- * How the table answers you. No instructions — the table is there to be discovered: a line of
- * thought after each thing you do (it fades on its own), a little bump on what you touched, and
- * timers that are all cleared when you leave the room.
+ * Masanın sana cevabı. Talimat yok, masa keşfedilmek için orada: yaptığın her şeyden sonra
+ * aklından geçen bir cümle (kendiliğinden solar), dokunduğun şeyde küçük bir sarsıntı ve odadan
+ * çıkınca hepsi temizlenen zamanlayıcılar.
  */
 export function useReactions() {
   const [bumped, setBumped] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function useReactions() {
     };
   }, []);
 
-  /** Show a reaction line; it fades away on its own if nothing else happens. */
+  /** Bir tepki cümlesi göster; başka bir şey olmazsa kendiliğinden solar. */
   const say = useCallback((text: string) => {
     setMessage((m) => ({ text, key: (m?.key ?? 0) + 1 }));
     if (messageTimer.current) window.clearTimeout(messageTimer.current);

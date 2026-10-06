@@ -7,14 +7,14 @@ import { LEAD, leadView } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
 
 /*
- * The file on the person in the room, beside the conversation: the facts, the pay agreed, your
- * notes on them, and what the team lead makes of what he heard.
+ * Odadaki kişinin dosyası, konuşmanın yanında: bilgiler, anlaşılan maaş, onun hakkındaki
+ * notların ve ekip liderinin duyduklarından çıkardığı.
  */
 export interface DossierProps {
   candidate: Candidate;
   details: CandidateDetails;
   selectedId: string;
-  /** The day you called them to interview (0: not one of yours). */
+  /** Onu mülakata çağırdığın gün (0: senin çağırdıklarından değil). */
   invitedOn: number;
   agreed: Record<string, number | null>;
   notes: Note[];
@@ -82,8 +82,8 @@ export function Dossier({ candidate, details, selectedId, invitedOn, agreed, not
 }
 
 /**
- * How far your notes on this person would carry in front of the panel. The rule, where it can
- * still be acted on: somut +2, genel +1, belirsiz 0, dikkat −1; the best three count.
+ * Bu kişi hakkındaki notlarının kurulun önünde ne kadar taşıyacağı. Kural, hâlâ işe
+ * yarayabileceği yerde: somut +2, genel +1, belirsiz 0, dikkat −1; en iyi üçü sayılır.
  */
 function EvidenceMeter({ strength }: { strength: number }) {
   const enough = strength >= DEFENSE_THRESHOLD;

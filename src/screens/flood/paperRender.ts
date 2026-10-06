@@ -2,8 +2,8 @@ import { PAPER_H, PAPER_W, SHADOW_PAD, type paperTextures } from './paperTexture
 import { CAMERA, LIGHT, clamp, pose, type Sheet } from './paperPhysics';
 
 /*
- * Draws paper sheets onto a 2D canvas: perspective projection from a camera above the desk,
- * a shadow dropped along the light, shading by tilt, a specular glint and the landing stamp.
+ * Kâğıt sayfalarını 2D canvas'a çizer: masanın üstündeki bir kameradan perspektif izdüşüm,
+ * ışık doğrultusunda düşen gölge, eğime göre gölgelendirme, parlama ve iniş damgası.
  */
 
 type Vec3 = [number, number, number];
@@ -47,7 +47,7 @@ export function createPaperRenderer(g: CanvasRenderingContext2D, tex: ReturnType
     const pbr = [ptr[0] + pbl[0] - ptl[0], ptr[1] + pbl[1] - ptl[1]] as const;
     const area = (ptr[0] - ptl[0]) * (pbl[1] - ptl[1]) - (ptr[1] - ptl[1]) * (pbl[0] - ptl[0]);
     const faceUp = nrm[2] >= 0;
-    // brightness from the light, specular glint when the sheet catches it
+    // ışıktan gelen parlaklık, sayfa ışığı yakaladığında parlama
     const nl = (faceUp ? 1 : -1) * (nrm[0] * LIGHT[0] + nrm[1] * LIGHT[1] + nrm[2] * LIGHT[2]);
     const bright = 0.6 + 0.4 * Math.max(0, nl);
     const hx = LIGHT[0];
@@ -57,7 +57,7 @@ export function createPaperRenderer(g: CanvasRenderingContext2D, tex: ReturnType
     const spec = Math.pow(Math.max(0, ((faceUp ? 1 : -1) * (nrm[0] * hx + nrm[1] * hy + nrm[2] * hz)) / hl), 30);
 
     if (Math.abs(area) < 6) {
-      // edge-on: just the paper's edge catching the light
+      // yan dönük: yalnızca kâğıdın ışığı yakalayan kenarı
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.globalAlpha = 0.8 * fade;
       g.strokeStyle = '#f3efe6';
@@ -68,7 +68,7 @@ export function createPaperRenderer(g: CanvasRenderingContext2D, tex: ReturnType
       g.stroke();
       return;
     }
-    // motion blur for fast sheets
+    // hızlı sayfalar için hareket bulanıklığı
     const speed = Math.hypot(s.vx, s.vy);
     if (s.state === 'fly' && speed > 900) {
       const k = 0.014;
@@ -79,7 +79,7 @@ export function createPaperRenderer(g: CanvasRenderingContext2D, tex: ReturnType
     affine(ptl, ptr, pbl);
     g.globalAlpha = fade;
     g.drawImage(face(s, faceUp), 0, 0, PAPER_W, PAPER_H);
-    // stamp once it has landed face up
+    // yüzü yukarı indiğinde damga
     if (s.state === 'landed' && faceUp) {
       const k = clamp((t - s.landedAt - 0.15) / 0.22, 0, 1);
       if (k > 0) {
@@ -91,7 +91,7 @@ export function createPaperRenderer(g: CanvasRenderingContext2D, tex: ReturnType
         g.drawImage(s.glitch ? tex.stampError : tex.stamp, PAPER_W / 2 - w / 2, PAPER_H * 0.56 - h / 2, w, h);
       }
     }
-    // shading pass over the sheet
+    // sayfanın üstünden gölgelendirme geçişi
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.beginPath();
     g.moveTo(ptl[0], ptl[1]);

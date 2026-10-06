@@ -19,7 +19,7 @@
   background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(6, 6, 10, 0.6) 100%);
 }
 
-/* Film grain on top of the canvas: cheap in CSS, expensive per frame in 2D. */
+/* Canvas'ın üstünde film greni: CSS'te ucuz, 2D'de her karede pahalı. */
 .grain {
   position: absolute;
   inset: -50%;
@@ -64,10 +64,3 @@
   }
 }
 
-.sighting {
-  max-width: min(640px, calc(100vw - 48px));
-  font-style: normal;
-  font-weight: 600;
-  background: rgba(60, 20, 16, 0.72);
-  border: 1px solid rgba(255, 140, 110, 0.35);
-}

@@ -1,4 +1,4 @@
-/* ── Shared status bar ── */
+/* ── Ortak durum çubuğu ── */
 
 .notch {
   position: absolute;
@@ -24,7 +24,7 @@
   color: #f2efe4;
 }
 
-/* what the bar sits on: the wallpaper, a light app, a dark app, the chats' green */
+/* çubuğun üstünde durduğu şey: duvar kâğıdı, açık bir uygulama, koyu bir uygulama, sohbetlerin yeşili */
 .status_wallpaper {
   background: transparent;
   color: #fff;
@@ -117,7 +117,7 @@
   opacity: 0.6;
 }
 
-/* ── Locked phone in the right column ── */
+/* ── Sağ sütunda kilitli telefon ── */
 
 .dock {
   flex-shrink: 0;
@@ -247,7 +247,7 @@
   padding-top: 4px;
 }
 
-/* ── Picked-up phone ── */
+/* ── Eline alınmış telefon ── */
 
 .overlay {
   position: fixed;
@@ -279,7 +279,7 @@
 }
 
 .device {
-  /* Sized by the viewport height so it always fits: a 9:19.5 handset, never taller than the screen. */
+  /* Her zaman sığsın diye ekran yüksekliğine göre boyutlanır: 9:19.5 bir cihaz, ekrandan hiç uzun değil. */
   --device-h: min(720px, calc(100dvh - 56px));
   --device-w: calc(var(--device-h) * 0.49);
   position: relative;
@@ -287,11 +287,11 @@
   max-width: calc(100vw - 32px);
   height: var(--device-h);
   font-size: clamp(11px, calc(var(--device-h) / 52), 14px);
-  /* Frame radius = glass radius + bezel width, so the two curves stay concentric. */
+  /* Çerçeve yarıçapı = cam yarıçapı + çerçeve kalınlığı; iki eğri eş merkezli kalır. */
   border-radius: calc(var(--device-h) * 0.045 + 9px);
   padding: 9px;
   box-sizing: border-box;
-  /* a brushed titanium band around a thin black bezel */
+  /* ince siyah bir çerçevenin çevresinde fırçalanmış titanyum bir şerit */
   background: linear-gradient(135deg, #5a5753 0%, #2e2d2a 16%, #1d1c1a 50%, #2e2d2a 84%, #5b5854 100%);
   box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.55),
@@ -304,7 +304,7 @@
   animation: pickUp 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
 }
 
-/* side button on the right, volume keys on the left */
+/* sağda yan düğme, solda ses tuşları */
 .device::before,
 .device::after {
   content: '';
@@ -334,7 +334,7 @@
   }
 }
 
-/* The glass: everything on the phone lives inside and is clipped to it. */
+/* Cam: telefondaki her şey içinde yaşar ve ona kırpılır. */
 .display {
   position: relative;
   flex: 1;
@@ -347,13 +347,13 @@
   isolation: isolate;
 }
 
-/* The status bar takes its colour from the screen under it (see .status_*). */
+/* Durum çubuğu rengini altındaki ekrandan alır (bkz. .status_*). */
 .display > .status {
   flex-shrink: 0;
   padding-top: 10px;
 }
 
-/* the wallpaper: soft colour fields like a stock phone background */
+/* duvar kâğıdı: hazır bir telefon arka planı gibi yumuşak renk alanları */
 .displayHome {
   background:
     radial-gradient(70% 45% at 85% 8%, rgba(255, 170, 120, 0.55), transparent 70%),
@@ -373,7 +373,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* Room for the home indicator so it never covers app content. */
+  /* Ana ekran çizgisine yer, böylece uygulama içeriğini hiç örtmez. */
   padding-bottom: 16px;
 }
 
@@ -395,7 +395,7 @@
   background: rgba(242, 239, 228, 0.8);
 }
 
-/* Home screen */
+/* Ana ekran */
 
 .home {
   flex: 1;
@@ -406,7 +406,7 @@
   font-family: -apple-system, 'SF Pro Text', var(--font-body);
 }
 
-/* the clock widget: frosted glass over the wallpaper */
+/* saat aracı: duvar kâğıdının üstünde buzlu cam */
 .widget {
   display: flex;
   flex-direction: column;
@@ -530,7 +530,7 @@
   background: #fff;
 }
 
-/* the dock: a frosted shelf for the apps you use most */
+/* dok: en çok kullandığın uygulamalar için buzlu bir raf */
 .dockBar {
   display: flex;
   justify-content: space-evenly;
@@ -541,7 +541,7 @@
   backdrop-filter: blur(16px) saturate(1.3);
 }
 
-/* App chrome */
+/* Uygulama çerçevesi */
 
 .appHeader {
   display: flex;
@@ -589,7 +589,7 @@
   background: #f7f3ea;
 }
 
-/* Chat list */
+/* Sohbet listesi */
 
 .chatList {
   flex: 1;
@@ -666,7 +666,7 @@
   box-sizing: border-box;
 }
 
-/* Conversation */
+/* Konuşma */
 
 .messages {
   flex: 1;
@@ -774,7 +774,7 @@
   color: #a8402f;
 }
 
-/* ── Games ── */
+/* ── Oyunlar ── */
 
 .game {
   display: flex;
@@ -904,7 +904,7 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* Tiles glide to their new cell */
+/* Kareler yeni hücrelerine kayar */
 .terfiTile {
   transition: left 0.12s ease-out, top 0.12s ease-out;
 }
@@ -968,7 +968,7 @@
 
 
 
-/* a mute switch in group chats */
+/* grup sohbetlerinde bir sessiz anahtarı */
 .muteButton {
   margin-left: auto;
   display: grid;
@@ -987,7 +987,7 @@
   background: rgba(255, 255, 255, 0.24);
 }
 
-/* "Salı" between yesterday's and today's messages */
+/* dünün ve bugünün mesajları arasında "Salı" */
 .dayDivider {
   align-self: center;
   margin: 6px 0 2px;
@@ -1000,7 +1000,7 @@
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
 }
 
-/* sending: your bubble swooshes up from the reply bar, the ticks turn blue once read */
+/* gönderme: balonun cevap çubuğundan kayarak yükselir, okununca tikler maviye döner */
 .sent {
   animation: sendUp 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
   transform-origin: bottom right;
@@ -1028,7 +1028,7 @@
   }
 }
 
-/* the other side is typing */
+/* karşı taraf yazıyor */
 .typingBubble {
   display: inline-flex;
   gap: 4px;
@@ -1065,7 +1065,7 @@
   }
 }
 
-/* reply options rise in one after another and press down when tapped */
+/* cevap seçenekleri birbiri ardına yükselir ve dokununca basılır */
 .replyChip {
   animation: chipIn 0.28s ease both;
   transition: transform 0.1s ease, box-shadow 0.15s ease;

@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 /*
- * The room around the desk, painted once per size. An open-plan office corner seen from the
- * chair: a painted wall down to a skirting board, grey-blue carpet tiles running away to the
- * wall in true perspective, a suspended ceiling with its light panels, a low fabric partition
- * behind the desk only, and the light-oak desk itself — its top evenly lit by the ceiling
- * lights (no hot spots, no dark corners), its front edge and the shade underneath.
+ * Masanın çevresindeki oda, her boyutta bir kez boyanır. Sandalyeden görülen açık ofis köşesi:
+ * süpürgeliğe kadar boyalı bir duvar, gerçek perspektifle duvara doğru uzanan gri-mavi halı
+ * karolar, ışık panelli asma tavan, yalnızca masanın arkasında alçak bir kumaş bölme ve açık meşe
+ * masanın kendisi: üstü tavan ışıklarıyla eşit aydınlanmış (parlak nokta yok, karanlık köşe yok),
+ * ön kenarı ve altındaki gölge.
  */
 
 export const STAGE_W = 1600;
@@ -13,19 +13,19 @@ export const STAGE_H = 900;
 export const WALL_BOTTOM = 392;
 export const DESK_BACK = 470;
 export const DESK_FRONT = 806;
-/** The room is painted this far past the stage on every side, so a wide screen never runs out of office. */
+/** Oda her yönde sahnenin bu kadar ötesine boyanır; geniş bir ekranda ofis hiç bitmez. */
 export const EXTEND_X = 900;
 export const EXTEND_Y = 400;
-/** What the camera always keeps in frame: the whole desk plus a little air. */
+/** Kameranın her zaman kadrajda tuttuğu: bütün masa artı biraz boşluk. */
 export const FIT_W = 1700;
 export const FIT_H = 1010;
-/** Eye level: where the partition rail sits and where the room's receding lines meet. */
+/** Göz hizası: bölme rayının durduğu ve odanın uzaklaşan çizgilerinin buluştuğu yer. */
 const HORIZON = 388;
 const VPX = STAGE_W / 2;
-/** Where the far wall meets the floor (the wall stands just behind the partition). */
+/** Arka duvarın zemine değdiği yer (duvar bölmenin hemen arkasında durur). */
 export const FLOOR_LINE = 606;
 const CEILING = -160;
-// the desk: slightly wider at the front than at the back
+// masa: önde arkadan biraz daha geniş
 const DESK_BL = -20;
 const DESK_BR = STAGE_W + 20;
 const DESK_FL = -70;
@@ -44,13 +44,13 @@ const X1 = STAGE_W + EXTEND_X;
 const Y0 = -EXTEND_Y;
 const Y1 = STAGE_H + EXTEND_Y;
 
-/** A point on the floor straight out from wall position x at screen depth y. */
+/** Zeminde, duvardaki x konumundan ekran derinliği y'ye doğru düz bir nokta. */
 const floorX = (xAtWall: number, y: number) => VPX + (xAtWall - VPX) * ((y - HORIZON) / (FLOOR_LINE - HORIZON));
 
 function paintCeiling(g: CanvasRenderingContext2D) {
   g.fillStyle = '#e4e2dc';
   g.fillRect(X0, Y0, X1 - X0, CEILING - Y0);
-  // grid of acoustic tiles receding towards the wall
+  // duvara doğru uzaklaşan akustik karo ızgarası
   g.strokeStyle = 'rgba(120,114,104,0.45)';
   g.lineWidth = 2;
   for (let k = 0; k < 7; k++) {
@@ -68,7 +68,7 @@ function paintCeiling(g: CanvasRenderingContext2D) {
     g.lineTo(VPX + (xw - VPX) * 2.4, Y0);
     g.stroke();
   }
-  // two light panels
+  // iki ışık paneli
   for (const cx of [VPX - 480, VPX + 480]) {
     const glow = g.createLinearGradient(0, Y0, 0, CEILING);
     glow.addColorStop(0, 'rgba(255,254,248,1)');
@@ -96,7 +96,7 @@ function paintWall(g: CanvasRenderingContext2D, r: () => number) {
   wall.addColorStop(1, '#cfc8bb');
   g.fillStyle = wall;
   g.fillRect(X0, CEILING, X1 - X0, FLOOR_LINE - CEILING);
-  // daylight from the window washes the wall to its right a little
+  // pencereden gelen gün ışığı sağındaki duvarı biraz aydınlatır
   const day = g.createRadialGradient(1250, 180, 60, 1250, 180, 900);
   day.addColorStop(0, 'rgba(255,252,242,0.35)');
   day.addColorStop(1, 'rgba(255,252,242,0)');
@@ -106,7 +106,7 @@ function paintWall(g: CanvasRenderingContext2D, r: () => number) {
     g.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.035)';
     g.fillRect(X0 + r() * (X1 - X0), CEILING + r() * (FLOOR_LINE - CEILING), 1.5, 1.5);
   }
-  // skirting board
+  // süpürgelik
   g.fillStyle = '#9d968a';
   g.fillRect(X0, FLOOR_LINE - 12, X1 - X0, 12);
   g.fillStyle = 'rgba(255,255,255,0.35)';
@@ -119,7 +119,7 @@ function paintFloor(g: CanvasRenderingContext2D, r: () => number) {
   base.addColorStop(1, '#474e5b');
   g.fillStyle = base;
   g.fillRect(X0, FLOOR_LINE, X1 - X0, Y1 - FLOOR_LINE);
-  // carpet tiles, quarter-turned so neighbours differ a shade; rows spaced by perspective
+  // halı karolar, komşular bir ton farklı olsun diye çeyrek döndürülmüş; sıralar perspektifle aralıklı
   const rows: number[] = [FLOOR_LINE];
   for (let k = 1; k < 40; k++) {
     const y = HORIZON + (FLOOR_LINE - HORIZON) / (1 - k * 0.14);
@@ -127,7 +127,7 @@ function paintFloor(g: CanvasRenderingContext2D, r: () => number) {
     rows.push(y);
   }
   rows.push(Y1);
-  const tile = 70; // width of a tile where it meets the wall
+  const tile = 70; // bir karonun duvarla buluştuğu yerdeki genişliği
   for (let k = 0; k < rows.length - 1; k++) {
     const ya = rows[k];
     const yb = rows[k + 1];
@@ -160,14 +160,14 @@ function paintFloor(g: CanvasRenderingContext2D, r: () => number) {
     g.lineTo(floorX(xa, Y1), Y1);
     g.stroke();
   }
-  // carpet fibre
+  // halı lifi
   for (let i = 0; i < 30000; i++) {
     const y = FLOOR_LINE + r() * (Y1 - FLOOR_LINE);
     g.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.045)' : 'rgba(0,0,0,0.07)';
     const s = 1 + ((y - FLOOR_LINE) / (Y1 - FLOOR_LINE)) * 2;
     g.fillRect(X0 + r() * (X1 - X0), y, s, s);
   }
-  // soft shadow along the skirting and the light pooling from the ceiling panels
+  // süpürgelik boyunca yumuşak gölge ve tavan panellerinden düşen ışık havuzu
   const sk = g.createLinearGradient(0, FLOOR_LINE, 0, FLOOR_LINE + 30);
   sk.addColorStop(0, 'rgba(20,20,26,0.35)');
   sk.addColorStop(1, 'rgba(20,20,26,0)');
@@ -176,7 +176,7 @@ function paintFloor(g: CanvasRenderingContext2D, r: () => number) {
 }
 
 function paintPartition(g: CanvasRenderingContext2D, r: () => number) {
-  // a low fabric screen behind the desk only; its posts run down to the floor at the ends
+  // yalnızca masanın arkasında alçak bir kumaş bölme; uçlarda direkleri zemine iner
   const fab = g.createLinearGradient(0, WALL_BOTTOM, 0, DESK_BACK);
   fab.addColorStop(0, '#5d6776');
   fab.addColorStop(1, '#4d5663');
@@ -204,14 +204,14 @@ function paintPartition(g: CanvasRenderingContext2D, r: () => number) {
 }
 
 function paintDesk(g: CanvasRenderingContext2D, r: () => number) {
-  // under the desk: modesty panel in shade, the floor beneath darker still
+  // masanın altı: gölgede ön panel, altındaki zemin daha da koyu
   const under = g.createLinearGradient(0, DESK_FRONT, 0, Y1);
   under.addColorStop(0, '#1d1812');
   under.addColorStop(0.35, '#2a241c');
   under.addColorStop(1, '#343844');
   g.fillStyle = under;
   g.fillRect(DESK_FL + 30, DESK_FRONT, DESK_FR - DESK_FL - 60, Y1 - DESK_FRONT);
-  // the desk's end panels, in laminate, running down to the carpet
+  // masanın yan panelleri, laminat, halıya kadar iner
   for (const [x, w] of [
     [DESK_FL, 34],
     [DESK_FR - 34, 34],
@@ -223,7 +223,7 @@ function paintDesk(g: CanvasRenderingContext2D, r: () => number) {
     g.fillRect(x, DESK_FRONT, w, Y1 - DESK_FRONT);
   }
 
-  // top: even ceiling light, a touch brighter towards you — no vignette, no hot spot
+  // üst: eşit tavan ışığı, sana doğru biraz daha parlak; vinyet yok, parlak nokta yok
   g.save();
   g.beginPath();
   g.moveTo(DESK_BL, DESK_BACK);
@@ -251,7 +251,7 @@ function paintDesk(g: CanvasRenderingContext2D, r: () => number) {
     g.bezierCurveTo(x0 + len * 0.3, y + wob * 2, x0 + len * 0.7, y - wob * 2, x0 + len, y + wob);
     g.stroke();
   }
-  // just a thin contact shadow where the top meets the partition
+  // üstün bölmeyle buluştuğu yerde yalnızca ince bir temas gölgesi
   const sh = g.createLinearGradient(0, DESK_BACK, 0, DESK_BACK + 18);
   sh.addColorStop(0, 'rgba(30,20,10,0.35)');
   sh.addColorStop(1, 'rgba(30,20,10,0)');
@@ -259,14 +259,14 @@ function paintDesk(g: CanvasRenderingContext2D, r: () => number) {
   g.fillRect(DESK_FL, DESK_BACK, DESK_FR - DESK_FL, 18);
   g.restore();
 
-  // front edge band
+  // ön kenar şeridi
   const edge = g.createLinearGradient(0, DESK_FRONT, 0, DESK_FRONT + 16);
   edge.addColorStop(0, '#f0dcc0');
   edge.addColorStop(0.15, '#b89168');
   edge.addColorStop(1, '#7a5a38');
   g.fillStyle = edge;
   g.fillRect(DESK_FL, DESK_FRONT, DESK_FR - DESK_FL, 16);
-  // the side edges of the top, seen at an angle
+  // üstün açıyla görülen yan kenarları
   g.fillStyle = '#9c7a52';
   for (const [a, b] of [
     [DESK_BL, DESK_FL],

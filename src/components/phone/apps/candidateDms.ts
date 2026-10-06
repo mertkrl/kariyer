@@ -1,11 +1,11 @@
 import { keyCharacter } from '../../../game/story';
 
 /*
- * Rejected candidates find you on Kariyergram — some of them. Who writes, how long they wait
- * before writing and in what temper is decided per game (a hash of their id and the game's seed),
- * so no two weeks have the same inbox. The week's recurring characters always write, in their
- * own words. The honest reply depends on the rule that actually rejected them that day — which
- * company policy says you must never disclose.
+ * Reddedilen adaylar seni Kariyergram'da bulur, bazıları. Kimin yazdığı, yazmadan önce ne kadar
+ * beklediği ve hangi ruh hâlinde yazdığı oyun başına belirlenir (kimliğinin ve oyunun tohumunun bir
+ * özeti); böylece hiçbir iki haftanın gelen kutusu aynı olmaz. Haftanın tekrar eden karakterleri
+ * her zaman kendi sözleriyle yazar. Dürüst cevap, o gün onları gerçekte reddeden kurala bağlıdır;
+ * şirket politikası bunu asla açıklamaman gerektiğini söyler.
  */
 
 export interface DmCandidate {
@@ -14,10 +14,10 @@ export interface DmCandidate {
   initials: string;
   color: string;
   role: string;
-  /** Workday minute the rejection was made. */
+  /** Reddin yapıldığı mesai dakikası. */
   at: number;
   dayIndex: number;
-  /** Game minutes they wait before writing. */
+  /** Yazmadan önce bekledikleri oyun dakikası. */
   delay: number;
   temper: Temper;
 }
@@ -26,7 +26,7 @@ export type Temper = 'kırgın' | 'öfkeli' | 'kibar' | 'pratik' | 'esprili' | '
 
 interface Voice {
   openers: ((c: DmCandidate) => string)[];
-  /** What they write back to your honest answer, and to the template. */
+  /** Dürüst cevabına ve şablona karşılık yazdıkları. */
   honest: string[];
   template: string[];
 }
@@ -84,7 +84,7 @@ const VOICES: Record<Temper, Voice> = {
 
 const TEMPERS = Object.keys(VOICES) as Temper[];
 
-/** The real reason, by the rule of the day the rejection happened. */
+/** Gerçek gerekçe, reddin olduğu günün kuralına göre. */
 const REASONS = [
   'İlanda junior pozisyon için bile 5 yıl deneyim şartı vardı. Bu senin eksiğin değil, ilanın saçmalığı.',
   'Ön elemeyi yapay zekâ ATS skoruna göre yaptı. CV\'ni sade, tek sütunlu yap; anahtar kelimeleri ilandan al.',
@@ -94,19 +94,19 @@ const REASONS = [
 
 const hash = (s: string) => [...s].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
 
-/** About two in five rejected candidates write; the story's recurring characters always do. */
+/** Reddedilen adayların yaklaşık beşte ikisi yazar; hikâyenin tekrar eden karakterleri her zaman yazar. */
 export function writesBack(id: string, seed: number) {
   return !!keyCharacter(id) || hash(`${id}:${seed}`) % 100 < 40;
 }
 
-/** When and in what temper they write, fixed for this game. */
+/** Ne zaman ve hangi ruh hâliyle yazdıkları, bu oyun için sabit. */
 export function dmProfile(id: string, seed: number): { delay: number; temper: Temper } {
   const h = hash(`${seed}:${id}`);
   return { delay: 15 + (h % 50), temper: TEMPERS[(h >>> 4) % TEMPERS.length] };
 }
 
 export function openerFor(c: DmCandidate) {
-  // the week's recurring characters write in their own words
+  // haftanın tekrar eden karakterleri kendi sözleriyle yazar
   const own = keyCharacter(c.id)?.dm;
   if (own) return own;
   const list = VOICES[c.temper].openers;

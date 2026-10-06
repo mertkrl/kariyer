@@ -1,13 +1,13 @@
 /*
- * The page's Content-Security-Policy, in one place. vite.config.ts writes it into the built page
- * as a <meta> tag (so it holds on any host), and public/_headers sends it as a header too, where
- * the host reads that file — a test keeps the two the same. It allows nothing but the game's own
- * files: no other site's scripts, no requests leaving the page (the game has no server and sends
- * nothing), and no strings turned into script (Trusted Types). The one script address the game
- * hands the browser — its own service worker — goes through the single policy allowed here,
- * which accepts that address and nothing else (swUpdate.ts).
+ * Sayfanın İçerik Güvenliği Politikası, tek bir yerde. vite.config.ts onu derlenmiş sayfaya bir
+ * <meta> etiketi olarak yazar (böylece her sunucuda geçerli olur), public/_headers da sunucunun o
+ * dosyayı okuduğu yerlerde onu başlık olarak gönderir; bir test ikisini aynı tutar. Oyunun kendi
+ * dosyalarından başka hiçbir şeye izin vermez: başka sitelerin scriptleri yok, sayfadan çıkan istek
+ * yok (oyunun sunucusu yok ve hiçbir şey göndermez) ve scripte dönüştürülen metin yok (Trusted Types).
+ * Oyunun tarayıcıya verdiği tek script adresi, yani kendi service worker'ı, burada izin verilen tek
+ * politikadan geçer; o da bu adresi kabul eder, başka hiçbir şeyi değil (swUpdate.ts).
  */
-/** The only Trusted Types policy the page may create. */
+/** Sayfanın oluşturabileceği tek Trusted Types politikası. */
 export const TT_POLICY = 'sen-iksin-sw';
 
 export const CSP_DIRECTIVES = [
@@ -27,7 +27,7 @@ export const CSP_DIRECTIVES = [
   `trusted-types ${TT_POLICY}`,
 ];
 
-/** Only a header can refuse framing; a <meta> policy ignores this directive. */
+/** Çerçeveye almayı yalnızca bir başlık reddedebilir; <meta> politikası bu yönergeyi yok sayar. */
 export const HEADER_ONLY_DIRECTIVES = ["frame-ancestors 'none'"];
 
 export const CSP = CSP_DIRECTIVES.join('; ');

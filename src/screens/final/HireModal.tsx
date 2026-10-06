@@ -14,9 +14,9 @@ import styles from '../FinalRoundScreen.module.css';
 import { avatarStyle } from '../../components/ui/avatarStyle';
 
 /*
- * Recommending someone: the room side by side, how the panel votes, and — when it would hire
- * someone else — your case to the team lead, made from the notes you took. Which notes you put
- * forward and how that went belong to this one sitting, so they live here.
+ * Birini önermek: oda yan yana, kurulun nasıl oy verdiği ve — başka birini işe alacaksa —
+ * aldığın notlardan kurduğun, ekip liderine sunduğun gerekçe. Hangi notları öne sürdüğün ve
+ * bunun nasıl gittiği bu tek oturuma aittir, bu yüzden burada durur.
  */
 export interface HireModalProps {
   candidate: Candidate;
@@ -27,7 +27,7 @@ export interface HireModalProps {
   pastRequests: { candidateId: string; want: Decision }[];
   fit: number;
   onClose: () => void;
-  /** Sign the panel's decision; `convinced`: you argued the team lead round. */
+  /** Kurulun kararını imzala; `convinced`: ekip liderini ikna ettin. */
   onConfirm: (convinced: boolean) => void;
 }
 
@@ -52,10 +52,10 @@ export function HireModal({ candidate, pool, scores, agreed, notes, pastRequests
             gap={scoreGap(scores, (id) => hakanTarget(id, candidateOf(id).age))}
           />
           {(() => {
-            // you recommend; the panel votes — Ümit can be argued round, with your notes
+            // sen önerirsin, kurul oylar; Ümit notlarınla ikna edilebilir
             const convinced = defense?.id === selectedId && defense.holds;
             const panel = panelDecision(selectedId, pool, pastRequests, { agreed, convinced });
-            // only worth arguing when the panel would otherwise hire someone else
+            // yalnızca kurul başka birini işe alacaksa tartışmaya değer
             const contested = panel.hired !== selectedId && panel.lead !== selectedId && !panel.overBudget && !convinced;
             const first = (id: string) => candidateOf(id).name.split(' ')[0];
             return (
@@ -135,7 +135,7 @@ export function HireModal({ candidate, pool, scores, agreed, notes, pastRequests
   );
 }
 
-/** The room side by side before you recommend: your scores, the pay agreed, how much you noted. */
+/** Önermeden önce oda yan yana: puanların, anlaşılan maaş, ne kadar not aldığın. */
 function Comparison({ pool, scores, agreed, notes, gap }: { pool: string[]; scores: Record<string, Scores>; agreed: Record<string, number | null>; notes: Record<string, Note[]>; gap: number | null }) {
   const rows = pool.map((id) => ({ id, avg: average(scores[id]), pay: agreed[id], noted: notes[id]?.length ?? 0 })).sort((a, b) => (b.avg ?? -1) - (a.avg ?? -1));
   return (

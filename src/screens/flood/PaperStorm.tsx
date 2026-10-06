@@ -5,23 +5,23 @@ import { createPaperRenderer, type PaperView } from './paperRender';
 import styles from './PaperStorm.module.css';
 
 /*
- * Real-time paper simulation for the application-flood screen, drawn on one canvas.
+ * Başvuru yağmuru ekranı için gerçek zamanlı kâğıt simülasyonu, tek bir canvas'a çizilir.
  *
- * Every sheet is a thin plate in 3D above the desk (the screen): it has a height, a velocity and
- * an orientation (yaw + two tilts). The camera looks straight down with perspective, so sheets
- * that fly high come closer and grow; a directional light shades them by their tilt and casts a
- * shadow on the desk that drifts away and softens with height.
+ * Her sayfa masanın (ekranın) üstünde 3B ince bir levhadır: yüksekliği, hızı ve yönelimi
+ * (dönüş + iki eğim) vardır. Kamera perspektifle tam aşağı bakar; yükseğe uçan sayfalar yaklaşır
+ * ve büyür. Yönlü bir ışık sayfaları eğimlerine göre gölgelendirir ve masaya, yükseldikçe
+ * uzaklaşan ve yumuşayan bir gölge düşürür.
  *
- * mode "in"  — CVs are sucked into the AI core: a tightening, accelerating vortex from beyond the
- *              screen edges; they tumble, lose height and vanish into the core.
- * mode "out" — the core blasts rejected CVs out. Launch: ballistic with gravity and orientation-
- *              dependent air drag (edge-on slices through the air, broadside brakes hard), while
- *              tumbling. Once slow and falling, a sheet flutters down like a leaf — a pendulum
- *              sway of its tilts driving a side-to-side glide. It lands, slides, flattens, and
- *              gets stamped. Sheets pile up on each other; about a third sail off-screen.
+ * "in" modu  — CV'ler yapay zekâ çekirdeğine çekilir: ekranın kenarlarının ötesinden gelen,
+ *              daralan ve hızlanan bir girdap; takla atar, alçalır ve çekirdekte kaybolurlar.
+ * "out" modu — çekirdek reddedilen CV'leri dışarı fırlatır. Fırlatma: yerçekimi ve yönelime bağlı
+ *              hava direnciyle (yan dönük havayı yarar, düz yüzü sert frenler) balistik, takla
+ *              atarak. Yavaşlayıp düşmeye başlayan sayfa bir yaprak gibi süzülür: eğimlerinin
+ *              sarkaç salınımı onu yana yana kaydırır. İner, kayar, düzleşir ve damgalanır.
+ *              Sayfalar üst üste yığılır; yaklaşık üçte biri ekrandan uçup gider.
  *
- * The motion lives in paperPhysics.ts, the drawing in paperRender.ts; this component owns the
- * canvas, the animation loop and the callbacks.
+ * Hareket paperPhysics.ts'de, çizim paperRender.ts'de; bu bileşen canvas'ı, animasyon döngüsünü
+ * ve geri çağrıları yönetir.
  */
 
 export type { ClearZone, Point };
@@ -30,7 +30,7 @@ interface PaperStormProps {
   mode: 'in' | 'out';
   origin: Point;
   count: number;
-  /** "in": seconds over which the CVs keep arriving. */
+  /** "in": CV'lerin gelmeye devam ettiği süre (saniye). */
   window?: number;
   chaotic?: boolean;
   clear?: ClearZone;
@@ -45,7 +45,7 @@ export function PaperStorm({ mode, origin, count, window: spawnWindow = 1.8, cha
   useEffect(() => {
     callbacks.current = { onAbsorb, onLaunch, onLand };
   });
-  // The core's position is captured at mount; a resize mid-flight must not restart the simulation.
+  // Çekirdeğin konumu açılışta alınır; uçuş ortasında yeniden boyutlandırma simülasyonu baştan başlatmamalı.
   const setup = useRef({ origin, count, spawnWindow, chaotic, clear, mode });
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export function PaperStorm({ mode, origin, count, window: spawnWindow = 1.8, cha
       let alive = false;
       for (const s of sheets) {
         if (s.state === 'gone') continue;
-        // two substeps keep the fast launches stable
+        // iki ara adım hızlı fırlatmaları kararlı tutar
         for (let i = 0; i < 2; i++) {
           if (stepOut(s, t, dt / 2, view.vw, view.vh)) callbacks.current.onLand?.(clampPan(s.x), landings++);
         }
@@ -86,7 +86,7 @@ export function PaperStorm({ mode, origin, count, window: spawnWindow = 1.8, cha
       }
       draw.clear();
       const live = sheets.filter((s) => s.state !== 'gone' && s.state !== 'wait');
-      // landed first (in landing order), then airborne sheets low to high
+      // önce inenler (iniş sırasıyla), sonra havadakiler alçaktan yükseğe
       live.sort((p, q) => (p.state === 'landed' ? (q.state === 'landed' ? p.landedAt - q.landedAt : -1) : q.state === 'landed' ? 1 : p.z - q.z));
       for (const s of live) draw.drawShadow(s, 1, 1);
       for (const s of live) {

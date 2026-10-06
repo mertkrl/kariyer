@@ -1,11 +1,11 @@
 /*
- * Everything the game keeps lives in this browser under keys starting with "kariyerweb-": the
- * day's checkpoint, achievements, sound and reading-size settings. Nothing is sent anywhere.
- * This removes all of it, for a player who wants the device to forget the game — the offline
- * copy too (the service worker and the files it cached), so nothing of the game stays behind.
+ * Oyunun tuttuğu her şey bu tarayıcıda "kariyerweb-" ile başlayan anahtarlar altında durur: günün
+ * kaydı, başarımlar, ses ve okuma boyutu ayarları. Hiçbir şey hiçbir yere gönderilmez. Bu,
+ * cihazın oyunu unutmasını isteyen oyuncu için hepsini siler; çevrimdışı kopyayı da (service
+ * worker ve önbelleğe aldığı dosyalar), böylece oyundan geriye hiçbir şey kalmaz.
  */
 export const STORAGE_PREFIX = 'kariyerweb-';
-/** The offline copy's caches (named in vite.config.ts). */
+/** Çevrimdışı kopyanın önbellekleri (adları vite.config.ts'de verilir). */
 export const CACHE_PREFIX = 'sen-iksin-';
 
 export async function clearAllGameData() {

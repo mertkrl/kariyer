@@ -2,11 +2,11 @@ import { useEffect, useRef } from 'react';
 import { glow, makeRng, vGradient, type Rng } from '../../components/dayend/city/kit';
 
 /*
- * The view from your living-room window on Friday night: not the Bosphorus — the block across
- * the street. Apartments crammed wall to wall at every height, satellite dishes and AC boxes,
- * an illegal extra floor in a different colour, laundry strung between balconies, cables over
- * the street, a crane in the distance. Right opposite, a building already emptied for demolition:
- * blind windows, a bricked-up corner, and the white banner every Istanbul street knows.
+ * Cuma gecesi oturma odasının penceresinden görünen: Boğaz değil, sokağın karşısındaki blok.
+ * Her yükseklikte duvar duvara sıkışmış apartmanlar, çanak antenler ve klima kutuları, farklı
+ * renkte kaçak bir kat, balkonlar arasına gerilmiş çamaşırlar, sokağın üstünden geçen kablolar,
+ * uzakta bir vinç. Tam karşıda yıkım için boşaltılmış bir bina: kör pencereler, tuğlayla
+ * örülmüş bir köşe ve her İstanbul sokağının tanıdığı beyaz pankart.
  */
 
 const VW = 800;
@@ -25,13 +25,13 @@ interface Win {
   tv: boolean;
 }
 
-/** One apartment block: a lit front and a shadowed side face, plaster grain, framed windows,
- * balconies with iron railings, a shuttered shop at street level, rooftop clutter. */
+/** Bir apartman bloğu: ışıklı ön cephe ve gölgedeki yan cephe, sıva dokusu, çerçeveli pencereler,
+ * demir korkuluklu balkonlar, sokak seviyesinde kepengi inik bir dükkân, çatıdaki kalabalık. */
 function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: number, color: RGB, wins: Win[], extraFloor?: RGB) {
   const floorH = 30;
   const side = 14;
   const shade = (c: RGB, k: number): RGB => [c[0] * k, c[1] * k, c[2] * k];
-  // side face in shadow, then the front
+  // gölgedeki yan cephe, sonra ön cephe
   b.fillStyle = rgb(shade(color, 0.55));
   b.beginPath();
   b.moveTo(x + w, top);
@@ -44,7 +44,7 @@ function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: n
   grad.addColorStop(1, rgb(shade(color, 1.05)));
   b.fillStyle = grad;
   b.fillRect(x, top, w, VH - top);
-  // plaster grain and rain streaks
+  // sıva dokusu ve yağmur izleri
   for (let i = 0; i < (w * (VH - top)) / 60; i++) {
     b.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)';
     b.fillRect(x + r() * w, top + r() * (VH - top), 1.2, 1.2);
@@ -54,14 +54,14 @@ function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: n
     b.fillRect(x + r() * w, top, 2 + r() * 3, (VH - top) * (0.3 + r() * 0.5));
   }
   if (extraFloor) {
-    // the illegal floor: a different colour, a different window, no eaves
+    // kaçak kat: farklı renk, farklı pencere, saçak yok
     b.fillStyle = rgb(extraFloor);
     b.fillRect(x + 6, top - floorH, w - 12, floorH);
     b.fillStyle = 'rgba(0,0,0,0.25)';
     b.fillRect(x + 6, top - 2, w - 12, 2);
     top -= floorH;
   }
-  // rooftop: parapet, water tank, dish, antenna
+  // çatı: korkuluk duvarı, su deposu, çanak, anten
   b.fillStyle = rgb(shade(color, 0.6));
   b.fillRect(x - 2, top - 4, w + 4, 4);
   if (r() < 0.7) {
@@ -97,7 +97,7 @@ function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: n
       const wx = x + gap + c * (18 + gap);
       const lit = r() < 0.42;
       const warm = r() < 0.78;
-      // white PVC frame and a sill
+      // beyaz PVC çerçeve ve pervaz
       b.fillStyle = '#d9d6ce';
       b.fillRect(wx - 2, fy - 2, 22, 20);
       b.fillStyle = 'rgba(0,0,0,0.25)';
@@ -110,7 +110,7 @@ function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: n
         b.fillRect(wx + 23, fy + 7, 8, 5);
       }
     }
-    // a balcony every other floor: slab + iron railing
+    // iki katta bir balkon: döşeme + demir korkuluk
     if (((fy - top) / floorH) % 2 < 1) {
       b.fillStyle = 'rgba(0,0,0,0.35)';
       b.fillRect(x + 4, fy + 23, w * 0.45, 3);
@@ -126,7 +126,7 @@ function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: n
       b.stroke();
     }
   }
-  // street level: a shop with its shutter down, a lit sign on one
+  // sokak seviyesi: kepengi inik bir dükkân, birinde ışıklı tabela
   b.fillStyle = '#2a2a2e';
   b.fillRect(x + 6, shopTop, w - 12, 34);
   b.strokeStyle = 'rgba(255,255,255,0.08)';
@@ -142,19 +142,19 @@ function block(b: CanvasRenderingContext2D, r: Rng, x: number, w: number, top: n
   }
 }
 
-/** The emptied building opposite, with the banner. */
+/** Karşıdaki boşaltılmış bina, pankartıyla. */
 function condemned(b: CanvasRenderingContext2D, r: Rng) {
   const x = 150;
   const w = 260;
   const top = 120;
-  // granite-chip facade
+  // mozaik (granit kırıklı) cephe
   b.fillStyle = '#6f6b66';
   b.fillRect(x, top, w, VH - top);
   for (let i = 0; i < 1400; i++) {
     b.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.12)';
     b.fillRect(x + r() * w, top + r() * (VH - top), 1.5, 1.5);
   }
-  // blind windows: frames already torn out
+  // kör pencereler: çerçeveleri sökülmüş
   for (let fy = top + 18; fy < VH - 30; fy += 58) {
     for (const wx of [x + 14, x + w - 70]) {
       b.fillStyle = '#16140f';
@@ -163,7 +163,7 @@ function condemned(b: CanvasRenderingContext2D, r: Rng) {
       b.fillRect(wx, fy + 36, 56, 5);
     }
   }
-  // a bricked-up bay on the right
+  // sağda tuğlayla örülmüş bir bölme
   b.fillStyle = '#8a4a34';
   b.fillRect(x + w - 70, top + 18, 56, 36);
   b.strokeStyle = 'rgba(40,20,10,0.5)';
@@ -175,7 +175,7 @@ function condemned(b: CanvasRenderingContext2D, r: Rng) {
     b.stroke();
   }
 
-  // the banner, drawn a quarter larger so it reads through the window
+  // pankart, pencereden okunsun diye dörtte bir büyük çizilir
   b.save();
   const ox = x + 52;
   b.translate(ox, top + 20);
@@ -189,7 +189,7 @@ function condemned(b: CanvasRenderingContext2D, r: Rng) {
   b.fillRect(bx + 4, by + 4, bw, bh);
   b.fillStyle = '#f1efe8';
   b.fillRect(bx, by, bw, bh);
-  // ropes at the corners
+  // köşelerdeki halatlar
   b.strokeStyle = '#d8d4c8';
   b.beginPath();
   b.moveTo(bx, by);
@@ -215,7 +215,7 @@ function condemned(b: CanvasRenderingContext2D, r: Rng) {
   line('ÇEVREYE VERDİĞİMİZ', by + 148, 8, '#2b2d33', 700);
   line('RAHATSIZLIKTAN DOLAYI', by + 160, 8, '#2b2d33', 700);
   line('ÖZÜR DİLERİZ...', by + 172, 8, '#2b2d33', 700);
-  // the banner sags a little in the middle
+  // pankart ortadan biraz sarkar
   b.fillStyle = 'rgba(0,0,0,0.06)';
   b.fillRect(bx, by + bh * 0.45, bw, 14);
   b.restore();
@@ -234,7 +234,7 @@ export function WindowView({ className }: { className?: string }) {
     canvas.height = VH * dpr;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // static backdrop
+    // sabit arka plan
     const bg = document.createElement('canvas');
     bg.width = canvas.width;
     bg.height = canvas.height;
@@ -242,7 +242,7 @@ export function WindowView({ className }: { className?: string }) {
     b.scale(dpr, dpr);
     const r = makeRng(41);
 
-    // a city sky: no stars, the low clouds lit orange from below
+    // şehir gökyüzü: yıldız yok, alçak bulutlar alttan turuncu aydınlanmış
     b.fillStyle = vGradient(b, 0, VH, [
       [0, '#0c0f1a'],
       [0.45, '#241f2c'],
@@ -250,7 +250,7 @@ export function WindowView({ className }: { className?: string }) {
     ]);
     b.fillRect(0, 0, VW, VH);
 
-    // far layer: a wall of blocks, windows as specks
+    // uzak katman: bloklardan bir duvar, pencereler nokta nokta
     const far: Win[] = [];
     for (let x = -10; x < VW; ) {
       const w = 40 + r() * 60;
@@ -266,7 +266,7 @@ export function WindowView({ className }: { className?: string }) {
       b.fillRect(f.x, f.y, f.w, f.h);
     }
 
-    // far on the skyline: a mosque's dome and two minarets, hazy
+    // uzakta silüette: bir caminin kubbesi ve iki minare, puslu
     b.fillStyle = '#23222b';
     b.beginPath();
     b.arc(470, 150, 34, Math.PI, 0);
@@ -284,7 +284,7 @@ export function WindowView({ className }: { className?: string }) {
     glow(b, 424, 100, 10, [255, 220, 150], 0.25);
     glow(b, 516, 100, 10, [255, 220, 150], 0.25);
 
-    // the crane
+    // vinç
     b.strokeStyle = '#141419';
     b.lineWidth = 3;
     b.beginPath();
@@ -303,7 +303,7 @@ export function WindowView({ className }: { className?: string }) {
     b.lineTo(720, 130);
     b.stroke();
 
-    // mid layer: the blocks around the emptied one, wall to wall
+    // orta katman: boşaltılan binanın çevresindeki bloklar, duvar duvara
     const wins: Win[] = [];
     const palette: RGB[] = [
       [150, 134, 112],
@@ -320,7 +320,7 @@ export function WindowView({ className }: { className?: string }) {
       b.fillStyle = w.lit ? (w.warm ? '#f2c883' : '#9fb8d8') : '#1e1c1a';
       b.fillRect(w.x, w.y, w.w, w.h);
       if (w.lit) {
-        // a curtain in some lit windows
+        // bazı ışıklı pencerelerde perde
         if (r() < 0.5) {
           b.fillStyle = 'rgba(120,60,40,0.35)';
           b.fillRect(w.x, w.y, w.w * 0.4, w.h);
@@ -328,10 +328,10 @@ export function WindowView({ className }: { className?: string }) {
       }
     }
 
-    // the building opposite, and the banner on it
+    // karşıdaki bina ve üzerindeki pankart
     condemned(b, r);
 
-    // laundry between two balconies on the left block
+    // soldaki blokta iki balkon arasında çamaşır
     b.strokeStyle = 'rgba(220,220,210,0.6)';
     b.beginPath();
     b.moveTo(20, 312);
@@ -342,7 +342,7 @@ export function WindowView({ className }: { className?: string }) {
       b.fillRect(28 + i * 18, 314 + Math.sin(i) * 2, 10, 14 + (i % 2) * 5);
     }
 
-    // cables over the street
+    // sokağın üstündeki kablolar
     b.strokeStyle = 'rgba(10,10,12,0.8)';
     b.lineWidth = 1.2;
     for (const [y0, y1, sag] of [
@@ -355,7 +355,7 @@ export function WindowView({ className }: { className?: string }) {
       b.stroke();
     }
 
-    // the pavement and a parked car
+    // kaldırım ve park etmiş bir araba
     b.fillStyle = '#3a3634';
     b.fillRect(0, VH - 10, VW, 10);
     b.fillStyle = '#1a1b20';
@@ -375,14 +375,14 @@ export function WindowView({ className }: { className?: string }) {
     b.arc(500, VH - 8, 8, 0, Math.PI * 2);
     b.arc(575, VH - 8, 8, 0, Math.PI * 2);
     b.fill();
-    // a thin haze the street light hangs in
+    // sokak lambasının içinde asılı durduğu ince bir pus
     b.fillStyle = vGradient(b, 280, VH, [
       [0, 'rgba(120,90,70,0)'],
       [1, 'rgba(120,90,70,0.28)'],
     ]);
     b.fillRect(0, 280, VW, VH - 280);
 
-    // a street tree in the foreground, bare branches against the light
+    // önde bir sokak ağacı, ışığa karşı çıplak dallar
     b.strokeStyle = '#0f0e0d';
     b.lineCap = 'round';
     const branch = (x: number, y: number, len: number, ang: number, w: number, depth: number) => {
@@ -399,13 +399,13 @@ export function WindowView({ className }: { className?: string }) {
     };
     branch(760, VH, 110, -Math.PI / 2 - 0.08, 9, 6);
 
-    // the street light below, catching the banner
+    // aşağıdaki sokak lambası, pankartı aydınlatıyor
     b.globalCompositeOperation = 'lighter';
     glow(b, 300, 470, 220, [255, 170, 90], 0.35);
     glow(b, 280, 230, 150, [255, 200, 140], 0.18);
     b.globalCompositeOperation = 'source-over';
 
-    // a few windows change during the evening; one is a TV
+    // akşam boyunca birkaç pencere değişir; biri televizyon
     const live = wins.filter((w) => w.tv || r() < 0.08);
     const phase = live.map(() => r() * 40);
 
@@ -426,7 +426,7 @@ export function WindowView({ className }: { className?: string }) {
           g.fillRect(w.x, w.y, w.w, w.h);
         }
       });
-      // the crane's warning light
+      // vincin ikaz ışığı
       if (Math.floor(t * 1.2) % 2 === 0) glow(g, 640, 58, 7, [255, 60, 50], 0.9, true);
       if (!still) raf = requestAnimationFrame(frame);
     };

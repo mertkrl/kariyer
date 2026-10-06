@@ -1,7 +1,7 @@
 /*
- * The game's promises about the player's data, held as tests: nothing leaves the page, all of
- * it sits under one prefix (so "verilerimi sil" reaches it), a save can't smuggle anything into
- * the game's state, and the published page's security policy is the same everywhere.
+ * Oyunun oyuncunun verisiyle ilgili sözleri, test olarak tutulur: sayfadan hiçbir şey çıkmaz, hepsi
+ * tek bir önek altında durur ("verilerimi sil" ona ulaşsın diye), bir kayıt oyunun durumuna hiçbir
+ * şey sokamaz ve yayınlanan sayfanın güvenlik politikası her yerde aynıdır.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,7 +17,7 @@ const srcFiles = readdirSync(join(root, 'src'), { recursive: true, encoding: 'ut
   .map((f) => ({ f, text: readFileSync(join(root, 'src', f), 'utf8') }));
 
 test('oyun ağ üzerinden hiçbir şey göndermez', () => {
-  // the only requests are the game's own music files (same origin, GET)
+  // tek istekler oyunun kendi müzik dosyaları (aynı köken, GET)
   const allowed = new Set(['audio/engineCore.ts', 'audio/audioEngine.ts']);
   const network = /\b(XMLHttpRequest|WebSocket|EventSource|sendBeacon|RTCPeerConnection)\b|\bfetch\s*\(/;
   const offenders = srcFiles.filter(({ f, text }) => network.test(text) && !allowed.has(f)).map(({ f }) => f);
@@ -35,11 +35,11 @@ test('HTML metni koda dönüşmez', () => {
 });
 
 test('tarayıcıda tutulan her şey oyunun önekiyle durur', () => {
-  // every storage key is a constant: find them and check the prefix "verilerimi sil" clears
+  // her depolama anahtarı bir sabittir: onları bul ve "verilerimi sil"in temizlediği öneki kontrol et
   const keys = srcFiles.flatMap(({ text }) => [...text.matchAll(/_KEY\s*=\s*'([^']+)'|\bKEY\s*=\s*'([^']+)'/g)].map((m) => m[1] ?? m[2]));
   assert.ok(keys.length >= 5, 'anahtarlar bulunamadı');
   assert.deepEqual(keys.filter((k) => !k.startsWith(STORAGE_PREFIX)), []);
-  // and storage is never written with a literal key that would escape that check
+  // ve depoya asla o kontrolden kaçacak düz bir anahtarla yazılmaz
   const literal = srcFiles.filter(({ text }) => /(local|session)Storage\.setItem\(\s*['"`]/.test(text)).map(({ f }) => f);
   assert.deepEqual(literal, []);
 });
@@ -58,13 +58,13 @@ test('sayfadaki ve başlıktaki güvenlik politikası aynı', () => {
   const line = /^\s*Content-Security-Policy:\s*(.+)$/m.exec(headers)?.[1];
   assert.ok(line, '_headers içinde Content-Security-Policy yok');
   assert.deepEqual(line.split(';').map((d) => d.trim()), [...CSP_DIRECTIVES, ...HEADER_ONLY_DIRECTIVES]);
-  // the built page carries the same policy (vite.config.ts reads it from csp.ts)
+  // derlenmiş sayfa aynı politikayı taşır (vite.config.ts onu csp.ts'den okur)
   assert.match(readFileSync(join(root, 'vite.config.ts'), 'utf8'), /from '\.\/csp(\.ts)?'/);
 });
 
 test('politika dışarıya kapı açmaz', () => {
   const all = CSP_DIRECTIVES.join(' ');
-  // no other site, no wildcard, no strings run as code
+  // başka site yok, joker yok, kod olarak çalışan metin yok
   assert.doesNotMatch(all, /https?:|\*|'unsafe-eval'/);
   assert.ok(CSP_DIRECTIVES.includes("script-src 'self'"));
   assert.ok(CSP_DIRECTIVES.includes("connect-src 'self'"));
@@ -75,6 +75,6 @@ test('Trusted Types politikası yalnızca service worker adresine izin verir', (
   const sw = srcFiles.find(({ f }) => f === 'swUpdate.ts')!.text;
   assert.ok(sw.includes(`createPolicy('${TT_POLICY}'`), 'swUpdate.ts politikayı csp.ts adıyla kurmuyor');
   assert.match(sw, /if \(url !== SW_URL\) throw/);
-  // no other file may create a policy
+  // başka hiçbir dosya politika oluşturamaz
   assert.deepEqual(srcFiles.filter(({ f, text }) => f !== 'swUpdate.ts' && /createPolicy\s*\(/.test(text)).map(({ f }) => f), []);
 });

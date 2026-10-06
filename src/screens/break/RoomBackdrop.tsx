@@ -10,23 +10,23 @@ interface Props {
   dayNumber: number;
 }
 
-/** The canteen around the table: wall, window onto the city, notice, lamp, menu board, the table top. */
+/** Masanın çevresindeki yemekhane: duvar, şehre bakan pencere, duyuru, lamba, menü panosu, masa üstü. */
 export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
   return (
     <>
-      {/* ── Wall ── */}
+      {/* ── Duvar ── */}
       <rect x="-4000" y="-4000" width="9200" height="4400" fill={`url(#${id('wall')})`} />
       <rect x="-4000" y="314" width="9200" height="80" fill={`url(#${id('tiles')})`} />
       <rect x="-4000" y="292" width="9200" height="22" fill={`url(#${id('iznik')})`} />
       <rect x="-4000" y="290" width="9200" height="3" fill="#b9a57e" />
       <rect x="-4000" y="313" width="9200" height="2" fill="#b9a57e" />
 
-      {/* Window onto the business district across the road */}
+      {/* Yolun karşısındaki iş merkezine bakan pencere */}
       <g>
         <rect x="70" y="40" width="330" height="230" rx="4" fill="#f7f3ea" stroke="#c9bea3" strokeWidth="2" />
         <g clipPath={`url(#${id('windowClip')})`}>
           <CityView weather={weather} skyFill={`url(#${id('sky')})`} />
-          {/* Blinds */}
+          {/* Jaluziler */}
           {Array.from({ length: 9 }).map((_, i) => (
             <rect key={i} x="82" y={52 + i * 7} width="306" height="6" fill="#efe8d8" stroke="#d6ccb4" strokeWidth="0.8" />
           ))}
@@ -36,7 +36,7 @@ export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
         <rect x="60" y="268" width="350" height="12" rx="2" fill="#efe9dc" stroke="#c9bea3" />
         <line x1="378" y1="56" x2="378" y2="150" stroke="#b4a988" strokeWidth="1.5" />
         <circle cx="378" cy="152" r="3" fill="#b4a988" />
-        {/* Plant on the sill */}
+        {/* Pervazda bitki */}
         <g transform="translate(360 268)">
           <g className={styles.plantSway}>
             {[
@@ -54,7 +54,7 @@ export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
         </g>
       </g>
 
-      {/* Pinned notice */}
+      {/* İğnelenmiş duyuru */}
       <g transform="rotate(-2 560 130)">
         <rect x="478" y="66" width="164" height="124" fill="#fbf8f0" stroke="#e0d7c0" />
         <rect x="478" y="66" width="164" height="124" fill="none" stroke="#000" strokeOpacity="0.04" strokeWidth="6" />
@@ -74,7 +74,7 @@ export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
         </text>
       </g>
 
-      {/* Pendant lamp */}
+      {/* Sarkıt lamba */}
       <g>
         <line x1="700" y1="0" x2="700" y2="54" stroke="#6b6455" strokeWidth="2" />
         <path d="M672 78 Q672 54 700 54 Q728 54 728 78 Z" fill="#3f6b63" />
@@ -82,7 +82,7 @@ export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
         <ellipse cx="700" cy="120" rx="70" ry="38" fill="#fff4cf" opacity="0.12" />
       </g>
 
-      {/* Menu board */}
+      {/* Menü panosu */}
       <g>
         <rect x="782" y="30" width="352" height="258" rx="6" fill="#7a5230" />
         <rect x="796" y="44" width="324" height="230" rx="3" fill={`url(#${id('board')})`} />
@@ -107,7 +107,7 @@ export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
         <rect x="820" y="274" width="40" height="6" rx="2" fill="#f2efe4" opacity="0.85" />
       </g>
 
-      {/* ── Table ── */}
+      {/* ── Masa ── */}
       <rect x="-4000" y="386" width="9200" height="12" fill="#a88f66" />
       <rect x="-4000" y="396" width="9200" height="4000" fill={`url(#${id('table')})`} />
       {[430, 478, 540, 610].map((y, i) => (
@@ -121,7 +121,7 @@ export function RoomBackdrop({ id, weather, menu, dayNumber }: Props) {
         />
       ))}
 
-      {/* Soft shadows */}
+      {/* Yumuşak gölgeler */}
       <g fill="#3a2a14" opacity="0.18" filter={`url(#${id('soft')})`}>
         <ellipse cx="600" cy="560" rx="250" ry="100" />
         <ellipse cx="220" cy="516" rx="80" ry="14" />

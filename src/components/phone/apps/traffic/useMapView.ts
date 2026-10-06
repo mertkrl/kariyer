@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { H, W } from './trafficModel';
 
-/** Pan (drag) and zoom (buttons, wheel around the cursor) for the traffic map's SVG. */
+/** Trafik haritasının SVG'si için kaydırma (sürükleme) ve yakınlaştırma (düğmeler, imlecin çevresinde tekerlek). */
 
-export const HOME_VIEW = { x: -116, y: -80, k: 1.4 };
+// açılışta ofis (Levent) ile ev (Bağcılar) birlikte görünür
+export const HOME_VIEW = { x: 0, y: -25, k: 1.4 };
 
 export interface View {
   x: number;
@@ -30,7 +31,7 @@ export function useMapView() {
 
   function toMap(e: { clientX: number; clientY: number }) {
     const rect = svgRef.current!.getBoundingClientRect();
-    // viewBox is sliced to the wider axis
+    // viewBox geniş eksene göre kesilir
     const s = Math.max(W / rect.width, H / rect.height);
     return { s, x: (e.clientX - rect.left) * s - (rect.width * s - W) / 2, y: (e.clientY - rect.top) * s - (rect.height * s - H) / 2 };
   }
@@ -46,7 +47,7 @@ export function useMapView() {
     setView(clampView({ ...v, x: v.x + (e.clientX - px) * s, y: v.y + (e.clientY - py) * s }));
   }
 
-  // Wheel zoom around the cursor (non-passive so the app body doesn't scroll).
+  // İmlecin çevresinde tekerlekle yakınlaştırma (pasif değil, uygulamanın gövdesi kaymasın diye).
   const zoomRef = useRef({ zoom, toMap });
   useEffect(() => {
     zoomRef.current = { zoom, toMap };

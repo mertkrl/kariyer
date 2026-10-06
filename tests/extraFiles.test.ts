@@ -18,7 +18,7 @@ test('işi erken bitirene ek dosyalar 14:00\'ten önce gelmez', () => {
   const before = lineupFor(s());
   assert.equal(addExtraFiles(), true);
   assert.ok(s().phone.some((m) => m.thread === 'manager' && /İşi bitirmişsin/.test(m.text)));
-  // the new files are at the top of the queue
+  // yeni dosyalar kuyruğun en üstünde
   const after = lineupFor(s());
   assert.deepEqual(after.slice(after.length - before.length), before);
   assert.ok(!before.includes(after[0]));

@@ -11,18 +11,17 @@ import styles from '../../screens/GameplayScreen.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
- * The open CV: header with the reference call, the file itself, and either the two buttons
- * (with today's interview quota) or the decision just taken. Reads the candidate and the
- * decisions from the store itself.
+ * Açık CV: referans aramalı başlık, dosyanın kendisi ve ya iki düğme (bugünün mülakat
+ * kontenjanıyla) ya da az önce verilen karar. Adayı ve kararları store'dan kendisi okur.
  */
 
 interface Props {
-  /** The AI is reading this file right now. */
+  /** Yapay zekâ şu anda bu dosyayı okuyor. */
   isAnalyzing: boolean;
-  /** The AI has read it: its marks show on the file. */
+  /** Yapay zekâ okudu: işaretleri dosyada görünür. */
   isAnalyzed: boolean;
   onBreak: boolean;
-  /** The candidate's name, for placing the outbox notice level with it. */
+  /** Giden kutusu bildirimini aynı hizaya koymak için adayın adı. */
   nameRef: Ref<HTMLHeadingElement>;
 }
 
@@ -54,8 +53,8 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);
 
-  // the keyboard: M calls to interview, R rejects, S opens the next file (Ctrl/Cmd+Z undoes, see
-  // GameplayScreen). Only while the portal has the player's attention, never while typing.
+  // klavye: M mülakata çağırır, R reddeder, S sıradaki dosyayı açar (Ctrl/Cmd+Z geri alır, bkz.
+  // GameplayScreen). Yalnızca portal oyuncunun dikkatindeyken, yazı yazarken asla.
   useEffect(() => {
     if (!reading || !candidate || onBreak) return;
     function onKey(e: KeyboardEvent) {
@@ -96,7 +95,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           )}
 
-          {/* ── a CV laid out like one: header, main column, sidebar ── */}
+          {/* ── bir CV gibi düzenlenmiş: başlık, ana sütun, yan sütun ── */}
           <header className={`${styles.cvHead} ${isAnalyzing ? styles.scanSweep : ''}`} style={scanAt(0)}>
             <div className={styles.avatar} style={avatarStyle(candidate.color)}>
               {candidate.initials}
@@ -133,7 +132,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           </header>
 
-          {/* keyed by person: each CV opens at its top, not where the last one was scrolled to */}
+          {/* kişiye göre anahtarlı: her CV en üstünden açılır, bir öncekinin kaydırıldığı yerden değil */}
           <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} onReadThrough={() => markReadThrough(candidate.id)} />
 
           <div className={styles.grow} />
@@ -201,7 +200,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
       ) : (
         <div className={styles.emptyState}>Kuyruktan bir aday seç.</div>
       )}
-      {/* the decision and what it did, read out once for screen readers */}
+      {/* karar ve yaptığı, ekran okuyucular için bir kez okunur */}
       <div className="sr-only" aria-live="polite">
         {candidate && decidedForCurrent && effect?.reason
           ? `${decidedForCurrent === 'approve' ? 'Mülakata çağrıldı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
@@ -213,7 +212,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
 
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '±0');
 
-/** One score's change from this decision; nothing when it didn't move. */
+/** Bu karardan bir puanın değişimi; oynamadıysa hiçbir şey. */
 function EffectChip({ label, value }: { label: string; value: number }) {
   if (value === 0) return null;
   return (

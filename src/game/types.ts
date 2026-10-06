@@ -2,9 +2,9 @@ export type Decision = 'approve' | 'reject';
 
 export type EvaluatedField = 'experience' | 'salary' | 'skills' | 'motivation' | 'questions';
 
-/** What the screening system told the company about a file. */
+/** Eleme sisteminin şirkete bir dosya hakkında söylediği. */
 export type SystemVerdict = 'priority' | 'review' | 'low' | 'out';
-/** nephew: the manager's nephew · neighbour: your mother's neighbour's son, your own "reference". */
+/** nephew: müdürün yeğeni · neighbour: annenin komşusunun oğlu, senin kendi "referansın". */
 export type StoryRole = 'nephew' | 'neighbour';
 
 export interface Candidate {
@@ -22,17 +22,17 @@ export interface Candidate {
   references: string;
   previousCompany: string;
   certifications: string;
-  /** Clubs, volunteering, hobbies: what a thin CV fills its empty half with. */
+  /** Kulüpler, gönüllülük, hobiler: ince bir CV'nin boş yarısını doldurduğu şeyler. */
   activities?: string[];
   companyAnswers: string[];
   internalNote: string;
-  /** What the screening system recommends. Scoring reads this, never the wording of `systemLine`. */
+  /** Eleme sisteminin önerisi. Puanlama bunu okur, `systemLine`'ın ifadesini asla. */
   verdict: SystemVerdict;
-  /** The system's line as shown on screen; must open with the label of `verdict` (tests check it). */
+  /** Sistemin ekranda görünen satırı; `verdict`in etiketiyle başlamalı (testler kontrol eder). */
   systemLine: string;
-  /** The system's concern about this file is real, not a biased proxy. */
+  /** Sistemin bu dosya hakkındaki kaygısı gerçek, önyargılı bir vekil değil. */
   flagIsFair?: boolean;
-  /** A file the week's story hangs on. Exactly one candidate holds each role. */
+  /** Haftanın hikâyesinin asıldığı bir dosya. Her rolü tam olarak bir aday taşır. */
   storyRole?: StoryRole;
   outcomeNote: Record<Decision, string>;
   flaggedField: EvaluatedField;
@@ -50,9 +50,9 @@ export interface DayConfig {
   companyQuestions: string[];
   applicationTarget: number;
   aiDown?: boolean;
-  /** Days 1–4: how many candidates may be advanced to the final today. */
+  /** 1–4. günler: bugün finale kaç aday ilerletilebilir. */
   approvalLimit?: number;
-  /** Day 5: the final round — interviews with the week's finalists, one hire. */
+  /** 5. gün: final turu; haftanın finalistleriyle mülakatlar, tek işe alım. */
   final?: boolean;
 }
 
@@ -64,8 +64,8 @@ export interface JobDraft {
   companyLine: string;
   location: string;
   employmentType: string;
-  /** Every ad states its pay as a range (tests/data.test.ts): who applies needs to know. */
-  salary: { min: number; max: number; /** what comes on top, if anything */ extra?: string };
+  /** Her ilan maaşını aralık olarak yazar (tests/data.test.ts): başvuranın bilmesi gerekir. */
+  salary: { min: number; max: number; /** varsa üstüne gelenler */ extra?: string };
   summary: string;
   aboutRole: string;
   responsibilities: string[];
@@ -85,24 +85,24 @@ export type GamePhase =
   | 'weekend'
   | 'final';
 
-/** relaxed: a slower clock, for reading at your own pace; the story and the scoring are the same. */
+/** relaxed: kendi temponda okumak için daha yavaş bir saat; hikâye ve puanlama aynı. */
 export type Difficulty = 'relaxed' | 'normal' | 'hard';
 
-/** Hard-mode surprises during the workday. */
+/** Mesai sırasında zor mod sürprizleri. */
 export type EventKind = 'power' | 'meeting' | 'it' | 'calendar' | 'weather';
 
 export interface DayStats {
   approved: number;
   rejected: number;
-  /** Applications the AI eliminated before any human opened them. */
+  /** Hiçbir insan açmadan yapay zekânın elediği başvurular. */
   autoRejected: number;
-  /** Shortlisted candidates left without a decision when the day ended. */
+  /** Gün bittiğinde kararsız kalan kısa listedeki adaylar. */
   undecided: number;
 }
 
 export interface EndingVariant {
   title: string;
   body: string;
-  /** You're no longer at the company a year on (fired, pushed out, quit). */
+  /** Bir yıl sonra artık şirkette değilsin (çıkarıldın, gönderildin, istifa ettin). */
   left?: boolean;
 }

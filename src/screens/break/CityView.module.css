@@ -2,7 +2,7 @@
   pointer-events: none;
 }
 
-/* Linear travel across the window (ships, clouds). */
+/* Pencere boyunca doğrusal hareket (gemiler, bulutlar). */
 .drift {
   animation-name: drift;
   animation-timing-function: linear;
@@ -18,7 +18,7 @@
   }
 }
 
-/* Seagulls: glide across with a gentle rise and fall, wings flapping */
+/* Martılar: hafif bir yükselip alçalmayla süzülerek geçer, kanat çırparak */
 .gullPath {
   animation-name: gullGlide;
   animation-timing-function: linear;
@@ -71,7 +71,7 @@
   animation: flapLeft 0.95s ease-in-out infinite;
 }
 
-/* Hinge each wing at the body end of its bounding box */
+/* Her kanadı, sınır kutusunun gövde tarafındaki ucundan menteşele */
 .wingLeft {
   transform-origin: 100% 100%;
 }
@@ -81,7 +81,7 @@
   animation-name: flapRight;
 }
 
-/* Flap-flap-glide: wings sweep between raised and lowered, then hold for a glide */
+/* Çırp-çırp-süzül: kanatlar kalkık ve iniş arasında süpürür, sonra süzülmek için durur */
 @keyframes flapLeft {
   0%,
   45%,
@@ -112,7 +112,7 @@
   }
 }
 
-/* Rain sheets: each loops by exactly one pattern tile (projected along the fall direction). */
+/* Yağmur katmanları: her biri tam bir desen karesi kadar döner (düşüş yönünde izdüşümlü). */
 .rainFar {
   animation: rainFar 0.55s linear infinite;
 }
@@ -139,7 +139,7 @@
   }
 }
 
-/* Drops on the glass: hang, then slide down in accelerating jerks */
+/* Camdaki damlalar: asılı kalır, sonra hızlanan sarsıntılarla aşağı kayar */
 .dropSlide {
   animation: dropSlide linear infinite;
 }
@@ -205,7 +205,7 @@
   }
 }
 
-/* aircraft warning light on the tallest roof */
+/* en yüksek çatıdaki uçak ikaz ışığı */
 .blink {
   animation: blink 1.6s steps(1) infinite;
 }
@@ -216,7 +216,7 @@
   }
 }
 
-/* the crane's jib swings slowly */
+/* vincin kolu yavaşça döner */
 .jib {
   transform-box: view-box;
   transform-origin: 300px 120px;

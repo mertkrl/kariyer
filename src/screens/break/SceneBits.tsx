@@ -8,7 +8,7 @@ interface HitProps {
   children: ReactNode;
 }
 
-/** Clickable, keyboard-accessible SVG group. Never put a transform attribute on it — CSS animates it. */
+/** Tıklanabilir, klavyeyle erişilebilir SVG grubu. Üstüne asla transform özniteliği koyma: onu CSS canlandırır. */
 export function Hit({ label, onActivate, bumped, children }: HitProps) {
   function onKeyDown(e: KeyboardEvent<SVGGElement>) {
     if (e.key === 'Enter' || e.key === ' ') {

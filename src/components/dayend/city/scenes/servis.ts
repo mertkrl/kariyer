@@ -5,23 +5,23 @@ import { makeCars, sideCar } from './servisCars';
 import { paintStreet } from './servisStreet';
 
 /*
- * Wednesday, 17:50 — inside the company servis, stuck on Büyükdere Caddesi in the rain.
- * You look out of the side window: the servis next to you, taxis, brake lights, plaza lobbies,
- * neon, umbrellas on the pavement. The world outside is drawn small and scaled up, which is
- * exactly how it looks through wet glass; raindrops on the pane are little lenses that show
- * the street upside down, and rivulets run down in jerks. The bus creeps, stops, creeps.
+ * Çarşamba, 17:50: yağmurda Büyükdere Caddesi'nde sıkışmış şirket servisinin içi. Yan pencereden
+ * dışarı bakıyorsun: yanındaki servis, taksiler, fren lambaları, plaza lobileri, neon, kaldırımda
+ * şemsiyeler. Dışarıdaki dünya küçük çizilip büyütülür; ıslak camdan tam da böyle görünür. Camdaki
+ * yağmur damlaları sokağı ters gösteren küçük mercekler, akıntılar sarsılarak aşağı iner. Otobüs
+ * sürünür, durur, sürünür.
  */
 
 export function servisScene(): CityScene {
   const r = makeRng(3131);
-  let s = 0; // our position along the road (m)
-  let vs = 0; // our speed
+  let s = 0; // yol boyunca konumumuz (m)
+  let vs = 0; // hızımız
   let go = false;
   let phaseT = 2;
 
   const cars = makeCars(r);
 
-  // raindrops on the glass
+  // camdaki yağmur damlaları
   const drops = Array.from({ length: 170 }, () => ({ x: range(r, WIN.x, WIN.x + WIN.w), y: range(r, WIN.y, WIN.y + WIN.h), r: Math.pow(r(), 2.2) * 9 + 1.6 }));
   const rivulets = Array.from({ length: 14 }, () => ({ x: range(r, WIN.x + 20, WIN.x + WIN.w - 20), y: range(r, WIN.y, WIN.y + WIN.h), vy: 0, pause: range(r, 0, 2), r: range(r, 3, 6), trail: [] as { x: number; y: number }[] }));
 
@@ -33,7 +33,7 @@ export function servisScene(): CityScene {
 
   const drawStrip = (g: CanvasRenderingContext2D, strip: HTMLCanvasElement, k: number, offsetM: number) => {
     const L = strip.width;
-    // screen x = BW/2 − (X − s)·k  →  the strip's origin sits at BW/2 + s·k (mod its length)
+    // ekran x = BW/2 − (X − s)·k  →  şeridin başlangıcı BW/2 + s·k'da durur (uzunluğuna göre mod)
     let x0 = (((BW / 2 + (s + offsetM) * k) % L) + L) % L;
     x0 -= L;
     g.drawImage(strip, x0, 0);
@@ -49,13 +49,13 @@ export function servisScene(): CityScene {
       buffer.height = BH;
       bctx = buffer.getContext('2d')!;
       ({ buildings, pavement } = paintStreet());
-      // the bus interior, drawn once at full resolution
+      // otobüsün içi, tam çözünürlükte bir kez çizilir
       interior = document.createElement('canvas');
       interior.width = Math.ceil((W + PAD * 2) * px);
       interior.height = Math.ceil((H + PAD * 2) * px);
       const g = interior.getContext('2d')!;
       g.setTransform(px, 0, 0, px, PAD * px, PAD * px);
-      // walls, with the window cut out
+      // pencere oyulmuş duvarlar
       g.fillStyle = vGradient(g, -PAD, H + PAD, [
         [0, '#0d0e14'],
         [0.15, '#1a1c26'],
@@ -67,32 +67,32 @@ export function servisScene(): CityScene {
       g.roundRect(WIN.x, WIN.y, PILLAR - WIN.x - 14, WIN.h, 26);
       g.roundRect(PILLAR + 14, WIN.y, WIN.x + WIN.w - PILLAR - 14, WIN.h, 26);
       g.fill('evenodd');
-      // rubber seals
+      // lastik contalar
       g.strokeStyle = '#050507';
       g.lineWidth = 12;
       g.beginPath();
       g.roundRect(WIN.x, WIN.y, PILLAR - WIN.x - 14, WIN.h, 26);
       g.roundRect(PILLAR + 14, WIN.y, WIN.x + WIN.w - PILLAR - 14, WIN.h, 26);
       g.stroke();
-      // sliding upper panes
+      // sürgülü üst camlar
       g.fillStyle = '#08080b';
       g.fillRect(WIN.x, WIN.y + 118, PILLAR - WIN.x - 14, 7);
       g.fillRect(PILLAR + 14, WIN.y + 118, WIN.x + WIN.w - PILLAR - 14, 7);
       g.fillStyle = '#3a3c46';
       g.fillRect(WIN.x + 40, WIN.y + 112, 30, 6);
-      // ceiling with its blue LED strip and luggage rack
+      // mavi LED şeridi ve bagaj rafıyla tavan
       g.fillStyle = '#07080c';
       g.fillRect(-PAD, -PAD, W + PAD * 2, 70 + PAD);
       g.fillStyle = '#12131a';
       g.fillRect(-PAD, 70, W + PAD * 2, 16);
-      // curtain gathered at the right
+      // sağda toplanmış perde
       for (let i = 0; i < 9; i++) {
         g.fillStyle = i % 2 ? '#2c3c5a' : '#344668';
         g.fillRect(WIN.x + WIN.w - 70 + i * 9, WIN.y - 16, 10, WIN.h + 30);
       }
       g.fillStyle = '#1d2638';
       g.fillRect(WIN.x + WIN.w - 76, WIN.y + WIN.h * 0.45, 86, 12);
-      // window sill + handrail
+      // pencere eşiği + tutamak
       g.fillStyle = '#2a2c36';
       g.fillRect(-PAD, WIN.y + WIN.h + 6, W + PAD * 2, 26);
       g.fillStyle = 'rgba(255,255,255,0.08)';
@@ -103,7 +103,7 @@ export function servisScene(): CityScene {
       g.moveTo(-PAD, 60);
       g.lineTo(W + PAD, 60);
       g.stroke();
-      // wall panels: moulded plastic, a seam every metre or so, a little gloss
+      // duvar panelleri: kalıplanmış plastik, yaklaşık her metrede bir ek yeri, biraz parlaklık
       g.strokeStyle = 'rgba(0,0,0,0.35)';
       g.lineWidth = 2;
       for (const x of [WIN.x - 70, PILLAR, WIN.x + WIN.w + 50]) {
@@ -114,7 +114,7 @@ export function servisScene(): CityScene {
       }
       g.fillStyle = 'rgba(255,255,255,0.025)';
       g.fillRect(-PAD, WIN.y + WIN.h + 40, W + PAD * 2, 40);
-      // aluminium trim inside the rubber seals
+      // lastik contaların içinde alüminyum kenarlık
       const trim = g.createLinearGradient(0, WIN.y, 0, WIN.y + WIN.h);
       trim.addColorStop(0, 'rgba(170,176,190,0.55)');
       trim.addColorStop(0.5, 'rgba(90,94,106,0.4)');
@@ -125,7 +125,7 @@ export function servisScene(): CityScene {
       g.roundRect(WIN.x + 7, WIN.y + 7, PILLAR - WIN.x - 28, WIN.h - 14, 20);
       g.roundRect(PILLAR + 21, WIN.y + 7, WIN.x + WIN.w - PILLAR - 28, WIN.h - 14, 20);
       g.stroke();
-      // glare on the glass: the cabin light catching it from above
+      // camda parlama: kabin ışığı onu yukarıdan yakalıyor
       for (const [x0, x1] of [
         [WIN.x, PILLAR - 14],
         [PILLAR + 14, WIN.x + WIN.w],
@@ -139,7 +139,7 @@ export function servisScene(): CityScene {
         g.roundRect(x0 + 8, WIN.y + 8, x1 - x0 - 16, WIN.h - 16, 20);
         g.fill();
       }
-      // ceiling: the luggage rack's rails, air vents and reading lights, the blue LED strip
+      // tavan: bagaj rafının rayları, havalandırma ve okuma lambaları, mavi LED şeridi
       g.fillStyle = '#1b1d26';
       g.fillRect(-PAD, 18, W + PAD * 2, 34);
       g.strokeStyle = '#4c505c';
@@ -151,7 +151,7 @@ export function servisScene(): CityScene {
         g.stroke();
       }
       for (let x = 40; x < W; x += 230) {
-        // a vent grille and a reading light per seat row
+        // koltuk sırası başına bir havalandırma ızgarası ve bir okuma lambası
         g.fillStyle = '#0c0d12';
         g.beginPath();
         g.roundRect(x, 74, 64, 10, 4);
@@ -172,8 +172,8 @@ export function servisScene(): CityScene {
       glowRect(g, W / 2, 88, W * 1.2, 10, [80, 130, 255], 0.35);
       g.fillStyle = 'rgba(120,165,255,0.85)';
       g.fillRect(-PAD, 86, W + PAD * 2, 2);
-      // seat in front of us: a moulded shell, fabric back with stitched panels, headrest with
-      // the obligatory lace cover, and the grab handle on top
+      // önümüzdeki koltuk: kalıplanmış bir kabuk, dikişli panelli kumaş sırt, üstünde
+      // olmazsa olmaz dantel örtüsüyle kafalık ve tutma kolu
       const shell = g.createLinearGradient(0, 600, 0, H + PAD);
       shell.addColorStop(0, '#1f2533');
       shell.addColorStop(1, '#0d1018');
@@ -189,7 +189,7 @@ export function servisScene(): CityScene {
       g.beginPath();
       g.roundRect(-44, 650, 608, 400, 42);
       g.fill();
-      // woven pattern: fine diagonal threads
+      // dokuma desen: ince çapraz iplikler
       g.save();
       g.beginPath();
       g.roundRect(-44, 650, 608, 400, 42);
@@ -203,7 +203,7 @@ export function servisScene(): CityScene {
         g.stroke();
       }
       g.restore();
-      // stitched panels
+      // dikişli paneller
       g.strokeStyle = 'rgba(10,14,24,0.6)';
       g.lineWidth = 3;
       g.setLineDash([6, 5]);
@@ -218,7 +218,7 @@ export function servisScene(): CityScene {
       g.beginPath();
       g.roundRect(-30, 656, 580, 6, 3);
       g.fill();
-      // headrest
+      // kafalık
       const head = g.createLinearGradient(0, 548, 0, 700);
       head.addColorStop(0, '#36487a');
       head.addColorStop(1, '#22305a');
@@ -242,7 +242,7 @@ export function servisScene(): CityScene {
       g.textAlign = 'center';
       g.fillText('TAVRINSA LABS', 340, 607);
       g.textAlign = 'left';
-      // grab handle on top of the seat, with a highlight along the chrome
+      // koltuğun üstünde krom boyunca parlayan tutma kolu
       g.lineCap = 'round';
       g.strokeStyle = '#6f727c';
       g.lineWidth = 10;
@@ -256,7 +256,7 @@ export function servisScene(): CityScene {
       g.moveTo(506, 642);
       g.quadraticCurveTo(540, 612, 572, 640);
       g.stroke();
-      // across the aisle, the edge of the next row's seat in the dark
+      // koridorun karşısında, karanlıkta bir sonraki sıranın koltuğunun kenarı
       g.fillStyle = '#121624';
       g.beginPath();
       g.roundRect(1380, 700, 360, 420, 50);
@@ -267,7 +267,7 @@ export function servisScene(): CityScene {
       g.fill();
     },
     update(dt) {
-      // stop-and-go: creep a few metres, wait, creep again
+      // dur-kalk: birkaç metre sürün, bekle, yine sürün
       phaseT -= dt;
       if (phaseT <= 0) {
         go = !go;
@@ -276,7 +276,7 @@ export function servisScene(): CityScene {
       const target = go ? 2.6 : 0;
       vs += (target - vs) * Math.min(1, dt * (go ? 0.9 : 1.6));
       s += vs * dt;
-      // the next lane moves in its own rhythm, bunched behind whoever's ahead
+      // yan şerit kendi ritminde ilerler, öndekinin arkasında yığılır
       cars.sort((a, b) => b.rx - a.rx);
       for (let i = 0; i < cars.length; i++) {
         const c = cars[i];
@@ -287,12 +287,12 @@ export function servisScene(): CityScene {
         c.brake += ((c.v < 0.4 || want < c.v - 0.3 ? 1 : 0) - c.brake) * Math.min(1, dt * 5);
         c.rx += (c.v - vs) * dt;
       }
-      // wrap cars that fall far behind / pull far ahead
+      // çok geride kalan / çok öne geçen arabaları sar
       for (const c of cars) {
         if (c.rx < -44) c.rx += 88;
         if (c.rx > 44) c.rx -= 88;
       }
-      // rivulets: stick, then slide, gathering speed
+      // akıntılar: tutun, sonra hızlanarak kay
       for (const d of rivulets) {
         if (d.pause > 0) {
           d.pause -= dt;
@@ -314,7 +314,7 @@ export function servisScene(): CityScene {
           d.pause = range(r, 0, 3);
         }
       }
-      // fresh drops keep landing on the glass
+      // cama yeni damlalar düşmeye devam eder
       for (const d of drops) {
         if (Math.random() < dt * 0.25) {
           d.x = range(r, WIN.x, WIN.x + WIN.w);
@@ -324,22 +324,22 @@ export function servisScene(): CityScene {
       }
     },
     draw(g, t, cam: Cam) {
-      // ── the street, small ──
+      // ── sokak, küçük ──
       const b = bctx;
       b.setTransform(1, 0, 0, 1, 0, 0);
       b.fillStyle = '#231a20';
       b.fillRect(0, 0, BW, BH);
       drawStrip(b, buildings, KB, 0);
       drawStrip(b, pavement, KS, 0);
-      // wet road
+      // ıslak yol
       b.fillStyle = vGradient(b, 120, BH, [
         [0, '#2a262c'],
         [1, '#121115'],
       ]);
       b.fillRect(0, 120, BW, BH - 120);
-      // the next lane
+      // yan şerit
       for (const c of cars) sideCar(b, c, t);
-      // rain outside
+      // dışarıda yağmur
       b.strokeStyle = 'rgba(200,210,230,0.25)';
       b.lineWidth = 0.6;
       b.beginPath();
@@ -358,7 +358,7 @@ export function servisScene(): CityScene {
       g.drawImage(buffer, WIN.x - 20, WIN.y - 10, WIN.w + 40, WIN.h + 20);
       g.restore();
 
-      // ── the glass: condensation, drops, rivulets, reflections ──
+      // ── cam: buğu, damlalar, akıntılar, yansımalar ──
       g.save();
       g.beginPath();
       g.roundRect(WIN.x, WIN.y, PILLAR - WIN.x - 14, WIN.h, 26);
@@ -373,7 +373,7 @@ export function servisScene(): CityScene {
       const sx = BW / (WIN.w + 40);
       const sy = BH / (WIN.h + 20);
       for (const d of drops) {
-        // each drop is a tiny lens: the street behind it, flipped
+        // her damla küçük bir mercek: arkasındaki sokak, ters dönmüş
         const bx = (d.x - (WIN.x - 20)) * sx;
         const by = (d.y - (WIN.y - 10)) * sy;
         g.save();
@@ -414,21 +414,21 @@ export function servisScene(): CityScene {
         g.arc(d.x - d.r * 0.3, d.y - d.r * 0.4, d.r * 0.22, 0, Math.PI * 2);
         g.fill();
       }
-      // the bus's own blue LED strip reflected in the glass
+      // otobüsün kendi mavi LED şeridi camda yansıyor
       g.globalCompositeOperation = 'lighter';
       glowRect(g, W / 2, WIN.y + 40, WIN.w * 1.1, 26, [70, 110, 200], 0.18);
       g.globalCompositeOperation = 'source-over';
       g.restore();
 
-      // ── inside the bus ──
+      // ── otobüsün içi ──
       g.drawImage(interior, -PAD, -PAD, W + PAD * 2, H + PAD * 2);
       g.globalCompositeOperation = 'lighter';
       glowRect(g, W / 2, 78, W * 1.2, 10, [80, 120, 230], 0.6);
       glowRect(g, W / 2, 96, W * 1.2, 60, [60, 90, 200], 0.14);
-      // the colleague's phone lighting up their face
+      // iş arkadaşının telefonu yüzünü aydınlatıyor
       glow(g, 175, 548, 40, [150, 200, 255], 0.5);
       glowRect(g, 196, 566, 18, 11, [210, 230, 255], 0.9);
-      // street light washing over the sill as we creep past
+      // sürünerek geçerken sokak ışığı eşiğin üstünden kayıyor
       const wash = 0.12 + 0.08 * Math.sin(s * 0.9);
       glowRect(g, 900, WIN.y + WIN.h + 18, 1400, 40, [255, 170, 110], wash);
       g.globalCompositeOperation = 'source-over';

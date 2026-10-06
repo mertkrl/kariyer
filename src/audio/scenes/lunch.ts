@@ -1,12 +1,12 @@
 import type { EngineCore } from '../engineCore';
 import type { PourSound } from '../engineCore';
 
-/* The lunch break: the bell at noon, and the foley of eating and drinking. */
+/* Öğle arası: öğlen zili ve yeme içmenin efektleri. */
 
 /**
- * Electric lunch bell (school/factory style): a hammer striking a small gong ~22×/s,
- * built from the bell's inharmonic modes, rung twice — "zırrr… zırr" — with a short
- * corridor echo so it sounds like it comes from the hallway.
+ * Elektrikli öğle zili (okul/fabrika tarzı): küçük bir gonga saniyede ~22 kez vuran bir çekiç,
+ * zilin uyumsuz kiplerinden kurulmuş, iki kez çalar ("zırrr… zırr") ve koridordan geliyormuş gibi
+ * kısa bir koridor yankısıyla.
  */
 export function playLunchBell(engine: EngineCore) {
   const ctx = engine.ensureContext();
@@ -37,14 +37,14 @@ export function playLunchBell(engine: EngineCore) {
   const pointsPerSecond = 600;
 
   for (const [start, length] of rings) {
-    const total = length + 0.9; // ring + natural decay
+    const total = length + 0.9; // çalış + doğal sönüm
     const n = Math.ceil(total * pointsPerSecond);
     const curve = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const t = i / pointsPerSecond;
       if (t < length) {
         const phase = (t * strikeRate) % 1;
-        curve[i] = 0.45 + 0.55 * Math.exp(-phase * 9); // each hammer hit re-excites the gong
+        curve[i] = 0.45 + 0.55 * Math.exp(-phase * 9); // her çekiç vuruşu gongu yeniden uyarır
       } else {
         curve[i] = Math.exp(-(t - length) * 6) * 0.6;
       }
@@ -71,7 +71,7 @@ export function playLunchBell(engine: EngineCore) {
       osc.stop(now + start + total + 0.05);
     }
 
-    // Hammer buzz: bright noise ticking at the strike rate
+    // Çekiç vızıltısı: vuruş hızında tıkırdayan parlak gürültü
     const buzz = engine.noiseSource(ctx);
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass';
@@ -93,23 +93,23 @@ export function playLunchBell(engine: EngineCore) {
   }, 5000);
 }
 
-/** A cat's purr: a low rumble pulsing about eleven times a second. */
+/** Bir kedinin mırlaması: saniyede yaklaşık on bir kez atan alçak bir gümbürtü. */
 export function playPurr(engine: EngineCore) {
   for (let i = 0; i < 20; i++) engine.playNoise(0.07, 'lowpass', 160, 0.35, i * 0.09);
 }
 
-/** Short slurp for sipping tea, soup or ayran. */
+/** Çay, çorba ya da ayran yudumlarken kısa bir höpürtü. */
 export function playSip(engine: EngineCore) {
   engine.playNoise(0.28, 'bandpass', 900, 0.35);
 }
 
-/** Soft crunch for a bite of food. */
+/** Bir lokma için yumuşak bir çıtırtı. */
 export function playBite(engine: EngineCore) {
   engine.playNoise(0.1, 'lowpass', 700, 0.4);
   engine.playNoise(0.08, 'lowpass', 500, 0.3, 0.12);
 }
 
-/** Wet squish for squeezing a lemon wedge. */
+/** Bir limon dilimini sıkarken ıslak bir vıcıklık. */
 export function playSqueeze(engine: EngineCore) {
   engine.playNoise(0.18, 'bandpass', 1600, 0.3);
   engine.playNoise(0.14, 'bandpass', 2600, 0.18, 0.38);
@@ -117,11 +117,11 @@ export function playSqueeze(engine: EngineCore) {
 }
 
 /**
- * Liquid pouring into a tulip glass. The defining cue of a real pour is the air column above
- * the liquid: as it shortens, its resonance rises — so a band-passed noise "throat" plus a
- * narrower glassy partial track 1/(air length). Turbulence is a pair of slow LFOs on the level,
- * bubble "blips" pitch up with the fill, and the stop ends in a couple of drips.
- * Brew (from the demlik) is a thin, bright trickle; water (from the kettle) is fuller and louder.
+ * İnce belli bir bardağa dökülen sıvı. Gerçek bir dökmenin belirleyici ipucu sıvının üstündeki hava
+ * sütunudur: kısaldıkça rezonansı yükselir; bu yüzden bant geçiren bir gürültü "boğazı" artı daha dar
+ * camsı bir harmonik 1/(hava uzunluğu)'nu izler. Türbülans, seviyedeki yavaş iki LFO'dur; kabarcık
+ * "bip"leri dolumla birlikte incelir ve duruş birkaç damlayla biter. Dem (demlikten) ince, parlak bir
+ * süzülmedir; su (çaydanlıktan) daha dolgun ve daha yüksektir.
  */
 export function startPour(engine: EngineCore, kind: 'brew' | 'water'): PourSound {
   const ctx = engine.ensureContext();
@@ -160,7 +160,7 @@ export function startPour(engine: EngineCore, kind: 'brew' | 'water'): PourSound
   hissGain.connect(out);
   engine.startNoise(src, now);
 
-  // Turbulence: two unsynced LFOs wobble the level
+  // Türbülans: senkronsuz iki LFO seviyeyi titretir
   const lfos = [9.5, 13.7].map((rate) => {
     const o = ctx.createOscillator();
     o.frequency.value = rate;
@@ -172,14 +172,14 @@ export function startPour(engine: EngineCore, kind: 'brew' | 'water'): PourSound
     return o;
   });
 
-  // Initial splash as the stream first hits the liquid (or the empty glass bottom)
+  // Akış sıvıya (ya da boş bardağın dibine) ilk çarptığında ilk sıçrama
   engine.noiseHit({ filter: 'bandpass', freq: 1800, q: 1.2, attack: 0.002, decay: 0.07, peak: water ? 0.14 : 0.08 });
 
   let fill = 0;
   const base = water ? 380 : 520;
   const setFill = (f: number) => {
     fill = Math.max(0, Math.min(0.95, f));
-    // Resonance ∝ 1 / (remaining air column)
+    // Rezonans ∝ 1 / (kalan hava sütunu)
     const freq = base / (1 - fill * 0.85);
     const t = ctx.currentTime;
     throat.frequency.setTargetAtTime(freq, t, 0.03);
@@ -204,7 +204,7 @@ export function startPour(engine: EngineCore, kind: 'brew' | 'water'): PourSound
     out.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
     src.stop(t + 0.12);
     lfos.forEach((o) => o.stop(t + 0.12));
-    // Last drips from the spout: rising "plink" (a drop's cavity collapsing)
+    // Emzikten son damlalar: yükselen "pınk" (bir damlanın boşluğunun çöküşü)
     [0.22, 0.55].forEach((offset, i) => {
       const f = 1500 + fill * 900 + i * 180;
       engine.tone({ freq: f, freqEnd: f * 1.6, when: t + offset, attack: 0.002, decay: 0.05, peak: 0.05 });
@@ -215,7 +215,7 @@ export function startPour(engine: EngineCore, kind: 'brew' | 'water'): PourSound
   return { setFill, stop };
 }
 
-/** Glass-and-spoon clink; `count` rapid clinks for stirring. */
+/** Cam ve kaşık şıngırtısı; karıştırmak için `count` kadar hızlı şıngırtı. */
 export function playClink(engine: EngineCore, count = 1) {
   const ctx = engine.ensureContext();
   for (let i = 0; i < count; i++) {

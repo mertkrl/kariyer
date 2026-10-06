@@ -1,7 +1,7 @@
 /*
- * Bundle budget, with nothing to install: after `npm run build`, the gzipped size of what the
- * first screen needs (index.html's scripts and styles) must stay under the budget below.
- * The rest of the game loads in the background and is only reported.
+ * Paket bütçesi, kurulacak bir şey olmadan: `npm run build`'den sonra ilk ekranın ihtiyaç duyduğu
+ * şeylerin (index.html'in scriptleri ve stilleri) gzip'li boyutu aşağıdaki bütçenin altında kalmalı.
+ * Oyunun geri kalanı arka planda yüklenir ve yalnızca raporlanır.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';

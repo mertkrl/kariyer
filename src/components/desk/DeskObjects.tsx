@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import { WORK_START_HOUR } from '../../game/time';
 
 /*
- * The things on the desk, drawn as SVG: each fills its own box (positioned by Desk.module.css),
- * lit from the window on the right and from the monitor, with a soft contact shadow on the oak.
+ * Masadaki şeyler, SVG olarak çizilmiş: her biri kendi kutusunu doldurur (yerini Desk.module.css
+ * verir), sağdaki pencereden ve monitörden aydınlanır, meşenin üstünde yumuşak bir temas gölgesiyle.
  */
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -12,7 +12,7 @@ function Shadow({ cx, cy, rx, ry, a = 0.35 }: { cx: number; cy: number; rx: numb
   return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={`rgba(40,24,10,${a})`} filter="url(#deskBlur)" />;
 }
 
-/** Shared filters/gradients, rendered once inside the desk. */
+/** Ortak filtreler/gradyanlar, masanın içinde bir kez çizilir. */
 export function DeskDefs() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
@@ -44,17 +44,17 @@ export function DeskDefs() {
   );
 }
 
-/* ── Monitor ── */
+/* ── Monitör ── */
 
 export function MonitorArt() {
   return (
     <svg viewBox="0 0 620 470" width="100%" height="100%" aria-hidden="true">
       <Shadow cx={310} cy={456} rx={150} ry={14} a={0.45} />
-      {/* stand */}
+      {/* ayak */}
       <path d="M288 360 L332 360 L338 446 L282 446 Z" fill="url(#alu)" />
       <ellipse cx={310} cy={452} rx={118} ry={15} fill="#2b2d31" />
       <ellipse cx={310} cy={449} rx={116} ry={12} fill="url(#alu)" />
-      {/* body */}
+      {/* gövde */}
       <rect x={0} y={0} width={620} height={372} rx={10} fill="#0e0f11" />
       <rect x={1.5} y={1.5} width={617} height={369} rx={9} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={1.5} />
       <rect x={0} y={347} width={620} height={25} rx={4} fill="#17181b" />
@@ -66,7 +66,7 @@ export function MonitorArt() {
   );
 }
 
-/* ── Keyboard & mouse ── */
+/* ── Klavye ve fare ── */
 
 export function KeyboardArt() {
   const back = { y: 8, x0: 34, x1: 466 };
@@ -125,7 +125,7 @@ export function MouseArt() {
   );
 }
 
-/* ── Landline ── */
+/* ── Sabit hat ── */
 
 export function LandlineArt({ ringing, display }: { ringing: boolean; display: string }) {
   const keys: ReactElement[] = [];
@@ -141,11 +141,11 @@ export function LandlineArt({ ringing, display }: { ringing: boolean; display: s
   return (
     <svg viewBox="0 0 270 200" width="100%" height="100%" aria-hidden="true">
       <Shadow cx={135} cy={184} rx={128} ry={12} a={0.45} />
-      {/* base */}
+      {/* taban */}
       <path d="M36 38 H236 Q246 38 248 48 L264 164 Q266 178 252 178 H18 Q4 178 6 164 L22 48 Q24 38 36 38 Z" fill="url(#plasticDark)" />
       <path d="M8 170 Q6 184 20 184 H250 Q264 184 262 170 L262 176 Q262 190 248 190 H22 Q8 190 8 176 Z" fill="#17181b" />
       <path d="M36 38 H236" stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} />
-      {/* display */}
+      {/* ekran */}
       <path d="M116 50 H236 L240 88 H112 Z" fill={ringing ? '#cfe6c2' : '#9fae96'} />
       <path d="M116 50 H236 L240 88 H112 Z" fill="none" stroke="#1b1c1f" strokeWidth={2} />
       <text x={176} y={66} textAnchor="middle" fontSize={11} fontFamily="JetBrains Mono, monospace" fill="#1f2a1c" fontWeight={700}>
@@ -155,14 +155,14 @@ export function LandlineArt({ ringing, display }: { ringing: boolean; display: s
         {display}
       </text>
       {keys}
-      {/* function keys + message light */}
+      {/* işlev tuşları + mesaj ışığı */}
       {[0, 1, 2, 3].map((i) => (
         <rect key={i} x={lerp(218, 222, i / 3)} y={lerp(96, 150, i / 3)} width={lerp(22, 26, i / 3)} height={lerp(9, 12, i / 3)} rx={3} fill="#5d6068" />
       ))}
       <circle cx={244} cy={46} r={4} fill={ringing ? '#ff3b30' : '#5a2320'} className={ringing ? 'deskLedBlink' : undefined} />
-      {/* coiled cord */}
+      {/* sarmal kablo */}
       <path d="M40 168 q-8 6 -2 10 q8 4 2 10 q-8 5 0 9" fill="none" stroke="#1d1e22" strokeWidth={4} strokeLinecap="round" />
-      {/* handset on its cradle, it jumps when it rings */}
+      {/* yuvasındaki ahize, çalınca zıplar */}
       <g className={ringing ? 'deskHandsetRing' : undefined}>
         <path d="M30 34 Q30 22 46 22 H78 Q96 22 96 38 L100 150 Q101 170 82 172 H44 Q24 172 24 152 Z" fill="#2c2e33" />
         <path d="M30 34 Q30 22 46 22 H78 Q96 22 96 38" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth={2} />
@@ -174,7 +174,7 @@ export function LandlineArt({ ringing, display }: { ringing: boolean; display: s
   );
 }
 
-/* ── Mobile phone, lying face up ── */
+/* ── Yüzü yukarı yatan cep telefonu ── */
 
 export function MobileArt({ lit, unread }: { lit: boolean; unread: number }) {
   const body = 'M52 10 L118 8 Q126 8 127 16 L146 112 Q148 122 138 122 L26 124 Q16 124 18 114 L42 16 Q44 10 52 10 Z';
@@ -211,22 +211,22 @@ export function MobileArt({ lit, unread }: { lit: boolean; unread: number }) {
   );
 }
 
-/* ── Coffee mug ── */
+/* ── Kahve kupası ── */
 
 export function MugArt({ sips, max }: { sips: number; max: number }) {
   const level = sips / max;
-  // a full mug sits just under the rim; each sip lowers it a little, so less and less shows through the mouth
+  // dolu bir kupa ağzın hemen altında durur; her yudum onu biraz indirir, böylece ağızdan giderek daha az görünür
   const surfaceY = lerp(37.5, 31.5, level);
   return (
     <svg viewBox="0 0 130 150" width="100%" height="100%" aria-hidden="true">
       <Shadow cx={62} cy={138} rx={52} ry={9} a={0.4} />
-      {/* handle */}
+      {/* kulp */}
       <path d="M92 52 C124 50 126 104 92 104" fill="none" stroke="#e9e6e0" strokeWidth={12} />
       <path d="M92 52 C124 50 126 104 92 104" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth={2} />
-      {/* body */}
+      {/* gövde */}
       <path d="M20 30 L20 124 Q20 138 58 138 Q96 138 96 124 L96 30 Z" fill="url(#ceramic)" />
       <ellipse cx={58} cy={30} rx={38} ry={10} fill="#f4f1ea" />
-      {/* the mouth: you see the inside wall, and the coffee only through the opening */}
+      {/* ağız: iç duvarı görürsün, kahveyi yalnızca açıklıktan */}
       <clipPath id="mugMouth">
         <ellipse cx={58} cy={31} rx={34} ry={8} />
       </clipPath>
@@ -252,7 +252,7 @@ export function MugArt({ sips, max }: { sips: number; max: number }) {
   );
 }
 
-/* ── Small things ── */
+/* ── Küçük şeyler ── */
 
 export function FoldersArt({ count }: { count: number }) {
   const colors = ['#d9c08a', '#6f8fb3', '#c9b27d', '#a8584a', '#e0cf9e'];
@@ -340,7 +340,7 @@ export function WindowFrameArt() {
   const slats = Array.from({ length: 11 }, (_, i) => i);
   return (
     <svg viewBox="0 0 580 360" width="100%" height="100%" aria-hidden="true" preserveAspectRatio="none">
-      {/* blinds pulled a third of the way down */}
+      {/* üçte biri indirilmiş jaluziler */}
       {slats.map((i) => (
         <g key={i}>
           <rect x={10} y={10 + i * 9} width={560} height={8} fill="#e9e6df" />
@@ -350,7 +350,7 @@ export function WindowFrameArt() {
       <rect x={10} y={108} width={560} height={6} rx={2} fill="#cfcac0" />
       <line x1={500} y1={10} x2={500} y2={200} stroke="#bdb7aa" strokeWidth={1.5} />
       <circle cx={500} cy={204} r={4} fill="#bdb7aa" />
-      {/* aluminium frame and mullion */}
+      {/* alüminyum çerçeve ve kayıt */}
       <path d="M0 0 H580 V360 H0 Z M10 10 V350 H570 V10 Z" fill="#8f949b" fillRule="evenodd" />
       <path d="M0 0 H580 V4 H0 Z" fill="#c3c7cc" />
       <rect x={286} y={10} width={8} height={340} fill="#8f949b" />

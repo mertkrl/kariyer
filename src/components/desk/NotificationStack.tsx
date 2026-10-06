@@ -4,16 +4,16 @@ import type { Mail } from '../../game/mail';
 import styles from './NotificationStack.module.css';
 
 /*
- * Notifications rise from the thing that made them: texts and mail above your mobile, the
- * landline's ringing and missed calls above the desk phone. At the computer they all come in
- * bottom-right. Tapping one opens the conversation on the right, where phone and calls open.
+ * Bildirimler onları yapan şeyden yükselir: mesajlar ve e-posta cep telefonunun üstünden, sabit
+ * hattın çalması ve cevapsız aramalar masa telefonunun üstünden. Bilgisayardayken hepsi sağ alttan
+ * gelir. Birine dokunmak konuşmayı, telefonun ve aramaların açıldığı sağ tarafta açar.
  *
- * Kept quiet on purpose: one toast at a time (a newer one replaces it). Muted group chats never
- * pop up — they only bump the unread badge on the phone.
+ * Bilerek sessiz tutulur: aynı anda tek bildirim (daha yenisi onun yerine geçer). Sessize alınmış
+ * grup sohbetleri hiç açılmaz; yalnızca telefondaki okunmamış rozetini artırır.
  */
 
 const SENDER: Record<ThreadId, string> = { manager: 'Hakan Bey', mom: 'Annem', office: 'Ofis', ayse: 'Ayşe', birthday: 'Emre\'ye Sürpriz' };
-/** Group chats are named for the group; the person who wrote goes in front of the line. */
+/** Grup sohbetleri grubun adını alır; yazan kişi satırın başına gelir. */
 const GROUP_NAME: Partial<Record<ThreadId, string>> = { office: 'Ofis Ekibi', birthday: 'Emre\'ye Sürpriz 🎂' };
 const LIFETIME_MS = 5000;
 
@@ -23,14 +23,14 @@ interface Note {
   title: string;
   text: string;
   thread?: ThreadId;
-  /** Who wrote it, when it came into a group. */
+  /** Bir gruba geldiğinde kimin yazdığı. */
   sender?: string;
   group?: boolean;
 }
 
 interface Props {
   style: CSSProperties;
-  /** Where the landline's notifications go (defaults to the same place as the rest). */
+  /** Sabit hattın bildirimlerinin gittiği yer (varsayılanı diğerleriyle aynı yer). */
   callStyle?: CSSProperties;
   messages: PhoneMessage[];
   mails: Mail[];
@@ -41,9 +41,9 @@ interface Props {
   onOpenThread: (thread: ThreadId) => void;
   onOpenMail: () => void;
   onClearNotice: () => void;
-  /** Group chats you muted. */
+  /** Sessize aldığın grup sohbetleri. */
   muted?: ThreadId[];
-  /** Where the outbox notice goes instead: centred on the CV, level with the candidate's name. */
+  /** Bunun yerine giden kutusu bildiriminin gittiği yer: CV'nin ortasında, adayın adıyla aynı hizada. */
   mailNoticeStyle?: CSSProperties;
 }
 
@@ -52,7 +52,7 @@ export function NotificationStack({ style, callStyle, messages, mails, ringing, 
   const [seenMessages, setSeenMessages] = useState(messages.length);
   const [seenMails, setSeenMails] = useState(mails.length);
 
-  // new texts and new mail become notifications (derived during render, no effect round-trip)
+  // yeni mesajlar ve yeni e-postalar bildirime dönüşür (çizim sırasında türetilir, effect turu yok)
   if (messages.length !== seenMessages) {
     setSeenMessages(messages.length);
     const fresh = messages.slice(seenMessages).filter((m) => m.from === 'them' && !muted.includes(m.thread));
@@ -74,7 +74,7 @@ export function NotificationStack({ style, callStyle, messages, mails, ringing, 
 
   useEffect(() => {
     if (!notice) return;
-    // the scheduling notice has more to say, so it stays a little longer
+    // planlama bildiriminin söyleyecek daha çok şeyi var, bu yüzden biraz daha uzun kalır
     const id = window.setTimeout(onClearNotice, noticeKind === 'scheduled' ? LIFETIME_MS * 1.8 : LIFETIME_MS);
     return () => window.clearTimeout(id);
   }, [notice, noticeKind, onClearNotice]);
@@ -134,7 +134,7 @@ export function NotificationStack({ style, callStyle, messages, mails, ringing, 
 }
 
 function Toast({ note, onDone, onOpen }: { note: Note; onDone: () => void; onOpen: () => void }) {
-  // the parent re-renders every game tick; keep the timer from restarting with it
+  // üst bileşen her oyun tikinde yeniden çizilir; zamanlayıcının onunla baştan başlamasını önle
   const done = useRef(onDone);
   useEffect(() => {
     done.current = onDone;

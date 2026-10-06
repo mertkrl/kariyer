@@ -1,7 +1,7 @@
 /*
- * The end of every day: the people you turned down get told — or don't. The portal won't close
- * the day until you choose, per person, what goes out. Hundreds the system cut have already had
- * its automatic reply; these are the ones a human read.
+ * Her günün sonu: geri çevirdiğin insanlara söylenir ya da söylenmez. Portal, kişi kişi neyin
+ * gideceğini seçmeden günü kapatmaz. Sistemin elediği yüzlercesi otomatik cevabını çoktan aldı;
+ * bunlar bir insanın okuduklarıdır.
  */
 import { candidateOf } from './data/candidates';
 import { candidateDetails } from './data/candidateDetails';
@@ -17,7 +17,7 @@ export const TEMPLATES: { id: RejectTemplate; label: string; hint: string }[] = 
   { id: 'none', label: 'Gönderme', hint: 'Sessiz ret' },
 ];
 
-/** Minutes each template takes to send. */
+/** Her şablonun gönderilmesinin sürdüğü dakika. */
 export const TEMPLATE_MINUTES: Record<RejectTemplate, number> = { standard: 0.5, personal: 2, pool: 0.5, none: 0 };
 
 const REASON: Record<string, string> = {
@@ -54,7 +54,7 @@ export function mailFor(id: string, template: RejectTemplate): { subject: string
 }
 
 const TR: Record<string, string> = { ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u', İ: 'i', Ç: 'c', Ğ: 'g', Ö: 'o', Ş: 's', Ü: 'u' };
-/** A plausible personal address for a candidate. */
+/** Bir aday için akla yatkın kişisel bir adres. */
 export const addressOf = (id: string) =>
   `${candidateOf(id).name
     .split(' ')
@@ -63,7 +63,7 @@ export const addressOf = (id: string) =>
 
 const hash = (id: string) => [...id].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 9973, 11);
 
-/** Waiting in "Giden Kutusu" until 17:00. */
+/** 17:00'ye kadar "Giden Kutusu"nda bekliyor. */
 export function outboxMails(choices: Record<string, RejectTemplate>, day: number, at: number): Mail[] {
   return Object.entries(choices).flatMap(([id, t]) => {
     const mail = mailFor(id, t);
@@ -72,7 +72,7 @@ export function outboxMails(choices: Record<string, RejectTemplate>, day: number
   });
 }
 
-/** The copies that land in "Gönderilenler". */
+/** "Gönderilenler"e düşen kopyalar. */
 export function sentMails(choices: Record<string, RejectTemplate>, day: number, at: number): Mail[] {
   return Object.entries(choices).flatMap(([id, t], i) => {
     const mail = mailFor(id, t);
@@ -82,8 +82,8 @@ export function sentMails(choices: Record<string, RejectTemplate>, day: number, 
 }
 
 /*
- * Every reply is that person's own: a voice (six of them, from formal to bitter) and details
- * from their own file — last job, the thing they are proudest of, how long they have been at it.
+ * Her cevap o kişinin kendisine ait: bir ses (resmîden acıya altı tane) ve kendi dosyasından
+ * ayrıntılar: son işi, en çok gurur duyduğu şey, ne zamandır bu işi yaptığı.
  */
 interface Who {
   first: string;
@@ -97,42 +97,42 @@ interface Who {
 type Voice = Record<RejectTemplate, (w: Who) => { subject?: string; body: string }>;
 
 const VOICES: Voice[] = [
-  // formal, careful
+  // resmî, dikkatli
   {
     personal: (w) => ({ body: `Sayın İnsan Kaynakları Ekibi,\n\nGeri bildiriminiz için teşekkür ederim. ${w.job} olarak geçirdiğim süre boyunca bu kadar açık bir değerlendirme almamıştım. Belirttiğiniz noktayı önümüzdeki dönemde geliştirmeyi planlıyorum.\n\nSaygılarımla,\n${w.full}` }),
     standard: (w) => ({ body: `Sayın Yetkili,\n\nBilgilendirmeniz için teşekkür ederim. ${w.exp} deneyimimin hangi açıdan yetersiz bulunduğunu paylaşabilirseniz, bir sonraki başvurumda daha doğru bir yol izleyebilirim.\n\nSaygılarımla,\n${w.full}` }),
     pool: (w) => ({ body: `Sayın Yetkili,\n\nProfilimi havuzda tutmanız için teşekkür ederim. Uygun bir pozisyon açıldığında tarafıma bilgi verilmesini rica ederim; ${w.city} içinde her lokasyona ulaşım sağlayabilirim.\n\nSaygılarımla,\n${w.full}` }),
     none: (w) => ({ subject: 'Başvurumun durumu hakkında', body: `Sayın Yetkili,\n\nYazılım Geliştirici pozisyonuna yaptığım başvuru portalda hâlâ "değerlendiriliyor" olarak görünmektedir. Sürecin hangi aşamada olduğunu öğrenebilir miyim?\n\nSaygılarımla,\n${w.full}` }),
   },
-  // short and to the point
+  // kısa ve öz
   {
     personal: (w) => ({ body: `Merhaba,\n\nAçık yazdığınız için sağ olun. ${w.job} deneyimimi bu gözle yeniden toparlayacağım.\n\n${w.first}` }),
     standard: (w) => ({ body: `Merhaba,\n\n${w.exp} deneyimle hangi kriterde elendiğimi söyleyebilir misiniz? Tek cümle yeterli.\n\n${w.first}` }),
     pool: (w) => ({ body: `Merhaba,\n\nHavuz ne kadar süre geçerli? ${w.city} dışındaki ofisleriniz için de değerlendirilir miyim?\n\n${w.first}` }),
     none: (w) => ({ subject: 'Başvuru durumu?', body: `Merhaba,\n\n${w.job} deneyimiyle yaptığım başvuru hakkında bir gelişme var mı?\n\n${w.first}` }),
   },
-  // emotional, honest
+  // duygusal, dürüst
   {
     personal: (w) => ({ body: `Merhaba,\n\nE-postanızı okurken biraz duygulandım açıkçası. Aylardır başvurularıma ya hiç dönüş gelmiyor ya da aynı kalıp cümle geliyor. "${w.proud}" kısmını fark etmeniz bana iyi geldi. Pes etmeyeceğim.\n\nTeşekkürler,\n${w.first}` }),
     standard: (w) => ({ body: `Merhaba,\n\nBu dönemde çok başvuru yaptım ve çoğundan bu cümleyi aldım. ${w.job} deneyimimle nerede eksik kaldığımı bilmek bu kadar zor olmamalı diye düşünüyorum. Yine de dönüş yaptığınız için teşekkür ederim.\n\n${w.first}` }),
     pool: (w) => ({ body: `Merhaba,\n\nHavuzda tutacağınızı duymak umut verdi, gerçekten. Bir gün aranırsam, ${w.proud.toLocaleLowerCase('tr')} gibi işleri sizin için de yapmayı çok isterim.\n\n${w.first}` }),
     none: (w) => ({ subject: 'Bir bilgi rica ediyorum', body: `Merhaba,\n\nBaşvurumdan beri her sabah ilk iş portala bakıyorum; ${w.job} deneyimimle bir cevap almayı umuyordum. Olumsuz da olsa bir cevap almak beklemekten iyi olurdu. Rica etsem kısa bir bilgi verebilir misiniz?\n\n${w.first}` }),
   },
-  // light, a little humour
+  // hafif, biraz mizahlı
   {
     personal: (w) => ({ body: `Merhaba,\n\nİlk kez bir ret e-postası okurken "haklı" dedim, bu da bir başarı sayılır 🙂 Önerinizi dikkate alıp bir dahaki sefere daha güçlü geleceğim.\n\nKolay gelsin,\n${w.first}` }),
     standard: (w) => ({ body: `Merhaba,\n\nBu e-postanın metnini artık ezbere biliyorum 🙂 Şaka bir yana, ${w.exp} deneyimi olan birine ne eksik geldi, merak ediyorum.\n\nİyi çalışmalar,\n${w.first}` }),
     pool: (w) => ({ body: `Merhaba,\n\nHavuzda yüzme bilen biri olarak beklemedeyim 🙂 ${w.job} deneyimim de yanımda; bir pozisyon açılırsa haberim olur umarım.\n\n${w.first}` }),
     none: (w) => ({ subject: 'Hâlâ buradayım 🙂', body: `Merhaba,\n\nBaşvurum "değerlendiriliyor" durumunda kaldı; ben de o arada biraz daha değerlendirildim sanki 🙂 Bir haber verebilirseniz sevinirim.\n\n${w.first}` }),
   },
-  // bitter
+  // kırgın
   {
     personal: (w) => ({ body: `Merhaba,\n\nGeri bildirim için teşekkürler, ama katılmıyorum. ${w.job} olarak yaptıklarım bu değerlendirmeye sığmıyor. Yine de bir insanın dosyama baktığını bilmek önemli.\n\n${w.first}` }),
     standard: (w) => ({ body: `Merhaba,\n\nDosyamı bir insanın okuyup okumadığını merak ediyorum. "${w.proud}" yazan bir CV bu cümleyle mi cevaplanır?\n\n${w.full}` }),
     pool: (w) => ({ body: `Merhaba,\n\n"Havuz" cümlesini daha önce de duydum. ${w.exp} deneyimle kaç havuzda beklediğimi saymayı bıraktım. Umarım bu sefer yanılırım.\n\n${w.first}` }),
     none: (w) => ({ subject: 'Cevap alabilecek miyim?', body: `Merhaba,\n\nBir haftadır hiçbir dönüş yok. ${w.exp} emek verdiğim bir mesleğe başvuran insanlara en azından bir "hayır" borçlusunuz bence.\n\n${w.full}` }),
   },
-  // practical, next steps
+  // pratik, sonraki adımlar
   {
     personal: (w) => ({ body: `Merhaba,\n\nGeri bildiriminiz çok faydalı oldu, teşekkürler. Bir sonraki ilanınızda tekrar başvurursam önceki notlarım dosyamda kalıyor mu? Önerinize göre CV'mi güncelleyip göndermek isterim.\n\n${w.full}` }),
     standard: (w) => ({ body: `Merhaba,\n\nBilgilendirme için teşekkürler. Şirketinizde ileride junior ya da orta seviye başka pozisyonlar açılacak mı? ${w.city} dışında hibrit çalışmaya da açığım.\n\n${w.full}` }),
@@ -156,19 +156,19 @@ function whoIs(id: string): Who {
 }
 
 /**
- * About two in five write back: the same afternoon (or the next morning if it's
- * late). The ones who got nothing write the next day, asking whether anyone looked.
+ * Yaklaşık beşte ikisi cevap yazar: aynı öğleden sonra (geç saatse ertesi sabah). Hiçbir şey
+ * almayanlar ertesi gün yazar ve birinin bakıp bakmadığını sorar.
  */
 export function candidateReplies(choices: Record<string, RejectTemplate>, day: number, at: number): Mail[] {
   const entries = Object.entries(choices);
-  // a fixed share writes back, picked by a stable shuffle so small days aren't all-or-nothing
+  // sabit bir pay cevap yazar; küçük günler ya hep ya hiç olmasın diye kararlı bir karıştırmayla seçilir
   const writers = new Set(
     [...entries]
       .sort(([a], [b]) => hash(a) - hash(b))
       .slice(0, Math.ceil(entries.length * 0.4))
       .map(([id]) => id),
   );
-  // the day's writers each get a different voice, so no two replies sound alike
+  // günün yazanlarının her biri farklı bir ses alır, böylece hiçbir iki cevap aynı tınlamaz
   const order = [...writers].sort();
   return entries.flatMap(([id, t]) => {
     const h = hash(id + t);
@@ -184,9 +184,9 @@ export function candidateReplies(choices: Record<string, RejectTemplate>, day: n
 }
 
 /*
- * Writing back to someone who answered their rejection. Three ways: a warm thank-you that keeps
- * the door open, the actual reason the system gave (honest, and the company would rather you
- * didn't), or the line every HR inbox sends. The effects stay off screen, like every decision.
+ * Reddine cevap veren birine yazmak. Üç yol: kapıyı açık tutan sıcak bir teşekkür, sistemin
+ * verdiği gerçek gerekçe (dürüst, ve şirket yapmamanı tercih eder) ya da her İK gelen kutusunun
+ * gönderdiği cümle. Etkiler, her karar gibi, ekran dışında kalır.
  */
 export type ReplyBack = 'warm' | 'reason' | 'formal';
 
@@ -196,10 +196,10 @@ export const REPLY_BACK: { kind: ReplyBack; label: string; effect: { performans:
   { kind: 'formal', label: 'Kurumsal kısa yanıt', effect: { performans: 0, vicdan: 0 } },
 ];
 
-/** Whose reply a mail is (`reply-<day>-<candidate>`), or null for any other mail. */
+/** Bir e-postanın kimin cevabı olduğu (`reply-<gün>-<aday>`) ya da başka her e-posta için null. */
 export const replyAuthor = (mailId: string) => /^reply-\d+-(.+)$/.exec(mailId)?.[1] ?? null;
 
-/** Your answer to a candidate's reply, as it lands in "Gönderilenler". */
+/** Bir adayın cevabına senin cevabın, "Gönderilenler"e düştüğü hâliyle. */
 export function replyBackMail(reply: Mail, kind: ReplyBack, day: number, at: number): Mail | null {
   const id = replyAuthor(reply.id);
   if (!id) return null;

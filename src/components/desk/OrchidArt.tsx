@@ -2,23 +2,22 @@ import type { CSSProperties } from 'react';
 import type { FlowerState } from '../../game/desk';
 
 /*
- * The welcome orchid: a real photograph of a potted phalaenopsis (Unsplash License: free to use
- * and change, no credit required), cut out of its black backdrop. The pot stands to the right
- * and the spike arcs over to the left. Every day without water it goes further — the colour
- * drains, the spike sags further over, petals drop onto the desk, and in the end only a bent
- * stem hangs over the pot.
+ * Hoş geldin orkidesi: saksıdaki bir phalaenopsis'in gerçek fotoğrafı (Unsplash Lisansı: kullanmak
+ * ve değiştirmek serbest, atıf gerekmez), siyah fonundan kesilmiş. Saksı sağda durur, çiçek dalı
+ * sola doğru kavis çizer. Susuz geçen her gün biraz daha ileri gider: renk solar, dal daha da
+ * sarkar, taç yapraklar masaya düşer ve sonunda saksının üstünde yalnızca bükülmüş bir sap kalır.
  */
 
 /*
- * Two layers of the same photo: the leaves and pot (below SPLIT), the flower spike (above it).
- * Thirst shows the way it does on a real orchid — the spike bends at its base (where the stem
- * leaves the leaves, SPIKE_BASE) and hangs further over, the blooms brown and shrivel, the
- * leaves go limp and yellow later than the flowers.
+ * Aynı fotoğrafın iki katmanı: yapraklar ve saksı (SPLIT'in altı), çiçek dalı (üstü). Susuzluk
+ * gerçek bir orkidedeki gibi görünür: dal dibinden (sapın yapraklardan ayrıldığı yer, SPIKE_BASE)
+ * eğilir ve daha çok sarkar, çiçekler kahverengileşip büzülür, yapraklar çiçeklerden daha geç
+ * gevşeyip sararır.
  */
-/** Where the leaves begin, as a share of the image's height. */
+/** Yaprakların başladığı yer, resmin yüksekliğinin payı olarak. */
 const SPLIT = 55;
 const SPIKE_BASE = `90% ${SPLIT}%`;
-/** The pot's centre line (share of the width): the leaves sag towards it, its shadow sits under it. */
+/** Saksının orta çizgisi (genişliğin payı): yapraklar ona doğru sarkar, gölgesi altına düşer. */
 const POT_X = 75.5;
 const SPIKE: Record<FlowerState, CSSProperties> = {
   fresh: {},
@@ -48,9 +47,8 @@ const PETALS: [number, number, number][] = [
 ];
 
 /**
- * Office light on a studio photo: a touch warmer and softer so it sits in the room, and the
- * window to the left throws a soft shadow to the right — a close contact one and a wide one on
- * the wall behind.
+ * Stüdyo fotoğrafına ofis ışığı: odaya otursun diye biraz daha sıcak ve yumuşak; soldaki pencere
+ * sağa yumuşak bir gölge düşürür, biri yakın temas gölgesi, biri arkadaki duvarda geniş.
  */
 const CAST = 'sepia(0.08) saturate(0.92) contrast(0.96) drop-shadow(2px 1px 1.5px rgba(45, 28, 12, 0.28)) drop-shadow(14px 6px 10px rgba(45, 28, 12, 0.16))';
 const withCast = (style: CSSProperties): CSSProperties => ({ ...style, filter: [style.filter, CAST].filter(Boolean).join(' ') });
@@ -70,28 +68,28 @@ export function OrchidArt({ state }: { state: FlowerState }) {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden="true">
-        {/* where the saucer meets the desk: a wide soft shadow and a tight dark line under it */}
+        {/* tabağın masaya değdiği yer: geniş yumuşak bir gölge ve altında sıkı koyu bir çizgi */}
         <ellipse cx={POT_X + 1.5} cy={98.8} rx={27} ry={1.8} fill="rgba(40,24,10,0.32)" filter="url(#deskBlur)" />
         <ellipse cx={POT_X} cy={99.5} rx={21} ry={0.7} fill="rgba(30,18,8,0.55)" filter="url(#deskBlur)" />
         {PETALS.slice(0, FALLEN[state]).map(([x, y, r], i) => (
           <ellipse key={i} cx={x} cy={y} rx={3.4} ry={0.9} transform={`rotate(${r * 0.15} ${x} ${y})`} fill={i % 3 === 0 ? '#f3e6f0' : tone} opacity={0.9} />
         ))}
       </svg>
-      {/* leaves and pot */}
+      {/* yapraklar ve saksı */}
       <img
         src={`${import.meta.env.BASE_URL}desk/orchid.webp`}
         alt=""
         draggable={false}
         style={{ ...IMG, clipPath: `inset(${SPLIT}% 0 0 0)`, transformOrigin: `${POT_X}% 72%`, ...withCast(LEAVES[state]) }}
       />
-      {/* the flower spike, hinged where it leaves the leaves */}
+      {/* çiçek dalı, yapraklardan ayrıldığı yerden menteşeli */}
       <img
         src={`${import.meta.env.BASE_URL}desk/orchid.webp`}
         alt=""
         draggable={false}
         style={{ ...IMG, clipPath: `inset(0 0 ${100 - SPLIT}% 0)`, transformOrigin: SPIKE_BASE, ...withCast(SPIKE[state]) }}
       />
-      {/* the gift card on its plastic fork */}
+      {/* plastik çatalındaki hediye kartı */}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden="true">
         <defs>
           <linearGradient id="orchidCard" x1="0" y1="0" x2="0" y2="1">

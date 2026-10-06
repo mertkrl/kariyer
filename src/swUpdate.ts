@@ -1,7 +1,7 @@
 /*
- * Offline play and updates. The built game registers a service worker (sw.js, written by
- * vite.config.ts) that keeps its files in the browser. A new build waits instead of taking over
- * a running week; the welcome screen offers it, and it applies on the next visit otherwise.
+ * Çevrimdışı oyun ve güncellemeler. Derlenmiş oyun, dosyalarını tarayıcıda tutan bir service
+ * worker kaydeder (sw.js, vite.config.ts yazar). Yeni bir derleme, süren bir haftanın üzerine
+ * hemen geçmez, bekler; karşılama ekranı onu önerir, yoksa bir sonraki ziyarette devreye girer.
  */
 import { useSyncExternalStore } from 'react';
 
@@ -16,8 +16,9 @@ function offer(worker: ServiceWorker) {
 const SW_URL = './sw.js';
 
 /**
- * The page's security policy (csp.ts) only lets script addresses through a Trusted Types
- * policy, and only this one, which passes the service worker's own address and refuses any other.
+ * Sayfanın güvenlik politikası (csp.ts) script adreslerini yalnızca bir Trusted Types
+ * politikasından geçirir, o da yalnızca bu: service worker'ın kendi adresini geçirir, başka
+ * hiçbirini kabul etmez.
  */
 function swUrl(): string {
   const tt = (window as { trustedTypes?: { createPolicy: (name: string, rules: { createScriptURL: (url: string) => string }) => { createScriptURL: (url: string) => unknown } } }).trustedTypes;
@@ -38,12 +39,12 @@ export function registerServiceWorker() {
     try {
       url = swUrl();
     } catch {
-      return; // the policy couldn't be made: play on without the offline copy
+      return; // politika oluşturulamadı: çevrimdışı kopya olmadan oynamaya devam
     }
     navigator.serviceWorker
       .register(url)
       .then((reg) => {
-        // only an update needs asking about: the first install has no running page to replace
+        // yalnızca güncelleme sorulur: ilk kurulumda değiştirilecek çalışan bir sayfa yoktur
         if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
         reg.addEventListener('updatefound', () => {
           const next = reg.installing;
@@ -58,14 +59,14 @@ export function registerServiceWorker() {
   });
 }
 
-/** Switches to the waiting build and reloads once it has taken over. */
+/** Bekleyen derlemeye geçer; devraldığında sayfayı yeniden yükler. */
 export function applyUpdate() {
   if (!waiting) return;
   navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload(), { once: true });
   waiting.postMessage('skip-waiting');
 }
 
-/** True when a newer build is downloaded and waiting. */
+/** Daha yeni bir derleme indirilmiş ve bekliyorsa true. */
 export function useUpdateReady() {
   return useSyncExternalStore(
     (listener) => {

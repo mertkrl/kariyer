@@ -10,20 +10,19 @@ import { CASE, FORBIDDEN, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES } from './
 import styles from '../FinalRoundScreen.module.css';
 
 /*
- * The strip under the conversation: what you can do right now. Pick a question (or the case),
- * talk salary, react when Hakan Bey cuts in, answer the candidate's own question, and once the
- * interview is over, score it.
+ * Konuşmanın altındaki şerit: şu anda ne yapabileceğin. Bir soru (ya da vaka) seç, maaşı konuş,
+ * Hakan Bey araya girince tepki ver, adayın kendi sorusunu cevapla ve mülakat bitince puanla.
  */
 export interface InterviewConsoleProps {
   candidate: Candidate;
   pool: Finalist[];
-  /** An answer is being typed out. */
+  /** Bir cevap yazılıyor. */
   typing: boolean;
-  /** A choice the room is waiting on. */
+  /** Odanın beklediği bir seçim. */
   pending: 'hakan' | 'back' | 'salary' | null;
   ended: boolean;
   interviewed: number;
-  /** The questions you've asked yourself (codes from interviewModel). */
+  /** Kendi sorduğun sorular (interviewModel'deki kodlar). */
   mine: number[];
   canFollow: boolean;
   salaryOpened: boolean;

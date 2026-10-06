@@ -1,7 +1,7 @@
 /*
- * The result card a player shares at the end: the ending, both scores, what the week cost, and
- * where to play. Drawn on a canvas in the game's own type (Fraunces, Work Sans), so it looks
- * like the game rather than like a browser default.
+ * Oyuncunun sonda paylaştığı sonuç kartı: son, iki puan, haftanın neye mal olduğu ve nerede
+ * oynanacağı. Oyunun kendi yazı tipleriyle (Fraunces, Work Sans) bir canvas'a çizilir; böylece
+ * bir tarayıcı varsayılanı gibi değil oyunun kendisi gibi görünür.
  */
 
 export const GAME_NAME = "Sen İK'sin";
@@ -12,7 +12,7 @@ interface ShareCardData {
   vicdan: number;
   totalProcessed: number;
   autoRejected: number;
-  /** Where the game lives, printed at the bottom (no seed or other query). */
+  /** Oyunun yaşadığı adres, altta yazılır (tohum ya da başka bir sorgu olmadan). */
   url: string;
 }
 
@@ -38,7 +38,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: num
   return currentY + lineHeight;
 }
 
-/** The game's fonts are bundled but load on first use: make sure the canvas gets them. */
+/** Oyunun yazı tipleri pakette ama ilk kullanımda yüklenir: canvas'ın onları aldığından emin ol. */
 async function fontsReady() {
   try {
     await Promise.all([document.fonts.load(`700 52px ${DISPLAY}`), document.fonts.load(`600 24px ${BODY}`), document.fonts.load(`400 15px ${BODY}`)]);
@@ -107,7 +107,7 @@ export function drawShareCard(canvas: HTMLCanvasElement, data: ShareCardData): v
   ctx.fillText(data.url, 64, H - 64);
 }
 
-/** Draws the card and hands it back as a PNG. */
+/** Kartı çizer ve PNG olarak geri verir. */
 export async function shareCardImage(canvas: HTMLCanvasElement, data: ShareCardData): Promise<Blob | null> {
   await fontsReady();
   drawShareCard(canvas, data);

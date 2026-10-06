@@ -26,27 +26,27 @@ button {
   font-family: var(--font-mono);
 }
 
-/* a visible focus ring for keyboard users everywhere; components with their own focus look override it */
+/* klavye kullananlar için her yerde görünür bir odak halkası; kendi odak görünümü olan bileşenler bunu ezer */
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
 
-/* a screen's heading takes focus when the screen changes (useScreenFocus): it isn't a control, so no ring */
+/* ekran değişince ekranın başlığı odağı alır (useScreenFocus): bir kontrol değildir, halka gösterilmez */
 h1[tabindex='-1']:focus,
 h2[tabindex='-1']:focus,
 [data-screen-focus]:focus {
   outline: none;
 }
 
-/* the screens' <main> landmark: no box of its own */
+/* ekranların <main> bölgesi: kendi kutusu yok */
 .app-main {
   display: contents;
 }
 
 /*
- * Players who asked their system for less motion get it everywhere: animations and transitions
- * end at once (their final state still shows). Canvas scenes check the same setting in code.
+ * Sisteminde hareketi azaltmayı seçen oyuncu bunu her yerde görür: animasyonlar ve geçişler
+ * hemen biter (son hâlleri yine görünür). Canvas sahneleri aynı ayarı kodda kontrol eder.
  */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -60,7 +60,7 @@ h2[tabindex='-1']:focus,
   }
 }
 
-/* read by screen readers, not shown */
+/* ekran okuyucular okur, ekranda görünmez */
 .sr-only {
   position: absolute;
   width: 1px;

@@ -1,4 +1,4 @@
-/** The longer sound scenes, loaded apart from the engine so the first screen doesn't wait for them. */
+/** Daha uzun ses sahneleri, motordan ayrı yüklenir; ilk ekran onları beklemesin. */
 export * as scan from './scan';
 export * as flood from './flood';
 export * as office from './office';

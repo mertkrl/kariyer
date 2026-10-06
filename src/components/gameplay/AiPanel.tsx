@@ -10,7 +10,7 @@ import { ANALYZE_DURATION_MS, type AiAnalysis } from './useAiAnalysis';
 import { AnalysisRun, ScoreDial } from './AiRun';
 import styles from '../../screens/GameplayScreen.module.css';
 
-/** What the AI "reads" in each section: one flagged, the rest waved through with a stock phrase. */
+/** Yapay zekânın her bölümde "okuduğu": biri işaretli, geri kalanı hazır bir kalıpla geçiştirilmiş. */
 const SECTIONS: { label: string; field?: EvaluatedField; ok: string }[] = [
   { label: 'Profil', field: 'motivation', ok: 'Metin ayrıştırıldı; olumsuz ifade bulunamadı.' },
   { label: 'İş deneyimi', field: 'experience', ok: 'Süre ve unvanlar okundu.' },
@@ -30,15 +30,15 @@ function sectionNotes(c: Candidate) {
 
 interface Props {
   analysis: AiAnalysis;
-  /** The AI box is offline on the crash day, and during a hard-mode IT outage. */
+  /** Yapay zekâ kutusu çökme gününde ve zor moddaki bilgi işlem arızası sırasında devre dışıdır. */
   aiOffline: boolean;
   itOutage: boolean;
   onBreak: boolean;
 }
 
 /**
- * The "Yapay Zeka Analizi" box: run the AI on the open file, then its verdict — the ATS parse
- * report, what it read in each section, and the hidden note behind the score.
+ * "Yapay Zeka Analizi" kutusu: yapay zekâyı açık dosyada çalıştır, sonra kararı; ATS ayrıştırma
+ * raporu, her bölümde okudukları ve puanın arkasındaki gizli not.
  */
 export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
   const currentCandidateId = useGameStore((s) => s.currentCandidateId);
@@ -182,7 +182,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
               </li>
             ))}
           </ul>
-          {/* The model's hidden reasoning — only surfaces after an analysis is run */}
+          {/* Modelin gizli gerekçesi: yalnızca bir analiz çalıştırıldıktan sonra ortaya çıkar */}
           <div className={styles.internalNoteBox}>
             <div className={styles.internalNoteText}>{candidate.internalNote}</div>
           </div>
@@ -196,10 +196,10 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
 }
 
 /**
- * Where the note opens: under the AI box, right-aligned with it, wide over the CV. It is drawn
- * in the portal area (data-note-host) rather than inside the right column, which scrolls and
- * would cut it to the column's width. It follows the box when the column scrolls or the area
- * changes size, and stops at the area's bottom edge.
+ * Notun açıldığı yer: yapay zekâ kutusunun altında, onunla sağa hizalı, CV'nin üstünde geniş.
+ * Kayan ve onu sütun genişliğine kırpacak olan sağ sütunun içinde değil portal alanında
+ * (data-note-host) çizilir. Sütun kaydığında ya da alan boyut değiştirdiğinde kutuyu izler ve
+ * alanın alt kenarında durur.
  */
 function useNotePlacement(boxRef: RefObject<HTMLDivElement | null>, open: boolean) {
   const [at, setAt] = useState<{ host: HTMLElement; style: CSSProperties } | null>(null);
@@ -219,7 +219,7 @@ function useNotePlacement(boxRef: RefObject<HTMLDivElement | null>, open: boolea
     place();
     const ro = new ResizeObserver(place);
     ro.observe(host);
-    // the right column scrolling (capture: scroll events don't bubble)
+    // sağ sütunun kayması (capture: kaydırma olayları yukarı kabarcıklanmaz)
     window.addEventListener('scroll', place, true);
     return () => {
       ro.disconnect();

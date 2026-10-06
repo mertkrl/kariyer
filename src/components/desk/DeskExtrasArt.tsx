@@ -1,4 +1,4 @@
-/* Drawings for the things the week leaves on the desk (see DeskExtras). */
+/* Haftanın masada bıraktığı şeylerin çizimleri (bkz. DeskExtras). */
 import { useId } from 'react';
 
 const shadow = (cx: number, cy: number, rx: number, ry: number) => <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(40,24,10,0.3)" filter="url(#deskBlur)" />;
@@ -17,7 +17,7 @@ export const CakePlate = ({ stale }: { stale: boolean }) => (
   </svg>
 );
 
-/** A closed umbrella leaning against the water cooler, a small puddle under its tip. */
+/** Sebile dayanmış kapalı bir şemsiye, ucunun altında küçük bir su birikintisi. */
 export const Umbrella = () => (
   <svg viewBox="0 0 64 210" width="100%" height="100%" aria-hidden="true">
     <defs>
@@ -31,29 +31,29 @@ export const Umbrella = () => (
     <ellipse cx={20} cy={202} rx={22} ry={5} fill="rgba(120,150,190,0.3)" />
     <ellipse cx={20} cy={202} rx={12} ry={2.6} fill="rgba(200,220,245,0.25)" />
     <g transform="rotate(9 20 200)">
-      {/* tip */}
+      {/* uç */}
       <line x1={20} y1={200} x2={20} y2={186} stroke="#9aa1ab" strokeWidth={2.4} strokeLinecap="round" />
-      {/* furled canopy: fatter in the middle, pleats and the strap */}
+      {/* toplanmış kumaş: ortası daha dolgun, pliler ve kayış */}
       <path d="M20 188 C12 170 10 120 14 70 L26 70 C30 120 28 170 20 188 Z" fill="url(#umbCanopy)" />
       <path d="M17 76 C15 120 16 160 20 184" stroke="rgba(255,255,255,0.12)" strokeWidth={1.4} fill="none" />
       <path d="M23 76 C25 120 24 160 21 184" stroke="rgba(0,0,0,0.35)" strokeWidth={1.2} fill="none" />
       <rect x={13.5} y={112} width={13} height={5} rx={1.5} fill="#0b0e15" />
       <circle cx={24.5} cy={114.5} r={1.4} fill="#6b7280" />
-      {/* shaft and J handle */}
+      {/* gövde ve J sap */}
       <line x1={20} y1={70} x2={20} y2={36} stroke="#b8bec7" strokeWidth={2.6} />
       <path d="M20 36 L20 20 Q20 6 32 6 Q44 6 44 18 L44 22" fill="none" stroke="#6b4a2e" strokeWidth={7} strokeLinecap="round" />
       <path d="M20 34 L20 22 Q20 10 30 9" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={2} strokeLinecap="round" />
-      {/* drops running down */}
+      {/* aşağı süzülen damlalar */}
       <circle cx={16} cy={150} r={1.6} fill="rgba(180,205,240,0.8)" />
       <circle cx={23} cy={172} r={1.3} fill="rgba(180,205,240,0.8)" />
     </g>
   </svg>
 );
 
-/** Thursday's pizza in its open box: the slices you haven't eaten yet. */
+/** Açık kutusunda Perşembe'nin pizzası: henüz yemediğin dilimler. */
 export const PizzaBox = ({ left }: { left: number }) => {
   const id = useId().replace(/:/g, '');
-  // six slices around the centre; the first three are the team's, already gone
+  // merkezin çevresinde altı dilim; ilk üçü ekibin, çoktan gitti
   const slices = Array.from({ length: 6 }, (_, i) => i).filter((i) => i >= 6 - left);
   const CX = 95;
   const CY = 72;
@@ -65,7 +65,7 @@ export const PizzaBox = ({ left }: { left: number }) => {
     const [x1, y1] = pt(a1, f);
     return `M${CX} ${CY} L${x0} ${y0} A${RX * f} ${RY * f} 0 0 1 ${x1} ${y1} Z`;
   };
-  // toppings, placed once per slice by a fixed pattern so the pizza doesn't change between renders
+  // malzemeler, pizza çizimler arasında değişmesin diye dilim başına sabit bir desenle bir kez yerleştirilir
   const toppings = (i: number) => {
     const mid = ((i + 0.5) / 6) * Math.PI * 2;
     return {
@@ -109,7 +109,7 @@ export const PizzaBox = ({ left }: { left: number }) => {
         </radialGradient>
       </defs>
       {shadow(95, 96, 88, 10)}
-      {/* the lid, standing open behind: cardboard, the shop's print, a grease mark */}
+      {/* kapak, arkada açık duruyor: karton, dükkânın baskısı, bir yağ lekesi */}
       <path d="M22 44 L40 4 L150 4 L168 44 Z" fill={`url(#${id}lid)`} stroke="#ad8f60" strokeWidth={1.4} />
       <path d="M40 4 L150 4" stroke="#f3e6c8" strokeWidth={1} />
       <circle cx={95} cy={22} r={13} fill="none" stroke="#a33a2a" strokeWidth={1.4} opacity={0.75} />
@@ -117,14 +117,14 @@ export const PizzaBox = ({ left }: { left: number }) => {
         PİZZA
       </text>
       <ellipse cx={130} cy={34} rx={9} ry={4} fill="rgba(160,110,40,0.18)" />
-      {/* the box: corrugated edge, inside floor */}
+      {/* kutu: oluklu kenar, iç taban */}
       <path d="M10 48 L180 48 L172 96 L18 96 Z" fill={`url(#${id}box)`} stroke="#ad8f60" strokeWidth={1.4} />
       <path d="M10 48 L180 48" stroke="#f5ead0" strokeWidth={1.2} />
       {Array.from({ length: 34 }, (_, k) => (
         <line key={k} x1={13 + k * 5} y1={49.5} x2={13 + k * 5} y2={52} stroke="rgba(150,118,72,0.45)" strokeWidth={0.8} />
       ))}
       <ellipse cx={CX} cy={CY} rx={RX + 4} ry={RY + 2.5} fill="#cbb07f" />
-      {/* where eaten slices were: a grease ring and crumbs */}
+      {/* yenen dilimlerin yeri: bir yağ halkası ve kırıntılar */}
       <ellipse cx={CX} cy={CY} rx={RX - 6} ry={RY - 2} fill="rgba(170,110,40,0.16)" />
       {[
         [70, 66],
@@ -140,16 +140,16 @@ export const PizzaBox = ({ left }: { left: number }) => {
         const t = toppings(i);
         return (
           <g key={i}>
-            {/* crust, then a rim of sauce, then the cheese */}
+            {/* kenar, sonra bir sos halkası, sonra peynir */}
             <path d={wedge(a0, a1, 1)} fill={`url(#${id}crust)`} />
             <path d={wedge(a0, a1, 0.9)} fill="#c2412b" />
             <path d={wedge(a0, a1, 0.86)} fill={`url(#${id}cheese)`} />
-            {/* charred spots on the crust */}
+            {/* kenardaki yanık noktalar */}
             {[0.2, 0.55, 0.8].map((f) => {
               const [x, y] = pt(a0 + (a1 - a0) * f, 0.96);
               return <ellipse key={f} cx={x} cy={y} rx={1.6} ry={0.7} fill="rgba(90,45,15,0.55)" />;
             })}
-            {/* melted cheese bubbles */}
+            {/* erimiş peynir kabarcıkları */}
             {[0.3, 0.6].map((f) => {
               const [x, y] = pt(a0 + (a1 - a0) * f, 0.55);
               return <ellipse key={f} cx={x} cy={y} rx={2.2} ry={0.9} fill="rgba(255,248,215,0.6)" />;
@@ -171,7 +171,7 @@ export const PizzaBox = ({ left }: { left: number }) => {
               const [x, y] = pt(a, f);
               return <rect key={k} x={x} y={y} width={1.1} height={0.6} fill="#4f6b2f" transform={`rotate(${k * 40} ${x} ${y})`} />;
             })}
-            {/* the cut */}
+            {/* kesik */}
             <path d={`M${CX} ${CY} L${pt(a0 - 0.012, 1)[0]} ${pt(a0 - 0.012, 1)[1]}`} stroke="rgba(120,70,25,0.5)" strokeWidth={0.7} />
           </g>
         );

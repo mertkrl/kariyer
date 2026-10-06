@@ -2,10 +2,9 @@ import { useEffect, useRef } from 'react';
 import { WORKDAY_END_MIN } from '../../game/time';
 
 /*
- * The office window: Levent's towers across Büyükdere Caddesi. The sky follows the clock
- * (a pale winter morning, flat noon, gold at half past three, blue by five) and the day's
- * weather; office lights come on floor by floor as it gets dark. Rain streaks down the glass
- * on Wednesday, snow drifts past on Thursday.
+ * Ofis penceresi: Büyükdere Caddesi'nin karşısında Levent'in kuleleri. Gökyüzü saati izler (soluk
+ * bir kış sabahı, düz bir öğlen, üç buçukta altın, beşte mavi) ve günün havasını; hava kararırken
+ * ofis ışıkları kat kat yanar. Çarşamba camdan yağmur süzülür, Perşembe kar geçer.
  */
 
 export type WindowWeather = 'sunny' | 'windy' | 'rainy' | 'snowy' | 'cloudy';
@@ -17,7 +16,7 @@ type RGB = [number, number, number];
 const mix = (a: RGB, b: RGB, t: number): RGB => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const css = (c: RGB, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 
-/** Sky key colours (top, horizon) over the workday, by minute. */
+/** Mesai boyunca dakikaya göre gökyüzünün ana renkleri (üst, ufuk). */
 const SKY: [number, RGB, RGB][] = [
   [0, [120, 150, 190], [236, 206, 180]],
   [90, [104, 150, 204], [206, 222, 236]],
@@ -62,7 +61,7 @@ interface Tower {
 function makeTowers(): Tower[] {
   const r = rng(77);
   const out: Tower[] = [];
-  // three rows: hazy far skyline, the Levent cluster, the office block across the street
+  // üç sıra: puslu uzak silüet, Levent kümesi, sokağın karşısındaki ofis bloğu
   const rows = [
     { n: 11, top: [120, 210], w: [28, 60], depth: 0 },
     { n: 7, top: [30, 150], w: [46, 90], depth: 1 },
@@ -121,14 +120,14 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
       skip = !skip;
-      if (skip) return; // 30 fps is plenty for a window
+      if (skip) return; // bir pencere için 30 fps yeter
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       t += dt;
       const min = minRef.current;
       g.setTransform(canvas.width / VW, 0, 0, canvas.height / VH, 0, 0);
 
-      // sky
+      // gökyüzü
       let [top, hor] = skyAt(min);
       const grey: RGB = [150, 156, 166];
       top = mix(top, mix(grey, top, 0.3), overcast);
@@ -141,7 +140,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
       g.fillRect(0, 0, VW, VH);
       const dusk = Math.max(0, Math.min(1, (min - 430) / 110));
 
-      // low winter sun, off to the west (right), behind the towers late in the day
+      // alçak kış güneşi, batıda (sağda), günün sonunda kulelerin arkasında
       if (overcast < 0.6) {
         const sx = 420 + (min / WORKDAY_END_MIN) * 120;
         const sy = 70 + Math.pow(min / WORKDAY_END_MIN, 2) * 220;
@@ -153,7 +152,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
         g.fillRect(0, 0, VW, VH);
       }
 
-      // clouds drifting with the wind
+      // rüzgârla süzülen bulutlar
       for (const c of clouds) {
         c.x += dt * (4 + wind * 14) * (0.5 + c.y / 200);
         if (c.x - c.w > VW) c.x = -c.w * 1.2;
@@ -167,7 +166,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
         g.fill();
       }
 
-      // birds on a clear morning
+      // açık bir sabahta kuşlar
       g.strokeStyle = 'rgba(40,44,56,0.7)';
       g.lineWidth = 1;
       for (const b of birds) {
@@ -182,7 +181,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
         g.stroke();
       }
 
-      // towers
+      // kuleler
       const haze = css(mix(hor, [200, 204, 214], overcast * 0.6));
       for (const tw of towers) {
         const shade = tw.depth === 0 ? 0.55 : tw.depth === 1 ? 0.8 : 1;
@@ -194,7 +193,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
         bg.addColorStop(1, css(mix(lit, [0, 0, 0], 0.25)));
         g.fillStyle = bg;
         g.fillRect(tw.x, tw.top, tw.w, VH - tw.top);
-        // a crown or a slanted roof on some towers
+        // bazı kulelerde bir taç ya da eğik bir çatı
         if (tw.depth === 1 && tw.crown > 0.55) {
           g.beginPath();
           g.moveTo(tw.x, tw.top);
@@ -202,7 +201,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
           g.lineTo(tw.x + tw.w, tw.top);
           g.fill();
         }
-        // sky reflected in the curtain wall
+        // giydirme cephede yansıyan gökyüzü
         if (tw.depth > 0) {
           const rf = g.createLinearGradient(0, tw.top, 0, VH);
           rf.addColorStop(0, css(hor, 0.28 * (1 - dusk)));
@@ -210,7 +209,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
           g.fillStyle = rf;
           g.fillRect(tw.x + tw.w * 0.1, tw.top, tw.w * 0.4, VH - tw.top);
         }
-        // floors: mullions by day, office lights as it gets dark
+        // katlar: gündüz kayıtlar, hava kararınca ofis ışıkları
         const cw = tw.w / tw.cols;
         for (const fl of tw.floors) {
           g.fillStyle = `rgba(10,14,22,${0.18 * shade})`;
@@ -225,7 +224,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
             g.fillRect(tw.x + c * cw + 1, fl.y + 2, cw - 2, h);
           }
         }
-        // red aviation lights on the tall ones
+        // uzunlarda kırmızı uçak ikaz ışıkları
         if (tw.depth === 1 && tw.top < 80 && Math.sin(t * 2.4 + tw.x) > 0.2) {
           g.fillStyle = `rgba(255,60,50,${0.5 + dusk * 0.5})`;
           g.beginPath();
@@ -240,7 +239,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
         }
       }
 
-      // weather in the air
+      // havadaki hava durumu
       if (weather === 'snowy') {
         g.fillStyle = 'rgba(255,255,255,0.85)';
         for (const f of flakes) {
@@ -271,7 +270,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
           g.lineTo(f.x - 2.2 * f.z, f.y - 11 * f.z);
         }
         g.stroke();
-        // drops on the glass, now and then sliding down
+        // camdaki damlalar, ara ara aşağı kayıyor
         for (const d of drops) {
           if (d.hold > 0) d.hold -= dt;
           else {
@@ -300,7 +299,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
         g.fillStyle = `rgba(200,206,216,${(overcast - 0.5) * 0.35})`;
         g.fillRect(0, 0, VW, VH);
       }
-      // the glass itself: a faint reflection of the room
+      // camın kendisi: odanın soluk bir yansıması
       const glass = g.createLinearGradient(0, 0, VW, VH);
       glass.addColorStop(0, 'rgba(255,255,255,0.06)');
       glass.addColorStop(0.45, 'rgba(255,255,255,0)');
@@ -309,7 +308,7 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
       g.fillStyle = glass;
       g.fillRect(0, 0, VW, VH);
     };
-    // nothing to draw while the window is out of sight (scrolled away, or its panel hidden)
+    // pencere görünmezken çizecek bir şey yok (kaydırılmış ya da paneli gizli)
     const io = new IntersectionObserver(([entry]) => {
       cancelAnimationFrame(raf);
       if (entry.isIntersecting) {

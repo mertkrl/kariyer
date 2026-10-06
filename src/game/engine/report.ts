@@ -1,8 +1,8 @@
 /*
- * The session report: what a player's week looked like, for a trainer or a class to talk about
- * afterwards. Built on the device from the week's own record and never sent anywhere; the
- * player prints it or copies it. The questions follow what this player actually did, so the
- * discussion starts from their own choices rather than from a generic list.
+ * Oturum raporu: bir oyuncunun haftasının nasıl göründüğü; sonrasında bir eğitmenin ya da bir
+ * sınıfın konuşabilmesi için. Haftanın kendi kaydından cihazda kurulur ve hiçbir yere gönderilmez;
+ * oyuncu onu yazdırır ya da kopyalar. Sorular bu oyuncunun gerçekte ne yaptığını izler; böylece
+ * tartışma genel bir listeden değil kendi seçimlerinden başlar.
  */
 import type { Decision, Difficulty } from '../types';
 import type { WeekEntry } from '../echoes';
@@ -28,7 +28,7 @@ export interface ReportInput {
 export interface FileLine {
   name: string;
   decision: Decision;
-  /** Read before deciding; null when the week predates the record. */
+  /** Karar vermeden önce okunan; hafta bu kayıttan önceyse null. */
   considered: boolean | null;
 }
 
@@ -41,11 +41,11 @@ export interface SessionReport {
   decided: number;
   approved: number;
   rejected: number;
-  /** Share of decisions taken after reading the file (0–1); null when unknown. */
+  /** Dosyayı okuduktan sonra verilen kararların payı (0–1); bilinmiyorsa null. */
   readShare: number | null;
-  /** Strong people the system pushed down for a proxy — the week's real question. */
+  /** Sistemin bir vekil yüzünden aşağı ittiği güçlü insanlar: haftanın asıl sorusu. */
   flaggedStrong: FileLine[];
-  /** Weak files the system put first, called to interview. */
+  /** Sistemin öne koyduğu ve mülakata çağrılan zayıf dosyalar. */
   priorityWeakApproved: string[];
   references: number;
   aiUses: number;
@@ -95,7 +95,7 @@ export function sessionReport(input: ReportInput): SessionReport {
   return report;
 }
 
-/** Discussion questions, the ones about this player's own choices first. */
+/** Tartışma soruları, önce bu oyuncunun kendi seçimleriyle ilgili olanlar. */
 function questionsFor(r: SessionReport): string[] {
   const q: string[] = [];
   const unreadRejected = r.flaggedStrong.filter((f) => f.decision === 'reject' && f.considered === false);
@@ -122,7 +122,7 @@ function questionsFor(r: SessionReport): string[] {
     q.push(`Kararlarının yalnızca %${Math.round(r.readShare * 100)}'ini dosyayı okuyarak verdin. Zaman baskısı ile adil karar arasındaki gerilimi kurumunuzda nasıl yönetiyorsunuz?`);
   }
   if (r.aiUses >= 5) q.push(`Yapay zekâ önerisine ${r.aiUses} kez başvurdun. Bir aracın önerisini kullanmak ile kararı ona bırakmak arasındaki fark ne?`);
-  // the questions every group can start with
+  // her grubun başlayabileceği sorular
   q.push(
     'Performans puanın şirketin seni nasıl gördüğünü, Vicdan puanın nasıl karar verdiğini ölçtü. Kendi işinde bu ikisi hangi durumlarda ayrışıyor?',
     'Sistemin "Değerlendirme dışı" dediği hangi gerekçeler, gerçekte bir grubu (yaş, cinsiyet, kariyer arası, mezuniyet yeri) dolaylı olarak dışarıda bırakıyor?',
@@ -134,7 +134,7 @@ function questionsFor(r: SessionReport): string[] {
 const pct = (n: number | null) => (n === null ? '—' : `%${Math.round(n * 100)}`);
 const fileLine = (f: FileLine) => `${f.name}: ${f.decision === 'approve' ? 'mülakata çağrıldı' : 'reddedildi'}${f.considered === null ? '' : f.considered ? ' (okunarak)' : ' (okunmadan)'}`;
 
-/** The report as plain text: to paste into a course page, a mail or a shared document. */
+/** Düz metin olarak rapor: bir ders sayfasına, bir e-postaya ya da paylaşılan bir belgeye yapıştırmak için. */
 export function reportText(r: SessionReport): string {
   return [
     "Sen İK'sin — oturum raporu",

@@ -2,12 +2,11 @@ import { WindowView } from './WindowView';
 import styles from './HomeScene.module.css';
 
 /*
- * Friday, 21:40 — an ordinary Istanbul living room, drawn with light and depth rather than
- * boxes: a plaster wall with crown and skirting, a white PVC window with net curtains and heavy
- * drapes (the street and the condemned block opposite behind it), a pot plant on the sill, a
- * three-seater with a lace doily on its back and a knitted throw, a coffee
- * table with tea, a kilim with fringes, laminate flooring, a bookcase, and a
- * floor lamp throwing a warm pool across all of it. Without electricity: two candles.
+ * Cuma, 21:40: sıradan bir İstanbul oturma odası, kutularla değil ışık ve derinlikle çizilmiş:
+ * kartonpiyerli ve süpürgelikli sıva duvar, tül ve kalın perdeli beyaz PVC pencere (arkasında
+ * sokak ve karşıdaki boşaltılmış bina), pervazda saksı, sırtında dantel örtü ve örgü battaniye
+ * olan üçlü kanepe, üstünde çay olan orta sehpa, saçaklı kilim, laminat parke, kitaplık ve
+ * hepsinin üstüne sıcak bir ışık havuzu düşüren ayaklı lamba.
  */
 
 const WIN = { x: 110, y: 80, w: 460, h: 300 };
@@ -106,13 +105,13 @@ export function HomeScene() {
         </linearGradient>
       </defs>
 
-      {/* ── the wall: plaster, crown moulding, skirting ── */}
+      {/* ── duvar: sıva, kartonpiyer, süpürgelik ── */}
       <rect width="1000" height="540" fill="url(#hsWall)" />
       <rect width="1000" height="540" filter="url(#hsNoise)" />
       <rect y="0" width="1000" height="16" fill="#7c6553" />
       <rect y="16" width="1000" height="4" fill="rgba(0,0,0,0.25)" />
 
-      {/* ── the floor: laminate planks ── */}
+      {/* ── zemin: laminat parke ── */}
       {Array.from({ length: 8 }, (_, row) =>
         Array.from({ length: 7 }, (_, i) => {
           const y = 540 + row * 21;
@@ -127,19 +126,19 @@ export function HomeScene() {
       <rect y="530" width="1000" height="2" fill="rgba(255,230,190,0.12)" />
       <rect y="540" width="1000" height="3" fill="rgba(0,0,0,0.35)" />
 
-      {/* ── the window: white PVC in a deep reveal ── */}
+      {/* ── pencere: derin bir girintide beyaz PVC ── */}
       <rect x={WIN.x - 22} y={WIN.y - 22} width={WIN.w + 44} height={WIN.h + 44} fill="#3f3128" />
       <rect x={WIN.x - 14} y={WIN.y - 14} width={WIN.w + 28} height={WIN.h + 28} fill="#efece4" />
       <foreignObject x={WIN.x} y={WIN.y} width={WIN.w} height={WIN.h}>
         <WindowView className={styles.view} />
       </foreignObject>
-      {/* sashes and glass sheen */}
+      {/* kanatlar ve cam parlaması */}
       <rect x={WIN.x + WIN.w / 2 - 6} y={WIN.y} width={12} height={WIN.h} fill="#efece4" />
       <rect x={WIN.x} y={WIN.y + 46} width={WIN.w} height={10} fill="#efece4" />
       <rect x={WIN.x + WIN.w / 2 - 6} y={WIN.y} width={2} height={WIN.h} fill="rgba(0,0,0,0.15)" />
       <rect x={WIN.x + WIN.w / 2 + 20} y={WIN.y + WIN.h * 0.55} width={6} height={22} rx={2} fill="#c9c4b8" />
       <path d={`M${WIN.x} ${WIN.y} L${WIN.x + 130} ${WIN.y} L${WIN.x + 30} ${WIN.y + WIN.h} L${WIN.x} ${WIN.y + WIN.h} Z`} fill="rgba(255,255,255,0.04)" />
-      {/* marble sill and a pot plant */}
+      {/* mermer pervaz ve saksı */}
       <rect x={WIN.x - 30} y={WIN.y + WIN.h + 12} width={WIN.w + 60} height={12} fill="#d8d2c6" />
       <rect x={WIN.x - 30} y={WIN.y + WIN.h + 24} width={WIN.w + 60} height={4} fill="rgba(0,0,0,0.3)" />
       <g transform={`translate(${WIN.x + 40} ${WIN.y + WIN.h - 60})`}>
@@ -159,7 +158,7 @@ export function HomeScene() {
         ))}
       </g>
 
-      {/* ── net curtain and drapes ── */}
+      {/* ── tül ve perdeler ── */}
       <rect x={WIN.x - 60} y={34} width={WIN.w + 120} height={10} rx={5} fill="#2d221b" />
       {Array.from({ length: 22 }, (_, i) => (
         <circle key={i} cx={WIN.x - 50 + i * 26} cy={44} r={3.5} fill="#1c1510" />
@@ -169,7 +168,7 @@ export function HomeScene() {
       <path d={`M${WIN.x - 70} 44 L${WIN.x + 50} 44 C${WIN.x + 64} 220 ${WIN.x + 26} 380 ${WIN.x + 46} 540 L${WIN.x - 80} 540 Z`} fill="url(#hsDrape)" />
       <path d={`M${WIN.x + WIN.w - 50} 44 L${WIN.x + WIN.w + 70} 44 L${WIN.x + WIN.w + 80} 540 L${WIN.x + WIN.w - 46} 540 C${WIN.x + WIN.w - 26} 380 ${WIN.x + WIN.w - 64} 220 ${WIN.x + WIN.w - 50} 44 Z`} fill="url(#hsDrape)" />
 
-      {/* ── wall clock, 21:40 ── */}
+      {/* ── duvar saati, 21:40 ── */}
       <g transform="translate(700 70)">
         <circle cx="0" cy="0" r="30" fill="rgba(0,0,0,0.3)" filter="url(#hsSoftSmall)" transform="translate(3 4)" />
         <circle cx="0" cy="0" r="30" fill="#2e241c" />
@@ -183,7 +182,7 @@ export function HomeScene() {
         <path d="M-20 -12 A26 26 0 0 1 8 -24" stroke="rgba(255,255,255,0.35)" strokeWidth={2} fill="none" />
       </g>
 
-      {/* ── bookcase ── */}
+      {/* ── kitaplık ── */}
       <g transform="translate(800 100)">
         <rect x="6" y="6" width="150" height="430" fill="rgba(0,0,0,0.35)" filter="url(#hsSoft)" />
         <rect width="150" height="430" fill="#3b2b20" />
@@ -206,17 +205,17 @@ export function HomeScene() {
         ))}
       </g>
 
-      {/* the lamp's warm wash over wall and floor */}
+      {/* lambanın duvara ve zemine yayılan sıcak ışığı */}
       <rect width="1000" height="700" fill="url(#hsLampWash)" />
 
-      {/* ── kilim with fringes ── */}
+      {/* ── saçaklı kilim ── */}
       <path d="M300 612 L920 612 L960 690 L260 690 Z" fill="url(#hsKilim)" />
       <path d="M300 612 L920 612 L960 690 L260 690 Z" fill="none" stroke="#e3c27a" strokeWidth={4} opacity={0.7} />
       {Array.from({ length: 40 }, (_, i) => (
         <line key={i} x1={262 + i * 17.5} y1={690} x2={260 + i * 17.5} y2={700} stroke="#e8dcc0" strokeWidth={2} />
       ))}
 
-      {/* ── the sofa ── */}
+      {/* ── kanepe ── */}
       <ellipse cx="700" cy="604" rx="280" ry="16" fill="rgba(0,0,0,0.5)" filter="url(#hsSoft)" />
       <g>
         {[476, 928].map((x) => (
@@ -230,7 +229,7 @@ export function HomeScene() {
             <path d={`M${504 + i * 138} 432 Q${562 + i * 138} 424 ${620 + i * 138} 432`} stroke="rgba(255,255,255,0.12)" strokeWidth={3} fill="none" />
           </g>
         ))}
-        {/* lace doily on the back, the Turkish way */}
+        {/* sırtında dantel örtü, bizdeki gibi */}
         <g transform="translate(700 412)">
           <path d="M-46 0 L46 0 L40 26 Q0 40 -40 26 Z" fill="#f4efe2" opacity={0.92} />
           {Array.from({ length: 9 }, (_, i) => (
@@ -255,7 +254,7 @@ export function HomeScene() {
         <path d="M742 560 L812 560" stroke="#ae8f58" strokeWidth={4} strokeDasharray="3 4" />
       </g>
 
-      {/* ── coffee table with tea ── */}
+      {/* ── üstünde çay olan orta sehpa ── */}
       <g transform="translate(360 520)">
         <ellipse cx="0" cy="84" rx="90" ry="10" fill="rgba(0,0,0,0.45)" filter="url(#hsSoftSmall)" />
         <rect x="-86" y="30" width="172" height="14" rx={4} fill="#6b4a31" />
@@ -278,7 +277,7 @@ export function HomeScene() {
         </g>
       </g>
 
-      {/* ── floor lamp ── */}
+      {/* ── ayaklı lamba ── */}
       <g transform="translate(610 150)">
         <ellipse cx="0" cy="470" rx="30" ry="7" fill="rgba(0,0,0,0.5)" filter="url(#hsSoftSmall)" />
         <rect x="-3" y="66" width="6" height="400" fill="#2a241e" />
@@ -289,7 +288,7 @@ export function HomeScene() {
         <path d="M-52 66 L52 66 L110 330 L-110 330 Z" fill="rgba(255,200,130,0.07)" />
       </g>
 
-      {/* the edges of the room fall into shadow */}
+      {/* odanın kenarları gölgeye düşer */}
       <rect width="1000" height="700" fill="url(#hsVignette)" />
     </svg>
   );

@@ -7,7 +7,7 @@
   box-shadow: inset 0 0 0 8px #0b0c0e;
 }
 
-/* ── wallpaper ── */
+/* ── duvar kâğıdı ── */
 
 .wallpaper {
   position: absolute;
@@ -41,14 +41,14 @@
   color: rgba(255, 255, 255, 0.18);
 }
 
-/* ── desktop icons ── */
+/* ── masaüstü simgeleri ── */
 
 .icons {
   position: absolute;
   top: 22px;
   left: 22px;
   display: grid;
-  /* every icon gets the same cell, whatever the length of its name: an even column */
+  /* adının uzunluğu ne olursa olsun her simge aynı hücreyi alır: düzgün bir sütun */
   grid-auto-rows: minmax(100px, 1fr);
   gap: 8px;
   width: 100px;
@@ -80,7 +80,7 @@
   border-color: rgba(255, 255, 255, 0.22);
 }
 
-/* the name under an icon: at most two lines, a long file name breaks rather than spilling */
+/* bir simgenin altındaki ad: en fazla iki satır, uzun bir dosya adı taşmak yerine kırılır */
 .iconLabel {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -152,7 +152,7 @@
   right: -8px;
 }
 
-/* ── window ── */
+/* ── pencere ── */
 
 .window {
   position: absolute;
@@ -238,7 +238,7 @@
   overflow: hidden;
 }
 
-/* ── taskbar ── */
+/* ── görev çubuğu ── */
 
 .taskbar {
   position: absolute;
@@ -324,7 +324,7 @@
   animation: winIn 0.2s ease-out;
 }
 
-/* ── mail ── */
+/* ── e-posta ── */
 
 .mail {
   flex: 1;
@@ -454,7 +454,7 @@
 
 
 
-/* an attachment under a mail */
+/* bir e-postanın altındaki ek */
 .attachment {
   margin-top: 14px;
   padding: 10px 14px;
@@ -479,7 +479,7 @@
   color: #a8402f;
 }
 
-/* ── mail client: folders | list | reader ── */
+/* ── e-posta istemcisi: klasörler | liste | okuyucu ── */
 .folders {
   display: flex;
   flex-direction: column;
@@ -624,7 +624,7 @@
   color: var(--text-muted);
 }
 
-/* avatars always hold their initials */
+/* avatarlar baş harflerini her zaman tutar */
 .initials {
   flex-shrink: 0;
   width: 32px;
@@ -662,10 +662,10 @@
   }
 }
 
-/* On a short screen the title bar and taskbar get slimmer by themselves (styles/layout.css). */
+/* Kısa ekranda başlık çubuğu ve görev çubuğu kendiliğinden incelir (styles/layout.css). */
 
 
-/* before the shift starts: the portal is where the day begins */
+/* mesai başlamadan önce: gün portalda başlar */
 .beckon {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(201, 162, 39, 0.7);
@@ -684,7 +684,7 @@
   }
 }
 
-/* ── writing back to a candidate's reply ── */
+/* ── bir adayın cevabına geri yazmak ── */
 .replyBack {
   margin-top: 18px;
   padding-top: 14px;

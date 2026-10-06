@@ -1,7 +1,7 @@
 /*
- * The sounds the game's rules ask for — a stamp, a buzz, a click — without the rules knowing
- * how sound is made. The page plugs the real audio engine in at start-up (main.tsx); until then,
- * and in tests, every call is silent. This keeps the store free of Web Audio.
+ * Oyun kurallarının istediği sesler (damga, vızıltı, tık) ama kurallar sesin nasıl yapıldığını
+ * bilmeden. Sayfa açılışta gerçek ses motorunu bağlar (main.tsx); o zamana kadar ve testlerde her
+ * çağrı sessizdir. Bu, store'u Web Audio'dan bağımsız tutar.
  */
 import type { audioEngine } from '../audio/audioEngine';
 
@@ -29,10 +29,10 @@ const silent: Sound = {
 
 let engine: Sound = silent;
 
-/** Called once by the page: from now on the game's sounds are heard. */
+/** Sayfa bir kez çağırır: bundan sonra oyunun sesleri duyulur. */
 export function connectSound(real: Sound) {
   engine = real;
 }
 
-/** The connected sound output (silent until connectSound). */
+/** Bağlı ses çıkışı (connectSound'a kadar sessiz). */
 export const sound = (): Sound => engine;

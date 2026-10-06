@@ -7,9 +7,9 @@ import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
 
 /*
- * The body of a CV as the portal shows it: the main column (profile, work history, highlights,
- * the company's questions) and the sidebar (salary, skills, education, references). While the
- * AI scans, each section lights up in turn; once it has, each gets its thumb up or down.
+ * Bir CV'nin portalın gösterdiği gövdesi: ana sütun (profil, iş geçmişi, öne çıkanlar, şirketin
+ * soruları) ve yan sütun (maaş, beceriler, eğitim, referanslar). Yapay zekâ tararken her bölüm
+ * sırayla yanar; taradıktan sonra her biri başparmak yukarı ya da aşağı alır.
  */
 
 export function Verdict({ field, candidate }: { field?: EvaluatedField; candidate: Candidate }) {
@@ -27,8 +27,8 @@ export function Verdict({ field, candidate }: { field?: EvaluatedField; candidat
 type Details = (typeof candidateDetails)[string];
 
 /**
- * True while the CV runs on below the fold. On a short screen the CV scrolls inside the card,
- * and its bottom edge fades out so the company's questions aren't missed.
+ * CV ekranın altına doğru sürerken true. Kısa ekranda CV kartın içinde kayar ve şirketin soruları
+ * kaçırılmasın diye alt kenarı soluklaşır.
  */
 function useMoreBelow() {
   const ref = useRef<HTMLDivElement>(null);
@@ -50,8 +50,8 @@ function useMoreBelow() {
 }
 
 /**
- * The end of the file has been on screen — whatever scrolls it there: the CV inside the card on
- * a short screen, the whole card on a phone on its side, or nothing when it all fits.
+ * Dosyanın sonu ekranda oldu; onu oraya ne kaydırırsa: kısa ekranda kartın içindeki CV, yan
+ * çevrilmiş telefonda bütün kart ya da her şey sığıyorsa hiçbir şey.
  */
 function useSeenToEnd(onEnd: () => void) {
   const ref = useRef<HTMLDivElement>(null);
@@ -173,7 +173,7 @@ export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }
           </section>
         )}
       </aside>
-      {/* the bottom of the file, across both columns: once this has been on screen, it was seen whole */}
+      {/* iki sütun boyunca dosyanın altı: bu ekranda bir kez göründüyse bütünüyle görülmüştür */}
       <div ref={endRef} className={styles.cvEnd} aria-hidden="true" />
     </div>
   );

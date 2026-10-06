@@ -1,2 +1,2 @@
-/** The game's version from package.json, written in at build time (vite.config.ts). */
+/** package.json'daki oyun sürümü; derleme sırasında yazılır (vite.config.ts). */
 declare const __APP_VERSION__: string;

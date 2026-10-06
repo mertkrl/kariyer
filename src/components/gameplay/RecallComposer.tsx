@@ -4,10 +4,10 @@ import { audioEngine } from '../../audio/audioEngine';
 import styles from './RecallComposer.module.css';
 
 /*
- * Wednesday afternoon, after Hakan Bey's call: the mail that takes two interview invitations
- * back. It opens as a modal window over everything (the rest of the screen can't be clicked or
- * tabbed to, Esc doesn't close it) and stays until it is sent — the only choice left to you is
- * the wording: the "sent by mistake" line he asked for, or what actually happened.
+ * Çarşamba öğleden sonra, Hakan Bey'in aramasından sonra: iki mülakat davetini geri alan e-posta.
+ * Her şeyin üstünde bir açılır pencere olarak açılır (ekranın geri kalanına tıklanamaz ya da Tab'la
+ * gidilemez, Esc onu kapatmaz) ve gönderilene kadar kalır; sana kalan tek seçim ifadedir: istediği
+ * "sehven gönderildi" cümlesi ya da gerçekte olan.
  */
 
 const BODIES = {

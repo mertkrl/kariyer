@@ -1,8 +1,8 @@
 /*
- * Wednesday, 11:00, online: the weekly HR meeting as a video call. The one time the whole cast is
- * on one screen. Hakan Bey keeps his camera off; what they say is what counts.
- * Ümit asks the question nobody asks, Emre and Ayşe answer it from their own lives, and
- * Hakan Bey turns to you.
+ * Çarşamba, 11:00, çevrimiçi: haftalık İK toplantısı görüntülü görüşme olarak. Bütün kadronun
+ * tek ekranda olduğu tek an. Hakan Bey kamerasını kapalı tutar; önemli olan söylenenler.
+ * Ümit kimsenin sormadığı soruyu sorar, Emre ve Ayşe onu kendi hayatlarından cevaplar ve
+ * Hakan Bey sana döner.
  */
 import type { MeetingChoice } from './echoes';
 import { PLAYER } from './player';
@@ -11,7 +11,7 @@ import { WEDNESDAY } from './weekdays';
 export const MEETING_DAY = WEDNESDAY;
 /** 11:00 */
 export const MEETING_AT = 180;
-/** How long it takes out of the day. */
+/** Günden ne kadar götürdüğü. */
 export const MEETING_MINUTES = 35;
 
 export { PLAYER };
@@ -30,44 +30,44 @@ export const SPEAKERS: Record<Exclude<Speaker, 'room'>, { name: string; role: st
 export interface Line {
   who: Speaker;
   text: string;
-  /** What Selin puts on the shared dashboard as this line is said (it stays until the next change). */
+  /** Bu satır söylenirken Selin'in paylaşılan panoya koyduğu (bir sonraki değişikliğe kadar kalır). */
   board?: Board;
-  /** What lands in the call's chat as this line is said. */
+  /** Bu satır söylenirken görüşmenin sohbetine düşen. */
   chat?: ChatMessage[];
-  /** Someone starts typing in the chat on this line (and may never send it). */
+  /** Biri bu satırda sohbete yazmaya başlar (ve hiç göndermeyebilir). */
   typing?: Speaker;
 }
 
-/** A line in the call's side chat: from someone, or a system notice; `private` means only you see it. */
+/** Görüşmenin yan sohbetinde bir satır: birinden ya da bir sistem bildirimi; `private` yalnızca senin gördüğün anlamına gelir. */
 export interface ChatMessage {
   who: Exclude<Speaker, 'room'> | 'system';
   text: string;
   private?: boolean;
 }
 
-/** The pages of the shared dashboard. */
+/** Paylaşılan panonun sayfaları. */
 export type BoardPage = 'overview' | 'people' | 'shortlist' | 'funnel' | 'off';
 export type BoardMetric = 'files' | 'avg' | 'ai' | 'invites';
 export interface Board {
   page: BoardPage;
-  /** What is cross-filtered / pointed at: a teammate, a candidate, or a stage of the funnel. */
+  /** Neyin süzüldüğü / işaret edildiği: bir ekip arkadaşı, bir aday ya da huninin bir aşaması. */
   focus?: string[];
   metric?: BoardMetric;
-  /** The funnel shows the random manual check as a proposal (after you suggest it). */
+  /** Huni, rastgele elle kontrolü bir öneri olarak gösterir (sen önerdikten sonra). */
   proposal?: boolean;
 }
 
-/** Applications per day, Monday to Wednesday morning (adds up to 1.840). */
+/** Pazartesi'den Çarşamba sabahına günlük başvurular (toplam 1.840). */
 export const DAILY_APPLICATIONS: [string, number][] = [
   ['Pzt', 684],
   ['Sal', 719],
   ['Çar', 437],
 ];
 export const TOTAL_APPLICATIONS = 1840;
-/** How many cleared the ATS threshold (%60) and reached a human queue. */
+/** ATS eşiğini (%60) geçip bir insanın kuyruğuna ulaşanlar. */
 export const ATS_PASSED = 212;
 
-/** Friday's shortlist as the dashboard shows it: the numbers the argument is about. */
+/** Panonun gösterdiği hâliyle Cuma'nın kısa listesi: tartışmanın konusu olan rakamlar. */
 export const SHORTLIST: { id: string; name: string; by: 'ayse' | 'emre'; ats: number; commits: number; gap: number }[] = [
   { id: 'nehir', name: 'Nehir Koç', by: 'ayse', ats: 61, commits: 412, gap: 2 },
   { id: 'berk', name: 'Berk Aydın', by: 'ayse', ats: 74, commits: 96, gap: 0 },
@@ -75,15 +75,15 @@ export const SHORTLIST: { id: string; name: string; by: 'ayse' | 'emre'; ats: nu
   { id: 'sarp', name: 'Sarp Yılmazer', by: 'emre', ats: 97, commits: 0, gap: 0 },
 ];
 
-/** What the team did Monday to Wednesday morning, shown on the screen and argued over. */
+/** Ekibin Pazartesi'den Çarşamba sabahına yaptıkları; ekranda gösterilir ve tartışılır. */
 export interface TeamStats {
   files: number;
-  /** Average seconds spent per file. */
+  /** Dosya başına ortalama saniye. */
   avg: number;
   invites: number;
-  /** Share of files run through the AI, 0–1. */
+  /** Yapay zekâdan geçirilen dosyaların payı, 0–1. */
   ai: number;
-  /** The player's own invitations so far, as the shortlist shows them. */
+  /** Oyuncunun şimdiye kadarki davetleri, kısa listenin gösterdiği gibi. */
   picks?: { id: string; name: string; ats: number }[];
 }
 
@@ -95,14 +95,14 @@ export const COLLEAGUE_STATS: Record<'ayse' | 'emre', TeamStats> = {
 const pct = (x: number) => `%${Math.round(x * 100)}`;
 
 /**
- * The meeting follows the numbers: Hakan Bey reads your pace against Emre's and Ayşe's, Ümit
- * reads it against what a CV takes to read, and the two shortlists coming to Friday collide.
+ * Toplantı rakamları izler: Hakan Bey senin temponu Emre'ninkiyle ve Ayşe'ninkiyle, Ümit bir CV'yi
+ * okumanın gerektirdiği süreyle karşılaştırır ve Cuma'ya gelen iki kısa liste çatışır.
  */
 export function buildOpening(you: TeamStats): Line[] {
   const { ayse, emre } = COLLEAGUE_STATS;
   const total = you.files + ayse.files + emre.files;
   const fast = you.files > 0 && you.avg < 20;
-  // a few seconds a file isn't reading at all: nobody praises that
+  // dosya başına birkaç saniye hiç okumak değildir: kimse bunu övmez
   const skimming = you.files > 0 && you.avg < 10;
   const slow = you.avg >= 45;
   const lines: Line[] = [

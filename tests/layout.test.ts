@@ -1,6 +1,6 @@
 /*
- * The layout strategy (docs/yerlesim.md), held as a test: every stylesheet breaks at the same
- * few widths and heights, and the frame sizes several components share come from one place.
+ * Yerleşim stratejisi (docs/yerlesim.md), test olarak tutulur: her stil dosyası aynı birkaç genişlik
+ * ve yükseklikte kırılır ve birçok bileşenin paylaştığı çerçeve ölçüleri tek bir yerden gelir.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,7 +20,7 @@ test('her stil dosyası yalnızca ortak kırılma noktalarını kullanır', () =
   for (const { f, css } of sheets) {
     const queries = [...css.matchAll(/@media[^{]*/g)].map((m) => m[0]).join(' ');
     for (const [, kind, dim, px] of queries.matchAll(/(min|max)-(width|height):\s*(\d+)px/g)) {
-      // a min- query starts one pixel after the matching max- one (961px after 960px)
+      // bir min- sorgusu eşleşen max- sorgusundan bir piksel sonra başlar (960px'ten sonra 961px)
       const value = Number(px) - (kind === 'min' ? 1 : 0);
       if (!(dim === 'width' ? WIDTHS : HEIGHTS).includes(value)) stray.push(`${f}: ${kind}-${dim}: ${px}px`);
     }

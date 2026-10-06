@@ -4,8 +4,8 @@ import data from './candidates.json' with { type: 'json' };
 import { fieldsOf, flattenSections } from './validate';
 
 /*
- * The candidates' CVs live in candidates.json, grouped under the day's heading, so they can be
- * written and edited as text without touching code. They are checked here as the game loads.
+ * Adayların CV'leri candidates.json'da, günün başlığı altında gruplanmış olarak durur; böylece
+ * koda dokunmadan metin olarak yazılıp düzenlenebilir. Oyun yüklenirken burada denetlenirler.
  */
 
 const VERDICTS: readonly SystemVerdict[] = ['priority', 'review', 'low', 'out'];
@@ -19,7 +19,7 @@ const KEYS = [
 ];
 const TEXT = ['name', 'initials', 'color', 'role', 'experience', 'salary', 'skills', 'motivation', 'education', 'references', 'previousCompany', 'certifications', 'internalNote', 'systemLine'];
 
-/** Checks one entry of candidates.json against the Candidate shape. */
+/** candidates.json'daki bir kaydı Candidate biçimine göre denetler. */
 export function checkCandidate(id: string, entry: unknown): Candidate {
   const f = fieldsOf('candidates.json', id, entry);
   f.unknownKeys(KEYS);
@@ -40,12 +40,13 @@ export const candidates: Record<string, Candidate> = Object.fromEntries(
   Object.entries(flattenSections('candidates.json', data)).map(([id, entry]) => [id, checkCandidate(id, entry)]),
 );
 
-// the files Hakan Bey finds when you finish early (see extraCandidates.ts)
+// erken bitirdiğinde Hakan Bey'in bulduğu dosyalar (bkz. extraCandidates.ts)
 Object.assign(candidates, EXTRA_CANDIDATES);
 
 /**
- * The candidate behind an id. Ids come from lineups, decisions and saves, so a wrong one is a
- * bug or a stale save: it fails here, by name, instead of as "undefined" somewhere downstream.
+ * Bir kimliğin arkasındaki aday. Kimlikler kadrolardan, kararlardan ve kayıtlardan gelir; yanlış
+ * bir kimlik bir hata ya da eski bir kayıttır: aşağıda bir yerde "undefined" olarak değil, burada
+ * adıyla patlar.
  */
 export function candidateOf(id: string): Candidate {
   const c = candidates[id];
@@ -59,7 +60,7 @@ function holderOf(role: StoryRole): string {
   return holders[0].id;
 }
 
-/** The manager's nephew. */
+/** Müdürün yeğeni. */
 export const NEPHEW_ID = holderOf('nephew');
-/** Your mother's neighbour's son — your own "reference". */
+/** Annenin komşusunun oğlu: senin kendi "referansın". */
 export const NEIGHBOUR_ID = holderOf('neighbour');

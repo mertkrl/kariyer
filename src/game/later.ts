@@ -1,8 +1,8 @@
 /*
- * Delayed game events: the manager "typing" before he answers, a few more files landing after
- * you close the queue, the day ending a moment after the last file. They belong to the week
- * that scheduled them, so starting, continuing or restarting a week cancels whatever the
- * previous one left pending instead of letting it fire into the new one.
+ * Gecikmeli oyun olayları: müdürün cevap vermeden önce "yazıyor" olması, kuyruğu kapattıktan
+ * sonra düşen birkaç dosya daha, son dosyadan bir an sonra biten gün. Onları planlayan haftaya
+ * aittirler; bu yüzden bir haftayı başlatmak, sürdürmek ya da yeniden başlatmak, öncekinin
+ * bekleyen işlerini yeni haftada patlamasına izin vermeden iptal eder.
  */
 const pending = new Set<ReturnType<typeof setTimeout>>();
 

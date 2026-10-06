@@ -1,8 +1,8 @@
 /*
- * Checks for the data that lives in JSON (candidates.json, candidateDetails.json). TypeScript
- * can't see inside a JSON file, so the shape is checked here when the game loads: a typo in a
- * field or a value the game doesn't know fails at once, naming the candidate and the field,
- * instead of turning up as "undefined" halfway through a week.
+ * JSON'da duran veri için denetimler (candidates.json, candidateDetails.json). TypeScript bir JSON
+ * dosyasının içini göremez; bu yüzden biçim oyun yüklenirken burada kontrol edilir: bir alandaki
+ * yazım hatası ya da oyunun bilmediği bir değer, haftanın ortasında "undefined" olarak ortaya
+ * çıkmak yerine adayı ve alanı söyleyerek hemen patlar.
  */
 
 type Json = Record<string, unknown>;
@@ -11,7 +11,7 @@ export class DataError extends Error {}
 
 const isRecord = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 
-/** One entry's checker: reads fields by name and says which one is wrong. */
+/** Tek bir kaydın denetleyicisi: alanları adıyla okur ve hangisinin yanlış olduğunu söyler. */
 export function fieldsOf(file: string, id: string, entry: unknown) {
   if (!isRecord(entry)) throw new DataError(`${file} → "${id}": kayıt bir nesne olmalı`);
   const fail = (key: string, want: string): never => {
@@ -60,8 +60,8 @@ export function fieldsOf(file: string, id: string, entry: unknown) {
 }
 
 /**
- * The JSON files group entries under headings ("Gün 1 · …") so they read like the script they
- * are; the game wants one flat map, in the same order.
+ * JSON dosyaları kayıtları başlıklar altında gruplar ("Gün 1 · …"), böylece oldukları gibi bir
+ * senaryo gibi okunurlar; oyun ise aynı sırada tek düz bir harita ister.
  */
 export function flattenSections(file: string, sections: unknown): Record<string, unknown> {
   if (!isRecord(sections)) throw new DataError(`${file}: başlıklara ayrılmış bir nesne olmalı`);

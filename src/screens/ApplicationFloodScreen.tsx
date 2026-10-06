@@ -12,21 +12,21 @@ import styles from './ApplicationFloodScreen.module.css';
 
 const COUNT_DURATION_MS = 2200;
 const SCAN_DURATION_MS = 1300;
-/** The crash day's "sorting": long enough for the log to run to its fatal line and the screen to go dark. */
+/** Çökme gününün "sıralaması": günlüğün ölümcül satırına varması ve ekranın kararması için yeterli süre. */
 const CRASH_DURATION_MS = 5400;
 const SORT_COUNTDOWN_MS = 1400;
 
 const INCOMING_COUNT = 64;
 const EJECTED_COUNT = 84;
 const EJECTED_COUNT_CHAOTIC = 110;
-/** With this many sheets, individual paper sounds would smear into noise — keep them spaced. */
+/** Bu kadar kâğıtta tek tek kâğıt sesleri gürültüye karışır: aralıklı tut. */
 const MIN_PAPER_SOUND_GAP_MS = 55;
-/** Seconds over which incoming CVs keep arriving (most of the counting phase). */
+/** Gelen CV'lerin yağmaya devam ettiği süre, saniye (sayma aşamasının çoğu). */
 const INCOMING_WINDOW = (COUNT_DURATION_MS / 1000) * 0.78;
-/** Landing sounds beyond this many would turn into noise. */
+/** Bundan fazla düşme sesi gürültüye dönüşür. */
 const MAX_LANDING_SOUNDS = 14;
 
-/** Area around the AI core (px) that landed CVs stay out of, so the counter and button stay readable. */
+/** Yapay zekâ çekirdeğinin çevresinde, düşen CV'lerin girmediği alan (px): sayaç ve düğme okunur kalsın. */
 const CLEAR_ZONE = { halfWidth: 210, above: 340, below: 140 };
 
 type Stage = 'counting' | 'scanning' | 'sorting' | 'done';
@@ -35,7 +35,7 @@ export function ApplicationFloodScreen() {
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
   const proceedToBriefing = useGameStore((s) => s.proceedToBriefing);
   const day = days[currentDayIndex];
-  // the first morning: who never applied because of the ad you picked
+  // ilk sabah: seçtiğin ilan yüzünden hiç başvurmayanlar
   const adNote = useGameStore((s) => (s.currentDayIndex === 0 && s.selectedJobId ? AD_EFFECT[s.selectedJobId]?.note : undefined));
   const lineups = useGameStore((s) => s.lineups);
   const shortlist = lineupFor({ currentDayIndex, lineups }).length;
@@ -50,7 +50,7 @@ export function ApplicationFloodScreen() {
   const lastPulse = useRef(0);
   const lastPaperSound = useRef(0);
 
-  // Measure where the AI core sits so papers fly to/from it across the full viewport.
+  // Yapay zekâ çekirdeğinin yerini ölç; kâğıtlar bütün ekran boyunca ona/ondan uçsun.
   useLayoutEffect(() => {
     function measure() {
       const r = brainRef.current?.getBoundingClientRect();
@@ -67,10 +67,10 @@ export function ApplicationFloodScreen() {
     timeoutsRef.current.forEach((t) => clearTimeout(t));
     timeoutsRef.current = [];
 
-    // Tension riser under the counter; the per-CV "swallow" sounds come from PaperStorm.
+    // Sayacın altında gerilim yükselişi; CV başına "yutma" seslerini PaperStorm çalar.
     audioEngine.startFloodRiser(COUNT_DURATION_MS / 1000);
 
-    // Counter: mechanical ticks that start fast and slow down with the easing, like a settling wheel.
+    // Sayaç: hızlı başlayıp yavaşlamayla birlikte seyrelen mekanik tıkırtılar, duran bir çark gibi.
     const start = performance.now();
     let lastTick = 0;
     let lastValue = startValue;
@@ -102,9 +102,9 @@ export function ApplicationFloodScreen() {
       }, COUNT_DURATION_MS + SCAN_DURATION_MS),
     );
 
-    // Non-crash days end in an actionable "N aday seçildi" badge instead of an
-    // automatic timeout — the player clicks it to move on. The AI-down day has
-    // no such badge, so it still resolves into an error screen on its own.
+    // Çökme olmayan günler kendiliğinden zaman aşımıyla değil, tıklanabilir bir
+    // "N aday seçildi" rozetiyle biter; oyuncu tıklayıp devam eder. Yapay zekânın çöktüğü
+    // günde böyle bir rozet yoktur; o gün ekran yine kendiliğinden hata ekranına döner.
     if (day.aiDown) {
       timeoutsRef.current.push(
         window.setTimeout(() => setStage('done'), COUNT_DURATION_MS + SCAN_DURATION_MS + CRASH_DURATION_MS),
@@ -120,8 +120,8 @@ export function ApplicationFloodScreen() {
     // oxlint-disable-next-line react/exhaustive-deps
   }, [currentDayIndex]);
 
-  // Once the AI starts sorting, the applicant count counts back down as CVs
-  // get flung out of the core, landing on the shortlist it kept.
+  // Yapay zekâ sıralamaya başlayınca başvuru sayısı geriye doğru azalır; CV'ler
+  // çekirdekten fırlatılır ve elinde tuttuğu kısa listenin üstüne düşer.
   useEffect(() => {
     if (stage !== 'sorting' || day.aiDown) return;
 
@@ -136,7 +136,7 @@ export function ApplicationFloodScreen() {
       const eased = 1 - (1 - progress) * (1 - progress);
       const value = Math.round(startCount - (startCount - shortlist) * eased);
       setCount(value);
-      // Descending ticks: the pitch falls as the pile shrinks.
+      // Azalan tıkırtılar: yığın küçüldükçe ses inceliği düşer.
       if (progress > 0.08 && now - lastTick > 40 + progress * 120) {
         audioEngine.playCounterTick(1 - progress);
         lastTick = now;
@@ -151,7 +151,7 @@ export function ApplicationFloodScreen() {
     // oxlint-disable-next-line react/exhaustive-deps
   }, [stage, currentDayIndex]);
 
-  /** The core swallows a CV: paper "fwip" from its side + a quick pulse of the icon. */
+  /** Çekirdek bir CV'yi yutar: yanından kâğıt "fışırtısı" ve simgede kısa bir nabız. */
   function handleAbsorb(pan: number) {
     const now = performance.now();
     if (now - lastPaperSound.current >= MIN_PAPER_SOUND_GAP_MS) {

@@ -7,21 +7,21 @@ import styles from '../SocialApp.module.css';
 interface StoryViewerProps {
   stories: readonly StorySeed[];
   index: number;
-  /** Opens another story, or closes the viewer with null. */
+  /** Başka bir hikâyeyi açar ya da null ile görüntüleyiciyi kapatır. */
   onOpen: (i: number | null) => void;
 }
 
-/** Full-screen story viewer: auto-advances, taps/arrow keys page, Escape closes. */
+/** Tam ekran hikâye görüntüleyici: kendiliğinden ilerler, dokunuş/ok tuşları sayfa çevirir, Escape kapatır. */
 export function StoryViewer({ stories, index: story, onOpen }: StoryViewerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const next = story < stories.length - 1 ? story + 1 : null;
 
-  // the open story takes the keyboard, so the arrow keys page through it
+  // açık hikâye klavyeyi alır, böylece ok tuşları onun sayfalarını çevirir
   useEffect(() => {
     ref.current?.focus({ preventScroll: true });
   }, []);
 
-  // auto-advance; the latest onOpen is read at fire time so a parent re-render doesn't restart the timer
+  // kendiliğinden ilerleme; en son onOpen tetiklenme anında okunur, böylece üst bileşenin yeniden çizilmesi zamanlayıcıyı baştan başlatmaz
   const openRef = useRef(onOpen);
   useEffect(() => {
     openRef.current = onOpen;
@@ -44,7 +44,7 @@ export function StoryViewer({ stories, index: story, onOpen }: StoryViewerProps)
         else if (e.key === 'ArrowLeft') onOpen(Math.max(0, story - 1));
         else if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') onOpen(next);
         else return;
-        // handled here: the phone around it must not close on this Escape
+        // burada ele alındı: çevresindeki telefon bu Escape'le kapanmamalı
         e.preventDefault();
         e.stopPropagation();
       }}

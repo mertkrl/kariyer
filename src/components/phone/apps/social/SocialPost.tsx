@@ -10,9 +10,9 @@ interface SocialPostProps {
   liked: boolean;
   saved: boolean;
   following: boolean;
-  /** The heart animation is playing on this post. */
+  /** Bu gönderide kalp animasyonu oynuyor. */
   burst: boolean;
-  /** The poll option you voted for, if any. */
+  /** Oy verdiğin anket seçeneği, varsa. */
   myVote: number | undefined;
   onLike: (fromDoubleTap?: boolean) => void;
   onSave: () => void;
@@ -30,7 +30,7 @@ function HeartBurst() {
   );
 }
 
-/** One Kariyergram post: header, photo / text card / poll, actions, likes and caption. */
+/** Tek bir Kariyergram gönderisi: başlık, fotoğraf / metin kartı / anket, eylemler, beğeniler ve açıklama. */
 export function SocialPost({ post: p, liked, saved, following, burst, myVote: my, onLike, onSave, onFollow, onVote, onComments, onShare }: SocialPostProps) {
   const total = p.poll ? p.poll.options.reduce((s, o) => s + o.votes, 0) : 0;
   const likes = p.likes + (liked ? 1 : 0);

@@ -118,7 +118,7 @@
   }
 }
 
-/* ── Report layout ── */
+/* ── Rapor yerleşimi ── */
 
 .reportHead {
   width: 100%;
@@ -134,7 +134,7 @@
   margin: 4px 0 0;
 }
 
-/* ── Evening palette: dark glass over the city, easy on the eyes ── */
+/* ── Akşam paleti: şehrin üstünde koyu cam, göz yormaz ── */
 
 .content {
   max-width: 1040px;
@@ -167,7 +167,7 @@
   color: rgba(233, 230, 223, 0.75);
 }
 
-/* the way forward is always on screen, however long the report gets */
+/* rapor ne kadar uzarsa uzasın devam yolu hep ekranda */
 .footer {
   position: sticky;
   bottom: 0;
@@ -270,7 +270,7 @@
   border-left: 2px solid rgba(201, 162, 39, 0.5);
 }
 
-/* left column: what the day actually was */
+/* sol sütun: günün gerçekte ne olduğu */
 .headline {
   margin: 0;
   text-align: left;
@@ -361,7 +361,7 @@
   color: #f3a497;
 }
 
-/* ── balanced report: headline, then a 2×2 of equal cards ── */
+/* ── dengeli rapor: başlık, sonra eşit 2×2 kart ── */
 .headline {
   width: 100%;
 }
@@ -458,7 +458,7 @@
   }
 }
 
-/* ── the day in detail (Günün dökümü) ── */
+/* ── günün ayrıntısı (Günün dökümü) ── */
 .facts {
   margin: 0;
   display: grid;
@@ -492,7 +492,7 @@
   text-align: center;
 }
 
-/* ── compact: the whole day on one screen, no scrolling ── */
+/* ── sıkı: bütün gün tek ekranda, kaydırma yok ── */
 .content {
   max-width: 1180px;
   padding: 22px 26px 0;

@@ -34,7 +34,7 @@ function SfxGlyph() {
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
-/** Every shortcut the game has, where it works. The buttons themselves don't show their keys. */
+/** Oyunun her kısayolu, çalıştığı yerle. Düğmelerin kendisi tuşlarını göstermez. */
 const SHORTCUTS: { where: string; keys: [string[], string][] }[] = [
   {
     where: 'Masada',
@@ -109,7 +109,7 @@ function VolumeRow({ id, icon, title, hint, value, disabled, onChange, onCommit 
   );
 }
 
-/** Pause menu: resumes the game and holds the audio mix controls. */
+/** Duraklatma menüsü: oyunu sürdürür ve ses karışımı kontrollerini tutar. */
 export function SettingsPanel({ onResume }: { onResume: () => void }) {
   const musicVolume = useGameStore((s) => s.musicVolume);
   const seed = useGameStore((s) => s.seed);

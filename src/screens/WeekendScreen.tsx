@@ -8,9 +8,8 @@ import { HomeScene } from './weekend/HomeScene';
 import styles from './WeekendScreen.module.css';
 
 /*
- * Friday, 21:40 — home. A warm lamp, tea on the side table, the cat asleep on the sofa and the
- * Bosphorus in the window. Mom is at her sister's for the weekend; she calls, and you tell her
- * about the week.
+ * Cuma, 21:40, ev. Sıcak bir lamba, yan sehpada çay; pencereden karşı sokak ve kentsel dönüşüm
+ * pankartı. Annen hafta sonu teyzende; arar, sen de ona haftayı anlatırsın.
  */
 
 type Stage = 'ringing' | 'talking' | 'ended';
@@ -18,7 +17,7 @@ type Stage = 'ringing' | 'talking' | 'ended';
 export function WeekendScreen() {
   const finishWeekend = useGameStore((st) => st.finishWeekend);
   const setWeekendChoice = useGameStore((st) => st.setWeekendChoice);
-  // the week is over — its numbers no longer change, so the call is written once
+  // hafta bitti, sayıları artık değişmez; bu yüzden konuşma bir kez yazılır
   const [steps] = useState(() => {
     const s = useGameStore.getState();
     return buildCall({
@@ -48,7 +47,7 @@ export function WeekendScreen() {
   const [seconds, setSeconds] = useState(0);
   const logRef = useRef<HTMLDivElement>(null);
 
-  // ringtone until answered
+  // açılana kadar zil sesi
   useEffect(() => {
     if (stage !== 'ringing') return;
     audioEngine.playPhoneBuzz();
@@ -56,14 +55,14 @@ export function WeekendScreen() {
     return () => window.clearInterval(id);
   }, [stage]);
 
-  // call timer
+  // arama süresi
   useEffect(() => {
     if (stage !== 'talking') return;
     const id = window.setInterval(() => setSeconds((x) => x + 1), 1000);
     return () => window.clearInterval(id);
   }, [stage]);
 
-  // play the script forward until the next choice
+  // metni bir sonraki seçime kadar ilerlet
   const step = steps[cursor];
   useEffect(() => {
     if (stage !== 'talking') return;
@@ -95,7 +94,7 @@ export function WeekendScreen() {
     if (c.tag) setWeekendChoice(c.tag);
     setShown((l) => [...l, { who: 'me', text: c.label }]);
     setReplying(true);
-    // Mom answers what you just said before the conversation moves on.
+    // Konuşma ilerlemeden önce annen, az önce söylediğine cevap verir.
     window.setTimeout(() => setTyping(true), 300);
     window.setTimeout(() => {
       setTyping(false);

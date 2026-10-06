@@ -6,9 +6,9 @@ import styles from './DmInbox.module.css';
 import { avatarStyle } from '../../ui/avatarStyle';
 
 /*
- * Kariyergram direct messages. Rejected candidates land in "Mesaj İstekleri"; open one and
- * decide: tell them the truth (policy says you mustn't), send the corporate template, or
- * delete it. Answered ones move to your chats with their reply.
+ * Kariyergram özel mesajları. Reddedilen adaylar "Mesaj İstekleri"ne düşer; birini aç ve karar ver:
+ * ona gerçeği söyle (politika söylememen gerektiğini söyler), kurumsal şablonu gönder ya da sil.
+ * Cevaplananlar cevaplarıyla birlikte sohbetlerine taşınır.
  */
 
 interface Props {
@@ -161,7 +161,7 @@ export function DmInbox({ dms, minutes, handled, onAnswer, onClose }: Props) {
   );
 }
 
-/* small hand-drawn icons for the reply drafts */
+/* cevap taslakları için elle çizilmiş küçük simgeler */
 function HonestIcon() {
   return (
     <svg className={styles.icon} viewBox="0 0 28 28" aria-hidden="true">

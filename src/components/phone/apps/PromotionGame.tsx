@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { audioEngine } from '../../../audio/audioEngine';
 import styles from '../Phone.module.css';
 
-/* ── Terfi (a career-ladder 2048) ─────────────────────────────────────────── */
+/* ── Terfi (kariyer basamaklı bir 2048) ──────────────────────────────────── */
 
 type Dir = 'up' | 'down' | 'left' | 'right';
 
@@ -30,7 +30,7 @@ function spawnTile(tiles: Tile[]): Tile[] {
   return [...tiles, { id: tileSeq++, level: Math.random() < 0.9 ? 0 : 1, r, c, isNew: true }];
 }
 
-/** Slides every row/column toward `dir`, merging equal neighbours once per move. */
+/** Her satırı/sütunu `dir` yönüne kaydırır; eşit komşuları hamle başına bir kez birleştirir. */
 function slide(tiles: Tile[], dir: Dir): { tiles: Tile[]; gained: number; moved: boolean } {
   const horizontal = dir === 'left' || dir === 'right';
   const forward = dir === 'right' || dir === 'down';

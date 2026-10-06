@@ -1,5 +1,5 @@
 /*
- * Sound settings, remembered in this browser.
+ * Ses ayarları, bu tarayıcıda hatırlanır.
  */
 import type { GetState, SetState } from '../storeApi';
 import type { GameState } from '../storeTypes';

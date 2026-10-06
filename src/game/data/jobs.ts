@@ -1,8 +1,8 @@
 import type { JobDraft } from '../types';
 
 /**
- * Who never applies because of how the ad is worded. The story's recurring characters apply
- * anyway; everyone else in the list simply isn't in your queue this week.
+ * İlanın nasıl yazıldığı yüzünden hiç başvurmayanlar. Hikâyenin tekrar eden karakterleri yine de
+ * başvurur; listedeki diğer herkes bu hafta kuyruğunda yoktur.
  */
 export const AD_EFFECT: Record<string, { skip: (c: { id: string; age: number }) => boolean; note: string }> = {
   enerjik: {
@@ -114,7 +114,7 @@ export const jobDrafts: JobDraft[] = [
   },
 ];
 
-/** An ad's pay as it is printed: "35.000 – 55.000 TL", with what comes on top. */
+/** Bir ilanın basıldığı hâliyle maaşı: "35.000 – 55.000 TL", üstüne gelenlerle. */
 export function salaryText({ salary }: Pick<JobDraft, 'salary'>) {
   const tl = (n: number) => n.toLocaleString('tr-TR');
   return `${tl(salary.min)} – ${tl(salary.max)} TL${salary.extra ? ` + ${salary.extra}` : ''}`;

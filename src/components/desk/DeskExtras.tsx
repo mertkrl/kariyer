@@ -3,29 +3,29 @@ import { CakePlate, Umbrella } from './DeskExtrasArt';
 import { BIRTHDAY_DAY, RAINY_DAY } from '../../game/weekdays';
 
 /*
- * The desk remembers the week. Things turn up because of the calendar (the birthday cake plate,
- * a wet umbrella against the water cooler). The plate goes once you've dealt with it. Each one
- * has a thought behind it.
+ * Masa haftayı hatırlar. Takvim yüzünden bir şeyler ortaya çıkar (doğum günü pastasının tabağı,
+ * sebile dayalı ıslak bir şemsiye). Tabak, onunla ilgilenince gider. Her birinin arkasında bir
+ * düşünce var.
  */
 
 export interface DeskExtra {
   id: string;
-  /** Stage position and size. */
+  /** Sahnedeki konumu ve boyutu. */
   box: [number, number, number, number];
   label: string;
   thought: string;
   art?: ReactElement;
-  /** Clicking it clears it off the desk for good. */
+  /** Tıklamak onu masadan kalıcı olarak kaldırır. */
   clears?: boolean;
 }
 
 interface Ctx {
   dayIndex: number;
-  /** Already thrown away / put in your bag. */
+  /** Zaten atılmış / çantana konmuş. */
   cleared: string[];
 }
 
-/** What's on the desk today besides the usual. */
+/** Bugün masada her zamankilerin dışında duranlar. */
 export function deskExtras({ dayIndex, cleared }: Ctx): DeskExtra[] {
   const out: DeskExtra[] = [];
   if (dayIndex > BIRTHDAY_DAY) {
@@ -44,7 +44,7 @@ export function deskExtras({ dayIndex, cleared }: Ctx): DeskExtra[] {
   return out.filter((e) => !cleared.includes(e.id));
 }
 
-/** Old coffee rings: one more every day. */
+/** Eski kahve halkaları: her gün bir tane daha. */
 export const COFFEE_RINGS: [number, number, number][] = [
   [1120, 690, 34],
   [455, 742, 30],

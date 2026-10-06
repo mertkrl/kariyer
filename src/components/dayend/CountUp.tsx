@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-/** Counts from 0 to `value` with an ease-out, once — or shows it at once when motion is reduced. */
+/** 0'dan `value`ya yavaşlayarak bir kez sayar; hareket azaltılmışsa hemen gösterir. */
 export function CountUp({ value, duration = 1200, format = (n: number) => n.toLocaleString('tr-TR') }: { value: number; duration?: number; format?: (n: number) => string }) {
   const [shown, setShown] = useState(0);
   const still = reducedMotion();

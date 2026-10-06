@@ -1,8 +1,9 @@
 import { useId } from 'react';
 
 /*
- * Original home-screen icons: each is a full squircle tile drawn in SVG (background gradient,
- * glyph with soft shading and a top gloss), so they read like a real, cohesive icon set.
+ * Özgün ana ekran simgeleri: her biri SVG'de çizilmiş tam bir yuvarlak köşeli kare (arka plan
+ * gradyanı, yumuşak gölgeli işaret ve üstte bir parlaklık); böylece gerçek, tutarlı bir simge
+ * seti gibi okunurlar.
  */
 
 export type IconId = 'chats' | 'terfi' | 'social' | 'traffic';
@@ -66,7 +67,7 @@ export function AppIcon({ id }: { id: IconId }) {
 
       {id === 'terfi' && (
         <g filter={`url(#${g('drop')})`}>
-          {/* Rising bars → a crown on top: the career ladder */}
+          {/* Yükselen çubuklar → üstte bir taç: kariyer basamakları */}
           <rect x="13" y="36" width="8" height="11" rx="2" fill="#6c6c86" />
           <rect x="24" y="29" width="8" height="18" rx="2" fill="#9b9bb8" />
           <rect x="35" y="21" width="8" height="26" rx="2" fill={`url(#${g('gold')})`} />
@@ -77,7 +78,7 @@ export function AppIcon({ id }: { id: IconId }) {
 
       {id === 'social' && (
         <g filter={`url(#${g('drop')})`}>
-          {/* A briefcase whose body is a speech bubble, with a heart: career + social */}
+          {/* Gövdesi konuşma balonu olan, kalpli bir evrak çantası: kariyer + sosyal */}
           <path d="M24 17.5v-2.5a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v2.5" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
           <path d="M16 17.5h28a4 4 0 0 1 4 4v15a4 4 0 0 1-4 4H30l-7 6v-6h-7a4 4 0 0 1-4-4v-15a4 4 0 0 1 4-4z" fill="#fff" />
           <path d="M30 37s-7-4.2-7-8.8c0-2.2 1.6-3.8 3.6-3.8 1.4 0 2.6.8 3.4 2 .8-1.2 2-2 3.4-2 2 0 3.6 1.6 3.6 3.8 0 4.6-7 8.8-7 8.8z" fill="#e1306c" />
@@ -86,7 +87,7 @@ export function AppIcon({ id }: { id: IconId }) {
 
       {id === 'traffic' && (
         <>
-          {/* Mini map: water, roads, route and pin */}
+          {/* Mini harita: su, yollar, rota ve iğne */}
           <path d="M38 0h10c-4 10 2 20-2 32s2 20 0 28H36c3-9-2-18 2-28S34 10 38 0z" fill="#aad3df" />
           <path d="M0 40l60-12" stroke="#fcd97c" strokeWidth="5" />
           <path d="M0 40l60-12" stroke="#e8542f" strokeWidth="1.8" strokeDasharray="10 4" />

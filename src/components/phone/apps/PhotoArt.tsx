@@ -2,8 +2,8 @@ import { useId } from 'react';
 import type { ArtKind } from './artKinds';
 
 /*
- * Illustrated "photos" for Kariyergram posts — small flat-vector scenes of Istanbul work life,
- * drawn in a square 300×300 frame so they tile in the explore grid and fill a post.
+ * Kariyergram gönderileri için çizilmiş "fotoğraflar": İstanbul iş hayatından küçük düz vektör
+ * sahneler, keşfet ızgarasında döşensin ve bir gönderiyi doldursun diye kare 300×300 çerçevede.
  */
 
 
@@ -32,7 +32,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
           {[0, 1, 2, 3, 4].map((i) => (
             <rect key={i} x={188 + (i % 2) * 8} y={212 + i * 14} width={44 - i * 6} height="2.5" rx="1.2" fill="#ffd79a" opacity={0.7 - i * 0.1} />
           ))}
-          {/* Bridge */}
+          {/* Köprü */}
           <g stroke="#1d1830" fill="none">
             <path d="M-10 196 L310 190" strokeWidth="5" />
             <path d="M70 196 V120 M230 192 V116" strokeWidth="6" />
@@ -42,7 +42,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
               return <path key={i} d={`M${x} 194 V${x < 70 ? 180 - x * 0.5 : x < 230 ? 150 + Math.abs(150 - x) * -0.35 + 35 : 175 - (x - 230) * 0.3}`} strokeWidth="0.8" />;
             })}
           </g>
-          {/* Mosque silhouette */}
+          {/* Cami silüeti */}
           <g fill="#1d1830">
             <path d="M16 200 V186 Q34 160 52 186 V200Z" />
             <rect x="10" y="150" width="3" height="50" />
@@ -81,7 +81,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
               return <ellipse key={i} cx={Math.cos(a) * r} cy={Math.sin(a) * r * 0.62} rx="2" ry="1.1" fill="#f3dfb0" transform={`rotate(${i * 37} ${Math.cos(a) * r} ${Math.sin(a) * r * 0.62})`} />;
             })}
           </g>
-          {/* Saucer + tulip glass */}
+          {/* Tabak + ince belli bardak */}
           <g transform="translate(200 230)">
             <ellipse rx="60" ry="16" fill="#e8e3d8" />
             <ellipse rx="44" ry="10" fill="#cfc8b8" />
@@ -116,7 +116,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
           ))}
           <rect y="224" width="300" height="76" fill="#2a2a33" />
           <rect y="258" width="300" height="3" fill="#f2f2f2" opacity="0.6" />
-          {/* Articulated bus */}
+          {/* Körüklü otobüs */}
           <g transform="translate(30 160)">
             <rect width="118" height="74" rx="10" fill="#e8e6e1" />
             <rect x="122" width="118" height="74" rx="10" fill="#e8e6e1" />
@@ -146,7 +146,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
           <rect y="200" width="300" height="6" fill="#9c6f44" />
           <rect x="220" y="30" width="60" height="80" rx="4" fill="#d6ecf5" stroke="#fff" strokeWidth="5" />
           <path d="M225 100 L240 70 L255 90 L275 60 V105 H225Z" fill="#9cc2cf" />
-          {/* Laptop */}
+          {/* Dizüstü bilgisayar */}
           <g transform="translate(60 92)">
             <rect width="150" height="100" rx="8" fill="#2b2d33" />
             <rect x="8" y="8" width="134" height="84" rx="3" fill="#f7f5ef" />
@@ -160,7 +160,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
             ))}
             <path d="M-14 100 H164 L170 110 H-20 Z" fill="#4a4d55" />
           </g>
-          {/* Mug + plant + sticky notes */}
+          {/* Kupa + bitki + yapışkan notlar */}
           <g transform="translate(236 160)">
             <rect width="34" height="42" rx="5" fill="#c8432f" />
             <path d="M34 10 q14 0 14 12 q0 12 -14 12" stroke="#c8432f" strokeWidth="5" fill="none" />
@@ -196,11 +196,11 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
               ))}
             </g>
           ))}
-          {/* Stairs */}
+          {/* Merdivenler */}
           {[0, 1, 2, 3].map((i) => (
             <rect key={i} x="0" y={220 + i * 20} width="300" height="20" fill={i % 2 ? '#b8a88f' : '#c9b99e'} />
           ))}
-          {/* Cat */}
+          {/* Kedi */}
           <g transform="translate(150 228)">
             <ellipse cx="0" cy="18" rx="34" ry="22" fill="#e6893c" />
             <path d="M28 20 q30 -4 24 -30" stroke="#e6893c" strokeWidth="9" fill="none" strokeLinecap="round" />
@@ -279,7 +279,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
           {Array.from({ length: 14 }).map((_, i) => (
             <path key={i} d={`M${(i * 43) % 300} ${196 + (i * 17) % 90} q8 -4 16 0`} stroke="#bfe0f0" strokeWidth="1.6" fill="none" opacity="0.7" />
           ))}
-          {/* Maiden's Tower */}
+          {/* Kız Kulesi */}
           <g transform="translate(236 150)">
             <rect x="-14" y="24" width="40" height="14" fill="#e8e0cf" />
             <rect x="-6" y="-6" width="14" height="32" fill="#f4eee0" />
@@ -323,7 +323,7 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
               <rect x={(i * 23) % 290 + 4} y={174 + ((i * 17) % 60)} width="3" height="3" fill="#ffcf8a" />
             </g>
           ))}
-          {/* Galata tower under snow */}
+          {/* Karlar altında Galata Kulesi */}
           <rect x="138" y="80" width="26" height="100" fill="#b9a488" />
           <rect x="134" y="72" width="34" height="12" fill="#ffd89a" />
           <path d="M132 72 L151 36 L170 72Z" fill="#3d4552" />
@@ -372,18 +372,18 @@ export function PhotoArt({ kind, className }: { kind: ArtKind; className?: strin
           <rect width="300" height="300" fill="#c9b79a" />
           <rect x="30" y="50" width="240" height="200" rx="14" fill="#9aa3a8" />
           <rect x="40" y="60" width="220" height="180" rx="10" fill="#b8c0c4" />
-          {/* soup */}
+          {/* çorba */}
           <circle cx="90" cy="110" r="36" fill="#f4efe6" />
           <circle cx="90" cy="110" r="28" fill="#e0a13c" />
           <circle cx="82" cy="104" r="4" fill="#fff3c4" opacity="0.8" />
-          {/* main: kuru fasulye + pilav */}
+          {/* ana yemek: kuru fasulye + pilav */}
           <ellipse cx="190" cy="115" rx="52" ry="34" fill="#f4efe6" />
           <ellipse cx="172" cy="115" rx="26" ry="20" fill="#b3462a" />
           <ellipse cx="212" cy="115" rx="24" ry="18" fill="#f6f1e4" />
           {Array.from({ length: 14 }).map((_, i) => (
             <ellipse key={i} cx={160 + (i % 5) * 6} cy={105 + Math.floor(i / 5) * 7} rx="3" ry="2" fill="#e9dcc4" />
           ))}
-          {/* bread, ayran, cacık */}
+          {/* ekmek, ayran, cacık */}
           <rect x="60" y="170" width="60" height="44" rx="10" fill="#d8a45c" />
           <rect x="140" y="165" width="34" height="56" rx="4" fill="#fbfbf6" />
           <rect x="140" y="165" width="34" height="10" fill="#2f7fc1" />

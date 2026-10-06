@@ -34,7 +34,7 @@ export function DayEndScreen() {
   const lineup = lineupFor({ currentDayIndex, lineups });
   const processed = dayStats.approved + dayStats.rejected;
 
-  // files you actually sat with — the same bar the scoring uses
+  // gerçekten başında durduğun dosyalar: puanlamanın kullandığı aynı ölçüt
   const readCount = useMemo(
     () => lineup.filter((id) => decisions[id] && wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id))).length,
     [decisions, timeSpent, readThrough, lineup, referenceChecks],
@@ -54,7 +54,7 @@ export function DayEndScreen() {
 
   const leftAt = formatClock(workdayMinutes);
 
-  // the day in detail: where the reading time went, what was checked, and what moved the scores
+  // günün ayrıntısı: okuma süresi nereye gitti, neye bakıldı, puanları ne oynattı
   const decided = lineup.filter((id) => decisions[id]);
   const readingSeconds = decided.reduce((n, id) => n + (timeSpent[id] ?? 0), 0);
   const longest = decided.reduce<string | null>((best, id) => (best === null || (timeSpent[id] ?? 0) > (timeSpent[best] ?? 0) ? id : best), null);
@@ -101,7 +101,7 @@ export function DayEndScreen() {
           </div>
         </header>
 
-        {/* three cards side by side: the funnel, the names, and how the time went */}
+        {/* yan yana üç kart: huni, isimler ve zamanın nasıl geçtiği */}
         <div className={styles.grid}>
           <section className={styles.card}>
             <div className={styles.panelHead}>Başvurudan mülakata</div>
@@ -208,5 +208,5 @@ export function DayEndScreen() {
   );
 }
 
-/** Seconds as m:ss (reading time is counted in seconds at the screen). */
+/** Saniyeyi d:ss biçiminde yazar (okuma süresi ekranda saniye olarak sayılır). */
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;

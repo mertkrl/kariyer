@@ -1,4 +1,4 @@
-/* Full-bleed scene under the top bar, with the controls floating over it. */
+/* Üst çubuğun altında kenardan kenara sahne, kontroller üstünde süzülür. */
 .room {
   position: relative;
   flex: 1;
@@ -26,7 +26,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Overlay ── */
+/* ── Üst katman ── */
 
 .finishButton {
   position: absolute;
@@ -38,7 +38,7 @@
   filter: drop-shadow(0 8px 18px rgba(34, 31, 27, 0.3));
 }
 
-/* A reaction line: slides in, lingers, and is removed by the component after a few seconds. */
+/* Bir tepki cümlesi: kayarak girer, bir süre kalır, birkaç saniye sonra bileşen onu kaldırır. */
 .toast {
   position: absolute;
   left: 50%;
@@ -80,7 +80,7 @@
   }
 }
 
-/* ── Interactive SVG objects ── */
+/* ── Etkileşimli SVG nesneleri ── */
 
 .hit {
   cursor: pointer;
@@ -178,7 +178,7 @@
   animation: sugarDrop 0.7s cubic-bezier(0.45, 0, 0.7, 1) forwards;
 }
 
-/* Starts on the sugar bowl, arcs over the rim and drops onto the tea surface (--drop-y). */
+/* Şekerlikten başlar, kenarın üstünden kavis çizer ve çayın yüzeyine düşer (--drop-y). */
 @keyframes sugarDrop {
   0% {
     transform: translate(122px, 112px) rotate(0deg);
@@ -236,7 +236,7 @@
   }
 }
 
-/* ── Lemon ── */
+/* ── Limon ── */
 
 .lemonMover {
   transform-box: fill-box;
@@ -244,7 +244,7 @@
   transition: transform 0.55s cubic-bezier(0.3, 0.7, 0.3, 1);
 }
 
-/* From the plate (96,474) to just above the soup bowl, tilted toward it. */
+/* Tabaktan (96,474) çorba kâsesinin hemen üstüne, ona doğru eğik. */
 .lemonLifted {
   transform: translate(122px, -66px) rotate(28deg);
 }
@@ -295,7 +295,7 @@
   animation: ripple 0.8s ease-out 3 both;
 }
 
-/* Juice slowly spreads across the soup and settles as a faint sheen. */
+/* Limon suyu çorbanın üstüne yavaşça yayılır ve soluk bir parlaklık olarak oturur. */
 .juiceSheen {
   transform-box: fill-box;
   transform-origin: 50% 50%;
@@ -314,13 +314,13 @@
   }
 }
 
-/* While pouring, the liquid is driven frame-by-frame — no CSS easing on top of the physics. */
+/* Dökerken sıvı kare kare yönetilir: fiziğin üstüne CSS yumuşatması yok. */
 .pouring .teaFill,
 .pouring .teaSurface {
   transition: none;
 }
 
-/* ── SVG text ── */
+/* ── SVG metni ── */
 
 .noticeTitle {
   font-family: var(--font-mono);
@@ -384,7 +384,7 @@
   fill: #ffffff;
 }
 
-/* The sill plant stirs in the breeze from the open window. */
+/* Pervazdaki bitki açık pencereden gelen esintiyle kıpırdar. */
 .plantSway {
   transform-box: fill-box;
   transform-origin: 50% 100%;

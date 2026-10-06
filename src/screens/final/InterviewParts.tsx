@@ -3,9 +3,8 @@ import { CRITERIA, NOTE_TAG_NAME, hooksIn, sentencesOf, type CodeCase, type Hook
 import styles from './InterviewParts.module.css';
 
 /*
- * The pieces of the Friday interview that the room is built from (FinalRoundScreen): an answer
- * you can dig into and take notes from, the coding case, the scorecard, your notebook, and the
- * case you put to the panel.
+ * Cuma mülakatının odayı oluşturan parçaları (FinalRoundScreen): kurcalanıp not alınabilen
+ * bir cevap, kodlama vakası, puan kartı, not defterin ve kurula sunduğun gerekçe.
  */
 
 export interface Note {
@@ -14,8 +13,8 @@ export interface Note {
 }
 
 /**
- * A finished answer. Underlined phrases are worth a follow-up (one per interview); the pin
- * after each sentence writes it into your notebook.
+ * Biten bir cevap. Altı çizili ifadeler bir takip sorusuna değer (mülakat başına bir tane);
+ * her cümlenin sonundaki iğne onu not defterine yazar.
  */
 export function AnswerText({
   text,
@@ -26,7 +25,7 @@ export function AnswerText({
   onNote,
 }: {
   text: string;
-  /** The question's own kind, so every answer has something to dig into. */
+  /** Sorunun kendi türü; böylece her cevapta kurcalanacak bir şey olur. */
   fallback?: HookKind;
   canFollow: boolean;
   onFollow?: (kind: HookKind, phrase: string) => void;
@@ -81,7 +80,7 @@ export function AnswerText({
   );
 }
 
-/** The coding case, as it is handed across the table. */
+/** Kodlama vakası, masanın karşısından uzatıldığı gibi. */
 export function CaseCard({ c }: { c: CodeCase }) {
   return (
     <figure className={styles.case}>
@@ -96,7 +95,7 @@ export function CaseCard({ c }: { c: CodeCase }) {
   );
 }
 
-/** Four criteria, 1–5, for the person you just talked to. */
+/** Az önce konuştuğun kişi için dört ölçüt, 1–5. */
 export function Scorecard({ scores, onScore }: { scores: Scores; onScore: (criterion: (typeof CRITERIA)[number], value: number) => void }) {
   return (
     <div className={styles.scorecard}>
@@ -123,7 +122,7 @@ export function Scorecard({ scores, onScore }: { scores: Scores; onScore: (crite
   );
 }
 
-/** Your notebook for one person: what you wrote down, and what kind of evidence it is. */
+/** Bir kişi için not defterin: ne yazdığın ve bunun ne tür bir kanıt olduğu. */
 export function NotesList({ notes, onRemove }: { notes: Note[]; onRemove?: (text: string) => void }) {
   if (!notes.length) return <p className={styles.notesEmpty}>Cevaplardaki bir cümlenin sonundaki ✎ ile not al. Kurulda önerini notlarınla savunacaksın.</p>;
   return (
@@ -143,7 +142,7 @@ export function NotesList({ notes, onRemove }: { notes: Note[]; onRemove?: (text
   );
 }
 
-/** Picking the notes you put to the panel (up to three). */
+/** Kurula sunacağın notları seçmek (en fazla üç). */
 export function EvidencePicker({ notes, picked, onToggle }: { notes: Note[]; picked: string[]; onToggle: (text: string) => void }) {
   if (!notes.length) return <p className={styles.notesEmpty}>Bu aday için hiç not almadın; elinde gösterecek bir şey yok.</p>;
   return (

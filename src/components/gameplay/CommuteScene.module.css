@@ -59,7 +59,7 @@
   backdrop-filter: blur(3px);
 }
 
-/* ── Office ── */
+/* ── Ofis ── */
 
 .screen {
   fill: #9cc4df;
@@ -164,7 +164,7 @@
   letter-spacing: 1px;
 }
 
-/* Arrive (decelerating), dwell with doors, leave (accelerating), gone. */
+/* Gel (yavaşlayarak), kapılarla bekle, git (hızlanarak), kayboldu. */
 .train {
   animation: train 9s infinite;
 }
@@ -195,7 +195,7 @@
   }
 }
 
-/* ── Server room ── */
+/* ── Sunucu odası ── */
 
 .ledAmber {
   fill: #e0b04a;

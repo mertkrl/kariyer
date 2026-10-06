@@ -21,9 +21,9 @@ import { drawTraffic, jostle, populate, project, stepLane, straightLane, type La
 import type { CityScene } from '../scene';
 
 /*
- * Zincirlikuyu, 17:20 — looking down the E-5 from the metrobüs overpass. Four lanes crawling
- * east towards the bridge (a river of brake lights), four lanes of headlights coming the other
- * way, and down the middle the busway: red metrobüses streaming past the jam in both directions.
+ * Zincirlikuyu, 17:20: metrobüs üst geçidinden E-5'e bakış. Köprüye doğru doğuya sürünen dört şerit
+ * (bir fren lambası nehri), öbür yönden gelen dört şerit far ve ortada metrobüs yolu: kırmızı
+ * metrobüsler iki yönde de sıkışıklığın yanından akıp gidiyor.
  */
 
 const P: Persp = { vpx: 800, vpy: 452, f: 950, camH: 9.5 };
@@ -44,13 +44,13 @@ export function e5Scene(): CityScene {
     populate(l, r, { spacing: [3.2, 7], v0: [6, 9.5], taxi: 0.14, bus: 0.03 });
     lanes.push(l);
   }
-  // the busway: no stop in this stretch, so the metrobüses never brake — one after another
+  // metrobüs yolu: bu kesimde durak yok, bu yüzden metrobüsler hiç fren yapmaz, birbiri ardına
   const busIn = straightLane(-3, 2, Z1, -1);
   populate(busIn, r, { spacing: [55, 90], v0: [13, 15], only: 'metrobus' });
   const busOut = straightLane(3, 2, Z1, 1);
   populate(busOut, r, { spacing: [55, 90], v0: [13, 15], only: 'metrobus' });
   lanes.push(busIn, busOut);
-  // Let the traffic settle into its jam before the first frame.
+  // İlk kareden önce trafik sıkışıklığına otursun.
   for (let i = 0; i < 600; i++) {
     for (const l of lanes) stepLane(l, 0.05);
     jostle(lanes, 0.05, 0.6);
@@ -106,7 +106,7 @@ export function e5Scene(): CityScene {
           [1, '#c98462'],
         ]);
         g.fillRect(-PAD, -PAD, W + PAD * 2, P.vpy + PAD + 6);
-        // Asian shore far away, with the bridge at the end of the road
+        // uzakta Asya yakası, yolun sonunda köprüyle
         hillTown(g, rb, {
           ridge: [
             [-PAD, 438],
@@ -142,9 +142,9 @@ export function e5Scene(): CityScene {
         g.fillStyle = 'rgba(30,24,36,0.9)';
         g.fillRect(620, 430, 360, 2.5);
       });
-      // the towers stand in front of the clouds: their own layer, drawn after the clouds drift by
+      // kuleler bulutların önünde durur: kendi katmanları var, bulutlar süzüldükten sonra çizilirler
       skyline = makeLayer(px, (g) => {
-        // Levent: the towers on the left
+        // Levent: soldaki kuleler
         const left: [number, number, number, 'flat' | 'slant' | 'spire' | 'pyramid' | 'step'][] = [
           [30, 58, 250, 'step'],
           [110, 62, 330, 'flat'],
@@ -160,7 +160,7 @@ export function e5Scene(): CityScene {
           beacons.push({ ...top, ph: rb() * 6 });
         }
         for (let x = -PAD; x < 700; x += range(rb, 26, 50)) tower(g, rb, x, P.vpy + 4, range(rb, 24, 46), range(rb, 50, 140), { body: [50, 46, 66], lit: 0.4, warm: 0.6, haze: 0.12 });
-        // Etiler / Akatlar on the right: mid-rise, warmer
+        // sağda Etiler / Akatlar: orta yükseklikte, daha sıcak
         for (let x = 960; x < W + PAD; x += range(rb, 22, 44)) tower(g, rb, x, P.vpy + 4, range(rb, 22, 40), range(rb, 40, 170), { body: [56, 48, 64], lit: 0.45, warm: 0.75, haze: 0.14 });
         for (const [x, w, h] of [
           [1090, 70, 250],
@@ -170,7 +170,7 @@ export function e5Scene(): CityScene {
           const top = tower(g, rb, x, P.vpy + 4, w, h, { body: [42, 48, 70], lit: 0.5, crown: 'flat' });
           beacons.push({ ...top, ph: rb() * 6 });
         }
-        // haze band where the city meets the sky
+        // şehrin gökyüzüyle buluştuğu pus şeridi
         g.fillStyle = vGradient(g, 300, P.vpy + 6, [
           [0, 'rgba(210,140,110,0)'],
           [1, 'rgba(210,140,110,0.35)'],
@@ -183,50 +183,50 @@ export function e5Scene(): CityScene {
         clouds(g, rc, { y0: 230, y1: 360, n: 14, w0: 200, w1: 380, flat: 0.25, color: [92, 64, 82], alpha: 0.35, lit: [230, 150, 110], litAlpha: 0.3, blur: 10 });
       });
       road = makeLayer(px, (g) => {
-        // everything below the horizon
+        // ufkun altındaki her şey
         g.fillStyle = vGradient(g, P.vpy, H + PAD, [
           [0, '#3a3140'],
           [0.25, '#1c1b22'],
           [1, '#0d0d11'],
         ]);
         g.fillRect(-PAD, P.vpy, W + PAD * 2, H - P.vpy + PAD);
-        // asphalt
+        // asfalt
         g.fillStyle = vGradient(g, P.vpy, H, [
           [0, '#4a3f48'],
           [0.2, '#2b2930'],
           [1, '#1b1b20'],
         ]);
         quad(g, -21, 21, 0, Z0 - 10, Z1);
-        // metrobüs lanes: red asphalt
+        // metrobüs şeritleri: kırmızı asfalt
         g.fillStyle = 'rgba(120,34,34,0.45)';
         quad(g, -4.4, -1.6, 0.01, Z0 - 10, Z1);
         quad(g, 1.6, 4.4, 0.01, Z0 - 10, Z1);
-        // lane markings
+        // şerit çizgileri
         g.fillStyle = 'rgba(230,226,215,0.55)';
         for (const X of [-9.95, -13.45, -16.95, 9.95, 13.45, 16.95]) {
           for (let z = Z0 - 6; z < 700; z += 12) quad(g, X - 0.08, X + 0.08, 0.02, z, z + 3.5);
         }
         g.fillStyle = 'rgba(236,200,90,0.55)';
         for (const X of [-6.6, 6.6, -20.6, 20.6]) quad(g, X - 0.1, X + 0.1, 0.02, Z0 - 10, Z1);
-        // New Jersey barriers either side of the busway
+        // metrobüs yolunun iki yanında New Jersey bariyerleri
         for (const X of [-4.6, -6.35, 4.6, 6.35]) {
           g.fillStyle = '#5b5560';
           quad(g, X - 0.22, X + 0.22, 0.9, Z0 - 10, Z1);
           g.fillStyle = '#35323a';
           wall(g, X + (X < 0 ? 0.3 : -0.3), 0, 0.9, Z0 - 10, Z1);
         }
-        // the busway's own median: a low concrete divider between the two directions
+        // metrobüs yolunun kendi orta refüjü: iki yön arasında alçak beton bir ayırıcı
         g.fillStyle = '#56515b';
         quad(g, -0.32, 0.32, 0.75, Z0 - 10, Z1);
         g.fillStyle = '#33303a';
         wall(g, 0.3, 0, 0.75, Z0 - 10, Z1);
-        // retaining walls + the cemetery's cypresses on the right
+        // istinat duvarları + sağda mezarlığın servileri
         g.fillStyle = '#211d25';
         wall(g, -23, 0, 7, Z0 - 10, Z1);
         g.fillStyle = '#1a171d';
         wall(g, 23, 0, 3, Z0 - 10, Z1);
-        // far ones first, so nearer trees overlap them; each a slightly different green, its
-        // road-facing edge picking up the orange of the sodium lamps
+        // önce uzaktakiler, yakın ağaçlar onların üstüne binsin; her biri biraz farklı bir yeşil,
+        // yola bakan kenarı sodyum lambaların turuncusunu alıyor
         const cypresses: [number, number][] = [];
         for (let z = 30; z < 900; z *= 1.09) for (const X of [27, 33, 40]) cypresses.push([X + range(rb, -1.2, 1.2), z * range(rb, 0.97, 1.03)]);
         cypresses.sort((a, b) => b[1] - a[1]);
@@ -255,12 +255,12 @@ export function e5Scene(): CityScene {
           lit.addColorStop(0.45, 'rgba(255,150,80,0)');
           g.fillStyle = lit;
           g.fillRect(x0 - w, yb - h * k, w * 2, h * k);
-          // foliage texture: short darker strokes
+          // yaprak dokusu: kısa, daha koyu darbeler
           g.fillStyle = 'rgba(0,0,0,0.25)';
           for (let i = 0; i < 10; i++) g.fillRect(x0 + range(rb, -w, w), yb - range(rb, 0, h * k), Math.max(0.6, w * 0.4), Math.max(0.6, k * 0.5));
           g.restore();
         }
-        // street-light poles on the busway barriers
+        // metrobüs bariyerlerindeki sokak lambası direkleri
         g.strokeStyle = '#2a2830';
         for (let z = 30; z < 900; z += 38) {
           for (const X of [-5.45, 5.45]) {
@@ -275,7 +275,7 @@ export function e5Scene(): CityScene {
             g.stroke();
           }
         }
-        // overhead gantry over the oncoming lanes
+        // karşıdan gelen şeritlerin üstündeki portal
         const gz = 88;
         g.strokeStyle = '#2d2b31';
         for (const X of [-6.9, -21]) {
@@ -333,7 +333,7 @@ export function e5Scene(): CityScene {
     },
     draw(g, t, cam: Cam) {
       drawLayer(g, sky, cam, 0.35);
-      // clouds drift slowly to the right
+      // bulutlar yavaşça sağa süzülür
       const off = (t * 5) % (W + PAD * 2);
       g.save();
       g.translate(cam.x * 0.15, cam.y * 0.15);
@@ -341,7 +341,7 @@ export function e5Scene(): CityScene {
       g.drawImage(cloudLayer, -PAD + off - (W + PAD * 2), -PAD, W + PAD * 2, H + PAD * 2);
       g.restore();
       drawLayer(g, skyline, cam, 0.35);
-      // aviation lights + bridge LEDs
+      // uçak ikaz ışıkları + köprü LED'leri
       g.globalCompositeOperation = 'lighter';
       g.save();
       g.translate(cam.x * 0.35, cam.y * 0.35);
@@ -368,7 +368,7 @@ export function e5Scene(): CityScene {
 
       drawLayer(g, rail, cam, 1.15);
 
-      // warm city haze on top of everything distant
+      // uzaktaki her şeyin üstünde sıcak şehir pusu
       g.fillStyle = rgba([200, 120, 90], 0.06);
       g.fillRect(0, 0, W, H);
     },

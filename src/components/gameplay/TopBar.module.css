@@ -50,7 +50,7 @@
   color: var(--on-dark-muted);
 }
 
-/* ── Day + week ── */
+/* ── Gün + hafta ── */
 
 .day {
   display: flex;
@@ -121,7 +121,7 @@
   text-shadow: 0 0 8px rgba(201, 162, 39, 0.7);
 }
 
-/* ── Clock ── */
+/* ── Saat ── */
 
 .center {
   display: flex;
@@ -183,7 +183,7 @@
   --clock-dot: var(--gold);
 }
 
-/* ── Meters ── */
+/* ── Göstergeler ── */
 
 .meter {
   width: 150px;
@@ -280,7 +280,7 @@
   background: rgba(0, 0, 0, 0.35);
 }
 
-/* ── Controls ── */
+/* ── Kontroller ── */
 
 .controls {
   display: flex;
@@ -321,7 +321,7 @@
   }
 }
 
-/* Not enough room to keep the clock at the exact centre: centre it between the two sides. */
+/* Saati tam ortada tutmaya yer yok: onu iki tarafın arasında ortala. */
 @media (max-width: 1240px) {
   .bar {
     grid-template-columns: auto 1fr auto;
@@ -337,8 +337,8 @@
   }
 }
 
-/* A tablet or a small window: still one row (stacked, the bar took a fifth of the screen),
-   tighter — the separators go, the meters narrow, the ▲ ♥ icons carry their names. */
+/* Bir tablet ya da küçük bir pencere: yine tek satır (üst üste dizilince çubuk ekranın beşte birini
+   alıyordu), daha sıkı; ayraçlar gider, göstergeler daralır, ▲ ♥ simgeleri adlarını taşır. */
 @media (max-width: 960px) {
   .bar {
     grid-template-columns: auto 1fr auto;
@@ -366,13 +366,13 @@
     width: 72px;
   }
 
-  /* the icons carry the meaning here; screen readers get the name from the meter itself */
+  /* burada anlamı simgeler taşır; ekran okuyucular adı göstergenin kendisinden alır */
   .meterLabel {
     display: none;
   }
 }
 
-/* A short screen: the bar keeps everything, a little tighter, so the workday gets the height. */
+/* Kısa ekran: çubuk her şeyi tutar, biraz daha sıkı; böylece yükseklik mesaiye kalır. */
 @media (max-height: 820px) {
   .bar {
     padding-top: 6px;
@@ -392,7 +392,7 @@
   }
 }
 
-/* A phone on its side: one thin row, or the bar would take half of a 375px-high screen. */
+/* Yan çevrilmiş telefon: ince tek bir satır, yoksa çubuk 375px yüksekliğindeki ekranın yarısını alırdı. */
 @media (max-width: 960px) and (max-height: 520px) {
   .bar {
     grid-template-columns: auto 1fr auto;
@@ -420,7 +420,7 @@
     width: 64px;
   }
 
-  /* the icons (▲ ♥) carry the meaning here; screen readers get the name from the meter itself */
+  /* burada anlamı simgeler (▲ ♥) taşır; ekran okuyucular adı göstergenin kendisinden alır */
   .meterLabel {
     display: none;
   }
@@ -447,7 +447,7 @@
   letter-spacing: 1px;
 }
 
-/* at the computer: back to the desk */
+/* bilgisayardayken: masaya dönüş */
 .deskButton {
   display: inline-flex;
   align-items: center;

@@ -9,18 +9,18 @@ import styles from './RejectionMails.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
- * The last screen of the portal each day, laid out like a mail client's bulk reply: everyone you
- * rejected in a table (who, why the file was turned down, which template), and the selected
- * person's mail exactly as it will arrive.
+ * Portalın her günkü son ekranı, bir e-posta istemcisinin toplu cevabı gibi düzenlenmiş: reddettiğin
+ * herkes bir tabloda (kim, dosya neden geri çevrildi, hangi şablon) ve seçili kişinin e-postası tam
+ * olarak varacağı gibi.
  */
 
 interface Props {
   ids: string[];
-  /** Applications the system cut before any human saw them — already sent its auto-reply. */
+  /** Hiçbir insan görmeden sistemin kestiği başvurular: otomatik cevabını çoktan aldı. */
   autoRejected: number;
   dayName: string;
   minutes: number;
-  /** What's already in the outbox, if you are coming back to edit. */
+  /** Düzenlemek için geri geliyorsan giden kutusunda zaten olan. */
   planned: Record<string, RejectTemplate>;
   onSend: (choices: Record<string, RejectTemplate>) => void;
   onBack: () => void;
@@ -42,7 +42,7 @@ function Initials({ name, color }: { name: string; color: string }) {
 export function RejectionMails({ ids, autoRejected, dayName, minutes, planned, onSend, onBack }: Props) {
   const [choices, setChoices] = useState<Record<string, RejectTemplate>>(() => Object.fromEntries(ids.map((id) => [id, planned[id] ?? ('standard' as const)])));
   const [focus, setFocus] = useState(ids[0]);
-  // "all" shows a template while every row agrees, and goes blank once they differ
+  // "hepsi", her satır aynı fikirdeyken bir şablon gösterir; farklılaşınca boş kalır
   const shared = ids.every((id) => choices[id] === choices[ids[0]]) ? choices[ids[0]] : '';
   const late = minutes >= MAIL_SEND_AT;
   const mail = mailFor(focus, choices[focus]);

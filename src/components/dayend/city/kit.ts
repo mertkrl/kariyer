@@ -1,7 +1,7 @@
 /*
- * Small canvas toolkit for the day-end city scenes, in three parts: paint.ts (the 1600×900
- * stage, layers, light sprites, seeded randomness, colour), landmarks.ts (towns, towers,
- * mosques, gulls) and weather.ts (rain, snow, reflections). Scenes import it all from here.
+ * Gün sonu şehir sahneleri için küçük canvas araç takımı, üç parça hâlinde: paint.ts (1600×900
+ * sahne, katmanlar, ışık sprite'ları, tohumlu rastgelelik, renk), landmarks.ts (kasabalar, kuleler,
+ * camiler, martılar) ve weather.ts (yağmur, kar, yansımalar). Sahneler hepsini buradan içe aktarır.
  */
 export * from './paint';
 export * from './landmarks';

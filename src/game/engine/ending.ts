@@ -5,24 +5,24 @@ import type { ReformKind } from '../desk';
 export { FIRED_BELOW };
 
 /*
- * How the week ends, in two steps that are both Defne's: what she said to Hakan Bey's offer on
- * Friday at 18:40 (the job), and what she told her mother that night (the life around it).
- * The scores don't pick the ending; they give it its tone — what kind of stayer, what kind of
- * leaver — and they decide what Hakan Bey could offer in the first place (offer.ts).
+ * Haftanın nasıl bittiği, ikisi de Defne'nin olan iki adımda: Cuma 18:40'ta Hakan Bey'in
+ * teklifine ne dediği (iş) ve o gece annesine ne söylediği (çevresindeki hayat). Puanlar sonu
+ * seçmez; ona tonunu verir (nasıl biri olarak kaldığı, nasıl biri olarak gittiği) ve Hakan Bey'in
+ * en başta neyi teklif edebileceğine karar verir (offer.ts).
  */
 
-/** Everything beyond the two scores that shapes how the week ends. */
+/** İki puanın ötesinde haftanın nasıl bittiğini şekillendiren her şey. */
 export interface EndingContext {
   refusals: number;
-  /** 1–5: how the hire turned out a year later. */
+  /** 1–5: işe alınan kişinin bir yıl sonra nasıl çıktığı. */
   hireFit: number;
   aiUses: number;
-  /** The last thing you told Mom on Friday night: breakfast · sleep · quit (thinking of leaving) · search. */
+  /** Cuma gecesi annene söylediğin son şey: breakfast · sleep · quit (gitmeyi düşünmek) · search. */
   weekendChoice: string | null;
   difficulty: Difficulty;
-  /** Did you hire the manager's nephew? */
+  /** Müdürün yeğenini işe aldın mı? */
   hiredNephew?: boolean;
-  /** Friday 18:40. Missing (an old save, a test): read off the scores, the way he would have. */
+  /** Cuma 18:40. Yoksa (eski bir kayıt, bir test): puanlardan, onun yapacağı gibi okunur. */
   offer?: OfferResult | null;
 }
 
@@ -34,7 +34,7 @@ const REFORM_DONE: Record<ReformKind, string> = {
   audit: '',
 };
 
-/** The job: what the answer to the offer led to, toned by the week behind it. */
+/** İş: teklife verilen cevabın götürdüğü yer, arkasındaki haftanın tonuyla. */
 function jobEnding(p: number, v: number, ctx: EndingContext, offer: OfferResult): EndingVariant {
   switch (offer.outcome) {
     case 'quit':
@@ -85,7 +85,7 @@ function jobEnding(p: number, v: number, ctx: EndingContext, offer: OfferResult)
       break;
   }
 
-  // You took the post as offered: the week behind you says what kind of stayer you are.
+  // Kadroyu teklif edildiği gibi aldın: arkandaki hafta nasıl biri olarak kaldığını söyler.
   if (ctx.hiredNephew) {
     return { title: 'Dayının gözdesi.', body: 'Okan\'ı işe aldın, kadroyu da aldın. Hakan Bey seni terfi listesine yazdı. Ekip ise artık yanında konuşmuyor.' };
   }
@@ -119,7 +119,7 @@ function jobEnding(p: number, v: number, ctx: EndingContext, offer: OfferResult)
   };
 }
 
-/** The night: a last line from the phone call with Mom, in the light of what you did at 18:40. */
+/** Gece: annenle telefon konuşmasından son bir satır, 18:40'ta yaptığının ışığında. */
 function homeCoda(left: boolean, choice: string | null): string {
   if (left) {
     switch (choice) {
@@ -145,7 +145,7 @@ function homeCoda(left: boolean, choice: string | null): string {
   }
 }
 
-/** What Hakan Bey would have done, for a week with no recorded answer. */
+/** Cevabı kaydedilmemiş bir hafta için Hakan Bey'in yapacağı. */
 const impliedOffer = (p: number, ctx: EndingContext): OfferResult =>
   offerWithheld({ performans: p, refusals: ctx.refusals, complies: 0, reform: null, hiredNephew: !!ctx.hiredNephew })
     ? { outcome: 'notOffered', vicdan: 0 }

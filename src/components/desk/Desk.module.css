@@ -6,7 +6,7 @@
   user-select: none;
 }
 
-/* 1600×900 stage, scaled to cover the area like a photograph */
+/* 1600×900 sahne, alanı bir fotoğraf gibi kaplayacak şekilde ölçeklenir */
 .stage {
   position: absolute;
   left: 50%;
@@ -18,7 +18,7 @@
   position: absolute;
 }
 
-/* ── wall ── */
+/* ── duvar ── */
 
 .window {
   position: absolute;
@@ -63,7 +63,7 @@
   }
 }
 
-/* the office around the desk: things standing on the carpet (floor line y≈606) */
+/* masanın çevresindeki ofis: halının üstünde duran şeyler (zemin çizgisi y≈606) */
 .cooler {
   left: 1658px;
   top: 344px;
@@ -143,7 +143,7 @@
   height: 272px;
 }
 
-/* an old coffee ring on the oak */
+/* meşenin üstünde eski bir kahve halkası */
 .ring {
   position: absolute;
   border-radius: 50%;
@@ -152,7 +152,7 @@
   pointer-events: none;
 }
 
-/* ── interactive objects ── */
+/* ── etkileşimli nesneler ── */
 
 .obj {
   position: absolute;
@@ -197,7 +197,7 @@
   opacity: 1;
 }
 
-/* before the shift starts, the computer says where the day begins */
+/* mesai başlamadan önce bilgisayar günün nerede başladığını söyler */
 .beckon::after {
   opacity: 1;
 }
@@ -301,7 +301,7 @@
   height: 100px;
 }
 
-/* ── motion ── */
+/* ── hareket ── */
 
 .buzzing {
   animation: buzz 0.07s linear 14 alternate;
@@ -340,7 +340,7 @@
   }
 }
 
-/* ── light ── */
+/* ── ışık ── */
 
 .dusk {
   position: absolute;
@@ -389,9 +389,9 @@
   opacity: calc(0.35 + var(--dusk) * 0.65);
 }
 
-/* the monitor's own desktop, seen from the chair */
-/* The computer's desktop seen from the chair: the same wallpaper, icons and taskbar as the PC
-   view, at the size a 24" screen shows them from arm's length. */
+/* monitörün kendi masaüstü, sandalyeden görüldüğü gibi */
+/* Sandalyeden görülen bilgisayar masaüstü: PC görünümündeki aynı duvar kâğıdı, simgeler ve görev
+   çubuğu, 24" bir ekranın kol mesafesinden gösterdiği boyutta. */
 .miniDesktop {
   position: absolute;
   inset: 0;
@@ -401,7 +401,7 @@
     linear-gradient(160deg, #1c2a44 0%, #0f1622 70%);
 }
 
-/* the panel's own light falls off towards the edges */
+/* panelin kendi ışığı kenarlara doğru azalır */
 .miniDesktop::after {
   content: '';
   position: absolute;
@@ -560,7 +560,7 @@
   opacity: 0.7;
 }
 
-/* ── bubbles, in screen space ── */
+/* ── baloncuklar, ekran uzayında ── */
 
 @keyframes pop {
   from {
@@ -639,7 +639,7 @@
   color: #fff;
 }
 
-/* ── landline call ── */
+/* ── sabit hat araması ── */
 
 .call {
   position: absolute;
@@ -718,7 +718,7 @@
   background: var(--paper-dim);
 }
 
-/* what the other side says reads like speech everywhere: interview, meeting, landline */
+/* karşı tarafın söyledikleri her yerde konuşma gibi okunur: mülakat, toplantı, sabit hat */
 .callSays {
   font-family: var(--font-display);
   font-size: calc(15px * var(--ts, 1));

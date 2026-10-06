@@ -10,12 +10,12 @@ import { CASE, FOLLOW, FORBIDDEN, QUESTION_BUDGET, SALARY_LINES, type Entry, typ
 import styles from '../FinalRoundScreen.module.css';
 
 /*
- * The conversation so far with the person in the room, beat by beat: your questions and their
- * answers (the live one typing out), Hakan Bey cutting in, the salary talk, their question back.
- * Finished answers can be dug into (underlined phrases) and noted (✎).
+ * Odadaki kişiyle şimdiye kadarki konuşma, an an: senin soruların ve onun cevapları (canlı
+ * olanı yazılırken), Hakan Bey'in araya girmesi, maaş konuşması, onun sana sorusu. Biten
+ * cevaplar kurcalanabilir (altı çizili ifadeler) ve not alınabilir (✎).
  */
 
-/** One line of the conversation: who speaks, in what role, and what they say. */
+/** Konuşmanın tek satırı: kim konuşuyor, hangi rolde ve ne diyor. */
 export function Turn({ who, role, tone, children }: { who: string; role: string; tone: 'you' | 'candidate' | 'hakan'; children: ReactNode }) {
   return (
     <div className={`${styles.turn} ${styles['turn_' + tone]}`}>
@@ -28,7 +28,7 @@ export function Turn({ who, role, tone, children }: { who: string; role: string;
   );
 }
 
-/** What happens in the room without anyone speaking. */
+/** Odada kimse konuşmadan olan şey. */
 export function Note({ children }: { children: ReactNode }) {
   return <p className={styles.note}>{children}</p>;
 }
@@ -46,7 +46,7 @@ export interface ConversationProps {
   ask: (question: number, about?: string) => void;
   isNoted: (sentence: string) => boolean;
   toggleNote: (sentence: string) => void;
-  /** No one interviewed yet today: the room explains how it works. */
+  /** Bugün henüz kimseyle görüşülmedi: oda nasıl işlediğini anlatır. */
   firstOfDay: boolean;
 }
 

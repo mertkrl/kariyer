@@ -90,7 +90,7 @@
   padding: 20px 32px 24px;
 }
 
-/* ── Finalist list ── */
+/* ── Finalist listesi ── */
 
 .list {
   grid-area: list;
@@ -209,7 +209,7 @@
   background: var(--teal);
 }
 
-/* ── Profile + transcript ── */
+/* ── Profil + konuşma dökümü ── */
 
 
 .listItem:disabled {
@@ -235,7 +235,7 @@
   color: #2f7a4f;
 }
 
-/* ── The interview room: conversation on the left, the file on the right ── */
+/* ── Mülakat odası: solda konuşma, sağda dosya ── */
 
 .room {
   grid-area: room;
@@ -318,7 +318,7 @@
   gap: 8px;
 }
 
-/* a speaker column and what they said, like minutes of a meeting */
+/* bir konuşmacı sütunu ve söyledikleri, toplantı tutanağı gibi */
 .turn {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
@@ -375,7 +375,7 @@
   color: var(--text-dim);
 }
 
-/* ── What you can do next ── */
+/* ── Bundan sonra ne yapabilirsin ── */
 
 .console {
   flex-shrink: 0;
@@ -510,7 +510,7 @@
   cursor: pointer;
 }
 
-/* ── The file and the team lead's read ── */
+/* ── Dosya ve ekip liderinin yorumu ── */
 
 .dossier {
   min-height: 0;
@@ -598,7 +598,7 @@
   color: var(--text-dim);
 }
 
-/* ── Confirm modal ── */
+/* ── Onay penceresi ── */
 
 .modalOverlay {
   position: fixed;
@@ -613,7 +613,7 @@
 }
 
 .modal {
-  /* wide enough for the comparison table, and scrolling on a short screen */
+  /* karşılaştırma tablosuna yetecek genişlikte, kısa ekranda kayar */
   width: min(560px, 100%);
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
@@ -724,7 +724,7 @@
 }
 
 
-/* fixed-height screen on desktop: only the conversation scrolls */
+/* masaüstünde sabit yükseklikte ekran: yalnızca konuşma kayar */
 @media (min-width: 961px) {
   .screen {
     height: 100dvh;
@@ -760,8 +760,8 @@
 }
 
 @media (max-width: 960px) {
-  /* one column: the list scrolls in its own few rows so the interview room is right below it,
-     not under all nine names */
+  /* tek sütun: liste kendi birkaç satırında kayar, böylece mülakat odası hemen altında olur,
+     dokuz ismin altında değil */
   .list {
     max-height: 34vh;
   }
@@ -797,7 +797,7 @@
   }
 }
 
-/* ── Friday morning: cutting the shortlist down to a day (PoolPicker) ── */
+/* ── Cuma sabahı: kısa listeyi bir günlüğe indirmek (PoolPicker) ── */
 .picker {
   flex: 1;
   min-height: 0;
@@ -887,7 +887,7 @@
   }
 }
 
-/* ── the interview's new pieces: console hint, comparison, defence ── */
+/* ── mülakatın yeni parçaları: konsol ipucu, karşılaştırma, savunma ── */
 .consoleHint {
   margin: 6px 0 0;
   font-size: calc(12px * var(--ts, 1));
@@ -970,7 +970,7 @@
   font-weight: 600;
 }
 
-/* ── evidence meter under "Notlarım" (Dossier: EvidenceMeter) ── */
+/* ── "Notlarım"ın altındaki kanıt göstergesi (Dossier: EvidenceMeter) ── */
 .meter {
   display: flex;
   flex-direction: column;
@@ -1021,7 +1021,7 @@
   color: var(--teal);
 }
 
-/* ── how the day works, before the first interview (Conversation) ── */
+/* ── ilk mülakattan önce günün nasıl işlediği (Conversation) ── */
 .rules {
   display: flex;
   flex-direction: column;

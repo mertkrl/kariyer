@@ -3,13 +3,13 @@ import { EngineCore, MUSIC_LOOP_SECONDS, MUSIC_MOODS, MUSIC_SRC, sliderToGain, t
 export type { MusicMood, PourSound } from './engineCore';
 
 /*
- * The game's sound: one engine on top of the audio graph (engineCore.ts). Here are the
- * controls (mute, the two volume sliders, the music and its mood) and the short one-off
- * sounds; the longer scenes live in ./scenes and are reached through the same methods as
- * before, so the rest of the game only ever talks to `audioEngine`.
+ * Oyunun sesi: ses grafiğinin (engineCore.ts) üstünde tek bir motor. Burada kontroller (sessiz,
+ * iki ses kaydırıcısı, müzik ve ruh hâli) ve kısa tek seferlik sesler var; daha uzun sahneler
+ * ./scenes'te yaşar ve öncekiyle aynı yöntemlerle ulaşılır, böylece oyunun geri kalanı yalnızca
+ * `audioEngine` ile konuşur.
  */
 class AudioEngine extends EngineCore {
-  /** Must be called from a user gesture (click) — browsers block audio otherwise. */
+  /** Bir kullanıcı hareketinden (tık) çağrılmalı; yoksa tarayıcılar sesi engeller. */
   init() {
     void this.loadScenes();
     const ctx = this.ensureContext();
@@ -25,19 +25,19 @@ class AudioEngine extends EngineCore {
     return this.muted;
   }
 
-  /** 0–1 slider value for the background music. */
+  /** Arka plan müziği için 0–1 kaydırıcı değeri. */
   setMusicVolume(level: number) {
     this.musicLevel = level;
     if (this.musicVolume) this.ramp(this.musicVolume.gain, sliderToGain(level) * (this.ducked ? 0.3 : 1), 0.08);
   }
 
-  /** Pull the music down under a spoken line, then back up. */
+  /** Konuşulan bir satırın altında müziği kıs, sonra geri aç. */
   duckMusic(on: boolean) {
     this.ducked = on;
     if (this.musicVolume) this.ramp(this.musicVolume.gain, sliderToGain(this.musicLevel) * (on ? 0.3 : 1), on ? 0.25 : 0.8);
   }
 
-  /** 0–1 slider value for all sound effects. */
+  /** Bütün ses efektleri için 0–1 kaydırıcı değeri. */
   setSfxVolume(level: number) {
     this.sfxLevel = level;
     if (this.sfxVolume) this.ramp(this.sfxVolume.gain, sliderToGain(level), 0.08);
@@ -49,7 +49,7 @@ class AudioEngine extends EngineCore {
     this.musicMood = mood;
     if (!this.ctx || !this.musicGain || !this.musicLowpass || !this.musicHighpass) return;
     const target = MUSIC_MOODS[mood];
-    // Day start fades the music in slowly; mood changes within the day are quicker.
+    // Günün başlangıcı müziği yavaşça açar; gün içindeki ruh hâli değişimleri daha hızlıdır.
     const seconds = mood === 'paused' ? 0.4 : previous === 'off' ? 2.5 : 1.2;
     const now = this.ctx.currentTime;
     this.ramp(this.musicGain.gain, target.volume, seconds);
@@ -70,7 +70,7 @@ class AudioEngine extends EngineCore {
     return this.musicBuffer;
   }
 
-  /** Starts the gapless background loop (Web Audio loops sample-accurately; <audio loop> leaves a gap). */
+  /** Boşluksuz arka plan döngüsünü başlatır (Web Audio örnek hassasiyetinde döngü yapar; <audio loop> boşluk bırakır). */
   startAmbient() {
     const ctx = this.ensureContext();
     if (ctx.state === 'suspended') void ctx.resume();
@@ -90,7 +90,7 @@ class AudioEngine extends EngineCore {
         this.musicSource = source;
       })
       .catch(() => {
-        // Music is optional; the game plays fine without it.
+        // Müzik isteğe bağlı; oyun onsuz da sorunsuz oynanır.
         this.musicBuffer = null;
       });
   }
@@ -102,7 +102,7 @@ class AudioEngine extends EngineCore {
     this.musicSource = null;
   }
 
-  /** Rubber stamp: low body thump + paper slap. Approve is brighter, reject heavier. */
+  /** Lastik damga: alçak gövde gümbürtüsü + kâğıt şaplağı. Onay daha parlak, ret daha ağır. */
   playStamp(kind: StampKind) {
     const approve = kind === 'approve';
     this.tone({ freq: approve ? 150 : 110, freqEnd: 55, decay: 0.16, peak: 0.55 });
@@ -111,12 +111,12 @@ class AudioEngine extends EngineCore {
   }
 
   /**
-   * Button feedback, designed per intent:
-   * - start:   warm rising power-on (the game begins)
-   * - confirm: bright major-third chime (publish / next day)
-   * - connect: data handshake chirps into a "connected" chime (logging into the HR system)
-   * - select:  soft tick; `variant` shifts the pitch so neighbouring choices sound distinct
-   * - click:   neutral tick
+   * Niyete göre tasarlanmış düğme geri bildirimi:
+   * - start:   sıcak, yükselen bir açılış (oyun başlıyor)
+   * - confirm: parlak majör üçlü çan (yayınla / sonraki gün)
+   * - connect: "bağlandı" çanına dönüşen veri el sıkışması cıvıltıları (İK sistemine giriş)
+   * - select:  yumuşak tık; `variant` ses inceliğini kaydırır, komşu seçimler farklı tınlasın
+   * - click:   nötr tık
    */
   playUi(kind: 'start' | 'confirm' | 'connect' | 'select' | 'click', variant = 0) {
     const ctx = this.ensureContext();
@@ -153,13 +153,13 @@ class AudioEngine extends EngineCore {
     }
   }
 
-  /** Soft click for general UI interactions. */
+  /** Genel arayüz etkileşimleri için yumuşak tık. */
   playUiClick() {
     this.tone({ freq: 1250, freqEnd: 900, decay: 0.05, peak: 0.1 });
     this.noiseHit({ filter: 'highpass', freq: 5000, decay: 0.012, peak: 0.05 });
   }
 
-  /** "Rewind" for taking a decision back: a reversed swell into a falling two-note figure. */
+  /** Bir kararı geri almak için "geri sar": ters bir kabarma, ardından inen iki notalı bir figür. */
   playUndo() {
     const ctx = this.ensureContext();
     const now = ctx.currentTime;
@@ -174,7 +174,7 @@ class AudioEngine extends EngineCore {
     this.tone({ type: 'triangle', freq: 660, when: now + 0.27, attack: 0.004, decay: 0.2, peak: 0.07 });
   }
 
-  /** Phone on the desk: two short vibration buzzes (rattling against wood) + a soft message ping. */
+  /** Masadaki telefon: iki kısa titreşim vızıltısı (tahtaya çarparak) + yumuşak bir mesaj sesi. */
   playPhoneBuzz() {
     const ctx = this.ensureContext();
     if (!this.sfxIn) return;
@@ -203,7 +203,7 @@ class AudioEngine extends EngineCore {
     this.tone({ freq: 2093, when: now + 0.7, attack: 0.004, decay: 0.3, peak: 0.05 });
   }
 
-  /** Office landline: one electronic double trill (call it every ~2.5 s while it rings). */
+  /** Ofis sabit hattı: tek bir elektronik çift titreşim (çalarken ~2.5 sn'de bir çağır). */
   playDeskRing() {
     const ctx = this.ensureContext();
     if (!this.sfxIn) return;
@@ -216,20 +216,20 @@ class AudioEngine extends EngineCore {
     }
   }
 
-  /** Handset lifted off / put back on the cradle. */
+  /** Ahize yuvasından kaldırıldı / geri kondu. */
   playHandset(down = false) {
     this.noiseHit({ filter: 'lowpass', freq: down ? 900 : 1400, attack: 0.002, decay: down ? 0.12 : 0.07, peak: down ? 0.22 : 0.14, pan: -0.3 });
     if (!down) this.tone({ freq: 425, attack: 0.01, decay: 0.35, peak: 0.02, pan: -0.3 });
   }
 
-  /** A single soft key press — used for live-typed interview answers. */
+  /** Tek bir yumuşak tuş vuruşu: canlı yazılan mülakat cevapları için. */
   playKeyTick() {
     this.noiseHit({ filter: 'highpass', freq: 2800 + Math.random() * 1200, attack: 0.001, decay: 0.008, peak: 0.018 + Math.random() * 0.01, pan: Math.random() * 0.4 - 0.2 });
   }
 
-  // ── Scenes: each is documented where it is made, in ./scenes/<file>.ts ──────
-  // They arrive a moment after the first screen (main.tsx asks while the page is idle, init()
-  // at the first click); a scene asked for before then stays silent rather than waiting.
+  // ── Sahneler: her biri yapıldığı yerde, ./scenes/<dosya>.ts içinde belgelenmiştir ─────
+  // İlk ekrandan bir an sonra gelirler (main.tsx sayfa boştayken ister, init() ilk tıkta);
+  // ondan önce istenen bir sahne beklemek yerine sessiz kalır.
 
   private scenes: typeof import('./scenes') | null = null;
   private scenesLoading: Promise<void> | null = null;

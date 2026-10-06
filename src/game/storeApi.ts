@@ -2,8 +2,8 @@ import type { StoreApi } from 'zustand';
 import type { GameState } from './storeTypes';
 
 /*
- * The store, reachable from the modules that make the game run (the clock, the slices) without
- * importing store.ts itself — which would be a cycle. store.ts binds it right after creating it.
+ * Store'a, oyunu çalıştıran modüllerden (saat, dilimler) store.ts'in kendisini içe aktarmadan
+ * ulaşılır; aksi bir döngü olurdu. store.ts onu oluşturduktan hemen sonra bağlar.
  */
 let store: StoreApi<GameState> | null = null;
 

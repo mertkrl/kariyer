@@ -7,7 +7,7 @@ import type { Reactions } from './useReactions';
 type PoolNode = 'droplets' | 'rings' | 'foam';
 type SingleNode = Exclude<keyof PourElements, PoolNode | 'stops'>;
 
-/** The glass of tea: pouring (demlik first, then water), sugar, stirring, sipping, going cold. */
+/** Çay bardağı: dökme (önce demlik, sonra su), şeker, karıştırma, yudumlama, soğuma. */
 export function useTea({ say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'later'>) {
   const [teaVolume, setTeaVolume] = useState(1);
   const [teaConcentration, setTeaConcentration] = useState(TAVSAN_KANI);
@@ -24,7 +24,7 @@ export function useTea({ say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'l
   const [drops, setDrops] = useState<number[]>([]);
   const dropSeq = useRef(0);
 
-  // the tea cools while you aren't looking
+  // sen bakmazken çay soğur
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 2000);
     return () => window.clearInterval(interval);
@@ -67,7 +67,7 @@ export function useTea({ say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'l
     const dropId = ++dropSeq.current;
     setDrops((d) => [...d, dropId]);
     bump('sugar');
-    // Cube arcs from the bowl, plops into the tea (~0.7s), then sinks to the bottom (~1.2s).
+    // Küp şekerlikten kavis çizer, çaya düşer (~0.7 sn), sonra dibe çöker (~1.2 sn).
     later(() => audioEngine.playClink(), 680);
     later(() => {
       setSugar((s) => s + 1);
@@ -80,7 +80,7 @@ export function useTea({ say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'l
 
   function stir() {
     if (stirring || pouring) return;
-    // Nothing to dissolve, nothing to stir.
+    // Eriyecek bir şey yok, karıştırılacak bir şey yok.
     if (teaEmpty || sugar === 0) {
       say(teaEmpty ? 'Bardak boş, karıştıracak bir şey yok.' : 'Çayında şeker yok — karıştırmaya gerek yok.');
       return;
@@ -104,7 +104,7 @@ export function useTea({ say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'l
     const els = pourEls.current;
     if (!els.demlik || !els.kettle || !els.stream || !els.fill || !els.surface || !els.stops) return;
 
-    // A full-but-cold glass gets tipped out first.
+    // Dolu ama soğumuş bardak önce boşaltılır.
     let startVolume = teaVolume;
     let startConcentration = teaConcentration;
     const newGlass = teaEmpty;
@@ -146,7 +146,7 @@ export function useTea({ say, bump, later }: Pick<Reactions, 'say' | 'bump' | 'l
     pourEls.current.stops = stops;
   }
 
-  /** Ref callbacks that hand the drawn glass, kettle and stream to the pour animation. */
+  /** Çizilen bardağı, çaydanlığı ve akışı dökme animasyonuna veren ref geri çağrıları. */
   function bindPour<K extends SingleNode>(key: K) {
     return (node: PourElements[K] | null) => {
       pourEls.current[key] = node ?? undefined;

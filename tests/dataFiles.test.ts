@@ -1,6 +1,7 @@
 /*
- * The candidates' JSON files: a writer's slip (a misspelt field, a value the game doesn't know,
- * a missing answer, the same id twice) is refused at load, naming the candidate and the field.
+ * Adayların JSON dosyaları: bir yazarın sürçmesi (yanlış yazılmış bir alan, oyunun bilmediği bir
+ * değer, eksik bir cevap, aynı kimliğin iki kez kullanılması) yüklenirken reddedilir, aday ve alan
+ * adıyla birlikte.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

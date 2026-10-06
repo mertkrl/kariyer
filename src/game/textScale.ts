@@ -1,4 +1,4 @@
-/* Reading size: a multiplier on the font sizes of every text-heavy screen, kept between sessions. */
+/* Okuma boyutu: metin ağırlıklı her ekranın yazı boyutlarına uygulanan çarpan, oturumlar arasında saklanır. */
 
 export const TEXT_SCALES = [
   { value: 1, label: 'Normal' },

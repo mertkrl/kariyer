@@ -10,8 +10,8 @@ import { avatarStyle } from '../../components/ui/avatarStyle';
 const sourceOf = (f: Finalist) => (f.by ? (f.by === 'ayse' ? 'Ayşe seçti' : 'Emre seçti') : f.byManager ? 'Hakan Bey ekletti' : f.day > 0 ? `Sen çağırdın · ${f.day}. gün` : 'Referans');
 
 /**
- * Friday morning, when the shortlist is longer than a day of interviews: who you'll actually
- * sit down with. Hakan Bey's people are already on it and can't be taken off.
+ * Cuma sabahı, kısa liste bir günlük mülakattan uzunsa: gerçekte kimlerle oturacağın. Hakan
+ * Bey'in kişileri listede zaten var ve çıkarılamaz.
  */
 export function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist[]; locked: Set<string>; onConfirm: (ids: string[]) => void }) {
   const [picked, setPicked] = useState<string[]>(() => everyone.filter((f) => locked.has(f.id)).map((f) => f.id));

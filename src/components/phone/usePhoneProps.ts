@@ -5,7 +5,7 @@ import { formatClock } from '../../game/time';
 import { rejectedEchoes } from '../../game/echoes';
 import { dmProfile, writesBack } from './apps/candidateDms';
 
-/** Everything the phone shows during the workday, gathered from the store. */
+/** Telefonun mesai boyunca gösterdiği her şey, store'dan toplanmış. */
 export function usePhoneProps() {
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
   const workdayMinutes = useGameStore((s) => s.workdayMinutes);
@@ -31,7 +31,7 @@ export function usePhoneProps() {
     onToggleMute: toggleMuteThread,
     typing: typingThread,
     messages: phone,
-    // favours come by landline; only requests that were ever texted show up in the chat
+    // ricalar sabit hattan gelir; sohbette yalnızca bir zamanlar mesajla gelen ricalar görünür
     requests: managerRequests.filter((r) => phone.some((m) => m.requestId === r.id)),
     unread: phoneUnread,
     stance: managerStance,
@@ -43,7 +43,7 @@ export function usePhoneProps() {
     minutes: workdayMinutes,
     weatherPenalty: [0, 0.05, 0.15, 0.25][currentDayIndex] ?? 0,
     dayIndex: currentDayIndex,
-    // only some of the people you turn away write, each after their own while and in their own temper
+    // geri çevirdiğin insanların yalnızca bazıları yazar, her biri kendi süresi sonra ve kendi ruh hâliyle
     dmCandidates: decisionLog
       .filter((e) => e.decision === 'reject' && writesBack(e.id, gameSeed))
       .map((e) => ({

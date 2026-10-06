@@ -1,29 +1,29 @@
 export type StampKind = 'approve' | 'reject';
 
 /*
- * Signal flow
+ * Sinyal akışı
  *
- *   SFX voices ──► sfxIn ──► sfxGlue (gentle compressor) ──► sfxVolume ─┐
- *                                                                        ├──► master (mute) ──► limiter ──► out
- *   music loop ──► highpass ──► lowpass ──► moodGain ──► musicVolume ───┘
+ *   SFX sesleri ──► sfxIn ──► sfxGlue (yumuşak kompresör) ──► sfxVolume ──┐
+ *                                                                          ├──► master (sessiz) ──► sınırlayıcı ──► çıkış
+ *   müzik döngüsü ──► highpass ──► lowpass ──► moodGain ──► musicVolume ──┘
  *
- * The two user-facing sliders (Müzik / Efektler) drive musicVolume and sfxVolume. The final
- * limiter catches stacked transients (e.g. 60 CVs scattering at once) so nothing ever clips.
+ * Kullanıcının gördüğü iki kaydırıcı (Müzik / Efektler) musicVolume ve sfxVolume'u yönetir. Son
+ * sınırlayıcı üst üste binen ani sesleri (ör. aynı anda saçılan 60 CV) yakalar, hiçbir şey patlamaz.
  */
 
 export const SFX_LEVEL = 0.55;
 export const MUSIC_SRC = `${import.meta.env.BASE_URL}audio/theme-calm.m4a`;
-/** A real rain recording, looped under the weather and street scenes. */
+/** Gerçek bir yağmur kaydı; hava ve sokak sahnelerinin altında döngüde çalar. */
 export const RAIN_SRC = `${import.meta.env.BASE_URL}audio/rain.mp3`;
-/** Exact loop length of theme-calm.m4a (32 bars @ 66 BPM) — see scripts/generate-calm-music.mjs. */
+/** theme-calm.m4a'nın tam döngü uzunluğu (66 BPM'de 32 ölçü); bkz. scripts/generate-calm-music.mjs. */
 export const MUSIC_LOOP_SECONDS = (60 / 66) * 4 * 32;
 
 /**
- * How the background music sits in the scene:
- * - work:   full-range mix
- * - break:  band-limited, quieter — like a radio playing in the cafeteria
- * - paused: heavily muffled, as if behind a closed door
- * - off:    faded out (intro screens — the flood sequence carries its own sound design)
+ * Arka plan müziğinin sahnede nasıl durduğu:
+ * - work:   tam aralıklı karışım
+ * - break:  bant sınırlı, daha sessiz; yemekhanede çalan bir radyo gibi
+ * - paused: kapalı bir kapının ardındaymış gibi iyice boğuk
+ * - off:    kısılmış (giriş ekranları; yağmur sekansının kendi ses tasarımı var)
  */
 export type MusicMood = 'work' | 'break' | 'paused' | 'off';
 
@@ -34,34 +34,34 @@ export const MUSIC_MOODS: Record<MusicMood, { volume: number; lowpass: number; h
   off: { volume: 0, lowpass: 18000, highpass: 20 },
 };
 
-/** The application-flood sequence plays alone (no music under it), so it sits ~+3.5 dB hotter. */
+/** Başvuru yağmuru sekansı tek başına çalar (altında müzik yok), bu yüzden ~+3.5 dB daha yüksek durur. */
 export const FLOOD_BOOST = 1.5;
 
-/** Slider position (0–1) → linear gain. A squared curve tracks perceived loudness far better than linear. */
+/** Kaydırıcı konumu (0–1) → doğrusal kazanç. Karesel bir eğri algılanan yüksekliği doğrusaldan çok daha iyi izler. */
 export const sliderToGain = (v: number) => Math.max(0, Math.min(1, v)) ** 2;
 
-/** Pentatonic "data" pitches (Hz) for the AI scan chirps — musical, never harsh. */
+/** Yapay zekâ taraması cıvıltıları için pentatonik "veri" perdeleri (Hz): müzikal, asla sert değil. */
 export const DATA_PITCHES = [1318.5, 1568, 1760, 2093, 2349.3, 2637];
 
 export interface ScatterPaper {
-  /** -1 (left) … 1 (right) — follows the paper's flight direction. */
+  /** -1 (sol) … 1 (sağ): kâğıdın uçuş yönünü izler. */
   pan: number;
-  /** Seconds after the burst. */
+  /** Patlamadan sonraki saniye. */
   delay: number;
 }
 
-/** Live handle for a pour: feed it the fill level, stop it when the stream detaches. */
+/** Dökme için canlı tutamak: dolum seviyesini ver, akış kopunca durdur. */
 export interface PourSound {
-  /** Liquid height as a fraction of the glass (0–1). */
+  /** Bardağın payı olarak sıvı yüksekliği (0–1). */
   setFill: (fill: number) => void;
   stop: () => void;
 }
 
 /**
- * The audio graph and the instruments every sound is built from: tones, noise hits, panning,
- * envelopes, looped recordings. The scenes in ./scenes play on it; AudioEngine adds the
- * controls and the short one-off sounds. Members are public only for those two — nothing
- * outside src/audio uses this class.
+ * Ses grafiği ve her sesin kurulduğu çalgılar: tonlar, gürültü vuruşları, kaydırma, zarflar,
+ * döngülü kayıtlar. ./scenes'teki sahneler bunun üstünde çalar; AudioEngine kontrolleri ve kısa
+ * tek seferlik sesleri ekler. Üyeler yalnızca bu ikisi için açıktır; src/audio dışında hiçbir şey
+ * bu sınıfı kullanmaz.
  */
 export class EngineCore {
   ctx: AudioContext | null = null;
@@ -103,7 +103,7 @@ export class EngineCore {
     this.master.gain.value = this.muted ? 0 : 1;
     this.master.connect(limiter);
 
-    // SFX bus: light glue compression keeps layered foley cohesive.
+    // SFX hattı: hafif yapıştırıcı sıkıştırma katmanlı efektleri bir arada tutar.
     this.sfxIn = ctx.createGain();
     this.sfxIn.gain.value = SFX_LEVEL;
     const glue = ctx.createDynamicsCompressor();
@@ -118,7 +118,7 @@ export class EngineCore {
     glue.connect(this.sfxVolume);
     this.sfxVolume.connect(this.master);
 
-    // Music bus
+    // Müzik hattı
     const mood = MUSIC_MOODS[this.musicMood];
     this.musicHighpass = ctx.createBiquadFilter();
     this.musicHighpass.type = 'highpass';
@@ -135,7 +135,7 @@ export class EngineCore {
     this.musicGain.connect(this.musicVolume);
     this.musicVolume.connect(this.master);
 
-    // One shared 2-second white-noise buffer feeds every noise-based sound.
+    // Gürültüye dayalı her sesi tek bir ortak 2 saniyelik beyaz gürültü tamponu besler.
     const length = ctx.sampleRate * 2;
     this.noise = ctx.createBuffer(1, length, ctx.sampleRate);
     const data = this.noise.getChannelData(0);
@@ -152,7 +152,7 @@ export class EngineCore {
     param.linearRampToValueAtTime(value, now + seconds);
   }
 
-  /** Fetches and decodes a recording once; null if it can't be loaded. */
+  /** Bir kaydı bir kez indirip çözer; yüklenemezse null. */
   loadSample(url: string): Promise<AudioBuffer | null> {
     let p = this.samples.get(url);
     if (!p) {
@@ -167,8 +167,9 @@ export class EngineCore {
   }
 
   /**
-   * Loops a recording into `dest` at `level`, fading in. Calls `fallback` instead if the file
-   * can't be loaded. `alive` is checked once it has loaded, so a scene that already ended stays quiet.
+   * Bir kaydı `level` seviyesinde `dest`e döngüyle, yavaşça açarak çalar. Dosya yüklenemezse
+   * bunun yerine `fallback`i çağırır. `alive` yüklendikten sonra kontrol edilir, böylece çoktan
+   * bitmiş bir sahne sessiz kalır.
    */
   loopSample(url: string, dest: AudioNode, level: number, sources: AudioScheduledSourceNode[], alive: () => boolean, fallback: () => void) {
     void this.loadSample(url).then((buffer) => {
@@ -191,7 +192,7 @@ export class EngineCore {
     });
   }
 
-  /** Looping noise source starting at a random offset (so repeated hits never sound identical). */
+  /** Rastgele bir noktadan başlayan döngülü gürültü kaynağı (tekrarlanan vuruşlar hiç aynı tınlamasın). */
   noiseSource(ctx: AudioContext) {
     const src = ctx.createBufferSource();
     src.buffer = this.noise;
@@ -212,7 +213,7 @@ export class EngineCore {
     return p;
   }
 
-  /** Percussive envelope: fast attack to `peak`, exponential decay to silence. */
+  /** Vurmalı zarf: `peak`e hızlı yükselme, sessizliğe üstel sönüm. */
   envelope(param: AudioParam, when: number, attack: number, peak: number, decay: number) {
     param.setValueAtTime(0.0001, when);
     param.exponentialRampToValueAtTime(Math.max(0.0002, peak), when + attack);
@@ -273,7 +274,7 @@ export class EngineCore {
     if (opts.freqEnd) filter.frequency.exponentialRampToValueAtTime(opts.freqEnd, when + total);
     const gain = ctx.createGain();
     if (opts.curve) {
-      // No other automation event may share the curve's time range.
+      // Eğrinin zaman aralığını başka hiçbir otomasyon olayı paylaşamaz.
       gain.gain.value = 0;
       gain.gain.setValueCurveAtTime(opts.curve, when, total);
     } else {

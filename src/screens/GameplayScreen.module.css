@@ -1,5 +1,5 @@
 .screen {
-  /* the portal's right column is --pc-side (styles/layout.css) */
+  /* portalın sağ sütunu --pc-side'dır (styles/layout.css) */
   width: 100%;
   height: 100vh;
   height: 100dvh;
@@ -10,13 +10,13 @@
   flex-direction: column;
 }
 
-/* desk ↔ computer: two layers in the same box, the camera moves between them */
+/* masa ↔ bilgisayar: aynı kutuda iki katman, kamera aralarında gider gelir */
 .stageArea {
   position: relative;
   flex: 1;
   min-height: 0;
-  /* clip, not hidden: the zoomed desk overflows this box, and a hidden overflow can still be
-     scrolled — focusing a button on the computer used to slide the whole view sideways */
+  /* hidden değil clip: yakınlaşan masa bu kutudan taşar ve hidden taşma yine de kaydırılabilir;
+     bilgisayardaki bir düğmeye odaklanmak eskiden bütün görüntüyü yana kaydırıyordu */
   overflow: clip;
   background: #15110c;
 }
@@ -131,7 +131,7 @@
   border-color: var(--ink);
 }
 
-/* Decided candidates read at a glance: green = called to interview, red = rejected. */
+/* Karar verilen adaylar bir bakışta okunur: yeşil = mülakata çağrıldı, kırmızı = reddedildi. */
 .queueApproved {
   background: rgba(63, 107, 99, 0.16);
   border-color: rgba(63, 107, 99, 0.55);
@@ -145,7 +145,7 @@
 }
 
 .queueRejected .queueName {
-  /* a deeper red than --red: the struck-through name still reads at 5:1 on the tinted row */
+  /* --red'den koyu bir kırmızı: üstü çizili isim renkli satırda yine 5:1 okunur */
   color: #8a3324;
   text-decoration: line-through;
   text-decoration-color: rgba(168, 64, 47, 0.45);
@@ -185,7 +185,7 @@
 }
 
 .candidateCard {
-  /* Basis 0: the card takes the space left by the side columns instead of its text width. */
+  /* Taban 0: kart, metin genişliği yerine yan sütunlardan kalan alanı alır. */
   flex: 1 1 0;
   min-width: 320px;
   background: var(--paper-light);
@@ -214,7 +214,7 @@
 }
 
 .scanLine {
-  /* a reading head, not a curtain: a thin bright line with a short glow trailing above it */
+  /* perde değil bir okuma kafası: üstünde kısa bir parıltı kalan ince parlak bir çizgi */
   position: absolute;
   left: 0;
   right: 0;
@@ -530,7 +530,7 @@
   }
 }
 
-/* ── Decision stamp (compact, top-right of the CV) ── */
+/* ── Karar damgası (küçük, CV'nin sağ üstünde) ── */
 
 .stamp {
   position: absolute;
@@ -569,7 +569,7 @@
   }
 }
 
-/* ── Decided state: summary + undo ── */
+/* ── Karar verilmiş hâl: özet + geri al ── */
 
 .decisionBar {
   display: flex;
@@ -626,7 +626,7 @@
   color: var(--text-dim);
 }
 
-/* why the scores moved: the decision's one-line reason and its effect */
+/* puanların neden oynadığı: kararın tek satırlık gerekçesi ve etkisi */
 .decisionWhy {
   display: flex;
   flex-wrap: wrap;
@@ -685,7 +685,7 @@
   transform: translateX(2px);
 }
 
-/* ── Right panel: fixed-height column so the clock never moves ── */
+/* ── Sağ panel: saat hiç kımıldamasın diye sabit yükseklikte sütun ── */
 
 .rightPanel {
   width: 280px;
@@ -701,15 +701,15 @@
 }
 
 .activity {
-  /* Takes the space left between the AI panel and the phone, but never collapses. */
+  /* Yapay zekâ paneli ile telefon arasında kalan alanı alır ama hiç küçülüp kaybolmaz. */
   flex: 1 1 0;
   min-height: 250px;
 }
 
-/* ── Compact AI panel ── */
+/* ── Küçük yapay zekâ paneli ── */
 
 .systemBox {
-  /* Shrinks (and scrolls) before the activity panel does, so the day overview stays readable. */
+  /* Etkinlik panelinden önce küçülür (ve kayar), böylece günün özeti okunur kalır. */
   flex: 0 1 auto;
   min-height: 60px;
   overflow-y: auto;
@@ -802,7 +802,7 @@
   cursor: default;
 }
 
-/* ── Quota line above the decision buttons ── */
+/* ── Karar düğmelerinin üstündeki kontenjan satırı ── */
 
 .actionArea {
   display: flex;
@@ -824,7 +824,7 @@
   font-weight: 600;
 }
 
-/* ── Detailed CV ── */
+/* ── Ayrıntılı CV ── */
 
 .candidateMeta {
   display: flex;
@@ -845,7 +845,7 @@
   gap: 3px;
 }
 
-/* ── Hard-mode events ── */
+/* ── Zor mod olayları ── */
 
 .powerOut {
   position: fixed;
@@ -937,9 +937,9 @@
   border-color: #4c7fb0;
 }
 
-/* the portal inside its window: everything fits, only long lists scroll inside their own box */
+/* penceresinin içindeki portal: her şey sığar, yalnızca uzun listeler kendi kutularında kayar */
 .portalArea {
-  /* the AI note opens in here, over the CV (AiPanel: useNotePlacement) */
+  /* yapay zekâ notu burada, CV'nin üstünde açılır (AiPanel: useNotePlacement) */
   position: relative;
   height: 100%;
   width: 100%;
@@ -1003,7 +1003,7 @@
   gap: 10px;
 }
 
-/* reference check over the landline */
+/* sabit hattan referans kontrolü */
 .referenceRow {
   display: flex;
   align-items: center;
@@ -1065,12 +1065,12 @@
   color: var(--text-muted);
 }
 
-/* what the last decision did, and why */
+/* son kararın ne yaptığı ve neden */
 .portalArea {
   position: relative;
 }
 
-/* the morning: nothing ticks until you clock in */
+/* sabah: mesaiye başlayana kadar hiçbir şey işlemez */
 .shiftGate {
   position: absolute;
   inset: 0;
@@ -1129,7 +1129,7 @@
   filter: brightness(1.08);
 }
 
-/* the AI's verdict: a bubble hanging off its badge */
+/* yapay zekânın kararı: rozetinden sarkan bir baloncuk */
 .systemBox {
   position: relative;
   overflow: visible;
@@ -1214,7 +1214,7 @@ button.systemIconBadge {
   }
 }
 
-/* ── the candidate file: everything on one screen, no scrolling ── */
+/* ── aday dosyası: her şey tek ekranda, kaydırma yok ── */
 .candidateCard {
   padding: 16px 20px 16px;
   gap: 10px;
@@ -1243,7 +1243,7 @@ button.systemIconBadge {
   font-size: calc(13px * var(--ts, 1));
 }
 
-/* the reference call sits top-right, level with the name */
+/* referans araması sağ üstte, isimle aynı hizada durur */
 .headerRef {
   flex-shrink: 0;
   max-width: 45%;
@@ -1259,7 +1259,7 @@ button.systemIconBadge {
   min-height: 0;
 }
 
-/* ── the CV: a real résumé layout ── */
+/* ── CV: gerçek bir özgeçmiş düzeni ── */
 .cvHead {
   display: flex;
   align-items: flex-start;
@@ -1283,7 +1283,7 @@ button.systemIconBadge {
   min-height: 0;
 }
 
-/* the end-of-file marker (CvBody: useSeenToEnd) */
+/* dosya sonu işareti (CvBody: useSeenToEnd) */
 .cvEnd {
   grid-column: 1 / -1;
   height: 1px;
@@ -1439,7 +1439,7 @@ button.systemIconBadge {
   color: #1c2335;
 }
 
-/* the scan: a light sweeps each section in turn, with a thin reading line */
+/* tarama: bir ışık sırayla her bölümü süpürür, ince bir okuma çizgisiyle */
 .scanSweep {
   animation: sectionScan 0.9s ease-in-out both;
   animation-delay: var(--scan-delay, 0s);
@@ -1489,7 +1489,7 @@ button.systemIconBadge {
   }
 }
 
-/* section-by-section reading in the AI bubble */
+/* yapay zekâ baloncuğunda bölüm bölüm okuma */
 .sectionNotes {
   list-style: none;
   margin: 8px 0 8px;
@@ -1521,13 +1521,13 @@ button.systemIconBadge {
   font-weight: 700;
 }
 
-/* the stamp lands on the body of the CV, not on the header's buttons */
+/* damga başlığın düğmelerine değil, CV'nin gövdesine düşer */
 .candidateCard .stamp {
   top: 118px;
   right: 34px;
 }
 
-/* ── CV, second pass: warm paper like the rest of the portal, and it fills the sheet ── */
+/* ── CV, ikinci geçiş: portalın geri kalanı gibi sıcak kâğıt ve sayfayı doldurur ── */
 .candidateCard {
   background: #fffdf7;
   border: 1px solid var(--border-muted);
@@ -1599,7 +1599,7 @@ button.systemIconBadge {
   color: var(--ink);
 }
 
-/* the questions take whatever height is left in the main column */
+/* sorular ana sütunda kalan yüksekliği alır */
 .cvMain > .cvSection:last-child {
   flex: 1;
 }
@@ -1625,8 +1625,8 @@ button.systemIconBadge {
   display: none;
 }
 
-/* On a short screen the CV scrolls inside the card; the header and the decision buttons stay
-   put. Without this the file spilled over the buttons and took their clicks. */
+/* Kısa ekranda CV kartın içinde kayar; başlık ve karar düğmeleri yerinde kalır. Bu olmadan
+   dosya düğmelerin üstüne taşıyor ve tıklamalarını alıyordu. */
 .candidateCard > .cvHead,
 .candidateCard > .actionArea,
 .candidateCard > .decisionBar {
@@ -1639,13 +1639,13 @@ button.systemIconBadge {
   scrollbar-width: thin;
 }
 
-/* more of the CV below: its bottom edge fades out */
+/* altta CV'nin devamı var: alt kenarı soluklaşır */
 .cvBodyMore {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
 }
 
-/* A short screen (a 13" laptop, a browser with toolbars): the CV tightens up so that it fits
-   on one screen for most people; the longest still scroll, with the fade above. */
+/* Kısa ekran (13" bir dizüstü, araç çubukları olan bir tarayıcı): CV sıkılaşır ve çoğu kişide
+   tek ekrana sığar; en uzunlar yine üstteki solmayla kayar. */
 @media (max-height: 820px) {
   .portalArea .candidateCard {
     padding: 12px 18px;
@@ -1699,7 +1699,7 @@ button.systemIconBadge {
   }
 }
 
-/* the ATS parse report inside the AI note: what the machine actually counted */
+/* yapay zekâ notundaki ATS ayrıştırma raporu: makinenin gerçekte ne saydığı */
 .ats {
   margin-top: 8px;
   padding: 8px 10px;
@@ -1766,10 +1766,10 @@ button.systemIconBadge {
   text-decoration: line-through;
 }
 
-/* the analysis opens wide, over the CV, so everything it says fits without scrolling */
+/* analiz geniş açılır, CV'nin üstünde; söylediği her şey kaydırmadan sığsın */
 .noteBubble {
-  /* placed in the portal area, not in the right column (AiPanel: useNotePlacement sets top,
-     right and max-height): the column scrolls, and would cut the note down to its own width */
+  /* sağ sütuna değil portal alanına yerleşir (AiPanel: useNotePlacement top, right ve
+     max-height'ı ayarlar): sütun kayar ve notu kendi genişliğine kırpardı */
   left: auto;
   z-index: 30;
   width: min(660px, calc(100vw - 360px));
@@ -1792,8 +1792,8 @@ button.systemIconBadge {
   margin-top: 0;
 }
 
-/* a narrow window: one column, still opening wide over the CV rather than squeezed into the
-   right column, and scrolling inside itself instead of running off the bottom of the screen */
+/* dar pencere: tek sütun; sağ sütuna sıkışmak yerine yine CV'nin üstünde geniş açılır ve
+   ekranın altından taşmak yerine kendi içinde kayar */
 @media (max-width: 960px) {
   .noteBubble {
     width: min(480px, calc(100vw - 48px));
@@ -1804,8 +1804,8 @@ button.systemIconBadge {
   }
 }
 
-/* At the computer the pointer is the computer's: a classic arrow, and a hand over things you can
-   click. The cursor is inherited, so setting it on the layer covers everything inside. */
+/* Bilgisayardayken imleç bilgisayarındır: klasik bir ok, tıklanabilir şeylerin üstünde bir el.
+   İmleç kalıtımla geçer, bu yüzden katmana vermek içindeki her şeyi kapsar. */
 .pcLayer {
   cursor:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 16 24'%3E%3Cpath d='M1.5 1.5 L1.5 18.5 L5.6 14.6 L8.4 21.2 L11 20.1 L8.3 13.6 L13.8 13.6 Z' fill='white' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1,
@@ -1826,7 +1826,7 @@ button.systemIconBadge {
   cursor: text;
 }
 
-/* notices waiting for 17:00, one click from editing */
+/* 17:00'yi bekleyen bildirimler, düzenlemeye bir tık uzaklıkta */
 .outboxNote {
   display: flex;
   align-items: center;
@@ -1849,12 +1849,11 @@ button.systemIconBadge {
   text-decoration: underline;
 }
 
-/* ── A narrow CV card (a 1024px laptop, a half-screen window) ──
-   The card, not the window, decides. The résumé keeps its two columns (one column was tried:
-   the sidebar's facts then stack under the profile and the CV gets longer, not shorter); what
-   goes is the waste around it. The head drops from four lines to three — name and the
-   reference call share the first, role and place get the full width below — and the decision
-   buttons stop wrapping onto two lines. */
+/* ── Dar bir CV kartı (1024px bir dizüstü, yarım ekran pencere) ──
+   Pencere değil kart karar verir. Özgeçmiş iki sütununu korur (tek sütun denendi: yan
+   sütunun bilgileri profilin altına yığılıyor ve CV kısalacağına uzuyordu); giden şey
+   etrafındaki boşluktur. Başlık dört satırdan üçe iner — isim ve referans araması ilk satırı
+   paylaşır, rol ve yer altta tam genişliği alır — ve karar düğmeleri iki satıra kaymaz. */
 .portalArea .candidateCard {
   container: cv / inline-size;
 }
@@ -1899,9 +1898,9 @@ button.systemIconBadge {
   }
 }
 
-/* a narrow window: the right column gives the CV a little more room */
+/* dar pencere: sağ sütun CV'ye biraz daha yer bırakır */
 @media (max-width: 1100px) {
-  /* the AI box's button goes under its title rather than squeezing it onto three lines */
+  /* yapay zekâ kutusunun düğmesi başlığı üç satıra sıkıştırmak yerine onun altına geçer */
   .systemHeader {
     flex-wrap: wrap;
   }
@@ -1911,8 +1910,8 @@ button.systemIconBadge {
   }
 }
 
-/* A short screen: the decision row gives the CV back what it can — slimmer buttons, and on a
-   wide card the quota sits beside them instead of on a line of its own. */
+/* Kısa ekran: karar satırı CV'ye verebildiğini geri verir; daha ince düğmeler ve geniş
+   kartta kontenjan kendi satırında değil onların yanında durur. */
 @media (max-height: 820px) {
   .actionArea {
     gap: 4px;
@@ -1942,8 +1941,8 @@ button.systemIconBadge {
   }
 }
 
-/* A phone on its side: the file can't share ~250px with its header and the decision row, so
-   the whole card scrolls — header, file — with the decision row kept at its bottom edge. */
+/* Yan çevrilmiş telefon: dosya ~250px'i başlığı ve karar satırıyla paylaşamaz; bu yüzden
+   bütün kart kayar (başlık, dosya), karar satırı alt kenarında tutulur. */
 @media (max-height: 520px) {
   .portalArea .candidateCard {
     overflow-y: auto;
@@ -1975,17 +1974,17 @@ button.systemIconBadge {
   }
 }
 
-/* A very narrow CV card (an upright tablet, ~320px: the queue and the right column take their
-   share): one column, sidebar under the main part, instead of two columns of a few words each.
-   Not on a 1024px laptop (the card is ~520px there): see above why two columns stay. This
-   follows the card's own width, not the screen's (docs/yerlesim.md). */
+/* Çok dar bir CV kartı (dik tutulan tablet, ~320px: kuyruk ve sağ sütun paylarını alır): her
+   biri birkaç kelimelik iki sütun yerine tek sütun, yan bölüm ana kısmın altında. 1024px
+   dizüstünde değil (orada kart ~520px): iki sütunun neden kaldığı yukarıda. Bu, ekranın değil
+   kartın kendi genişliğini izler (docs/yerlesim.md). */
 @container cv (max-width: 420px) {
   .cvBody {
     grid-template-columns: 1fr;
   }
 }
 
-/* ── the end of the day (QueueSidebar: DayFinish) ── */
+/* ── günün sonu (QueueSidebar: DayFinish) ── */
 .finishCard {
   display: flex;
   flex-direction: column;
@@ -2047,7 +2046,7 @@ button.systemIconBadge {
   text-align: center;
 }
 
-/* everything decided: the button lights up */
+/* her şey karara bağlandı: düğme yanar */
 .finishReady {
   border-color: rgba(63, 107, 99, 0.45);
   background: linear-gradient(180deg, #f2f7f4, var(--paper-light));
@@ -2088,7 +2087,7 @@ button.systemIconBadge {
   }
 }
 
-/* ── The AI box: a portal module like the others — paper card, blue "system" accent ── */
+/* ── Yapay zekâ kutusu: diğerleri gibi bir portal modülü — kâğıt kart, mavi "sistem" vurgusu ── */
 .systemBox {
   background: var(--paper-light);
   border: 1px solid var(--border-muted);
@@ -2126,7 +2125,7 @@ button.systemIconBadge {
 
 .systemBox .analyzeButton {
   color: #fff;
-  /* --blue-ink, not --blue: white on --blue is only 4.2:1 */
+  /* --blue değil --blue-ink: --blue üzerinde beyaz yalnızca 4.2:1 */
   border-color: var(--blue-ink);
   background: var(--blue-ink);
   box-shadow: 0 2px 6px rgba(76, 127, 176, 0.3);
@@ -2142,7 +2141,7 @@ button.systemIconBadge {
   box-shadow: none;
 }
 
-/* the report: a paper sheet laid over the CV, set out like the portal's own panels */
+/* rapor: CV'nin üstüne serilmiş, portalın kendi panelleri gibi düzenlenmiş bir kâğıt */
 .noteBubble {
   background: var(--paper-light);
   color: var(--ink);
@@ -2245,7 +2244,7 @@ button.systemIconBadge {
   color: var(--ink);
 }
 
-/* while the AI reads, the CV is behind faint graph paper: the machine's view of the page */
+/* yapay zekâ okurken CV soluk bir milimetrik kâğıdın arkasındadır: makinenin sayfaya bakışı */
 .candidateCardScanning .scanOverlay {
   background-image:
     linear-gradient(rgba(76, 127, 176, 0.07) 1px, transparent 1px),

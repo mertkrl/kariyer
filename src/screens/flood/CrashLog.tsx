@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import styles from './CrashLog.module.css';
 
 /*
- * Thursday's crash, the way a real one looks from the outside: the screening service's log
- * scrolling past — warnings, then timeouts and retries, then the fatal line — while the screen
- * tears and flickers, and at the end goes dark for a moment with nothing on the wire.
+ * Perşembe'nin çöküşü, dışarıdan gerçekte nasıl görünüyorsa öyle: eleme servisinin günlüğü
+ * akar — uyarılar, sonra zaman aşımları ve yeniden denemeler, sonra ölümcül satır — ekran yırtılıp
+ * titrer ve sonunda hatta hiçbir şey kalmadan bir an kararır.
  */
 
-/** The log lines and when (share of the run) each appears. */
+/** Günlük satırları ve her birinin ne zaman (akışın hangi payında) göründüğü. */
 const LINES: [number, 'info' | 'warn' | 'err' | 'fatal', string][] = [
   [0.0, 'info', 'ats-ranker  batch 4/12 · 1.418 belge sırada'],
   [0.08, 'warn', 'worker-3    heap %94 · GC 1.840 ms'],
@@ -35,7 +35,7 @@ export function CrashLog({ durationMs }: { durationMs: number }) {
     const ms = Math.round(at * durationMs);
     return `17:42:${String(8 + Math.floor(ms / 1000)).padStart(2, '0')}.${String(ms % 1000).padStart(3, '0')}`;
   };
-  // the last stretch: the screen loses its signal
+  // son bölüm: ekran sinyalini kaybeder
   const dark = t >= 0.82;
 
   return (

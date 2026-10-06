@@ -23,7 +23,7 @@ function formatDuration(totalSeconds: number) {
   return `${mm}:${ss < 10 ? '0' : ''}${ss}`;
 }
 
-/** "Bugünün İşlemleri" — progress, tallies and a live activity log for the current workday. */
+/** "Bugünün İşlemleri": ilerleme, sayımlar ve o günkü mesai için canlı bir etkinlik günlüğü. */
 export function DailyActivity({
   candidateIds,
   candidates,
@@ -45,7 +45,7 @@ export function DailyActivity({
 
   const recent = [...decisionLog].reverse();
 
-  // Pace: where you "should" be by now if the files were spread evenly over working hours.
+  // Tempo: dosyalar mesai saatlerine eşit dağıtılsaydı şu anda "olman gereken" yer.
   const workMinutes = WORKDAY_END_MIN - (BREAK_END_MIN - BREAK_START_MIN);
   const worked =
     workdayMinutes <= BREAK_START_MIN

@@ -1,12 +1,12 @@
 import type { EngineCore } from '../engineCore';
 import { RAIN_SRC } from '../engineCore';
 
-/* The open-plan office while you work: air conditioning, keyboards, distant phones, rain on the window. */
+/* Çalışırken açık ofis: klima, klavyeler, uzak telefonlar, pencerede yağmur. */
 
 /**
- * Open-plan office bed for the workday: room tone + air conditioning, colleagues typing in
- * bursts around the room, a distant desk phone, the printer and a low murmur of voices, plus
- * the wall clock. `setUrgency(1)` in the last hour doubles the clock and brings it forward.
+ * Mesai için açık ofis ses yatağı: oda tonu + klima, odanın çevresinde kesik kesik yazan iş
+ * arkadaşları, uzak bir masa telefonu, yazıcı ve alçak bir ses mırıltısı, artı duvar saati.
+ * Son saatte `setUrgency(1)` saati iki katına çıkarır ve öne getirir.
  */
 export function startOfficeAmbience(engine: EngineCore, rain = false): { setUrgency: (u: number) => void; stop: () => void } {
   const ctx = engine.ensureContext();
@@ -35,10 +35,10 @@ export function startOfficeAmbience(engine: EngineCore, rain = false): { setUrge
     sources.push(src);
     return g;
   };
-  bed('lowpass', 220, 0.5, 0.02); // room tone / AC
-  // a rainy day: the recording, soft, as heard through the office windows
+  bed('lowpass', 220, 0.5, 0.02); // oda tonu / klima
+  // yağmurlu bir gün: kayıt, yumuşak, ofis pencerelerinden duyulduğu gibi
   if (rain) engine.loopSample(RAIN_SRC, bus, 0.35, sources, () => !stopped, () => {});
-  const murmur = bed('bandpass', 520, 0.9, 0.012); // voices, far away
+  const murmur = bed('bandpass', 520, 0.9, 0.012); // sesler, çok uzaktan
   const lfo = ctx.createOscillator();
   lfo.frequency.value = 0.23;
   const lfoDepth = ctx.createGain();
@@ -89,7 +89,7 @@ export function startOfficeAmbience(engine: EngineCore, rain = false): { setUrge
   every(28, 55, deskPhone, 14);
   every(40, 75, printer, 24);
 
-  // Wall clock: one tick per real second, twice as fast and closer in the last hour.
+  // Duvar saati: gerçek saniye başına bir tık, son saatte iki kat hızlı ve daha yakın.
   let tock = false;
   const tick = () => {
     if (stopped) return;

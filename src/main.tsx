@@ -12,7 +12,7 @@ import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/pr
 
 applyTextScale(loadTextScale())
 
-// The engine must know the saved mute state and volumes before the very first click sound.
+// Ses motoru, ilk tık sesinden önce kayıtlı sessiz modunu ve ses seviyelerini bilmeli.
 audioEngine.setMuted(readStoredMuted())
 audioEngine.setMusicVolume(initialMusicVolume)
 audioEngine.setSfxVolume(initialSfxVolume)
@@ -28,6 +28,6 @@ createRoot(document.getElementById('root')!).render(
 
 registerServiceWorker()
 
-// the sound scenes are not needed for the first screen: fetch them once it has drawn
+// ses sahneleri ilk ekran için gerekmez: ekran çizildikten sonra indirilir
 const idle = window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 1500))
 idle(() => void audioEngine.loadScenes())

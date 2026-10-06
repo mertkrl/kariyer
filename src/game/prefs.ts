@@ -1,6 +1,6 @@
 /*
- * Sound preferences, kept in this browser apart from the save. Light on purpose: the page reads
- * them before the first sound plays, long before the game itself has loaded.
+ * Ses tercihleri, kayıttan ayrı olarak bu tarayıcıda tutulur. Bilerek hafif: sayfa onları ilk ses
+ * çalmadan, oyunun kendisi yüklenmeden çok önce okur.
  */
 export const MUTED_STORAGE_KEY = 'kariyerweb-muted';
 

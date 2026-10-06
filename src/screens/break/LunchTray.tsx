@@ -13,12 +13,12 @@ interface Props {
   bumped: string | null;
 }
 
-/** Bread, lemon, soup, cutlery, the tabldot tray and the ayran: everything you can eat. */
+/** Ekmek, limon, çorba, çatal bıçak, tabldot tepsisi ve ayran: yenebilecek her şey. */
 export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
   const { bread, eatBread, squeezeLemon, lemonPhase, lemonSqueezed, sipSoup, soup, soupRatio, soupColors, juiceActive, eatDish, dishes, drinkAyran, ayran, ayranRatio } = lunch;
   return (
     <>
-      {/* Bread slices */}
+      {/* Ekmek dilimleri */}
       {bread.map((b, i) => {
         const [x, y, r] = i === 0 ? [72, 582, -12] : [128, 612, 8];
         return (
@@ -56,7 +56,7 @@ export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
         );
       })}
 
-      {/* Lemon on a small plate */}
+      {/* Küçük bir tabakta limon */}
       <ellipse cx="96" cy="480" rx="34" ry="9" fill="#f4f1ea" stroke="#d8d2c2" />
       <Hit label="Limon — çorbaya sık" onActivate={squeezeLemon}>
         <g className={`${styles.lemonMover} ${lemonPhase !== 'plate' ? styles.lemonLifted : ''}`}>
@@ -76,7 +76,7 @@ export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
         </g>
       </Hit>
 
-      {/* Soup bowl */}
+      {/* Çorba kâsesi */}
       <Hit label={menu.soup.name} onActivate={sipSoup} bumped={bumped === 'soup'}>
         <g transform="translate(220 512)">
           <ellipse cx="0" cy="0" rx="42" ry="7" fill="#e4dfd2" />
@@ -121,7 +121,7 @@ export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
                 ))}
             </g>
           )}
-          {/* Soup spoon resting on the rim */}
+          {/* Kenara dayanmış çorba kaşığı */}
           <path d="M38,-66 L96,-104" stroke="#aab1b6" strokeWidth="5" strokeLinecap="round" />
           <ellipse cx="30" cy="-62" rx="11" ry="5" fill="#c5cbcf" transform="rotate(-30 30 -62)" />
         </g>
@@ -144,7 +144,7 @@ export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
         </g>
       )}
 
-      {/* Napkin with fork & knife */}
+      {/* Çatal ve bıçaklı peçete */}
       <g transform="translate(328 556) scale(1 0.6)">
         <rect x="-22" y="-110" width="44" height="220" rx="3" fill="#fbfaf5" stroke="#e1dccd" />
         <line x1="0" y1="-110" x2="0" y2="110" stroke="#e8e3d5" />
@@ -159,7 +159,7 @@ export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
         </g>
       </g>
 
-      {/* ── Tabldot tray ── */}
+      {/* ── Tabldot tepsisi ── */}
       <g transform="translate(600 548) scale(0.9 0.56)">
         <rect x="-268" y="-178" width="536" height="356" rx="30" fill="#8d949a" />
         <rect x="-264" y="-174" width="528" height="344" rx="28" fill={`url(#${id('steel')})`} />
@@ -186,7 +186,7 @@ export function LunchTray({ id, menu, dayIndex, lunch, bumped }: Props) {
         );
       })}
 
-      {/* Ayran cup */}
+      {/* Ayran bardağı */}
       <Hit label="Ayran" onActivate={drinkAyran} bumped={bumped === 'ayran'}>
         <g transform="translate(878 504)">
           <path d="M-26,-78 L-20,0 L20,0 L26,-78 Z" fill="#fbfbf8" stroke="#d6d9dc" />

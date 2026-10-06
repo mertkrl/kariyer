@@ -1,10 +1,10 @@
 import { clamp, glow, glowRect, mix, pick, range, rgba, scale, type RGB, type Rng } from './kit';
 
 /*
- * Rush-hour traffic in perspective. Every lane is a closed loop (cars leaving the far end come
- * back in behind the camera), vehicles follow the car ahead with the Intelligent Driver Model —
- * so stop-and-go waves, brake-light ripples and queues at red lights emerge by themselves.
- * Near vehicles are drawn as shaded 3D boxes (body + cabin), far ones as their lights only.
+ * Perspektifte akşam trafiği. Her şerit kapalı bir döngüdür (uzak uçtan çıkan arabalar kameranın
+ * arkasından geri girer); araçlar öndeki arabayı Akıllı Sürücü Modeli ile izler, böylece dur-kalk
+ * dalgaları, fren lambası dalgalanmaları ve kırmızı ışıktaki kuyruklar kendiliğinden oluşur. Yakın
+ * araçlar gölgeli 3B kutular (gövde + kabin), uzaktakiler yalnızca ışıkları olarak çizilir.
  */
 
 export interface Persp {
@@ -22,7 +22,7 @@ export function project(p: Persp, X: number, Y: number, Z: number): [number, num
 export interface LanePoint {
   X: number;
   Z: number;
-  /** Unit direction of travel in the ground plane. */
+  /** Zemin düzleminde birim hareket yönü. */
   dx: number;
   dz: number;
 }
@@ -47,16 +47,16 @@ export interface Vehicle {
 export interface Lane {
   at: (u: number) => LanePoint;
   length: number;
-  /** Height of the road surface (e.g. a bridge deck). */
+  /** Yol yüzeyinin yüksekliği (ör. bir köprü tabliyesi). */
   Y: number;
   vehicles: Vehicle[];
-  /** Bus stop along the lane (u) and how long buses wait there. */
+  /** Şerit boyunca otobüs durağı (u) ve otobüslerin orada ne kadar beklediği. */
   stopAt?: number;
   dwell?: number;
-  /** Stop line (u) and whether the light is red for this lane. */
+  /** Durma çizgisi (u) ve ışığın bu şerit için kırmızı olup olmadığı. */
   signalAt?: number;
   red?: () => boolean;
-  /** Parked with hazard lights blinking (the servis queue at the curb). */
+  /** Dörtlüleri yanıp sönerek park etmiş (kaldırımdaki servis sırası). */
   hazard?: boolean;
 }
 
@@ -106,7 +106,7 @@ export function populate(lane: Lane, r: Rng, o: { spacing: [number, number]; v0:
   lane.vehicles = vs;
 }
 
-/** One step of the Intelligent Driver Model on a looped lane. */
+/** Döngülü bir şeritte Akıllı Sürücü Modeli'nin bir adımı. */
 export function stepLane(lane: Lane, dt: number) {
   const vs = lane.vehicles;
   const n = vs.length;
@@ -125,7 +125,7 @@ export function stepLane(lane: Lane, dt: number) {
     let dv = me.v - lead.v;
     if (red && lane.signalAt !== undefined) {
       const d = lane.signalAt - me.u;
-      // Only stop if there is room to — never slam on the brakes in the box.
+      // Yalnızca duracak yer varsa dur; kavşağın içinde asla sert fren yapma.
       if (d > 0.3 && d < 80 && d < gap && (d > me.v * 0.9 || me.v < 1)) {
         gap = d;
         dv = me.v;
@@ -133,8 +133,8 @@ export function stepLane(lane: Lane, dt: number) {
     }
     if (lane.stopAt !== undefined && !me.served && (me.kind === 'bus' || me.kind === 'metrobus')) {
       const d = lane.stopAt - me.u;
-      // The model always keeps a 2 m buffer to what's ahead, so the virtual obstacle sits 2 m past
-      // the stop — otherwise the bus would halt short of it and never open its doors.
+      // Model öndekiyle her zaman 2 m pay bırakır; bu yüzden sanal engel durağın 2 m ötesinde durur,
+      // yoksa otobüs durağın gerisinde durur ve kapılarını hiç açmazdı.
       if (d > -1 && d < 110 && d + 2 < gap) {
         gap = Math.max(0.05, d + 2);
         dv = me.v;
@@ -167,7 +167,7 @@ export function stepLane(lane: Lane, dt: number) {
   }
 }
 
-/** Random hesitation — a driver checks their phone — seeds the jam waves. */
+/** Rastgele duraksama (bir sürücü telefonuna bakar) sıkışıklık dalgalarını tetikler. */
 export function jostle(lanes: Lane[], dt: number, rate: number) {
   for (const lane of lanes) {
     if (Math.random() > rate * dt) continue;
@@ -180,10 +180,10 @@ export interface TrafficLook {
   ambient: RGB;
   ambientA: number;
   wet?: boolean;
-  /** Distance (m) over which lights fade into the haze. */
+  /** Işıkların pusa karıştığı mesafe (m). */
   haze?: number;
   headColor?: RGB;
-  /** Scales light sizes — distant scenes need bigger glows to read. */
+  /** Işık boyutlarını ölçekler: uzak sahnelerin okunmak için daha büyük parıltılara ihtiyacı var. */
   boost?: number;
 }
 
@@ -203,8 +203,8 @@ function shade(c: RGB, f: number, o: TrafficLook): RGB {
 }
 
 /**
- * Draws all vehicles with Z in [zMin, zMax]. Far vehicles are only light pairs (additive); near
- * ones get bodies in painter's order so they properly hide the lights behind them.
+ * Z'si [zMin, zMax] aralığındaki bütün araçları çizer. Uzak araçlar yalnızca ışık çiftleridir
+ * (eklemeli); yakınlar arkalarındaki ışıkları düzgünce gizlesin diye ressam sırasıyla gövde alır.
  */
 export function drawTraffic(g: CanvasRenderingContext2D, p: Persp, lanes: Lane[], o: TrafficLook, zMin: number, zMax: number, bodyK = 3.2, near = 2.5) {
   const items: Item[] = [];
@@ -212,7 +212,7 @@ export function drawTraffic(g: CanvasRenderingContext2D, p: Persp, lanes: Lane[]
     for (const v of lane.vehicles) {
       const pt = lane.at(v.u);
       const zc = pt.Z - pt.dz * v.len * 0.5;
-      // anything reaching behind the near plane would project to infinity
+      // yakın düzlemin arkasına uzanan her şey sonsuza izdüşürdü
       const zNear = Math.min(pt.Z, pt.Z - pt.dz * v.len) - v.wid;
       if (zc < zMin || zc > zMax || zNear < near) continue;
       items.push({ lane, v, pt });
@@ -220,14 +220,14 @@ export function drawTraffic(g: CanvasRenderingContext2D, p: Persp, lanes: Lane[]
   }
   items.sort((a, b) => b.pt.Z - a.pt.Z);
 
-  // Pass 1 — distant lights, a glowing river of red and white.
+  // 1. geçiş: uzak ışıklar, kırmızı ve beyaz parlayan bir nehir.
   g.globalCompositeOperation = 'lighter';
   for (const it of items) {
     const k = p.f / it.pt.Z;
     if (k >= bodyK) continue;
     lights(g, p, it, o, k, false);
   }
-  // Pass 2 — near vehicles back to front.
+  // 2. geçiş: yakın araçlar arkadan öne.
   for (const it of items) {
     const k = p.f / it.pt.Z;
     if (k < bodyK) continue;
@@ -272,7 +272,7 @@ function lights(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o:
     if (o.wet) reflect(g, p, x, yy, X, Z, lane.Y, baseR, col, a);
   }
   if (near && approach) {
-    // light pool on the asphalt in front of the car
+    // arabanın önünde asfalta düşen ışık havuzu
     const [x, yy, kk] = project(p, cx + pt.dx * 5, lane.Y, cz + pt.dz * 5);
     glowRect(g, x, yy, kk * 5, kk * 1.6, [255, 232, 200], 0.16 * hazeF);
   }
@@ -289,7 +289,7 @@ function lights(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o:
     glowRect(g, x, yy, k * 1.6, k * 0.35, [255, 150, 40], 0.7);
   }
   if (v.kind === 'servis') {
-    // orange LED "SERVİS" board on whichever end faces us
+    // bize bakan uçta turuncu LED "SERVİS" tabelası
     const [x, yy] = project(p, cx, lane.Y + v.hgt - 0.25, cz);
     glowRect(g, x, yy, Math.max(4, k * 1.5), Math.max(1.5, k * 0.32), [255, 140, 30], 0.85 * hazeF);
     if (k > 7) {
@@ -329,18 +329,18 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
   const camY = p.camH;
   const w = v.wid / 2;
 
-  // soft contact shadow
+  // yumuşak temas gölgesi
   const sh = [P(0.3, -w - 0.2, 0), P(0.3, w + 0.2, 0), P(-v.len - 0.3, w + 0.2, 0), P(-v.len - 0.3, -w - 0.2, 0)];
   g.fillStyle = 'rgba(0,0,0,0.38)';
   poly(g, sh);
 
   const box = (a0: number, a1: number, s0: number, s1: number, y0: number, y1: number, cSide: RGB, cTop: RGB, cEnd: RGB, cBack: RGB) => {
-    // face visibility from the camera position
+    // kamera konumundan yüzlerin görünürlüğü
     const cx = pt.X + fx * (a0 + a1) * 0.5;
     const cz = pt.Z + fz * (a0 + a1) * 0.5;
     const toCam = (nx: number, ny: number, nz: number, fxp: number, fyp: number, fzp: number) => nx * (camX - fxp) + ny * (camY - fyp) + nz * (0 - fzp) > 0;
     const faces: [boolean, [number, number, number][], RGB][] = [];
-    // front end (along = a0), normal = forward
+    // ön uç (boyunca = a0), normal = ileri
     faces.push([toCam(fx, 0, fz, pt.X + fx * a0, Y0 + (y0 + y1) / 2, pt.Z + fz * a0), [P(a0, s0, y0), P(a0, s1, y0), P(a0, s1, y1), P(a0, s0, y1)], cEnd]);
     faces.push([toCam(-fx, 0, -fz, pt.X + fx * a1, Y0 + (y0 + y1) / 2, pt.Z + fz * a1), [P(a1, s0, y0), P(a1, s1, y0), P(a1, s1, y1), P(a1, s0, y1)], cBack]);
     faces.push([toCam(rx, 0, rz, cx + rx * s1, Y0 + (y0 + y1) / 2, cz + rz * s1), [P(a0, s1, y0), P(a1, s1, y0), P(a1, s1, y1), P(a0, s1, y1)], cSide]);
@@ -354,7 +354,7 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     return faces;
   };
 
-  // a wheel on the side facing us, drawn in the side's own plane so it foreshortens properly
+  // bize bakan yandaki bir tekerlek, düzgün kısalsın diye yanın kendi düzleminde çizilir
   const wheel = (along: number, s: number, r: number) => {
     const ring = (rr: number) => Array.from({ length: 12 }, (_, i) => P(along + Math.cos((i / 12) * Math.PI * 2) * rr, s, r + Math.sin((i / 12) * Math.PI * 2) * rr));
     g.fillStyle = 'rgba(8,8,10,0.96)';
@@ -373,13 +373,13 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     const servis = v.kind === 'servis';
     const side = shade(v.body, servis ? 0.36 : 0.42, o);
     const faces = box(0, -v.len, -w, w, 0.35, v.hgt, side, shade([170, 172, 178], 0.55, o), shade(v.body, 0.5, o), shade(v.body, 0.5, o));
-    // roof-top AC units
+    // çatıdaki klima üniteleri
     if (faces[4][0]) {
       g.fillStyle = rgba(shade([200, 200, 205], 0.5, o));
       for (const a of [-2.2, -v.len + 3]) poly(g, [P(a, -0.7, v.hgt + 0.25), P(a, 0.7, v.hgt + 0.25), P(a - 1.6, 0.7, v.hgt + 0.25), P(a - 1.6, -0.7, v.hgt + 0.25)]);
     }
-    // lit interior: window band on every visible face, packed with commuters —
-    // except a servis, whose dark tinted glass shows nothing but the street reflected in it
+    // ışıklı iç mekân: görünen her yüzde, yolcularla dolu bir pencere şeridi;
+    // servis hariç: onun koyu filmli camı sokağın yansımasından başka bir şey göstermez
     const band = (pts: [number, number, number][]) => {
       g.fillStyle = servis ? rgba(shade([30, 34, 44], 1, o), 0.97) : rgba(CABIN, 0.9);
       poly(g, pts);
@@ -399,7 +399,7 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     if (frontVis) {
       endGlass(0);
       if (!servis) {
-        // the line's LED sign above the windscreen
+        // ön camın üstünde hattın LED tabelası
         g.fillStyle = 'rgba(12,10,8,0.95)';
         poly(g, [P(0, -w + 0.3, y1 + 0.38), P(0, w - 0.3, y1 + 0.38), P(0, w - 0.3, y1 + 0.68), P(0, -w + 0.3, y1 + 0.68)]);
         g.fillStyle = 'rgba(255,160,40,0.92)';
@@ -413,17 +413,17 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     ] as const) {
       if (!vis) continue;
       band([P(-0.8, s, y0), P(-v.len + 0.6, s, y0), P(-v.len + 0.6, s, y1), P(-0.8, s, y1)]);
-      // window mullions: a long bus is a row of panes, not one lit strip
+      // pencere kayıtları: uzun bir otobüs tek ışıklı şerit değil, bir dizi camdır
       if (!servis) for (let a = -2.4; a > -v.len + 1.2; a -= 1.55) sideStrip(a, a - 0.12, s, y0, y1, 'rgba(18,18,22,0.72)');
       if (v.kind === 'metrobus') {
-        // the articulation: a dark bellows with its folds
+        // körük: kıvrımlarıyla koyu bir körük
         sideStrip(-v.len / 2 + 0.45, -v.len / 2 - 0.45, s, 0.35, v.hgt, 'rgba(20,20,24,0.95)');
         for (let k2 = -0.3; k2 <= 0.31; k2 += 0.15) sideStrip(-v.len / 2 + k2, -v.len / 2 + k2 - 0.04, s, 0.4, v.hgt - 0.05, 'rgba(70,70,78,0.7)');
       }
-      // wheels: front axle, rear axle(s)
+      // tekerlekler: ön aks, arka aks(lar)
       const axles = v.kind === 'metrobus' ? [-2.6, -v.len / 2 - 2.2, -v.len + 2.4] : [-2.4, -v.len + 2.8];
       for (const a of axles) wheel(a, s, 0.5);
-      // stripe: white on buses, the company's blue band on a servis
+      // şerit: otobüslerde beyaz, serviste şirketin mavi bandı
       g.fillStyle = servis ? 'rgba(40,80,150,0.75)' : 'rgba(235,235,235,0.55)';
       poly(g, [P(-0.2, s, 0.8), P(-v.len + 0.2, s, 0.8), P(-v.len + 0.2, s, 0.95), P(-0.2, s, 0.95)]);
     }
@@ -432,7 +432,7 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
 
   const lowerTop = v.kind === 'van' ? 1.1 : 0.92;
   const lower = box(0, -v.len, -w, w, 0.28, lowerTop, shade(v.body, 0.3, o), shade(v.body, 0.44, o), shade(v.body, 0.38, o), shade(v.body, 0.38, o));
-  // details on the end facing us: bumper, plate, grille
+  // bize bakan uçtaki ayrıntılar: tampon, plaka, ızgara
   const [, , kk] = P(0, 0, 0.5);
   if (kk > 6) {
     const endA = lower[0][0] ? 0 : lower[1][0] ? -v.len : null;
@@ -450,7 +450,7 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
       }
     }
   }
-  // the side facing us: a light catching the shoulder line, and the wheels
+  // bize bakan yan: omuz çizgisini yakalayan bir ışık ve tekerlekler
   for (const [vis, s] of [
     [lower[2][0], w],
     [lower[3][0], -w],
@@ -466,7 +466,7 @@ function body(g: CanvasRenderingContext2D, p: Persp, { lane, v, pt }: Item, o: T
     box(-0.9, -v.len, -w * 0.97, w * 0.97, lowerTop, v.hgt, shade(v.body, 0.4, o), shade(v.body, 0.66, o), glass, shade(v.body, 0.45, o));
   } else {
     const cabin = box(-v.len * 0.26, -v.len * 0.78, -w * 0.86, w * 0.86, lowerTop, v.hgt, glass, shade(v.body, 0.4, o), glass, glass);
-    // the pillars between the windows, in the body colour
+    // pencereler arasındaki dikmeler, gövde renginde
     for (const [vis, s] of [
       [cabin[2][0], w * 0.86],
       [cabin[3][0], -w * 0.86],

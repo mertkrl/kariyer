@@ -94,7 +94,7 @@
   color: var(--text-dim);
 }
 
-/* ── Master switch ── */
+/* ── Ana anahtar ── */
 
 .switch {
   display: inline-flex;
@@ -148,7 +148,7 @@
   outline-offset: 2px;
 }
 
-/* ── Volume rows ── */
+/* ── Ses seviyesi satırları ── */
 
 .row {
   display: flex;
@@ -362,7 +362,7 @@
   user-select: all;
 }
 
-/* ── keyboard shortcuts: folded away until asked for ── */
+/* ── klavye kısayolları: istenene kadar katlı ── */
 .shortcuts {
   display: flex;
   flex-direction: column;

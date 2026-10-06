@@ -12,10 +12,10 @@ interface Workday {
   ringing: GameState['desk']['ringing'];
 }
 
-/** What the workday sounds like: the office, the lunch bell, the ringing landline, the music. */
+/** Mesainin sesi: ofis, öğle zili, çalan sabit hat, müzik. */
 export function useWorkdaySounds({ onBreak, meetingActive, paused, currentDayIndex, workdayMinutes, ringing }: Workday) {
-  // Open-plan office sound bed while working (the cafeteria has its own ambience). During
-  // Wednesday's video call you're in your headphones: no office, no rain on the window.
+  // Çalışırken açık ofis ses yatağı (yemekhanenin kendi ortam sesi var). Çarşamba'nın
+  // görüntülü görüşmesinde kulaklıktasın: ofis yok, pencerede yağmur yok.
   const office = useRef<ReturnType<typeof audioEngine.startOfficeAmbience> | null>(null);
   useEffect(() => {
     if (onBreak || meetingActive) return;
@@ -29,14 +29,14 @@ export function useWorkdaySounds({ onBreak, meetingActive, paused, currentDayInd
     office.current?.setUrgency(workdayMinutes >= 480 ? 1 : 0);
   }, [workdayMinutes]);
 
-  // Lunch bell rings the moment the clock hits 12:00.
+  // Saat 12:00'yi vurduğu anda öğle zili çalar.
   const wasOnBreak = useRef(onBreak);
   useEffect(() => {
     if (onBreak && !wasOnBreak.current) audioEngine.playLunchBell();
     wasOnBreak.current = onBreak;
   }, [onBreak]);
 
-  // The landline keeps ringing until you pick it up or it gives up.
+  // Sabit hat sen açana ya da kendisi vazgeçene kadar çalmaya devam eder.
   useEffect(() => {
     if (!ringing || paused || onBreak) return;
     audioEngine.playDeskRing();

@@ -1,9 +1,9 @@
 import type { Cam } from './kit';
 
-/** One animated day-end tableau, drawn on a 1600×900 virtual stage. */
+/** 1600×900 sanal sahneye çizilen, hareketli tek bir gün sonu tablosu. */
 export interface CityScene {
   caption: string;
-  /** (Re)render the static layers at `px` device pixels per stage unit. */
+  /** Sabit katmanları sahne birimi başına `px` cihaz pikseliyle (yeniden) çiz. */
   build(px: number): void;
   update(dt: number, t: number): void;
   draw(g: CanvasRenderingContext2D, t: number, cam: Cam): void;

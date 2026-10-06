@@ -9,7 +9,7 @@ interface CommentSheetProps {
   onClose: () => void;
 }
 
-/** Bottom sheet with a post's comments and quick replies to pick from. */
+/** Bir gönderinin yorumlarını ve seçilecek hızlı cevapları gösteren alt sayfa. */
 export function CommentSheet({ post, onComment, onClose }: CommentSheetProps) {
   return (
     <div className={styles.sheetScrim} onClick={onClose}>

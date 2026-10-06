@@ -1,13 +1,13 @@
-// Offline synthesizer: renders the calm workday loop ("focus", F major, 66 BPM, ~2 minutes).
-// Run with: node scripts/generate-calm-music.mjs
-// No npm deps — pure DSP + a hand-written WAV writer. On macOS the WAV is encoded to AAC (.m4a)
-// with the built-in `afconvert`; elsewhere `ffmpeg` is used if present.
+// Çevrimdışı sentezleyici: sakin mesai döngüsünü üretir ("odak", Fa majör, 66 BPM, ~2 dakika).
+// Çalıştırmak için: node scripts/generate-calm-music.mjs
+// npm bağımlılığı yok: saf DSP + elle yazılmış bir WAV yazıcısı. macOS'te WAV, yerleşik `afconvert`
+// ile AAC'ye (.m4a) kodlanır; başka yerlerde varsa `ffmpeg` kullanılır.
 //
-// Made to sit under hours of reading CVs without ever asking for attention: no drums, no clock,
-// no hooks. Warm pads and held electric-piano chords breathe slowly; a felt piano drops a few
-// notes now and then. The long loop (32 bars) keeps it from feeling repetitive.
-//   bars 1–16   pad + held electric piano + soft bass, occasional piano arpeggio
-//   bars 17–32  the same harmony with a sparse, unhurried felt-piano melody
+// Saatlerce CV okumanın altında hiç dikkat istemeden durmak için yapıldı: davul yok, saat yok,
+// akılda kalan motif yok. Sıcak padler ve tutulan elektrik piyano akorları yavaşça nefes alır; bir
+// keçe piyano ara sıra birkaç nota düşürür. Uzun döngü (32 ölçü) onun tekrar ediyormuş gibi gelmesini önler.
+//   1–16. ölçüler  pad + tutulan elektrik piyano + yumuşak bas, ara sıra piyano arpeji
+//   17–32. ölçüler  aynı armoni, seyrek ve acelesiz bir keçe piyano melodisiyle
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -24,10 +24,10 @@ const BEAT = 60 / BPM;
 const BAR = BEAT * 4;
 const BARS = 32;
 const LOOP_SAMPLES = Math.round(BAR * BARS * SR);
-const TAIL_SAMPLES = 8 * SR; // rendered past the loop end, then folded back onto the start
+const TAIL_SAMPLES = 8 * SR; // döngü sonunun ötesine çizilir, sonra başa katlanır
 const TOTAL = LOOP_SAMPLES + TAIL_SAMPLES;
 
-// ── Utilities ────────────────────────────────────────────────────────────────
+// ── Yardımcılar ──────────────────────────────────────────────────────────────
 
 const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
@@ -43,13 +43,13 @@ function mulberry32(seed) {
 const rand = mulberry32(2026);
 const jitter = (amount) => (rand() * 2 - 1) * amount;
 
-/** A stereo bus: dry L/R plus a mono reverb send. */
+/** Bir stereo hat: kuru L/R artı mono bir yankı gönderimi. */
 function bus() {
   return { L: new Float32Array(TOTAL), R: new Float32Array(TOTAL), send: new Float32Array(TOTAL) };
 }
 const dry = bus();
 
-/** Renders `fn(t, n)` for `dur` seconds (plus release) at `start` seconds, equal-power panned. */
+/** `fn(t, n)`i `start` saniyesinde `dur` saniye (artı bırakma) boyunca, eşit güçle kaydırarak çizer. */
 function voice({ start, dur, gain, pan = 0, send = 0, release = 0.12, fn, panLfo }) {
   const s0 = Math.round(start * SR);
   const len = Math.round((dur + release) * SR);
@@ -68,11 +68,11 @@ function voice({ start, dur, gain, pan = 0, send = 0, release = 0.12, fn, panLfo
   }
 }
 
-// ── Instruments ──────────────────────────────────────────────────────────────
+// ── Çalgılar ─────────────────────────────────────────────────────────────────
 
 const tw = 2 * Math.PI;
 
-/** Mellow electric piano: gentle FM, slow bloom, barely any tremolo. */
+/** Yumuşak elektrik piyano: hafif FM, yavaş açılma, neredeyse hiç tremolo yok. */
 function electricPiano(midi, start, dur, vel, pan) {
   const f = mtof(midi);
   voice({
@@ -91,7 +91,7 @@ function electricPiano(midi, start, dur, vel, pan) {
   });
 }
 
-/** Round, quiet bass: a sine with a whisper of 2nd harmonic. */
+/** Yuvarlak, sessiz bas: 2. harmoniğin fısıltısıyla bir sinüs. */
 function bass(midi, start, dur, vel) {
   const f = mtof(midi);
   voice({
@@ -106,7 +106,7 @@ function bass(midi, start, dur, vel) {
   });
 }
 
-/** Felt piano: soft hammer, dark partials, long sustain into the reverb. */
+/** Keçe piyano: yumuşak çekiç, koyu harmonikler, yankıya uzanan uzun sürdürüm. */
 function feltPiano(midi, start, dur, vel, pan = 0.15) {
   const f = mtof(midi);
   voice({
@@ -123,7 +123,7 @@ function feltPiano(midi, start, dur, vel, pan = 0.15) {
   });
 }
 
-/** Warm pad: detuned soft saws through a slow swell, the bed everything rests on. */
+/** Sıcak pad: yavaş bir kabarmadan geçen, akordu kaymış yumuşak testereler; her şeyin üstüne yaslandığı yatak. */
 function pad(midis, start, dur) {
   for (const midi of midis) {
     const f = mtof(midi);
@@ -147,8 +147,8 @@ function pad(midis, start, dur) {
   }
 }
 
-// ── Score ────────────────────────────────────────────────────────────────────
-// One chord per two bars: voicing for pad/EP + bass root.
+// ── Nota ─────────────────────────────────────────────────────────────────────
+// İki ölçüde bir akor: pad/EP için dizilim + bas kökü.
 
 const CHORDS = [
   { ep: [57, 60, 64, 67], bass: 41 }, // Fmaj9
@@ -161,7 +161,7 @@ const CHORDS = [
   { ep: [56, 61, 65, 67], bass: 46 }, // Bbm6 — a little bittersweet before home
 ];
 
-// Felt-piano melody, second half: [bar, beat, midi, duration(beats)]
+// Keçe piyano melodisi, ikinci yarı: [ölçü, vuruş, midi, süre(vuruş)]
 const MELODY = [
   [16, 1, 72, 2], [17, 0, 69, 3],
   [18, 2, 74, 2], [19, 1, 72, 3],
@@ -179,14 +179,14 @@ for (let i = 0; i < BARS / 2; i++) {
   const chord = CHORDS[i % CHORDS.length];
   const bar = i * 2;
   pad(chord.ep.map((m) => m - 12), at(bar, 0), BAR * 2);
-  // held chord, softly rolled, re-touched halfway through
+  // tutulan akor, yumuşakça yuvarlanarak, yarısında yeniden dokunularak
   chord.ep.forEach((midi, v) => {
     electricPiano(midi, at(bar, 0) + v * 0.035 + jitter(0.01), BAR * 1.2, 0.7 + jitter(0.05), -0.3 + v * 0.2);
     electricPiano(midi, at(bar + 1, 0.5) + v * 0.03 + jitter(0.01), BAR * 0.9, 0.45 + jitter(0.05), -0.3 + v * 0.2);
   });
   bass(chord.bass, at(bar, 0), BAR * 1.1, 0.9);
   bass(chord.bass, at(bar + 1, 2), BAR * 0.45, 0.55);
-  // first half: a slow, broken arpeggio now and then
+  // ilk yarı: ara sıra yavaş, kırık bir arpej
   if (bar < 16 && i % 2 === 1) {
     const notes = [chord.ep[0] + 12, chord.ep[2] + 12, chord.ep[3] + 12, chord.ep[1] + 12];
     notes.forEach((m, k) => feltPiano(m, at(bar, 1 + k * 1.5) + jitter(0.02), BEAT * 1.6, 0.55 + jitter(0.06), 0.25 - k * 0.1));
@@ -197,7 +197,7 @@ for (const [bar, beat, midi, dur] of MELODY) {
   feltPiano(midi, at(bar, beat) + jitter(0.015), dur * BEAT, 0.8 + jitter(0.08));
 }
 
-// ── Reverb (Freeverb-style: 8 damped combs + 4 allpasses per side) ───────────
+// ── Yankı (Freeverb tarzı: taraf başına 8 sönümlü tarak + 4 tüm geçiren) ─────
 
 function freeverb(input, stereoSpread) {
   const scale = SR / 44100;
@@ -233,7 +233,7 @@ function freeverb(input, stereoSpread) {
   return out;
 }
 
-// Reverb is rendered twice around the loop so its state at the loop start matches the end.
+// Yankı döngünün çevresinde iki kez çizilir, böylece döngü başındaki durumu sonla eşleşir.
 function circular(buf) {
   const twice = new Float32Array(TOTAL + LOOP_SAMPLES);
   twice.set(buf, 0);
@@ -244,7 +244,7 @@ const sendTwice = circular(dry.send);
 const wetL2 = freeverb(sendTwice, 0);
 const wetR2 = freeverb(sendTwice, 23);
 
-// ── Mixdown: fold everything past the loop point back onto the start ─────────
+// ── Karışım: döngü noktasının ötesindeki her şeyi başa katla ─────────────────
 
 const L = new Float32Array(LOOP_SAMPLES);
 const R = new Float32Array(LOOP_SAMPLES);
@@ -256,17 +256,17 @@ for (let i = 0; i < LOOP_SAMPLES; i++) {
     l += dry.L[LOOP_SAMPLES + i];
     r += dry.R[LOOP_SAMPLES + i];
   }
-  // Second pass of the reverb has already "heard" the previous loop — seamless.
+  // Yankının ikinci geçişi önceki döngüyü zaten "duydu": kesintisiz.
   l += wetL2[LOOP_SAMPLES + i] * WET;
   r += wetR2[LOOP_SAMPLES + i] * WET;
   L[i] = l;
   R[i] = r;
 }
 
-// DC / sub-rumble high-pass (~28 Hz) and gentle glue: soft saturation, then peak-normalize to -1.5 dBFS.
+// DC / alt gümbürtü yüksek geçireni (~28 Hz) ve hafif yapıştırma: yumuşak doygunluk, sonra -1.5 dBFS'ye tepe normalleştirme.
 function highpass(buf, cutoff) {
   const a = Math.exp((-2 * Math.PI * cutoff) / SR);
-  // Run twice so the filter state at the loop start matches the end.
+  // Filtre durumu döngü başında sonla eşleşsin diye iki kez çalıştır.
   let y = 0;
   let prev = 0;
   for (let pass = 0; pass < 2; pass++) {
@@ -290,7 +290,7 @@ for (let i = 0; i < LOOP_SAMPLES; i++) {
 }
 const norm = Math.pow(10, -1.5 / 20) / peak;
 
-// ── WAV encode ───────────────────────────────────────────────────────────────
+// ── WAV kodlama ──────────────────────────────────────────────────────────────
 
 const dataLength = LOOP_SAMPLES * 4;
 const wav = Buffer.alloc(44 + dataLength);
@@ -313,7 +313,7 @@ for (let i = 0, o = 44; i < LOOP_SAMPLES; i++, o += 4) {
   wav.writeInt16LE(to16(R[i] * norm), o + 2);
 }
 
-// ── Encode to AAC (.m4a) ─────────────────────────────────────────────────────
+// ── AAC'ye (.m4a) kodlama ────────────────────────────────────────────────────
 
 fs.mkdirSync(AUDIO_DIR, { recursive: true });
 const tmpWav = path.join(os.tmpdir(), `kariyerweb-calm-${process.pid}.wav`);

@@ -1,19 +1,20 @@
 import { audioEngine, type PourSound } from '../../audio/audioEngine';
 
 /*
- * Physically-modelled Turkish tea pour for the break room.
+ * Mola odası için fiziğe dayalı Türk çayı dökme.
  *
- * Glass: tulip profile (half-width by height), treated as a solid of revolution so the level
- * rises faster through the narrow waist. Volume is normalised: 1 = "full" (86% of the glass).
+ * Bardak: ince belli profil (yüksekliğe göre yarı genişlik), dönel bir cisim olarak ele alınır;
+ * böylece seviye dar belde daha hızlı yükselir. Hacim normalleştirilmiştir: 1 = "dolu"
+ * (bardağın %86'sı).
  *
- * Pour: first the demlik lifts off the kettle and pours strong brew (concentration 1), then the
- * kettle tilts and tops up with hot water (concentration 0). The brew amount is chosen so the
- * mix lands on "tavşan kanı" (≈0.42) whatever was left in the glass. Each stream is a ballistic
- * parabola; its width follows continuity (w ∝ 1/√speed) so it thins as it falls. Liquid only
- * counts once it reaches the surface; the impact throws droplets, rings and foam.
+ * Dökme: önce demlik çaydanlığın üstünden kalkar ve koyu demi döker (yoğunluk 1), sonra
+ * çaydanlık eğilip sıcak suyla tamamlar (yoğunluk 0). Dem miktarı, bardakta ne kalmış olursa
+ * olsun karışım "tavşan kanı"na (≈0.42) denk gelecek şekilde seçilir. Her akış balistik bir
+ * paraboldür; genişliği süreklilik ilkesine uyar (w ∝ 1/√hız), düştükçe incelir. Sıvı ancak
+ * yüzeye ulaşınca sayılır; çarpma damlacıklar, halkalar ve köpük çıkarır.
  */
 
-// ── Glass geometry (glass-local units: origin at the bottom centre, y up is negative) ──
+// ── Bardak geometrisi (bardağa göre birimler: başlangıç alt ortada, yukarı y negatif) ──
 
 export const GLASS_HEIGHT = 120;
 export const FULL_HEIGHT = GLASS_HEIGHT * 0.86;
@@ -39,7 +40,7 @@ export function glassHalfWidth(height: number) {
   return 28;
 }
 
-// Cumulative volume table: V(h) = ∫ π r(h)² dh, normalised so V(FULL_HEIGHT) = 1.
+// Birikimli hacim tablosu: V(h) = ∫ π r(h)² dh, V(FULL_HEIGHT) = 1 olacak şekilde normalleştirilmiş.
 const STEPS = 240;
 const VOLUME_TABLE: number[] = (() => {
   const table = [0];
@@ -53,7 +54,7 @@ const VOLUME_TABLE: number[] = (() => {
   return table.map((v) => v / acc);
 })();
 
-/** Liquid height (glass units) for a normalised volume 0–1. */
+/** Normalleştirilmiş 0–1 hacim için sıvı yüksekliği (bardak birimi). */
 export function heightForVolume(volume: number) {
   const v = Math.max(0, Math.min(1, volume));
   let lo = 0;
@@ -67,7 +68,7 @@ export function heightForVolume(volume: number) {
   return ((lo + (v - VOLUME_TABLE[lo]) / span) / STEPS) * FULL_HEIGHT;
 }
 
-// ── Colour of the brew by concentration ─────────────────────────────────────
+// ── Yoğunluğa göre demin rengi ──────────────────────────────────────────────
 
 const COLOR_STOPS: [number, [number, number, number]][] = [
   [0, [226, 236, 238]],
@@ -113,21 +114,21 @@ export function teaColors(concentration: number): TeaColors {
 
 export const TAVSAN_KANI = 0.42;
 
-// ── Pour animation ───────────────────────────────────────────────────────────
+// ── Dökme animasyonu ────────────────────────────────────────────────────────
 
-/** Scene position of the kettle group's origin and the glass origin. */
+/** Çaydanlık grubunun başlangıç noktasının ve bardağın sahnedeki konumu. */
 const KETTLE_ORIGIN = { x: 1100, y: 480 };
 const GLASS_ORIGIN = { x: 990, y: 586 };
 
 interface Vessel {
-  /** Spout tip and rotation pivot, kettle-local. */
+  /** Emzik ucu ve dönme ekseni, çaydanlığa göre. */
   tip: { x: number; y: number };
   pivot: { x: number; y: number };
-  /** Tilt at full pour (deg, negative = spout down) and where the tip should end up (scene). */
+  /** Tam dökmede eğim (derece, negatif = emzik aşağı) ve ucun varması gereken yer (sahne). */
   angle: number;
   target: { x: number; y: number };
-  rate: number; // normalised volume per second
-  width: number; // stream width at the spout
+  rate: number; // saniyedeki normalleştirilmiş hacim
+  width: number; // emzikteki akış genişliği
   color: string;
   highlight: string;
   sound: 'brew' | 'water';
@@ -157,7 +158,7 @@ const KETTLE: Vessel = {
   sound: 'water',
 };
 
-const GRAVITY = 1600; // px/s² in scene units — tuned so the fall reads as real at this scale
+const GRAVITY = 1600; // sahne biriminde px/s²: düşüş bu ölçekte gerçek görünsün diye ayarlandı
 const LIFT_TIME = 0.5;
 const RETURN_TIME = 0.45;
 
@@ -168,7 +169,7 @@ function rotate(p: { x: number; y: number }, c: { x: number; y: number }, deg: n
   return { x: c.x + dx * Math.cos(a) - dy * Math.sin(a), y: c.y + dx * Math.sin(a) + dy * Math.cos(a) };
 }
 
-/** Translation (kettle-local) that puts the rotated tip on the target point. */
+/** Dönmüş ucu hedef noktaya getiren öteleme (çaydanlığa göre). */
 function poseOffset(v: Vessel) {
   const tip = rotate(v.tip, v.pivot, v.angle);
   return { x: v.target.x - KETTLE_ORIGIN.x - tip.x, y: v.target.y - KETTLE_ORIGIN.y - tip.y };
@@ -185,7 +186,7 @@ export interface PourElements {
   fill: SVGRectElement;
   surface: SVGEllipseElement;
   stops: [SVGStopElement, SVGStopElement, SVGStopElement];
-  /** Pools of circles/ellipses inside the glass clip for splash, rings and foam. */
+  /** Sıçrama, halkalar ve köpük için bardak kırpma alanının içindeki daire/elips havuzları. */
   droplets: SVGCircleElement[];
   rings: SVGEllipseElement[];
   foam: SVGCircleElement[];
@@ -213,7 +214,7 @@ export interface PourPlan {
   stages: Stage[];
 }
 
-/** Brew first (enough to land on tavşan kanı), then water to the brim. */
+/** Önce dem (tavşan kanına yetecek kadar), sonra ağzına kadar su. */
 export function planPour(volume: number, concentration: number): PourPlan {
   const room = 1 - volume;
   let brew = Math.max(0, Math.min(room, TAVSAN_KANI - volume * concentration));
@@ -321,7 +322,7 @@ export function runPour(
   function frame(nowMs: number) {
     const now = nowMs / 1000;
     const realDt = now - last;
-    const dt = Math.min(0.034, realDt); // particles only — liquid volume uses real time
+    const dt = Math.min(0.034, realDt); // yalnızca parçacıklar; sıvı hacmi gerçek zamanı kullanır
     last = now;
     const stage = plan.stages[stageIndex];
     const v = stage.vessel;
@@ -330,7 +331,7 @@ export function runPour(
     const flowStart = LIFT_TIME * 0.85;
     const flowEnd = flowStart + flowDuration;
 
-    // Pose: lift + tilt in, hold (tilting a little further as the pot empties), return.
+    // Duruş: kalk + eğil, bekle (demlik boşaldıkça biraz daha eğil), geri dön.
     let p: number;
     if (t < LIFT_TIME) p = ease(t / LIFT_TIME);
     else if (t < LIFT_TIME + flowDuration) p = 1 + 0.08 * ((t - LIFT_TIME) / flowDuration);
@@ -345,7 +346,7 @@ export function runPour(
       el.demlik.setAttribute('transform', '');
     }
 
-    // Spout tip in glass-local coordinates
+    // Emzik ucu, bardağa göre koordinatlarda
     const tipLocal = rotate(v.tip, v.pivot, v.angle * p);
     const tip = {
       x: KETTLE_ORIGIN.x + offset.x * Math.min(p, 1) + tipLocal.x - GLASS_ORIGIN.x,
@@ -355,7 +356,7 @@ export function runPour(
     const h = heightForVolume(volume);
     const surfaceY = -h;
 
-    // Ballistic stream aimed a little off-centre, so it lands inside the glass
+    // Bardağın içine düşsün diye merkezden biraz kaydırılarak nişan alınmış balistik akış
     const vy0 = 30;
     const drop = Math.max(4, surfaceY - tip.y);
     const aHit = (-vy0 + Math.sqrt(vy0 * vy0 + 2 * GRAVITY * drop)) / GRAVITY;
@@ -396,7 +397,7 @@ export function runPour(
       el.stream.setAttribute('fill', v.color);
       el.streamHighlight.setAttribute('d', `M${hi.join(' L')}`);
       el.streamHighlight.setAttribute('stroke', v.highlight);
-      // Leading drop while the stream is still falling
+      // Akış hâlâ düşerken öndeki damla
       if (!attached && headAge < aHit) {
         el.streamHead.setAttribute('cx', headX.toFixed(2));
         el.streamHead.setAttribute('cy', headY.toFixed(2));
@@ -409,7 +410,7 @@ export function runPour(
       hideStream();
     }
 
-    // Liquid arrives at the surface
+    // Sıvı yüzeye ulaşır
     let wobble = 0;
     if (attached) {
       const dv = Math.min(v.rate * realDt, stage.volume - stagePoured);
@@ -420,11 +421,11 @@ export function runPour(
       }
       wobble = 0.22 * Math.sin(now * 38);
 
-      // Sound follows the air column above the liquid
+      // Ses, sıvının üstündeki hava sütununu izler
       if (!sound) sound = audioEngine.startPour(v.sound);
       sound.setFill(heightForVolume(volume) / GLASS_HEIGHT);
 
-      // Splash, rings and foam at the impact point
+      // Çarpma noktasında sıçrama, halkalar ve köpük
       const impactX = landX + (Math.random() - 0.5) * 2;
       const splashes = Math.random() < 0.9 ? 2 : 1;
       for (let i = 0; i < splashes; i++) {
@@ -464,9 +465,9 @@ export function runPour(
     const hNow = applyLiquid(wobble);
     updateParticles(dt, -hNow, glassHalfWidth(hNow));
 
-    // Stage complete once the pot is back down
+    // Demlik yerine inince aşama tamamdır
     if (t >= LIFT_TIME + flowDuration + RETURN_TIME && tailAge >= aHit) {
-      // Whatever was still in the air when the stream detached lands now.
+      // Akış koptuğunda havada olan ne varsa şimdi iner.
       const rest = stage.volume - stagePoured;
       if (rest > 0) {
         concentration = (volume * concentration + rest * stage.concentration) / (volume + rest);
@@ -477,7 +478,7 @@ export function runPour(
         hideStream();
         el.demlik.setAttribute('transform', '');
         el.kettle.setAttribute('transform', '');
-        // Let the foam and rings finish, then hand the final state back to React.
+        // Köpük ve halkalar bitsin, sonra son durumu React'e geri ver.
         const settleUntil = now + 1.2;
         const settle = (ms: number) => {
           const tt = ms / 1000;

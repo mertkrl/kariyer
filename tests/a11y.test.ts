@@ -1,6 +1,6 @@
 /*
- * Accessibility rules that can be held without a browser: initials stay readable on every
- * person's colour, and each screen has a name to announce when the game moves to it.
+ * Tarayıcı olmadan tutulabilen erişilebilirlik kuralları: baş harfler her kişinin renginde okunur
+ * kalır ve oyun bir ekrana geçtiğinde her ekranın duyurulacak bir adı vardır.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,7 +13,7 @@ test('erişilebilirlik: her adayın baş harfleri kendi renginde okunur (en az 4
     const pair = readablePair(c.color);
     const ratio = contrastRatio(pair.color, pair.background);
     assert.ok(ratio >= 4.5, `${c.name} (${c.color}): ${ratio.toFixed(2)}:1`);
-    // the colour stays the person's: never more than a few shades darker
+    // renk kişinin kalır: hiçbir zaman birkaç tondan fazla koyulaşmaz
     assert.ok(contrastRatio(pair.background, c.color) < 1.6, `${c.name}: ${c.color} → ${pair.background}`);
   }
 });

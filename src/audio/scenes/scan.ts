@@ -1,15 +1,15 @@
 import type { EngineCore } from '../engineCore';
 import { DATA_PITCHES } from '../engineCore';
 
-/* The AI reading a CV: a thinking hum, a rising sweep, data chirps and lock-on ticks, then a chime. */
+/* Bir CV'yi okuyan yapay zekâ: düşünen bir uğultu, yükselen bir süpürme, veri cıvıltıları ve kilitlenme tıkları, sonra bir çan. */
 
 /**
- * AI scan bed for `duration` seconds:
- *  1. a low, resonant two-oscillator hum ("the model is thinking"),
- *  2. a band-passed noise sweep that rises with the visual scan line and drifts across the stereo field,
- *  3. quiet pentatonic data chirps scattered left/right,
- *  4. a crisp lock-on tick at each `locks` time (when a CV field gets highlighted).
- * Ends with a resolved chime (when `chime`) unless stopped early.
+ * `duration` saniyelik yapay zekâ tarama ses yatağı:
+ *  1. alçak, rezonanslı iki osilatörlü bir uğultu ("model düşünüyor"),
+ *  2. görsel tarama çizgisiyle yükselen ve stereo alanda kayan bant geçiren bir gürültü süpürmesi,
+ *  3. sola/sağa saçılmış sessiz pentatonik veri cıvıltıları,
+ *  4. her `locks` anında (bir CV alanı vurgulandığında) net bir kilitlenme tıkı.
+ * Erken durdurulmadıkça çözülmüş bir çanla (`chime` ise) biter.
  */
 export function startScan(engine: EngineCore, duration = 3.2, locks: number[] = [], chime = true) {
   const ctx = engine.ensureContext();
@@ -23,7 +23,7 @@ export function startScan(engine: EngineCore, duration = 3.2, locks: number[] = 
   bus.connect(engine.sfxIn);
   const sources: AudioScheduledSourceNode[] = [];
 
-  // 1. Hum
+  // 1. Uğultu
   const humFilter = ctx.createBiquadFilter();
   humFilter.type = 'lowpass';
   humFilter.Q.value = 7;
@@ -51,7 +51,7 @@ export function startScan(engine: EngineCore, duration = 3.2, locks: number[] = 
   humFilter.connect(humGain);
   humGain.connect(bus);
 
-  // 2. Rising scan sweep with slow auto-pan
+  // 2. Yavaş otomatik kaydırmalı yükselen tarama süpürmesi
   const sweep = engine.noiseSource(ctx);
   const sweepFilter = ctx.createBiquadFilter();
   sweepFilter.type = 'bandpass';
@@ -83,7 +83,7 @@ export function startScan(engine: EngineCore, duration = 3.2, locks: number[] = 
   sweep.stop(end + 0.05);
   sources.push(sweep);
 
-  // 3. Data chirps — denser toward the end as the "analysis" converges
+  // 3. Veri cıvıltıları: "analiz" yakınsadıkça sona doğru daha yoğun
   let t = t0 + 0.15;
   while (t < end - 0.15) {
     const progress = (t - t0) / duration;
@@ -92,7 +92,7 @@ export function startScan(engine: EngineCore, duration = 3.2, locks: number[] = 
     t += 0.12 - progress * 0.06 + Math.random() * 0.05;
   }
 
-  // 4. Field lock-on ticks
+  // 4. Alan kilitlenme tıkları
   for (const lock of locks) {
     const when = t0 + lock;
     if (when >= end) continue;
@@ -122,13 +122,13 @@ export function startScan(engine: EngineCore, duration = 3.2, locks: number[] = 
   };
 }
 
-/** Stops the scan bed early (without the completion chime). */
+/** Tarama yatağını erken durdurur (bitiş çanı olmadan). */
 export function stopScan(engine: EngineCore, fade = 0.12) {
   engine.scanStop?.(fade);
   engine.scanStop = null;
 }
 
-/** Two-note resolved chime (perfect fifth) with a soft bell tail. */
+/** Yumuşak bir çan kuyruğuyla iki notalı çözülmüş çan (tam beşli). */
 export function playScanComplete(engine: EngineCore) {
   const ctx = engine.ensureContext();
   const now = ctx.currentTime;

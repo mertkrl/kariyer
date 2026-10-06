@@ -11,7 +11,7 @@ interface MeterProps {
   icon: string;
 }
 
-/** Stat meter that flashes a floating "+3 / −2" whenever the value moves. */
+/** Değer oynadığında havada süzülen bir "+3 / −2" gösteren puan göstergesi. */
 function Meter({ label, value, color, icon }: MeterProps) {
   const previous = useRef(value);
   const [delta, setDelta] = useState<{ amount: number; key: number } | null>(null);
@@ -62,18 +62,18 @@ interface TopBarProps {
   day: number;
   dayCount: number;
   dayName: string;
-  /** 1-based day of the interview (final) round, marked in the week strip. */
+  /** Mülakat (final) turunun günü, 1'den başlar; hafta şeridinde işaretlenir. */
   interviewDay: number;
   workdayMinutes: number;
   onBreak: boolean;
-  /** Past 17:00 with files still open. */
+  /** 17:00 geçti ve hâlâ açık dosya var. */
   overtime: boolean;
   performans: number;
   vicdan: number;
   paused: boolean;
   onSettings: () => void;
   hard?: boolean;
-  /** At the computer: a way back to the desk. */
+  /** Bilgisayardayken: masaya dönüş yolu. */
   onDesk?: () => void;
 }
 
@@ -83,7 +83,7 @@ export function TopBar({ day, dayCount, dayName, interviewDay, workdayMinutes, o
 
   return (
     <header className={styles.bar}>
-      {/* back to the desk (at the computer) + the week */}
+      {/* masaya dönüş (bilgisayardayken) + hafta */}
       <div className={styles.left}>
         {onDesk && (
           <>
@@ -122,7 +122,7 @@ export function TopBar({ day, dayCount, dayName, interviewDay, workdayMinutes, o
         </div>
       </div>
 
-      {/* the clock: time, and whether you're on shift, on break or staying late */}
+      {/* saat: zaman ve mesaide mi, molada mı, geç mi kaldığın */}
       <div className={styles.center}>
         <div className={`${styles.clock} ${lastHour || overtime ? styles.clockUrgent : ''} ${onBreak ? styles.clockBreak : ''}`}>
           <span className={`${styles.clockTime} mono`}>{formatClock(workdayMinutes)}</span>
@@ -133,7 +133,7 @@ export function TopBar({ day, dayCount, dayName, interviewDay, workdayMinutes, o
         </div>
       </div>
 
-      {/* you: how the week is judging you, and what's left in the account */}
+      {/* sen: haftanın seni nasıl değerlendirdiği */}
       <div className={styles.right}>
         <Meter label="Performans" value={performans} color="#5b8fc2" icon="▲" />
         <Meter label="Vicdan" value={vicdan} color="#4f8a7e" icon="♥" />

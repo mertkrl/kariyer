@@ -1,6 +1,6 @@
 /*
- * Test setup: the module hooks, plus the few browser globals the game's logic touches
- * (localStorage for the save, window.location for the seed). No DOM, no audio.
+ * Test kurulumu: modül kancaları ve oyun mantığının dokunduğu birkaç tarayıcı globali (kayıt için
+ * localStorage, tohum için window.location). DOM yok, ses yok.
  */
 import { registerHooks } from 'node:module';
 import { load, resolve } from './hooks.mjs';

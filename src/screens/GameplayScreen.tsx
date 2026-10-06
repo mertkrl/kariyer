@@ -29,12 +29,12 @@ import { useWorkdaySounds } from '../components/gameplay/useWorkdaySounds';
 import styles from './GameplayScreen.module.css';
 
 /*
- * The workday: the desk, and the computer it zooms into (the portal with the CV, the AI and
- * the queue). This screen holds what's on screen where — which view, which overlay — and wires
- * the pieces together; each piece reads what it shows from the store itself.
+ * Mesai: masa ve yaklaşılan bilgisayar (CV'li portal, yapay zekâ ve kuyruk). Bu ekran neyin
+ * nerede durduğunu tutar — hangi görünüm, hangi katman — ve parçaları birbirine bağlar; her
+ * parça gösterdiğini store'dan kendisi okur.
  */
 
-// the lunch break and Wednesday's call are whole scenes of their own: loaded when they start
+// öğle arası ve Çarşamba'nın görüşmesi kendi başına sahnelerdir: başladıklarında yüklenir
 const BreakRoom = lazy(() => import('./break/BreakRoom').then((m) => ({ default: m.BreakRoom })));
 const MeetingRoom = lazy(() => import('../components/meeting/MeetingRoom').then((m) => ({ default: m.MeetingRoom })));
 
@@ -64,7 +64,7 @@ export function GameplayScreen() {
   const mailRead = useGameStore((s) => s.mailRead);
   const readMail = useGameStore((s) => s.readMail);
   const finishOrientation = useGameStore((s) => s.finishOrientation);
-  // the first morning begins with the portal walk-through instead of the clock-in card
+  // ilk sabah, mesai kartı yerine portal tanıtımıyla başlar
   const needsOrientation = useGameStore((s) => s.currentDayIndex === 0 && !s.orientationDone);
   const activeEvent = useGameStore((s) => s.activeEvent);
   const difficulty = useGameStore((s) => s.difficulty);
@@ -86,16 +86,16 @@ export function GameplayScreen() {
   const togglePause = useGameStore((s) => s.togglePause);
 
   const [phoneOpen, setPhoneOpen] = useState(false);
-  /** Which chat to open the phone on (a tapped notification), or null for the home screen. */
+  /** Telefonun hangi sohbette açılacağı (dokunulan bir bildirim) ya da ana ekran için null. */
   const [phoneThread, setPhoneThread] = useState<ThreadId | null>(null);
   const openPhone = (thread: ThreadId | null = null) => {
     setPhoneThread(thread);
     setPhoneOpen(true);
   };
   const phoneProps = usePhoneProps();
-  /** The computer: the desktop, or one maximised app on it. */
+  /** Bilgisayar: masaüstü ya da üzerinde tam ekran açık bir uygulama. */
   const [pcApp, setPcApp] = useState<PcApp | null>(null);
-  // Every morning starts at the desk; the computer is one click away.
+  // Her sabah masada başlar; bilgisayar bir tık uzakta.
   const [view, setView] = useState<'desk' | 'pc'>('desk');
   const atPc = view === 'pc';
   const [editingMails, setEditingMails] = useState(false);
@@ -108,8 +108,8 @@ export function GameplayScreen() {
   const pcLayerRef = useRef<HTMLDivElement>(null);
   const shownView = useRef(view);
 
-  // Turning to the computer (or back) makes the other layer inert, which drops keyboard focus
-  // to the page; it goes to the first control of the side you turned to instead.
+  // Bilgisayara dönmek (ya da geri dönmek) diğer katmanı etkisiz kılar ve klavye odağı sayfaya
+  // düşer; bunun yerine odak, döndüğün tarafın ilk kontrolüne gider.
   useEffect(() => {
     if (shownView.current === view) return;
     shownView.current = view;
@@ -121,12 +121,12 @@ export function GameplayScreen() {
 
   const day = days[currentDayIndex];
   const itOutage = activeEvent?.kind === 'it';
-  /** The AI box is offline on the crash day, and during a hard-mode IT outage. */
+  /** Yapay zekâ kutusu çökme gününde ve zor moddaki bilgi işlem arızası sırasında devre dışıdır. */
   const aiOffline = !!day.aiDown || itOutage;
   const lineup = lineupFor({ currentDayIndex, lineups });
-  // once every file is decided, the portal asks what the rejected people will be told
+  // her dosya karara bağlanınca portal, reddedilenlere ne söyleneceğini sorar
   const todaysRejects = lineup.filter((id) => decisions[id] === 'reject');
-  // someone rejected today has no notice in the outbox yet
+  // bugün reddedilen birinin giden kutusunda henüz bildirimi yok
   const pendingMails = !rejectionMailsSent && todaysRejects.some((id) => !plannedRejections[id]);
   const showMails = !rejectionMailsSent && todaysRejects.length > 0 && lineup.every((id) => decisions[id]) && ((pendingMails && !mailsHidden) || editingMails);
 
@@ -134,18 +134,18 @@ export function GameplayScreen() {
   const analysis = useAiAnalysis({ dayKey: day.day, onBreak, aiOffline });
   useWorkdaySounds({ onBreak, meetingActive, paused, currentDayIndex, workdayMinutes, ringing });
 
-  // after Hakan Bey's call about the invitations the recall mail opens over everything; the mail
-  // app comes up behind it, so the sent copy is right there afterwards
+  // Hakan Bey'in davetlerle ilgili aramasından sonra geri çekme e-postası her şeyin üstünde açılır;
+  // e-posta uygulaması arkasında açılır, gönderilen kopya hemen orada durur
   useEffect(() => {
     if (!revokeDraft || desk.inCall) return;
     setView('pc');
     setPcApp('mail');
   }, [revokeDraft, desk.inCall]);
 
-  // Lunch break puts the phone down (it does not pop back open afterwards).
+  // Öğle arası telefonu kapatır (sonrasında kendiliğinden yeniden açılmaz).
   if (onBreak && phoneOpen) setPhoneOpen(false);
 
-  // Cmd/Ctrl+Z takes back the decision on the open candidate.
+  // Cmd/Ctrl+Z açık adaydaki kararı geri alır.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
@@ -157,7 +157,7 @@ export function GameplayScreen() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // back at the desk from the computer, the keyboard picks up where it left: on the computer
+  // bilgisayardan masaya dönünce klavye kaldığı yerden devam eder: bilgisayardan
   const wasAtPc = useRef(false);
   useEffect(() => {
     if (view === 'pc') wasAtPc.current = true;
@@ -167,7 +167,7 @@ export function GameplayScreen() {
     }
   }, [view]);
 
-  // Esc leaves the computer for the desk (unless something on top of it wants the key).
+  // Esc bilgisayardan masaya döndürür (üstte tuşu isteyen başka bir şey yoksa).
   useEffect(() => {
     if (view !== 'pc') return;
     function onKey(e: KeyboardEvent) {
@@ -183,14 +183,14 @@ export function GameplayScreen() {
     return () => clearInterval(interval);
   }, [tick]);
 
-  // a file counts as read only while it is on screen: not from the desk, the phone or a call
+  // bir dosya yalnızca ekrandayken okunmuş sayılır: masadan, telefondan ya da bir aramadan değil
   const reading = atPc && pcApp === 'portal' && !showMails && !phoneOpen && !desk.inCall && !paused;
   useEffect(() => {
     useGameStore.getState().setReading(reading);
   }, [reading]);
   useEffect(() => () => useGameStore.getState().setReading(false), []);
 
-  // a hidden tab doesn't keep the workday running behind the player's back
+  // gizli bir sekme, mesaiyi oyuncunun arkasından işletmez
   useEffect(() => {
     function onVisibility() {
       const s = useGameStore.getState();
@@ -200,7 +200,7 @@ export function GameplayScreen() {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
-  // a new day opens on its first file
+  // yeni bir gün ilk dosyasıyla açılır
   useEffect(() => {
     if (openedIds.length === 0 && lineup.length > 0) {
       selectCandidate(lineup[0]);
@@ -208,7 +208,7 @@ export function GameplayScreen() {
     // oxlint-disable-next-line react/exhaustive-deps
   }, [day.day]);
 
-  // the outbox notice sits centred on the CV, level with the candidate's name
+  // giden kutusu bildirimi CV'nin ortasında, adayın adıyla aynı hizada durur
   const [mailNoticeAt, setMailNoticeAt] = useState<CSSProperties | undefined>();
   const mailNotice = Boolean(desk.notice) && (desk.noticeKind === 'scheduled' || desk.noticeKind === 'sent');
   useLayoutEffect(() => {
@@ -222,7 +222,7 @@ export function GameplayScreen() {
     const a = stage.getBoundingClientRect();
     const c = card.getBoundingClientRect();
     const n = name.getBoundingClientRect();
-    // on a narrow card there is no room beside the name: the notice sits just above it instead
+    // dar bir kartta adın yanında yer yok: bildirim onun hemen üstüne geçer
     const narrow = c.width < 700;
     setMailNoticeAt({
       left: c.left + c.width / 2 - a.left,
@@ -235,7 +235,7 @@ export function GameplayScreen() {
   const ringingCall = ringing ? callFor(callState, ringing) : undefined;
   const activeCall = desk.inCall ? callFor(callState, desk.inCall) : undefined;
   const mails = inbox(currentDayIndex, workdayMinutes, extraMails);
-  // only mail that matters taps you on the shoulder; the rest waits in the inbox
+  // yalnızca önemli e-posta omzuna dokunur; gerisi gelen kutusunda bekler
   const importantMails = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && (m.important || m.reply));
 
   return (

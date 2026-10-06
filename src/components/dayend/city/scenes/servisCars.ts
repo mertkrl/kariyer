@@ -1,7 +1,7 @@
 import { glow, glowRect, pick, range, rgba, type RGB, type Rng } from '../kit';
 import { BW, KC } from './servisLayout';
 
-/** The lane beside the servis: the cars stuck next to you, and how each is drawn side-on. */
+/** Servisin yanındaki şerit: yanında sıkışmış arabalar ve her birinin yandan nasıl çizildiği. */
 
 export type VKind = 'car' | 'taxi' | 'servis' | 'van';
 
@@ -23,7 +23,7 @@ const PAINT: RGB[] = [
   [90, 60, 40],
 ];
 
-/** The next lane, bumper to bumper; positions are relative to us (m, positive = ahead). */
+/** Tampon tampona yan şerit; konumlar bize göre (m, pozitif = önde). */
 export function makeCars(r: Rng): Car[] {
   const cars: Car[] = [];
   for (let x = -38; x < 42; ) {
@@ -37,7 +37,7 @@ export function makeCars(r: Rng): Car[] {
 }
 
 export function sideCar(g: CanvasRenderingContext2D, c: Car, t: number) {
-  // front of the car points left (ahead); rear on the right
+  // arabanın önü sola (ileri) bakar; arkası sağda
   const x = BW / 2 - c.rx * KC - (c.len * KC) / 2;
   const len = c.len * KC;
   const ground = 158;
@@ -49,7 +49,7 @@ export function sideCar(g: CanvasRenderingContext2D, c: Car, t: number) {
     g.beginPath();
     g.roundRect(x, ground - h, len, h - 6, [10, 5, 3, 3]);
     g.fill();
-    // dark tinted window band: nothing inside shows, only the street reflected in it
+    // koyu filmli pencere şeridi: içeriden hiçbir şey görünmez, yalnızca sokağın yansıması
     g.fillStyle = c.kind === 'servis' ? '#161a22' : '#1a1f28';
     g.fillRect(x + 12, ground - h + 8, len - 22, h * 0.36);
     if (c.kind === 'servis') {
@@ -69,7 +69,7 @@ export function sideCar(g: CanvasRenderingContext2D, c: Car, t: number) {
       g.fillText('SERVİS', x + 9, ground - h + 4.6);
     }
   } else {
-    // sedan profile: body + cabin
+    // sedan profili: gövde + kabin
     g.fillStyle = shade(0.42);
     g.beginPath();
     g.moveTo(x + 4, ground - 8);
@@ -102,14 +102,14 @@ export function sideCar(g: CanvasRenderingContext2D, c: Car, t: number) {
       g.fillRect(x + len * 0.45, ground - 45, 14, 4);
     }
   }
-  // wheels
+  // tekerlekler
   g.fillStyle = '#0b0b0e';
   for (const wx of [x + len * 0.18, x + len * 0.8]) {
     g.beginPath();
     g.arc(wx, ground - 4, 7, 0, Math.PI * 2);
     g.fill();
   }
-  // lights: tail (right end), head (left end)
+  // ışıklar: stop (sağ uç), far (sol uç)
   g.globalCompositeOperation = 'lighter';
   const tail = 0.55 + c.brake * 0.45;
   glow(g, x + len - 2, ground - 20, 6 + c.brake * 6, [255, 34, 26], tail, true);

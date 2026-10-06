@@ -1,6 +1,6 @@
 /*
- * The application flood's paper physics, stepped without a canvas: CVs blasted out of the core
- * land on the desk outside the core's zone, and CVs sucked in all reach the core.
+ * Başvuru yağmurunun kâğıt fiziği, canvas olmadan adım adım: çekirdekten fırlatılan CV'ler
+ * çekirdeğin alanının dışında masaya iner, içeri çekilen CV'lerin hepsi çekirdeğe ulaşır.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

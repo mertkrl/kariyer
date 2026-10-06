@@ -1,8 +1,8 @@
 /*
- * The three typefaces, served from the game's own files (no request to a font CDN, so the
- * game also works offline). Variable fonts: one file covers every weight. Two subsets each —
- * Latin, and Latin Extended for the Turkish letters (ğ, ş, İ) — fetched only when used.
- * Files come from the @fontsource-variable packages (SIL Open Font License).
+ * Üç yazı tipi, oyunun kendi dosyalarından sunulur (yazı tipi CDN'ine istek yok, böylece oyun
+ * çevrimdışı da çalışır). Değişken yazı tipleri: tek dosya her kalınlığı kapsar. Her birinin iki
+ * alt kümesi var — Latin ve Türkçe harfler (ğ, ş, İ) için Latin Genişletilmiş — yalnızca
+ * kullanıldığında indirilir. Dosyalar @fontsource-variable paketlerinden gelir (SIL Open Font License).
  */
 
 @font-face {

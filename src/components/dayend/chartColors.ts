@@ -1,4 +1,4 @@
-/** Validated chart colours for the day-end report (see DayEndCharts.tsx). */
+/** Gün sonu raporu için doğrulanmış grafik renkleri (bkz. DayEndCharts.tsx). */
 export const CHART = {
   interview: '#1d8a6c',
   reject: '#c8432f',

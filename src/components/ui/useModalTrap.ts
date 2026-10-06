@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
 /*
- * One keyboard rule for every modal in the game (orientation, phone, settings, meeting, hire
- * confirmation, report, rotate hint): while a visible `role="dialog"` with `aria-modal="true"`
- * is open, Tab and Shift+Tab cycle through its controls and never reach the page behind it.
- * When focus is still outside (the modal opened over something you were on), the first Tab
- * goes into it. Installed once, in App.
+ * Oyundaki her açılır pencere (oryantasyon, telefon, ayarlar, toplantı, işe alım onayı, rapor,
+ * döndürme ipucu) için tek bir klavye kuralı: `aria-modal="true"` olan görünür bir
+ * `role="dialog"` açıkken Tab ve Shift+Tab onun kontrolleri arasında döner ve arkasındaki sayfaya
+ * hiç ulaşmaz. Odak hâlâ dışarıdaysa (pencere üzerinde olduğun bir şeyin üstüne açıldıysa) ilk
+ * Tab içeri gider. App'te bir kez kurulur.
  */
 
 const FOCUSABLE =
@@ -13,13 +13,13 @@ const FOCUSABLE =
 
 const visible = (el: Element) => el.getClientRects().length > 0 && !el.closest('[inert]');
 
-/** The modal that is on top: the last open one in document order. */
+/** Üstteki açılır pencere: belge sırasındaki son açık olan. */
 export function topModal(doc: Document = document): HTMLElement | null {
   const open = [...doc.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]')].filter(visible);
   return open[open.length - 1] ?? null;
 }
 
-/** Where Tab (or Shift+Tab) should go from `active` inside `modal`; null to let the browser move. */
+/** `modal` içinde `active`ten Tab'ın (ya da Shift+Tab'ın) nereye gideceği; tarayıcının taşımasına izin vermek için null. */
 export function nextInModal(modal: HTMLElement, active: Element | null, back: boolean): HTMLElement | null {
   const items = [...modal.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(visible);
   if (!items.length) return modal;

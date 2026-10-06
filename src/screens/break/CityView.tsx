@@ -3,15 +3,15 @@ import type { Weather } from './weather';
 import styles from './CityView.module.css';
 
 /*
- * Noon view from the cafeteria window: the same business district the office looks onto —
- * glass towers, a tower still under its crane, the highway in between, rooftops below. Drawn in
- * the BreakRoom's scene coordinates (window glass spans x 82–388, y 52–258) and clipped by the
- * window. Depth cues: far things are smaller, paler and slower.
+ * Yemekhane penceresinden öğlen manzarası: ofisin baktığı aynı iş merkezi — cam kuleler,
+ * hâlâ vincin altındaki bir kule, aradaki otoyol, aşağıda çatılar. BreakRoom'un sahne
+ * koordinatlarında çizilir (pencere camı x 82–388, y 52–258) ve pencereyle kırpılır.
+ * Derinlik ipuçları: uzaktaki şeyler daha küçük, daha soluk ve daha yavaş.
  */
 
 type Drift = CSSProperties & { '--from': string; '--to': string };
 
-/** Horizontal drift across the window: from/to in px, duration in s, negative delay = already underway. */
+/** Pencere boyunca yatay süzülme: px cinsinden başlangıç/bitiş, saniye cinsinden süre, negatif gecikme = zaten yolda. */
 function drift(from: number, to: number, duration: number, delay: number): Drift {
   return {
     '--from': `${from}px`,
@@ -31,7 +31,7 @@ function Cloud({ scale = 1 }: { scale?: number }) {
   );
 }
 
-/** Gull with two wings hinged at the body — they rotate, so the bird never collapses to a line. */
+/** Gövdeye menteşeli iki kanatlı martı: kanatlar döner, kuş hiçbir zaman bir çizgiye inmez. */
 function Gull({ delay = 0 }: { delay?: number }) {
   const style = { animationDelay: `${delay}s` };
   return (
@@ -43,7 +43,7 @@ function Gull({ delay = 0 }: { delay?: number }) {
   );
 }
 
-/** Deterministic pseudo-random so weather layouts don't reshuffle on re-render. */
+/** Belirlenimci sözde rastgele; hava düzenleri yeniden çizimde karışmasın. */
 function seeded(seed: number) {
   let a = seed;
   return () => {
@@ -56,7 +56,7 @@ const R = seeded(42);
 const RAIN_SLIDERS = Array.from({ length: 12 }, () => ({ x: 88 + R() * 294, y: 60 + R() * 120, dur: 2.5 + R() * 3.5, delay: R() * 6, r: 1.4 + R() * 1.4 }));
 const RAIN_BEADS = Array.from({ length: 34 }, () => ({ x: 86 + R() * 298, y: 56 + R() * 196, r: 0.8 + R() * 1.6 }));
 const SNOWFLAKES = Array.from({ length: 46 }, () => ({ x: 70 + R() * 330, r: 0.7 + R() * 1.6, dur: 6 + R() * 7, delay: R() * 12, sway: 4 + R() * 10 }));
-/* Three depths of the business district, generated once. Window glass spans x 82–388. */
+/* İş merkezinin üç derinliği, bir kez üretilir. Pencere camı x 82–388. */
 const HAZE_TOWERS = Array.from({ length: 22 }, (_, i) => ({ x: 78 + i * 14 + R() * 6, w: 9 + R() * 12, y: 150 + R() * 40 }));
 const FAR_TOWERS = Array.from({ length: 11 }, (_, i) => ({ x: 80 + i * 29 + R() * 8, w: 14 + R() * 12, y: 128 + R() * 44 }));
 const NEAR_TOWERS: { x: number; y: number; w: number; crown?: boolean; logo?: boolean; tone: number }[] = [
@@ -66,7 +66,7 @@ const NEAR_TOWERS: { x: number; y: number; w: number; crown?: boolean; logo?: bo
   { x: 238, y: 160, w: 40, logo: true, tone: 1 },
   { x: 356, y: 172, w: 32, tone: 0 },
 ];
-/* lit office windows, for the grey days */
+/* gri günler için ışıklı ofis pencereleri */
 const LIT = NEAR_TOWERS.flatMap((t) =>
   Array.from({ length: 14 }, () => ({ x: t.x + 2 + Math.floor(R() * Math.floor((t.w - 4) / 4)) * 4, y: t.y + 4 + Math.floor(R() * Math.floor((222 - t.y) / 5)) * 5 })),
 ).filter(() => R() > 0.35);
@@ -94,7 +94,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
     <g className={styles.view}>
       <rect x="82" y="52" width="306" height="206" fill={skyFill} />
 
-      {/* Noon sun (high, mostly behind the blinds) — veiled on windy days */}
+      {/* Öğle güneşi (yüksekte, çoğunlukla jaluzilerin arkasında); rüzgârlı günlerde örtülü */}
       {w.sun && (
         <>
           <circle cx="352" cy="128" r="40" fill="#fff6d8" opacity={w.kind === 'sunny' ? 0.28 : 0.14} />
@@ -102,7 +102,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </>
       )}
 
-      {/* Clouds — count, colour and speed follow the weather */}
+      {/* Bulutlar: sayıları, renkleri ve hızları havayı izler */}
       {CLOUD_SLOTS.slice(0, w.cloudCount).map((c, i) => (
         <g key={i} transform={`translate(0 ${c.y})`}>
           <g className={styles.drift} style={drift(-70, 470, w.cloudSpeed * (0.8 + c.scale * 0.4), w.cloudSpeed * c.phase)}>
@@ -113,8 +113,8 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </g>
       ))}
 
-      {/* The business district across the road, in three depths: a pale skyline lost in haze,
-          nearer towers, and the glass towers right across the highway. */}
+      {/* Yolun karşısındaki iş merkezi, üç derinlikte: pusta kaybolan soluk bir silüet, daha
+          yakın kuleler ve otoyolun tam karşısındaki cam kuleler. */}
       <g fill={w.farShore} opacity="0.7">
         {HAZE_TOWERS.map((t, i) => (
           <rect key={i} x={t.x} y={t.y} width={t.w} height={230 - t.y} />
@@ -136,7 +136,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </g>
       )}
 
-      {/* crane over the unfinished tower, jib slowly turning */}
+      {/* bitmemiş kulenin üstündeki vinç, kolu yavaşça döner */}
       <g stroke={w.landmarks} strokeWidth="1" fill="none">
         <path d="M300 222 V120 M296 222 V120 M296 124 L304 124 M296 132 L304 124 M296 140 L304 132 M296 148 L304 140 M296 156 L304 148 M296 164 L304 156 M296 172 L304 164 M296 180 L304 172" />
       </g>
@@ -147,7 +147,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         <rect x="266" y="120" width="10" height="7" fill={w.landmarks} />
       </g>
       <circle cx="299" cy="108" r="1.3" fill="#ff5a4a" className={styles.blink} />
-      {/* the tower it is building: finished floors below, bare slabs on top */}
+      {/* inşa ettiği kule: altta bitmiş katlar, üstte çıplak döşemeler */}
       <g>
         <rect x="312" y="176" width="46" height="50" fill="url(#glass1)" />
         <rect x="312" y="150" width="46" height="26" fill={w.nearShore} />
@@ -159,7 +159,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         ))}
       </g>
 
-      {/* the glass towers: curtain walls with the sky in them, mullions, a few lights on */}
+      {/* cam kuleler: gökyüzünü yansıtan giydirme cepheler, kayıtlar, birkaç yanan ışık */}
       {NEAR_TOWERS.map((t, i) => (
         <g key={i}>
           <rect x={t.x} y={t.y} width={t.w} height={230 - t.y} fill={`url(#glass${t.tone})`} />
@@ -192,10 +192,10 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
       )}
       <circle cx="165" cy="78" r="1.6" fill="#ff5a4a" className={styles.blink} />
 
-      {/* haze sitting on the horizon */}
+      {/* ufka çökmüş pus */}
       <rect x="82" y="150" width="306" height="80" fill="url(#haze)" />
 
-      {/* the row of plane trees and street lamps along the road */}
+      {/* yol boyunca çınar ağaçları ve sokak lambaları */}
       {TREES.map((t, i) => (
         <g key={i}>
           <rect x={t.x - 0.6} y="222" width="1.2" height="8" fill="#4a3f33" />
@@ -210,7 +210,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </g>
       ))}
 
-      {/* the highway: lanes, a barrier, traffic both ways */}
+      {/* otoyol: şeritler, bariyer, iki yönde trafik */}
       <rect x="82" y="230" width="306" height="16" fill="#5a6065" />
       <rect x="82" y="238.4" width="306" height="1.2" fill="#c9c7bb" />
       <line x1="82" y1="234.6" x2="388" y2="234.6" stroke="#e9e3c8" strokeWidth="0.5" strokeDasharray="5 5" />
@@ -235,7 +235,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </g>
       ))}
 
-      {/* rooftops right below the window */}
+      {/* pencerenin hemen altındaki çatılar */}
       <path d="M82 258 V248 H150 V245 H214 V250 H292 V243 H388 V258 Z" fill="#8a8781" />
       <g fill="#6f6d68">
         <rect x="100" y="242" width="18" height="7" />
@@ -246,7 +246,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
       <circle cx="366" cy="252" r="5.5" fill="none" stroke="#e9e3c8" strokeWidth="0.7" />
       {snowy && <path d="M82 248 H150 V245.5 H214 V250.5 H292 V243.5 H388 V245 H294 V252 H212 V247 H152 V250 H82 Z" fill="#f7f9fa" />}
 
-      {/* Seagulls — each crosses the full window width, staggered so one is usually in view */}
+      {/* Martılar: her biri pencerenin tamamını geçer, aralıklı başlar; çoğu zaman biri görünür */}
       {w.gulls && (
         <>
           <g transform="translate(0 166)">
@@ -269,7 +269,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </>
       )}
 
-      {/* Rain: two parallax sheets of streaks falling past the window */}
+      {/* Yağmur: pencerenin önünden düşen iki paralaks çizgi katmanı */}
       {rainy && (
         <g opacity="0.55">
           <g className={styles.rainFar}>
@@ -281,7 +281,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
         </g>
       )}
 
-      {/* Snowfall */}
+      {/* Kar yağışı */}
       {snowy &&
         SNOWFLAKES.map((f, i) => (
           <g key={i} className={styles.snowSway} style={{ animationDuration: `${2.5 + (i % 5) * 0.6}s`, ['--sway' as string]: `${f.sway}px` }}>
@@ -297,7 +297,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
           </g>
         ))}
 
-      {/* On the glass itself: beads and drops running down (rain), frost creeping in (snow) */}
+      {/* Camın kendisinde: aşağı süzülen damlalar (yağmur), kenardan sızan buz (kar) */}
       {rainy && (
         <g>
           {RAIN_BEADS.map((b, i) => (
@@ -320,7 +320,7 @@ export function CityView({ weather: w, skyFill }: CityViewProps) {
   );
 }
 
-/** Pattern/gradient defs the weather layers reference — render once inside the scene's <defs>. */
+/** Hava katmanlarının başvurduğu desen/gradyan tanımları; sahnenin <defs>'i içinde bir kez çizilir. */
 export function WeatherDefs() {
   return (
     <>

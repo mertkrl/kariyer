@@ -54,7 +54,7 @@
   margin: 0;
 }
 
-/* ── Drafts (left) + portal window (right) ── */
+/* ── Taslaklar (solda) + portal penceresi (sağda) ── */
 
 .workspace {
   width: 100%;
@@ -169,7 +169,7 @@
   color: var(--on-dark-faint);
 }
 
-/* the portal window, as it will look on the desk computer */
+/* portal penceresi, masadaki bilgisayarda görüneceği gibi */
 .window {
   --accent: var(--blue);
   display: flex;
@@ -355,7 +355,7 @@
   color: var(--accent);
 }
 
-/* ── Footer: difficulty + publish ── */
+/* ── Alt bilgi: zorluk + yayınla ── */
 
 .footer {
   width: 100%;

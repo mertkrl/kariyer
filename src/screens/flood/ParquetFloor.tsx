@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import styles from './ParquetFloor.module.css';
 
 /*
- * The office floor the CVs land on: wide oak planks laid with staggered joints, every plank its
- * own tone with flowing grain and the odd knot, bevelled joints, a satin varnish sheen — and late
- * afternoon sun slanting in through the blinds. Rendered once per resize.
+ * CV'lerin düştüğü ofis zemini: şaşırtmalı derzlerle döşenmiş geniş meşe tahtalar; her tahtanın
+ * kendi tonu, akan damarları ve ara ara budakları, pahlı derzler, saten vernik parlaklığı ve
+ * jaluzilerden eğik giren ikindi güneşi. Her yeniden boyutlandırmada bir kez çizilir.
  */
 
 function rng(seed: number) {
@@ -19,7 +19,7 @@ function rng(seed: number) {
 }
 
 function plank(g: CanvasRenderingContext2D, r: () => number, x: number, y: number, w: number, h: number) {
-  // tone: honey oak with natural variation
+  // ton: doğal farklılıklarıyla bal rengi meşe
   const hue = 28 + r() * 8;
   const sat = 38 + r() * 14;
   const light = 34 + r() * 14;
@@ -34,7 +34,7 @@ function plank(g: CanvasRenderingContext2D, r: () => number, x: number, y: numbe
   g.beginPath();
   g.rect(x, y, w, h);
   g.clip();
-  // flowing grain: long wavy lines along the plank, cathedral arches here and there
+  // akan damar: tahta boyunca uzun dalgalı çizgiler, yer yer katedral kemerleri
   const lines = 16 + Math.floor(r() * 10);
   const phase = r() * 100;
   for (let i = 0; i < lines; i++) {
@@ -51,7 +51,7 @@ function plank(g: CanvasRenderingContext2D, r: () => number, x: number, y: numbe
     }
     g.stroke();
   }
-  // cathedral figure: nested arches
+  // katedral deseni: iç içe kemerler
   if (r() < 0.55) {
     const cx = x + w * (0.25 + r() * 0.5);
     const cy = y + h * (0.3 + r() * 0.4);
@@ -63,7 +63,7 @@ function plank(g: CanvasRenderingContext2D, r: () => number, x: number, y: numbe
       g.stroke();
     }
   }
-  // knots
+  // budaklar
   if (r() < 0.22) {
     const kx = x + r() * w;
     const ky = y + h * (0.25 + r() * 0.5);
@@ -79,14 +79,14 @@ function plank(g: CanvasRenderingContext2D, r: () => number, x: number, y: numbe
       g.stroke();
     }
   }
-  // pores / speckle
+  // gözenekler / benekler
   for (let i = 0; i < w * h * 0.004; i++) {
     g.fillStyle = `rgba(40,22,10,${(r() * 0.18).toFixed(3)})`;
     g.fillRect(x + r() * w, y + r() * h, 1 + r() * 3, 0.6);
   }
   g.restore();
 
-  // bevelled edges: light top edge, dark bottom & ends
+  // pahlı kenarlar: üst kenar açık, alt kenar ve uçlar koyu
   g.fillStyle = 'rgba(255,230,190,0.16)';
   g.fillRect(x, y, w, 1);
   g.fillStyle = 'rgba(20,10,4,0.55)';
@@ -113,13 +113,13 @@ function paint(canvas: HTMLCanvasElement) {
       x += w;
     }
   }
-  // satin varnish sheen: a broad soft reflection
+  // saten vernik parlaklığı: geniş ve yumuşak bir yansıma
   const sheen = g.createRadialGradient(vw * 0.62, vh * 0.28, 0, vw * 0.62, vh * 0.28, Math.max(vw, vh) * 0.7);
   sheen.addColorStop(0, 'rgba(255,236,200,0.16)');
   sheen.addColorStop(1, 'rgba(255,236,200,0)');
   g.fillStyle = sheen;
   g.fillRect(0, 0, vw, vh);
-  // late sun through the blinds: slanted bright bands with soft edges
+  // jaluzilerden giren ikindi güneşi: yumuşak kenarlı eğik parlak şeritler
   g.save();
   g.translate(vw * 0.55, -vh * 0.1);
   g.rotate(0.42);
@@ -148,7 +148,7 @@ function paint(canvas: HTMLCanvasElement) {
     g.fillRect(-vw * 0.1, by, vw * 0.9, 30);
   }
   g.restore();
-  // room falls into shadow towards the edges, and a pool of shade where the UI sits
+  // oda kenarlara doğru gölgeye düşer, arayüzün durduğu yerde bir gölge havuzu
   const vig = g.createRadialGradient(vw / 2, vh * 0.45, Math.min(vw, vh) * 0.25, vw / 2, vh * 0.45, Math.max(vw, vh) * 0.78);
   vig.addColorStop(0, 'rgba(8,5,3,0)');
   vig.addColorStop(1, 'rgba(8,5,3,0.72)');

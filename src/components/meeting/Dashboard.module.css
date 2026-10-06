@@ -153,7 +153,7 @@
   color: #c4314b;
 }
 
-/* ── column chart ── */
+/* ── sütun grafik ── */
 .columns {
   display: flex;
   align-items: flex-end;
@@ -201,7 +201,7 @@
   }
 }
 
-/* ── donut ── */
+/* ── halka grafik ── */
 .donutWrap {
   display: flex;
   align-items: center;
@@ -248,7 +248,7 @@
   color: #e66c37;
 }
 
-/* ── slicer + bar chart ── */
+/* ── süzgeç + çubuk grafik ── */
 .slicer {
   grid-column: 1 / -1;
   display: flex;
@@ -333,7 +333,7 @@
   opacity: 0.28;
 }
 
-/* ── table ── */
+/* ── tablo ── */
 .table {
   flex: 1;
   width: 100%;
@@ -381,7 +381,7 @@
   font-style: italic;
 }
 
-/* ── funnel ── */
+/* ── huni ── */
 .funnel {
   flex: 1;
   display: flex;
@@ -460,7 +460,7 @@
   }
 }
 
-/* ── page tabs ── */
+/* ── sayfa sekmeleri ── */
 .tabs {
   display: flex;
   gap: 2px;
@@ -484,7 +484,7 @@
   border-bottom-color: #f2c811;
 }
 
-/* Selin's mouse */
+/* Selin'in faresi */
 .pointer {
   position: absolute;
   left: 0;
@@ -563,8 +563,8 @@
   }
 }
 
-/* a phone on its side: the shared screen is barely a hundred pixels high, so the page keeps
-   its natural height and scrolls inside it instead of squeezing the cards on top of each other */
+/* yan çevrilmiş telefon: paylaşılan ekran ancak yüz piksel yüksekliğinde; bu yüzden sayfa doğal
+   yüksekliğini korur ve kartları üst üste sıkıştırmak yerine içinde kayar */
 @media (max-height: 520px) {
   .page {
     overflow-y: auto;

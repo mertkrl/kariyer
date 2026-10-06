@@ -1,49 +1,49 @@
 /*
- * The shapes of what arrives on the phones: messages, quick replies, the manager's requests
- * and the scripted lines that become them.
+ * Telefonlara gelenlerin biçimleri: mesajlar, hızlı cevaplar, müdürün ricaları ve bunlara
+ * dönüşen senaryolu satırlar.
  */
 import type { Decision } from './types';
 
-/** Chats on the phone: the manager, your mother, and the office group. */
+/** Telefondaki sohbetler: müdür, annen ve ofis grubu. */
 export type ThreadId = 'manager' | 'mom' | 'office' | 'ayse' | 'birthday';
 
-/** Group chats: they can be muted. */
+/** Grup sohbetleri: sessize alınabilir. */
 export const GROUP_THREADS: ThreadId[] = ['office', 'birthday'];
 
 export interface PhoneMessage {
   id: number;
   thread: ThreadId;
-  /** Workday minute it arrived. */
+  /** Geldiği mesai dakikası. */
   at: number;
-  /** Day index it arrived on (the chats keep the whole week). */
+  /** Geldiği günün sırası (sohbetler bütün haftayı tutar). */
   day?: number;
   from: 'them' | 'me';
-  /** Group chats: who wrote it. */
+  /** Grup sohbetleri: kimin yazdığı. */
   sender?: string;
   text: string;
   requestId?: string;
-  /** Optional quick replies (mom / office). Answering is up to you. */
+  /** İsteğe bağlı hızlı cevaplar (anne / ofis). Cevap vermek sana kalmış. */
   replies?: QuickReply[];
   answered?: boolean;
-  /** The moment passed: the chat moved on and a reply now would make no sense. */
+  /** An geçti: sohbet ilerledi ve şimdi verilecek bir cevabın anlamı kalmadı. */
   expired?: boolean;
 }
 
 export interface QuickReply {
   text: string;
-  /** What comes back, and from whom (group chats). */
+  /** Geri gelen ve kimden geldiği (grup sohbetleri). */
   reaction: string;
   reactionSender?: string;
-  /** Some replies (to the manager) count as taking a side. */
+  /** Bazı cevaplar (müdüre) taraf tutmak sayılır. */
   stance?: 'comply' | 'refuse';
-  /** "Let him send his CV": the neighbour's son applies on Thursday. */
+  /** "CV'sini göndersin": komşunun oğlu Perşembe başvurur. */
   neighbourCv?: boolean;
-  /** What saying this does to you. */
+  /** Bunu söylemenin sana etkisi. */
   performans?: number;
   vicdan?: number;
-  /** Some things can't be said in the group: the answer comes later, in private. */
+  /** Bazı şeyler grupta söylenemez: cevap sonra, özelden gelir. */
   aside?: { thread: 'ayse' | 'mom'; after: number; text: string };
-  /** Saying yes puts something on today's calendar that costs time (the birthday cake). */
+  /** Evet demek bugünün takvimine zaman alan bir şey koyar (doğum günü pastası). */
   event?: { at: number; minutes: number; text: string };
 }
 
@@ -52,13 +52,13 @@ export interface ManagerRequest {
   candidateId: string;
   want: Decision;
   answer: 'comply' | 'refuse' | null;
-  /** Which request template he used (for the phone call's wording). */
+  /** Hangi rica şablonunu kullandığı (telefon aramasının sözleri için). */
   template?: number;
 }
 
 /**
- * A message waiting to be sent. Its wording is chosen at delivery time, so it reflects how the
- * relationship with the manager has developed by then.
+ * Gönderilmeyi bekleyen bir mesaj. Sözleri teslim anında seçilir; böylece müdürle ilişkinin o
+ * ana kadar nasıl geliştiğini yansıtır.
  */
 export interface ScheduledMessage {
   at: number;
@@ -66,15 +66,15 @@ export interface ScheduledMessage {
   dayIndex: number;
   grievances?: Grievance[];
   request?: Omit<ManagerRequest, 'answer' | 'template'> & { template: number };
-  /** A request call he's making again because you didn't pick up the first time. */
+  /** İlk seferde açmadığın için yeniden yaptığı bir rica araması. */
   retry?: boolean;
-  /** Ambient chatter (mom / office group). */
+  /** Ortam sohbeti (anne / ofis grubu). */
   ambient?: { thread: Exclude<ThreadId, 'manager'>; sender?: string; text: string; replies?: QuickReply[]; closes?: boolean };
 }
 
 /**
- * How far the relationship has soured: 0 friendly · 1 cool · 2 cold/formal · 3 hostile.
- * Every refusal pushes it one step.
+ * İlişkinin ne kadar bozulduğu: 0 dostça · 1 mesafeli · 2 soğuk/resmî · 3 düşmanca.
+ * Her ret onu bir adım ileri iter.
  */
 export type ManagerTone = 0 | 1 | 2 | 3;
 
@@ -84,17 +84,17 @@ export interface RequestTemplate {
   text: (name: string) => string;
 }
 
-/** Life outside the inbox — messages that make the phone feel like someone's phone. */
-/** `closes`: someone shuts the topic down; the thread's open replies go away with it. */
+/** Gelen kutusunun dışındaki hayat: telefonu birinin telefonu gibi hissettiren mesajlar. */
+/** `closes`: biri konuyu kapatır; sohbetin açık cevapları da onunla birlikte gider. */
 export type FollowUp = { after: number; sender: string; text: string; closes?: boolean };
 
-/** A line in a chat. Group lines carry follow-ups: colleagues answering each other, some at once, some much later. */
+/** Sohbette bir satır. Grup satırları devamını taşır: birbirine cevap veren iş arkadaşları, kimi hemen, kimi çok sonra. */
 export type Ambient = { at: number; thread: 'mom' | 'office' | 'ayse' | 'birthday'; sender?: string; text: string; replies?: QuickReply[]; followUps?: FollowUp[] };
 
-/** A request the manager made yesterday that wasn't carried out. */
+/** Müdürün dün istediği ve yapılmayan bir rica. */
 export interface Grievance {
   name: string;
   want: Decision;
-  /** You had answered "I'll do it". */
+  /** "Yaparım" diye cevap vermiştin. */
   promised: boolean;
 }

@@ -1,10 +1,10 @@
 /*
- * The phone apps' logic, apart from their screens: the traffic model behind "Trafik", the
- * map's pan/zoom limits, and how Kariyergram builds its feed.
+ * Telefon uygulamalarının ekranlarından ayrı mantığı: "Trafik"in arkasındaki trafik modeli,
+ * haritanın kaydırma/yakınlaştırma sınırları ve Kariyergram'ın akışını nasıl kurduğu.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ROUTES, arrival, congestionColor, smooth, trafficAt } from '../src/components/phone/apps/traffic/trafficModel';
+import { HOME, ROUTES, arrival, congestionColor, smooth, trafficAt } from '../src/components/phone/apps/traffic/trafficModel';
 import { clampView } from '../src/components/phone/apps/traffic/useMapView';
 import { EXPLORE_EXTRA, buildFeed, handleOf, toggled } from '../src/components/phone/apps/social/socialFeed';
 import { SOCIAL_DAYS } from '../src/components/phone/apps/socialContent';
@@ -14,21 +14,22 @@ test('trafik: akşam yoğunluğu araba süresini uzatır, sabah normaldir', () =
   const evening = trafficAt(540, 0);
   assert.equal(morning.rush, 0);
   assert.equal(evening.rush, 1);
-  const car = ROUTES.find((r) => r.id === 'car15')!;
+  const car = ROUTES.find((r) => r.id === 'carD100')!;
   assert.ok(evening.eta(car) > morning.eta(car));
-  // the metrobus has its own lane: it barely notices the rush
+  // metrobüsün kendi şeridi var: yoğunluğu pek fark etmez
   const bus = ROUTES.find((r) => r.mode === 'bus')!;
   assert.ok(evening.eta(bus) - morning.eta(bus) < evening.eta(car) - morning.eta(car));
 });
 
-test('trafik: kötü havada vapur iptal olur ve seçilemez', () => {
-  const calm = trafficAt(300, 0);
+test('trafik: ev Bağcılar\'da; metro trafikten ve havadan etkilenmez, kötü havada Basın Ekspres uyarısı çıkar', () => {
+  assert.deepEqual(HOME, [46, 152]);
+  const rail = ROUTES.find((r) => r.mode === 'rail')!;
+  assert.equal(trafficAt(300, 0).eta(rail), trafficAt(300, 0.3).eta(rail), 'hava metroyu yavaşlatmaz');
   const storm = trafficAt(300, 0.3);
-  assert.equal(calm.ferryCancelled, false);
-  assert.ok(calm.available.some((r) => r.mode === 'ferry'));
-  assert.equal(storm.ferryCancelled, true);
-  assert.ok(!storm.available.some((r) => r.mode === 'ferry'));
-  assert.ok(storm.incidents.some((i) => i.label.includes('vapur')));
+  assert.ok(storm.incidents.some((i) => i.label.includes('Basın Ekspres')));
+  assert.ok(!trafficAt(300, 0).incidents.some((i) => i.label.includes('Basın Ekspres')));
+  // her rota ofisten başlar, evde biter
+  for (const r of ROUTES) assert.match(r.d, /^M186 100 /);
   assert.ok(storm.available.includes(storm.best));
 });
 

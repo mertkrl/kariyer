@@ -7,14 +7,14 @@ import { Button } from '../components/ui/Button';
 import styles from './OfferScreen.module.css';
 
 /*
- * Friday, 18:40. The hire is done, the floor is empty, only Defne's monitor is on. Hakan Bey
- * stops at the door: the trial is over, the post is for one. What she says here is how the
- * week ends at work (offer.ts); the phone call with Mom that night is how it ends at home.
+ * Cuma, 18:40. İşe alım bitti, kat boşaldı, yalnızca Defne'nin ekranı açık. Hakan Bey kapıda
+ * durur: deneme süresi bitti, kadro tek kişilik. Burada söyledikleri haftanın işte nasıl
+ * bittiğidir (offer.ts); o gece annesiyle telefon konuşması ise evde nasıl bittiği.
  */
 
 type Line = { kind: 'his' | 'stage' | 'mine'; text: string };
 
-/** A quoted line is his; anything else is a stage direction. */
+/** Tırnak içindeki satır onundur; diğer her şey sahne yönergesidir. */
 const asLines = (texts: string[]): Line[] => texts.map((text) => ({ kind: text.startsWith('"') ? 'his' : 'stage', text }));
 
 export function OfferScreen() {
@@ -29,7 +29,7 @@ export function OfferScreen() {
 
   const [ctx] = useState<OfferContext>(() => ({
     performans,
-    // hard mode starts him one refusal in; that one isn't yours
+    // zor mod onu bir karşı çıkışla başlatır; o senin değil
     refusals: Math.max(0, stance.refusals - (difficulty === 'hard' ? 1 : 0)),
     complies: stance.complies,
     reform,

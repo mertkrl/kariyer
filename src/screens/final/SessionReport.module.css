@@ -1,7 +1,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  /* above the always-on sound button */
+  /* hep açık duran ses düğmesinin üstünde */
   z-index: 1001;
   background: rgba(10, 9, 8, 0.72);
   display: flex;
@@ -10,7 +10,7 @@
   padding: 32px 16px;
 }
 
-/* a sheet of paper: what gets printed */
+/* bir kâğıt: yazdırılan şey */
 .sheet {
   width: 100%;
   max-width: 720px;
@@ -122,7 +122,7 @@
   }
 }
 
-/* printing: only the sheet, on white, without its buttons */
+/* yazdırma: yalnızca kâğıt, beyaz üzerine, düğmeleri olmadan */
 @media print {
   :global(body) * {
     visibility: hidden;

@@ -1,10 +1,10 @@
 /*
- * What an applicant tracking system actually "reads": a parse, a keyword match against the ad,
- * a title match and a rank. Nothing in it is about the person; that is the point.
+ * Bir aday takip sisteminin gerçekte "okuduğu": bir ayrıştırma, ilana karşı anahtar kelime
+ * eşleşmesi, unvan eşleşmesi ve bir sıra. İçinde kişiyle ilgili hiçbir şey yok; mesele de bu.
  */
 import type { Candidate } from './types';
 
-/** Keywords lifted from the job ad; the system counts literal matches, nothing else. */
+/** İlandan alınan anahtar kelimeler; sistem birebir eşleşmeleri sayar, başka bir şeyi değil. */
 export const AD_KEYWORDS = ['Java', 'Spring', 'SQL', 'REST', 'Mikroservis', 'Docker', 'CI/CD', 'Git', 'Agile'];
 const TITLES = /yazılım|geliştirici|developer|engineer|mühendis/i;
 const PARSE_FIELDS = 8;
@@ -16,7 +16,7 @@ export interface AtsReport {
   parseNote: string;
   matched: string[];
   missing: string[];
-  /** The last title on the CV, and whether the parser recognised it as the advertised role. */
+  /** CV'deki son unvan ve ayrıştırıcının onu ilandaki rol olarak tanıyıp tanımadığı. */
   title: string;
   titleMatch: boolean;
   rank: number;
@@ -25,7 +25,7 @@ export interface AtsReport {
 
 export function atsReport(c: Candidate, applications: number): AtsReport {
   const text = [c.skills, c.experience, c.previousCompany, c.certifications].join(' ').toLowerCase();
-  // a keyword the system note says it couldn't find stays missing, whatever the CV says
+  // sistem notunun bulamadığını söylediği anahtar kelime, CV ne derse desin eksik kalır
   const notFound = /"([^"]+)" bulunamadı/.exec(c.systemLine)?.[1];
   const matched = AD_KEYWORDS.filter(
     (k) => k !== notFound && (text.includes(k.toLowerCase()) || (k === 'Mikroservis' && text.includes('microservice'))),
@@ -42,23 +42,23 @@ export function atsReport(c: Candidate, applications: number): AtsReport {
     missing: AD_KEYWORDS.filter((k) => !matched.includes(k)),
     title,
     titleMatch: TITLES.test(title),
-    // flagged files sink to the bottom of the pile, where no one scrolls
+    // işaretli dosyalar yığının dibine, kimsenin kaydırmadığı yere batar
     rank: flagged ? Math.round(of * 0.55) + (h % Math.round(of * 0.4)) : 4 + (h % 40),
     of,
   };
 }
 
-/** The system line with its match percentage taken from the same count the report shows. */
+/** Eşleşme yüzdesi raporun gösterdiği aynı sayımdan alınan sistem satırı. */
 export function systemLineWith(c: Candidate, report: AtsReport) {
   const pct = Math.round((report.matched.length / AD_KEYWORDS.length) * 100);
   return c.systemLine.replace(/ATS eşleşme %\d+/, `ATS eşleşme %${pct}`);
 }
 
 /**
- * The model's "fit score" out of 100, as the portal shows it. It follows the system's own
- * verdict (a flagged file scores low whatever it says), with a fixed spread per person so two
- * files with the same verdict don't read the same. The number looks precise; it is the verdict
- * with decimals' confidence.
+ * Modelin 100 üzerinden "uyum puanı", portalın gösterdiği gibi. Sistemin kendi kararını izler
+ * (işaretli bir dosya ne derse desin düşük puan alır); kişi başına sabit bir sapma vardır, böylece
+ * aynı karardaki iki dosya aynı okunmaz. Sayı kesin görünür; aslında ondalıklı bir güvenle
+ * söylenmiş karardır.
  */
 const SCORE_BAND: Record<Candidate['verdict'], [number, number]> = {
   priority: [82, 96],

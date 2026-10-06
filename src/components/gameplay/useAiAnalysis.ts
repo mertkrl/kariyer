@@ -6,25 +6,25 @@ import { SCAN_FIELD_DELAYS } from './scan';
 export const ANALYZE_DURATION_MS = 4600;
 
 /**
- * Running the AI on a file: the scan takes a few seconds (the CV card sweeps, the panel
- * spins), then its verdict opens next to the AI badge. Everything here belongs to one day:
- * a new morning starts with nothing analysed, and the verdict note belongs to one file.
+ * Bir dosyada yapay zekâyı çalıştırmak: tarama birkaç saniye sürer (CV kartı süpürülür, panel
+ * döner), sonra kararı yapay zekâ rozetinin yanında açılır. Buradaki her şey tek bir güne aittir:
+ * yeni bir sabah hiçbir şey analiz edilmemiş olarak başlar ve karar notu tek bir dosyaya aittir.
  */
 export function useAiAnalysis({ dayKey, onBreak, aiOffline }: { dayKey: number; onBreak: boolean; aiOffline: boolean }) {
   const currentCandidateId = useGameStore((s) => s.currentCandidateId);
   const recordAiUse = useGameStore((s) => s.recordAiUse);
   const [analyzed, setAnalyzed] = useState<{ day: number; ids: ReadonlySet<string> }>({ day: dayKey, ids: new Set() });
   const [analyzing, setAnalyzing] = useState<{ day: number; id: string } | null>(null);
-  /** The file whose verdict note is open; switching files folds it away. */
+  /** Karar notu açık olan dosya; dosya değiştirmek onu katlar. */
   const [noteFor, setNoteFor] = useState<string | null>(null);
-  // leaving the file folds its note away for good: coming back shows the dot, not the note
+  // dosyadan ayrılmak notunu kalıcı olarak katlar: geri dönünce not değil nokta görünür
   const [shownFile, setShownFile] = useState(currentCandidateId);
   if (shownFile !== currentCandidateId) {
     setShownFile(currentCandidateId);
     setNoteFor(null);
   }
 
-  // a scan still running when the day ends goes quiet
+  // gün bittiğinde hâlâ süren bir tarama susar
   useEffect(() => () => audioEngine.stopScan(), [dayKey]);
 
   const analyzingId = analyzing?.day === dayKey ? analyzing.id : null;
@@ -35,15 +35,15 @@ export function useAiAnalysis({ dayKey, onBreak, aiOffline }: { dayKey: number; 
     const day = dayKey;
     setAnalyzing({ day, id });
     recordAiUse();
-    // Lock-on ticks land when each CV field lights up (its --scan-delay + the pulse's 4% keyframe).
+    // Kilitlenme tıkırtıları her CV alanı yandığında düşer (--scan-delay'i + nabzın %4 ana karesi).
     audioEngine.startScan(
       ANALYZE_DURATION_MS / 1000,
       SCAN_FIELD_DELAYS.map((d) => d + 0.05),
     );
-    // The engine resolves the scan with a completion chime on its own.
+    // Motor taramayı kendi bitiş zil sesiyle sonlandırır.
     setTimeout(() => {
       setAnalyzed((prev) => ({ day, ids: new Set(prev.day === day ? prev.ids : []).add(id) }));
-      // the verdict pops up next to the AI badge; click the badge to fold it away
+      // karar yapay zekâ rozetinin yanında açılır; katlamak için rozete tıkla
       if (useGameStore.getState().currentCandidateId === id) setNoteFor(id);
       setAnalyzing((current) => (current?.id === id && current.day === day ? null : current));
     }, ANALYZE_DURATION_MS);

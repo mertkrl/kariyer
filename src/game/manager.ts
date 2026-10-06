@@ -13,12 +13,12 @@ export type { Grievance, ManagerRequest, ManagerTone, PhoneMessage, QuickReply, 
 export { OVERTIME_MOM } from './data/phoneScript';
 
 /*
- * "Müdür baskısı": the HR manager texts you through the day.
+ * "Müdür baskısı": İK müdürü gün boyunca sana yazar.
  *
- * Each workday gets a small script: a morning greeting, two requests aimed at candidates who are
- * actually in today's queue ("call X to interview, he's a friend's pick", "drop Y, family
- * situation…"), a post-lunch nudge and an afternoon pressure message. Replying commits you;
- * at the end of the day the manager checks what you actually did.
+ * Her iş gününün küçük bir senaryosu vardır: sabah selamı, bugünün kuyruğunda gerçekten olan
+ * adaylara yönelik iki rica ("X'i mülakata çağır, bir arkadaşın tavsiyesi", "Y'yi ele, aile
+ * durumu…"), öğleden sonra bir dürtme ve ikindi bir baskı mesajı. Cevap vermek seni bağlar;
+ * gün sonunda müdür gerçekte ne yaptığını kontrol eder.
  */
 
 export function managerTone(refusals: number): ManagerTone {
@@ -33,57 +33,55 @@ export const TONE_STATUS: Record<ManagerTone, { mood: string; status: string }> 
 };
 
 const REQUEST_SLOTS = [200];
-/** Thursday's call comes after lunch: the morning already has the crash and Seda. */
+/** Perşembe'nin araması öğleden sonra gelir: sabahta zaten çöküş ve Seda var. */
 const THURSDAY_REQUEST_SLOTS = [330];
-/** Hard mode: he pushes twice on those days. */
+/** Zor mod: o günlerde iki kez bastırır. */
 const HARD_REQUEST_SLOTS = [160, 380];
-/** He only pushes his people on Tuesdays and Thursdays. */
+/** Kendi adamlarını yalnızca Salı ve Perşembe öne iter. */
 const REQUEST_DAYS = [TUESDAY, THURSDAY];
 
 const MOM_SLOTS = [140, 190, 350, 410, 460];
 
-/** The week's story leans on these requests: the nephew, the 45-year-old, the mother. */
+/** Haftanın hikâyesi bu ricalara yaslanır: yeğen, 45 yaşındaki, anne. */
 const STORY_TARGETS = ['okan', 'kerem', 'seda', 'derya'];
 
-/** Builds today's message script from the day's queue. */
+/** Günün kuyruğundan bugünün mesaj senaryosunu kurar. */
 export function buildManagerScript(
   dayIndex: number,
   lineup: string[],
-  opts: { momOrder?: number[]; grievances?: Grievance[]; hard?: boolean; homeNotes?: { text: string; replies: QuickReply[] }[]; managerDay?: { complied: string[]; defied: string[] } } = {},
+  opts: { momOrder?: number[]; grievances?: Grievance[]; hard?: boolean; managerDay?: { complied: string[]; defied: string[] } } = {},
   rand: () => number,
 ): ScheduledMessage[] {
-  const { momOrder, hard, homeNotes, managerDay } = opts;
+  const { momOrder, hard, managerDay } = opts;
   const script: ScheduledMessage[] = [
-    // the phone stays quiet enough to work: from him, one reminder late in the day
+    // telefon çalışılacak kadar sessiz kalır: ondan günün sonlarında tek bir hatırlatma
     { at: 450, kind: 'openFiles', dayIndex },
   ];
 
   const available = REQUESTS.map((t, template) => ({ t, template, id: t.ids.find((id) => lineup.includes(id)) })).filter(
     (x): x is { t: RequestTemplate; template: number; id: string } => Boolean(x.id),
   );
-  // Shuffle and take up to one request per slot — but the story's key characters come first.
+  // Karıştır ve her yuvaya en fazla bir rica al; ama hikâyenin kilit karakterleri önce gelir.
   for (let i = available.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [available[i], available[j]] = [available[j], available[i]];
   }
-  // his own people first (the nephew above all), then the story's key characters
+  // önce kendi adamları (en başta yeğen), sonra hikâyenin kilit karakterleri
   const rank = (x: { id: string; t: RequestTemplate }) => (x.id === NEPHEW_ID || x.id === 'baris' ? 3 : x.t.want === 'approve' ? 2 : STORY_TARGETS.includes(x.id) ? 1 : 0);
   available.sort((a, b) => rank(b) - rank(a));
-  // One message from mom a day, at a quiet time (mid-morning or mid-afternoon, alternating).
+  // Günde bir mesaj anneden, sakin bir saatte (öğleden önce ya da ikindi, sırayla).
   const momPicks = (momOrder ?? shuffle([...MOM_POOL.keys()], rand)).slice(dayIndex * 2, dayIndex * 2 + 1).map((i) => MOM_POOL[i % MOM_POOL.length]);
   const slots = [MOM_SLOTS[dayIndex % 2 === 0 ? 1 : 2]];
-  // on a day home already has something to say, she skips the small talk
+  // evin zaten söyleyecek bir şeyi olduğu gün, ayaküstü sohbeti atlar
   if (!(FAMILY[dayIndex]?.length)) momPicks.forEach((m, i) => {
     script.push({ at: slots[i], kind: 'ambient', dayIndex, ambient: { thread: 'mom', text: m.text, replies: m.replies } });
   });
 
-  // home, tied to the table: the day you meet Kerem, mom remembers being "too old" at 50;
-  // the day of the second page, your brother's university doesn't make anyone's top ten
+  // ev, masaya bağlı: ilk gün kardeşinin okulu kimsenin ilk on'una girmiyor; Kerem'le
+  // karşılaştığın gün annen 50 yaşında "fazla yaşlı" bulunmayı hatırlıyor
   for (const f of FAMILY[dayIndex] ?? []) script.push({ at: f.at, kind: 'ambient', dayIndex, ambient: { thread: 'mom', text: f.text, replies: f.replies } });
-  // what happened at home last night (an unpaid bill) comes up in the morning
-  (homeNotes ?? []).forEach((n, i) => script.push({ at: 100 + i * 30, kind: 'ambient', dayIndex, ambient: { thread: 'mom', text: n.text, replies: n.replies } }));
 
-  // the office noticed how yesterday went with Hakan Bey — that's the office's line for the day
+  // ofis, dün Hakan Bey'le işlerin nasıl gittiğini fark etti: günün ofis cümlesi bu
   const team = managerDay ? teamReaction(managerDay, dayIndex) : [];
   for (const a of [...team, ...(AMBIENT[dayIndex] ?? []), ...(dayIndex === BIRTHDAY_DAY ? BIRTHDAY : [])]) {
     script.push({ at: a.at, kind: 'ambient', dayIndex, ambient: { thread: a.thread, sender: a.sender, text: a.text, replies: a.replies } });
@@ -120,7 +118,7 @@ function openFilesText(open: number, tone: ManagerTone) {
   ][tone];
 }
 
-/** Replies you can send to the manager's non-request messages; his reaction follows his mood. */
+/** Müdürün rica dışındaki mesajlarına gönderebileceğin cevaplar; tepkisi ruh hâlini izler. */
 export function managerQuickReplies(kind: ScheduledMessage['kind'], tone: ManagerTone, openFiles = 1): QuickReply[] | undefined {
   const t = tone;
   switch (kind) {
@@ -149,7 +147,7 @@ export function managerQuickReplies(kind: ScheduledMessage['kind'], tone: Manage
   }
 }
 
-/** Sent once if a message that expects an answer sits unanswered too long. */
+/** Cevap bekleyen bir mesaj çok uzun cevapsız kalırsa bir kez gönderilir. */
 export function managerNudge(tone: ManagerTone) {
   return [
     'Mesajımı görme fırsatınız oldu mu?',
@@ -161,8 +159,8 @@ export function managerNudge(tone: ManagerTone) {
 
 
 /**
- * The morning-after mail when yesterday's favours weren't done. Nothing in it can be quoted
- * against him: no "I asked you to", just "outcomes that differ from the team's expectations".
+ * Dünkü ricalar yapılmadığında ertesi sabahın e-postası. İçinde ona karşı alıntılanabilecek
+ * hiçbir şey yok: "sizden rica etmiştim" yok, yalnızca "ekibin beklentilerinden farklı sonuçlar".
  */
 export function reprimandText(grievances: Grievance[], tone: ManagerTone, opts: { meeting: boolean; justify: boolean }) {
   const names = grievances.map((g) => g.name).join(', ');
@@ -199,7 +197,7 @@ export function reprimandReplies(tone: ManagerTone): QuickReply[] {
   ];
 }
 
-/** The text of a scheduled message, in the manager's current tone. */
+/** Planlanmış bir mesajın metni, müdürün o anki tonuyla. */
 export function renderManagerMessage(m: ScheduledMessage, tone: ManagerTone, ctx: { lineupSize: number; openFiles: number }) {
   switch (m.kind) {
     case 'greeting':
@@ -221,8 +219,8 @@ export function renderManagerMessage(m: ScheduledMessage, tone: ManagerTone, ctx
 }
 
 /**
- * A favour asked over the landline — never in writing. The written template, spoken: anything
- * about "keeping it out of the records" goes, because a phone call already does that.
+ * Sabit hattan istenen bir rica, asla yazılı değil. Yazılı şablonun konuşulan hâli: "kayıtlara
+ * geçirmeme" ile ilgili her şey çıkar, çünkü telefon araması bunu zaten yapar.
  */
 export function requestCallLines(template: number, candidateId: string, tone: ManagerTone, retry = false): string[] {
   const body = REQUESTS[template]
@@ -238,8 +236,8 @@ export function requestCallLines(template: number, candidateId: string, tone: Ma
 }
 
 /**
- * Your side of the conversation hardens (or softens) with the stance you've been taking:
- * the more you've refused, the firmer the refusal; the more you've complied, the more servile.
+ * Konuşmadaki senin tarafın, aldığın tavırla sertleşir (ya da yumuşar): ne kadar çok
+ * reddettiysen ret o kadar kesin; ne kadar çok uyduysan o kadar boyun eğici.
  */
 export function replyText(answer: 'comply' | 'refuse', history: { refusals: number; complies: number }) {
   if (answer === 'comply') {
@@ -258,7 +256,7 @@ export function replyText(answer: 'comply' | 'refuse', history: { refusals: numb
   ][Math.min(3, history.refusals)];
 }
 
-/** The manager's answer to your reply, in the tone *after* this reply. */
+/** Müdürün cevabına verdiği karşılık, bu cevaptan *sonraki* tonla. */
 export function managerReaction(answer: 'comply' | 'refuse', tone: ManagerTone) {
   if (answer === 'comply') {
     return [
@@ -277,15 +275,15 @@ export function managerReaction(answer: 'comply' | 'refuse', tone: ManagerTone) 
 }
 
 /**
- * Not every favour is a wrong one: sometimes he asks you to call a strong candidate. Going
- * along with a request the file itself supports costs nothing on the conscience.
+ * Her rica yanlış değildir: bazen güçlü bir adayı çağırmanı ister. Dosyanın kendisinin
+ * desteklediği bir ricaya uymak vicdana hiçbir şeye mal olmaz.
  */
 export function requestIsFair(r: Pick<ManagerRequest, 'candidateId' | 'want'>) {
   const fit = candidateDetails[r.candidateId]?.hireFit ?? 3;
   return r.want === 'approve' ? fit >= 4 && r.candidateId !== NEPHEW_ID : fit <= 2;
 }
 
-/** Immediate effect of the reply itself. */
+/** Cevabın kendisinin anlık etkisi. */
 export const REPLY_EFFECT = {
   comply: { performans: 2, vicdan: -3 },
   refuse: { performans: -3, vicdan: 2 },
@@ -297,12 +295,12 @@ export interface ManagerVerdict {
   lines: string[];
 }
 
-/** End of day: did you do what the manager asked (and what you promised)? */
+/** Gün sonu: müdürün istediğini (ve söz verdiğini) yaptın mı? */
 export function evaluateRequests(
   requests: ManagerRequest[],
   decisions: Record<string, Decision>,
   ignoredMessages = 0,
-  /** Candidates whose references you checked and found solid: going against him is defensible. */
+  /** Referanslarını kontrol edip sağlam bulduğun adaylar: ona karşı çıkmak savunulabilir. */
   verified: Record<string, string> = {},
 ): ManagerVerdict {
   let performans = 0;
@@ -324,7 +322,7 @@ export function evaluateRequests(
       performans -= 3;
       lines.push(`${name}: müdüre karşı çıktın; ama bu sefer haklı olan oydu.`);
     } else if (did) {
-      // a decision backed by a reference check is hard to argue with
+      // referans kontrolüyle desteklenen bir kararla tartışmak zordur
       const backed = verified[r.candidateId] === 'ok';
       performans -= backed ? 1 : 3;
       vicdan += 3;
@@ -340,12 +338,12 @@ export function evaluateRequests(
   return { performans, vicdan, lines };
 }
 
-/** The office's reaction to yesterday, if there's anything to react to: whichever way you mostly went. */
+/** Ofisin düne tepkisi, tepki verecek bir şey varsa: çoğunlukla hangi yöne gittiysen. */
 function teamReaction(day: { complied: string[]; defied: string[] }, dayIndex: number): Ambient[] {
   if (day.complied.length === 0 && day.defied.length === 0) return [];
   const pool = day.complied.length > day.defied.length ? TEAM_COMPLIED : TEAM_DEFIED;
   return [pool[(dayIndex - 1) % pool.length]];
 }
 
-/** Size of mom's message pool (the store shuffles 0…n-1 once per game). */
+/** Annenin mesaj havuzunun boyutu (store, oyun başına bir kez 0…n-1'i karıştırır). */
 export const MOM_POOL_SIZE = MOM_POOL.length;

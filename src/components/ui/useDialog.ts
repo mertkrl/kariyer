@@ -3,9 +3,9 @@ import { useEffect, useRef } from 'react';
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * A modal's keyboard manners: Escape closes it, focus moves inside when it opens, and goes
- * back to whatever had it (the drawer, the phone icon) when it closes. Attach the returned ref
- * to the dialog's panel.
+ * Bir açılır pencerenin klavye görgüsü: Escape kapatır, açılınca odak içeri geçer, kapanınca
+ * odağı daha önce kim tuttuysa (çekmece, telefon simgesi) ona döner. Döndürülen ref'i pencerenin
+ * paneline bağla.
  */
 export function useDialog<T extends HTMLElement>(onClose: () => void) {
   const ref = useRef<T>(null);

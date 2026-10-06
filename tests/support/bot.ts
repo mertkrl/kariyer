@@ -1,7 +1,7 @@
 /*
- * A bot that plays a whole week tick by tick, the way the screens drive the store: open each
- * file, read it for a while (with the portal on screen), decide, answer whatever blocks the
- * clock. How it reads, decides and answers the manager is up to the caller.
+ * Bütün bir haftayı tik tik oynayan bir bot, ekranların store'u yönettiği gibi: her dosyayı aç,
+ * bir süre oku (portal ekrandayken), karar ver, saati tutan ne varsa cevapla. Nasıl okuduğu, karar
+ * verdiği ve müdüre cevap verdiği çağırana kalmış.
  */
 import { useGameStore } from '../../src/game/store';
 import { days } from '../../src/game/data/days';
@@ -12,15 +12,15 @@ const store = useGameStore;
 const MAX_TICKS_PER_DAY = 2000;
 
 export interface BotStyle {
-  /** Seconds to read the file before deciding. */
+  /** Karar vermeden önce dosyayı okuma saniyesi. */
   read: () => number;
   decide: (id: string) => Decision;
-  /** The manager asks a favour on the phone: go along with it? */
+  /** Müdür telefonda bir rica istiyor: uyulsun mu? */
   comply: () => boolean;
 }
 
 export interface Run {
-  /** `day:performans/vicdan/finalists@minutes`, one per workday. */
+  /** `gün:performans/vicdan/finalistler@dakika`, iş günü başına bir tane. */
   trace: string[];
   performans: number;
   vicdan: number;
@@ -57,16 +57,16 @@ export function playWeek(seed: number, style: BotStyle, difficulty: Difficulty =
       const open = lineupFor(st).find((id) => !st.decisions[id]);
       if (open && st.currentCandidateId !== open) {
         st.selectCandidate(open);
-        st.markReadThrough(open); // the whole CV fits, as on a tall screen
+        st.markReadThrough(open); // bütün CV sığıyor, uzun bir ekrandaki gibi
         reading = 0;
         need = style.read();
       } else if (open && ++reading >= need) {
         const d = style.decide(open);
         st.decide(d);
-        if (s().decisions[open] !== d) st.decide('reject'); // quota full
+        if (s().decisions[open] !== d) st.decide('reject'); // kontenjan dolu
       }
       const after = s();
-      // like the notices screen: every one of today's rejections, the ones already planned included
+      // bildirimler ekranı gibi: bugünün her reddi, zaten planlananlar da dahil
       const rejected = lineupFor(after).filter((id) => after.decisions[id] === 'reject');
       if (!open && rejected.some((id) => !after.plannedRejections[id]) && !after.rejectionMailsSent)
         st.planRejectionMails(Object.fromEntries(rejected.map((id) => [id, after.plannedRejections[id] ?? 'standard'])));

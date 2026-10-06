@@ -21,15 +21,15 @@ import { BIRTHDAY_DAY, MONDAY } from '../../game/weekdays';
 const WEATHER: WindowWeather[] = ['sunny', 'windy', 'rainy', 'snowy', 'cloudy'];
 
 interface DeskProps {
-  /** Stage → screen scale (the whole desk always fits; the room fills the rest). */
+  /** Sahneden ekrana ölçek (bütün masa her zaman sığar; oda geri kalanını doldurur). */
   scale: number;
   onOpenPc: () => void;
-  /** Opens the phone — on a given chat when a notification was tapped. */
+  /** Telefonu açar; bir bildirime dokunulduysa belirli bir sohbette. */
   onOpenPhone: (thread?: ThreadId | null) => void;
 }
 
-/** Your desk, seen from your chair. Everything on it is something you can pick up. */
-/** When the pizza reaches the desks on the team's late Thursday (see the office chat). */
+/** Sandalyenden görüldüğü hâliyle masan. Üstündeki her şey eline alabileceğin bir şey. */
+/** Ekibin geç kaldığı Perşembe pizzanın masalara vardığı an (bkz. ofis sohbeti). */
 const PIZZA_AT = 560;
 
 export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
@@ -48,7 +48,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   const visitCooler = useGameStore((s) => s.visitCooler);
   const clearDeskItem = useGameStore((s) => s.clearDeskItem);
   const eatPizza = useGameStore((s) => s.eatPizza);
-  // nothing costs time before you clock in, so nothing says how long it takes
+  // mesaiye başlamadan hiçbir şey zaman almaz, bu yüzden hiçbir şey ne kadar sürdüğünü söylemez
   const shiftStarted = useGameStore((s) => s.shiftStarted);
   const mins = (n: number) => (shiftStarted ? ` (${n} dk)` : '');
 
@@ -58,17 +58,17 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   const powerOut = activeEvent?.kind === 'power';
   const flower = flowerState(dayIndex, desk.lastWatered);
   const orchidHere = desk.flower && dayIndex === MONDAY;
-  // only the very first morning needs to be told where the day starts
+  // günün nerede başladığının söylenmesi yalnızca ilk sabah gerekir
   const firstClockIn = !shiftStarted && dayIndex === MONDAY;
 
   const [thought, setThought] = useState<string | null>(null);
   const [flowerOpen, setFlowerOpen] = useState(false);
   const [drawerShake, setDrawerShake] = useState(0);
-  // the desk lamp comes on by itself when it gets dark; you can switch it either way
+  // masa lambası hava kararınca kendiliğinden yanar; iki yöne de çevirebilirsin
   const [lampChoice, setLampChoice] = useState<boolean | null>(null);
   const lampOn = lampChoice ?? minutes >= 450;
 
-  // a new message makes the phone rattle on the desk (the notification itself shows elsewhere)
+  // yeni bir mesaj telefonu masada titretir (bildirimin kendisi başka yerde görünür)
   const [buzz, setBuzz] = useState<{ id: number; thread: ThreadId } | null>(null);
   const [seen, setSeen] = useState(phone.length);
   if (phone.length !== seen) {
@@ -88,7 +88,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
     return () => window.clearTimeout(id);
   }, [thought]);
 
-  // the room darkens towards five o'clock; the monitor and the lamp become the light in it
+  // oda saat beşe doğru kararır; içindeki ışık monitör ve lamba olur
   const dusk = Math.max(0, Math.min(1, (minutes - 420) / 120));
   const stageStyle = {
     width: STAGE_W,
@@ -97,9 +97,9 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
     '--dusk': dusk.toFixed(3),
   } as CSSProperties;
 
-  // what the week has left on the desk (decided each morning, so a note doesn't vanish mid-day)
+  // haftanın masada bıraktıkları (her sabah belirlenir, böylece bir not gün ortasında kaybolmaz)
   const [morningExtras] = useState(() => deskExtras({ dayIndex, cleared: desk.cleared }));
-  // back from Emre's surprise in the kitchen, your empty plate came with you
+  // mutfaktaki Emre sürprizinden dönünce boş tabağın da seninle geldi
   const backFromParty =
     dayIndex === BIRTHDAY_DAY &&
     minutes >= BIRTHDAY_PARTY.at + BIRTHDAY_PARTY.minutes &&
@@ -144,7 +144,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
       <div className={styles.stage} style={stageStyle}>
         <DeskRoom className={styles.room} scale={scale} />
 
-        {/* ── on the wall ── */}
+        {/* ── duvarda ── */}
         <div className={styles.aircon}>
           <AirConArt />
           <div className={styles.airflow} />
@@ -162,7 +162,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           <PosterArt />
         </div>
 
-        {/* ── the office around the desk, standing on the carpet ── */}
+        {/* ── masanın çevresindeki ofis, halının üstünde duran ── */}
         <div className={styles.extinguisher}>
           <ExtinguisherArt />
         </div>
@@ -176,7 +176,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           <WaterCoolerArt />
         </button>
 
-        {/* ── back of the desk ── */}
+        {/* ── masanın arkası ── */}
         <button className={`${styles.obj} ${styles.lamp}`} data-label={lampOn ? 'Lambayı kapat' : 'Lambayı aç'} aria-label={lampOn ? 'Lambayı kapat' : 'Lambayı aç'} onClick={() => {
           audioEngine.playUi('click');
           setLampChoice(!lampOn);
@@ -194,7 +194,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
         ))}
         {extras.map(renderExtra)}
 
-        {/* Thursday, the team stays late: Emre leaves a pizza box on every desk at 17:20 */}
+        {/* Perşembe ekip geç kalır: Emre 17:20'de her masaya bir pizza kutusu bırakır */}
         {dayIndex === TEAM_LATE_DAY && minutes >= PIZZA_AT && (
           <button
             className={styles.obj}
@@ -206,7 +206,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           </button>
         )}
 
-        {/* the welcome orchid is a first-morning thing: from Tuesday on someone has taken it away */}
+        {/* hoş geldin orkidesi ilk sabaha ait: Salı'dan itibaren biri onu kaldırmış */}
         {orchidHere && (
           <button className={`${styles.obj} ${styles.orchid}`} data-label={flower === 'fresh' ? 'Hoş geldin orkidesi' : 'Orkide · su istiyor'} aria-label={flower === 'fresh' ? 'Hoş geldin orkidesi' : 'Orkide · su istiyor'} onClick={() => setFlowerOpen((v) => !v)}>
             <OrchidArt state={flower} />
@@ -225,7 +225,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           <MonitorArt />
           <div className={`${styles.screen} ${powerOut ? styles.screenOff : ''}`}>
             {!powerOut && (
-              // the computer's own desktop, as it looks from your chair
+              // bilgisayarın kendi masaüstü, sandalyenden göründüğü gibi
               <div className={styles.miniDesktop}>
                 <div className={styles.miniWall}>
                   <b>
@@ -268,7 +268,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           </div>
         </button>
 
-        {/* ── front of the desk ── */}
+        {/* ── masanın önü ── */}
         <button
           className={`${styles.obj} ${styles.landline} ${ringingCaller ? styles.ringing : ''}`}
           data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
@@ -296,7 +296,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           <MobileArt lit={!!buzz || unreadTotal > 0} unread={unreadTotal} />
         </button>
 
-        {/* ── under the desk ── */}
+        {/* ── masanın altı ── */}
         <button
           key={`drawer-${drawerShake}`}
           className={`${styles.obj} ${styles.pedestal} ${drawerShake ? styles.rattle : ''}`}
@@ -311,7 +311,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
           <PedestalArt />
         </button>
 
-        {/* light: daylight fading, the monitor and the lamp taking over */}
+        {/* ışık: gün ışığı solar, monitör ve lamba devralır */}
         <div className={styles.dusk} />
         <div className={`${styles.screenGlow} ${powerOut ? styles.screenGlowOff : ''}`} />
         <div className={`${styles.lampGlow} ${lampOn ? styles.lampGlowOn : ''}`} />
@@ -352,20 +352,20 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   );
 }
 
-/** Something on top of the desk has the keyboard: a dialog, the computer, a text field. */
+/** Masanın üstündeki bir şey klavyeyi tutuyor: bir pencere, bilgisayar, bir metin alanı. */
 function deskBusy(root: HTMLElement, e: KeyboardEvent) {
   if (root.closest('[inert]')) return true;
   const t = e.target as HTMLElement | null;
   if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return true;
-  // a dialog that is actually showing: not the rotate hint hidden on a wide screen, not the
-  // computer's window left open behind the desk (its layer is inert while you're at the desk)
+  // gerçekten görünen bir pencere: geniş ekranda gizlenen döndürme ipucu değil,
+  // masanın arkasında açık bırakılmış bilgisayar penceresi de değil (masadayken onun katmanı etkisiz)
   return [...document.querySelectorAll('[role="dialog"]')].some((d) => d.getClientRects().length > 0 && !root.contains(d) && !d.closest('[inert]'));
 }
 
 /**
- * The desk's shortcuts: B the computer, T the mobile, H the landline, K the coffee, Ç the
- * drawer — each button names its key (data-key); the list is in the settings panel. Turkish
- * keyboards type ç; elsewhere C does the same.
+ * Masanın kısayolları: B bilgisayar, T cep telefonu, H sabit hat, K kahve, Ç çekmece. Her düğme
+ * tuşunu adlandırır (data-key); liste ayarlar panelinde. Türkçe klavyeler ç yazar; başka yerlerde
+ * C aynı işi yapar.
  */
 function useDeskKeys(rootRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
@@ -386,7 +386,7 @@ function useDeskKeys(rootRef: RefObject<HTMLDivElement | null>) {
 
 const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 
-/** Arrow keys move between the things on the desk: to the nearest one in that direction. */
+/** Ok tuşları masadaki şeyler arasında gezer: o yöndeki en yakın şeye. */
 function moveFocus(e: ReactKeyboardEvent<HTMLDivElement>) {
   const dir = ARROWS[e.key];
   const from = e.target as HTMLElement;
@@ -404,7 +404,7 @@ function moveFocus(e: ReactKeyboardEvent<HTMLDivElement>) {
     const along = (b.x - a.x) * dir[0] + (b.y - a.y) * dir[1];
     if (along <= 1) continue;
     const across = Math.abs((b.x - a.x) * dir[1]) + Math.abs((b.y - a.y) * dir[0]);
-    // straight ahead beats off to the side; outside the 45° cone only if nothing is inside it
+    // tam karşıdaki yandakini yener; 45°'lik koninin dışındaki ancak içinde hiçbir şey yoksa
     const score = along + across * 2 + (across > along ? 1e6 : 0);
     if (score < bestScore) {
       bestScore = score;

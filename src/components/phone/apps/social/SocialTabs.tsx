@@ -5,8 +5,8 @@ import styles from '../SocialApp.module.css';
 import { avatarStyle } from '../../../ui/avatarStyle';
 
 /*
- * The Explore, Activity and Profile tabs of Kariyergram. They only display; the state lives in
- * SocialApp.
+ * Kariyergram'ın Keşfet, Bildirimler ve Profil sekmeleri. Yalnızca gösterirler; durum
+ * SocialApp'te yaşar.
  */
 
 const TAGS = ['tümü', 'istanbul', 'İKhayatı', 'plazahayatı', 'mesaibitti', 'işarıyorum'];

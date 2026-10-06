@@ -7,7 +7,7 @@ export type ButtonSound = 'start' | 'confirm' | 'connect' | 'click' | 'none';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
-  /** Feedback sound; defaults to a neutral click. Use 'none' when the action plays its own sound. */
+  /** Geri bildirim sesi; varsayılanı nötr bir tık. Eylem kendi sesini çalıyorsa 'none' kullan. */
   sound?: ButtonSound;
 }
 
@@ -15,7 +15,7 @@ export function Button({ variant = 'primary', sound = 'click', className, onClic
   const classes = [styles.button, styles[variant], className].filter(Boolean).join(' ');
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
     if (sound !== 'none') {
-      audioEngine.init(); // first click may be the one that unlocks audio
+      audioEngine.init(); // ilk tık sesi açan tık olabilir
       audioEngine.playUi(sound);
     }
     onClick?.(e);

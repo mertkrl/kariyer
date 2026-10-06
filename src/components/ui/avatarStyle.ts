@@ -1,10 +1,10 @@
 import type { CSSProperties } from 'react';
 
 /*
- * Initials on a person's colour: white reads on the deep colours, but not on gold or sand, so
- * the text takes whichever of white and the page's ink has more contrast with the background.
- * A mid-tone that neither reaches 4.5:1 on (a dusty blue, a sage) is deepened a little until
- * white does: the person keeps their colour, a shade darker.
+ * Bir kişinin renginin üstünde baş harfler: beyaz koyu renklerde okunur ama altın ya da kum
+ * renginde okunmaz; bu yüzden yazı, beyaz ile sayfanın mürekkebinden arka planla hangisi daha
+ * fazla kontrast yapıyorsa onu alır. İkisinin de 4.5:1'e ulaşmadığı bir ara ton (tozlu mavi,
+ * adaçayı) beyaz okunana kadar biraz koyulaştırılır: kişi rengini korur, bir ton koyusuyla.
  */
 
 const AA = 4.5;
@@ -29,20 +29,20 @@ export function contrastRatio(a: string, b: string): number {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-/** The text colour (white or ink) that reads best on `background`. */
+/** `background` üzerinde en iyi okunan yazı rengi (beyaz ya da mürekkep). */
 export function inkOn(background: string): string {
   if (luminance(background) === null) return WHITE;
   return contrastRatio(WHITE, background) >= contrastRatio(INK, background) ? WHITE : INK;
 }
 
-/** `hex` darkened by `f` (0–1) towards black. */
+/** `hex`, `f` (0–1) kadar siyaha doğru koyulaştırılmış. */
 function darken(hex: string, f: number): string {
   const n = parseInt(hex.replace('#', ''), 16);
   const ch = (v: number) => Math.round(v * (1 - f)).toString(16).padStart(2, '0');
   return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
 }
 
-/** A background and text colour pair at least 4.5:1 apart, as close to `background` as it can be. */
+/** Aralarında en az 4.5:1 olan, `background`a olabildiğince yakın bir arka plan ve yazı rengi çifti. */
 export function readablePair(background: string): { background: string; color: string } {
   if (luminance(background) === null) return { background, color: WHITE };
   const color = inkOn(background);

@@ -1,8 +1,8 @@
 import type { EngineCore } from '../engineCore';
 
-/* Single calls from outside: gulls, a vapur horn, far thunder. Shared by the weather and street scenes. */
+/* Dışarıdan tek seferlik sesler: martılar, bir vapur düdüğü, uzak gök gürültüsü. Hava ve sokak sahneleri paylaşır. */
 
-/** Herring gull "kee-ow": FM-roughened sine with a rising-then-falling pitch, 2–4 calls. */
+/** Gümüş martının "kii-yov"u: FM ile pürüzlendirilmiş, yükselip alçalan perdeli sinüs, 2–4 çağrı. */
 export function playGullCall(engine: EngineCore, pan: number, distance: number) {
   const ctx = engine.ensureContext();
   if (!engine.sfxIn) return;
@@ -40,7 +40,7 @@ export function playGullCall(engine: EngineCore, pan: number, distance: number) 
   }
 }
 
-/** Distant vapur horn: two detuned low saws a fourth apart, slow swell, long echo off the shore. */
+/** Uzak vapur düdüğü: dörtlü aralıklı, akordu kaymış iki alçak testere dalgası, yavaş kabarma, kıyıdan uzun yankı. */
 export function playFerryHorn(engine: EngineCore) {
   const ctx = engine.ensureContext();
   if (!engine.sfxIn) return;
@@ -79,7 +79,7 @@ export function playFerryHorn(engine: EngineCore) {
   }, 5000);
 }
 
-/** Far thunder: low rumble that swells and rolls off over a few seconds. */
+/** Uzak gök gürültüsü: kabarıp birkaç saniyede yuvarlanarak uzaklaşan alçak bir gümbürtü. */
 export function playThunder(engine: EngineCore) {
   const ctx = engine.ensureContext();
   const steps = 64;

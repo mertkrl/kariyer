@@ -10,7 +10,7 @@
   gap: 12px;
 }
 
-/* One segment per candidate in queue order */
+/* Kuyruk sırasıyla aday başına bir dilim */
 .segments {
   display: flex;
   gap: 4px;

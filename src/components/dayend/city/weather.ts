@@ -1,8 +1,8 @@
 import { W, H, type RGB, type Rng, rgba, range, glowSprite } from './paint';
 
-/** Weather and water for the day-end scenes: rain, snow and light reflected on the sea. */
+/** Gün sonu sahneleri için hava ve su: yağmur, kar ve denize yansıyan ışık. */
 
-/* ── Weather ───────────────────────────────────────────────────────────────── */
+/* ── Hava ───────────────────────────────────────────────────────────────────── */
 
 export interface Drop {
   x: number;
@@ -15,7 +15,7 @@ export function makeDrops(r: Rng, n: number): Drop[] {
   return Array.from({ length: n }, () => ({ x: range(r, -100, W + 100), y: range(r, -100, H), z: range(r, 0.25, 1), v: range(r, 0.8, 1.2) }));
 }
 
-/** Rain streaks in three depth buckets, slanted by the wind. */
+/** Rüzgârla eğilmiş, üç derinlik kümesinde yağmur çizgileri. */
 export function rain(g: CanvasRenderingContext2D, drops: Drop[], dt: number, wind: number, color: RGB, alpha: number) {
   for (const d of drops) {
     d.y += (900 + d.z * 900) * d.v * dt;
@@ -43,7 +43,7 @@ export function rain(g: CanvasRenderingContext2D, drops: Drop[], dt: number, win
   }
 }
 
-/** Snowflakes with depth of field: near flakes are big and soft, far ones are pinpoints. */
+/** Alan derinlikli kar taneleri: yakın taneler büyük ve yumuşak, uzaktakiler iğne ucu. */
 export function snow(g: CanvasRenderingContext2D, flakes: Drop[], dt: number, t: number, alpha: number) {
   const sprite = glowSprite([255, 255, 255]);
   for (const f of flakes) {
@@ -60,7 +60,7 @@ export function snow(g: CanvasRenderingContext2D, flakes: Drop[], dt: number, t:
   g.globalAlpha = 1;
 }
 
-/* ── Water ─────────────────────────────────────────────────────────────────── */
+/* ── Su ─────────────────────────────────────────────────────────────────────── */
 
 export interface Reflection {
   x: number;
@@ -72,7 +72,7 @@ export interface Reflection {
   seed: number;
 }
 
-/** Shimmering light columns on water: broken, wobbling dashes that fade with distance from shore. */
+/** Suda parıldayan ışık sütunları: kıyıdan uzaklaştıkça solan, kırık, titreyen çizgiler. */
 export function reflections(g: CanvasRenderingContext2D, items: Reflection[], t: number) {
   for (const it of items) {
     const n = Math.max(2, Math.round(it.len / 5));

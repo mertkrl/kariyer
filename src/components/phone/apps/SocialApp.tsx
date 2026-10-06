@@ -14,11 +14,12 @@ import type { Note, Post, SocialAuthor, Tab } from './social/socialTypes';
 import styles from './SocialApp.module.css';
 
 /*
- * Kariyergram — a small, fully interactive social network: a feed with photo posts, stories,
- * a live poll, double-tap likes, comment sheets, saves; an explore grid with hashtag filters;
- * notifications that react to what you do; and a profile with the posts you saved. Candidates you rejected post about it here.
+ * Kariyergram: küçük ama tamamen etkileşimli bir sosyal ağ. Fotoğraflı gönderiler, hikâyeler,
+ * canlı bir anket, çift dokunuşla beğeni, yorum sayfaları ve kaydetme olan bir akış; etiket
+ * filtreli bir keşfet ızgarası; yaptıklarına tepki veren bildirimler; kaydettiğin gönderilerin
+ * olduğu bir profil. Reddettiğin adaylar burada bunun hakkında paylaşım yapar.
  *
- * This file holds the state and the actions; the pieces it renders live in ./social/.
+ * Bu dosya durumu ve eylemleri tutar; çizdiği parçalar ./social/ klasöründe yaşar.
  */
 
 export type { SocialAuthor };
@@ -27,10 +28,10 @@ const REPLY_BACK = ['Teşekkürler 🙏', 'Aynen öyle 😄', '❤️', 'Sağ ol
 
 interface SocialProps {
   rejected: SocialAuthor[];
-  /** Strong people you turned away earlier in the week, now posting their new job. */
+  /** Haftanın başında geri çevirdiğin güçlü insanlar, şimdi yeni işlerini paylaşıyor. */
   echoes?: Echo[];
   dayIndex?: number;
-  /** Rejected candidates who have written to you by now. */
+  /** Şimdiye kadar sana yazmış reddedilen adaylar. */
   dms?: DmCandidate[];
   dmHandled?: Record<string, DmKind>;
   onDm?: (id: string, kind: DmKind) => void;

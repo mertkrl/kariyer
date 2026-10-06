@@ -1,8 +1,8 @@
 import { type RGB, type Rng, rgba, mix, scale, range, pick, polyY, vGradient } from './paint';
 
-/** Istanbul's pieces for the day-end scenes: hillside towns, towers, mosques, Galata, gulls. */
+/** Gün sonu sahneleri için İstanbul'un parçaları: yamaç mahalleleri, kuleler, camiler, Galata, martılar. */
 
-/* ── City pieces ───────────────────────────────────────────────────────────── */
+/* ── Şehir parçaları ───────────────────────────────────────────────────────── */
 
 export interface Light {
   x: number;
@@ -25,9 +25,9 @@ const COOL: RGB[] = [
 ];
 
 /**
- * A hillside town at dusk, packed like Istanbul: rows of apartment blocks climbing the slope,
- * far rows small and hazy, near rows bigger with window grids, dark tree clumps in between.
- * Returns a sample of the lit windows so the scene can reflect them in the water.
+ * Alacakaranlıkta İstanbul gibi sıkış tıkış bir yamaç mahallesi: yokuşu tırmanan apartman sıraları,
+ * uzak sıralar küçük ve puslu, yakın sıralar pencere ızgaralarıyla daha büyük, aralarında koyu ağaç
+ * kümeleri. Sahne suya yansıtabilsin diye yanan pencerelerden bir örnek döndürür.
  */
 export function hillTown(
   g: CanvasRenderingContext2D,
@@ -44,7 +44,7 @@ export function hillTown(
     haze?: RGB;
     hazeA?: number;
     size?: number;
-    /** Snow on every roof. */
+    /** Her çatıda kar. */
     snow?: boolean;
   },
 ): Light[] {
@@ -70,7 +70,7 @@ export function hillTown(
   for (let x = o.x0; x <= o.x1; x += 20) bot = Math.max(bot, o.bottom(x));
   const size = o.size ?? 1;
   const haze = o.haze ?? [120, 100, 120];
-  // rows from the ridge (far) down to the shore (near), so near blocks overlap far ones
+  // sırtın tepesinden (uzak) kıyıya (yakın) sıralar; yakın bloklar uzaktakilerin üstüne biner
   for (let y = top - 6; y < bot + 20; ) {
     const d = Math.min(1, Math.max(0, (y - top) / Math.max(1, bot - top)));
     const s = size * (0.45 + d * 1.6);
@@ -79,7 +79,7 @@ export function hillTown(
       const w = s * range(r, 7, 15);
       if (y > ridgeY - 6 && y < o.bottom(x) + 4) {
         if (r() < 0.1) {
-          // trees
+          // ağaçlar
           g.fillStyle = rgba([22, 26, 30], 0.9);
           g.beginPath();
           g.ellipse(x + w / 2, y + s * 2, w * 0.7, s * range(r, 3, 5), 0, 0, Math.PI * 2);
@@ -96,7 +96,7 @@ export function hillTown(
             g.fillStyle = rgba(mix([226, 232, 244], haze, hz * 0.6), 0.9);
             g.fillRect(x - s * 0.3, y - h - s * 0.9, w + s * 0.6, Math.max(0.8, s * 1.2));
           }
-          // windows
+          // pencereler
           const cols = Math.max(1, Math.round(w / (s * 2.6)));
           const rows = Math.max(1, Math.round(h / (s * 3)));
           const ww = Math.max(0.8, s * 1.1);
@@ -119,7 +119,7 @@ export function hillTown(
     }
     y += s * range(r, 4, 6.5);
   }
-  // street lamps strung along the winding streets
+  // dolambaçlı sokaklar boyunca dizilmiş sokak lambaları
   for (let k = 0; k < Math.round((o.x1 - o.x0) / 60); k++) {
     let x = range(r, o.x0, o.x1);
     let y = range(r, top, bot);
@@ -133,7 +133,7 @@ export function hillTown(
       if (lights.length < 3000 && r() < 0.4) lights.push({ x, y, c: [255, 170, 90], a: 0.9, r: 1.6 });
     }
   }
-  // atmospheric haze towards the ridge
+  // sırta doğru atmosferik pus
   g.fillStyle = vGradient(g, top - 10, top + (bot - top) * 0.55, [
     [0, rgba(haze, (o.hazeA ?? 0.3) * 0.9)],
     [1, rgba(haze, 0)],
@@ -143,7 +143,7 @@ export function hillTown(
   return lights;
 }
 
-/** A modern tower with a glass curtain wall and lit office floors. Returns its roof point. */
+/** Cam giydirme cepheli ve ışıklı ofis katlı modern bir kule. Çatı noktasını döndürür. */
 export function tower(
   g: CanvasRenderingContext2D,
   r: Rng,
@@ -188,7 +188,7 @@ export function tower(
   g.fill();
   g.save();
   g.clip();
-  // floors
+  // katlar
   const floorH = o.floor ?? Math.max(3, w / 9);
   const cols = Math.max(2, Math.round(w / 5));
   for (let fy = top + floorH; fy < baseY - 2; fy += floorH) {
@@ -201,7 +201,7 @@ export function tower(
       g.fillRect(x + (c * w) / cols + 0.8, fy - floorH * 0.72, w / cols - 1.4, floorH * 0.55);
     }
   }
-  // glass reflection sheen
+  // cam yansıma parlaklığı
   const sheen = g.createLinearGradient(x, top, x + w, baseY);
   sheen.addColorStop(0, 'rgba(255,255,255,0.08)');
   sheen.addColorStop(0.5, 'rgba(255,255,255,0)');
@@ -225,7 +225,7 @@ export function tower(
   return { x: x + w / 2, y: o.crown === 'pyramid' ? top - w * 0.25 : top };
 }
 
-/** Floodlit Ottoman mosque silhouette — dome, semi-domes, minarets with balconies. */
+/** Işıklandırılmış Osmanlı camisi silüeti: kubbe, yarım kubbeler, şerefeli minareler. */
 export function mosque(
   g: CanvasRenderingContext2D,
   x: number,
@@ -236,7 +236,7 @@ export function mosque(
   const body = g.createLinearGradient(0, baseY - 90 * s, 0, baseY);
   body.addColorStop(0, rgba(o.stone));
   body.addColorStop(1, rgba(mix(o.stone, o.lit, o.litA)));
-  // lead domes: rounded shading, lit from the floodlights below
+  // kurşun kubbeler: yuvarlak gölgelendirme, aşağıdaki projektörlerle aydınlanmış
   const dome = g.createRadialGradient(x - 14 * s, baseY - 84 * s, 4 * s, x, baseY - 60 * s, 46 * s);
   dome.addColorStop(0, rgba(mix(scale(o.stone, 1.05), o.lit, o.litA * 0.5)));
   dome.addColorStop(0.6, rgba(scale(o.stone, 0.7)));
@@ -256,7 +256,7 @@ export function mosque(
   };
   const mh = (o.minaretH ?? 120) * s;
   const minaretXs = o.minarets === 4 ? [-92, -70, 70, 92] : [-72, 72];
-  // minarets behind
+  // arkadaki minareler
   for (const mx of minaretXs) {
     const cx = x + mx * s;
     const h = Math.abs(mx) > 80 ? mh * 0.82 : mh;
@@ -280,10 +280,10 @@ export function mosque(
       for (const f of [0.55, 0.75, 0.9]) g.fillRect(cx - 5 * s, baseY - h * f - 1 * s, 10 * s, 1 * s);
     }
   }
-  // base block
+  // taban bloğu
   g.fillStyle = body;
   g.fillRect(x - 62 * s, baseY - 44 * s, 124 * s, 44 * s);
-  // semi-domes and corner domes
+  // yarım kubbeler ve köşe kubbeleri
   g.fillStyle = dome;
   for (const [dx, rx, ry, by] of [
     [-40, 22, 17, 44],
@@ -296,7 +296,7 @@ export function mosque(
     g.fill();
     snowCap(x + dx * s, baseY - by * s, rx * s, ry * s);
   }
-  // drum + main dome
+  // kasnak + ana kubbe
   g.fillStyle = body;
   g.fillRect(x - 30 * s, baseY - 58 * s, 60 * s, 16 * s);
   g.fillStyle = dome;
@@ -323,7 +323,7 @@ export function mosque(
   }
 }
 
-/** Galata Tower: stone cylinder, lit gallery, conical cap. */
+/** Galata Kulesi: taş silindir, ışıklı şerefe, konik külah. */
 export function galata(g: CanvasRenderingContext2D, x: number, baseY: number, s: number) {
   const stone = g.createLinearGradient(x - 13 * s, 0, x + 13 * s, 0);
   stone.addColorStop(0, '#6d5a4a');
@@ -352,7 +352,7 @@ export function galata(g: CanvasRenderingContext2D, x: number, baseY: number, s:
   g.fill();
 }
 
-/** Snow settled on Galata Tower's cone and gallery. */
+/** Galata Kulesi'nin külahına ve şerefesine yerleşmiş kar. */
 export function galataSnow(g: CanvasRenderingContext2D, x: number, baseY: number, s: number) {
   g.fillStyle = 'rgba(236,241,250,0.92)';
   g.beginPath();
@@ -365,7 +365,7 @@ export function galataSnow(g: CanvasRenderingContext2D, x: number, baseY: number
   g.fillRect(x - 15 * s, baseY - 125 * s, 30 * s, 1.5 * s);
 }
 
-/* ── Birds ─────────────────────────────────────────────────────────────────── */
+/* ── Kuşlar ─────────────────────────────────────────────────────────────────── */
 
 export function gull(g: CanvasRenderingContext2D, x: number, y: number, s: number, flap: number, color: string) {
   const tip = -Math.sin(flap) * 5 * s;

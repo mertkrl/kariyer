@@ -1,8 +1,8 @@
 /*
- * Seeded randomness for the game's own decisions (who shows up on which day, which favours
- * the manager asks, hard mode's surprises). One seed per playthrough; every use draws from its
- * own stream named by a label, so the same seed gives the same week no matter in which order
- * things are asked for. Visual and audio noise keeps using Math.random: it changes nothing.
+ * Oyunun kendi kararları için tohumlu rastgelelik (kim hangi gün geliyor, müdür hangi ricaları
+ * istiyor, zor modun sürprizleri). Her oyun için bir tohum; her kullanım bir etiketle adlandırılmış
+ * kendi akışından çeker, böylece şeyler hangi sırayla istenirse istensin aynı tohum aynı haftayı
+ * verir. Görsel ve işitsel gürültü Math.random kullanmaya devam eder: hiçbir şeyi değiştirmez.
  */
 
 function hashLabel(label: string) {
@@ -11,7 +11,7 @@ function hashLabel(label: string) {
   return h >>> 0;
 }
 
-/** A stream of numbers in [0, 1) for this seed and label (mulberry32). */
+/** Bu tohum ve etiket için [0, 1) aralığında bir sayı akışı (mulberry32). */
 export function rngFor(seed: number, label: string): () => number {
   let a = (seed ^ hashLabel(label)) >>> 0;
   return () => {
@@ -23,7 +23,7 @@ export function rngFor(seed: number, label: string): () => number {
   };
 }
 
-/** A copy of `list` in random order (Fisher–Yates: every order equally likely). */
+/** `list`in rastgele sıralı bir kopyası (Fisher–Yates: her sıra eşit olasılıklı). */
 export function shuffle<T>(list: readonly T[], rand: () => number): T[] {
   const out = [...list];
   for (let i = out.length - 1; i > 0; i--) {
@@ -33,7 +33,7 @@ export function shuffle<T>(list: readonly T[], rand: () => number): T[] {
   return out;
 }
 
-/** A new playthrough's seed: `?seed=123` in the address replays that week, otherwise a fresh one. */
+/** Yeni bir oyunun tohumu: adresteki `?seed=123` o haftayı yeniden oynatır, yoksa yepyeni bir tane. */
 export function newSeed(replay?: number): number {
   if (replay !== undefined && Number.isInteger(replay) && replay > 0) return replay;
   const asked = Number(new URLSearchParams(window.location.search).get('seed'));

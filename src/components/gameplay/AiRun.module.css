@@ -1,4 +1,4 @@
-/* The AI box is a paper portal module with a blue system accent (GameplayScreen.module.css: .systemBox) */
+/* Yapay zekâ kutusu, mavi sistem vurgulu kâğıt bir portal modülüdür (GameplayScreen.module.css: .systemBox) */
 
 .run {
   display: flex;
@@ -132,7 +132,7 @@
   }
 }
 
-/* ── the result ── */
+/* ── sonuç ── */
 
 .result {
   display: flex;

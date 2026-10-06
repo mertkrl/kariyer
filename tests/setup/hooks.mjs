@@ -1,7 +1,7 @@
 /*
- * Lets Node run the game's source as-is, with no test framework installed: Node strips the
- * TypeScript types itself; these hooks fill in what Vite normally does — extensionless
- * imports resolve to .ts/.tsx, and `import.meta.env` exists.
+ * Node'un oyunun kaynağını hiçbir test aracı kurulmadan olduğu gibi çalıştırmasını sağlar: Node
+ * TypeScript tiplerini kendisi siler; bu kancalar Vite'ın normalde yaptığını tamamlar: uzantısız
+ * içe aktarmalar .ts/.tsx'e çözülür ve `import.meta.env` vardır.
  */
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

@@ -1,10 +1,10 @@
 import type { ArtKind } from './artKinds';
 
 /*
- * Kariyergram content, day by day. Each workday has its own weather, its own gossip and its
- * own city news: Monday's sunset, Tuesday's wind and metrobüs, Wednesday's rain and the servis
- * gridlock, Thursday's snow. A few regulars (the poll, the AI sponsor) come back every day
- * with a new angle.
+ * Gün gün Kariyergram içeriği. Her iş gününün kendi havası, kendi dedikodusu ve kendi şehir
+ * haberleri var: Pazartesi'nin gün batımı, Salı'nın rüzgârı ve metrobüsü, Çarşamba'nın yağmuru ve
+ * servis kilitlenmesi, Perşembe'nin karı. Birkaç müdavim (anket, yapay zekâ sponsoru) her gün yeni
+ * bir açıdan geri gelir.
  */
 
 export interface Author {
@@ -56,7 +56,7 @@ const VAPUR: Author = { name: 'Vapur Saatleri', initials: 'VS', color: '#2f6f9f'
 const poll = (question: string, ...opts: [string, number][]) => ({ question, options: opts.map(([label, votes]) => ({ label, votes })) });
 
 export const SOCIAL_DAYS: DayContent[] = [
-  // Pazartesi — clear skies, sunset over the Bosphorus
+  // Pazartesi: açık hava, Boğaz'da gün batımı
   {
     stories: [
       { who: 'Ayşe', color: AYSE.color, photo: 'metrobus', text: 'Pazartesi 07:45 · metrobüs yine tıklım tıklım 😩' },
@@ -84,7 +84,7 @@ export const SOCIAL_DAYS: DayContent[] = [
       { who: 'emre.yildiz', color: EMRE.color, text: 'bir gönderinden bahsetti: "Kahve makinesi…"', photo: 'coffee' },
     ],
   },
-  // Salı — windy and grey, metrobüs day
+  // Salı: rüzgârlı ve gri, metrobüs günü
   {
     stories: [
       { who: 'Emre', color: EMRE.color, photo: 'metrobus', text: 'Metrobüste ayakta 45 dk = bedava fitness 🏋️' },
@@ -112,7 +112,7 @@ export const SOCIAL_DAYS: DayContent[] = [
       { who: 'kariyergunlugu', color: KG.color, text: 'bir ankette senin görüşünü soruyor.' },
     ],
   },
-  // Çarşamba — rain, and every plaza's servis leaving at 17:30
+  // Çarşamba: yağmur ve her plazanın 17:30'da kalkan servisi
   {
     stories: [
       { who: 'Ayşe', color: AYSE.color, photo: 'rain', text: 'Şemsiyemi evde unuttum. Klasik ☔' },
@@ -140,7 +140,7 @@ export const SOCIAL_DAYS: DayContent[] = [
       { who: 'aysedemir', color: AYSE.color, text: 'hikâyene tepki verdi: ☔' },
     ],
   },
-  // Perşembe — snow over the city, ferries still running
+  // Perşembe: şehrin üstünde kar, vapurlar hâlâ çalışıyor
   {
     stories: [
       { who: 'Selin', color: SELIN.color, photo: 'snow', text: 'KAR YAĞIYOR ❄️ İstanbul yine durdu' },

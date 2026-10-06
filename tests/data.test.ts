@@ -11,7 +11,7 @@ import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/game
 import { rngFor } from '../src/game/rng';
 import { jobDrafts, salaryText } from '../src/game/data/jobs';
 
-/** The label each verdict opens its system line with. Scoring reads `verdict`; players read the line. */
+/** Her kararın sistem satırını açtığı etiket. Puanlama `verdict`i okur; oyuncular satırı okur. */
 const LABELS = {
   priority: ['Öncelikli'],
   review: ['Ek inceleme', 'Süreç devam'],
@@ -31,7 +31,7 @@ test('hikâye rolleri verideki adaylara bağlı', () => {
   assert.equal(candidates[NEIGHBOUR_ID].storyRole, 'neighbour');
 });
 
-// Same seed, same week: the game logic draws only from rng.ts. Visual and audio noise lives outside src/game.
+// Aynı tohum, aynı hafta: oyun mantığı yalnızca rng.ts'den çeker. Görsel ve işitsel gürültü src/game dışında yaşar.
 test('oyun mantığı Math.random kullanmaz (rng.ts dışında)', () => {
   const root = new URL('../src/game', import.meta.url).pathname;
   const offenders = readdirSync(root, { recursive: true, encoding: 'utf8' })

@@ -8,7 +8,7 @@ export function DayBriefingScreen() {
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
   const beginDay = useGameStore((s) => s.beginDay);
   const day = days[currentDayIndex];
-  // the first morning: who you are, before the company tells you who you are to it
+  // ilk sabah: şirket sana onun için kim olduğunu söylemeden önce, kim olduğun
   const [introDone, setIntroDone] = useState(currentDayIndex > 0);
 
   if (!introDone) {
