@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { audioEngine } from '../../audio/audioEngine';
 import { INTERVIEW_LIMIT } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
+import own from './PoolPicker.module.css';
 import { avatarStyle } from '../../components/ui/avatarStyle';
 
 const sourceOf = (f: Finalist) => (f.by ? (f.by === 'ayse' ? 'Ayşe seçti' : 'Emre seçti') : f.byManager ? 'Hakan Bey ekletti' : f.day > 0 ? `Sen çağırdın · ${f.day}. gün` : 'Referans');
@@ -22,22 +23,22 @@ export function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < INTERVIEW_LIMIT ? [...p, id] : p));
   };
   return (
-    <section className={styles.picker} aria-labelledby="picker-title">
-      <h2 id="picker-title" className={styles.pickerTitle}>
+    <section className={own.picker} aria-labelledby="picker-title">
+      <h2 id="picker-title" className={own.pickerTitle}>
         Bugün kimlerle görüşeceksin?
       </h2>
-      <p className={styles.pickerLead}>
+      <p className={own.pickerLead}>
         Kısa listede <b>{everyone.length}</b> kişi var; bir günde en fazla <b>{INTERVIEW_LIMIT}</b> mülakat yapılabiliyor. Hakan Bey'in istedikleri listede kalıyor; kalan yerleri sen
         seç. Seçmediklerine bu iş için dönülmeyecek.
       </p>
-      <ul className={styles.pickerList}>
+      <ul className={own.pickerList}>
         {everyone.map((f) => {
           const c = candidateOf(f.id);
           const on = picked.includes(f.id);
           const isLocked = locked.has(f.id);
           return (
             <li key={f.id}>
-              <label className={`${styles.pickerItem} ${on ? styles.pickerOn : ''} ${isLocked ? styles.pickerLocked : ''}`}>
+              <label className={`${own.pickerItem} ${on ? own.pickerOn : ''} ${isLocked ? own.pickerLocked : ''}`}>
                 <input type="checkbox" checked={on} disabled={isLocked || (!on && full)} onChange={() => toggle(f.id)} />
                 <span className={styles.avatar} style={avatarStyle(c.color)}>
                   {c.initials}
@@ -46,13 +47,13 @@ export function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist
                   <span className={styles.listName}>{c.name}</span>
                   <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
                 </span>
-                <span className={styles.pickerSource}>{isLocked ? '🔒 ' : ''}{sourceOf(f)}</span>
+                <span className={own.pickerSource}>{isLocked ? '🔒 ' : ''}{sourceOf(f)}</span>
               </label>
             </li>
           );
         })}
       </ul>
-      <div className={styles.pickerFoot}>
+      <div className={own.pickerFoot}>
         <span className="mono">
           {picked.length}/{INTERVIEW_LIMIT} seçildi
         </span>

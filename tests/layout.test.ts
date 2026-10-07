@@ -36,8 +36,8 @@ test('çerçeve ölçüleri tek yerde tanımlı, başka yerde yeniden tanımlanm
   assert.deepEqual(elsewhere, []);
 });
 
-// Bir stil dosyası 1100 satırı geçerse bileşenine bölünmeli (GameplayScreen.module.css nasıl bölündüyse)
-const MAX_SHEET_LINES = 1100;
+// Bir stil dosyası 800 satırı geçerse bileşenine bölünmeli (GameplayScreen.module.css nasıl bölündüyse)
+const MAX_SHEET_LINES = 800;
 
 test('hiçbir stil dosyası bölünmeden büyümez', () => {
   const big = sheets.filter(({ css }) => css.split('\n').length > MAX_SHEET_LINES).map(({ f }) => f);

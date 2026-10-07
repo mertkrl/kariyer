@@ -1,0 +1,210 @@
+/* SocialTabs bileşeninin kendi stilleri (SocialApp.module.css dosyasından ayrıldı). */
+.avatarBig {
+  width: 72px;
+  height: 72px;
+  font-size: calc(24px * var(--ts, 1));
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #dd2a7b;
+}
+
+.tagRow {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tag {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #dbdbdb;
+  background: #fff;
+  font: inherit;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tagOn {
+  background: #1c1b19;
+  border-color: #1c1b19;
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: dense;
+  gap: 2px;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+  cursor: pointer;
+  background: #eee;
+}
+
+.tileBig {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.tileLikes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-weight: 800;
+  font-size: calc(12px * var(--ts, 1));
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.tile:hover .tileLikes {
+  opacity: 1;
+}
+
+.tileText {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  color: #fff;
+  font: inherit;
+  font-size: calc(9.5px * var(--ts, 1));
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+}
+
+/* Bildirimler */
+.activity {
+  padding: 4px 0;
+}
+
+.activity h3 {
+  margin: 8px 12px;
+  font-size: calc(15px * var(--ts, 1));
+}
+
+.noteRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: calc(12px * var(--ts, 1));
+  animation: postIn 0.3s ease both;
+  transition: background 0.6s ease;
+}
+
+.noteNew {
+  background: #eef6ff;
+}
+
+.noteText {
+  flex: 1;
+  line-height: 1.35;
+}
+
+.noteThumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Profil */
+.profile {
+  padding: 12px 0;
+}
+
+.profileTop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+}
+
+.stats {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+}
+
+.stats span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(10.5px * var(--ts, 1));
+  color: #3a3834;
+}
+
+.stats b {
+  font-size: calc(16px * var(--ts, 1));
+  color: #1c1b19;
+  animation: tick 0.3s ease;
+}
+
+.bio {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 10px 14px 6px;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+.bioChips {
+  display: flex;
+  gap: 6px;
+  padding: 0 14px 10px;
+}
+
+.bioChips span {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f2f2f2;
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.profileTabs {
+  display: flex;
+  border-top: 1px solid #efefef;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 700;
+  color: #8e8e8e;
+}
+
+.profileTabs span {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+}
+
+.profileTabOn {
+  color: #1c1b19;
+  border-top: 1.5px solid #1c1b19;
+  margin-top: -1px;
+}
+
+@keyframes postIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes tick {
+  from {
+    transform: translateY(-3px);
+    opacity: 0.4;
+  }
+}

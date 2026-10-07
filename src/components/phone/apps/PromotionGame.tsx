@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { audioEngine } from '../../../audio/audioEngine';
-import styles from '../Phone.module.css';
+import styles from './PromotionGame.module.css';
 
 /* ── Terfi (kariyer basamaklı bir 2048) ──────────────────────────────────── */
 

@@ -4,7 +4,7 @@ import { forbiddenQuestion } from '../../game/day/story';
 import { INTERVIEWER, type Interviewer } from '../../game/events/panel';
 import { LEAD } from './interviewModel';
 import { Turn } from './Conversation';
-import styles from '../FinalRoundScreen.module.css';
+import styles from './ColleagueReport.module.css';
 
 /*
  * Başka bir odadaki görüşme: o adayla Ayşe, Emre ya da Hakan Bey görüştü. Sen orada değildin;

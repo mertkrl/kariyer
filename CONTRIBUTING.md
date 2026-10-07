@@ -19,7 +19,7 @@
 | Puanlama ve sonlar | `src/game/engine/`; ardından `tests/balance*.test.ts` çalıştırılır, botların sırası bozulmamalı |
 | Oyun durumu ve kayıt | `src/game/store/`; kayıt biçimi değişirse `SAVE_VERSION` artar |
 | Oyundan bağımsız araçlar | `src/game/lib/` |
-| Bileşen stili | Bileşenin yanındaki `X.module.css`; 1.100 satırı geçen dosya bölünür |
+| Bileşen stili | Bileşenin yanındaki `X.module.css`; 800 satırı geçen dosya bölünür |
 | Animasyon | `requestAnimationFrame` kullanıyorsa `prefersReducedMotion()` sorulur |
 
 ## Sürüm yayımlamak

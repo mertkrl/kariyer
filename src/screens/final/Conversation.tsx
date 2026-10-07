@@ -6,7 +6,7 @@ import { SALARY_CAP } from '../../game/store/store';
 import { PLAYER } from '../../game/lib/player';
 import { AnswerText, CaseCard } from './InterviewParts';
 import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, type Entry, type Typing } from './interviewModel';
-import styles from '../FinalRoundScreen.module.css';
+import styles from './Conversation.module.css';
 
 /*
  * Odadaki kişiyle şimdiye kadarki konuşma, an an: senin soruların ve onun cevapları (canlı

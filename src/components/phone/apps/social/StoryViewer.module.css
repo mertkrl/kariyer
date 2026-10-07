@@ -1,0 +1,101 @@
+/* StoryViewer bileşeninin kendi stilleri (SocialApp.module.css dosyasından ayrıldı). */
+/* Hikâye görüntüleyici */
+.storyViewer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: #000;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  animation: fade 0.2s ease both;
+  overflow: hidden;
+}
+
+.storyShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 25%, transparent 55%, rgba(0, 0, 0, 0.7));
+}
+
+.storyBars {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+}
+
+.storyBars > span {
+  flex: 1;
+  height: 2.5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+}
+
+.storyBars i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: #fff;
+}
+
+.barDone {
+  width: 100% !important;
+}
+
+.barNow {
+  animation: storyBar 3.2s linear forwards;
+}
+
+.storyText {
+  position: relative;
+  margin: 0 14px 36px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  font-size: 1.15em;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.storyClose {
+  position: absolute;
+  top: 22px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: calc(14px * var(--ts, 1));
+  cursor: pointer;
+  z-index: 2;
+}
+
+.storyViewer:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes storyBar {
+  to {
+    width: 100%;
+  }
+}

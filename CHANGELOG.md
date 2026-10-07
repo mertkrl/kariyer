@@ -10,7 +10,8 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 ### Mimari ve kod kalitesi
 - `src/game/` alanlara ayrıldı: `store/`, `day/`, `events/`, `lib/`.
 - `GameplayScreen.module.css` (2.253 satır) bileşenlerinin kendi stil dosyalarına bölündü; ekrandaki görünüm değişmedi.
-- oxlint `max-lines` (500) uyarısı ve 1.100 satırı geçen stil dosyalarını yakalayan test.
+- `FinalRoundScreen.module.css` (1.094 → 481), `Phone.module.css` (1.087 → 496) ve `SocialApp.module.css` (1.030 → 401) bileşenlerine bölündü. Telefonun ana ekranı, sohbet listesi ve konuşma kendi bileşenlerinde (`PhoneHome`, `ChatList`, `ChatThread`).
+- oxlint `max-lines` (500) uyarısı ve 800 satırı geçen stil dosyalarını yakalayan test.
 
 ### Güvenlik ve performans
 - Service worker kaynağı `serviceWorker.ts`'e taşındı ve testle denetleniyor (yalnızca kendi adresi, müzik ilk indirmede yok, her derlemeye yeni önbellek).

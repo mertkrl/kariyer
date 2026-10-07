@@ -4,7 +4,7 @@ import { followUpVerdict } from '../../game/data/interviewExtras';
 import { caseVerdict } from '../../game/events/interview';
 import { NotesList, type Note } from './InterviewParts';
 import { LEAD, leadView } from './interviewModel';
-import styles from '../FinalRoundScreen.module.css';
+import styles from './Dossier.module.css';
 
 /*
  * Odadaki kişinin dosyası, konuşmanın yanında: bilgiler, anlaşılan maaş, onun hakkındaki

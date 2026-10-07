@@ -1,0 +1,97 @@
+/* CommentSheet bileşeninin kendi stilleri (SocialApp.module.css dosyasından ayrıldı). */
+/* Yorum sayfası */
+.sheetScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.35);
+  animation: fade 0.2s ease both;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 72%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  border-radius: 16px 16px 0 0;
+  background: #fff;
+  box-sizing: border-box;
+  animation: sheetUp 0.25s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.grabber {
+  align-self: center;
+  width: 34px;
+  height: 4px;
+  border-radius: 2px;
+  background: #dbdbdb;
+}
+
+.sheetTitle {
+  text-align: center;
+  font-size: calc(13px * var(--ts, 1));
+  padding-bottom: 6px;
+  border-bottom: 1px solid #efefef;
+}
+
+.sheetList {
+  flex: 1;
+  min-height: 60px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commentRow {
+  font-size: calc(12px * var(--ts, 1));
+  line-height: 1.4;
+  animation: postIn 0.25s ease both;
+}
+
+.commentMine b {
+  color: #c9a227;
+}
+
+.sheetChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.sheetChips button {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #dbdbdb;
+  background: #fff;
+  font: inherit;
+  font-size: calc(11.5px * var(--ts, 1));
+  cursor: pointer;
+}
+
+.sheetChips button:hover {
+  background: #f5f5f5;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes postIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}

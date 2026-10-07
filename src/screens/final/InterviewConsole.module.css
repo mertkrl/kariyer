@@ -1,0 +1,120 @@
+/* InterviewConsole bileşeninin kendi stilleri (FinalRoundScreen.module.css dosyasından ayrıldı). */
+/* ── Bundan sonra ne yapabilirsin ── */
+
+.console {
+  flex-shrink: 0;
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--border-muted);
+  background: rgba(34, 31, 27, 0.025);
+}
+
+.consoleTitle {
+  margin: 0 0 10px;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.consoleWait {
+  margin: 0;
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: calc(13.5px * var(--ts, 1));
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.option:hover,
+.question:hover {
+  border-color: #2d3a55;
+  box-shadow: 0 0 0 2px rgba(45, 58, 85, 0.12);
+}
+
+.option span {
+  color: var(--text-dim);
+}
+
+.optionPrimary {
+  border-color: rgba(63, 107, 99, 0.6);
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.question {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: calc(14px * var(--ts, 1));
+  text-align: left;
+  cursor: pointer;
+}
+
+.question small {
+  display: block;
+  margin-top: 2px;
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--text-muted);
+}
+
+.endButton {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 960px) {
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── mülakatın yeni parçaları: konsol ipucu, karşılaştırma, savunma ── */
+.consoleHint {
+  margin: 6px 0 0;
+  font-size: calc(12px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.endButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
