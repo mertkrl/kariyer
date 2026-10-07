@@ -21,7 +21,6 @@ import { useDeskCamera } from '../components/gameplay/useDeskCamera';
 import { useWorkdaySounds } from '../components/gameplay/useWorkdaySounds';
 import { useWorkdayControls } from '../components/gameplay/useWorkdayControls';
 import { Portal } from '../components/gameplay/Portal';
-import { APTITUDE_MAIL_AT } from '../game/data/aptitudeTest';
 import styles from './GameplayScreen.module.css';
 
 /*
@@ -54,7 +53,6 @@ export function GameplayScreen() {
   const extraMails = useGameStore((s) => s.extraMails);
   const answerCandidateMail = useGameStore((s) => s.answerCandidateMail);
   const mailRead = useGameStore((s) => s.mailRead);
-  const aptitudeDone = useGameStore((s) => !!s.story.aptitude);
   const readMail = useGameStore((s) => s.readMail);
   const activeEvent = useGameStore((s) => s.activeEvent);
   const difficulty = useGameStore((s) => s.difficulty);
@@ -206,7 +204,6 @@ export function GameplayScreen() {
             extraMails={extraMails}
             finalistNames={finalists.map((f) => candidateOf(f.id).name)}
             beckonPortal={!shiftStarted && currentDayIndex === 0}
-            beckonTest={currentDayIndex === 0 && !aptitudeDone && workdayMinutes >= APTITUDE_MAIL_AT}
             portal={<Portal active={portalActive} onBreak={onBreak} analysis={analysis} aiOffline={aiOffline} itOutage={itOutage} nameRef={nameRef} />}
           />
         </div>

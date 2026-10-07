@@ -103,8 +103,10 @@ export interface StoryActions {
   /** Bildirimleri 17:00 için giden kutusuna koy (saat geçtiyse hemen). */
   planRejectionMails: (choices: Record<string, RejectTemplate>) => void;
   readMail: (id: string) => void;
-  /** Pazartesi: genel yetenek testini bitir (her soru için seçilen şık ya da süre dolduysa null). */
+  /** Değerlendirme uygulamasında testi kendin çözdün (her soru için seçilen şık ya da süre dolduysa null). */
   finishAptitude: (answers: AptitudeAnswer[]) => void;
+  /** Kendin çözerken geçen bir soru: mesaiden düşer. */
+  aptitudeStep: () => void;
   /** Reddine cevap veren bir adaya yaz (rejectionMails.ts: REPLY_BACK). */
   answerCandidateMail: (mailId: string, kind: ReplyBack) => void;
   /** Cuma: bir adayla maaş konuşmasının puanlarına yaptığı. */

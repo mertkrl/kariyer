@@ -72,7 +72,7 @@ export interface StoryState {
   neighbourCv: boolean;
   /** Çağırdığın ama yolu kapandığı için mülakata gelemeyen adaylar (Perşembe karı). */
   stranded?: string[];
-  /** Pazartesi çözdüğün genel yetenek testi; Perşembe adayların arasında görünür. */
+  /** Değerlendirme uygulamasında kendin çözdüğün test; adayların arasında görünür. */
   aptitude?: AptitudeResult;
 }
 

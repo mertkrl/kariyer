@@ -5,7 +5,6 @@
  */
 
 import { PLAYER } from '../lib/player';
-import { APTITUDE_MAIL_AT } from '../data/aptitudeTest';
 
 export interface Mail {
   id: string;
@@ -93,28 +92,6 @@ Deneme sürenizin ilk haftası olduğunu hatırlatırım.
 Saygılarımla,
 Hakan Kaya
 İnsan Kaynakları Müdürü`,
-  },
-  {
-    id: 'aptitude',
-    day: 0,
-    at: APTITUDE_MAIL_AT,
-    from: 'İK Ekibi',
-    address: 'ik@tavrinsalabs.test',
-    subject: 'Zorunlu: Genel Yetenek ve Uyum Değerlendirmesi',
-    important: true,
-    body: `Merhaba ${PLAYER.first},
-
-Deneme sürecindeki tüm çalışanlarımız, adaylarımızla aynı Genel Yetenek ve Uyum Değerlendirmesi'ni tamamlar. Böylece hepimiz aynı standartla ölçülürüz 💛
-
-• Masaüstündeki "Değerlendirme" uygulamasından bugün 17:00'ye kadar çözebilirsin.
-• 12 soru, her soru için 30 saniye. Geri dönüş yoktur.
-• Yaklaşık 25 dakika sürer; bu süre mesaiden düşülür.
-• Sonuçlar Perşembe, aday sonuçlarıyla birlikte paylaşılacaktır.
-
-Test deneyimini değil, potansiyelini ölçer. Hazırlanmana gerek yok!
-
-Sevgiler,
-İK Ekibi`,
   },
   {
     id: 'flood',

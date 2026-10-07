@@ -15,7 +15,7 @@ import { later } from '../lib/later';
 import { NEPHEW_ID } from '../data/candidates';
 import { salaryTalk } from '../events/interview';
 import { scoreAptitude } from '../events/aptitude';
-import { APTITUDE_MINUTES } from '../data/aptitudeTest';
+import { APTITUDE_MINUTES_PER_QUESTION } from '../data/aptitudeTest';
 
 export const createStorySlice = (set: SetState, get: GetState): StoryActions => ({
   askForbidden: () =>
@@ -115,8 +115,8 @@ export const createStorySlice = (set: SetState, get: GetState): StoryActions => 
     const state = get();
     if (state.phase !== 'gameplay' || state.story.aptitude) return;
     set({ story: { ...state.story, aptitude: scoreAptitude(answers) } });
-    spendMinutes(APTITUDE_MINUTES);
   },
+  aptitudeStep: () => spendMinutes(APTITUDE_MINUTES_PER_QUESTION),
   readMail: (id) => set((state) => (state.mailRead.includes(id) ? state : { mailRead: [...state.mailRead, id] })),
   settleSalary: (id, move) => {
     const state = get();

@@ -18,7 +18,7 @@ import { avatarStyle } from '../ui/avatarStyle';
 
 export type PcApp = 'portal' | 'mail' | 'calendar' | 'sheet' | 'test';
 
-const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Ortak Liste — Adaylar_FINAL_v7 (salt okunur)', test: 'Assessa — Genel Yetenek ve Uyum Değerlendirmesi' };
+const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Ortak Liste — Adaylar_FINAL_v7 (salt okunur)', test: 'Assessa — Aday Değerlendirme Sonuçları' };
 
 interface PcDesktopProps {
   app: PcApp | null;
@@ -39,8 +39,6 @@ interface PcDesktopProps {
   finalistNames?: string[];
   /** Mesai başlamadan önce: günün başladığı portalı işaret et. */
   beckonPortal?: boolean;
-  /** Pazartesi, mail geldikten sonra: değerlendirme henüz çözülmedi. */
-  beckonTest?: boolean;
 }
 
 /** Ortak Liste simgesi: satırlı bir kâğıt. */
@@ -55,7 +53,7 @@ function ListGlyph() {
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 
-export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, onAnswerMail, extraMails, finalistNames = [], beckonPortal = false, beckonTest = false }: PcDesktopProps) {
+export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, onAnswerMail, extraMails, finalistNames = [], beckonPortal = false }: PcDesktopProps) {
   const mails = inbox(dayIndex, minutes, extraMails);
   const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !m.spam && !mailRead.includes(m.id)).length;
   const [toast, setToast] = useState<string | null>(null);
@@ -118,10 +116,9 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
         </button>
         <button className={styles.icon} data-app="test" onClick={() => open('test')}>
           <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphTest}`}>
-            ✎{beckonTest && <i className={styles.badge}>1</i>}
+            ✎
           </span>
           <span className={styles.iconLabel}>Değerlendirme</span>
-          {beckonTest && <span className="sr-only">, tamamlanmadı</span>}
         </button>
         <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş. Biri, senden önce, çok aceleyle boşaltmış.')}>
           <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphBin}`}>

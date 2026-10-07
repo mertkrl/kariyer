@@ -1,21 +1,32 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { APTITUDE_QUESTIONS } from '../src/game/data/aptitudeTest';
-import { APTITUDE_CUTOFF, scoreAptitude } from '../src/game/events/aptitude';
+import { APTITUDE_CUTOFF, candidateAptitude, scoreAptitude } from '../src/game/events/aptitude';
+import { candidates } from '../src/game/data/candidates';
+import { candidateDetails } from '../src/game/data/candidateDetails';
 
-test('her sorunun cevabı şıkların içinde ve kimlikler tekil', () => {
-  for (const q of APTITUDE_QUESTIONS) assert.ok(q.answer >= 0 && q.answer < q.options.length, q.id);
+test('her sorunun anahtarı ve aklı başında cevabı şıkların içinde ve farklı', () => {
+  for (const q of APTITUDE_QUESTIONS) {
+    assert.ok(q.answer >= 0 && q.answer < q.options.length, q.id);
+    assert.ok(q.sensible >= 0 && q.sensible < q.options.length, q.id);
+    assert.notEqual(q.answer, q.sensible, q.id);
+  }
   assert.equal(new Set(APTITUDE_QUESTIONS.map((q) => q.id)).size, APTITUDE_QUESTIONS.length);
 });
 
-test('hepsi doğru 100, hiç cevap yok 0 ve hepsi süre aşımı', () => {
-  assert.deepEqual(scoreAptitude(APTITUDE_QUESTIONS.map((q) => q.answer)), { score: 100, correct: APTITUDE_QUESTIONS.length, timedOut: 0 });
-  assert.deepEqual(scoreAptitude([]), { score: 0, correct: 0, timedOut: APTITUDE_QUESTIONS.length });
+test('anahtar 100, hiç cevap 0, aklı başında cevaplar eşiğin altında', () => {
+  assert.equal(scoreAptitude(APTITUDE_QUESTIONS.map((q) => q.answer)).score, 100);
+  assert.deepEqual({ ...scoreAptitude([]), answers: [] }, { score: 0, correct: 0, timedOut: APTITUDE_QUESTIONS.length, answers: [] });
+  assert.equal(scoreAptitude(APTITUDE_QUESTIONS.map((q) => q.sensible)).score, 0);
 });
 
-test('kişilik maddelerinde dürüst bir "Kararsızım" puan götürür ve eşiğin altına iter', () => {
-  const answers = APTITUDE_QUESTIONS.map((q) => (q.kind === 'kişilik' ? 2 : q.answer));
-  const twoMissed = answers.map((a, i) => (i < 2 && APTITUDE_QUESTIONS[i].kind !== 'kişilik' ? null : a));
-  assert.ok(scoreAptitude(answers).score < 100);
-  assert.ok(scoreAptitude(twoMissed).score < APTITUDE_CUTOFF);
+test('aday kâğıtları tohuma bağlı ve işini bilen ortalamada daha düşük alır', () => {
+  const ids = Object.keys(candidates);
+  assert.deepEqual(candidateAptitude(ids[0], 7), candidateAptitude(ids[0], 7));
+  const avg = (pick: (fit: number) => boolean) => {
+    const xs = ids.filter((id) => pick(candidateDetails[id]?.hireFit ?? 3)).flatMap((id) => [1, 2, 3, 4, 5].map((s) => candidateAptitude(id, s).score));
+    return xs.reduce((a, b) => a + b, 0) / xs.length;
+  };
+  assert.ok(avg((f) => f >= 4) < avg((f) => f <= 2));
+  assert.ok(avg((f) => f >= 4) < APTITUDE_CUTOFF);
 });

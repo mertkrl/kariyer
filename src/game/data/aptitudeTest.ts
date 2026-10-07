@@ -1,8 +1,8 @@
 /*
- * Şirketin "Genel Yetenek ve Uyum Değerlendirmesi": teste geçen her aday ve deneme süresindeki
- * her çalışan bunu çözer. Sorular kasıtlı olarak işle ilgisizdir: sayı dizileri, şekiller, harf
- * saymak, kimsenin kullanmadığı bir kelime ve "doğru" cevabı kurum kültürü olan iki kişilik
- * maddesi. Süre her soruda yetişmeyecek kadar kısa. Sonuçta tek bir sayı çıkar, açıklaması yok.
+ * Şirketin "Genel Yetenek ve Uyum Değerlendirmesi": teste geçen her aday bunu çözer. Sorular
+ * ciddi bir test gibi görünür ama sistemle dalga geçer: cevap anahtarı mantığı değil kurum
+ * kültürünü ödüllendirir. Her sorunun bir de "aklı başında" cevabı vardır; işini bilen aday
+ * çoğu zaman onu seçer ve puan kaybeder. Puanın neyi ölçtüğü bu farkta saklıdır.
  */
 
 export type AptitudeKind = 'sayısal' | 'şekil' | 'sözel' | 'dikkat' | 'kişilik';
@@ -11,33 +11,34 @@ export interface AptitudeQuestion {
   id: string;
   kind: AptitudeKind;
   prompt: string;
-  /** Sorunun altında tek satır, eşit aralıklı (dizi, harf satırı). */
+  /** Sorunun altında tek satır, eşit aralıklı (dizi, şekil, harf satırı). */
   figure?: string;
   options: string[];
-  /** Puanlanan cevap. Kişilik maddelerinde: kurum kültürünün "doğru" saydığı. */
+  /** Cevap anahtarının "doğru" saydığı. */
   answer: number;
+  /** Aklı başında birinin vereceği cevap; anahtar onu yanlış sayar. */
+  sensible: number;
 }
 
 /** Soru başına süre (saniye). Kılavuz "ortalama aday için yeterlidir" der. */
 export const APTITUDE_SECONDS = 30;
 
-/** Pazartesi İK'nın test e-postasının geldiği mesai dakikası (08:40). */
-export const APTITUDE_MAIL_AT = 40;
+/** Kendin çözerken cevapladığın her sorunun mesaiden yediği (dakika). */
+export const APTITUDE_MINUTES_PER_QUESTION = 2;
 
-/** Testin mesaide yediği süre (dakika): açılış, soru, "sonuçlarınız iletilmiştir". */
-export const APTITUDE_MINUTES = 25;
+const LIKERT = ['Kesinlikle katılıyorum', 'Katılıyorum', 'Kararsızım', 'Katılmıyorum'];
 
 export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
-  { id: 'seq-1', kind: 'sayısal', prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?', figure: '2   6   12   20   30   ?', options: ['38', '40', '42', '44'], answer: 2 },
-  { id: 'shape-1', kind: 'şekil', prompt: 'Şekil her adımda aynı kurala göre değişiyor. Sıradaki hangisi?', figure: '◐   ◓   ◑   ?', options: ['◐', '◓', '◑', '◒'], answer: 3 },
-  { id: 'logic-1', kind: 'sözel', prompt: 'Bütün bloplar zindir. Bazı zinler trakdır. Buna göre hangisi kesinlikle doğrudur?', options: ['Bazı bloplar trakdır.', 'Hiçbir blop trak değildir.', 'Bütün traklar bloptur.', 'Hiçbiri kesin olarak çıkarılamaz.'], answer: 3 },
-  { id: 'attn-1', kind: 'dikkat', prompt: 'Aşağıdaki satırda kaç tane "b" harfi vardır?', figure: 'd b p q b d b p b q d p b b d q', options: ['5', '6', '7', '8'], answer: 1 },
-  { id: 'seq-2', kind: 'sayısal', prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?', figure: '3   5   9   17   33   ?', options: ['49', '57', '65', '66'], answer: 2 },
-  { id: 'word-1', kind: 'sözel', prompt: '"Ekuanimite" kelimesinin anlamı aşağıdakilerden hangisidir?', options: ['Eşitlik', 'Soğukkanlılık', 'Belirsizlik', 'Çoğulluk'], answer: 1 },
-  { id: 'trait-1', kind: 'kişilik', prompt: 'Size en uygun olanı işaretleyiniz: "Kurallara her koşulda uyarım."', options: ['Kesinlikle katılıyorum', 'Katılıyorum', 'Kararsızım', 'Katılmıyorum'], answer: 0 },
-  { id: 'calc-1', kind: 'sayısal', prompt: 'Bir tren saatte 84 km hızla 2 saat 15 dakika yol alıyor. Kaç km gitmiştir?', options: ['178', '184', '189', '196'], answer: 2 },
-  { id: 'odd-1', kind: 'sözel', prompt: 'Hangisi diğerlerinden farklıdır?', options: ['Elma', 'Armut', 'Patates', 'Kiraz'], answer: 2 },
-  { id: 'seq-3', kind: 'sayısal', prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?', figure: '7   10   8   11   9   ?', options: ['10', '12', '13', '7'], answer: 1 },
-  { id: 'trait-2', kind: 'kişilik', prompt: 'Size en uygun olanı işaretleyiniz: "Mesai saatleri dışında da ulaşılabilir olmalıyım."', options: ['Kesinlikle katılıyorum', 'Katılıyorum', 'Kararsızım', 'Katılmıyorum'], answer: 0 },
-  { id: 'attn-2', kind: 'dikkat', prompt: 'Hangi sayı çifti birbirinin aynısıdır?', options: ['8406913 — 8406193', '5172846 — 5172846', '3390571 — 3309571', '7724158 — 7742158'], answer: 1 },
+  { id: 'cv-speed', kind: 'sayısal', prompt: 'Bir yapay zekâ 340 CV\'yi 0,4 saniyede okuyor. Bir CV\'yi kaç saniyede okur?', options: ['0,0012', '0,4', '12', 'Okumaz, sıralar'], answer: 0, sensible: 3 },
+  { id: 'team-shape', kind: 'şekil', prompt: 'Aşağıdaki şekillerden hangisi bir takım oyuncusudur?', figure: '■   ●   ▲   ◆', options: ['■', '●  (köşesi yok, herkese uyar)', '▲', 'Şekillerin kişiliği olmaz'], answer: 1, sensible: 3 },
+  { id: 'family', kind: 'sözel', prompt: 'Bütün çalışanlar ailedir. Aile, fazla mesai ücreti istemez. Buna göre hangisi kesinlikle doğrudur?', options: ['Çalışanlar fazla mesai ücreti istemez.', 'Bazı çalışanlar ücret ister.', 'Aile ile iş sözleşmesi farklı şeylerdir.', 'Hiçbiri kesin olarak çıkarılamaz.'], answer: 0, sensible: 2 },
+  { id: 'yes-count', kind: 'dikkat', prompt: 'Aşağıdaki satırda kaç kez "evet" geçmektedir? (Kurum içi yazışma standardına göre "efendim" de evet sayılır.)', figure: 'evet  evet  hayır  evet  efendim  evet  bakarız', options: ['4', '5', '6', 'Hayır da aslında evettir'], answer: 1, sensible: 0 },
+  { id: 'target', kind: 'sayısal', prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?', figure: '2   4   8   16   ?', options: ['32', '24', '30', '40 (hedef revize edildi)'], answer: 3, sensible: 0 },
+  { id: 'synergy', kind: 'sözel', prompt: '"Sinerji" kelimesinin anlamı aşağıdakilerden hangisidir?', options: ['Birlikte çalışmanın etkisi', 'Bir enerji içeceği', 'Toplantıda söylenince herkesin başını sallaması', 'Tanımı yapılamaz, hissedilir'], answer: 2, sensible: 0 },
+  { id: 'rules', kind: 'kişilik', prompt: 'Size en uygun olanı işaretleyiniz: "Kurallara, neden konduklarını sormadan uyarım."', options: LIKERT, answer: 0, sensible: 3 },
+  { id: 'train', kind: 'sayısal', prompt: 'Bir tren saatte 84 km hızla 2 saat 15 dakika yol alıyor. Trendeki yolculardan kaçı kariyer hedeflerine ulaşmıştır?', options: ['0', '84', 'Hepsi, çünkü yoldalar', 'Soruda yeterli bilgi yok'], answer: 2, sensible: 3 },
+  { id: 'odd-day', kind: 'sözel', prompt: 'Hangisi diğerlerinden farklıdır?', options: ['Pazartesi', 'Çarşamba', 'Cumartesi', 'Hiçbiri, hepsi iş günüdür'], answer: 3, sensible: 2 },
+  { id: 'five-years', kind: 'kişilik', prompt: 'Kendinizi 5 yıl sonra nerede görüyorsunuz?', options: ['Bu şirkette, bu masada', 'Bir üst pozisyonda', 'Kendi işimde', 'Henüz bilmiyorum'], answer: 0, sensible: 3 },
+  { id: 'critique', kind: 'kişilik', prompt: 'Size en uygun olanı işaretleyiniz: "Eleştiriyi her zaman gülümseyerek karşılarım."', options: LIKERT, answer: 0, sensible: 2 },
+  { id: 'salary', kind: 'dikkat', prompt: 'Maaş beklentiniz aşağıdakilerden hangisine en yakındır?', options: ['Deneyimime uygun bir rakam', 'Piyasa ortalaması', 'Ne uygun görürseniz', 'Para önemli değil, tutku önemli'], answer: 3, sensible: 0 },
 ];
