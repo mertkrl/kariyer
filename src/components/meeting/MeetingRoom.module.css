@@ -351,6 +351,12 @@
   cursor: pointer;
 }
 
+/* Space/Enter pencere düzeyinde dinlenir; tıklandıktan sonra kalan odak halkası gereksiz. */
+.lineButton:focus,
+.lineButton:focus-visible {
+  outline: none;
+}
+
 .speaker {
   font-size: calc(14px * var(--ts, 1));
   font-weight: 800;

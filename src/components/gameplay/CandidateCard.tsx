@@ -49,7 +49,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const details = candidate ? candidateDetails[candidate.id] : undefined;
   const decidedForCurrent = currentCandidateId ? decisions[currentCandidateId] : undefined;
   const quota = approvalQuota({ currentDayIndex, decisions, finalists, lineups, quotaCut });
-  const quotaReason = quota.dailyLeft === 0 ? 'Bugünkü 3 mülakat hakkın doldu' : null;
+  const quotaReason = quota.dailyLeft === 0 ? (quota.dailyLimit === 0 ? 'Performansın düşük: Hakan Bey bugünkü mülakat hakkını kaldırdı' : 'Bugünkü mülakat hakkın doldu') : null;
   const decidedAt = decisionLog.find((e) => e.id === currentCandidateId)?.at;
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);

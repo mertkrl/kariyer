@@ -1,5 +1,4 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
-import { createPortal } from 'react-dom';
+import { useRef } from 'react';
 import { useGameStore } from '../../game/store/store';
 import { candidates } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
@@ -44,9 +43,8 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
   const currentCandidateId = useGameStore((s) => s.currentCandidateId);
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
   const candidate = currentCandidateId ? candidates[currentCandidateId] : null;
-  const { isAnalyzing, isAnalyzed, hasNote, noteOpen, toggleNote, closeNote, analyze: handleAnalyze } = analysis;
+  const { isAnalyzing, isAnalyzed, hasNote, noteOpen, toggleNote, analyze: handleAnalyze } = analysis;
   const boxRef = useRef<HTMLDivElement>(null);
-  const noteAt = useNotePlacement(boxRef, hasNote && noteOpen);
 
   return (
     <div
@@ -113,18 +111,18 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
       {isAnalyzing && candidate && (
         <AnalysisRun key={candidate.id} candidate={candidate} applications={days[currentDayIndex].applicationTarget} durationMs={ANALYZE_DURATION_MS} />
       )}
+      {!aiOffline && candidate && !isAnalyzing && !hasNote && (
+        <p className={styles.idleHint}>"Değerlendir" dersen sistemin puanı ve ATS raporu burada görünür.</p>
+      )}
       {hasNote && candidate && <ScoreDial key={candidate.id} candidate={candidate} reportOpen={noteOpen} onToggleReport={toggleNote} />}
 
       {aiOffline && (
         <div className={styles.systemLine}>{itOutage ? 'IT arızası: sistem yaklaşık 1 saat devre dışı. Bu arada kararlar sende.' : 'Bugün algoritmik öneri yok — kararlar tamamen sende.'}</div>
       )}
 
-      {hasNote && noteOpen && candidate && noteAt &&
-        createPortal(
-        <div className={styles.noteBubble} style={noteAt.style} role="dialog" aria-label="Yapay zeka analiz notu">
-          <button type="button" className={styles.noteBubbleClose} onClick={closeNote} aria-label="Kapat">
-            ✕
-          </button>
+      {/* rapor panelin içinde açılır: büyüyen sütun onu taşır, CV'nin üstüne binmez */}
+      {hasNote && noteOpen && candidate && (
+        <div className={styles.noteInline} aria-label="Yapay zeka analiz notu">
           <div className={styles.noteGrid}>
           <div>
           {(() => {
@@ -188,43 +186,8 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
           </div>
           </div>
           </div>
-        </div>,
-          noteAt.host,
-        )}
+        </div>
+      )}
     </div>
   );
-}
-
-/**
- * Notun açıldığı yer: yapay zekâ kutusunun altında, onunla sağa hizalı, CV'nin üstünde geniş.
- * Kayan ve onu sütun genişliğine kırpacak olan sağ sütunun içinde değil portal alanında
- * (data-note-host) çizilir. Sütun kaydığında ya da alan boyut değiştirdiğinde kutuyu izler ve
- * alanın alt kenarında durur.
- */
-function useNotePlacement(boxRef: RefObject<HTMLDivElement | null>, open: boolean) {
-  const [at, setAt] = useState<{ host: HTMLElement; style: CSSProperties } | null>(null);
-  useLayoutEffect(() => {
-    const host = boxRef.current?.closest<HTMLElement>('[data-note-host]');
-    if (!open || !host) {
-      setAt(null);
-      return;
-    }
-    const place = () => {
-      const box = boxRef.current?.getBoundingClientRect();
-      const area = host.getBoundingClientRect();
-      if (!box) return;
-      const top = box.bottom - area.top + 10;
-      setAt({ host, style: { top, right: area.right - box.right, maxHeight: Math.max(160, area.height - top - 12) } });
-    };
-    place();
-    const ro = new ResizeObserver(place);
-    ro.observe(host);
-    // sağ sütunun kayması (capture: kaydırma olayları yukarı kabarcıklanmaz)
-    window.addEventListener('scroll', place, true);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('scroll', place, true);
-    };
-  }, [boxRef, open]);
-  return at;
 }

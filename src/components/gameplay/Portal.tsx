@@ -38,7 +38,6 @@ export function Portal({
   const decisions = useGameStore((s) => s.decisions);
   const decisionLog = useGameStore((s) => s.decisionLog);
   const timeSpent = useGameStore((s) => s.timeSpent);
-  const currentCandidateId = useGameStore((s) => s.currentCandidateId);
   const openedIds = useGameStore((s) => s.openedIds);
   const shiftStarted = useGameStore((s) => s.shiftStarted);
   const plannedRejections = useGameStore((s) => s.plannedRejections);
@@ -74,7 +73,7 @@ export function Portal({
   }, [day.day]);
 
   return (
-    <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef} data-note-host>
+    <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef}>
       {!shiftStarted && needsOrientation && <Orientation container={portalRef} onDone={finishOrientation} />}
       {!shiftStarted && !needsOrientation && <ShiftGate />}
       <QueueSidebar mailsHidden={mailsHidden} onShowMails={() => setMailsHidden(false)} editingMails={editingMails} onEditMails={() => setEditingMails(true)} />
@@ -109,7 +108,6 @@ export function Portal({
           decisions={decisions}
           decisionLog={decisionLog}
           timeSpent={timeSpent}
-          currentCandidateId={currentCandidateId}
         />
       </div>
     </div>

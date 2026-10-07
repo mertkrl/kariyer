@@ -47,7 +47,7 @@ export function FinalRoundScreen() {
   const chatRef = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
   const interview = useInterview({ selectedId, ownIds: own.map((f) => f.id), structured });
-  const { entries, typing, room, backs, canFollow, busy, interviewed, stateOf, answerFor, ask, handOff, talkSalary, answerBack, endInterview, myNotes, isNoted, toggleNote, scores, setScore, myScores, agreed } = interview;
+  const { entries, typing, room, backs, canFollow, busy, interviewed, stateOf, answerFor, ask, handOff, talkSalary, answerBack, endInterview, scores, setScore, myScores, agreed } = interview;
   const { mine, followUsed, handedOff, salaryPending, backsDone, backPending, ended, questions } = room;
   const poolIds = own.map((f) => f.id);
 
@@ -109,7 +109,7 @@ export function FinalRoundScreen() {
 
       {forced && (
         <div className={styles.forcedNote}>
-          Hafta boyunca kimseyi mülakata çağırmadın (her gün 3 hakkın vardı). Senin listenin yerini yönetimin iç referansı aldı; bugün senin odan boş, kurulda diğerlerinin
+          Hafta boyunca kimseyi mülakata çağırmadın (her gün bir hakkın vardı). Senin listenin yerini yönetimin iç referansı aldı; bugün senin odan boş, kurulda diğerlerinin
           görüşmelerini değerlendireceksin.
         </div>
       )}
@@ -204,8 +204,6 @@ export function FinalRoundScreen() {
                     answerFor={answerFor}
                     questionText={questionText}
                     ask={ask}
-                    isNoted={isNoted}
-                    toggleNote={toggleNote}
                     firstOfDay={interviewed === 0}
                     structured={structured}
                     backs={backs}
@@ -242,8 +240,6 @@ export function FinalRoundScreen() {
               selectedId={selectedId}
               invitedOn={selected?.day ?? 0}
               agreed={agreed}
-              notes={myNotes}
-              onRemoveNote={toggleNote}
               leadHeard={leadHeard}
               fit={fit}
               followUsed={followUsed && !typing}

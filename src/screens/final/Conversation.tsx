@@ -43,8 +43,6 @@ export interface ConversationProps {
   answerFor: (id: string, question: number) => string;
   questionText: (q: number, about?: string) => string;
   ask: (question: number, about?: string) => void;
-  isNoted: (sentence: string) => boolean;
-  toggleNote: (sentence: string) => void;
   /** Bugün henüz kimseyle görüşülmedi: oda nasıl işlediğini anlatır. */
   firstOfDay: boolean;
   /** Yapılandırılmış mülakat: Hakan Bey'in listesi masada değil. */
@@ -53,7 +51,7 @@ export interface ConversationProps {
   backs: BackQuestion[];
 }
 
-export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, isNoted, toggleNote, firstOfDay, structured, backs }: ConversationProps) {
+export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, firstOfDay, structured, backs }: ConversationProps) {
   return (
       <div className={styles.log} ref={chatRef} aria-live="polite">
         {entries.length === 0 && (
@@ -71,14 +69,14 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   Sonra <b>maaşı konuşursun</b>; bütçe tavanını aşan beklentiyi pazarlık edebilirsin. Aday da sana soru sorabilir: deneyimli adaylar daha çok ve daha keskin sorar.
                 </li>
                 <li>
-                  Bir cümlenin sonundaki <b>✎</b> ile not al; görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
+                  Görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
                 </li>
               </ol>
               <span>{candidate.name.split(' ')[0]} karşında oturuyor. Aşağıdan ilk soruyu seç.</span>
             </div>
           ) : (
             <p className={styles.logEmpty}>
-              {candidate.name.split(' ')[0]} karşında oturuyor. Önce senin {QUESTION_BUDGET} sorun ve bir takip; sonra söz Ümit'te. Önemli cümleleri ✎ ile not almayı unutma.
+              {candidate.name.split(' ')[0]} karşında oturuyor. Önce senin {QUESTION_BUDGET} sorun ve bir takip; sonra söz Ümit'te.
             </p>
           )
         )}
@@ -170,8 +168,6 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                         fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : undefined}
                         canFollow={canFollow}
                         onFollow={e.q < FORBIDDEN && !e.by ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
-                        noted={isNoted}
-                        onNote={toggleNote}
                       />
                     )}
                   </>

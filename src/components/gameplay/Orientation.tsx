@@ -25,7 +25,7 @@ const STEPS: Step[] = [
   { target: '[data-tour="reference"]', title: 'Referansı ara', text: 'CV\'deki bir iddiayı doğrulamanın yolu: eski işverenini ararsın. Sabit hattan yapılır ve 8 dakika sürer.' },
   { target: '[data-tour="ai"]', title: 'Yapay Zekâ Analizi', text: '"Değerlendir" dersen sistem bir ATS raporu ve öneri üretir. Kullanmak zorunda değilsin; sistemin neye baktığını, neye bakmadığını da not al.' },
   { target: '[data-tour="actions"]', title: 'Karar', text: 'Her dosya için "Mülakata Çağır" ya da "Reddet". Her gün en fazla 3 kişiyi mülakata çağırabilirsin. Yanlış bir kararı "Kararı Geri Al" ile düzeltebilirsin.' },
-  { target: '[data-tour="right"] > :nth-child(2)', title: 'Bugünün İşlemleri', text: 'Kararların, kontenjanın ve temposu buradan izlenir. Hakan Bey de aynı ekrana bakıyor.' },
+  { target: '[data-tour="right"] > :nth-child(2)', title: 'Günün temposu', text: 'Karar süren, temponu ve son kararların buradan izlenir. Hakan Bey de aynı ekrana bakıyor.' },
   { target: '[data-tour="finish"]', title: 'Günün sonu', text: 'Bütün dosyalar karara bağlanınca reddettiklerine gidecek bildirimi seçersin; bildirimler 17:00\'de gönderilir. Ardından günü bitirebilirsin.' },
   {
     title: 'Masanda da iş var',

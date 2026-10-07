@@ -229,7 +229,7 @@ export function tolgaSnowCall(day: number): DeskCall {
       },
       {
         text: 'Mülakatlar yüz yüze, kural böyle. Gelemezseniz listeden düşmeniz gerekecek.',
-        reply: '…Anlıyorum. Karı ben yağdırmadım ama… anlıyorum. İyi günler.',
+        reply: '…Anlıyorum. Kar benim elimde değildi ama… anlıyorum. İyi günler.',
         vicdan: -3,
         performans: 1,
         strand: 'tolga',

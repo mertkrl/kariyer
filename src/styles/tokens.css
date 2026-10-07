@@ -36,6 +36,10 @@
   --font-body: 'Work Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  /* ekran ve pencere geçişlerinin ortak hızı: masa, bilgisayar ve telefon aynı ritimde açılır */
+  --motion-enter: 180ms;
+  --ease-enter: cubic-bezier(0.2, 0.8, 0.3, 1);
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;

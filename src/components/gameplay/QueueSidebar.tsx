@@ -120,21 +120,18 @@ function DayFinish({ decided, total, blocker, onFinish }: { decided: number; tot
   const pct = total ? Math.round((decided / total) * 100) : 100;
   return (
     <div className={`${own.finishCard} ${ready ? own.finishReady : ''}`} data-tour="finish">
-      <div className={styles.finishHead}>
-        <span>Günün dosyaları</span>
+      <div className={own.finishRow}>
+        <span>Dosyalar</span>
+        <div className={own.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
+          <i style={{ width: `${pct}%` }} />
+        </div>
         <span className="mono">
           {decided}/{total}
         </span>
       </div>
-      <div className={own.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
-        <i style={{ width: `${pct}%` }} />
-      </div>
-      <button className={own.finishButton} onClick={onFinish} disabled={!ready} aria-describedby="finish-state">
-        {ready ? 'Günü Bitir →' : 'Günü Bitir'}
+      <button className={own.finishButton} onClick={onFinish} disabled={!ready} title={blocker ?? undefined}>
+        {ready ? 'Günü Bitir →' : `Günü Bitir · ${blocker}`}
       </button>
-      <div id="finish-state" className={own.finishState}>
-        {ready ? '✓ Bütün dosyalar kapandı' : blocker}
-      </div>
     </div>
   );
 }

@@ -625,3 +625,28 @@ button.systemIconBadge {
     transform: translateY(-4px);
   }
 }
+
+/* analizden önce panelin boş alanı ne olacağını söyler */
+.idleHint {
+  margin: auto 0;
+  padding: 0 8px;
+  font-size: calc(12px * var(--ts, 1));
+  line-height: 1.5;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* panelin içindeki rapor: tek sütun, panel kayarsa onunla kayar */
+.noteInline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-muted);
+  animation: bubbleIn var(--motion-enter) var(--ease-enter);
+}
+
+.noteInline .noteGrid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}

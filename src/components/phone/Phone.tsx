@@ -191,7 +191,6 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   // Bir sohbeti okumak rozetini temizler; yeni mesajlar gelirken de temiz tut.
   useEffect(() => {
     if (thread && unread[thread] > 0) onRead(thread);
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
   }, [thread, unread, onRead, threadMessages.length]);
 
   const pending = thread === 'manager' ? requests.find((r) => r.answer === null) : undefined;
@@ -234,7 +233,10 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
       <>
         {header(
           c.name,
-          screen.thread === 'manager'
+          // karşı taraf yazarken başlık bunu söyler, tıpkı gerçek bir mesajlaşma uygulaması gibi
+          typing === screen.thread
+            ? 'yazıyor…'
+            : screen.thread === 'manager'
             ? `İK Müdürü · ${TONE_STATUS[tone].status}`
             : screen.thread === 'office'
               ? 'Ayşe, Emre, Selin, sen'
@@ -287,7 +289,12 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
         <div className={`${styles.display} ${screen.kind === 'home' ? styles.displayHome : ''}`}>
           <div className={styles.notch} />
           <StatusBar clock={clock} theme={screen.kind === 'home' ? 'wallpaper' : screen.kind === 'app' ? STATUS_THEME[screen.app] : 'chat'} />
-          <div className={styles.screen}>{body}</div>
+          <div className={styles.screen}>
+            {/* her ekran değişiminde içerik aynı kısa geçişle gelir */}
+            <div key={screen.kind === 'chat' ? `chat-${screen.thread}` : screen.kind === 'app' ? `app-${screen.app}` : screen.kind} className={styles.screenBody}>
+              {body}
+            </div>
+          </div>
           <button
             className={styles.homeBar}
             onClick={() => (screen.kind === 'home' ? onClose() : setScreen({ kind: 'home' }))}
@@ -295,7 +302,6 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
           />
         </div>
       </div>
-      <div className={styles.overlayHint}>Alttaki çizgi: ana ekran</div>
     </div>
   );
 }

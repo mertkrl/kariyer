@@ -4,9 +4,8 @@ import { forbiddenAnswer } from '../../game/day/story';
 import { candidateOf } from '../../game/data/candidates';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { backQuestionsFor, experienceYears, followUpAnswer } from '../../game/data/interviewExtras';
-import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../../game/events/interview';
+import { average, caseAnswer, caseFor, salaryTalk, type SalaryMove, type Scores } from '../../game/events/interview';
 import { audioEngine } from '../../audio/audioEngine';
-import type { Note } from './InterviewParts';
 import { CASE, FOLLOW, FORBIDDEN, THINKING_MS, TYPING_MS_PER_CHAR, type Entry, type Typing } from './interviewModel';
 import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from './interviewRoom';
 
@@ -20,7 +19,6 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
   const answerCandidate = useGameStore((s) => s.answerCandidate);
   const [log, setLog] = useState<Record<string, Entry[]>>({});
   const [typing, setTyping] = useState<Typing | null>(null);
-  const [notes, setNotes] = useState<Record<string, Note[]>>({});
   const [scores, setScores] = useState<Record<string, Scores>>({});
   const [agreed, setAgreed] = useState<Record<string, number | null>>({});
   const timer = useRef<number | null>(null);
@@ -122,16 +120,6 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
     push(selectedId, { kind: 'end' });
   }
 
-  const myNotes = notes[selectedId] ?? [];
-  function toggleNote(sentence: string) {
-    const id = selectedId;
-    audioEngine.playUi('click');
-    setNotes((all) => {
-      const list = all[id] ?? [];
-      return { ...all, [id]: list.some((n) => n.text === sentence) ? list.filter((n) => n.text !== sentence) : [...list, { text: sentence, tag: tagNote(sentence) }] };
-    });
-  }
-
   return {
     log,
     entries,
@@ -148,9 +136,6 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
     talkSalary,
     answerBack,
     endInterview,
-    myNotes,
-    isNoted: (sentence: string) => myNotes.some((n) => n.text === sentence),
-    toggleNote,
     scores,
     setScore: (criterion: keyof Scores, value: number) => setScores((all) => ({ ...all, [selectedId]: { ...all[selectedId], [criterion]: value } })),
     myScores: Object.fromEntries(ownIds.map((id) => [id, average(scores[id])])) as Record<string, number | null>,

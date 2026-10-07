@@ -197,11 +197,7 @@
   opacity: 1;
 }
 
-/* mesai başlamadan önce bilgisayar günün nerede başladığını söyler */
-.beckon::after {
-  opacity: 1;
-}
-
+/* mesai başlamadan önce bilgisayar parlar; ne yapılacağını alttaki şerit söyler (DeskGuide.module.css) */
 .beckon {
   animation: beckon 2.4s ease-in-out infinite;
 }

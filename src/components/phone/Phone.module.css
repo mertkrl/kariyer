@@ -271,13 +271,6 @@
   }
 }
 
-.overlayHint {
-  font-size: calc(11px * var(--ts, 1));
-  color: rgba(242, 239, 228, 0.7);
-  width: min(360px, calc(100vw - 32px));
-  text-align: center;
-}
-
 .device {
   /* Her zaman sığsın diye ekran yüksekliğine göre boyutlanır: 9:19.5 bir cihaz, ekrandan hiç uzun değil. */
   --device-h: min(720px, calc(100dvh - 56px));
@@ -375,6 +368,21 @@
   overflow: hidden;
   /* Ana ekran çizgisine yer, böylece uygulama içeriğini hiç örtmez. */
   padding-bottom: 16px;
+}
+
+.screenBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: screenIn var(--motion-enter) var(--ease-enter) both;
+}
+
+@keyframes screenIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
 }
 
 .homeBar {

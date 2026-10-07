@@ -1,6 +1,7 @@
-import type { ReactNode, Ref } from 'react';
+import { useImperativeHandle, useLayoutEffect, useRef, type ReactNode, type Ref } from 'react';
 import { replyText, type ManagerRequest, type PhoneMessage, type ThreadId } from '../../game/day/manager';
 import { formatClock } from '../../game/lib/time';
+import { prefersReducedMotion } from '../ui/motion';
 import styles from './ChatThread.module.css';
 
 const DAY_NAMES = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
@@ -13,6 +14,48 @@ function MessageRow({ m, newDay, children }: { m: PhoneMessage; newDay: boolean;
       {children}
     </>
   );
+}
+
+/** Sona bu kadar yakın olan okuyucu "en altta" sayılır; yukarı kaydırmış biri yerinde bırakılır. */
+const STICK_PX = 48;
+
+/**
+ * Sohbetin dibine yapışma: açılışta animasyonsuz en alta iner (uzun bir kaydırma izlenmez); yeni
+ * mesaj, "yazıyor" balonu ya da altta açılıp kapanan cevaplar yalnızca okuyucu zaten alttaysa
+ * yumuşakça takip edilir.
+ */
+function useStickToBottom(ref: Ref<HTMLDivElement>, deps: unknown[]) {
+  const box = useRef<HTMLDivElement>(null);
+  const stuck = useRef(true);
+  useImperativeHandle(ref, () => box.current!, []);
+
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+    const onScroll = () => {
+      stuck.current = el.scrollHeight - el.scrollTop - el.clientHeight < STICK_PX;
+    };
+    // alttaki cevap paneli açılınca liste kısalır: dipte kalmak için yeniden hizala
+    const ro = new ResizeObserver(() => {
+      if (stuck.current) el.scrollTop = el.scrollHeight;
+    });
+    ro.observe(el);
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el || !stuck.current) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    // oxlint-disable-next-line react/exhaustive-deps
+  }, deps);
+
+  return box;
 }
 
 /** Açık bir konuşma: mesajlar, "yazıyor" balonu, hızlı cevaplar ve müdürün bekleyen ricası. */
@@ -37,9 +80,10 @@ export function ChatThread({
   onQuickReply: (messageId: number, replyIndex: number) => void;
   onAnswer: (requestId: string, answer: 'comply' | 'refuse') => void;
 }) {
+  const box = useStickToBottom(ref, [messages.length, typing, Boolean(quick), Boolean(pending)]);
   return (
     <>
-      <div className={styles.messages} ref={ref} aria-live="polite">
+      <div className={styles.messages} ref={box} aria-live="polite">
         {messages.length === 0 && <div className={styles.empty}>Mesaj yok. Şimdilik.</div>}
         {messages.map((m, i) => (
           <MessageRow key={m.id} m={m} newDay={i === 0 || (messages[i - 1].day ?? 0) !== (m.day ?? 0)}>

@@ -102,6 +102,14 @@ export const COLLEAGUE_STATS: Record<'ayse' | 'emre', TeamStats> = {
 
 const pct = (x: number) => `%${Math.round(x * 100)}`;
 
+/** Oyuncunun kendi haftası, toplantıdaki özet turunda kendi ağzından. */
+function yourSummary(you: TeamStats): string {
+  if (you.files === 0) return 'Bu hafta henüz dosya kapatamadım; sistemi ve ilanı tanımaya çalıştım.';
+  const tool = you.ai >= 0.7 ? 'Çoğunu yapay zekâ analiziyle değerlendirdim' : you.ai <= 0.2 ? 'Yapay zekâ analizini pek kullanmadım, kendim okudum' : 'Bazılarında yapay zekâ analizine de baktım';
+  const invites = you.invites === 0 ? 'henüz kimseyi çağırmadım' : `${you.invites} kişiyi mülakata çağırdım`;
+  return `${you.files} dosya kapattım, dosya başına ortalama ${you.avg} saniye. ${tool}; ${invites}.`;
+}
+
 /**
  * Toplantı rakamları izler: Hakan Bey senin temponu Emre'ninkiyle ve Ayşe'ninkiyle, Ümit bir CV'yi
  * okumanın gerektirdiği süreyle karşılaştırır ve Cuma'ya gelen iki kısa liste çatışır.
@@ -122,12 +130,11 @@ export function buildOpening(you: TeamStats): Line[] {
     { who: 'selin', text: 'Tabii, ekranımı paylaşıyorum: Haftalık İşe Alım Performans Raporu.', board: { page: 'summary' }, chat: [{ who: 'selin', text: 'Ekranım görünüyor mu?' }, { who: 'emre', text: 'Görünüyor 👍' }] },
     { who: 'hakan', text: 'Kısa keseceğim. Holding dün akşam rakamları istedi: bu çeyrek kadro yüzde on beş küçülüyor, işe alım başına maliyet yüzde yirmi düşecek. Bu toplantıda kimse bana "ama" demeyecek.', board: { page: 'summary', focus: ['cost', 'headcount'] } },
     { who: 'hakan', text: `Bu hafta 1.840 başvuru geldi; ekip olarak ${total} dosyaya baktık. Gerisini sistem eledi. Verimlilik bu, maliyet de bu.`, board: { page: 'overview', focus: ['human'] } },
-    {
-      who: 'selin',
-      text: `Kişi bazında ekranda: Emre ${emre.files} dosya, dosya başına ${emre.avg} saniye. Ayşe ${ayse.files} dosya, ${ayse.avg} saniye. Defne ${you.files} dosya, ${you.avg} saniye.`,
-      board: { page: 'people', metric: 'avg' },
-      chat: [{ who: 'emre', text: '8 saniye 💪' }],
-    },
+    { who: 'hakan', text: 'Rakamlara geçmeden herkes kendi haftasını kısaca özetlesin. Emre, sen başla.', board: { page: 'people', metric: 'files' } },
+    { who: 'emre', text: `${emre.files} dosya kapattım, dosya başına ortalama ${emre.avg} saniye. Hepsini önce yapay zekâ analizinden geçirdim; ${emre.invites} kişiyi çağırdım, Cuma'ya Çağan ve Sarp'ı getiriyorum.`, board: { page: 'people', metric: 'files', focus: ['emre'] }, chat: [{ who: 'emre', text: '8 saniye 💪' }] },
+    { who: 'ayse', text: `Ben ${ayse.files} dosyaya baktım, her birini baştan sona okudum; dosya başına ${ayse.avg} saniye. ${ayse.invites} kişiyi çağırdım, kısa listemde Nehir ve Berk var.`, board: { page: 'people', metric: 'avg', focus: ['ayse'] } },
+    { who: 'you', text: yourSummary(you), board: { page: 'people', metric: 'files', focus: ['you'] } },
+    { who: 'selin', text: 'Ben de raporu hazırladım, takvimi ve Cuma\'nın mülakat odalarını ayarladım. Kişi bazındaki rakamlar ekranda.', board: { page: 'people', metric: 'avg' } },
     you.files === 0
       ? { who: 'hakan', text: 'Defne\'nin satırı boş. Üç gündür tek dosya kapatmamış. Deneme süresindeki biri için bu kabul edilemez; Cuma\'ya kadar bu satırı doldur.', board: { page: 'people', metric: 'files', focus: ['you'] } }
       : skimming
@@ -156,7 +163,6 @@ export function buildOpening(you: TeamStats): Line[] {
     { who: 'hakan', text: 'Ümit, senin işin kod. İşe alım benim işim. Sistem eledi; sistemin işi bu.', board: { page: 'funnel', focus: ['threshold'] } },
     { who: 'levent', text: 'Sistem sizin imzanızla eliyor ama Hakan Bey. O ağırlık tablosunu kim onayladı, hepimiz biliyoruz.' },
     { who: 'hakan', text: 'Bu toplantıda bunu konuşmayacağız.', chat: [{ who: 'system', text: 'Toplantı sahibi Hakan Kaya, Ümit Arslan\'ın mikrofonunu kapattı' }] },
-    { who: 'room', text: 'Kimse mikrofonunu açmıyor. Selin imleci ekranın köşesinde bekletiyor.' },
     { who: 'hakan', text: 'Defne. Yenisin, dışarıdan bakıyorsun. Söyle bakalım: sistemle çalışmak nasıl gidiyor?', board: { page: 'people', metric: 'files', focus: ['you'] } },
   );
   return lines;
@@ -180,7 +186,7 @@ export const OPTIONS: MeetingOption[] = [
     vicdan: 3,
     rapport: -6,
     replies: [
-      { who: 'levent', text: 'Mikrofonum kapalı ama sohbetten yazıyorum: buna katılıyorum.', board: { page: 'funnel', focus: ['eliminated'], proposal: true }, chat: [{ who: 'levent', text: 'Ekip olarak destek veririz.' }, { who: 'ayse', text: 'İyi ki söyledin 🙏', private: true }] },
+      { who: 'levent', text: 'Sohbete de yazdım: buna katılıyorum.', board: { page: 'funnel', focus: ['eliminated'], proposal: true }, chat: [{ who: 'levent', text: 'Ekip olarak destek veririz.' }, { who: 'ayse', text: 'İyi ki söyledin 🙏', private: true }] },
       { who: 'hakan', text: 'Zamanı olan yapsın. Hedefler değişmiyor. Ve Defne: bir dahaki sefere önerini önce bana getir, toplantıda değil.' },
       { who: 'emre', text: 'Kimin zamanı var ki…' },
     ],
@@ -192,8 +198,7 @@ export const OPTIONS: MeetingOption[] = [
     vicdan: -2,
     rapport: 5,
     replies: [
-      { who: 'hakan', text: 'İşte ekipten duymak istediğim cümle bu. Herkes not alsın.', board: { page: 'summary' } },
-      { who: 'room', text: 'Ümit kamerasını kapatıyor.', chat: [{ who: 'system', text: 'Ümit Arslan görüşmeden ayrıldı' }, { who: 'emre', text: '👏' }] },
+      { who: 'hakan', text: 'İşte ekipten duymak istediğim cümle bu. Herkes not alsın.', board: { page: 'summary' }, chat: [{ who: 'system', text: 'Ümit Arslan görüşmeden ayrıldı' }, { who: 'emre', text: '👏' }] },
     ],
   },
   {
@@ -210,6 +215,5 @@ export const OPTIONS: MeetingOption[] = [
 ];
 
 export const CLOSING: Line[] = [
-  { who: 'hakan', text: 'Toplantı bitti. Cuma\'ya kadar rakamları istiyorum. Herkes işinin başına.', board: { page: 'off' } },
-  { who: 'room', text: 'Hakan Bey görüşmeden ayrıldı.', chat: [{ who: 'system', text: 'Hakan Kaya görüşmeden ayrıldı' }] },
+  { who: 'hakan', text: 'Toplantı bitti. Cuma\'ya kadar rakamları istiyorum. Herkes işinin başına.', board: { page: 'off' }, chat: [{ who: 'system', text: 'Hakan Kaya görüşmeden ayrıldı' }] },
 ];

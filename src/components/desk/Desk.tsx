@@ -16,6 +16,7 @@ import { OrchidArt } from './OrchidArt';
 import { AirConArt, DeskLampArt, ExtinguisherArt, PlantArt, PrinterCabinetArt, WaterCoolerArt } from './DeskDecor';
 import { DeskDefs, FoldersArt, KeyboardArt, LandlineArt, MobileArt, MonitorArt, MouseArt, MugArt, PedestalArt, PenCupArt, PosterArt, WallClockArt, WindowFrameArt } from './DeskObjects';
 import styles from './Desk.module.css';
+import guide from './DeskGuide.module.css';
 import { BIRTHDAY_DAY, MONDAY } from '../../game/lib/weekdays';
 
 const WEATHER: WindowWeather[] = ['sunny', 'windy', 'rainy', 'snowy', 'cloudy'];
@@ -141,6 +142,12 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   return (
     <div ref={rootRef} className={styles.desk} onKeyDown={moveFocus}>
       <DeskDefs />
+      {/* ilk sabahın yönlendirmesi sahnenin altında durur; hiçbir nesnenin üstünü örtmez */}
+      {firstClockIn && (
+        <div className={guide.guide} role="status">
+          <span className={guide.guideKey}>B</span> Güne başlamak için bilgisayara geç
+        </div>
+      )}
       <div className={styles.stage} style={stageStyle}>
         <DeskRoom className={styles.room} scale={scale} />
 
