@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../game/store/store';
+import { testPool } from '../game/store/storeDefaults';
+import { isStrong } from '../game/engine/scoring';
+import { APTITUDE_CUTOFF, candidateAptitude } from '../game/events/aptitude';
 import { getEnding } from '../game/engine/ending';
 import { KEY_CHARACTERS } from '../game/day/story';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../game/engine/achievements';
@@ -41,6 +44,7 @@ export function FinalScreen() {
   const week = useGameStore((s) => s.week);
   const finalists = useGameStore((s) => s.finalists);
   const dmHandled = useGameStore((s) => s.dmHandled);
+  const weekLog = useGameStore((s) => s.weekLog);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
   const structuredInterview = useGameStore((s) => s.story.reform?.kind === 'structured' && s.story.reform.accepted);
   const stance = useGameStore((s) => s.interviewStance);
@@ -77,6 +81,10 @@ export function FinalScreen() {
     finalists: finalists.length,
     events: week.events,
     dmHonest: Object.values(dmHandled).filter((k) => k === 'honest').length,
+    tested: testPool({ weekLog }).length,
+    invitedBelowStrong: weekLog.filter((e) => days[e.day]?.selection && e.decision === 'approve' && isStrong(e.id) && candidateAptitude(e.id, seed).score < APTITUDE_CUTOFF).length,
+    selfScore: story.aptitude?.score ?? null,
+    cutoff: APTITUDE_CUTOFF,
   };
   const earned = ACHIEVEMENTS.filter((a) => a.test(input)).map((a) => a.id);
   // Bu haftanın başarımlarından hangileri yepyeni (kaydetmeden önce okunur).
@@ -86,7 +94,6 @@ export function FinalScreen() {
   });
   const [collected, setCollected] = useState(() => loadUnlocked());
   const [reportOpen, setReportOpen] = useState(false);
-  const weekLog = useGameStore((s) => s.weekLog);
   useEffect(() => {
     setCollected(unlockAchievements(input).all);
     // once per final screen
@@ -378,6 +385,7 @@ export function FinalScreen() {
               aiUses,
               complies: managerStance.complies,
               refusals,
+              selfScore: story.aptitude?.score ?? null,
             })}
           />
         )}

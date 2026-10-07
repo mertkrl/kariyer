@@ -254,25 +254,28 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 80, thread: 'office', sender: 'Emre', text: 'Yapay zekâ sistemi tamamen çöktü 😱 IT\'de herkes panikte',
       replies: [
-        { text: 'Bugün CV\'leri kendimiz okuyacağız.', reaction: 'Aynen, kahve stoku yapın ☕', reactionSender: 'Ayşe' },
+        { text: 'Neyse ki test puanları elimizde.', reaction: 'Puanlar var da… soruları gördün mü? 🙃', reactionSender: 'Ayşe' },
         { text: 'Bugün iş uzun sürecek.', reaction: 'Kesin. Akşam fazla mesai var gibi 😩', reactionSender: 'Emre' },
       ],
       followUps: [
-        { after: 4, sender: 'Selin (İK)', text: 'Bugün herkes gerçekten CV okuyacak desenize.' },
-        { after: 10, sender: 'Emre', text: 'Sistem yokken iş iki katına çıkıyor. O sistemi boşuna almadı şirket.' },
+        { after: 4, sender: 'Selin (İK)', text: 'Hakan Bey\'den not: "70 altı listeye girmez. Sayılar ortada." Bilginize.' },
+        { after: 10, sender: 'Emre', text: 'Sistem gitti ama test duruyor. Bence test puanı daha bile nesnel. Sayı sayıdır.' },
         { after: 25, sender: 'Ayşe', text: 'IT "öğleden sonra belki" diyor. Belki 🙃' },
       ],
     },
     {
-      at: 300, thread: 'office', sender: 'Selin (İK)', text: 'Sistem yokken CV okumak… İtiraf edeyim, bazılarını ilk kez gerçekten okudum.',
-      replies: [{ text: 'Ben de aynı şeyi fark ettim.', reaction: 'Bir şey söylüyor bu bize 🙂', reactionSender: 'Selin (İK)' }],
+      at: 300, thread: 'office', sender: 'Selin (İK)', text: 'Bir adayın cevap kâğıdına baktım. "Hangisi farklı: Pazartesi, Çarşamba, Cumartesi" sorusunda doğru cevap "Hiçbiri, hepsi iş günüdür"müş. Gülsem mi ağlasam mı.',
+      replies: [
+        { text: 'Ben de fark ettim. Mantıklı cevap verenler puan kaybetmiş.', reaction: 'Bir şey söylüyor bu bize 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Kurum kültürü testi işte 🙂', reaction: 'Kültürümüz buysa… 😶', reactionSender: 'Selin (İK)' },
+      ],
       followUps: [
-        { after: 6, sender: 'Ayşe', text: 'Ben de. Bazılarını hiç görmemişim meğer.' },
-        { after: 14, sender: 'Emre', text: 'Okumak güzel de, akşama kadar bitmez bu iş. Sistemin bir bildiği var.' },
+        { after: 6, sender: 'Ayşe', text: 'Ben dün akşam kendim çözdüm. 58 aldım. Beni de işe almazdınız yani 🙃' },
+        { after: 14, sender: 'Emre', text: 'Ben 91 aldım 😎 Test ne derse o.' },
       ],
     },
     {
-      at: 420, thread: 'office', sender: 'Selin (İK)', text: 'Hakan Bey\'den duyuru: sistem arızası yüzünden bugün hep beraber 19:00\'a kadar kalıyoruz. Akşam yemeği şirketten 🍕',
+      at: 420, thread: 'office', sender: 'Selin (İK)', text: 'Hakan Bey\'den duyuru: sistem arızası ve mülakat listesi yüzünden bugün hep beraber 19:00\'a kadar kalıyoruz. Akşam yemeği şirketten 🍕',
       replies: [
         { text: 'Anlaşıldı, ben de kalıyorum.', reaction: 'Hep beraber bitiririz 💪', reactionSender: 'Ayşe' },
         { text: 'Evdekilere haber vereyim o zaman.', reaction: 'Ben de annemi aradım, "yine mi" dedi 😅', reactionSender: 'Ayşe' },

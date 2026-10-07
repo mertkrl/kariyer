@@ -383,3 +383,8 @@
   font-style: italic;
   color: var(--text-dim);
 }
+
+.testNote {
+  flex-basis: 100%;
+  color: var(--text-faint);
+}

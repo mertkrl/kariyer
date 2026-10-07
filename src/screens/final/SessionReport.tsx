@@ -58,7 +58,7 @@ export function SessionReport({ report, onClose }: { report: Report; onClose: ()
           <h3>Hafta</h3>
           <ul className={styles.facts}>
             <li>
-              {report.decided} dosya: {report.approved} mülakat, {report.rejected} ret
+              {report.decided} dosya: {report.approved} teste geçirildi, {report.rejected} ret
               {report.readShare !== null && <> · okuyarak verilen kararlar %{Math.round(report.readShare * 100)}</>}
             </li>
             <li>
@@ -72,12 +72,35 @@ export function SessionReport({ report, onClose }: { report: Report; onClose: ()
         </section>
 
         <section>
+          <h3>Test</h3>
+          <p className={styles.muted}>
+            {report.test.tested} kişi teste geçti{report.test.selfScore !== null && ` · senin puanın ${report.test.selfScore}`}
+          </p>
+          {report.test.strongBelow.length + report.test.weakAbove.length > 0 && (
+            <ul className={styles.facts}>
+              {report.test.strongBelow.map((t) => (
+                <li key={t.name}>
+                  <b>{t.name}</b>: güçlü dosya, test {t.score}
+                  <em>{t.invited ? ' · yine de çağrıldı' : ' · çağrılmadı'}</em>
+                </li>
+              ))}
+              {report.test.weakAbove.map((t) => (
+                <li key={t.name}>
+                  <b>{t.name}</b>: zayıf dosya, test {t.score}
+                  {t.invited && <em> · çağrıldı</em>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section>
           <h3>Sistemin haksız yere aşağı ittiği güçlü adaylar</h3>
           {report.flaggedStrong.length ? (
             <ul className={styles.facts}>
               {report.flaggedStrong.map((f) => (
                 <li key={f.name}>
-                  <b>{f.name}</b>: {f.decision === 'approve' ? 'mülakata çağrıldı' : 'reddedildi'}
+                  <b>{f.name}</b>: {f.decision === 'approve' ? 'teste geçirildi' : 'reddedildi'}
                   {f.considered !== null && <em>{f.considered ? ' · okunarak' : ' · okunmadan'}</em>}
                 </li>
               ))}

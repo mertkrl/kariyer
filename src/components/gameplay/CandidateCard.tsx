@@ -11,7 +11,7 @@ import styles from '../../screens/GameplayScreen.module.css';
 import own from './CandidateCard.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 import { days } from '../../game/data/days';
-import { APTITUDE_CUTOFF, candidateAptitude } from '../../game/events/aptitude';
+import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude } from '../../game/events/aptitude';
 
 /*
  * Açık CV: referans aramalı başlık, dosyanın kendisi ve ya iki düğme (bugünün mülakat
@@ -147,6 +147,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                 {test.score < APTITUDE_CUTOFF ? `eşiğin (${APTITUDE_CUTOFF}) altında` : `eşiği (${APTITUDE_CUTOFF}) geçti`} · {test.correct} doğru, {test.timedOut} boş
               </span>
               <span className={own.testHint}>Cevap kâğıdı: Değerlendirme uygulaması</span>
+              {aptitudeNote(candidate!.id) && <span className={own.testNote}>⚑ {aptitudeNote(candidate!.id)}</span>}
             </div>
           )}
 

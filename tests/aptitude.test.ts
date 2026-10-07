@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { APTITUDE_QUESTIONS } from '../src/game/data/aptitudeTest';
-import { APTITUDE_CUTOFF, candidateAptitude, scoreAptitude, testTalk } from '../src/game/events/aptitude';
+import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude, scoreAptitude, testTalk } from '../src/game/events/aptitude';
 import { candidates } from '../src/game/data/candidates';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 
@@ -38,4 +38,26 @@ test('mülakatta test sorusu: aklı başında cevabı veren gerekçesini anlatı
     assert.ok(answer.length > 20, id);
   }
   assert.ok(APTITUDE_QUESTIONS.every((q) => q.why.length > 20));
+});
+
+test('elle yazılmış kâğıtlar: yeğen tam puan, sistemin gözdesi eşiğin üstünde, disleksili güçlü aday altında, test bazen tutar', () => {
+  assert.equal(candidateAptitude('okan', 1).score, 100);
+  assert.ok(candidateAptitude('serkan', 1).score >= 90);
+  assert.ok(candidateAptitude('irem', 1).score < APTITUDE_CUTOFF && candidateAptitude('irem', 1).timedOut >= 5);
+  assert.ok(candidateAptitude('murat', 1).score >= APTITUDE_CUTOFF);
+  assert.match(aptitudeNote('irem') ?? '', /ek süre/);
+  assert.match(testTalk('irem', 1).answer, /Disleksi/);
+});
+
+test('rapor: eşikte takılan güçlü dosyalar ve kendi puanın tartışma sorusuna döner', async () => {
+  const { sessionReport } = await import('../src/game/engine/report');
+  const r = sessionReport({
+    seed: 1, difficulty: 'normal', endingTitle: '', performans: 50, vicdan: 50,
+    weekLog: [{ id: 'irem', day: 1, decision: 'approve' }, { id: 'serkan', day: 1, decision: 'approve' }, { id: 'serkan', day: 3, decision: 'approve' }],
+    finalists: [{ id: 'serkan' }], hiredId: null, referenceChecks: {}, aiUses: 0, complies: 0, refusals: 0, selfScore: 42,
+  });
+  assert.equal(r.decided, 2);
+  assert.deepEqual(r.test.strongBelow.map((t) => [t.name.split(' ')[0], t.invited]), [['İrem', false]]);
+  assert.ok(r.test.weakAbove.some((t) => t.invited));
+  assert.ok(r.questions.some((q) => q.includes('sen de mülakata çağrılmazdın')));
 });

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../game/store/store';
 import { APTITUDE_MINUTES_PER_QUESTION, APTITUDE_QUESTIONS, APTITUDE_SECONDS } from '../../game/data/aptitudeTest';
-import { APTITUDE_CUTOFF, candidateAptitude, type AptitudeAnswer, type AptitudeResult } from '../../game/events/aptitude';
+import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude, type AptitudeAnswer, type AptitudeResult } from '../../game/events/aptitude';
 import { candidateOf } from '../../game/data/candidates';
 import { PLAYER } from '../../game/lib/player';
 import { days } from '../../game/data/days';
@@ -112,6 +112,7 @@ function AnswerSheet({ row }: { row: Row }) {
           <small>{result.score < APTITUDE_CUTOFF ? 'Eşiğin altında' : 'Eşiği geçti'}</small>
         </div>
       </header>
+      {aptitudeNote(row.id) && <p className={styles.platformNote}>⚑ {aptitudeNote(row.id)}</p>}
       <ol className={styles.answers}>
         {APTITUDE_QUESTIONS.map((q, i) => {
           const a = result.answers[i];

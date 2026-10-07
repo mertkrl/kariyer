@@ -21,6 +21,7 @@ import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUn
 import { dispatchRejections, isOnBreak } from '../day/clock';
 import { NEIGHBOUR_DAY } from '../lib/weekdays';
 import { tick } from '../day/tick';
+import { APTITUDE_CUTOFF, candidateAptitude } from '../events/aptitude';
 
 /** Okuyarak çağrılan ve gerçekten güçlü çıkan aday başına: ekip liderinin olumlu notu. */
 export const SPOTTED_PERFORMANS = 1;
@@ -172,6 +173,12 @@ export const createDaySlice = (set: SetState, get: GetState): DayActions => ({
     if (emptySlots > 0) {
       verdict.vicdan -= emptySlots;
       verdict.lines.push(`${emptySlots} mülakat hakkın boş kaldı; o sırada işaretli ${strongRejected} güçlü adayı eledin.`);
+    }
+
+    // Perşembe: eşiğin altından çağırdıkların Hakan Bey'in gözünden kaçmaz
+    if (day.selection) {
+      const below = lineup.filter((id) => state.decisions[id] === 'approve' && candidateAptitude(id, state.seed).score < APTITUDE_CUTOFF).length;
+      if (below > 0) verdict.lines.push(`Hakan Bey: "Test puanı ${APTITUDE_CUTOFF}'in altında ${below} kişiyi mülakata çağırmışsınız. Sayıların neden orada olduğunu hatırlatırım."`);
     }
 
     // ekip liderinin sesi: okuyarak mülakata çağırdığın ve gerçekten güçlü çıkan her aday deneme değerlendirmene yazılır

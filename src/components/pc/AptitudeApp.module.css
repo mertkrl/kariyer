@@ -375,3 +375,13 @@
     border-bottom: 1px solid #dfe5ee;
   }
 }
+
+.platformNote {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: #fff6e0;
+  color: #6b5312;
+  font-size: var(--fs-small);
+  line-height: 1.45;
+}
