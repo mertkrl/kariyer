@@ -4,6 +4,7 @@ import { APTITUDE_MINUTES_PER_QUESTION, APTITUDE_QUESTIONS, APTITUDE_SECONDS } f
 import { APTITUDE_CUTOFF, candidateAptitude, type AptitudeAnswer, type AptitudeResult } from '../../game/events/aptitude';
 import { candidateOf } from '../../game/data/candidates';
 import { PLAYER } from '../../game/lib/player';
+import { days } from '../../game/data/days';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from './AptitudeApp.module.css';
 
@@ -15,6 +16,7 @@ import styles from './AptitudeApp.module.css';
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 const SELF = '__self';
+const SELECTION_DAY = days.findIndex((d) => d.selection);
 
 interface Row {
   id: string;
@@ -31,9 +33,9 @@ export function AptitudeApp() {
   const [taking, setTaking] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
-  // teste geçen adayın sonucu ertesi sabah gelir
+  // teste geçen adayın sonucu ertesi sabah gelir; Perşembe'nin onayı test değil, davettir
   const rows: Row[] = weekLog
-    .filter((e) => e.decision === 'approve' && e.day < dayIndex)
+    .filter((e) => e.decision === 'approve' && e.day < Math.min(dayIndex, SELECTION_DAY))
     .map((e) => ({ id: e.id, name: candidateOf(e.id).name, note: `${DAY_SHORT[e.day]} teste geçti`, result: candidateAptitude(e.id, seed) }));
   if (mine) rows.unshift({ id: SELF, name: `${PLAYER.name} (siz)`, note: 'Deneme', result: mine });
   const current = rows.find((r) => r.id === selected) ?? rows[0] ?? null;
@@ -141,6 +143,7 @@ function SelfTest({ onDone }: { onDone: () => void }) {
   const step = useGameStore((s) => s.aptitudeStep);
   const [answers, setAnswers] = useState<AptitudeAnswer[]>([]);
   const [left, setLeft] = useState(APTITUDE_SECONDS);
+  const leftRef = useRef(left);
   const index = answers.length;
   // pencereyi yarıda kapatmak testi bitirir: cevaplanmayanlar boş sayılır (hiç cevap yoksa test başlamamıştır)
   const pending = useRef(answers);
@@ -164,15 +167,20 @@ function SelfTest({ onDone }: { onDone: () => void }) {
     [finish],
   );
 
+  // süre dolunca soru boş geçer; sayaç saniyede bir iner, oyun duraklatılınca durur
+  const answerRef = useRef(answer);
+  useEffect(() => {
+    answerRef.current = answer;
+    leftRef.current = left;
+  });
   useEffect(() => {
     if (paused) return;
-    const id = window.setInterval(() => setLeft((s) => s - 1), 1000);
+    const id = window.setInterval(() => {
+      setLeft((s) => s - 1);
+      if (leftRef.current <= 1) answerRef.current(null);
+    }, 1000);
     return () => window.clearInterval(id);
   }, [paused]);
-
-  useEffect(() => {
-    if (left <= 0 && index < APTITUDE_QUESTIONS.length) answer(null);
-  });
 
   const q = APTITUDE_QUESTIONS[index];
   if (!q) return null;

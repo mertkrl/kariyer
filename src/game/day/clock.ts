@@ -97,10 +97,10 @@ const CALL_SOURCES: ((state: GameState, minutes: number) => Patch | null)[] = [
       : null,
   // ona karşı çıktığın günün ertesi sabahı odasına çağrılırsın
   (state, minutes) => (state.reviewAt !== null && minutes >= state.reviewAt && !state.desk.calls.review ? ring(state.desk, 'review', minutes) : null),
-  // Perşembe öğleden sonra: hafta başında mülakata çağırdığın biri teşekkür etmek için arar
+  // Perşembe öğleden sonra: hafta başında teste geçirdiğin biri teşekkür etmek için arar
   (state, minutes) => {
     if (state.currentDayIndex !== THANKS_DAY || minutes < THANKS_AT || Object.keys(state.desk.calls).some((k) => k.startsWith('thanks:'))) return null;
-    const early = state.finalists.find((f) => f.day <= THANKS_DAY - 1 && !f.byManager);
+    const early = state.weekLog.find((e) => e.decision === 'approve' && e.day <= THANKS_DAY - 2);
     return early ? ring(state.desk, `thanks:${early.id}`, minutes) : null;
   },
   // Perşembe öğleden sonra: mülakata çağırdığın Tolga Kars'ta karda kaldı
@@ -371,7 +371,7 @@ function extraFilesReplies(n: number): QuickReply[] {
 export function addExtraFiles(): boolean {
   const s = getState();
   const day = s.currentDayIndex;
-  if (s.phase !== 'gameplay' || days[day]?.final || s.overtime || s.extraFiles[day] || s.workdayMinutes < EXTRA_FILES_FROM || s.workdayMinutes >= EXTRA_FILES_BEFORE) return false;
+  if (s.phase !== 'gameplay' || days[day]?.final || days[day]?.selection || s.overtime || s.extraFiles[day] || s.workdayMinutes < EXTRA_FILES_FROM || s.workdayMinutes >= EXTRA_FILES_BEFORE) return false;
   if (!lineupFor(s).every((id) => s.decisions[id])) return false;
   const inWeek = new Set(s.lineups.flat());
   const rand = rngFor(s.seed, `extras-${day}`);

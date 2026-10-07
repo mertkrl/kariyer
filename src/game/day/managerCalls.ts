@@ -275,9 +275,9 @@ export function callFor(
       at: 0,
       caller: c.name,
       line: 'Dış hat · santralden aktarıldı',
-      lines: [`Merhaba, ben ${first}. Kusura bakmayın, santrale yalvardım.`, 'Mülakata çağrıldığımı öğrendim. Aylardır ilk olumlu dönüş bu. Annem ağladı, inanır mısınız?', 'Sadece teşekkür etmek istedim. Biri CV\'mi gerçekten okumuş.'],
+      lines: [`Merhaba, ben ${first}. Kusura bakmayın, santrale yalvardım.`, 'Testinize çağrıldım, çözdüm de. Sorular biraz… tuhaftı ama olsun. Aylardır ilk olumlu dönüş bu. Annem ağladı, inanır mısınız?', 'Sadece teşekkür etmek istedim. Biri CV\'mi gerçekten okumuş.'],
       choices: [
-        { text: 'Cuma görüşürüz. Hazırlıklı gelin.', reply: 'Hazırlanıyorum, söz! Tekrar teşekkürler.', vicdan: 1 },
+        { text: 'Mülakat listesi bugün belli oluyor. Kolay gelsin.', reply: 'Bekliyorum o zaman. Tekrar teşekkürler.', vicdan: 1 },
         { text: 'Rica ederim. Ama söz veremem, bilin.', reply: 'Biliyorum. Yine de… teşekkürler.', vicdan: 1 },
       ],
       minutes: 3,

@@ -11,7 +11,9 @@ import { KEY_CHARACTERS } from '../src/game/day/story';
 import type { GameState } from '../src/game/store/storeTypes';
 
 test('tolga: kar araması Perşembe öğleden sonra, 17:00\'den önce', () => {
-  assert.ok(days[THURSDAY].candidateIds.includes('tolga'));
+  // CV'si hafta başında gelir; Perşembe, teste geçtiyse, davet edilebilir
+  assert.ok(days.slice(0, THURSDAY).some((d) => d.candidateIds.includes('tolga')));
+  assert.ok(days[THURSDAY].selection);
   assert.ok(SNOW_CALL_AT > 6 * 60 && SNOW_CALL_AT < 9 * 60);
 });
 

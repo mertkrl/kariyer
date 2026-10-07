@@ -3,7 +3,9 @@
  */
 import type { GetState, SetState } from '../store/storeApi';
 import type { DecisionActions } from '../store/storeTypes';
-import { decisionEffect } from '../engine/scoring';
+import { decisionEffect, selectionEffect } from '../engine/scoring';
+import { APTITUDE_CUTOFF, candidateAptitude } from '../events/aptitude';
+import { days } from '../data/days';
 import { sound } from '../lib/sound';
 import { later } from '../lib/later';
 import { JUSTIFY_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, lineupFor, readingOf, addVicdan } from '../store/storeDefaults';
@@ -53,7 +55,10 @@ export const createDecisionSlice = (set: SetState, get: GetState): DecisionActio
     }
 
     // nasıl karar verdiğin ne karar verdiğin kadar önemli: dosyayı okumak, bir referansı kontrol etmek
-    const effect = decisionEffect(id, decision, readingOf(state, id));
+    // seçim günü: karar test puanının önündedir; CV günleri: dosyanın kendisinin
+    const effect = days[state.currentDayIndex].selection
+      ? selectionEffect(id, decision, candidateAptitude(id, state.seed).score, APTITUDE_CUTOFF)
+      : decisionEffect(id, decision, readingOf(state, id));
     const before = { performans, vicdan };
     performans = clampScore(performans + effect.performans);
     vicdan = addVicdan(vicdan, effect.vicdan);

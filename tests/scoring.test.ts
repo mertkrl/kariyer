@@ -71,12 +71,14 @@ test('okuyarak verilen ret vicdandan yemez; okumadan verilen yer', () => {
   }
 });
 
-test('işarete rağmen güçlü adaya şans vermek vicdan kazandırır, performans kaybettirir', () => {
+test('işarete rağmen güçlü adaya şans vermek vicdan kazandırır, performans kazandırmaz', () => {
   const flagged = ids.filter((id) => !SPECIAL.has(id) && !FAIR_FLAG.has(id) && fitOf(id) >= 4 && ['low', 'out'].includes(systemVerdict(candidates[id])!));
   assert.ok(flagged.length > 10);
   for (const id of flagged) {
     const e = decisionEffect(id, 'approve', read);
-    assert.ok(e.vicdan > 0 && e.performans < 0, id);
+    // teste geçirmek mülakat değil: şirket "düşük" işaretliye göz yumar, "elenmeli" olana yine kızar
+    assert.ok(e.vicdan > 0 && e.performans <= 0, id);
+    if (systemVerdict(candidates[id]) === 'out') assert.ok(e.performans < 0, id);
   }
 });
 

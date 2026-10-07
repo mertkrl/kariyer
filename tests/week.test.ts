@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { minutesPerTick, useGameStore } from '../src/game/store/store';
-import { DAILY_INVITES } from '../src/game/data/days';
+import { INVITE_LIMIT } from '../src/game/data/days';
 import { playWeek, type BotStyle, type Run } from './support/bot';
 import { rngFor } from '../src/game/lib/rng';
 
@@ -28,7 +28,7 @@ for (const style of ['approve', 'reject', 'mixed'] as const) {
     assert.ok(run.scoresSeen.every((v) => v >= 0 && v <= 100), 'puan 0–100 dışına çıktı');
     assert.equal(new Set(run.finalists).size, run.finalists.length, 'aynı finalist iki kez');
     const byPlayer = store.getState().finalists.filter((f) => !f.byManager).length;
-    assert.ok(byPlayer <= DAILY_INVITES * 4, `kontenjan aşıldı: ${byPlayer}`);
+    assert.ok(byPlayer <= INVITE_LIMIT, `kontenjan aşıldı: ${byPlayer}`);
   });
 }
 

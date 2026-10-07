@@ -341,3 +341,45 @@
     opacity: 1;
   }
 }
+
+/* Perşembe: dosyanın üstünde test puanı */
+.testStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-muted);
+  border-left: 4px solid var(--teal);
+  border-radius: var(--radius-sm);
+  background: var(--paper-muted);
+  font-size: var(--fs-small);
+}
+
+.testStrip b {
+  font-size: 22px;
+  color: var(--teal);
+}
+
+.testBelow {
+  border-left-color: var(--red);
+}
+
+.testBelow b {
+  color: var(--red);
+}
+
+.testLabel {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.testHint {
+  margin-left: auto;
+  font-style: italic;
+  color: var(--text-dim);
+}

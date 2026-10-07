@@ -10,6 +10,8 @@ import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
 import own from './CandidateCard.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
+import { days } from '../../game/data/days';
+import { APTITUDE_CUTOFF, candidateAptitude } from '../../game/events/aptitude';
 
 /*
  * Açık CV: referans aramalı başlık, dosyanın kendisi ve ya iki düğme (bugünün mülakat
@@ -37,6 +39,9 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const quotaCut = useGameStore((s) => s.quotaCut);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
   const effect = useGameStore((s) => (s.currentCandidateId ? s.decisionEffects[s.currentCandidateId] : undefined));
+  const seed = useGameStore((s) => s.seed);
+  // CV günlerinde onay teste geçirmektir; seçim günü (Perşembe) mülakata çağırmak
+  const selection = Boolean(days[currentDayIndex]?.selection);
   const lineBusy = useGameStore((s) => Boolean(s.desk.inCall || s.desk.ringing));
   const callReference = useGameStore((s) => s.callReference);
   const decide = useGameStore((s) => s.decide);
@@ -49,12 +54,13 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const details = candidate ? candidateDetails[candidate.id] : undefined;
   const decidedForCurrent = currentCandidateId ? decisions[currentCandidateId] : undefined;
   const quota = approvalQuota({ currentDayIndex, decisions, finalists, lineups, quotaCut });
-  const quotaReason = quota.dailyLeft === 0 ? (quota.dailyLimit === 0 ? 'Performansın düşük: Hakan Bey bugünkü mülakat hakkını kaldırdı' : 'Bugünkü mülakat hakkın doldu') : null;
+  const quotaReason = quota.dailyLeft === 0 ? (quota.dailyLimit === 0 ? 'Performansın düşük: Hakan Bey mülakat hakkını kaldırdı' : 'Mülakat hakkın doldu') : null;
+  const test = selection && candidate ? candidateAptitude(candidate.id, seed) : null;
   const decidedAt = decisionLog.find((e) => e.id === currentCandidateId)?.at;
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);
 
-  // klavye: M mülakata çağırır, R reddeder, S sıradaki dosyayı açar (Ctrl/Cmd+Z geri alır, bkz.
+  // klavye: M teste geçirir (Perşembe mülakata çağırır), R reddeder, S sıradaki dosyayı açar (Ctrl/Cmd+Z geri alır, bkz.
   // GameplayScreen). Yalnızca portal oyuncunun dikkatindeyken, yazı yazarken asla.
   useEffect(() => {
     if (!reading || !candidate || onBreak) return;
@@ -92,7 +98,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
               key={`${candidate.id}-${decidedForCurrent}`}
               className={`${styles.stamp} ${decidedForCurrent === 'approve' ? own.stampApprove : own.stampReject}`}
             >
-              {decidedForCurrent === 'approve' ? 'MÜLAKATTA' : 'REDDEDİLDİ'}
+              {decidedForCurrent === 'approve' ? (selection ? 'MÜLAKATTA' : 'TESTTE') : selection ? 'ÇAĞRILMADI' : 'REDDEDİLDİ'}
             </div>
           )}
 
@@ -133,6 +139,17 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           </header>
 
+          {test && (
+            <div className={`${own.testStrip} ${test.score < APTITUDE_CUTOFF ? own.testBelow : ''}`}>
+              <span className={own.testLabel}>Genel Yetenek ve Uyum</span>
+              <b className="mono">{test.score}</b>
+              <span>
+                {test.score < APTITUDE_CUTOFF ? `eşiğin (${APTITUDE_CUTOFF}) altında` : `eşiği (${APTITUDE_CUTOFF}) geçti`} · {test.correct} doğru, {test.timedOut} boş
+              </span>
+              <span className={own.testHint}>Cevap kâğıdı: Değerlendirme uygulaması</span>
+            </div>
+          )}
+
           {/* kişiye göre anahtarlı: her CV en üstünden açılır, bir öncekinin kaydırıldığı yerden değil */}
           <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} onReadThrough={() => markReadThrough(candidate.id)} />
 
@@ -144,7 +161,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             >
               <div className={own.decisionInfo}>
                 <span className={own.decisionTitle}>
-                  {decidedForCurrent === 'approve' ? '✓ Mülakata çağrıldı' : '✕ Reddedildi'}
+                  {decidedForCurrent === 'approve' ? (selection ? '✓ Mülakata çağrıldı' : '✓ Teste geçirildi') : selection ? '✕ Çağrılmadı' : '✕ Reddedildi'}
                 </span>
                 {effect?.reason && (
                   <span className={own.decisionWhy}>
@@ -169,29 +186,33 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           ) : (
             <div className={styles.actionArea} data-tour="actions">
-              <div className={`${own.quotaLine} ${quotaReason ? own.quotaFull : ''}`}>
-                {quotaCut && !quotaReason && <>⚠ Performansın düşük: Hakan Bey bugün mülakat hakkını bir azalttı. </>}
-                {quotaReason ? (
-                  <>⛔ {quotaReason} — bu adayı ancak reddedebilir ya da çağırdığın başka birini geri alabilirsin.</>
-                ) : (
-                  <>
-                    Bugün <strong className="mono">{quota.dailyLeft}</strong>/{quota.dailyLimit} mülakat hakkın kaldı
-                  </>
-                )}
-              </div>
+              {selection ? (
+                <div className={`${own.quotaLine} ${quotaReason ? own.quotaFull : ''}`}>
+                  {quotaCut && !quotaReason && <>⚠ Performansın düşük: Hakan Bey mülakat hakkını bir azalttı. </>}
+                  {quotaReason ? (
+                    <>⛔ {quotaReason} — bu adayı çağırmayabilir ya da çağırdığın başka birini geri alabilirsin.</>
+                  ) : (
+                    <>
+                      <strong className="mono">{quota.dailyLeft}</strong>/{quota.dailyLimit} mülakat hakkın kaldı
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className={own.quotaLine}>Teste geçirmenin sınırı yok. Sonuç yarın sabah Değerlendirme uygulamasında.</div>
+              )}
               <div className={own.actionBar}>
                 <Button
                   variant="primary"
                   sound="none"
                   onClick={() => decide('approve')}
                   disabled={!quota.canApprove}
-                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır'}
+                  title={quotaReason ?? (selection ? 'Adayı cuma günkü mülakata çağır' : 'Adayı Genel Yetenek ve Uyum Değerlendirmesi\'ne geçir')}
                   aria-keyshortcuts="M"
                 >
-                  ✓ MÜLAKATA ÇAĞIR
+                  {selection ? '✓ MÜLAKATA ÇAĞIR' : '✓ TESTE GEÇİR'}
                 </Button>
-                <Button variant="danger" sound="none" onClick={() => decide('reject')} title="Adayı reddet" aria-keyshortcuts="R">
-                  ✕ REDDET
+                <Button variant="danger" sound="none" onClick={() => decide('reject')} title={selection ? 'Adayı mülakata çağırma' : 'Adayı reddet'} aria-keyshortcuts="R">
+                  {selection ? '✕ ÇAĞIRMA' : '✕ REDDET'}
                 </Button>
               </div>
             </div>
@@ -203,7 +224,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
       {/* karar ve yaptığı, ekran okuyucular için bir kez okunur */}
       <div className="sr-only" aria-live="polite">
         {candidate && decidedForCurrent && effect?.reason
-          ? `${decidedForCurrent === 'approve' ? 'Mülakata çağrıldı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
+          ? `${decidedForCurrent === 'approve' ? (selection ? 'Mülakata çağrıldı' : 'Teste geçirildi') : selection ? 'Çağrılmadı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
           : ''}
       </div>
     </div>

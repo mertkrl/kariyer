@@ -17,6 +17,12 @@ export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>,
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;
 }
 
+/** Pazartesi–Çarşamba teste geçirdiklerin (geçirildikleri gün sırasıyla, her biri bir kez): Perşembe'nin kuyruğu. */
+export function testPool(state: Pick<GameState, 'weekLog'>): string[] {
+  const selectionDay = days.findIndex((d) => d.selection);
+  return [...new Set(state.weekLog.filter((e) => e.decision === 'approve' && e.day < selectionDay).map((e) => e.id))];
+}
+
 /** Bugünkü mülakat hakkı: oyunun tek davet kuralı günlük sınırdır. */
 export function approvalQuota(state: Pick<GameState, 'currentDayIndex' | 'decisions' | 'finalists' | 'lineups'> & { quotaCut?: boolean }) {
   const day = days[state.currentDayIndex];

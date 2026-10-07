@@ -81,7 +81,7 @@ Bilgi İşlem`,
     subject: 'Haftalık hedefler',
     body: `Sayın ${PLAYER.first} Hanım,
 
-Bu hafta hedefimiz, ön elemeyi eksiksiz tamamlayıp her gün en fazla 1 adayı mülakata çağırarak cuma günü mülakat aşamasına geçmektir.
+Bu hafta hedefimiz, ön elemeyi eksiksiz tamamlamak ve uygun adayları Genel Yetenek ve Uyum Değerlendirmesi'ne geçirmektir. Perşembe test puanlarına göre en fazla 3 adayı mülakata çağıracak, cuma günü mülakat aşamasına geçeceğiz.
 
 Günlük dosyaların mesai bitimine kadar sonuçlandırılmasını ve yapay zekâ modülünün önerilerinin dikkate alınmasını rica ederim.
 
@@ -209,7 +209,7 @@ Yazılım Ekip Lideri`,
     important: true,
     body: `Merhaba ${PLAYER.first},
 
-Lisans sunucusundaki bir arıza nedeniyle yapay zekâ modülü bugün kullanılamayacaktır. Değerlendirmelerin manuel olarak yapılması gerekmektedir.
+Lisans sunucusundaki bir arıza nedeniyle yapay zekâ modülü bugün kullanılamayacaktır. Değerlendirme platformu (Assessa) ayrı bir sunucuda çalıştığından test sonuçlarına erişim etkilenmemiştir.
 
 Bilgi İşlem`,
   },
@@ -222,7 +222,7 @@ Bilgi İşlem`,
     subject: 'Re: Sistem',
     body: `Sistemin çöktüğünü duydum. Açıkçası bizim ekip için kötü haber sayılmaz.
 
-Kısa listeye kimi koyduysanız yarın göreceğim. Tek isteğim: listeye "skoru yüksek" diye değil, "işi yapabilir" diye girsinler.
+Kısa listeye kimi koyduysanız yarın göreceğim. Tek isteğim: listeye "test puanı yüksek" diye değil, "işi yapabilir" diye girsinler. O testin sorularına bir bakın bence.
 
 Ümit`,
   },

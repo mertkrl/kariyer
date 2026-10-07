@@ -66,11 +66,12 @@ export function wasConsidered(ctx: ReadingContext) {
 }
 
 /** Şirketin, sistemine uymayı (ya da karşı gitmeyi) nasıl puanladığı. */
+// teste geçirmenin sınırı yok, her onay mülakat değil: şirket sistemin gözdesini elemeye sert, işaretliye şans vermeye yumuşak bakar
 const COMPANY: Record<SystemVerdict, Record<Decision, number>> = {
-  priority: { approve: 2, reject: -2 },
+  priority: { approve: 1, reject: -2 },
   review: { approve: 0, reject: 1 },
-  low: { approve: -1, reject: 1 },
-  out: { approve: -2, reject: 1 },
+  low: { approve: 0, reject: 1 },
+  out: { approve: -1, reject: 1 },
 };
 
 /** Güçlü bir dosya (kişinin gerçekte nasıl çıktığına göre; CV bunu okuyana gösterir). */
@@ -114,13 +115,13 @@ export function decisionEffect(id: string, decision: Decision, ctx: ReadingConte
     if (isWronglyFlagged(id) && isStrong(id)) {
       return considered
         ? { performans, vicdan: 3 + checked, reason: `${first}: sistemin "${flag}" işaretine rağmen dosyanın kendisine baktın.` }
-        : { performans, vicdan: 1, reason: `${first}: işarete rağmen çağırdın — ama dosyayı okumadan.` };
+        : { performans, vicdan: 1, reason: `${first}: işarete rağmen teste geçirdin — ama dosyayı okumadan.` };
     }
     if (isWronglyFlagged(id)) return { performans, vicdan: (considered ? 1 : 0) + checked, reason: `${first}: işaretli bir dosyaya şans verdin.` };
     if (verdict === 'priority' && isWeak(id) && !considered) {
       return { performans, vicdan: -1, reason: `${first}: sistemin "öncelikli" dediği dosyayı okumadan onayladın.` };
     }
-    return { performans, vicdan: checked, reason: verdict === 'priority' ? `${first}: sistemin önerisiyle mülakata çağrıldı.` : `${first}: mülakata çağrıldı.` };
+    return { performans, vicdan: checked, reason: verdict === 'priority' ? `${first}: sistemin önerisiyle teste geçirildi.` : `${first}: teste geçirildi.` };
   }
 
   // reddedildi
@@ -148,3 +149,20 @@ export function unusedSlotCost(slotsLeft: number, strongRejected: number): numbe
 /** Gün sonu: çıkarken hâlâ açık olan dosyalar. Şirket her birini sayar. */
 export const OPEN_FILE_PERFORMANS = 2;
 export const OPEN_FILE_PERFORMANS_CAP = 6;
+
+/**
+ * Perşembe, test puanlarıyla davet: kural "70 altı çağrılmaz". Kuralı çiğnemek şirkete batar;
+ * güçlü bir insanı o sayıya rağmen çağırmak vicdana yazılır. Puanın neyi ölçtüğü,
+ * cevap kâğıdına bakanın göreceği şeydir (events/aptitude.ts).
+ */
+export function selectionEffect(id: string, decision: Decision, score: number, cutoff: number): DecisionEffect {
+  const first = candidateOf(id).name.split(' ')[0];
+  const below = score < cutoff;
+  if (decision === 'approve') {
+    if (below) return isStrong(id) ? { performans: -2, vicdan: 3, reason: `${first}: test puanı ${score}, eşiğin altında. Sayıya değil dosyaya baktın.` } : { performans: -2, vicdan: 0, reason: `${first}: test puanı ${score}, eşiğin altında olmasına rağmen çağrıldı.` };
+    return { performans: 1, vicdan: 0, reason: `${first}: test puanı ${score}; mülakata çağrıldı.` };
+  }
+  // üç hakla herkes çağrılamaz: boş bırakılan haklar gün sonunda sayılır (unusedSlotCost)
+  if (below && isStrong(id)) return { performans: 0, vicdan: 0, reason: `${first}: güçlü bir dosya; ${score} puanla mülakata çağrılmadı.` };
+  return { performans: 0, vicdan: 0, reason: `${first}: mülakata çağrılmadı.` };
+}
