@@ -17,7 +17,13 @@ export type AptitudeWidget =
   /** Sıralama: şıklar görevlerdir; ilk sıraya konan cevap sayılır. */
   | { type: 'order' }
   /** Toplantı: şıklar sırayla söylenir; baş salladığın cümle cevap sayılır. */
-  | { type: 'tap'; everyMs: number };
+  | { type: 'tap'; everyMs: number }
+  /** Takvim: şıklar haftanın dört boş yeridir; toplantının konduğu yer cevap sayılır. */
+  | { type: 'calendar' }
+  /** Gece mesajı: Hakan Bey yazar, "yazıyor…" görünür; seçilen cevap şıktır. */
+  | { type: 'chat'; from: string; at: string; messages: string[] }
+  /** Kaçan düğme: 0. şık imleçten kaçar, bir süre sonra yorulur; 1. şık hep yerinde durur. */
+  | { type: 'runaway' };
 
 export interface AptitudeQuestion {
   id: string;
@@ -87,17 +93,6 @@ export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
     why: 'Çalışanlar aile değil, iş sözleşmesi olan insanlar. Mantık sorusu olarak da öncülden kesin bir şey çıkmıyor; bana sorulan buydu.',
   },
   {
-    id: 'yes-count',
-    kind: 'dikkat',
-    prompt: 'Aşağıdaki satırda kaç kez "evet" geçmektedir? (Kurum içi yazışma standardına göre "efendim" de evet sayılır.)',
-    figure: 'evet  evet  hayır  evet  efendim  evet  bakarız',
-    hint: 'Dikkat: "Bakarız" kurum içinde "hayır" anlamına gelir; sayılmaz.',
-    options: ['4', '5', '6', 'Hayır da aslında evettir'],
-    answer: 1,
-    sensible: 0,
-    why: 'Satırda dört tane "evet" vardı. "Efendim" evet değildir; sayılanı saydım.',
-  },
-  {
     id: 'target',
     kind: 'sayısal',
     prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?',
@@ -164,11 +159,47 @@ export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
     widget: { type: 'slider', min: 0, max: 16, step: 1, unit: 'saat', thresholds: [2, 8, 15] },
   },
   {
+    id: 'sync-slot',
+    kind: 'simülasyon',
+    prompt: 'Hakan Bey "kısa bir senkron" istiyor. Takvimde boş bir yere yerleştirin.',
+    hint: 'Hatırlatma: "Kısa" bir senkron ortalama 90 dakika sürer.',
+    options: ['Salı 10:00 (mesai içi)', 'Perşembe 12:30 (öğle arası)', 'Cuma 18:30 (mesai sonrası)', 'Cumartesi 10:00 (taze kafayla!)'],
+    answer: 3,
+    sensible: 0,
+    why: 'Salı sabahı boştu, toplantıyı oraya koydum. Cumartesi 10:00 da boştu ama boş olması müsait olduğum anlamına gelmiyor.',
+    widget: { type: 'calendar' },
+    seconds: 30,
+  },
+  {
+    id: 'late-message',
+    kind: 'simülasyon',
+    prompt: 'Saat 23:47. Telefonunuz titriyor. Cevabınızı seçin.',
+    hint: 'Okundu bilgisi kapatılamaz.',
+    options: ["Yarın sabah 09:00'da dönüyorum.", 'Hemen bakıyorum! 🙏', '👍', 'Görüldü (cevap yok)'],
+    answer: 1,
+    sensible: 0,
+    why: 'Gece yarısı "acil değil" diye başlayan bir mesaja sabah dönerim. Gerçekten acilse arar.',
+    widget: { type: 'chat', from: 'Hakan Kaya', at: '23:47', messages: ['Müsait misin? Acil değil.', 'Acil.'] },
+    seconds: 25,
+  },
+  {
+    id: 'overtime-pay',
+    kind: 'simülasyon',
+    prompt: 'Bu ay 31 saat fazla mesai yaptınız. Tercihinizi işaretleyin.',
+    hint: 'Form, İK Portalı v1.0 ile uyumluluk modunda çalışmaktadır.',
+    options: ['Fazla mesai ücretimi talep ediyorum', 'Talep etmiyorum, biz bir aileyiz 💛'],
+    answer: 1,
+    sensible: 0,
+    why: 'Fazla mesai ücretimi talep ettim. Düğme biraz kaçtı ama yakaladım.',
+    widget: { type: 'runaway' },
+    seconds: 25,
+  },
+  {
     id: 'critique-smile',
     kind: 'kişilik',
     prompt: 'Müdürünüz raporunuz için "felaket olmuş" dedi. Yüz ifadenizi ayarlayın.',
     hint: 'Yüz ifadesi analizi beta sürümündedir.',
-    options: ['😐 Ciddiyetle dinlerim', '🙂 Hafif gülümserim', '😄 Kocaman gülümserim', '🤩 "Geri bildiriminiz için teşekkür ederim efendim!"'],
+    options: ['😐 Ciddiyetle dinlerim', '🙂 Hafif gülümserim', '😄 Kocaman gülümserim', '🤩 "Harika bir geri bildirim, çok teşekkürler!"'],
     answer: 3,
     sensible: 0,
     why: 'Eleştiriyi ciddiye alırım; ciddiye almak gülümsemekten daha saygılı bence.',

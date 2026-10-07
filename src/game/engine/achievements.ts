@@ -44,7 +44,7 @@ export interface Achievement {
 
 export const ACHIEVEMENTS: Achievement[] = [
   { id: 'human', icon: '🧠', title: 'İnsan Dokunuşu', desc: 'Bütün hafta yapay zekâya bir kez bile danışmadın.', test: (a) => a.aiUses === 0 && a.reviewed > 0 },
-  { id: 'yes', icon: '🫡', title: 'Evet Efendim', desc: 'Müdüre hiç karşı çıkmadın.', test: (a) => a.refusals === 0 && a.complies >= 2 },
+  { id: 'yes', icon: '🫡', title: 'Hep Evet', desc: 'Müdüre hiç karşı çıkmadın.', test: (a) => a.refusals === 0 && a.complies >= 2 },
   { id: 'spine', icon: '🦴', title: 'Dik Duruş', desc: 'Müdüre en az 3 kez "hayır" dedin.', test: (a) => a.refusals >= 3 },
   { id: 'nobody', icon: '📂', title: 'Kimse Unutulmadı', desc: 'Hiçbir aday kararsız kalıp otomatik elenmedi.', test: (a) => a.undecided === 0 && a.reviewed > 0 },
   { id: 'fast', icon: '⚡', title: 'Hızlı Karar', desc: 'Aday başına ortalama 20 saniyeden kısa sürdü.', test: (a) => a.reviewed > 0 && a.avgSeconds < 20 },

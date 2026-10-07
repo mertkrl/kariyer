@@ -285,7 +285,7 @@ export function replyText(answer: 'comply' | 'refuse', history: { refusals: numb
     return [
       'Anlaşıldı, gereğini yapacağım.',
       'Tabii Hakan Bey, hemen ilgileniyorum.',
-      'Emredersiniz efendim.',
+      'Emredersiniz.',
       'Siz nasıl uygun görürseniz… (yine)',
     ][Math.min(3, history.complies)];
   }

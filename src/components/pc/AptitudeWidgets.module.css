@@ -226,3 +226,177 @@
     animation: none;
   }
 }
+
+/* takvim */
+.calendar {
+  display: grid;
+  grid-template-columns: 52px repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  font-size: 11px;
+}
+
+.calRow {
+  display: contents;
+}
+
+.calHead {
+  text-align: center;
+  font-size: var(--fs-label);
+  color: var(--a-muted);
+}
+
+.calTime {
+  align-self: center;
+  color: var(--a-muted);
+}
+
+.calBusy,
+.calOff,
+.calFree {
+  min-height: 54px;
+  padding: 5px;
+  border-radius: 4px;
+  line-height: 1.25;
+}
+
+.calBusy {
+  background: #e7edf6;
+  border-left: 3px solid #8aa7cf;
+  color: #3b4a5c;
+}
+
+.calOff {
+  background: repeating-linear-gradient(45deg, #f4f6fa, #f4f6fa 6px, #eceff4 6px, #eceff4 12px);
+}
+
+.calFree {
+  border: 1px dashed var(--a-blue);
+  background: #fff;
+  color: var(--a-blue);
+  font: 600 11px var(--font-body);
+  cursor: pointer;
+}
+
+.calFree:hover,
+.calFree:focus-visible {
+  background: var(--a-blue-soft);
+}
+
+/* gece mesajı */
+.phone {
+  max-width: 340px;
+  margin: 0 auto;
+  border-radius: 18px;
+  background: #0f1622;
+  color: #fff;
+  overflow: hidden;
+}
+
+.phoneHead {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  background: #1c2a44;
+}
+
+.phoneHead small {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.phoneBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 96px;
+  padding: 12px;
+}
+
+.bubble {
+  align-self: flex-start;
+  max-width: 85%;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 12px 12px 12px 2px;
+  background: #2a3b57;
+  animation: slideIn 220ms var(--ease-enter);
+}
+
+.bubble small {
+  margin-left: 8px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.bubbleTyping {
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.replies {
+  display: grid;
+  gap: 6px;
+  padding: 0 12px 12px;
+}
+
+.reply {
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.reply:hover:not(:disabled),
+.reply:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.reply:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* kaçan düğme */
+.runaway {
+  position: relative;
+  height: 190px;
+  border: 1px solid var(--a-line);
+  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.runner {
+  position: absolute;
+  padding: 8px 12px;
+  border: 1px solid var(--a-line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--a-text);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    left 180ms ease-out,
+    top 180ms ease-out;
+}
+
+.runnerTired {
+  border-color: var(--a-blue);
+  transform: rotate(-3deg);
+}
+
+.stay {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+}
+
+.runNote {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  color: var(--a-muted);
+}
