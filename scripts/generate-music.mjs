@@ -444,7 +444,7 @@ for (let i = 0, o = 44; i < LOOP_SAMPLES; i++, o += 4) {
 fs.mkdirSync(AUDIO_DIR, { recursive: true });
 const tmpWav = path.join(os.tmpdir(), `kariyerweb-theme-${process.pid}.wav`);
 fs.writeFileSync(tmpWav, wav);
-const m4aPath = path.join(AUDIO_DIR, 'theme.m4a');
+const m4aPath = path.join(AUDIO_DIR, 'theme-tense.m4a');
 
 function tryEncode() {
   try {
@@ -467,7 +467,7 @@ if (encoder) {
   const size = (fs.statSync(m4aPath).size / 1024).toFixed(0);
   console.log(`Wrote ${m4aPath} via ${encoder} (${size} KB, ${(LOOP_SAMPLES / SR).toFixed(1)}s loop)`);
 } else {
-  const wavPath = path.join(AUDIO_DIR, 'theme.wav');
+  const wavPath = path.join(AUDIO_DIR, 'theme-tense.wav');
   fs.renameSync(tmpWav, wavPath);
-  console.warn(`No AAC encoder found (afconvert/ffmpeg). Wrote ${wavPath} — convert it to theme.m4a manually.`);
+  console.warn(`No AAC encoder found (afconvert/ffmpeg). Wrote ${wavPath} — convert it to theme-tense.m4a manually.`);
 }

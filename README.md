@@ -87,7 +87,8 @@ src/
     data/                 Metinler ve veriler: adaylar, günler, ilanlar, telefon senaryosu (phoneScript)
   audio/                  Ses: audioEngine (ayarlar, müzik, kısa sesler), engineCore (ses grafiği ve
                           sentez araçları), scenes/ (ofis, sokak, hava, öğle arası, tarama…)
-                          Müzik dosyaları public/audio altında, scripts/ ile üretilir
+                          musicPlan (hangi aşamada hangi parça: sakin, gergin, kapanış). Müzik dosyaları
+                          public/audio altında, scripts/generate-*-music.mjs ile üretilir
 docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları, yerleşim stratejisi, eğitmen rehberi
 ```
 

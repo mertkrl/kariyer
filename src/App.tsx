@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { usePhase } from './game/store/storeLoader';
 import { audioEngine } from './audio/audioEngine';
+import { trackFor } from './audio/musicPlan';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { UpdateNotice } from './components/ui/UpdateNotice';
 import { RotateHint } from './components/ui/RotateHint';
@@ -39,6 +40,9 @@ function App() {
   // Müzik mesai başlayınca girer (sonra iş/mola/duraklatma hâllerini GameplayScreen yönetir).
   // Giriş ekranları sessiz kalır; başvuru yağmurunun ses tasarımı net duyulsun diye.
   useEffect(() => {
+    // mesainin parçası günün kendisine bağlı (useWorkdaySounds); geri kalan aşamalar burada
+    const track = phase === 'gameplay' ? null : trackFor(phase, -1);
+    if (track) audioEngine.setMusicTrack(track);
     if (phase === 'gameplay' || phase === 'finalRound') return;
     audioEngine.setMusicMood(phase === 'dayEnd' || phase === 'final' ? 'work' : phase === 'weekend' ? 'break' : 'off');
   }, [phase]);

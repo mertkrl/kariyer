@@ -5,18 +5,15 @@ export type StampKind = 'approve' | 'reject';
  *
  *   SFX sesleri ──► sfxIn ──► sfxGlue (yumuşak kompresör) ──► sfxVolume ──┐
  *                                                                          ├──► master (sessiz) ──► sınırlayıcı ──► çıkış
- *   müzik döngüsü ──► highpass ──► lowpass ──► moodGain ──► musicVolume ──┘
+ *   müzik parçası ──► parça kazancı (geçişler) ──► highpass ──► lowpass ──► moodGain ──► musicVolume ──┘
  *
  * Kullanıcının gördüğü iki kaydırıcı (Müzik / Efektler) musicVolume ve sfxVolume'u yönetir. Son
  * sınırlayıcı üst üste binen ani sesleri (ör. aynı anda saçılan 60 CV) yakalar, hiçbir şey patlamaz.
  */
 
 export const SFX_LEVEL = 0.55;
-export const MUSIC_SRC = `${import.meta.env.BASE_URL}audio/theme-calm.m4a`;
 /** Gerçek bir yağmur kaydı; hava ve sokak sahnelerinin altında döngüde çalar. */
 export const RAIN_SRC = `${import.meta.env.BASE_URL}audio/rain.mp3`;
-/** theme-calm.m4a'nın tam döngü uzunluğu (66 BPM'de 32 ölçü); bkz. scripts/generate-calm-music.mjs. */
-export const MUSIC_LOOP_SECONDS = (60 / 66) * 4 * 32;
 
 /**
  * Arka plan müziğinin sahnede nasıl durduğu:
@@ -93,8 +90,9 @@ export class EngineCore {
   muted = false;
   musicLevel = 0.8;
   sfxLevel = 0.8;
-  musicBuffer: Promise<AudioBuffer> | null = null;
+  musicBuffers = new Map<string, Promise<AudioBuffer>>();
   musicSource: AudioBufferSourceNode | null = null;
+  musicSourceGain: GainNode | null = null;
   musicGain: GainNode | null = null;
   musicLowpass: BiquadFilterNode | null = null;
   musicHighpass: BiquadFilterNode | null = null;
