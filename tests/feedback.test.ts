@@ -73,3 +73,12 @@ test('gizlilik hatırlatması gönderilmez, kariyer platformunun e-postası spam
   assert.ok(!mails.some((m) => /belgelerinin gizliliği/.test(m.subject)));
   assert.ok(!mails.find((m) => m.id === 'flood')?.spam);
 });
+
+test('insanın yazdığı cevaplar kişiden kişiye değişir; kurumsal yanıt bilerek hep aynıdır', async () => {
+  const { replyBackMail } = await import('../src/game/day/rejectionMails');
+  const ids = Object.keys(candidates).slice(0, 24);
+  const bodies = (kind: 'warm' | 'reason' | 'formal') =>
+    new Set(ids.map((id) => replyBackMail({ id: `reply-0-${id}`, day: 0, at: 0, from: '', address: '', subject: 'Re: x', body: '' }, kind, 0, 0)!.body.replace(new RegExp(candidates[id].name.split(' ')[0], 'g'), '').replace(/"[^"]*"/g, '')));
+  assert.ok(bodies('warm').size >= 3, 'sıcak cevap tek kalıp');
+  assert.ok(bodies('reason').size >= 3, 'dürüst cevap tek kalıp');
+});

@@ -139,6 +139,20 @@ const VOICES: Voice[] = [
     pool: (w) => ({ body: `Merhaba,\n\nTeşekkürler. Havuzda tutulan profiller hangi sıklıkla gözden geçiriliyor? Güncel CV'mi ve portfolyo bağlantımı eklememi ister misiniz?\n\n${w.full}` }),
     none: (w) => ({ subject: 'Başvuru takibi', body: `Merhaba,\n\nBaşvurumun hangi aşamada olduğunu ve tahmini bir karar tarihi olup olmadığını öğrenebilir miyim? Bu arada başka süreçlerim de ilerliyor.\n\n${w.full}` }),
   },
+  // yorgun, iş arayan biri
+  {
+    personal: (w) => ({ body: `Merhaba,\n\nUzun zamandır gelen ilk gerçek cevap bu. ${w.exp} sonra yeniden iş aramak insanı yoruyor; açık yazmanız yükü biraz hafifletti.\n\n${w.first}` }),
+    standard: (w) => ({ body: `Merhaba,\n\nBu hafta aldığım dördüncü aynı cümle. Kızgın değilim, yorgunum sadece. ${w.job} geçmişimde neyin yetmediğini bir gün öğrenebilirsem sevinirim.\n\n${w.first}` }),
+    pool: (w) => ({ body: `Merhaba,\n\nHavuz haberini aldım. Açıkçası kaç havuzda olduğumu bilmiyorum artık; yine de bir gün aranırsam ${w.city} içinde hemen başlayabilirim.\n\n${w.first}` }),
+    none: (w) => ({ subject: 'Kısa bir soru', body: `Merhaba,\n\nBaşvurumla ilgili hâlâ bir haber yok. Olumsuzsa da söylemeniz yeterli; beklemek bilmemekten zor.\n\n${w.first}` }),
+  },
+  // minnettar ama kararlı
+  {
+    personal: (w) => ({ body: `Merhaba,\n\nGeri bildiriminizi iki kez okudum. "${w.proud}" kısmını görmeniz önemliydi. Önerinizi uygulayıp altı ay sonra yeniden başvuracağım, bilginiz olsun.\n\nTeşekkürlerle,\n${w.full}` }),
+    standard: (w) => ({ body: `Merhaba,\n\nSonucu saygıyla karşılıyorum. ${w.job} deneyimimle bir sonraki ilanınıza yeniden başvuracağım; o zamana kadar eksik kalan neyse tamamlamaya çalışacağım.\n\n${w.full}` }),
+    pool: (w) => ({ body: `Merhaba,\n\nHavuzda tutmanız için teşekkürler. Ben de boş durmayacağım: ${w.proud.toLocaleLowerCase('tr')} gibi işleri büyütmeye devam ediyorum, güncel hâlini paylaşırım.\n\n${w.full}` }),
+    none: (w) => ({ subject: 'Başvurum hakkında', body: `Merhaba,\n\nBaşvurumun sonucunu bilmiyorum ama ilginiz devam ediyorsa ${w.exp} deneyimimle her türlü ek bilgiyi paylaşmaya hazırım.\n\n${w.full}` }),
+  },
 ];
 
 function whoIs(id: string): Who {
@@ -208,9 +222,20 @@ export function replyBackMail(reply: Mail, kind: ReplyBack, day: number, at: num
   const c = candidateOf(id);
   const first = c.name.split(' ')[0];
   const reason = /Gerekçe: ([^·]+)/.exec(c.systemLine)?.[1]?.trim();
+  const why = reason ?? 'otomatik değerlendirme';
+  // insanın yazdığı iki cevap kişiden kişiye değişir; kurumsal yanıt bilerek hep aynıdır
+  const pick = <T,>(list: T[]) => list[hash(id + kind) % list.length];
   const body = {
-    warm: `Merhaba ${first},\n\nYazdığınız için teşekkür ederim. Bu pozisyon için ilerleyemedik ama dosyanızı gerçekten okudum ve sizi gelecekte açılacak ilanlarımızda da görmek isterim. Yeni bir ilan açıldığında size haber vereceğim.\n\nİyi çalışmalar,\n${PLAYER.name}`,
-    reason: `Merhaba ${first},\n\nSorunuza açık bir cevap vermek istiyorum: başvurunuz, ön eleme sistemimizin "${reason ?? 'otomatik değerlendirme'}" gerekçesiyle verdiği öneri doğrultusunda elendi. Bu gerekçenin sizin yetkinliğinizi tam yansıtmadığını düşünüyorsanız haklı olabilirsiniz; bunu ekibimizle de paylaşacağım.\n\nSaygılarımla,\n${PLAYER.name}`,
+    warm: pick([
+      `Merhaba ${first},\n\nYazdığınız için teşekkür ederim. Bu pozisyon için ilerleyemedik ama dosyanızı gerçekten okudum ve sizi gelecekte açılacak ilanlarımızda da görmek isterim. Yeni bir ilan açıldığında size haber vereceğim.\n\nİyi çalışmalar,\n${PLAYER.name}`,
+      `Merhaba ${first},\n\nCevabınızı okudum, zaman ayırdığınız için sağ olun. Bu sefer olmadı; ama dosyanızı not ettim ve uygun bir ilan açılırsa ilk arayacaklarımdan birisiniz.\n\nKolay gelsin,\n${PLAYER.name}`,
+      `Merhaba ${first},\n\nBu süreçte beklemenin ne kadar yorucu olduğunu biliyorum, yazdığınız için teşekkürler. Kapımız size açık; yeni pozisyonları takip etmenizi gerçekten isterim.\n\nSevgiyle,\n${PLAYER.name}`,
+    ]),
+    reason: pick([
+      `Merhaba ${first},\n\nSorunuza açık bir cevap vermek istiyorum: başvurunuz, ön eleme sistemimizin "${why}" gerekçesiyle verdiği öneri doğrultusunda elendi. Bu gerekçenin sizin yetkinliğinizi tam yansıtmadığını düşünüyorsanız haklı olabilirsiniz; bunu ekibimizle de paylaşacağım.\n\nSaygılarımla,\n${PLAYER.name}`,
+      `Merhaba ${first},\n\nSize bir kalıp cümle yazmak istemedim. Başvurunuz bir insan kararıyla değil, sistemin "${why}" işaretiyle geriye düştü. Dosyanız bu işaretten daha fazlasını anlatıyor; lütfen başvurmayı bırakmayın.\n\n${PLAYER.name}`,
+      `Merhaba ${first},\n\nAçık konuşayım: elenmenizin kayıtlı gerekçesi "${why}". Bunun hakkınızda her şeyi söylediğini düşünmüyorum ve itirazınızı kendi notlarıma ekledim.\n\nBaşarılar dilerim,\n${PLAYER.name}`,
+    ]),
     formal: `Sayın ${c.name},\n\nİletiniz alınmıştır. Değerlendirme süreçlerimiz kurum politikalarımız doğrultusunda yürütülmektedir. İlginiz için teşekkür ederiz.\n\nTavrinsa Labs İnsan Kaynakları`,
   }[kind];
   return { id: `answer-${reply.id}`, day, at, folder: 'sent', to: c.name, from: 'Sen', address: addressOf(id), subject: reply.subject.startsWith('Re:') ? reply.subject : `Re: ${reply.subject}`, body };
