@@ -4,6 +4,17 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 
 ## [Yayımlanmadı]
 
+### Oyuncu geri bildirimi
+- Hakan Bey'in "işi bitirmişsin, … dosya daha" mesajına cevap verilebilir; soru biçimindeki her tepkinin ("Hangi dosyalarda zorlandınız?" gibi) cevap seçenekleri var.
+- Kariyer platformunun e-postası artık spama düşmüyor; "Şirket belgelerinin gizliliği" hatırlatması kaldırıldı.
+- Her adayın maaş beklentisi bir rakamla yazılı (Yusuf: esnek, Ece: önceki maaşını paylaşmadı; hikâyeleri korunuyor).
+- Çarşamba toplantısı anlatıcı cümlesi yerine selamlaşmayla başlıyor; Selin ekranını konuşmanın içinde paylaşıyor.
+- Cuma: Defne en fazla 3 kişiyle görüşür, seçmedikleri Ayşe ile Emre'ye eşit dağılır; diğer odalardaki adaylar kurula kadar görünmez.
+- Masaüstündeki *Adaylar_FINAL_v7.xlsx* salt okunur bir ortak tablo: kim kimi davet ettiyse anında eklenir.
+- Gün sonu servis sahnesi yalnızca camdan dışarıyı gösteriyor, servisin içi görünmüyor.
+- Konuşmalarda "(kısa bir sessizlik)" gibi sahne notları yok.
+- İstifa ettiysen annenle konuşma bununla açılır ve bununla kapanır.
+
 ### Erişilebilirlik
 - Hareketi azaltmayı seçen oyuncu için çay dökme, ofis penceresi, toplantı panosu sayaçları ve başvuru seli sayaçları hareket etmeden son hâlini gösterir. Tercih tek yerden (`components/ui/motion.ts`) okunur; yeni bir animasyon döngüsü bu tercihi sormadan eklenemez (`tests/motion.test.ts`).
 

@@ -114,7 +114,12 @@ export function buildOpening(you: TeamStats): Line[] {
   const skimming = you.files > 0 && you.avg < 10;
   const slow = you.avg >= 45;
   const lines: Line[] = [
-    { who: 'room', text: 'Görüntülü toplantı. Selin ekranını paylaşıyor: Haftalık İşe Alım Performans Raporu. Hakan Bey\'in kamerası kapalı.', board: { page: 'summary' }, chat: [{ who: 'selin', text: 'Ekranım görünüyor mu?' }, { who: 'emre', text: 'Görünüyor 👍' }] },
+    { who: 'selin', text: 'Merhabalar, herkes hoş geldi. Sesim geliyor mu?', board: { page: 'off' }, chat: [{ who: 'emre', text: 'Geliyor 👍' }] },
+    { who: 'ayse', text: 'Merhaba herkese, günaydın.', board: { page: 'off' } },
+    { who: 'emre', text: 'Selamlar! Ben de buradayım.', board: { page: 'off' } },
+    { who: 'you', text: 'Merhaba, günaydın.', board: { page: 'off' } },
+    { who: 'hakan', text: 'Merhaba. Hepimiz buradaysak başlayalım. Selin, raporu açar mısın?', board: { page: 'off' } },
+    { who: 'selin', text: 'Tabii, ekranımı paylaşıyorum: Haftalık İşe Alım Performans Raporu.', board: { page: 'summary' }, chat: [{ who: 'selin', text: 'Ekranım görünüyor mu?' }, { who: 'emre', text: 'Görünüyor 👍' }] },
     { who: 'hakan', text: 'Kısa keseceğim. Holding dün akşam rakamları istedi: bu çeyrek kadro yüzde on beş küçülüyor, işe alım başına maliyet yüzde yirmi düşecek. Bu toplantıda kimse bana "ama" demeyecek.', board: { page: 'summary', focus: ['cost', 'headcount'] } },
     { who: 'hakan', text: `Bu hafta 1.840 başvuru geldi; ekip olarak ${total} dosyaya baktık. Gerisini sistem eledi. Verimlilik bu, maliyet de bu.`, board: { page: 'overview', focus: ['human'] } },
     {

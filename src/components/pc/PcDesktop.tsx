@@ -4,19 +4,20 @@ import { formatClock } from '../../game/lib/time';
 import { audioEngine } from '../../audio/audioEngine';
 import { PLAYER } from '../../game/lib/player';
 import { CalendarApp } from './CalendarApp';
+import { CandidatesSheet } from './CandidatesSheet';
 import styles from './PcDesktop.module.css';
 import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/day/rejectionMails';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
  * İş bilgisayarı. Her ofis bilgisayarı gibi bir masaüstü: kimsenin seçmediği bir duvar kâğıdı,
- * işe alım portalı, şirket e-postası, açılmayan bir hesap tablosu ve birinin aceleyle boşalttığı
+ * işe alım portalı, şirket e-postası, ekibin salt okunur aday tablosu ve birinin aceleyle boşalttığı
  * bir geri dönüşüm kutusu. Uygulamalar tam ekran açılır; görev çubuğu saati tutar.
  */
 
-export type PcApp = 'portal' | 'mail' | 'calendar';
+export type PcApp = 'portal' | 'mail' | 'calendar' | 'sheet';
 
-const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral' };
+const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Adaylar_FINAL_v7.xlsx — Salt okunur' };
 
 interface PcDesktopProps {
   app: PcApp | null;
@@ -96,7 +97,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
           </span>
           <span className={styles.iconLabel}>Takvim</span>
         </button>
-        <button className={styles.icon} onClick={() => setToast('Excel: "Lisansınızın süresi doldu. Lütfen BT yöneticinize başvurun."')}>
+        <button className={styles.icon} data-app="sheet" onClick={() => open('sheet')}>
           <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphSheet}`}>X</span>
           <span className={styles.iconLabel}>Adaylar_FINAL_v7.xlsx</span>
         </button>
@@ -113,7 +114,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       {app && (
         <div className={styles.window} role="dialog" aria-label={TITLES[app]}>
           <div className={styles.titleBar}>
-            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : '▦'}</span>
+            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : app === 'sheet' ? styles.glyphSheet : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : app === 'sheet' ? 'X' : '▦'}</span>
             <span className={styles.title} ref={titleRef} tabIndex={-1} data-screen-focus>{app === 'mail' ? `E-posta — Gelen Kutusu (${unread})` : TITLES[app]}</span>
             <span className={styles.winButtons}>
               <button onClick={onClose} aria-label="Simge durumuna küçült">
@@ -127,7 +128,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
               </button>
             </span>
           </div>
-          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} onAnswer={onAnswerMail} answered={new Set((extraMails ?? []).filter((m) => m.id.startsWith('answer-')).map((m) => m.id.slice(7)))} finalistNames={finalistNames} />}</div>
+          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : app === 'sheet' ? <CandidatesSheet /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} onAnswer={onAnswerMail} answered={new Set((extraMails ?? []).filter((m) => m.id.startsWith('answer-')).map((m) => m.id.slice(7)))} finalistNames={finalistNames} />}</div>
         </div>
       )}
 

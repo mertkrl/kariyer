@@ -7,7 +7,7 @@ import { FINALIST_LIMIT } from '../game/data/days';
 import { backQuestionsFor, experienceYears, followUpAnswer, FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
 import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/events/interview';
-import { INTERVIEWER, ownerOf } from '../game/events/panel';
+import { INTERVIEWER, handOver, ownerOf } from '../game/events/panel';
 import { type Note as NotebookNote } from './final/InterviewParts';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
@@ -35,13 +35,15 @@ export function FinalRoundScreen() {
   const structured = useGameStore((s) => s.story.reform?.kind === 'structured' && s.story.reform.accepted);
   const forced = finalists.length === 0;
   const everyone = [...(forced ? FALLBACK : finalists), ...COLLEAGUES.filter((c) => !finalists.some((f) => f.id === c.id))];
-  const ownerOfId = (id: string) => ownerOf(everyone.find((f) => f.id === id)!, pastRequests);
   const mineAll = everyone.filter((f) => ownerOf(f, pastRequests) === 'you');
   const others = everyone.filter((f) => ownerOf(f, pastRequests) !== 'you');
   // senin günün yalnızca kendi adaylarını alır; uzun bir liste sabah kısaltılır
   const [chosen, setChosen] = useState<string[] | null>(() => (mineAll.length <= INTERVIEW_LIMIT ? mineAll.map((f) => f.id) : null));
   const own = chosen ? mineAll.filter((f) => chosen.includes(f.id)) : mineAll;
-  const panelPool = [...own, ...others];
+  // seçmediklerin kaybolmaz: Ayşe ve Emre'nin odalarına eşit dağılır
+  const handed = chosen ? handOver(mineAll.filter((f) => !chosen.includes(f.id)), others, pastRequests) : [];
+  const panelPool = [...own, ...handed, ...others];
+  const ownerOfId = (id: string) => ownerOf((panelPool.find((f) => f.id === id) ?? everyone.find((f) => f.id === id))!, pastRequests);
 
   const [selectedId, setSelectedId] = useState((own[0] ?? others[0]).id);
   // Her adayın şimdiye kadarki görüşmesi, sırasıyla; aynı anda yalnızca bir cevap canlı yazılır.
@@ -260,8 +262,8 @@ export function FinalRoundScreen() {
         <div className={styles.body}>
           <aside className={styles.list} aria-label="Mülakat adayları">
             {[
+              // diğer odalarda kimin olduğu kurula kadar görünmez
               { label: 'Senin görüşmelerin', items: own },
-              { label: 'Diğer odalar', items: others },
             ].map((group) =>
               group.items.length === 0 ? null : (
                 <div key={group.label}>

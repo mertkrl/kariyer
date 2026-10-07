@@ -11,7 +11,7 @@ import type { SalaryMove } from '../../game/events/interview';
 /** Bütün hafta kimse ilerletilmediyse yönetim finali kendi iç referansıyla doldurur. */
 export const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];
 /** Bir mülakat gününün kaç kişi aldığı; daha uzun bir liste sabah kısaltılır. */
-export const INTERVIEW_LIMIT = 6;
+export const INTERVIEW_LIMIT = 3;
 
 /** Ekibin geri kalanı da eleme yaptı: kısa listeleri Cuma aynı odada oturur. */
 export const COLLEAGUES: Finalist[] = [

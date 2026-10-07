@@ -73,7 +73,7 @@ export const REQUESTS: RequestTemplate[] = [
   {
     ids: ['yusuf', 'ece'],
     want: 'reject',
-    text: (n) => `${n} ücret beklentisini açıkça belirtmemiş. Şeffaf olmayan başvurularla ilerlemeyelim.`,
+    text: (n) => `${n} ücret konusunda şeffaf değil. Şeffaf olmayan başvurularla ilerlemeyelim.`,
   },
   {
     ids: ['baris'],
@@ -130,7 +130,10 @@ export const FAMILY: { at: number; text: string; replies?: QuickReply[] }[][] = 
       text: 'Bugün pazarda eski fabrikadan Nuran\'ı gördüm. Hatırlıyor musun, bizi 50 yaşında "genç kan lazım" deyip çıkarmışlardı. Sen iyi ki karar veren taraftasın yavrum',
       replies: [
         { text: 'Hatırlıyorum anne.', reaction: 'Unutma, her dosyanın arkasında bir anne var. Kolay gelsin' },
-        { text: 'Bazen karar ben vermiyorum anne, sistem veriyor.', reaction: 'Sistemi de insan yazmıyor mu yavrum?', vicdan: -1 },
+        { text: 'Bazen karar ben vermiyorum anne, sistem veriyor.', reaction: 'Sistemi de insan yazmıyor mu yavrum?', vicdan: -1, followUp: [
+          { text: 'Haklısın anne. Dosyaları okuyorum, merak etme.', reaction: 'Bilirim seni. Kolay gelsin yavrum' },
+          { text: 'Yazıyor ama bana sormuyorlar ki.', reaction: 'Sormasınlar, sen yine de bak. Gözün açık olsun' },
+        ] },
       ],
     },
   ],
@@ -362,7 +365,10 @@ export const MOM_POOL: { text: string; replies: QuickReply[] }[] = [
     text: 'Kargon geldi, kapıcı aldı',
     replies: [
       { text: 'Sağ ol anne', reaction: 'Rica ederim, akşam uğra al.' },
-      { text: 'Ne kargosu?', reaction: 'Bilmiyorum, kutu kocaman. Yine ne aldın?' },
+      { text: 'Ne kargosu?', reaction: 'Bilmiyorum, kutu kocaman. Yine ne aldın?', followUp: [
+        { text: 'Kitap sipariş etmiştim, unutmuşum.', reaction: 'Kitapsa iyi. Akşam gel al' },
+        { text: 'Hiçbir şey almadım, açma sakın.', reaction: 'Tamam açmam. Kapıcıya da sordururum' },
+      ] },
     ],
   },
   {
@@ -518,7 +524,10 @@ export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] 
       text: 'Yağmur hiç dinmedi. Hâlâ işte misin? Servisi kaçırma sakın',
       replies: [
         { text: 'Servis gitti anne, dosyalar bitmedi.', reaction: 'Eyvah… Dönüşte taksiye bin, parasını ben veririm.' },
-        { text: 'Kaçırmam, merak etme.', reaction: 'Tamam yavrum. Şemsiyen yanında mı?' },
+        { text: 'Kaçırmam, merak etme.', reaction: 'Tamam yavrum. Şemsiyen yanında mı?', followUp: [
+          { text: 'Yanımda anne.', reaction: 'Aferin. Islanma' },
+          { text: 'Unuttum, ofistekinden alırım.', reaction: 'Al mutlaka, hasta olma sonra' },
+        ] },
       ],
     },
     {

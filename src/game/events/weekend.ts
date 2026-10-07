@@ -110,7 +110,20 @@ const mom = (text: string): CallStep => ({ kind: 'line', line: { who: 'mom', tex
 const me = (text: string): CallStep => ({ kind: 'line', line: { who: 'me', text } });
 const choose = (...choices: CallChoice[]): CallStep => ({ kind: 'choice', choices });
 
+/** Şirketten ayrıldıysan Hakan Bey'in son sözü: annen sorar. */
+function managerAfterLeaving(o: OfferOutcome): CallStep[] {
+  const ask = o === 'quit' ? 'Hakan Bey ne dedi peki istifa ettiğini söyleyince?' : 'Müdürün ne dedi peki, öylece bıraktı mı seni?';
+  return [
+    mom(ask),
+    choose(
+      { label: '"Sana iyi bir referans yazarım" dedi', reply: 'Yazsın. Hak ettin. Ama sen kimsenin referansına muhtaç değilsin.' },
+      { label: 'Bir şey demedi, ceketini alıp gitti', reply: 'Kapanan kapının arkasına bakılmaz yavrum. Önüne bak.' },
+    ),
+  ];
+}
+
 export function buildCall(w: WeekSummary): CallStep[] {
+  const left = w.offer !== null && leavesCompany(w.offer);
   const steps: CallStep[] = [
     mom('Alo yavrum! Teyzendeyim, sesini duyayım dedim. Hafta bitti mi sonunda?'),
     choose(
@@ -119,6 +132,13 @@ export function buildCall(w: WeekSummary): CallStep[] {
       { label: 'İyiyim anne, sen nasılsın?', reply: 'Ben iyiyim, beni boş ver. Asıl sen nasılsın?' },
     ),
   ];
+
+  // ayrılıyorsan haftanın asıl haberi bu: annen sesinden anlar, konuşma oradan başlar
+  if (left && w.offer) {
+    steps.push(mom('Sesin bir tuhaf geliyor… Bir şey mi oldu yavrum?'));
+    steps.push(...offerNews(w.offer));
+    steps.push(...managerAfterLeaving(w.offer));
+  }
 
   // monolog değil konuşma: o bir şey söyler, sen cevap verirsin, o da buna cevap verir
   if (w.momMessages > 0) {
@@ -173,7 +193,7 @@ export function buildCall(w: WeekSummary): CallStep[] {
     steps.push(mom('Olsun, nasipse olur. Sen üzülme.'));
   }
 
-  if (w.offer) {
+  if (w.offer && !left) {
     steps.push(mom('Bir de… deneme süren bugün bitiyordu, değil mi? Ne dediler?'));
     steps.push(...offerNews(w.offer));
   }
@@ -216,7 +236,9 @@ export function buildCall(w: WeekSummary): CallStep[] {
     );
   }
 
-  if (w.refusals >= 3) {
+  if (left) {
+    // müdürü zaten konuştunuz; artık onun memnuniyeti sorulmaz
+  } else if (w.refusals >= 3) {
     steps.push(mom('Müdürün hâlâ kızgın mı sana?'));
     steps.push(
       choose(
@@ -253,7 +275,6 @@ export function buildCall(w: WeekSummary): CallStep[] {
   }
 
   // söylediğin son şey, haftanın evde nasıl bittiğidir
-  const left = w.offer !== null && leavesCompany(w.offer);
   steps.push(mom('Eee, hafta sonu ne yapacaksın?'));
   steps.push(
     choose(
@@ -264,6 +285,14 @@ export function buildCall(w: WeekSummary): CallStep[] {
         : { label: 'Anne… iş değiştirmeyi düşünüyorum', reply: 'Ne karar verirsen arkandayım. Yeter ki mutlu ol', tag: 'quit' },
     ),
   );
-  steps.push(mom('Hadi, seni tutmayayım. Öpüyorum çok çok'));
+  steps.push(
+    mom(
+      w.offer === 'quit'
+        ? 'Pazartesi o mektubu verirken beni ara, olur mu? Yalnız değilsin. Öpüyorum çok çok'
+        : left
+          ? 'Yeni bir kapı açılır yavrum, merak etme. Öpüyorum çok çok'
+          : 'Hadi, seni tutmayayım. Öpüyorum çok çok',
+    ),
+  );
   return steps;
 }

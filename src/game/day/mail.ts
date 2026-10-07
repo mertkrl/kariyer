@@ -99,7 +99,6 @@ Hakan Kaya
     at: 150,
     from: 'Kariyer Platformu',
     address: 'bildirim@kariyer-platform.com',
-    spam: true,
     subject: 'İlanınıza 270 yeni başvuru!',
     body: `Tebrikler! İlanınız son 24 saatte 270 yeni başvuru aldı.
 
@@ -260,22 +259,6 @@ Bu bilgilerin forma değil, notlarınıza işlenmesi yeterlidir.
 
 Saygılarımla,
 Hakan Kaya`,
-  },
-  {
-    id: 'privacy',
-    day: 3,
-    at: 400,
-    from: 'İK Direktörlüğü',
-    address: 'direktorluk@tavrinsalabs.test',
-    subject: 'Hatırlatma: Şirket belgelerinin gizliliği',
-    important: true,
-    body: `Değerli çalışanlarımız,
-
-Şirket içi belgelerin fotoğraflanması, kopyalanması veya üçüncü kişilerle paylaşılması disiplin yönetmeliği kapsamında kesinlikle yasaktır.
-
-Güvenlik kameralarının kayıtları düzenli olarak incelenmektedir.
-
-İK Direktörlüğü`,
   },
 ];
 

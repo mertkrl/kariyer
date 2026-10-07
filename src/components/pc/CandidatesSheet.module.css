@@ -1,0 +1,71 @@
+/* Ekibin ortak hesap tablosu: bir ofis tablosu gibi ızgara, salt okunur. */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  color: #1f2a24;
+  font-size: 13px;
+}
+
+.toolbar {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 8px 12px;
+  background: #e9f1ec;
+  border-bottom: 1px solid #c9d8cf;
+}
+
+.readOnly {
+  color: #1e6b45;
+  font-weight: 600;
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: #3c4a42;
+}
+
+.gridWrap {
+  flex: 1;
+  overflow: auto;
+}
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  user-select: text;
+}
+
+.grid th,
+.grid td {
+  border: 1px solid #d6ddd9;
+  padding: 6px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.grid th {
+  position: sticky;
+  top: 0;
+  background: #f3f5f4;
+  font-weight: 600;
+  color: #4a5650;
+}
+
+.rowNo {
+  width: 32px;
+  text-align: center !important;
+  background: #f3f5f4;
+  color: #7b8781;
+}
+
+.empty {
+  color: #7b8781;
+  font-style: italic;
+}

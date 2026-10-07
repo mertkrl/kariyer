@@ -36,6 +36,8 @@ export interface QuickReply {
   /** Geri gelen ve kimden geldiği (grup sohbetleri). */
   reaction: string;
   reactionSender?: string;
+  /** Tepki bir soruysa ona verilebilecek cevaplar: soru cevapsız kalmaz. */
+  followUp?: QuickReply[];
   /** Bazı cevaplar (müdüre) taraf tutmak sayılır. */
   stance?: 'comply' | 'refuse';
   /** "CV'sini göndersin": komşunun oğlu Perşembe başvurur. */

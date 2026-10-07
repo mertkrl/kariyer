@@ -145,7 +145,14 @@ export function managerQuickReplies(kind: ScheduledMessage['kind'], tone: Manage
     case 'greeting':
       return [
         { text: 'Günaydın Hakan Bey, hemen başlıyorum.', reaction: ['Teşekkür ederim, kolay gelsin.', 'Peki.', 'Görelim.', 'Sözden çok sonuç görmek istiyorum.'][t] },
-        { text: 'Günaydın.', reaction: ['İyi çalışmalar.', 'Peki.', 'Bu kadar mı?', 'Bu tutumunuz da not edilmiştir.'][t] },
+        {
+          text: 'Günaydın.',
+          reaction: ['İyi çalışmalar.', 'Peki.', 'Bu kadar mı?', 'Bu tutumunuz da not edilmiştir.'][t],
+          followUp: t === 2 ? [
+            { text: 'Kusura bakmayın Hakan Bey, dosyalara başlıyorum.', reaction: 'Peki.' },
+            { text: 'Evet, işe odaklanmak istiyorum.', reaction: 'Odaklanmanızı sonuçlarda görmek isterim.' },
+          ] : undefined,
+        },
       ];
     case 'lunch':
       return [
@@ -156,11 +163,25 @@ export function managerQuickReplies(kind: ScheduledMessage['kind'], tone: Manage
       if (openFiles === 0)
         return [
           { text: 'Teşekkür ederim Hakan Bey.', reaction: ['Ben teşekkür ederim. Kolay gelsin.', 'Rica ederim. Yarın da aynı özeni bekliyorum.', 'Önemli olan dosyaların doğru kapanması.', 'Dosyaları kapatmak yetmez; nasıl kapattığınıza da bakacağım.'][t] },
-          { text: 'Bazı dosyalarda zorlandım ama hepsini tamamladım.', reaction: ['Anlıyorum. Yarın daha rahat olur.', 'Hangi dosyalarda zorlandınız?', 'Sonuç geldi. Gerisi beni ilgilendirmiyor.', 'Not edildi.'][t] },
+          {
+            text: 'Bazı dosyalarda zorlandım ama hepsini tamamladım.',
+            reaction: ['Anlıyorum. Yarın daha rahat olur.', 'Hangi dosyalarda zorlandınız?', 'Sonuç geldi. Gerisi beni ilgilendirmiyor.', 'Not edildi.'][t],
+            followUp: t === 1 ? [
+              { text: 'Sistemin düşük puan verdiği ama CV\'si güçlü adaylarda. Okuyunca karar vermek zorlaşıyor.', reaction: 'Sistemin puanı bir başlangıç noktası. Son karar sizin; ama gerekçeniz sağlam olsun.' },
+              { text: 'Önemli bir şey değil, alışma süreci.', reaction: 'Anlaşıldı. Hızınızın artmasını bekliyorum.' },
+            ] : undefined,
+          },
         ];
       return [
         { text: 'Mesai bitmeden tamamlayacağım.', reaction: ['Size güveniyorum.', 'Takip ediyorum.', 'Görelim.', 'Tamamlanmazsa sorumluluk size aittir.'][t] },
-        { text: 'Yoğunluk fazla, biraz zorlanıyorum.', reaction: ['Anlıyorum; önceliklendirerek ilerleyiniz.', 'Zorlandığınız nokta nedir?', 'Gerekçe değil, sonuç bekliyorum.', 'Bu görevi yürütemiyorsanız açıkça belirtiniz.'][t] },
+        {
+          text: 'Yoğunluk fazla, biraz zorlanıyorum.',
+          reaction: ['Anlıyorum; önceliklendirerek ilerleyiniz.', 'Zorlandığınız nokta nedir?', 'Gerekçe değil, sonuç bekliyorum.', 'Bu görevi yürütemiyorsanız açıkça belirtiniz.'][t],
+          followUp: t === 1 ? [
+            { text: 'Her CV\'yi okumak zaman alıyor; sistemin önerisine bakıp geçmek istemiyorum.', reaction: 'Özeniniz takdire değer ama mesai sınırlı. Önce sistemin "öncelikli" dediklerini bitirin.' },
+            { text: 'Dosya sayısı çok fazla.', reaction: 'Yapay zekâ analizi bunun için var. Kullanın.' },
+          ] : undefined,
+        },
       ];
     default:
       return undefined;

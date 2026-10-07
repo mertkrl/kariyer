@@ -22,6 +22,8 @@ export interface Finalist {
   byManager?: boolean;
   /** Bir iş arkadaşının kendi kısa listesinden getirdiği. */
   by?: 'ayse' | 'emre';
+  /** Senin çağırdığın ama Cuma'nın iş bölümünde bir meslektaşına devrettiğin aday. */
+  handedOver?: boolean;
 }
 
 export interface DayEvent {

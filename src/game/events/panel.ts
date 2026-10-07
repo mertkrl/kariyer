@@ -33,6 +33,23 @@ export function ownerOf(f: Finalist, pastRequests: { candidateId: string; want: 
   return 'you';
 }
 
+/**
+ * Cuma'nın iş bölümü: senin bizzat görüşmediğin davetlilerin Ayşe ile Emre arasında, ikisinin
+ * yükü eşit kalacak şekilde paylaştırılır. Böylece hiçbir oda ötekilerden çok daha kalabalık olmaz.
+ */
+export function handOver(rest: Finalist[], others: Finalist[], pastRequests: { candidateId: string; want: Decision }[]): Finalist[] {
+  const load = { ayse: 0, emre: 0 };
+  for (const f of others) {
+    const owner = ownerOf(f, pastRequests);
+    if (owner === 'ayse' || owner === 'emre') load[owner]++;
+  }
+  return rest.map((f) => {
+    const by = load.ayse <= load.emre ? 'ayse' : 'emre';
+    load[by]++;
+    return { ...f, by, handedOver: true };
+  });
+}
+
 /** Emre'nin baktığı tek şey: sistemin skoru. */
 const EMRE_SCORE: Record<string, number> = { sarp: 5, cagan: 4 };
 

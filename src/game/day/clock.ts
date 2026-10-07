@@ -6,7 +6,7 @@
 import { getState, setState } from '../store/storeApi';
 import { BREAK_END_MIN, BREAK_START_MIN, OVERTIME_END_MIN, WORKDAY_END_MIN, isBreakTime } from '../lib/time';
 import { CALLBACK_MINUTES, REQUEST_CALL_PREFIX, RING_MINUTES, callsForDay } from './desk';
-import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies, RAPPORT, clampRapport } from './manager';
+import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type QuickReply, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies, RAPPORT, clampRapport } from './manager';
 import { type GameState } from '../store/storeTypes';
 import { REVOKE_AT, REVOKE_DAY, SNOW_CALL_AT, SNOW_CALL_ID, callFor, revokeInvites, revokeTargets, strandFinalist } from './managerCalls';
 import { type RejectTemplate, candidateReplies, sentMails } from './rejectionMails';
@@ -352,6 +352,22 @@ export const EXTRA_FILES_FROM = 6 * 60;
  * Yalnızca hâlâ masandayken: her dosya kapalıyken "Günü Bitir" seni eve gönderir.
  * Dosya eklenip eklenmediğini döndürür.
  */
+/** "Biraz daha CV'ye bak" mesajına verilebilecek cevaplar. */
+function extraFilesReplies(n: number): QuickReply[] {
+  return [
+    { text: `Tamam Hakan Bey, ${n} dosyaya da bakıyorum.`, reaction: 'Teşekkür ederim. Kolay gelsin.' },
+    { text: 'Bugünkü kotayı bitirmiştim ama bakarım.', reaction: 'Kota bir alt sınırdır, üst sınır değil.' },
+    {
+      text: 'Bunlar neden bekleme listesindeydi?',
+      reaction: 'Sistem öyle sıralamış. Sizden beklenen değerlendirmeniz.',
+      followUp: [
+        { text: 'Anladım, değerlendiriyorum.', reaction: 'Peki.' },
+        { text: 'Sıralamanın nedenine de bakacağım.', reaction: 'Mesaiyi aşmadan lütfen.' },
+      ],
+    },
+  ];
+}
+
 export function addExtraFiles(): boolean {
   const s = getState();
   const day = s.currentDayIndex;
@@ -367,7 +383,7 @@ export function addExtraFiles(): boolean {
     extraFiles: { ...s.extraFiles, [day]: picked },
     // yeni dosyalar kuyruğun en üstüne, görüldükleri yere düşer
     lineups: s.lineups.map((l, i) => (i === day ? [...picked, ...l] : l)),
-    phone: [...s.phone, { id: takeMessageId(), thread: 'manager', at: s.workdayMinutes, day, from: 'them', text }],
+    phone: [...s.phone, { id: takeMessageId(), thread: 'manager', at: s.workdayMinutes, day, from: 'them', text, replies: extraFilesReplies(picked.length) }],
     phoneUnread: { ...s.phoneUnread, manager: s.phoneUnread.manager + 1 },
   });
   sound().playPhoneBuzz();

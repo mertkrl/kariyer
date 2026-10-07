@@ -50,7 +50,7 @@ export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 
       set({
         phone: [
           ...s2.phone,
-          { id: takeMessageId(), thread: msg.thread, at: s2.workdayMinutes, day: s2.currentDayIndex, from: 'them', sender: reply.reactionSender, text: reply.reaction },
+          { id: takeMessageId(), thread: msg.thread, at: s2.workdayMinutes, day: s2.currentDayIndex, from: 'them', sender: reply.reactionSender, text: reply.reaction, replies: reply.followUp },
         ],
         typingThread: s2.typingThread === msg.thread ? null : s2.typingThread,
         phoneUnread: { ...s2.phoneUnread, [msg.thread]: s2.phoneUnread[msg.thread] + 1 },

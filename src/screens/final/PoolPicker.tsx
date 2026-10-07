@@ -28,8 +28,8 @@ export function PoolPicker({ everyone, locked, onConfirm }: { everyone: Finalist
         Bugün kimlerle görüşeceksin?
       </h2>
       <p className={own.pickerLead}>
-        Kısa listede <b>{everyone.length}</b> kişi var; bir günde en fazla <b>{INTERVIEW_LIMIT}</b> mülakat yapılabiliyor. Hakan Bey'in istedikleri listede kalıyor; kalan yerleri sen
-        seç. Seçmediklerine bu iş için dönülmeyecek.
+        Kısa listede <b>{everyone.length}</b> kişi var. Kurul işi eşit bölüyor: sen <b>{INTERVIEW_LIMIT}</b> kişiyle
+        görüşürsün, seçmediklerin Ayşe ve Emre'nin odalarına eşit dağılır.
       </p>
       <ul className={own.pickerList}>
         {everyone.map((f) => {

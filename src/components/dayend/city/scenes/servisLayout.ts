@@ -1,8 +1,8 @@
-/** Servis sahnesinde şeylerin durduğu yer: sahnedeki pencere ve dış dünyanın tamponu ile ölçekleri. */
+/** Servis sahnesinde şeylerin durduğu yer: cam ve dış dünyanın tamponu ile ölçekleri. */
+import { H, PAD, W } from '../paint';
 
-// Pencere, sahne koordinatlarında
-export const WIN = { x: 130, y: 118, w: 1340, h: 520 };
-export const PILLAR = 812;
+// Cam bütün sahneyi kaplar (kamera kayması için kenar payıyla birlikte): servisin içi görünmez
+export const WIN = { x: -PAD, y: -PAD, w: W + PAD * 2, h: H + PAD * 2 };
 // Dış dünya küçük bir tampona çizilir (ıslak cam bulanıklığı bedavaya gelir)
 export const BW = 420;
 export const BH = 164;

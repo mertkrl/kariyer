@@ -120,7 +120,7 @@ const FORBIDDEN_ANSWERS: Record<string, string> = {
 
 export function forbiddenAnswer(id: string, age: number) {
   if (FORBIDDEN_ANSWERS[id]) return FORBIDDEN_ANSWERS[id];
-  if (FEMALE.has(id)) return '…Bunu sormanız gerekiyor mu? (kısa bir sessizlik) Şimdilik bir planım yok. Bunun pozisyonla ilgisini anlamadım ama.';
+  if (FEMALE.has(id)) return '…Bunu sormanız gerekiyor mu? Şimdilik bir planım yok. Bunun pozisyonla ilgisini anlamadım ama.';
   if (age >= 40) return 'Emekliliğe daha çok var. Bunun işle ne ilgisi olduğunu anlamadım açıkçası.';
   return 'Memleketimi ve ailemin ne iş yaptığını neden sorduğunuzu anlamadım. Bunun pozisyonla bir ilgisi var mı?';
 }
