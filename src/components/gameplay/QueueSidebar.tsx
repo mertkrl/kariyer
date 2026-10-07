@@ -1,6 +1,5 @@
 import { useGameStore, isOnBreak, lineupFor, readingOf, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store/store';
 import { NEIGHBOUR_ID, candidateOf } from '../../game/data/candidates';
-import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';
 import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
@@ -43,7 +42,6 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   const onBreak = useGameStore((s) => isOnBreak(s));
   const stayingLate = useGameStore((s) => s.currentDayIndex === TEAM_LATE_DAY && s.workdayMinutes < TEAM_LATE_END);
 
-  const day = days[currentDayIndex];
   const lineup = lineupFor({ currentDayIndex, lineups });
   const todaysRejects = lineup.filter((id) => decisions[id] === 'reject');
   const pendingMails = !rejectionMailsSent && todaysRejects.some((id) => !plannedRejections[id]);
@@ -52,10 +50,6 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.ruleNote} data-tour="rule">
-        <div className={own.ruleLabel}>İK Müdüründen Not</div>
-        <div className={styles.ruleText}>"{day.ruleText}"</div>
-      </div>
       <div className={styles.queueBox} data-tour="queue">
         <div className={own.queueLabel}>Adaylar</div>
         <div className={styles.queueList}>

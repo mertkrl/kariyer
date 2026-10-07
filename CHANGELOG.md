@@ -4,6 +4,12 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 
 ## [Yayımlanmadı]
 
+### Arayüz
+- Başvuru akışındaki ilan notu ("📢 İlandaki 'genç, dinamik ekip'…") kaldırıldı; bu bilgi yalnızca sondaki oturum raporunda kalıyor.
+- Portaldaki "İK Müdüründen Not" kaldırıldı; aday listesi kenar sütununun tamamını kaplıyor ve satırlar büyüdü.
+- Aday tablosu Excel taklidi yerine şirketin kendi "Ortak Liste" aracı: portalla aynı kâğıt-mürekkep dili, kişi başı renkli etiketler, "Kim kaç kişi çağırdı" görünümü. Pencerenin tamamını kaplıyor (sağdaki boşluk giderildi); masaüstü simgesi de özgün.
+- Ayarlar paneli sadeleşti (440 → 340 px genişlik, tek satırlık kontroller) ve "Oyun kodu" kaldırıldı.
+
 ### Oyun
 - Tek davet kuralı: her gün en fazla 3 kişi mülakata çağrılır; haftalık 10 sınırı kalktı. Cuma'da sen 3 kişiyle görüşürsün, kalanlar Ayşe ile Emre'ye dağılır.
 - Kalıp tekrarı azaldı: Defne'nin sıcak ve dürüst cevaplarında üçer varyant, adayların e-posta cevaplarında iki yeni ses (8), Kariyergram mesajlarında her ruh hâline yeni açılış ve cevaplar. Standart ret, "havuz" ve kurumsal yanıt bilerek her seferinde aynıdır.

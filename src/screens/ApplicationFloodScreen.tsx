@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { lineupFor, useGameStore } from '../game/store/store';
 import { days } from '../game/data/days';
-import { AD_EFFECT } from '../game/data/jobs';
 import { Button } from '../components/ui/Button';
 import { AiIcon } from '../components/ui/AiIcon';
 import { audioEngine } from '../audio/audioEngine';
@@ -37,7 +36,6 @@ export function ApplicationFloodScreen() {
   const proceedToBriefing = useGameStore((s) => s.proceedToBriefing);
   const day = days[currentDayIndex];
   // ilk sabah: seçtiğin ilan yüzünden hiç başvurmayanlar
-  const adNote = useGameStore((s) => (s.currentDayIndex === 0 && s.selectedJobId ? AD_EFFECT[s.selectedJobId]?.note : undefined));
   const lineups = useGameStore((s) => s.lineups);
   const shortlist = lineupFor({ currentDayIndex, lineups }).length;
   const startValue = currentDayIndex > 0 ? days[currentDayIndex - 1].applicationTarget : 0;
@@ -242,7 +240,6 @@ export function ApplicationFloodScreen() {
                 ✓ {shortlist} aday seçildi — Adayları Gör →
               </button>
             )}
-            {stage === 'sorting' && adNote && <div className={styles.adNote}>📢 {adNote}</div>}
             {stage === 'sorting' && day.aiDown && <CrashLog durationMs={CRASH_DURATION_MS} />}
           </div>
 

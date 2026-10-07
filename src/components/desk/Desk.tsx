@@ -247,7 +247,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
                     <i className={styles.miniCal}>21</i>Takvim
                   </span>
                   <span>
-                    <i className={styles.miniSheet}>X</i>Adaylar_FINAL_v7.xlsx
+                    <i className={styles.miniSheet}>≡</i>Adaylar_FINAL_v7
                   </span>
                   <span>
                     <i className={styles.miniBin}>🗑</i>Geri Dönüşüm

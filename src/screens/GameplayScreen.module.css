@@ -62,21 +62,6 @@
   gap: 16px;
 }
 
-.ruleNote {
-  background: #f6e27a;
-  padding: 18px;
-  border-radius: 2px;
-  box-shadow: 3px 4px 0 rgba(34, 31, 27, 0.15);
-  transform: rotate(-2deg);
-}
-
-.ruleText {
-  font-family: var(--font-display);
-  font-size: calc(16px * var(--ts, 1));
-  line-height: 1.35;
-  color: var(--ink);
-}
-
 .queueBox {
   background: var(--paper-dim);
   padding: 16px;
@@ -269,17 +254,9 @@
 }
 
 .portalArea .sidebar {
-  width: 210px;
+  width: 250px;
   min-height: 0;
   gap: 10px;
-}
-
-.portalArea .ruleNote {
-  padding: 10px 12px;
-}
-
-.portalArea .ruleText {
-  font-size: calc(14px * var(--ts, 1));
 }
 
 .portalArea .queueBox {
@@ -298,7 +275,7 @@
 }
 
 .portalArea .queueItem {
-  padding: 5px 8px;
+  padding: 9px 10px;
 }
 
 .portalArea .candidateCard {

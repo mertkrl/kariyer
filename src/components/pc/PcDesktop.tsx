@@ -17,7 +17,7 @@ import { avatarStyle } from '../ui/avatarStyle';
 
 export type PcApp = 'portal' | 'mail' | 'calendar' | 'sheet';
 
-const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Adaylar_FINAL_v7.xlsx — Salt okunur' };
+const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Ortak Liste — Adaylar_FINAL_v7 (salt okunur)' };
 
 interface PcDesktopProps {
   app: PcApp | null;
@@ -38,6 +38,16 @@ interface PcDesktopProps {
   finalistNames?: string[];
   /** Mesai başlamadan önce: günün başladığı portalı işaret et. */
   beckonPortal?: boolean;
+}
+
+/** Ortak Liste simgesi: satırlı bir kâğıt. */
+function ListGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+      <rect x="5" y="3.5" width="14" height="17" rx="2" />
+      <path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.5" />
+    </svg>
+  );
 }
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
@@ -98,8 +108,10 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
           <span className={styles.iconLabel}>Takvim</span>
         </button>
         <button className={styles.icon} data-app="sheet" onClick={() => open('sheet')}>
-          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphSheet}`}>X</span>
-          <span className={styles.iconLabel}>Adaylar_FINAL_v7.xlsx</span>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphSheet}`}>
+            <ListGlyph />
+          </span>
+          <span className={styles.iconLabel}>Adaylar_FINAL_v7</span>
         </button>
         <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş. Biri, senden önce, çok aceleyle boşaltmış.')}>
           <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphBin}`}>
@@ -114,7 +126,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       {app && (
         <div className={styles.window} role="dialog" aria-label={TITLES[app]}>
           <div className={styles.titleBar}>
-            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : app === 'sheet' ? styles.glyphSheet : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : app === 'sheet' ? 'X' : '▦'}</span>
+            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : app === 'sheet' ? styles.glyphSheet : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : app === 'sheet' ? '≡' : '▦'}</span>
             <span className={styles.title} ref={titleRef} tabIndex={-1} data-screen-focus>{app === 'mail' ? `E-posta — Gelen Kutusu (${unread})` : TITLES[app]}</span>
             <span className={styles.winButtons}>
               <button onClick={onClose} aria-label="Simge durumuna küçült">

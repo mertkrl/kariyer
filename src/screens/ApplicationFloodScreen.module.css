@@ -385,23 +385,6 @@
   color: #b8b0a0;
   margin-bottom: 8px;
 }
-
-/* herhangi bir filtre çalışmadan önce ilanının yaptığı */
-.adNote {
-  position: absolute;
-  left: 50%;
-  bottom: 24px;
-  width: min(560px, calc(100% - 32px));
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(20, 18, 14, 0.88);
-  color: #f3ecd8;
-  font-size: calc(13px * var(--ts, 1));
-  line-height: 1.5;
-  text-align: center;
-  transform: translateX(-50%);
-}
-
 /* çökme ekranının hata satırı, bir durum sayfasının yazacağı gibi */
 .resultCode {
   font-size: calc(11.5px * var(--ts, 1));

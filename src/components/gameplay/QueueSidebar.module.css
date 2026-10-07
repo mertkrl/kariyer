@@ -1,13 +1,4 @@
 /* QueueSidebar bileşeninin kendi stilleri (GameplayScreen.module.css'ten ayrıldı). */
-.ruleLabel {
-  font-size: calc(11px * var(--ts, 1));
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #6b5a00;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
 .queueLabel {
   font-size: calc(11px * var(--ts, 1));
   letter-spacing: 1px;
@@ -52,14 +43,14 @@
 }
 
 .queueAvatar {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .queueName {
-  font-size: calc(13px * var(--ts, 1));
+  font-size: calc(14px * var(--ts, 1));
   font-weight: 500;
   flex-grow: 1;
 }
