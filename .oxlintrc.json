@@ -1,21 +1,66 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
+  "plugins": [
+    "react",
+    "typescript",
+    "oxc"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ],
     "react/jsx-key": "error",
-    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
     "no-var": "error",
     "prefer-const": "error",
-    "no-console": ["error", { "allow": ["error", "warn"] }],
-    "typescript/no-explicit-any": "error"
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "error",
+          "warn"
+        ]
+      }
+    ],
+    "typescript/no-explicit-any": "error",
+    "max-lines": [
+      "warn",
+      {
+        "max": 500,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ]
   },
   "overrides": [
     {
-      "files": ["scripts/**", "tests/**"],
-      "rules": { "no-console": "off" }
+      "files": [
+        "scripts/**",
+        "tests/**"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": [
+        "src/game/data/**",
+        "tests/**"
+      ],
+      "rules": {
+        "max-lines": "off"
+      }
     }
   ]
 }

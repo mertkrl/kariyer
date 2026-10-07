@@ -1,5 +1,5 @@
 import { useGameStore } from '../../game/store/store';
-import styles from '../../screens/GameplayScreen.module.css';
+import styles from './EventBanner.module.css';
 
 /** Günün kesintileri: her şeyin üstünde bir elektrik kesintisi ya da geri kalanlar için bir bildirim. */
 export function EventBanner({ onBreak }: { onBreak: boolean }) {

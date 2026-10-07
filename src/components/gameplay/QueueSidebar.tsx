@@ -4,6 +4,7 @@ import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';
 import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
+import own from './QueueSidebar.module.css';
 
 /*
  * Portalın sol sütunu: müdürün günün notu, her dosyaya harcanan süreyle bugünün kuyruğu ve
@@ -52,11 +53,11 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   return (
     <div className={styles.sidebar}>
       <div className={styles.ruleNote} data-tour="rule">
-        <div className={styles.ruleLabel}>İK Müdüründen Not</div>
+        <div className={own.ruleLabel}>İK Müdüründen Not</div>
         <div className={styles.ruleText}>"{day.ruleText}"</div>
       </div>
       <div className={styles.queueBox} data-tour="queue">
-        <div className={styles.queueLabel}>Adaylar</div>
+        <div className={own.queueLabel}>Adaylar</div>
         <div className={styles.queueList}>
           {lineup.map((id) => {
             const c = candidateOf(id);
@@ -66,26 +67,26 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
             return (
               <button
                 key={id}
-                className={`${styles.queueItem} ${isSelected ? styles.queueItemSelected : ''} ${
-                  decisions[id] === 'approve' ? styles.queueApproved : decisions[id] === 'reject' ? styles.queueRejected : ''
+                className={`${styles.queueItem} ${isSelected ? own.queueItemSelected : ''} ${
+                  decisions[id] === 'approve' ? own.queueApproved : decisions[id] === 'reject' ? own.queueRejected : ''
                 }`}
                 onClick={() => selectCandidate(id)}
                 disabled={onBreak}
                 aria-current={isSelected ? 'true' : undefined}
               >
-                <span className={styles.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
-                <span className={styles.queueName}>
+                <span className={own.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
+                <span className={own.queueName}>
                   {c.name}
-                  {id === NEIGHBOUR_ID && <em className={styles.queueTag}>Tavsiye</em>}
+                  {id === NEIGHBOUR_ID && <em className={own.queueTag}>Tavsiye</em>}
                 </span>
                 {/* görünen sütun bir bakışlıktır (bir süre, bir çizgi); ekran okuyucu onu sözcüklerle duyar */}
                 <span className="sr-only">
                   {decisions[id] === 'approve' ? ', mülakata çağrıldı' : decisions[id] === 'reject' ? ', reddedildi' : isOpened ? ', açıldı' : ', henüz açılmadı'}
                 </span>
-                <span className={`${styles.queueTime} mono`}>
+                <span className={`${own.queueTime} mono`}>
                   <span aria-hidden="true">{isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}</span>
                   {wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id)) && (
-                    <span className={styles.queueRead} title="Dosyayı okudun">
+                    <span className={own.queueRead} title="Dosyayı okudun">
                       {' '}✓<span className="sr-only">okundu</span>
                     </span>
                   )}
@@ -103,7 +104,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
       ) : (
         <>
           {!open && !pendingMails && plannedCount > 0 && !rejectionMailsSent && !editingMails && (
-            <button className={styles.outboxNote} onClick={onEditMails}>
+            <button className={own.outboxNote} onClick={onEditMails}>
               ✉ {plannedCount} bildirim giden kutusunda · 17:00 <span>Düzenle</span>
             </button>
           )}
@@ -124,20 +125,20 @@ function DayFinish({ decided, total, blocker, onFinish }: { decided: number; tot
   const ready = blocker === null;
   const pct = total ? Math.round((decided / total) * 100) : 100;
   return (
-    <div className={`${styles.finishCard} ${ready ? styles.finishReady : ''}`} data-tour="finish">
+    <div className={`${own.finishCard} ${ready ? own.finishReady : ''}`} data-tour="finish">
       <div className={styles.finishHead}>
         <span>Günün dosyaları</span>
         <span className="mono">
           {decided}/{total}
         </span>
       </div>
-      <div className={styles.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
+      <div className={own.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
         <i style={{ width: `${pct}%` }} />
       </div>
-      <button className={styles.finishButton} onClick={onFinish} disabled={!ready} aria-describedby="finish-state">
+      <button className={own.finishButton} onClick={onFinish} disabled={!ready} aria-describedby="finish-state">
         {ready ? 'Günü Bitir →' : 'Günü Bitir'}
       </button>
-      <div id="finish-state" className={styles.finishState}>
+      <div id="finish-state" className={own.finishState}>
         {ready ? '✓ Bütün dosyalar kapandı' : blocker}
       </div>
     </div>

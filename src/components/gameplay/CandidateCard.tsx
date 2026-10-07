@@ -8,6 +8,7 @@ import { Button } from '../ui/Button';
 import { CvBody } from './CvBody';
 import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
+import own from './CandidateCard.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
@@ -73,15 +74,15 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   }, [reading, candidate, onBreak, decidedForCurrent, quota.canApprove, nextUndecidedId, decide, selectCandidate]);
 
   return (
-    <div className={`${styles.candidateCard} ${isAnalyzing ? styles.candidateCardScanning : ''}`} data-tour="cv">
+    <div className={`${styles.candidateCard} ${isAnalyzing ? own.candidateCardScanning : ''}`} data-tour="cv">
       {isAnalyzing && (
-        <div className={styles.scanOverlay}>
-          <div className={styles.scanLine} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerTL}`} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerTR}`} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerBL}`} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerBR}`} />
-          <div className={styles.scanReadout}>VERİ TARANIYOR…</div>
+        <div className={own.scanOverlay}>
+          <div className={own.scanLine} />
+          <div className={`${own.scanCorner} ${own.scanCornerTL}`} />
+          <div className={`${own.scanCorner} ${own.scanCornerTR}`} />
+          <div className={`${own.scanCorner} ${own.scanCornerBL}`} />
+          <div className={`${own.scanCorner} ${own.scanCornerBR}`} />
+          <div className={own.scanReadout}>VERİ TARANIYOR…</div>
         </div>
       )}
       {candidate ? (
@@ -89,7 +90,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
           {decidedForCurrent && (
             <div
               key={`${candidate.id}-${decidedForCurrent}`}
-              className={`${styles.stamp} ${decidedForCurrent === 'approve' ? styles.stampApprove : styles.stampReject}`}
+              className={`${styles.stamp} ${decidedForCurrent === 'approve' ? own.stampApprove : own.stampReject}`}
             >
               {decidedForCurrent === 'approve' ? 'MÜLAKATTA' : 'REDDEDİLDİ'}
             </div>
@@ -112,14 +113,14 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                 </div>
               )}
             </div>
-          <div className={`${styles.referenceRow} ${styles.headerRef}`} data-tour="reference">
+          <div className={`${own.referenceRow} ${own.headerRef}`} data-tour="reference">
               {referenceChecks[candidate.id] ? (
-                <span className={`${styles.referenceResult} ${styles[`ref_${referenceChecks[candidate.id]}`]}`}>
+                <span className={`${own.referenceResult} ${own[`ref_${referenceChecks[candidate.id]}`]}`}>
                   {referenceChecks[candidate.id] === 'warn' ? '⚠' : referenceChecks[candidate.id] === 'mixed' ? '◐' : '✓'} Referans: {referenceFor(candidate.id)?.summary}
                 </span>
               ) : referenceFor(candidate.id) ? (
                 <button
-                  className={styles.referenceButton}
+                  className={own.referenceButton}
                   disabled={lineBusy || onBreak}
                   title={lineBusy ? 'Hat meşgul' : 'Eski işverenini ara ve CV\'deki bilgiyi doğrula'}
                   onClick={() => callReference(candidate.id)}
@@ -127,7 +128,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   ☎ Referansı ara
                 </button>
               ) : (
-                <span className={styles.referenceNone}>☎ Aranacak referans yok</span>
+                <span className={own.referenceNone}>☎ Aranacak referans yok</span>
               )}
             </div>
           </header>
@@ -139,36 +140,36 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
 
           {decidedForCurrent ? (
             <div
-              className={`${styles.decisionBar} ${decidedForCurrent === 'approve' ? styles.decisionBarApprove : styles.decisionBarReject}`}
+              className={`${styles.decisionBar} ${decidedForCurrent === 'approve' ? own.decisionBarApprove : own.decisionBarReject}`}
             >
-              <div className={styles.decisionInfo}>
-                <span className={styles.decisionTitle}>
+              <div className={own.decisionInfo}>
+                <span className={own.decisionTitle}>
                   {decidedForCurrent === 'approve' ? '✓ Mülakata çağrıldı' : '✕ Reddedildi'}
                 </span>
                 {effect?.reason && (
-                  <span className={styles.decisionWhy}>
+                  <span className={own.decisionWhy}>
                     {effect.reason}
                     <EffectChip label="Performans" value={effect.performans} />
                     <EffectChip label="Vicdan" value={effect.vicdan} />
                   </span>
                 )}
-                <span className={`${styles.decisionMeta} mono`}>
+                <span className={`${own.decisionMeta} mono`}>
                   {decidedAt !== undefined && `${formatClock(decidedAt)} · `}
                   geri alınabilir
                 </span>
               </div>
-              <button className={styles.undoButton} onClick={undoDecision}>
+              <button className={own.undoButton} onClick={undoDecision}>
                 ↶ Kararı Geri Al
               </button>
               {nextUndecidedId && (
-                <button className={styles.nextButton} onClick={() => selectCandidate(nextUndecidedId)} aria-keyshortcuts="S">
+                <button className={own.nextButton} onClick={() => selectCandidate(nextUndecidedId)} aria-keyshortcuts="S">
                   Sonraki Aday →
                 </button>
               )}
             </div>
           ) : (
             <div className={styles.actionArea} data-tour="actions">
-              <div className={`${styles.quotaLine} ${quotaReason ? styles.quotaFull : ''}`}>
+              <div className={`${own.quotaLine} ${quotaReason ? own.quotaFull : ''}`}>
                 {quotaCut && !quotaReason && <>⚠ Performansın düşük: Hakan Bey bugün mülakat hakkını bir azalttı. </>}
                 {quotaReason ? (
                   <>⛔ {quotaReason} — bu adayı ancak reddedebilir ya da çağırdığın başka birini geri alabilirsin.</>
@@ -179,7 +180,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   </>
                 )}
               </div>
-              <div className={styles.actionBar}>
+              <div className={own.actionBar}>
                 <Button
                   variant="primary"
                   sound="none"
@@ -198,7 +199,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
           )}
         </>
       ) : (
-        <div className={styles.emptyState}>Kuyruktan bir aday seç.</div>
+        <div className={own.emptyState}>Kuyruktan bir aday seç.</div>
       )}
       {/* karar ve yaptığı, ekran okuyucular için bir kez okunur */}
       <div className="sr-only" aria-live="polite">
@@ -216,7 +217,7 @@ const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '±0');
 function EffectChip({ label, value }: { label: string; value: number }) {
   if (value === 0) return null;
   return (
-    <span className={`${styles.effectChip} ${value > 0 ? styles.effectUp : styles.effectDown} mono`} aria-hidden="true">
+    <span className={`${own.effectChip} ${value > 0 ? own.effectUp : own.effectDown} mono`} aria-hidden="true">
       {label} {signed(value)}
     </span>
   );

@@ -1,0 +1,627 @@
+/* AiPanel bileşeninin kendi stilleri (GameplayScreen.module.css'ten ayrıldı). */
+.internalNoteBox {
+  background: #221f1b;
+  border: 1px dashed var(--red);
+  border-radius: 8px;
+  padding: 10px 12px;
+  animation: barIn 0.3s ease 0.15s both;
+}
+
+.internalNoteText {
+  font-size: calc(12px * var(--ts, 1));
+  line-height: 1.5;
+  color: #c9c2af;
+  font-family: var(--font-mono);
+}
+
+
+.systemBoxDown {
+  border: 1px dashed var(--red);
+}
+
+.systemIconBadge {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 39, 0.18), transparent 72%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.systemIconBadge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201, 162, 39, 0.35);
+}
+
+.systemIconGlyph {
+  width: 24px;
+  height: 24px;
+  color: var(--gold);
+  filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.5));
+  animation: systemIconIdle 2.6s ease-in-out infinite;
+}
+
+.systemIconScanning {
+  background: radial-gradient(circle, rgba(76, 127, 176, 0.22), transparent 72%);
+}
+
+.systemIconScanning::before {
+  border-color: rgba(76, 127, 176, 0.45);
+}
+
+.systemIconScanning .systemIconGlyph {
+  color: var(--blue);
+  filter: drop-shadow(0 0 8px rgba(76, 127, 176, 0.7));
+  animation: systemIconPulse 0.6s ease-in-out infinite;
+}
+
+.systemScanRing {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--blue);
+  border-right-color: var(--blue);
+  animation: spin 0.85s linear infinite;
+}
+
+.systemIconError {
+  background: radial-gradient(circle, rgba(168, 64, 47, 0.2), transparent 72%);
+}
+
+.systemIconError::before {
+  border-color: rgba(168, 64, 47, 0.45);
+}
+
+.systemIconError .systemIconGlyph {
+  color: var(--red);
+  opacity: 0.55;
+  filter: drop-shadow(0 0 6px rgba(168, 64, 47, 0.6));
+  animation: none;
+}
+
+.systemIconSlash {
+  position: absolute;
+  width: 28px;
+  height: 2px;
+  background: var(--red);
+  border-radius: 2px;
+  transform: rotate(45deg);
+  box-shadow: 0 0 5px rgba(168, 64, 47, 0.7);
+}
+
+.analyzingDots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.analyzingDots span {
+  animation: analyzeBlink 1s ease-in-out infinite;
+}
+
+.analyzingDots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.analyzingDots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* ── Küçük yapay zekâ paneli ── */
+
+.systemBox {
+  /* Etkinlik panelinden önce küçülür (ve kayar), böylece günün özeti okunur kalır. */
+  flex: 0 1 auto;
+  min-height: 60px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  background: var(--paper-light);
+  border: 1px solid var(--border-muted);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.systemHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.systemText {
+  flex: 1;
+  min-width: 0;
+}
+
+.systemTitle {
+  font-size: calc(12.5px * var(--ts, 1));
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.systemSub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: calc(11px * var(--ts, 1));
+  color: var(--text-dim);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.statusBusy {
+  background: var(--blue);
+  animation: analyzeBlink 0.8s ease-in-out infinite;
+}
+
+.statusDone {
+  background: var(--teal);
+}
+
+.statusDown {
+  background: var(--red);
+}
+
+.systemLine {
+  background: var(--paper-muted);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.45;
+  color: #3a362f;
+  animation: barIn 0.25s ease both;
+}
+
+.analyzeButton {
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--blue-ink);
+  border: 1px solid rgba(76, 127, 176, 0.45);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  min-width: 40px;
+}
+
+.analyzeButton:hover:not(:disabled) {
+  background: var(--blue-ink);
+  color: var(--paper-light);
+}
+
+.analyzeButton:disabled {
+  cursor: default;
+}
+
+/* yapay zekânın kararı: rozetinden sarkan bir baloncuk */
+.systemBox {
+  position: relative;
+  overflow: visible;
+  z-index: 4;
+}
+
+button.systemIconBadge {
+  position: relative;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  cursor: default;
+}
+
+.systemIconHasNote {
+  cursor: pointer !important;
+}
+
+.systemNoteDot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 2px var(--paper-light);
+}
+
+.noteBubble {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 8;
+
+  padding: 14px 14px 12px;
+  border-radius: 12px;
+  background: var(--paper-light);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  animation: bubbleIn 0.18s ease-out;
+}
+
+.noteBubble::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 30px;
+  width: 14px;
+  height: 14px;
+  background: var(--paper-light);
+  transform: rotate(45deg);
+}
+
+.noteBubbleClose {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: 0;
+  background: none;
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+/* yapay zekâ baloncuğunda bölüm bölüm okuma */
+.sectionNotes {
+  list-style: none;
+  margin: 8px 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: calc(11.5px * var(--ts, 1));
+}
+
+.sectionNotes li {
+  display: grid;
+  grid-template-columns: 14px auto;
+  column-gap: 4px;
+  color: #3f6b63;
+}
+
+.sectionNotes li b {
+  grid-row: span 2;
+}
+
+.sectionNotes li span {
+  grid-column: 2;
+  color: var(--text-dim);
+}
+
+.sectionNotes .noteBad {
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* yapay zekâ notundaki ATS ayrıştırma raporu: makinenin gerçekte ne saydığı */
+.ats {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-muted);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: calc(11.5px * var(--ts, 1));
+  animation: barIn 0.25s ease 0.05s both;
+}
+
+.atsHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(10px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.atsRow {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  color: var(--text-dim);
+}
+
+.atsRow b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.atsRow .atsBad {
+  color: var(--red);
+}
+
+.atsChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.atsChips i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: calc(10px * var(--ts, 1));
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.atsHit {
+  background: rgba(63, 107, 99, 0.14);
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.atsMiss {
+  background: rgba(34, 31, 27, 0.05);
+  color: #8a8270;
+  text-decoration: line-through;
+}
+
+/* analiz geniş açılır, CV'nin üstünde; söylediği her şey kaydırmadan sığsın */
+.noteBubble {
+  /* sağ sütuna değil portal alanına yerleşir (AiPanel: useNotePlacement top, right ve
+     max-height'ı ayarlar): sütun kayar ve notu kendi genişliğine kırpardı */
+  left: auto;
+  z-index: 30;
+  width: min(660px, calc(100vw - 360px));
+  overflow-y: auto;
+}
+
+.noteBubble::before {
+  left: auto;
+  right: 30px;
+}
+
+.noteGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.noteGrid .sectionNotes {
+  margin-top: 0;
+}
+@media (max-width: 960px) {
+  .noteBubble {
+    width: min(480px, calc(100vw - 48px));
+  }
+
+  .noteGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1100px) {
+  /* yapay zekâ kutusunun düğmesi başlığı üç satıra sıkıştırmak yerine onun altına geçer */
+  .systemHeader {
+    flex-wrap: wrap;
+  }
+
+  .analyzeButton {
+    margin-left: 44px;
+  }
+}
+
+/* ── Yapay zekâ kutusu: diğerleri gibi bir portal modülü — kâğıt kart, mavi "sistem" vurgusu ── */
+.systemBox {
+  background: var(--paper-light);
+  border: 1px solid var(--border-muted);
+  border-top: 3px solid var(--blue);
+  box-shadow: 0 4px 14px rgba(34, 31, 27, 0.08);
+  color: var(--ink);
+}
+
+.systemBox .systemTitle {
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--ink);
+}
+
+.systemBox .systemSub {
+  color: var(--text-dim);
+}
+
+.systemBox .systemLine {
+  background: rgba(76, 127, 176, 0.08);
+  color: #2e3a4a;
+}
+
+.systemBox .systemIconBadge {
+  background: rgba(76, 127, 176, 0.1);
+}
+
+.systemBox .systemIconBadge::before {
+  border-color: rgba(76, 127, 176, 0.35);
+}
+
+.systemBox .systemIconGlyph {
+  color: var(--blue-ink);
+  filter: none;
+}
+
+.systemBox .analyzeButton {
+  color: #fff;
+  /* --blue değil --blue-ink: --blue üzerinde beyaz yalnızca 4.2:1 */
+  border-color: var(--blue-ink);
+  background: var(--blue-ink);
+  box-shadow: 0 2px 6px rgba(76, 127, 176, 0.3);
+}
+
+.systemBox .analyzeButton:hover:not(:disabled) {
+  background: #2f5578;
+}
+
+.systemBox .analyzeButton:disabled {
+  background: rgba(76, 127, 176, 0.15);
+  color: var(--blue-ink);
+  box-shadow: none;
+}
+
+/* rapor: CV'nin üstüne serilmiş, portalın kendi panelleri gibi düzenlenmiş bir kâğıt */
+.noteBubble {
+  background: var(--paper-light);
+  color: var(--ink);
+  border: 1px solid var(--border-muted);
+  border-top: 3px solid var(--blue);
+  box-shadow: 0 18px 44px rgba(34, 31, 27, 0.28);
+  padding: 16px 18px 14px;
+}
+
+.noteBubble::before {
+  background: var(--blue);
+  border: 0;
+  top: -8px;
+}
+
+.noteBubble .systemLine {
+  background: rgba(76, 127, 176, 0.08);
+  border-left: 3px solid var(--blue);
+  border-radius: 6px;
+  color: #2e3a4a;
+  font-weight: 600;
+}
+
+.noteBubble .ats {
+  background: #fff;
+  border-color: var(--border-muted);
+  gap: 7px;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+.noteBubble .atsHead {
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border-muted);
+  color: var(--text-muted);
+}
+
+.noteBubble .atsRow {
+  color: var(--text-dim);
+}
+
+.noteBubble .atsRow b {
+  color: var(--ink);
+}
+
+.noteBubble .atsHit {
+  background: rgba(63, 107, 99, 0.12);
+  color: var(--teal);
+}
+
+.noteBubble .atsMiss {
+  background: rgba(34, 31, 27, 0.05);
+  color: #8a8270;
+}
+
+.noteBubble .sectionNotes {
+  gap: 6px;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+.noteBubble .sectionNotes li {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(63, 107, 99, 0.06);
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.noteBubble .sectionNotes span {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.noteBubble .sectionNotes .noteBad {
+  background: rgba(168, 64, 47, 0.08);
+  color: var(--red);
+}
+
+.noteBubble .sectionNotes .noteBad span {
+  color: var(--red);
+}
+
+.noteBubble .atsBad {
+  color: var(--red);
+}
+
+.noteBubble .internalNoteBox {
+  background: #fff6ec;
+  border: 1px dashed var(--red);
+}
+
+.noteBubble .internalNoteText {
+  color: #6b2f24;
+}
+
+.noteBubble .noteBubbleClose {
+  color: var(--text-dim);
+}
+
+.noteBubble .noteBubbleClose:hover {
+  color: var(--ink);
+}
+
+@keyframes barIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes systemIconIdle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes systemIconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.16);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes analyzeBlink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

@@ -2,7 +2,7 @@ import { useGameStore, approvalQuota, lineupFor } from '../../game/store/store';
 import { days } from '../../game/data/days';
 import { formatClock } from '../../game/lib/time';
 import { audioEngine } from '../../audio/audioEngine';
-import styles from '../../screens/GameplayScreen.module.css';
+import styles from './ShiftGate.module.css';
 
 /** Saat başlamadan önce portalın üstündeki kart: gün, kuyruk, "Mesaiye Başla". */
 export function ShiftGate() {

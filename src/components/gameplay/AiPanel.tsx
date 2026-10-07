@@ -8,7 +8,7 @@ import { atsReport, systemLineWith } from '../../game/day/ats';
 import { AiIcon } from '../ui/AiIcon';
 import { ANALYZE_DURATION_MS, type AiAnalysis } from './useAiAnalysis';
 import { AnalysisRun, ScoreDial } from './AiRun';
-import styles from '../../screens/GameplayScreen.module.css';
+import styles from './AiPanel.module.css';
 
 /** Yapay zekânın her bölümde "okuduğu": biri işaretli, geri kalanı hazır bir kalıpla geçiştirilmiş. */
 const SECTIONS: { label: string; field?: EvaluatedField; ok: string }[] = [
