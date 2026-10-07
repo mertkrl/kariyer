@@ -10,7 +10,7 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 - Her adayın maaş beklentisi bir rakamla yazılı (Yusuf: esnek, Ece: önceki maaşını paylaşmadı; hikâyeleri korunuyor).
 - Çarşamba toplantısı anlatıcı cümlesi yerine selamlaşmayla başlıyor; Selin ekranını konuşmanın içinde paylaşıyor.
 - Cuma: Defne en fazla 3 kişiyle görüşür, seçmedikleri Ayşe ile Emre'ye eşit dağılır; diğer odalardaki adaylar kurula kadar görünmez.
-- Masaüstündeki *Adaylar_FINAL_v7.xlsx* salt okunur bir ortak tablo: kim kimi davet ettiyse anında eklenir.
+- Masaüstündeki *Adaylar_FINAL_v7.xlsx* salt okunur, gerçek bir hesap tablosu gibi bir ortak dosya (şerit, formül çubuğu, sütun harfleri, filtre başlıkları, hücre notları, toplam satırı, "Özet" sayfası, durum çubuğu): kim kimi davet ettiyse anında eklenir.
 - Gün sonu servis sahnesi yalnızca camdan dışarıyı gösteriyor, servisin içi görünmüyor.
 - Konuşmalarda "(kısa bir sessizlik)" gibi sahne notları yok.
 - İstifa ettiysen annenle konuşma bununla açılır ve bununla kapanır.
