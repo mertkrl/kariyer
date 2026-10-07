@@ -4,6 +4,19 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 
 ## [Yayımlanmadı]
 
+### Oyun
+- Tek davet kuralı: her gün en fazla 3 kişi mülakata çağrılır; haftalık 10 sınırı kalktı. Cuma'da sen 3 kişiyle görüşürsün, kalanlar Ayşe ile Emre'ye dağılır.
+- Kalıp tekrarı azaldı: Defne'nin sıcak ve dürüst cevaplarında üçer varyant, adayların e-posta cevaplarında iki yeni ses (8), Kariyergram mesajlarında her ruh hâline yeni açılış ve cevaplar. Standart ret, "havuz" ve kurumsal yanıt bilerek her seferinde aynıdır.
+
+### Ses ve müzik
+- Üç parça: sakin (Pazartesi–Salı), gergin "ofis noir" (Çarşamba, Perşembe, Cuma mülakatları) ve yeni kapanış teması "karar" (teklif, hafta sonu, son); parçalar arası yumuşak geçiş.
+- Her efekt çalınışında küçük perde (±%1,5), ses düzeyi (±%10) ve filtre (±%6) sapması; aynı damga 50. kez de biraz farklı vurur.
+
+### Kod
+- Cuma mülakat kuralları `screens/final/interviewRoom.ts`'te (saf ve testli), durum ve zamanlayıcılar `useInterview` hook'unda; FinalRoundScreen 412 → 278 satır.
+- GameplayScreen 379 → 238 satır: portal `Portal` bileşeninde, klavye ve saat `useWorkdayControls` hook'unda.
+- GameState tipleri bölündü: alanlar `store/stateParts.ts`'te, eylemler dilimlerine göre `store/actions.ts`'te.
+
 ### Oyuncu geri bildirimi
 - Hakan Bey'in "işi bitirmişsin, … dosya daha" mesajına cevap verilebilir; soru biçimindeki her tepkinin ("Hangi dosyalarda zorlandınız?" gibi) cevap seçenekleri var.
 - Kariyer platformunun e-postası artık spama düşmüyor; "Şirket belgelerinin gizliliği" hatırlatması kaldırıldı.
