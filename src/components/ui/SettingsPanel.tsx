@@ -1,7 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useGameStore } from '../../game/store/store';
 import { audioEngine } from '../../audio/audioEngine';
-import { Button } from './Button';
 import { TEXT_SCALES, applyTextScale, loadTextScale } from '../../game/lib/textScale';
 import styles from './SettingsPanel.module.css';
 
@@ -208,22 +207,22 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
           <div className={styles.confirmHome}>
             <span>İlerlemen kaybolacak. Emin misin?</span>
             <div className={styles.actions}>
-              <Button variant="ghost" onClick={() => setConfirmHome(false)}>
+              <button className={styles.btn} onClick={() => setConfirmHome(false)}>
                 Vazgeç
-              </Button>
-              <Button variant="danger" onClick={restart}>
+              </button>
+              <button className={`${styles.btn} ${styles.btnDanger}`} onClick={restart}>
                 Ana sayfa
-              </Button>
+              </button>
             </div>
           </div>
         ) : (
           <div className={styles.actions}>
-            <button className={styles.homeLink} onClick={() => setConfirmHome(true)}>
+            <button className={styles.btn} onClick={() => setConfirmHome(true)}>
               Ana sayfaya dön
             </button>
-            <Button variant="gold" onClick={onResume}>
+            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onResume}>
               Devam et
-            </Button>
+            </button>
           </div>
         )}
       </div>
