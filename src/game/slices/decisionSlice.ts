@@ -2,14 +2,14 @@
  * Dosyalar: birini açmak, hakkında karar vermek, bir kararı geri almak ve neyin okuma sayıldığı.
  */
 import type { GetState, SetState } from '../store/storeApi';
-import type { GameState } from '../store/storeTypes';
+import type { DecisionActions } from '../store/storeTypes';
 import { decisionEffect } from '../engine/scoring';
 import { sound } from '../lib/sound';
 import { later } from '../lib/later';
 import { JUSTIFY_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, lineupFor, readingOf, addVicdan } from '../store/storeDefaults';
 import { addExtraFiles, isOnBreak, mailsPending, spendMinutes } from '../day/clock';
 
-export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameState, 'selectCandidate' | 'decide' | 'undoDecision' | 'setReading' | 'markReadThrough'> => ({
+export const createDecisionSlice = (set: SetState, get: GetState): DecisionActions => ({
   selectCandidate: (id) => {
     const state = get();
     if (isOnBreak(state)) return;

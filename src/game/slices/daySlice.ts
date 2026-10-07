@@ -5,7 +5,7 @@
  */
 import type { DayStats } from '../types';
 import type { GetState, SetState } from '../store/storeApi';
-import type { Finalist, GameState, StoryState, WeekLog } from '../store/storeTypes';
+import type { Finalist, GameState, StoryState, WeekLog, DayActions } from '../store/storeTypes';
 import { days } from '../data/days';
 import { DAY_PLANS } from '../data/dayPlans';
 import { QUOTA_CUT_BELOW, KEY_CHARACTERS } from '../day/story';
@@ -74,7 +74,7 @@ function todaysEvents(state: GameState): GameState['dayEvents'] {
   ].sort((a, b) => a.at - b.at);
 }
 
-export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'beginDay' | 'tick' | 'skipBreak' | 'finishDay' | 'nextDay'> => ({
+export const createDaySlice = (set: SetState, get: GetState): DayActions => ({
   beginDay: () => {
     set({ lastLandlineAt: null });
     const state = get();

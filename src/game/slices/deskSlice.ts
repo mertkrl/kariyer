@@ -2,7 +2,7 @@
  * Masa: sabit hat ve aramaları, kahve, çiçek, sebil, referans aramaları.
  */
 import type { GetState, SetState } from '../store/storeApi';
-import type { GameState } from '../store/storeTypes';
+import type { DeskActions } from '../store/storeTypes';
 import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../day/desk';
 import { referenceFor } from '../day/references';
 import { RAPPORT, REPLY_EFFECT, clampRapport, requestIsFair } from '../day/manager';
@@ -20,7 +20,7 @@ const PIZZA_THOUGHTS = [
   'Son dilim. "Şirket zor durumda" diyen Emre üçüncü kutuyu açıyor.',
 ];
 
-export const createDeskSlice = (set: SetState, get: GetState): Pick<GameState, 'pickUpCall' | 'answerCall' | 'drinkCoffee' | 'eatPizza' | 'waterFlower' | 'clearDeskNotice' | 'clearDeskItem' | 'callReference' | 'visitCooler' | 'sendRevoke'> => ({
+export const createDeskSlice = (set: SetState, get: GetState): DeskActions => ({
   pickUpCall: () => {
     const { desk } = get();
     if (!desk.ringing) return;

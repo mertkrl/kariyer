@@ -2,14 +2,14 @@
  * Telefonlar: mesajları ve müdürün ricalarını cevaplamak, okumak, grup sohbetlerini sessize almak.
  */
 import type { GetState, SetState } from '../store/storeApi';
-import type { GameState } from '../store/storeTypes';
+import type { PhoneActions } from '../store/storeTypes';
 import { RAPPORT, REPLY_EFFECT, clampRapport, managerReaction, managerTone, replyText } from '../day/manager';
 import { sound } from '../lib/sound';
 import { clampScore, addVicdan } from '../store/storeDefaults';
 import { takeMessageId } from '../day/clock';
 import { later } from '../lib/later';
 
-export const createPhoneSlice = (set: SetState, get: GetState): Pick<GameState, 'toggleMuteThread' | 'answerMessage' | 'answerRequest' | 'markPhoneRead'> => ({
+export const createPhoneSlice = (set: SetState, get: GetState): PhoneActions => ({
   toggleMuteThread: (thread) =>
     set((state) => ({ mutedThreads: state.mutedThreads.includes(thread) ? state.mutedThreads.filter((t) => t !== thread) : [...state.mutedThreads, thread] })),
 

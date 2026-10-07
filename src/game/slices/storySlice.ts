@@ -3,7 +3,7 @@
  */
 import { clampRapport } from '../day/manager';
 import type { GetState, SetState } from '../store/storeApi';
-import type { GameState } from '../store/storeTypes';
+import type { StoryActions } from '../store/storeTypes';
 import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from '../store/storeDefaults';
 import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../day/clock';
 import { MEETING_MINUTES, OPTIONS } from '../events/meeting';
@@ -15,7 +15,7 @@ import { later } from '../lib/later';
 import { NEPHEW_ID } from '../data/candidates';
 import { salaryTalk } from '../events/interview';
 
-export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'askForbidden' | 'settleOffer' | 'finishOffer' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
+export const createStorySlice = (set: SetState, get: GetState): StoryActions => ({
   askForbidden: () =>
     set((state) => ({
       forbiddenAsked: state.forbiddenAsked + 1,
