@@ -1,4 +1,5 @@
 import { audioEngine, type PourSound } from '../../audio/audioEngine';
+import { prefersReducedMotion } from '../../components/ui/motion';
 
 /*
  * Mola odası için fiziğe dayalı Türk çayı dökme.
@@ -497,6 +498,20 @@ export function runPour(
       callbacks.onStage(plan.stages[stageIndex].vessel.sound);
     }
     raf = requestAnimationFrame(frame);
+  }
+
+  // Hareket azaltılmışsa döküş oynatılmaz: bardak bir sonraki karede dolu hâliyle görünür.
+  if (prefersReducedMotion()) {
+    for (const stage of plan.stages) {
+      concentration = (volume * concentration + stage.volume * stage.concentration) / (volume + stage.volume);
+      volume += stage.volume;
+    }
+    hideStream();
+    raf = requestAnimationFrame(() => {
+      applyLiquid(0);
+      callbacks.onDone(volume, concentration);
+    });
+    return () => cancelAnimationFrame(raf);
   }
 
   raf = requestAnimationFrame(frame);

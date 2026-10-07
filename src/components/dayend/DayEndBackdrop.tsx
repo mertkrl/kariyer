@@ -7,6 +7,7 @@ import { e5Scene } from './city/scenes/e5';
 import { karakoyScene } from './city/scenes/karakoy';
 import { servisScene } from './city/scenes/servis';
 import styles from './DayEndBackdrop.module.css';
+import { prefersReducedMotion } from '../ui/motion';
 
 /*
  * Gün sonu arka planı: canvas'ta çizilen canlı bir İstanbul akşam trafiği, her gün için bir sahne.
@@ -37,7 +38,7 @@ export function DayEndBackdrop({ dayIndex }: { dayIndex: number }) {
     const g = canvas.getContext('2d', { alpha: false });
     if (!g) return;
     const scene = SCENES[index]();
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const still = prefersReducedMotion();
     let base = 1;
     let raf = 0;
     let last = performance.now();

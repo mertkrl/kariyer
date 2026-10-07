@@ -3,6 +3,7 @@ import { paperTextures } from './paperTextures';
 import { makeIn, makeOut, stepIn, stepOut, type ClearZone, type Point, type Sheet } from './paperPhysics';
 import { createPaperRenderer, type PaperView } from './paperRender';
 import styles from './PaperStorm.module.css';
+import { prefersReducedMotion } from '../../components/ui/motion';
 
 /*
  * Başvuru yağmuru ekranı için gerçek zamanlı kâğıt simülasyonu, tek bir canvas'a çizilir.
@@ -69,7 +70,7 @@ export function PaperStorm({ mode, origin, count, window: spawnWindow = 1.8, cha
 
     const sheets = m === 'in' ? makeIn(o, view.vw, view.vh, n, win) : makeOut(o, view.vw, view.vh, n, chaos, cz);
     if (m === 'out') callbacks.current.onLaunch?.(sheets.map((s) => ({ pan: s.pan, delay: s.spawn })));
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = prefersReducedMotion();
     let landings = 0;
     const clampPan = (x: number) => Math.max(-1, Math.min(1, (x - view.vw / 2) / (view.vw / 2)));
 

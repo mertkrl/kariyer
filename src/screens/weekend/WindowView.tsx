@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { glow, makeRng, vGradient, type Rng } from '../../components/dayend/city/kit';
+import { prefersReducedMotion } from '../../components/ui/motion';
 
 /*
  * Cuma gecesi oturma odasının penceresinden görünen: Boğaz değil, sokağın karşısındaki blok.
@@ -232,7 +233,7 @@ export function WindowView({ className }: { className?: string }) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = VW * dpr;
     canvas.height = VH * dpr;
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const still = prefersReducedMotion();
 
     // sabit arka plan
     const bg = document.createElement('canvas');

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { WORKDAY_END_MIN } from '../../game/time';
+import { prefersReducedMotion } from '../ui/motion';
 
 /*
  * Ofis penceresi: Ataşehir Finans Merkezi'nin kuleleri. Gökyüzü saati izler (soluk
@@ -117,9 +118,11 @@ export function OfficeWindow({ minutes, weather, className }: { minutes: number;
     ro.observe(canvas);
     resize();
 
+    const still = prefersReducedMotion();
     const frame = (now: number) => {
-      raf = requestAnimationFrame(frame);
-      skip = !skip;
+      // hareket azaltılmışsa pencere tek bir kare olarak çizilir ve öyle kalır
+      if (!still) raf = requestAnimationFrame(frame);
+      skip = !skip && !still;
       if (skip) return; // bir pencere için 30 fps yeter
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;

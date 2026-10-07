@@ -9,6 +9,7 @@ import { PaperStorm, type Point } from './flood/PaperStorm';
 import { ParquetFloor } from './flood/ParquetFloor';
 import { CrashLog } from './flood/CrashLog';
 import styles from './ApplicationFloodScreen.module.css';
+import { prefersReducedMotion } from '../components/ui/motion';
 
 const COUNT_DURATION_MS = 2200;
 const SCAN_DURATION_MS = 1300;
@@ -71,12 +72,14 @@ export function ApplicationFloodScreen() {
     audioEngine.startFloodRiser(COUNT_DURATION_MS / 1000);
 
     // Sayaç: hızlı başlayıp yavaşlamayla birlikte seyrelen mekanik tıkırtılar, duran bir çark gibi.
+    const still = prefersReducedMotion();
     const start = performance.now();
     let lastTick = 0;
     let lastValue = startValue;
     function step(now: number) {
       const elapsed = now - start;
-      const progress = Math.min(1, elapsed / COUNT_DURATION_MS);
+      // hareket azaltılmışsa sayaç akmaz, hedef sayı hemen görünür
+      const progress = still ? 1 : Math.min(1, elapsed / COUNT_DURATION_MS);
       const eased = 1 - (1 - progress) * (1 - progress);
       const value = Math.round(startValue + (day.applicationTarget - startValue) * eased);
       setCount(value);
@@ -132,7 +135,7 @@ export function ApplicationFloodScreen() {
 
     function step(now: number) {
       const elapsed = now - start;
-      const progress = Math.min(1, elapsed / SORT_COUNTDOWN_MS);
+      const progress = prefersReducedMotion() ? 1 : Math.min(1, elapsed / SORT_COUNTDOWN_MS);
       const eased = 1 - (1 - progress) * (1 - progress);
       const value = Math.round(startCount - (startCount - shortlist) * eased);
       setCount(value);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Candidate } from '../../game/types';
 import { AD_KEYWORDS, aiScore, atsReport } from '../../game/ats';
 import styles from './AiRun.module.css';
+import { prefersReducedMotion } from '../ui/motion';
 
 /*
  * Yapay zekâ işte ve sonucu, yapay zekâ kutusunun içinde. Çalışırken bir eleme sisteminin gerçekte
@@ -9,8 +10,6 @@ import styles from './AiRun.module.css';
  * günlükle tek tek işaretlenir; bitince 100 üzerinden bir puan bir kadranda sayarak yükselir.
  * Adımlar CV üzerindeki taramayla aynı süreye göre zamanlanır.
  */
-
-const reduceMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /** Her adımın başladığı an, çalışmanın payı olarak. */
 const STEP_AT = [0, 0.2, 0.42, 0.64, 0.84];
@@ -77,9 +76,9 @@ const VERDICT_NAME: Record<Candidate['verdict'], string> = {
 /** Sonuç: kadranda puan, karar ve tam rapora giden yol. */
 export function ScoreDial({ candidate, reportOpen, onToggleReport }: { candidate: Candidate; reportOpen: boolean; onToggleReport: () => void }) {
   const score = aiScore(candidate);
-  const [shown, setShown] = useState(() => (reduceMotion() ? score : 0));
+  const [shown, setShown] = useState(() => (prefersReducedMotion() ? score : 0));
   useEffect(() => {
-    if (reduceMotion()) return;
+    if (prefersReducedMotion()) return;
     const start = performance.now();
     let raf = 0;
     const step = (now: number) => {
