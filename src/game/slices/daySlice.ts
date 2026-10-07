@@ -164,7 +164,7 @@ export const createDaySlice = (set: SetState, get: GetState): Pick<GameState, 'b
     // güçlü insanlar bir işaret yüzünden geri çevrilirken kimsenin almadığı bir mülakat hakkı
     const quota = approvalQuota(state);
     const strongRejected = lineup.filter((id) => state.decisions[id] === 'reject' && isWronglyFlagged(id) && isStrong(id)).length;
-    const emptySlots = unusedSlotCost(Math.min(quota.dailyLeft, quota.totalLeft), strongRejected);
+    const emptySlots = unusedSlotCost(quota.dailyLeft, strongRejected);
     if (emptySlots > 0) {
       verdict.vicdan -= emptySlots;
       verdict.lines.push(`${emptySlots} mülakat hakkın boş kaldı; o sırada işaretli ${strongRejected} güçlü adayı eledin.`);

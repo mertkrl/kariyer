@@ -3,7 +3,6 @@ import { useGameStore } from '../game/store/store';
 import { forbiddenAnswer, forbiddenQuestion } from '../game/day/story';
 import { candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
-import { FINALIST_LIMIT } from '../game/data/days';
 import { backQuestionsFor, experienceYears, followUpAnswer, FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
 import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/events/interview';
@@ -244,7 +243,7 @@ export function FinalRoundScreen() {
 
       {forced && (
         <div className={styles.forcedNote}>
-          Hafta boyunca kimseyi mülakata çağırmadın (kontenjan {FINALIST_LIMIT} kişiydi). Senin listenin yerini yönetimin iç referansı aldı; bugün senin odan boş, kurulda diğerlerinin
+          Hafta boyunca kimseyi mülakata çağırmadın (her gün 3 hakkın vardı). Senin listenin yerini yönetimin iç referansı aldı; bugün senin odan boş, kurulda diğerlerinin
           görüşmelerini değerlendireceksin.
         </div>
       )}

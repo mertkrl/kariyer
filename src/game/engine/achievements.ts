@@ -44,7 +44,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'rightone', icon: '🎯', title: 'Doğru Kişi', desc: 'İşe aldığın kişi ekibin yıldızı oldu.', test: (a) => a.hireFit >= 5 },
   { id: 'mom', icon: '❤️', title: 'Annenin Gözbebeği', desc: 'Annenin bütün mesajlarına cevap verdin.', test: (a) => a.momMessages > 0 && a.momAnswered >= a.momMessages },
   { id: 'balance', icon: '⚖️', title: 'Denge Ustası', desc: "Performans ve Vicdan'ı 60'ın üstünde bitirdin.", test: (a) => a.performans >= 60 && a.vicdan >= 60 },
-  { id: 'full', icon: '📋', title: 'Tam Kadro', desc: 'Haftalık 10 kişilik mülakat kontenjanını doldurdun.', test: (a) => a.finalists >= 10 },
+  { id: 'full', icon: '📋', title: 'Tam Kadro', desc: 'Hafta boyunca 10 ya da daha fazla kişiyi mülakata çağırdın.', test: (a) => a.finalists >= 10 },
   { id: 'hard', icon: '🔥', title: 'Zor Mod Gazisi', desc: 'Haftayı zor modda tamamladın.', test: (a) => a.difficulty === 'hard' },
   { id: 'storm', icon: '🌩️', title: 'Kriz Yöneticisi', desc: 'Zor modda bütün sürprizlere rağmen günleri bitirdin.', test: (a) => a.difficulty === 'hard' && a.events >= 6 },
   { id: 'humane', icon: '✉️', title: 'İnsan Gibi', desc: 'Reddettiğin en az 3 adaya ret sebebini dürüstçe yazdın.', test: (a) => a.dmHonest >= 3 },

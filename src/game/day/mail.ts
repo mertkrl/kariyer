@@ -81,7 +81,7 @@ Bilgi İşlem`,
     subject: 'Haftalık hedefler',
     body: `Sayın ${PLAYER.first} Hanım,
 
-Bu hafta hedefimiz, ön elemeyi eksiksiz tamamlayıp cuma günü en fazla 10 adayla mülakat aşamasına geçmektir.
+Bu hafta hedefimiz, ön elemeyi eksiksiz tamamlayıp her gün en fazla 3 adayı mülakata çağırarak cuma günü mülakat aşamasına geçmektir.
 
 Günlük dosyaların mesai bitimine kadar sonuçlandırılmasını ve yapay zekâ modülünün önerilerinin dikkate alınmasını rica ederim.
 

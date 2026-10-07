@@ -28,7 +28,7 @@ export function ShiftGate() {
               <br />
             </>
           )}
-          Kuyrukta bugün <b>{lineupSize} dosya</b> var. Mülakat kontenjanı: <b>{dailyLimit}</b> aday.
+          Kuyrukta bugün <b>{lineupSize} dosya</b> var. Bugün en fazla <b>{dailyLimit}</b> kişiyi mülakata çağırabilirsin.
           <br />
           Mesaiyi başlattığında saat işlemeye başlar.
         </p>

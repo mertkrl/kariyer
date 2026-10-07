@@ -6,7 +6,7 @@
 import { COFFEE_SIPS } from '../day/desk';
 import { type DayEvent, type DeskState, type DmKind, type GameState, type InterviewStance, type StoryState, type WeekLog } from './storeTypes';
 import { type DayStats, type Difficulty, type EventKind } from '../types';
-import { FINALIST_LIMIT, days } from '../data/days';
+import { days } from '../data/days';
 import { MINUTES_PER_TICK } from '../lib/time';
 import { shuffle } from '../lib/rng';
 import { type ThreadId } from '../day/manager';
@@ -17,19 +17,16 @@ export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>,
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;
 }
 
-/** Kalan final yuvaları: bugünün günlük sınırı ile haftalık sınırdan hangisi daha darsa. */
+/** Bugünkü mülakat hakkı: oyunun tek davet kuralı günlük sınırdır. */
 export function approvalQuota(state: Pick<GameState, 'currentDayIndex' | 'decisions' | 'finalists' | 'lineups'> & { quotaCut?: boolean }) {
   const day = days[state.currentDayIndex];
   const approvedToday = lineupFor(state).filter((id) => state.decisions[id] === 'approve').length;
   const dailyLimit = (day.approvalLimit ?? Infinity) - (state.quotaCut ? 1 : 0);
-  const totalUsed = state.finalists.length + approvedToday;
   return {
     approvedToday,
     dailyLimit,
     dailyLeft: Math.max(0, dailyLimit - approvedToday),
-    totalUsed,
-    totalLeft: Math.max(0, FINALIST_LIMIT - totalUsed),
-    canApprove: approvedToday < dailyLimit && totalUsed < FINALIST_LIMIT };
+    canApprove: approvedToday < dailyLimit };
 }
 
 export const emptyWeek = (): WeekLog => ({ reviewTicks: 0, reviewed: 0, momMessages: 0, momAnswered: 0, managerIgnored: 0, events: 0 });

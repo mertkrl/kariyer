@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { formatClock } from '../game/lib/time';
 import { lineupFor, readingOf, useGameStore } from '../game/store/store';
-import { days, FINALIST_LIMIT } from '../game/data/days';
+import { days } from '../game/data/days';
 import { candidateOf } from '../game/data/candidates';
 import { Button } from '../components/ui/Button';
 import { DayEndBackdrop } from '../components/dayend/DayEndBackdrop';
@@ -95,7 +95,7 @@ export function DayEndScreen() {
             <div className={styles.delta}>
               <span>Kısa liste</span>
               <b className="mono">
-                {finalists.length}/{FINALIST_LIMIT}
+                {finalists.length}
               </b>
             </div>
           </div>
@@ -196,7 +196,7 @@ export function DayEndScreen() {
           </section>
         </div>
 
-        {days[currentDayIndex + 1]?.final && <p className={styles.finalistNote}>Yarın mülakat günü: {Math.min(finalists.length, FINALIST_LIMIT)} adaydan yalnızca 1 kişi işe alınacak.</p>}
+        {days[currentDayIndex + 1]?.final && <p className={styles.finalistNote}>Yarın mülakat günü: {finalists.length} adaydan yalnızca 1 kişi işe alınacak.</p>}
 
         <div className={styles.footer}>
           <Button variant="primary" sound="confirm" className={styles.cta} onClick={nextDay}>

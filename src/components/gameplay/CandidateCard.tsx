@@ -49,7 +49,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const details = candidate ? candidateDetails[candidate.id] : undefined;
   const decidedForCurrent = currentCandidateId ? decisions[currentCandidateId] : undefined;
   const quota = approvalQuota({ currentDayIndex, decisions, finalists, lineups, quotaCut });
-  const quotaReason = quota.totalLeft === 0 ? 'Haftalık mülakat kontenjanı doldu' : quota.dailyLeft === 0 ? 'Bugünkü kontenjan doldu' : null;
+  const quotaReason = quota.dailyLeft === 0 ? 'Bugünkü 3 mülakat hakkın doldu' : null;
   const decidedAt = decisionLog.find((e) => e.id === currentCandidateId)?.at;
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);
@@ -175,8 +175,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   <>⛔ {quotaReason} — bu adayı ancak reddedebilir ya da çağırdığın başka birini geri alabilirsin.</>
                 ) : (
                   <>
-                    Mülakat kontenjanı · bugün <strong className="mono">{quota.dailyLeft}</strong> hak · haftada{' '}
-                    <strong className="mono">{quota.totalLeft}</strong> yer kaldı
+                    Bugün <strong className="mono">{quota.dailyLeft}</strong>/{quota.dailyLimit} mülakat hakkın kaldı
                   </>
                 )}
               </div>

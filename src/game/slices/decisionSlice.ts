@@ -33,7 +33,7 @@ export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameStat
     if (!id) return;
 
     const prevDecision = state.decisions[id];
-    // Final turu kontenjanı: bugünün sınırı ve FINALIST_LIMIT'in haftalık sınırı.
+    // Mülakat hakkı: bugünün sınırı (tek kural).
     if (decision === 'approve' && prevDecision !== 'approve' && !approvalQuota(state).canApprove) {
       sound().playUi('click');
       return;

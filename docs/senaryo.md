@@ -126,7 +126,7 @@ Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunama
 
 **Hava:** Güneşli, 14°C. **Kural:** *Junior pozisyon için minimum 5 yıl deneyim şart.*
 
-**Memo:** Hoş geldiniz; 340 başvuru yapay zekâyla birkaç dosyaya indirildi; günde 3, haftada 10 çağrı; mesai kuralları; "Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor."
+**Memo:** Hoş geldiniz; 340 başvuru yapay zekâyla birkaç dosyaya indirildi; günde en fazla 3 çağrı (haftalık ayrı sınır yok); mesai kuralları; "Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor."
 
 **Kuyruk:** Ahmet, Ilgın, Caner, Gökçe, Deniz, Melis, Cihan (tur başına biraz karışır).
 
