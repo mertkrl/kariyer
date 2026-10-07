@@ -33,7 +33,7 @@ Göndermeden önce aynı denetimin yerelde çalışması için, depoyu klonladı
 git config core.hooksPath .githooks
 ```
 
-Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda `git push --no-verify`). Dependabot paket ve GitHub Actions güncellemeleri için haftalık PR açar; hata bildirimi ve PR için şablonlar `.github/` altında.
+Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda `git push --no-verify`). Çalışma akışı (dal → PR → `main`), dosyaların nereye konduğu ve sürüm yayımlama [CONTRIBUTING.md](CONTRIBUTING.md)'de; değişiklikler [CHANGELOG.md](CHANGELOG.md)'de. `v*` etiketi gönderilince `.github/workflows/release.yml` zip'i bir GitHub sürümüne ekler. Dependabot paket ve GitHub Actions güncellemeleri için haftalık PR açar; hata bildirimi ve PR için şablonlar `.github/` altında.
 
 ## Testler
 
@@ -46,6 +46,7 @@ Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda 
 - `data`: senaryo verisinin bütünlüğü (her aday, gün, rica ve hikâye rolü tutarlı; karışık kadrolar adayları kaybetmez); oyun mantığında `Math.random` yok
 - `layout`: bütün stil dosyaları yalnızca ortak kırılma noktalarını kullanır; çerçeve ölçüleri tek yerde ([docs/yerlesim.md](docs/yerlesim.md))
 - `security`, `privacy`: ağ isteği yok, HTML'den betik yok, her depolama anahtarı `kariyerweb-` önekli, kayıt oyunun durumunu kirletemez, sayfadaki ve başlıktaki güvenlik politikası aynı; "Verilerimi sil" her şeyi siler
+- `motion`: her `requestAnimationFrame` döngüsü hareket azaltma tercihini sorar; tercih tek yerden (`components/ui/motion.ts`) okunur
 - `balance`: farklı alışkanlıkta botlar (okumadan sisteme uyan, okuyarak uyan, dengeli, adayları savunan, hiç karar vermeyen) aynı haftaları oynar; puanların bu oyuncuları doğru sıraya dizmesi ve duvara dayanmaması denetlenir. Puanlama kuralları `game/engine/scoring.ts` başındaki açıklamada.
 
 Oyun mantığı ses çalmak için `game/lib/sound.ts` üzerinden konuşur; ses motoru `main.tsx`'te bağlanır, testlerde sessizdir.

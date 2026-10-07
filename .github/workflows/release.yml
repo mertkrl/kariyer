@@ -1,0 +1,30 @@
+name: Release
+
+# `v1.2.0` gibi bir etiket gönderildiğinde: CI'ın aynısı, sonra itch.io zip'i bir GitHub sürümüne eklenir.
+# Etiket package.json'daki sürümle aynı olmalı (zip adı oradan gelir).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Etiket ve package.json sürümü aynı mı
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+      - run: npm run ci
+      - run: node scripts/package.mjs
+      - name: GitHub sürümü
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "$GITHUB_REF_NAME" --notes-file <(node scripts/release-notes.mjs "$GITHUB_REF_NAME")
