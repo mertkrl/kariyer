@@ -20,7 +20,7 @@ export type AptitudeWidget =
   | { type: 'tap'; everyMs: number }
   /** Takvim: şıklar haftanın dört boş yeridir; toplantının konduğu yer cevap sayılır. */
   | { type: 'calendar' }
-  /** Gece mesajı: Hakan Bey yazar, "yazıyor…" görünür; seçilen cevap şıktır. */
+  /** Gece mesajı: yönetici yazar, "yazıyor…" görünür; seçilen cevap şıktır. */
   | { type: 'chat'; from: string; at: string; messages: string[] }
   /** Kaçan düğme: 0. şık imleçten kaçar, bir süre sonra yorulur; 1. şık hep yerinde durur. */
   | { type: 'runaway' };
@@ -126,7 +126,7 @@ export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'meeting-nod',
     kind: 'simülasyon',
-    prompt: 'Çeyrek sunumu. Hakan Bey konuşuyor. Katıldığınız cümle ekrandayken başınızı sallayın.',
+    prompt: 'Çeyrek sunumu. Yöneticiniz konuşuyor. Katıldığınız cümle ekrandayken başınızı sallayın.',
     hint: 'Kamera gözetimi: baş sallama zamanlamanız "kültür uyumu" puanınıza eklenir.',
     options: ['Bu çeyrek hedefi %3 aştık.', 'Sinerjiyle çarpanı büyüteceğiz.', 'Fazla mesai ücreti yerine cuma pizza var! 🍕', 'Biz bir aileyiz.'],
     answer: 2,
@@ -161,7 +161,7 @@ export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'sync-slot',
     kind: 'simülasyon',
-    prompt: 'Hakan Bey "kısa bir senkron" istiyor. Takvimde boş bir yere yerleştirin.',
+    prompt: 'Yöneticiniz "kısa bir senkron" istiyor. Takvimde boş bir yere yerleştirin.',
     hint: 'Hatırlatma: "Kısa" bir senkron ortalama 90 dakika sürer.',
     options: ['Salı 10:00 (mesai içi)', 'Perşembe 12:30 (öğle arası)', 'Cuma 18:30 (mesai sonrası)', 'Cumartesi 10:00 (taze kafayla!)'],
     answer: 3,
@@ -179,7 +179,7 @@ export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
     answer: 1,
     sensible: 0,
     why: 'Gece yarısı "acil değil" diye başlayan bir mesaja sabah dönerim. Gerçekten acilse arar.',
-    widget: { type: 'chat', from: 'Hakan Kaya', at: '23:47', messages: ['Müsait misin? Acil değil.', 'Acil.'] },
+    widget: { type: 'chat', from: 'Yönetici', at: '23:47', messages: ['Müsait misin? Acil değil.', 'Acil.'] },
     seconds: 25,
   },
   {

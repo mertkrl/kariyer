@@ -6,7 +6,7 @@ import styles from './AptitudeWidgets.module.css';
 /*
  * Değerlendirmenin soru türleri. Her biri sonunda bir şık sırası verir (`onAnswer`), böylece
  * cevap kâğıdı her soru için aynı biçimde okunur: çoktan seçmeli, kaydırıcı, görev sıralama ve
- * Hakan Bey'in sunumunda doğru anda baş sallamak.
+ * yöneticinin sunumunda doğru anda baş sallamak.
  */
 
 interface WidgetProps {
@@ -145,7 +145,7 @@ function TapWidget({ q, everyMs, onAnswer }: WidgetProps & { everyMs: number }) 
           👔
         </div>
         <div className={styles.slide}>
-          <small>Hakan Kaya · Çeyrek Değerlendirmesi</small>
+          <small>Yönetici · Çeyrek Değerlendirmesi</small>
           <p key={step} className={styles.slideLine} aria-live="polite">
             "{q.options[current]}"
           </p>
@@ -222,7 +222,7 @@ function CalendarWidget({ q, onAnswer }: WidgetProps) {
   );
 }
 
-/** Gece mesajı: Hakan Bey yazar, bir an "yazıyor…" görünür, ikinci mesaj gelir; sonra cevap sırası sende. */
+/** Gece mesajı: yönetici yazar, bir an "yazıyor…" görünür, ikinci mesaj gelir; sonra cevap sırası sende. */
 function ChatWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<AptitudeWidget, { type: 'chat' }> }) {
   const [shown, setShown] = useState(1);
   useEffect(() => {
