@@ -7,6 +7,7 @@ import type { Decision, EventKind } from '../types';
 import type { ReformKind } from '../day/desk';
 import type { OfferResult } from '../events/offer';
 import type { MailState, PhoneState, PortalState, SettingsState, ShiftState, WeekState } from './stateParts';
+import type { AptitudeResult } from '../events/aptitude';
 import type { DayActions, DecisionActions, DeskActions, FlowActions, PhoneActions, SettingsActions, StoryActions } from './actions';
 
 export type * from './stateParts';
@@ -71,6 +72,8 @@ export interface StoryState {
   neighbourCv: boolean;
   /** Çağırdığın ama yolu kapandığı için mülakata gelemeyen adaylar (Perşembe karı). */
   stranded?: string[];
+  /** Pazartesi çözdüğün genel yetenek testi; Perşembe adayların arasında görünür. */
+  aptitude?: AptitudeResult;
 }
 
 /** Bilgisayarın çevresindeki masa: sabit hat, kahve kupası, hoş geldin çiçekleri. */

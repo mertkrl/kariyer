@@ -5,6 +5,7 @@ import { audioEngine } from '../../audio/audioEngine';
 import { PLAYER } from '../../game/lib/player';
 import { CalendarApp } from './CalendarApp';
 import { CandidatesSheet } from './CandidatesSheet';
+import { AptitudeApp } from './AptitudeApp';
 import styles from './PcDesktop.module.css';
 import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/day/rejectionMails';
 import { avatarStyle } from '../ui/avatarStyle';
@@ -15,9 +16,9 @@ import { avatarStyle } from '../ui/avatarStyle';
  * bir geri dönüşüm kutusu. Uygulamalar tam ekran açılır; görev çubuğu saati tutar.
  */
 
-export type PcApp = 'portal' | 'mail' | 'calendar' | 'sheet';
+export type PcApp = 'portal' | 'mail' | 'calendar' | 'sheet' | 'test';
 
-const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Ortak Liste — Adaylar_FINAL_v7 (salt okunur)' };
+const TITLES: Record<PcApp, string> = { portal: 'İşe Alım Portalı — İK Sistemi v4.2', mail: 'E-posta', calendar: 'Takvim — Defne Aral', sheet: 'Ortak Liste — Adaylar_FINAL_v7 (salt okunur)', test: 'Assessa — Genel Yetenek ve Uyum Değerlendirmesi' };
 
 interface PcDesktopProps {
   app: PcApp | null;
@@ -38,6 +39,8 @@ interface PcDesktopProps {
   finalistNames?: string[];
   /** Mesai başlamadan önce: günün başladığı portalı işaret et. */
   beckonPortal?: boolean;
+  /** Pazartesi, mail geldikten sonra: değerlendirme henüz çözülmedi. */
+  beckonTest?: boolean;
 }
 
 /** Ortak Liste simgesi: satırlı bir kâğıt. */
@@ -52,7 +55,7 @@ function ListGlyph() {
 
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 
-export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, onAnswerMail, extraMails, finalistNames = [], beckonPortal = false }: PcDesktopProps) {
+export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mailRead, onReadMail, onAnswerMail, extraMails, finalistNames = [], beckonPortal = false, beckonTest = false }: PcDesktopProps) {
   const mails = inbox(dayIndex, minutes, extraMails);
   const unread = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !m.spam && !mailRead.includes(m.id)).length;
   const [toast, setToast] = useState<string | null>(null);
@@ -113,6 +116,13 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
           </span>
           <span className={styles.iconLabel}>Adaylar_FINAL_v7</span>
         </button>
+        <button className={styles.icon} data-app="test" onClick={() => open('test')}>
+          <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphTest}`}>
+            ✎{beckonTest && <i className={styles.badge}>1</i>}
+          </span>
+          <span className={styles.iconLabel}>Değerlendirme</span>
+          {beckonTest && <span className="sr-only">, tamamlanmadı</span>}
+        </button>
         <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş. Biri, senden önce, çok aceleyle boşaltmış.')}>
           <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphBin}`}>
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -126,7 +136,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
       {app && (
         <div className={styles.window} role="dialog" aria-label={TITLES[app]}>
           <div className={styles.titleBar}>
-            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : app === 'sheet' ? styles.glyphSheet : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : app === 'sheet' ? '≡' : '▦'}</span>
+            <span aria-hidden="true" className={`${styles.miniGlyph} ${app === 'portal' ? styles.glyphPortal : app === 'mail' ? styles.glyphMail : app === 'sheet' ? styles.glyphSheet : app === 'test' ? styles.glyphTest : styles.glyphCalendar}`}>{app === 'portal' ? 'İK' : app === 'mail' ? '✉' : app === 'sheet' ? '≡' : app === 'test' ? '✎' : '▦'}</span>
             <span className={styles.title} ref={titleRef} tabIndex={-1} data-screen-focus>{app === 'mail' ? `E-posta — Gelen Kutusu (${unread})` : TITLES[app]}</span>
             <span className={styles.winButtons}>
               <button onClick={onClose} aria-label="Simge durumuna küçült">
@@ -140,7 +150,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
               </button>
             </span>
           </div>
-          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : app === 'sheet' ? <CandidatesSheet /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} onAnswer={onAnswerMail} answered={new Set((extraMails ?? []).filter((m) => m.id.startsWith('answer-')).map((m) => m.id.slice(7)))} finalistNames={finalistNames} />}</div>
+          <div className={styles.windowBody}>{app === 'portal' ? portal : app === 'calendar' ? <CalendarApp /> : app === 'sheet' ? <CandidatesSheet /> : app === 'test' ? <AptitudeApp /> : <MailApp mails={mails} read={mailRead} onRead={onReadMail} onAnswer={onAnswerMail} answered={new Set((extraMails ?? []).filter((m) => m.id.startsWith('answer-')).map((m) => m.id.slice(7)))} finalistNames={finalistNames} />}</div>
         </div>
       )}
 

@@ -125,6 +125,10 @@
   background: linear-gradient(160deg, #8c7a9e, #5e4d6e);
 }
 
+.glyphTest {
+  background: linear-gradient(160deg, #4b8fd1, #2a5f98);
+}
+
 .glyphBin {
   background: linear-gradient(160deg, #8f9aa8, #5e6875);
   font-size: calc(22px * var(--ts, 1));

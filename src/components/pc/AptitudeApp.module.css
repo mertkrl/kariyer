@@ -1,0 +1,188 @@
+/* Dışarıdan alınmış bir test platformu: şirketin kâğıdı değil, steril beyaz ve kurumsal mavi. */
+.app {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f6f8fb;
+  color: #1d2733;
+  font-size: var(--fs-body);
+}
+
+.brand {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 22px;
+  background: #fff;
+  border-bottom: 1px solid #dfe5ee;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: #2f6fb5;
+}
+
+.brandNote {
+  font-size: var(--fs-small);
+  color: #5d6b7c;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  padding: 28px 16px;
+}
+
+.intro,
+.question,
+.center {
+  width: 100%;
+  max-width: 560px;
+}
+
+.center {
+  align-self: center;
+  text-align: center;
+}
+
+.heading {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.lead {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.fine {
+  margin: 12px 0 0;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: #5d6b7c;
+}
+
+.rules {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.start {
+  margin-top: 22px;
+  padding: 10px 22px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: #2f6fb5;
+  color: #fff;
+  font: 600 var(--fs-body) var(--font-body);
+  cursor: pointer;
+}
+
+.start:hover {
+  background: #255c98;
+}
+
+.check {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: #e3eefa;
+  color: #2f6fb5;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-small);
+  color: #5d6b7c;
+}
+
+.hurry {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.timer {
+  height: 6px;
+  margin: 8px 0 22px;
+  border-radius: 3px;
+  background: #dfe5ee;
+  overflow: hidden;
+}
+
+.timer i {
+  display: block;
+  height: 100%;
+  background: #2f6fb5;
+  transition: width 1s linear;
+}
+
+.timer .timerHurry {
+  background: var(--red);
+}
+
+.prompt {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.figure {
+  margin: 0 0 18px;
+  padding: 14px;
+  border: 1px solid #dfe5ee;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font: 26px var(--font-mono);
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.options {
+  display: grid;
+  gap: 8px;
+}
+
+.option {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid #cfd8e4;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:hover,
+.option:focus-visible {
+  border-color: #2f6fb5;
+  background: #eef4fb;
+}
+
+.option span {
+  font-size: 15px;
+}
+
+.option b {
+  color: #2f6fb5;
+}
