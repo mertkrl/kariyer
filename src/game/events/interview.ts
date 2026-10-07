@@ -3,9 +3,9 @@
  * cevaptaki hangi ifadelerin kurcalanmaya değdiği, aldığın bir notun kanıt olarak değeri, kısa
  * kodlama vakası, maaş konuşması ve kurulun önündeki gerekçenin tutup tutmadığı.
  */
-import { candidateDetails } from './data/candidateDetails';
-import { candidateOf } from './data/candidates';
-import { SALARY_CAP, salaryOf } from './managerCalls';
+import { candidateDetails } from '../data/candidateDetails';
+import { candidateOf } from '../data/candidates';
+import { SALARY_CAP, salaryOf } from '../day/managerCalls';
 
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
 const hash = (s: string) => [...s].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 100003, 7);

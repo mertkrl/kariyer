@@ -1,4 +1,4 @@
-import { candidateOf } from './data/candidates';
+import { candidateOf } from '../data/candidates';
 
 /*
  * Sabit hattan referans kontrolü: CV'deki bir iddiayı sınamak için adayın eski işvereni aranır.

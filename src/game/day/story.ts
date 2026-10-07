@@ -1,5 +1,5 @@
-import type { Decision } from './types';
-import { EXTRA_FEMALE } from './data/extraCandidates';
+import type { Decision } from '../types';
+import { EXTRA_FEMALE } from '../data/extraCandidates';
 
 /*
  * "Sistemin Dişlisi": haftanın hikâyesi.

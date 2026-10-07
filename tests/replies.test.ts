@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { useGameStore } from '../src/game/store';
-import { REPLY_BACK, candidateReplies } from '../src/game/rejectionMails';
+import { useGameStore } from '../src/game/store/store';
+import { REPLY_BACK, candidateReplies } from '../src/game/day/rejectionMails';
 
 const s = () => useGameStore.getState();
 

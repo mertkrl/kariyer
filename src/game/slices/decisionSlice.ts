@@ -1,13 +1,13 @@
 /*
  * Dosyalar: birini açmak, hakkında karar vermek, bir kararı geri almak ve neyin okuma sayıldığı.
  */
-import type { GetState, SetState } from '../storeApi';
-import type { GameState } from '../storeTypes';
+import type { GetState, SetState } from '../store/storeApi';
+import type { GameState } from '../store/storeTypes';
 import { decisionEffect } from '../engine/scoring';
-import { sound } from '../sound';
-import { later } from '../later';
-import { JUSTIFY_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, lineupFor, readingOf, addVicdan } from '../storeDefaults';
-import { addExtraFiles, isOnBreak, mailsPending, spendMinutes } from '../clock';
+import { sound } from '../lib/sound';
+import { later } from '../lib/later';
+import { JUSTIFY_MINUTES, TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, clampScore, lineupFor, readingOf, addVicdan } from '../store/storeDefaults';
+import { addExtraFiles, isOnBreak, mailsPending, spendMinutes } from '../day/clock';
 
 export const createDecisionSlice = (set: SetState, get: GetState): Pick<GameState, 'selectCandidate' | 'decide' | 'undoDecision' | 'setReading' | 'markReadThrough'> => ({
   selectCandidate: (id) => {

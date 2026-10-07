@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { lineupFor, useGameStore } from '../game/store';
+import { lineupFor, useGameStore } from '../game/store/store';
 import { days } from '../game/data/days';
 import { AD_EFFECT } from '../game/data/jobs';
 import { Button } from '../components/ui/Button';

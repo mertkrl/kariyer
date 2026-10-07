@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { CRITERIA, NOTE_TAG_NAME, hooksIn, sentencesOf, type CodeCase, type HookKind, type NoteTag, type Scores } from '../../game/interview';
+import { CRITERIA, NOTE_TAG_NAME, hooksIn, sentencesOf, type CodeCase, type HookKind, type NoteTag, type Scores } from '../../game/events/interview';
 import styles from './InterviewParts.module.css';
 
 /*

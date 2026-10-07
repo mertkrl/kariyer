@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { formatClock } from '../game/time';
-import { lineupFor, readingOf, useGameStore } from '../game/store';
+import { formatClock } from '../game/lib/time';
+import { lineupFor, readingOf, useGameStore } from '../game/store/store';
 import { days, FINALIST_LIMIT } from '../game/data/days';
 import { candidateOf } from '../game/data/candidates';
 import { Button } from '../components/ui/Button';

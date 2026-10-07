@@ -1,19 +1,19 @@
 /*
  * CV kuyruğunun ötesinde haftanın hikâyesi: toplantı, ret bildirimleri, mülakatlar, işe alım ve Cuma'nın teklifi.
  */
-import { clampRapport } from '../manager';
-import type { GetState, SetState } from '../storeApi';
-import type { GameState } from '../storeTypes';
-import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from '../storeDefaults';
-import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../clock';
-import { MEETING_MINUTES, OPTIONS } from '../meeting';
-import { REPLY_BACK, TEMPLATE_MINUTES, outboxMails, replyBackMail } from '../rejectionMails';
-import { sound } from '../sound';
+import { clampRapport } from '../day/manager';
+import type { GetState, SetState } from '../store/storeApi';
+import type { GameState } from '../store/storeTypes';
+import { DM_EFFECT, TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from '../store/storeDefaults';
+import { MAIL_SEND_AT, dispatchRejections, mailsPending, spendMinutes } from '../day/clock';
+import { MEETING_MINUTES, OPTIONS } from '../events/meeting';
+import { REPLY_BACK, TEMPLATE_MINUTES, outboxMails, replyBackMail } from '../day/rejectionMails';
+import { sound } from '../lib/sound';
 import { candidateDetails } from '../data/candidateDetails';
-import { panelDecision } from '../managerCalls';
-import { later } from '../later';
+import { panelDecision } from '../day/managerCalls';
+import { later } from '../lib/later';
 import { NEPHEW_ID } from '../data/candidates';
-import { salaryTalk } from '../interview';
+import { salaryTalk } from '../events/interview';
 
 export const createStorySlice = (set: SetState, get: GetState): Pick<GameState, 'askForbidden' | 'settleOffer' | 'finishOffer' | 'answerCandidateDm' | 'finishWeekend' | 'setWeekendChoice' | 'hakanInterrupt' | 'answerCandidate' | 'hire' | 'finishMeeting' | 'planRejectionMails' | 'readMail' | 'answerCandidateMail' | 'settleSalary' | 'recordAiUse' | 'setDifficulty'> => ({
   askForbidden: () =>

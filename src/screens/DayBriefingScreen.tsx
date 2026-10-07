@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameStore } from '../game/store';
+import { useGameStore } from '../game/store/store';
 import { days } from '../game/data/days';
 import { Button } from '../components/ui/Button';
 import styles from './DayBriefingScreen.module.css';

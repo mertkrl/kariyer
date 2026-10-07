@@ -1,4 +1,4 @@
-import { useGameStore, isOnBreak, lineupFor, readingOf, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store';
+import { useGameStore, isOnBreak, lineupFor, readingOf, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store/store';
 import { NEIGHBOUR_ID, candidateOf } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';

@@ -8,12 +8,12 @@
  * Puanlar kimin nasıl baktığını taşır: Ayşe dürüst puanlar, Emre ATS skoruna bakar, Hakan Bey
  * kendi önerdiklerini sever ve "uzun vadeli uyum" diye kadınlara ve 40 yaş üstüne düşük verir.
  */
-import type { Decision } from './types';
-import type { Finalist } from './storeTypes';
-import { NEPHEW_ID, candidateOf } from './data/candidates';
-import { candidateDetails } from './data/candidateDetails';
-import { hakanTarget } from './data/interviewExtras';
-import { SALARY_CAP, salaryOf } from './managerCalls';
+import type { Decision } from '../types';
+import type { Finalist } from '../store/storeTypes';
+import { NEPHEW_ID, candidateOf } from '../data/candidates';
+import { candidateDetails } from '../data/candidateDetails';
+import { hakanTarget } from '../data/interviewExtras';
+import { SALARY_CAP, salaryOf } from '../day/managerCalls';
 
 export type Interviewer = 'you' | 'ayse' | 'emre' | 'hakan';
 

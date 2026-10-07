@@ -1,7 +1,7 @@
 import type { Candidate } from '../../game/types';
-import { SALARY_CAP } from '../../game/store';
+import { SALARY_CAP } from '../../game/store/store';
 import { FINAL_INTERVIEW_QUESTIONS } from '../../game/data/candidateDetails';
-import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/interview';
+import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
 import { Scorecard } from './InterviewParts';
 import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES } from './interviewModel';

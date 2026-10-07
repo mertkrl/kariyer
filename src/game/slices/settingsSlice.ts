@@ -1,10 +1,10 @@
 /*
  * Ses ayarları, bu tarayıcıda hatırlanır.
  */
-import type { GetState, SetState } from '../storeApi';
-import type { GameState } from '../storeTypes';
-import { MUSIC_VOLUME_KEY, MUTED_STORAGE_KEY, SFX_VOLUME_KEY, storeVolume } from '../prefs';
-import { sound } from '../sound';
+import type { GetState, SetState } from '../store/storeApi';
+import type { GameState } from '../store/storeTypes';
+import { MUSIC_VOLUME_KEY, MUTED_STORAGE_KEY, SFX_VOLUME_KEY, storeVolume } from '../lib/prefs';
+import { sound } from '../lib/sound';
 
 export const createSettingsSlice = (set: SetState, get: GetState): Pick<GameState, 'setMusicVolume' | 'setSfxVolume' | 'toggleMute'> => ({
   setMusicVolume: (value) => {

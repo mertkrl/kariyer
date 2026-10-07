@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
-import type { GameState } from '../../game/store';
-import { RAINY_DAY } from '../../game/weekdays';
+import type { GameState } from '../../game/store/store';
+import { RAINY_DAY } from '../../game/lib/weekdays';
 
 interface Workday {
   onBreak: boolean;

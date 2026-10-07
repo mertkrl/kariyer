@@ -1,15 +1,15 @@
 /*
  * Masa: sabit hat ve aramaları, kahve, çiçek, sebil, referans aramaları.
  */
-import type { GetState, SetState } from '../storeApi';
-import type { GameState } from '../storeTypes';
-import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../desk';
-import { referenceFor } from '../references';
-import { RAPPORT, REPLY_EFFECT, clampRapport, requestIsFair } from '../manager';
-import { sound } from '../sound';
-import { callFor, revokeInvites, revokeTargets, strandFinalist } from '../managerCalls';
-import { clampScore, addVicdan } from '../storeDefaults';
-import { isOnBreak, spendMinutes } from '../clock';
+import type { GetState, SetState } from '../store/storeApi';
+import type { GameState } from '../store/storeTypes';
+import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../day/desk';
+import { referenceFor } from '../day/references';
+import { RAPPORT, REPLY_EFFECT, clampRapport, requestIsFair } from '../day/manager';
+import { sound } from '../lib/sound';
+import { callFor, revokeInvites, revokeTargets, strandFinalist } from '../day/managerCalls';
+import { clampScore, addVicdan } from '../store/storeDefaults';
+import { isOnBreak, spendMinutes } from '../day/clock';
 
 /** Ekibin pizzasından payın: üç dilim, her biri birkaç dakika. */
 export const PIZZA_SLICES = 3;

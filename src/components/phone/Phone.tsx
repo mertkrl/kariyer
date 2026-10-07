@@ -7,13 +7,13 @@ import {
   type ManagerRequest,
   type PhoneMessage,
   type ThreadId,
-} from '../../game/manager';
-import { formatClock } from '../../game/time';
+} from '../../game/day/manager';
+import { formatClock } from '../../game/lib/time';
 import { AppIcon, type IconId } from './AppIcons';
 import { PromotionGame } from './apps/PromotionGame';
 import type { SocialAuthor } from './apps/SocialApp';
 import type { DmCandidate } from './apps/candidateDms';
-import type { DmKind } from '../../game/store';
+import type { DmKind } from '../../game/store/store';
 import { useDialog } from '../ui/useDialog';
 import styles from './Phone.module.css';
 import { avatarStyle } from '../ui/avatarStyle';

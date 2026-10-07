@@ -3,20 +3,20 @@
  * dolması, ret bildirimlerinin 17:00'de gitmesi, günün bitmesi. Store'un tik'inden ve
  * eylemlerinden çağrılır; store'u storeApi üzerinden okur ve yazar.
  */
-import { getState, setState } from './storeApi';
-import { BREAK_END_MIN, BREAK_START_MIN, OVERTIME_END_MIN, WORKDAY_END_MIN, isBreakTime } from './time';
+import { getState, setState } from '../store/storeApi';
+import { BREAK_END_MIN, BREAK_START_MIN, OVERTIME_END_MIN, WORKDAY_END_MIN, isBreakTime } from '../lib/time';
 import { CALLBACK_MINUTES, REQUEST_CALL_PREFIX, RING_MINUTES, callsForDay } from './desk';
 import { GROUP_THREADS, OVERTIME_MOM, type PhoneMessage, type ThreadId, managerQuickReplies, managerTone, renderManagerMessage, reprimandReplies, RAPPORT, clampRapport } from './manager';
-import { type GameState } from './storeTypes';
+import { type GameState } from '../store/storeTypes';
 import { REVOKE_AT, REVOKE_DAY, SNOW_CALL_AT, SNOW_CALL_ID, callFor, revokeInvites, revokeTargets, strandFinalist } from './managerCalls';
 import { type RejectTemplate, candidateReplies, sentMails } from './rejectionMails';
-import { TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from './storeDefaults';
-import { sound } from './sound';
+import { TEAM_LATE_DAY, TEAM_LATE_END, clampScore, lineupFor, addVicdan } from '../store/storeDefaults';
+import { sound } from '../lib/sound';
 import { visitorsToday } from './visits';
-import { days } from './data/days';
-import { EXTRA_CANDIDATES } from './data/extraCandidates';
-import { rngFor, shuffle } from './rng';
-import { THANKS_DAY } from './weekdays';
+import { days } from '../data/days';
+import { EXTRA_CANDIDATES } from '../data/extraCandidates';
+import { rngFor, shuffle } from '../lib/rng';
+import { THANKS_DAY } from '../lib/weekdays';
 /** Teşekkür gününde 13:00: arama öğle arasından sonra gelir. */
 const THANKS_AT = 300;
 /** Bir sonraki telefon mesajı kimliğini verir. */

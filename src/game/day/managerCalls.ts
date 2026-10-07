@@ -3,16 +3,16 @@
  * sabah değerlendirmesi, geri alınan davetler — ve Cuma kurulunun hesabı. Durumun saf
  * fonksiyonları; ne zaman çalacaklarına store karar verir.
  */
-import type { Decision } from './types';
+import type { Decision } from '../types';
 import type { Mail } from './mail';
-import { NEPHEW_ID, candidateOf, candidates } from './data/candidates';
-import { candidateDetails } from './data/candidateDetails';
+import { NEPHEW_ID, candidateOf, candidates } from '../data/candidates';
+import { candidateDetails } from '../data/candidateDetails';
 import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { RAPPORT, managerReaction, managerTone, replyText, requestCallLines, requestIsFair, type ManagerTone } from './manager';
 import { referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
-import type { Finalist, GameState, StoryState } from './storeTypes';
-import { WEDNESDAY } from './weekdays';
+import type { Finalist, GameState, StoryState } from '../store/storeTypes';
+import { WEDNESDAY } from '../lib/weekdays';
 
 /**
  * İtirafından sonra sadece onaylamak ya da itiraz etmek yerine bir düzeltme önerebilirsin.

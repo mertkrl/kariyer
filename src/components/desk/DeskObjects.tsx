@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { WORK_START_HOUR } from '../../game/time';
+import { WORK_START_HOUR } from '../../game/lib/time';
 
 /*
  * Masadaki şeyler, SVG olarak çizilmiş: her biri kendi kutusunu doldurur (yerini Desk.module.css

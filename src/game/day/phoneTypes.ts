@@ -2,7 +2,7 @@
  * Telefonlara gelenlerin biçimleri: mesajlar, hızlı cevaplar, müdürün ricaları ve bunlara
  * dönüşen senaryolu satırlar.
  */
-import type { Decision } from './types';
+import type { Decision } from '../types';
 
 /** Telefondaki sohbetler: müdür, annen ve ofis grubu. */
 export type ThreadId = 'manager' | 'mom' | 'office' | 'ayse' | 'birthday';

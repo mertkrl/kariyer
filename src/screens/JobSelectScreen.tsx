@@ -1,6 +1,6 @@
 import { audioEngine } from '../audio/audioEngine';
 import { useState, type CSSProperties } from 'react';
-import { useGameStore } from '../game/store';
+import { useGameStore } from '../game/store/store';
 import { jobDrafts, salaryText } from '../game/data/jobs';
 import { Button } from '../components/ui/Button';
 import styles from './JobSelectScreen.module.css';

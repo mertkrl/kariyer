@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGameStore } from '../game/store';
-import { forbiddenAnswer, forbiddenQuestion } from '../game/story';
+import { useGameStore } from '../game/store/store';
+import { forbiddenAnswer, forbiddenQuestion } from '../game/day/story';
 import { candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
 import { FINALIST_LIMIT } from '../game/data/days';
 import { backQuestionsFor, experienceYears, followUpAnswer, FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
-import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/interview';
-import { INTERVIEWER, ownerOf } from '../game/panel';
+import { average, caseAnswer, caseFor, salaryTalk, tagNote, type SalaryMove, type Scores } from '../game/events/interview';
+import { INTERVIEWER, ownerOf } from '../game/events/panel';
 import { type Note as NotebookNote } from './final/InterviewParts';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';

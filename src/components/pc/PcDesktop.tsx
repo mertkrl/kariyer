@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { inbox, type Mail } from '../../game/mail';
-import { formatClock } from '../../game/time';
+import { inbox, type Mail } from '../../game/day/mail';
+import { formatClock } from '../../game/lib/time';
 import { audioEngine } from '../../audio/audioEngine';
-import { PLAYER } from '../../game/player';
+import { PLAYER } from '../../game/lib/player';
 import { CalendarApp } from './CalendarApp';
 import styles from './PcDesktop.module.css';
-import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/rejectionMails';
+import { REPLY_BACK, replyAuthor, type ReplyBack } from '../../game/day/rejectionMails';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*

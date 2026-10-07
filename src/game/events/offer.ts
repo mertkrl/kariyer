@@ -1,4 +1,4 @@
-import type { ReformKind } from './desk';
+import type { ReformKind } from '../day/desk';
 
 /*
  * Cuma, 18:40. İşe alım bitti, kat boşaldı; Hakan Bey ceketi kolunda kapında durur. Deneme

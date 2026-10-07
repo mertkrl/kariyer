@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useGameStore } from '../../game/store';
+import { useGameStore } from '../../game/store/store';
 import { audioEngine } from '../../audio/audioEngine';
 import { SCAN_FIELD_DELAYS } from './scan';
 

@@ -1,16 +1,16 @@
-import type { Decision } from './types';
-import { NEPHEW_ID, candidateOf } from './data/candidates';
-import { candidateDetails } from './data/candidateDetails';
-import { firstName } from './turkish';
-import { PLAYER } from './player';
-import { AMBIENT, BIRTHDAY, FAMILY, GREETINGS, MOM_POOL, REQUESTS, TEAM_COMPLIED, TEAM_DEFIED, TONED } from './data/phoneScript';
+import type { Decision } from '../types';
+import { NEPHEW_ID, candidateOf } from '../data/candidates';
+import { candidateDetails } from '../data/candidateDetails';
+import { firstName } from '../lib/turkish';
+import { PLAYER } from '../lib/player';
+import { AMBIENT, BIRTHDAY, FAMILY, GREETINGS, MOM_POOL, REQUESTS, TEAM_COMPLIED, TEAM_DEFIED, TONED } from '../data/phoneScript';
 import type { Ambient, Grievance, ManagerRequest, ManagerTone, QuickReply, RequestTemplate, ScheduledMessage } from './phoneTypes';
-import { BIRTHDAY_DAY, THURSDAY, TUESDAY } from './weekdays';
-import { shuffle } from './rng';
+import { BIRTHDAY_DAY, THURSDAY, TUESDAY } from '../lib/weekdays';
+import { shuffle } from '../lib/rng';
 
 export { GROUP_THREADS } from './phoneTypes';
 export type { Grievance, ManagerRequest, ManagerTone, PhoneMessage, QuickReply, ScheduledMessage, ThreadId } from './phoneTypes';
-export { OVERTIME_MOM } from './data/phoneScript';
+export { OVERTIME_MOM } from '../data/phoneScript';
 
 /*
  * "Müdür baskısı": İK müdürü gün boyunca sana yazar.

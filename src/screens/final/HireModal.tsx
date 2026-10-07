@@ -1,7 +1,7 @@
 import type { Decision } from '../../game/types';
-import { SALARY_CAP, type Finalist } from '../../game/store';
+import { SALARY_CAP, type Finalist } from '../../game/store/store';
 import { candidateOf } from '../../game/data/candidates';
-import { INTERVIEWER, panelRows, panelVerdict } from '../../game/panel';
+import { INTERVIEWER, panelRows, panelVerdict } from '../../game/events/panel';
 import { Button } from '../../components/ui/Button';
 import { LEAD } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';

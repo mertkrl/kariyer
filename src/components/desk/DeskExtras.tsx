@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { CakePlate, Umbrella } from './DeskExtrasArt';
-import { BIRTHDAY_DAY, RAINY_DAY } from '../../game/weekdays';
+import { BIRTHDAY_DAY, RAINY_DAY } from '../../game/lib/weekdays';
 
 /*
  * Masa haftayı hatırlar. Takvim yüzünden bir şeyler ortaya çıkar (doğum günü pastasının tabağı,

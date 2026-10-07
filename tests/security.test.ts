@@ -8,8 +8,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { CSP_DIRECTIVES, HEADER_ONLY_DIRECTIVES, TT_POLICY } from '../csp';
-import { checkSave } from '../src/game/save';
-import { STORAGE_PREFIX } from '../src/game/privacy';
+import { checkSave } from '../src/game/store/save';
+import { STORAGE_PREFIX } from '../src/game/lib/privacy';
 
 const root = new URL('..', import.meta.url).pathname;
 const srcFiles = readdirSync(join(root, 'src'), { recursive: true, encoding: 'utf8' })

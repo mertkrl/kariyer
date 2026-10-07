@@ -1,5 +1,5 @@
 import type { DeskCall } from './desk';
-import { candidateOf } from './data/candidates';
+import { candidateOf } from '../data/candidates';
 
 /*
  * Geri çevirdiğin insanlar geri gelir. Kerem'i, Derya'yı ya da Seda'yı reddettiğin günün ertesi

@@ -1,5 +1,5 @@
-import { days } from './data/days';
-import { shuffle } from './rng';
+import { days } from '../data/days';
+import { shuffle } from '../lib/rng';
 
 /*
  * Rastgele aday havuzu.

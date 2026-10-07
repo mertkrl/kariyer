@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { WORKDAY_END_MIN } from '../../game/time';
+import { WORKDAY_END_MIN } from '../../game/lib/time';
 import { prefersReducedMotion } from '../ui/motion';
 
 /*

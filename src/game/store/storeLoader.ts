@@ -4,7 +4,7 @@
  * kabuğa (App, WelcomeScreen) ne zaman geldiğini ve oyunun hangi aşamada olduğunu söyler.
  */
 import { useSyncExternalStore } from 'react';
-import type { GamePhase } from './types';
+import type { GamePhase } from '../types';
 
 type StoreModule = typeof import('./store');
 

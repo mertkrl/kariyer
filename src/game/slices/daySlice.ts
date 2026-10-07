@@ -4,23 +4,23 @@
  * weekdays.ts); burada değişen, bir sabahın nasıl kurulduğudur.
  */
 import type { DayStats } from '../types';
-import type { GetState, SetState } from '../storeApi';
-import type { Finalist, GameState, StoryState, WeekLog } from '../storeTypes';
+import type { GetState, SetState } from '../store/storeApi';
+import type { Finalist, GameState, StoryState, WeekLog } from '../store/storeTypes';
 import { days } from '../data/days';
 import { DAY_PLANS } from '../data/dayPlans';
-import { QUOTA_CUT_BELOW, KEY_CHARACTERS } from '../story';
+import { QUOTA_CUT_BELOW, KEY_CHARACTERS } from '../day/story';
 import { OPEN_FILE_PERFORMANS, OPEN_FILE_PERFORMANS_CAP, isStrong, isWronglyFlagged, unusedSlotCost, wasConsidered } from '../engine/scoring';
-import type { Mail } from '../mail';
-import { COFFEE_SIPS } from '../desk';
+import type { Mail } from '../day/mail';
+import { COFFEE_SIPS } from '../day/desk';
 import { NEIGHBOUR_ID, candidateOf } from '../data/candidates';
-import { buildManagerScript, evaluateRequests, managerTone, reprimandText, type PhoneMessage } from '../manager';
-import { BREAK_END_MIN } from '../time';
-import { leventMail, type WeekEntry } from '../echoes';
-import { rngFor } from '../rng';
-import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../storeDefaults';
-import { dispatchRejections, isOnBreak } from '../clock';
-import { NEIGHBOUR_DAY } from '../weekdays';
-import { tick } from '../tick';
+import { buildManagerScript, evaluateRequests, managerTone, reprimandText, type PhoneMessage } from '../day/manager';
+import { BREAK_END_MIN } from '../lib/time';
+import { leventMail, type WeekEntry } from '../day/echoes';
+import { rngFor } from '../lib/rng';
+import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../store/storeDefaults';
+import { dispatchRejections, isOnBreak } from '../day/clock';
+import { NEIGHBOUR_DAY } from '../lib/weekdays';
+import { tick } from '../day/tick';
 
 /** Okuyarak çağrılan ve gerçekten güçlü çıkan aday başına: ekip liderinin olumlu notu. */
 export const SPOTTED_PERFORMANS = 1;

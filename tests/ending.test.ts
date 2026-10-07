@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getEnding, type EndingContext } from '../src/game/engine/ending';
-import type { OfferOutcome } from '../src/game/offer';
+import type { OfferOutcome } from '../src/game/events/offer';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../src/game/engine/achievements';
 
 const ctx = (over: Partial<EndingContext> = {}): EndingContext => ({ refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal', ...over });

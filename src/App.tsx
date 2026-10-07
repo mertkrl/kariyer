@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { usePhase } from './game/storeLoader';
+import { usePhase } from './game/store/storeLoader';
 import { audioEngine } from './audio/audioEngine';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { UpdateNotice } from './components/ui/UpdateNotice';

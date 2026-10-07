@@ -1,9 +1,9 @@
 import { useEffect, type Ref } from 'react';
-import { approvalQuota, lineupFor, useGameStore } from '../../game/store';
+import { approvalQuota, lineupFor, useGameStore } from '../../game/store/store';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { candidates } from '../../game/data/candidates';
-import { referenceFor } from '../../game/references';
-import { formatClock } from '../../game/time';
+import { referenceFor } from '../../game/day/references';
+import { formatClock } from '../../game/lib/time';
 import { Button } from '../ui/Button';
 import { CvBody } from './CvBody';
 import { scanAt } from './scan';

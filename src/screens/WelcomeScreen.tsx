@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState, type MouseEvent } from 'react';
-import { readSave, saveWasLost } from '../game/save';
-import { loadStore, useLoadedStore, withStore } from '../game/storeLoader';
+import { readSave, saveWasLost } from '../game/store/save';
+import { loadStore, useLoadedStore, withStore } from '../game/store/storeLoader';
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
 import styles from './WelcomeScreen.module.css';
-import { clearAllGameData } from '../game/privacy';
+import { clearAllGameData } from '../game/lib/privacy';
 
 export function WelcomeScreen() {
   // Bu ekran oyun yüklenmeden çizilir; oyun bu sırada indirilir.

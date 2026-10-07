@@ -1,8 +1,8 @@
 import type { Candidate, Decision } from '../../game/types';
-import type { DecisionLogEntry } from '../../game/store';
-import { formatClock } from '../../game/time';
+import type { DecisionLogEntry } from '../../game/store/store';
+import { formatClock } from '../../game/lib/time';
 import { CommuteScene } from './CommuteScene';
-import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN } from '../../game/time';
+import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN } from '../../game/lib/time';
 import styles from './DailyActivity.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 

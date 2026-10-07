@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { audioEngine } from '../../../audio/audioEngine';
-import type { DmKind } from '../../../game/store';
+import type { DmKind } from '../../../game/store/store';
 import { answerBack, openerFor, repliesFor, type DmCandidate } from './candidateDms';
 import styles from './DmInbox.module.css';
 import { avatarStyle } from '../../ui/avatarStyle';

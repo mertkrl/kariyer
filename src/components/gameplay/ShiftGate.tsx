@@ -1,6 +1,6 @@
-import { useGameStore, approvalQuota, lineupFor } from '../../game/store';
+import { useGameStore, approvalQuota, lineupFor } from '../../game/store/store';
 import { days } from '../../game/data/days';
-import { formatClock } from '../../game/time';
+import { formatClock } from '../../game/lib/time';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from '../../screens/GameplayScreen.module.css';
 

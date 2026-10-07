@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Candidate, EvaluatedField } from '../../game/types';
 import type { candidateDetails } from '../../game/data/candidateDetails';
-import { questionsFor } from '../../game/lineups';
+import { questionsFor } from '../../game/day/lineups';
 import { ThumbUpIcon, ThumbDownIcon } from '../ui/ThumbIcon';
 import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';

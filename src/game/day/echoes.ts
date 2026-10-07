@@ -3,12 +3,12 @@
  * (ve geri çevirdiğin güçlü bir dosyayı fark eder), reddettiğin insanlar başka bir yerde iş bulup
  * Kariyergram'da görünür.
  */
-import { candidateOf } from './data/candidates';
-import { candidateDetails } from './data/candidateDetails';
-import type { Decision } from './types';
+import { candidateOf } from '../data/candidates';
+import { candidateDetails } from '../data/candidateDetails';
+import type { Decision } from '../types';
 import type { Mail } from './mail';
-import { THURSDAY, TUESDAY } from './weekdays';
-import { MEETING_DAY } from './meeting';
+import { THURSDAY, TUESDAY } from '../lib/weekdays';
+import { MEETING_DAY } from '../events/meeting';
 
 export interface WeekEntry {
   id: string;

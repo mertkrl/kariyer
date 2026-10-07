@@ -3,11 +3,11 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ownerOf, panelRows, panelVerdict, hakanScore } from '../src/game/panel';
-import { MIN_WAGE, salaryOffer, salaryMoves } from '../src/game/interview';
-import { managerTone, RAPPORT_START } from '../src/game/manager';
+import { ownerOf, panelRows, panelVerdict, hakanScore } from '../src/game/events/panel';
+import { MIN_WAGE, salaryOffer, salaryMoves } from '../src/game/events/interview';
+import { managerTone, RAPPORT_START } from '../src/game/day/manager';
 import { AMBIENT } from '../src/game/data/phoneScript';
-import type { Finalist } from '../src/game/storeTypes';
+import type { Finalist } from '../src/game/store/storeTypes';
 
 test('kurul: herkes kendi adayıyla görüşür', () => {
   assert.equal(ownerOf({ id: 'nehir', day: 0, by: 'ayse' }, []), 'ayse');

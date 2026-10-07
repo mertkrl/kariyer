@@ -1,9 +1,9 @@
-import { useGameStore } from '../../game/store';
+import { useGameStore } from '../../game/store/store';
 import { candidateOf } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
-import { formatClock } from '../../game/time';
-import { rejectedEchoes } from '../../game/echoes';
-import { MAIL_SEND_AT } from '../../game/clock';
+import { formatClock } from '../../game/lib/time';
+import { rejectedEchoes } from '../../game/day/echoes';
+import { MAIL_SEND_AT } from '../../game/day/clock';
 import { dmProfile, writesBack } from './apps/candidateDms';
 
 /** Telefonun mesai boyunca gösterdiği her şey, store'dan toplanmış. */

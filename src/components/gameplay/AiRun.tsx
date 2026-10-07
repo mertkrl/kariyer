@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Candidate } from '../../game/types';
-import { AD_KEYWORDS, aiScore, atsReport } from '../../game/ats';
+import { AD_KEYWORDS, aiScore, atsReport } from '../../game/day/ats';
 import styles from './AiRun.module.css';
 import { prefersReducedMotion } from '../ui/motion';
 

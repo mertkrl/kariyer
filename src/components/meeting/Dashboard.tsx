@@ -11,7 +11,7 @@ import {
   type BoardMetric,
   type BoardPage,
   type TeamStats,
-} from '../../game/meeting';
+} from '../../game/events/meeting';
 import styles from './Dashboard.module.css';
 import { prefersReducedMotion } from '../ui/motion';
 

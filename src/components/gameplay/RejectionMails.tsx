@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { candidateOf } from '../../game/data/candidates';
-import { addressOf, mailFor, TEMPLATES, type RejectTemplate } from '../../game/rejectionMails';
-import { formatClock } from '../../game/time';
-import { MAIL_SEND_AT } from '../../game/store';
+import { addressOf, mailFor, TEMPLATES, type RejectTemplate } from '../../game/day/rejectionMails';
+import { formatClock } from '../../game/lib/time';
+import { MAIL_SEND_AT } from '../../game/store/store';
 import { audioEngine } from '../../audio/audioEngine';
-import { PLAYER } from '../../game/player';
+import { PLAYER } from '../../game/lib/player';
 import styles from './RejectionMails.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 

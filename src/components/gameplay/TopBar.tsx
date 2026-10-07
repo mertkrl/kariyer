@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { WORKDAY_END_MIN, formatClock } from '../../game/time';
+import { WORKDAY_END_MIN, formatClock } from '../../game/lib/time';
 import { SoundToggle } from '../ui/SoundToggle';
 import { SettingsIcon } from '../ui/ControlIcons';
 import styles from './TopBar.module.css';

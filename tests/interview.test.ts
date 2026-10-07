@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 import { candidates } from '../src/game/data/candidates';
-import { SALARY_CAP, panelDecision, salaryOf } from '../src/game/managerCalls';
-import { CODE_CASES, DEFENSE_THRESHOLD, caseAnswer, caseFor, defenseHolds, evidenceStrength, hooksIn, salaryMoves, salaryTalk, scoreGap, sentencesOf, tagNote } from '../src/game/interview';
+import { SALARY_CAP, panelDecision, salaryOf } from '../src/game/day/managerCalls';
+import { CODE_CASES, DEFENSE_THRESHOLD, caseAnswer, caseFor, defenseHolds, evidenceStrength, hooksIn, salaryMoves, salaryTalk, scoreGap, sentencesOf, tagNote } from '../src/game/events/interview';
 
 const ids = Object.keys(candidateDetails);
 

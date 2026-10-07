@@ -2,17 +2,17 @@
  * Oyun durumunun biçimi: store'un tuttukları ve sunduğu eylemler. Yalnızca tipler; davranış
  * store.ts'de yaşar.
  */
-import type { Decision, DayStats, Difficulty, EventKind, GamePhase } from './types';
-import type { Mail } from './mail';
-import type { ReferenceVerdict } from './references';
-import type { ReformKind } from './desk';
-import type { OfferResult } from './offer';
-import type { ManagerRequest, PhoneMessage, ScheduledMessage, Grievance, ThreadId } from './manager';
-import type { MeetingChoice, WeekEntry } from './echoes';
-import type { RejectTemplate } from './rejectionMails';
-import type { ReplyBack } from './rejectionMails';
-import type { PanelInput } from './managerCalls';
-import type { SalaryMove } from './interview';
+import type { Decision, DayStats, Difficulty, EventKind, GamePhase } from '../types';
+import type { Mail } from '../day/mail';
+import type { ReferenceVerdict } from '../day/references';
+import type { ReformKind } from '../day/desk';
+import type { OfferResult } from '../events/offer';
+import type { ManagerRequest, PhoneMessage, ScheduledMessage, Grievance, ThreadId } from '../day/manager';
+import type { MeetingChoice, WeekEntry } from '../day/echoes';
+import type { RejectTemplate } from '../day/rejectionMails';
+import type { ReplyBack } from '../day/rejectionMails';
+import type { PanelInput } from '../day/managerCalls';
+import type { SalaryMove } from '../events/interview';
 
 export interface Finalist {
   id: string;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import type { PhoneMessage, ThreadId } from '../../game/manager';
-import type { Mail } from '../../game/mail';
+import type { PhoneMessage, ThreadId } from '../../game/day/manager';
+import type { Mail } from '../../game/day/mail';
 import styles from './NotificationStack.module.css';
 
 /*

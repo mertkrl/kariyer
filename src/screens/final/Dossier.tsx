@@ -1,7 +1,7 @@
 import type { Candidate } from '../../game/types';
 import type { CandidateDetails } from '../../game/data/candidateDetails';
 import { followUpVerdict } from '../../game/data/interviewExtras';
-import { caseVerdict } from '../../game/interview';
+import { caseVerdict } from '../../game/events/interview';
 import { NotesList, type Note } from './InterviewParts';
 import { LEAD, leadView } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';

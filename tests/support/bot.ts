@@ -3,9 +3,9 @@
  * bir süre oku (portal ekrandayken), karar ver, saati tutan ne varsa cevapla. Nasıl okuduğu, karar
  * verdiği ve müdüre cevap verdiği çağırana kalmış.
  */
-import { useGameStore } from '../../src/game/store';
+import { useGameStore } from '../../src/game/store/store';
 import { days } from '../../src/game/data/days';
-import { lineupFor } from '../../src/game/storeDefaults';
+import { lineupFor } from '../../src/game/store/storeDefaults';
 import type { Decision, Difficulty } from '../../src/game/types';
 
 const store = useGameStore;

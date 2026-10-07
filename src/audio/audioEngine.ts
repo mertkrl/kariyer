@@ -231,11 +231,11 @@ class AudioEngine extends EngineCore {
   // İlk ekrandan bir an sonra gelirler (main.tsx sayfa boştayken ister, init() ilk tıkta);
   // ondan önce istenen bir sahne beklemek yerine sessiz kalır.
 
-  private scenes: typeof import('./scenes') | null = null;
+  private scenes: typeof import('./scenes/index') | null = null;
   private scenesLoading: Promise<void> | null = null;
 
   loadScenes() {
-    this.scenesLoading ??= import('./scenes').then(
+    this.scenesLoading ??= import('./scenes/index').then(
       (m) => void (this.scenes = m),
       () => void (this.scenesLoading = null), // offline before it was cached: try again next time
     );

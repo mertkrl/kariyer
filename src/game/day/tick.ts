@@ -5,12 +5,12 @@
  * konan yeni bir adımdır. Bir dakika geçtikten sonra tetiklediği şeyler (aramalar, mesajlar, günün
  * sonu) en alttaki AFTER_MINUTE listesidir.
  */
-import { getState, setState } from './storeApi';
-import type { GameState } from './storeTypes';
-import { sound } from './sound';
-import { BREAK_END_MIN, BREAK_START_MIN } from './time';
-import { MEETING_AT, MEETING_DAY } from './meeting';
-import { EVENT_LENGTH, minutesPerTick } from './storeDefaults';
+import { getState, setState } from '../store/storeApi';
+import type { GameState } from '../store/storeTypes';
+import { sound } from '../lib/sound';
+import { BREAK_END_MIN, BREAK_START_MIN } from '../lib/time';
+import { MEETING_AT, MEETING_DAY } from '../events/meeting';
+import { EVENT_LENGTH, minutesPerTick } from '../store/storeDefaults';
 import { addExtraFiles, checkDayEnd, dayLimit, deliverManagerMessages, expireReplies, isOnBreak, ringLandline } from './clock';
 
 /** Saniyenin bir adımı: saniye onunla bitiyorsa true. */

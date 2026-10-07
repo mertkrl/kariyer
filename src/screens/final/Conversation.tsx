@@ -1,9 +1,9 @@
 import type { ReactNode, RefObject } from 'react';
 import type { Candidate } from '../../game/types';
-import { caseFor, expectedSalary, salaryOffer, salaryTalk } from '../../game/interview';
+import { caseFor, expectedSalary, salaryOffer, salaryTalk } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
-import { SALARY_CAP } from '../../game/store';
-import { PLAYER } from '../../game/player';
+import { SALARY_CAP } from '../../game/store/store';
+import { PLAYER } from '../../game/lib/player';
 import { AnswerText, CaseCard } from './InterviewParts';
 import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, type Entry, type Typing } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';

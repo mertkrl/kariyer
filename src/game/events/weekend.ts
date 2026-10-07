@@ -1,4 +1,4 @@
-import { accusative } from './turkish';
+import { accusative } from '../lib/turkish';
 import { leavesCompany, type OfferOutcome } from './offer';
 /*
  * Cuma gecesi: annen arar. Konuşma haftanın gerçekte nasıl geçtiğinden kurulur: kimi işe aldığın,

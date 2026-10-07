@@ -4,8 +4,8 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { conditionHolds, offerOpening, offerReply, offerWithheld, type OfferContext } from '../src/game/offer';
-import { buildCall, type WeekSummary } from '../src/game/weekend';
+import { conditionHolds, offerOpening, offerReply, offerWithheld, type OfferContext } from '../src/game/events/offer';
+import { buildCall, type WeekSummary } from '../src/game/events/weekend';
 
 const ctx = (over: Partial<OfferContext> = {}): OfferContext => ({ performans: 60, refusals: 1, complies: 1, reform: null, hiredNephew: false, ...over });
 

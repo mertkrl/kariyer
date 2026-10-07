@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { clearSave, readSave } from '../../game/save';
-import { getState } from '../../game/storeApi';
+import { clearSave, readSave } from '../../game/store/save';
+import { getState } from '../../game/store/storeApi';
 import styles from './ErrorBoundary.module.css';
 
 /*

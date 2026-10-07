@@ -4,9 +4,9 @@
  * Ümit kimsenin sormadığı soruyu sorar, Emre ve Ayşe onu kendi hayatlarından cevaplar ve
  * Hakan Bey sana döner.
  */
-import type { MeetingChoice } from './echoes';
-import { PLAYER } from './player';
-import { WEDNESDAY } from './weekdays';
+import type { MeetingChoice } from '../day/echoes';
+import { PLAYER } from '../lib/player';
+import { WEDNESDAY } from '../lib/weekdays';
 
 export const MEETING_DAY = WEDNESDAY;
 /** 11:00 */

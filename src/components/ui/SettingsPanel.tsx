@@ -1,8 +1,8 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { useGameStore } from '../../game/store';
+import { useGameStore } from '../../game/store/store';
 import { audioEngine } from '../../audio/audioEngine';
 import { Button } from './Button';
-import { TEXT_SCALES, applyTextScale, loadTextScale } from '../../game/textScale';
+import { TEXT_SCALES, applyTextScale, loadTextScale } from '../../game/lib/textScale';
 import styles from './SettingsPanel.module.css';
 
 function MusicGlyph() {

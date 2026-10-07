@@ -3,15 +3,15 @@
  * sınırlama, bugünün kadrosu ve mülakat kontenjanı, zor modun sürprizleri. Ses tercihleri
  * prefs.ts'de yaşar.
  */
-import { COFFEE_SIPS } from './desk';
+import { COFFEE_SIPS } from '../day/desk';
 import { type DayEvent, type DeskState, type DmKind, type GameState, type InterviewStance, type StoryState, type WeekLog } from './storeTypes';
-import { type DayStats, type Difficulty, type EventKind } from './types';
-import { FINALIST_LIMIT, days } from './data/days';
-import { MINUTES_PER_TICK } from './time';
-import { shuffle } from './rng';
-import { type ThreadId } from './manager';
-import { THURSDAY } from './weekdays';
-import type { ReadingContext } from './engine/scoring';
+import { type DayStats, type Difficulty, type EventKind } from '../types';
+import { FINALIST_LIMIT, days } from '../data/days';
+import { MINUTES_PER_TICK } from '../lib/time';
+import { shuffle } from '../lib/rng';
+import { type ThreadId } from '../day/manager';
+import { THURSDAY } from '../lib/weekdays';
+import type { ReadingContext } from '../engine/scoring';
 /** Bugünün aday kuyruğu (her oyunda rastgele; bkz. lineups.ts). */
 export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>, dayIndex = state.currentDayIndex): string[] {
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;

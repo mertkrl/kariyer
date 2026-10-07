@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { lineupFor, useGameStore, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store';
+import { lineupFor, useGameStore, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store/store';
 import { days } from '../../game/data/days';
 import { candidateOf } from '../../game/data/candidates';
-import { MEETING_AT, MEETING_DAY, MEETING_MINUTES } from '../../game/meeting';
-import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN, formatClock } from '../../game/time';
+import { MEETING_AT, MEETING_DAY, MEETING_MINUTES } from '../../game/events/meeting';
+import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN, formatClock } from '../../game/lib/time';
 import type { Decision } from '../../game/types';
 import styles from './CalendarApp.module.css';
 

@@ -4,11 +4,11 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SNOW_CALL_AT, SNOW_CALL_ID, callFor, strandFinalist, tolgaSnowCall } from '../src/game/managerCalls';
+import { SNOW_CALL_AT, SNOW_CALL_ID, callFor, strandFinalist, tolgaSnowCall } from '../src/game/day/managerCalls';
 import { days } from '../src/game/data/days';
-import { THURSDAY } from '../src/game/weekdays';
-import { KEY_CHARACTERS } from '../src/game/story';
-import type { GameState } from '../src/game/storeTypes';
+import { THURSDAY } from '../src/game/lib/weekdays';
+import { KEY_CHARACTERS } from '../src/game/day/story';
+import type { GameState } from '../src/game/store/storeTypes';
 
 test('tolga: kar araması Perşembe öğleden sonra, 17:00\'den önce', () => {
   assert.ok(days[THURSDAY].candidateIds.includes('tolga'));
@@ -36,7 +36,7 @@ test('tolga: listeden düşen aday hikâyeye "gelemedi" diye yazılır', () => {
 
 test('tolga: bütün hafta oynanınca, Perşembe çağrılan Tolga için kar araması gerçekten çalar', async () => {
   const { playWeek } = await import('./support/bot');
-  const { useGameStore } = await import('../src/game/store');
+  const { useGameStore } = await import('../src/game/store/store');
   playWeek(4242, { read: () => 3, decide: (id) => (id === 'tolga' ? 'approve' : 'reject'), comply: () => false });
   const st = useGameStore.getState();
   assert.equal(st.desk.calls[SNOW_CALL_ID], 'answered');

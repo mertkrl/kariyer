@@ -5,7 +5,7 @@
  * tartışma genel bir listeden değil kendi seçimlerinden başlar.
  */
 import type { Decision, Difficulty } from '../types';
-import type { WeekEntry } from '../echoes';
+import type { WeekEntry } from '../day/echoes';
 import { candidateOf, NEIGHBOUR_ID, NEPHEW_ID } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
 import { isStrong, isWronglyFlagged, systemVerdict } from './scoring';

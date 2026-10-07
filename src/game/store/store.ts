@@ -4,32 +4,32 @@
  * (decisionSlice), telefon, masa, hikâye ve ayarlar. Saatin saniyesi tick.ts'dir; saatin
  * tetiklediği şeyler clock.ts'dir.
  */
-import { RAPPORT_START, RAPPORT_START_HARD } from './manager';
+import { RAPPORT_START, RAPPORT_START_HARD } from '../day/manager';
 import { create } from 'zustand';
-import { days } from './data/days';
-import { AD_EFFECT } from './data/jobs';
-import { candidateOf, candidates } from './data/candidates';
-import { defaultLineups, makeLineups, KEY_CAST, STORY_FIXED } from './lineups';
-import { MOM_POOL_SIZE } from './manager';
-import { sound } from './sound';
+import { days } from '../data/days';
+import { AD_EFFECT } from '../data/jobs';
+import { candidateOf, candidates } from '../data/candidates';
+import { defaultLineups, makeLineups, KEY_CAST, STORY_FIXED } from '../day/lineups';
+import { MOM_POOL_SIZE } from '../day/manager';
+import { sound } from '../lib/sound';
 import type { GameState } from './storeTypes';
 import { checkSave, clearSave, discardSave, readSave, writeSave, type SaveFile } from './save';
 import { bindStore } from './storeApi';
-import { cancelLater } from './later';
-import { createDaySlice } from './slices/daySlice';
-import { createDecisionSlice } from './slices/decisionSlice';
-import { createDeskSlice } from './slices/deskSlice';
-import { createPhoneSlice } from './slices/phoneSlice';
-import { createSettingsSlice } from './slices/settingsSlice';
-import { createStorySlice } from './slices/storySlice';
-import { newSeed, rngFor, shuffle } from './rng';
+import { cancelLater } from '../lib/later';
+import { createDaySlice } from '../slices/daySlice';
+import { createDecisionSlice } from '../slices/decisionSlice';
+import { createDeskSlice } from '../slices/deskSlice';
+import { createPhoneSlice } from '../slices/phoneSlice';
+import { createSettingsSlice } from '../slices/settingsSlice';
+import { createStorySlice } from '../slices/storySlice';
+import { newSeed, rngFor, shuffle } from '../lib/rng';
 import { emptyStance, emptyStats, emptyWeek, newDesk, newStory, noUnread } from './storeDefaults';
-import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './prefs';
+import { initialMusicVolume, initialSfxVolume, readStoredMuted } from '../lib/prefs';
 
 export type { Finalist, DayEvent, ActiveEvent, WeekLog, StoryState, DeskState, DmKind, DecisionLogEntry, GameState, InterviewStance } from './storeTypes';
 export { TEAM_LATE_DAY, TEAM_LATE_END, approvalQuota, lineupFor, minutesPerTick, readingOf } from './storeDefaults';
-export { MAIL_SEND_AT, isOnBreak, mailsPending } from './clock';
-export { callFor, panelDecision, revokeTargets, salaryOf, SALARY_CAP } from './managerCalls';
+export { MAIL_SEND_AT, isOnBreak, mailsPending } from '../day/clock';
+export { callFor, panelDecision, revokeTargets, salaryOf, SALARY_CAP } from '../day/managerCalls';
 
 /** Bir oyuncunun ayarlarının içermediği: yeni bir haftanın baştan başlattığı her şey. */
 type DataKey = { [K in keyof GameState]: GameState[K] extends (...args: never[]) => unknown ? never : K }[keyof GameState];

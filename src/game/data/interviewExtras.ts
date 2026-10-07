@@ -4,7 +4,7 @@
  *  - adayın sonda kendi sorusu; dürüstçe ya da cilalayarak cevaplarsın,
  *  - Hakan Bey'in listesinden bir soruyla araya girmesi.
  */
-import { FEMALE } from '../story';
+import { FEMALE } from '../day/story';
 import { NEPHEW_ID } from './candidates';
 
 /** Haftanın hikâyesinin kişileri (lineups.ts KEY_CAST ile aynı; döngüsel içe aktarmadan kaçınmak için burada). */

@@ -4,9 +4,9 @@
  * cümleleri ve mülakat kaydının biçimi. Ekran (FinalRoundScreen) ve bu klasördeki parçaları
  * bunları paylaşır.
  */
-import type { Finalist } from '../../game/store';
+import type { Finalist } from '../../game/store/store';
 import { NEPHEW_ID } from '../../game/data/candidates';
-import type { SalaryMove } from '../../game/interview';
+import type { SalaryMove } from '../../game/events/interview';
 
 /** Bütün hafta kimse ilerletilmediyse yönetim finali kendi iç referansıyla doldurur. */
 export const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];

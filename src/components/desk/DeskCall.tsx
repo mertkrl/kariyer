@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { DeskCall as Call } from '../../game/desk';
+import type { DeskCall as Call } from '../../game/day/desk';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from './Desk.module.css';
 

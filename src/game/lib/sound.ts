@@ -3,7 +3,7 @@
  * bilmeden. Sayfa açılışta gerçek ses motorunu bağlar (main.tsx); o zamana kadar ve testlerde her
  * çağrı sessizdir. Bu, store'u Web Audio'dan bağımsız tutar.
  */
-import type { audioEngine } from '../audio/audioEngine';
+import type { audioEngine } from '../../audio/audioEngine';
 
 type Engine = typeof audioEngine;
 export type Sound = Pick<

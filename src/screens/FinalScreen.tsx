@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGameStore } from '../game/store';
+import { useGameStore } from '../game/store/store';
 import { getEnding } from '../game/engine/ending';
-import { KEY_CHARACTERS } from '../game/story';
+import { KEY_CHARACTERS } from '../game/day/story';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../game/engine/achievements';
 import { Button } from '../components/ui/Button';
 import { GAME_NAME, shareCardImage } from '../game/engine/shareCard';

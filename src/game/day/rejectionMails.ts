@@ -3,10 +3,10 @@
  * gideceğini seçmeden günü kapatmaz. Sistemin elediği yüzlercesi otomatik cevabını çoktan aldı;
  * bunlar bir insanın okuduklarıdır.
  */
-import { candidateOf } from './data/candidates';
-import { candidateDetails } from './data/candidateDetails';
+import { candidateOf } from '../data/candidates';
+import { candidateDetails } from '../data/candidateDetails';
 import type { Mail } from './mail';
-import { PLAYER } from './player';
+import { PLAYER } from '../lib/player';
 
 export type RejectTemplate = 'standard' | 'personal' | 'pool' | 'none';
 

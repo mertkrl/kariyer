@@ -2,7 +2,7 @@
  * Bir aday takip sisteminin gerçekte "okuduğu": bir ayrıştırma, ilana karşı anahtar kelime
  * eşleşmesi, unvan eşleşmesi ve bir sıra. İçinde kişiyle ilgili hiçbir şey yok; mesele de bu.
  */
-import type { Candidate } from './types';
+import type { Candidate } from '../types';
 
 /** İlandan alınan anahtar kelimeler; sistem birebir eşleşmeleri sayar, başka bir şeyi değil. */
 export const AD_KEYWORDS = ['Java', 'Spring', 'SQL', 'REST', 'Mikroservis', 'Docker', 'CI/CD', 'Git', 'Agile'];

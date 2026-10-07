@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Finalist } from '../../game/store';
+import type { Finalist } from '../../game/store/store';
 import { candidateOf } from '../../game/data/candidates';
 import { Button } from '../../components/ui/Button';
 import { audioEngine } from '../../audio/audioEngine';

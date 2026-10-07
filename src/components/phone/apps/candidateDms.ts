@@ -1,4 +1,4 @@
-import { keyCharacter } from '../../../game/story';
+import { keyCharacter } from '../../../game/day/story';
 
 /*
  * Reddedilen adaylar seni Kariyergram'da bulur, bazıları. Kimin yazdığı, yazmadan önce ne kadar

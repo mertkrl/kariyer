@@ -1,7 +1,7 @@
 import { candidateOf } from '../../game/data/candidates';
 import { candidateDetails } from '../../game/data/candidateDetails';
-import { forbiddenQuestion } from '../../game/story';
-import { INTERVIEWER, type Interviewer } from '../../game/panel';
+import { forbiddenQuestion } from '../../game/day/story';
+import { INTERVIEWER, type Interviewer } from '../../game/events/panel';
 import { LEAD } from './interviewModel';
 import { Turn } from './Conversation';
 import styles from '../FinalRoundScreen.module.css';

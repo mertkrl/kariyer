@@ -3,9 +3,9 @@
  * selamları, annenin mesajları, ofis grubu, doğum günü sürprizi, ekibin dün yaptıklarına tepkisi.
  * Burada davranış yok: neyin ne zaman gönderileceğine manager.ts karar verir.
  */
-import { accusative, genitive } from '../turkish';
-import { PLAYER } from '../player';
-import type { Ambient, ManagerTone, QuickReply, RequestTemplate } from '../phoneTypes';
+import { accusative, genitive } from '../lib/turkish';
+import { PLAYER } from '../lib/player';
+import type { Ambient, ManagerTone, QuickReply, RequestTemplate } from '../day/phoneTypes';
 
 // Ricalar oyunun konusu olan belirli bir önyargıyı hedefler; `ids`ten bugünün kuyruğunda olan
 // ilk aday hedef olur.

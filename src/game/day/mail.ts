@@ -4,7 +4,7 @@
  * saatinde gelir ve bütün hafta gelen kutusunda kalır.
  */
 
-import { PLAYER } from './player';
+import { PLAYER } from '../lib/player';
 
 export interface Mail {
   id: string;

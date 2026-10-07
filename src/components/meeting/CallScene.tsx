@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { SPEAKERS, type Board, type ChatMessage, type Speaker, type TeamStats } from '../../game/meeting';
+import { SPEAKERS, type Board, type ChatMessage, type Speaker, type TeamStats } from '../../game/events/meeting';
 import { Dashboard } from './Dashboard';
 import styles from './MeetingRoom.module.css';
 

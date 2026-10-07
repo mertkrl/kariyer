@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import { useGameStore } from '../../game/store';
+import { useGameStore } from '../../game/store/store';
 import { candidates } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import type { Candidate, EvaluatedField } from '../../game/types';
-import { atsReport, systemLineWith } from '../../game/ats';
+import { atsReport, systemLineWith } from '../../game/day/ats';
 import { AiIcon } from '../ui/AiIcon';
 import { ANALYZE_DURATION_MS, type AiAnalysis } from './useAiAnalysis';
 import { AnalysisRun, ScoreDial } from './AiRun';
