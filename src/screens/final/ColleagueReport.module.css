@@ -13,3 +13,30 @@
   color: var(--text-dim);
   font-size: calc(13.5px * var(--ts, 1));
 }
+
+/* odadaki payın: bir kez söz ve puanın */
+.yourTurn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border-muted);
+  border-radius: var(--radius-sm);
+}
+
+.askButton {
+  align-self: flex-start;
+  padding: 8px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-sm);
+  background: var(--paper-light);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.askButton:hover,
+.askButton:focus-visible {
+  border-color: var(--gold);
+}

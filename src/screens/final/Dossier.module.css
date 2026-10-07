@@ -77,3 +77,8 @@
     order: -1;
   }
 }
+
+.below {
+  color: var(--red);
+  font-weight: 600;
+}

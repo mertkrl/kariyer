@@ -62,3 +62,13 @@ test('ilk gün: grupta önce teşekkür edilir', () => {
   // karşılamadan önce cevap beklenen başka bir grup mesajı yok
   assert.ok(monday.filter((a) => a.replies && a.at < gate[0].at).length === 0);
 });
+
+test('başkasının görüşmesinde verdiğin puan kurulda o adayın ortalamasına girer; kendi görüşmende ayrı sayılmaz', () => {
+  const pool = [{ id: 'cagan', day: 0, by: 'emre' as const }, { id: 'kerem', day: 4 }];
+  const without = panelRows(pool, [], { kerem: 4 }, {});
+  const withLow = panelRows(pool, [], { kerem: 4 }, {}, false, { cagan: 1, kerem: 5 });
+  assert.equal(withLow[0].you, 1);
+  assert.ok(withLow[0].total < without[0].total);
+  assert.equal(withLow[1].you, null);
+  assert.equal(withLow[1].total, without[1].total);
+});

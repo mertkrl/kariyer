@@ -4,7 +4,7 @@
  * React durumuna bağlar; testler doğrudan bunları çalıştırır.
  */
 import type { SalaryMove } from '../../game/events/interview';
-import { CASE, FOLLOW, FORBIDDEN, QUESTION_BUDGET, type Entry } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, QUESTION_BUDGET, TEST, type Entry } from './interviewModel';
 
 type Question = Extract<Entry, { kind: 'q' }>;
 type Salary = Extract<Entry, { kind: 'salary' }>;
@@ -15,6 +15,8 @@ export interface RoomState {
   /** Senin sorduğun klasik sorular (hakkından düşenler). */
   mine: number[];
   followUsed: boolean;
+  /** Test puanı soruldu. */
+  testUsed: boolean;
   handedOff: boolean;
   salaryEntry: Salary | undefined;
   salaryPending: boolean;
@@ -37,6 +39,7 @@ export function roomState(entries: Entry[], backs: number): RoomState {
     // takip sorusu, Ümit'in ve Hakan Bey'in soruları hakkından düşmez
     mine: questions.filter((e) => !e.by && e.q < FOLLOW).map((e) => e.q),
     followUsed: questions.some((e) => e.q >= FOLLOW && e.q < CASE),
+    testUsed: questions.some((e) => e.q === TEST),
     handedOff: entries.some((e) => e.kind === 'handoff'),
     salaryEntry,
     salaryPending: salaryEntry !== undefined && salaryEntry.move === null,
@@ -56,6 +59,7 @@ export const canFollowUp = (room: RoomState, typing: boolean) => !room.followUse
 export function canAsk(room: RoomState, question: number, typing: boolean): boolean {
   if (typing || room.handedOff || room.ended) return false;
   if (isFollowUp(question)) return canFollowUp(room, typing);
+  if (question === TEST) return !room.testUsed;
   return !room.questions.some((e) => e.q === question) && room.mine.length < QUESTION_BUDGET;
 }
 

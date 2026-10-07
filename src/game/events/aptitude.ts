@@ -50,3 +50,16 @@ export function candidateAptitude(id: string, seed: number): AptitudeResult {
     }),
   );
 }
+
+/** Mülakatta test puanı sorulduğunda: soru ve adayın cevabı, kendi cevap kâğıdından. */
+export function testTalk(id: string, seed: number): { question: string; answer: string } {
+  const result = candidateAptitude(id, seed);
+  const question = `Testte ${result.score} aldınız. Cevap kâğıdınıza baktım; bazı cevaplarınızı merak ettim. Nasıl düşündünüz?`;
+  const i = APTITUDE_QUESTIONS.findIndex((q, n) => result.answers[n] === q.sensible);
+  if (i >= 0) {
+    const q = APTITUDE_QUESTIONS[i];
+    return { question, answer: `"${q.options[q.sensible]}" dediğim soruyu hatırlıyorum. ${q.why}` };
+  }
+  if (result.timedOut > 0) return { question, answer: `Bazı sorulara süre yetmedi, açıkçası. Otuz saniyede bir trenin yolcularını düşünmek zor.` };
+  return { question, answer: 'Bu testler hep aynı; doğru cevabı değil, beklenen cevabı seçiyorsunuz. Ben de ne beklendiğini tahmin ettim.' };
+}

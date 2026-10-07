@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { APTITUDE_QUESTIONS } from '../src/game/data/aptitudeTest';
-import { APTITUDE_CUTOFF, candidateAptitude, scoreAptitude } from '../src/game/events/aptitude';
+import { APTITUDE_CUTOFF, candidateAptitude, scoreAptitude, testTalk } from '../src/game/events/aptitude';
 import { candidates } from '../src/game/data/candidates';
 import { candidateDetails } from '../src/game/data/candidateDetails';
 
@@ -29,4 +29,13 @@ test('aday kâğıtları tohuma bağlı ve işini bilen ortalamada daha düşük
   };
   assert.ok(avg((f) => f >= 4) < avg((f) => f <= 2));
   assert.ok(avg((f) => f >= 4) < APTITUDE_CUTOFF);
+});
+
+test('mülakatta test sorusu: aklı başında cevabı veren gerekçesini anlatır', () => {
+  for (const id of Object.keys(candidates)) {
+    const { question, answer } = testTalk(id, 3);
+    assert.match(question, /Testte \d+ aldınız/);
+    assert.ok(answer.length > 20, id);
+  }
+  assert.ok(APTITUDE_QUESTIONS.every((q) => q.why.length > 20));
 });

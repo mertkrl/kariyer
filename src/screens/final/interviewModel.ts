@@ -53,6 +53,8 @@ export const THINKING_MS = 900;
 export const FOLLOW = 10;
 /** Ümit'in teknik sorusu: kısa bir kod vakası. */
 export const CASE = 20;
+/** Senin ek sorun: test puanı ve cevap kâğıdı (hakkından düşmez, odada bir kez). */
+export const TEST = 30;
 export const SALARY_LINES: Record<SalaryMove, (offer: number) => string> = {
   match: () => 'Beklentiniz bütçemize uygun; bu rakamla ilerleyebiliriz.',
   pass: () => 'Beklentinizi not aldım; kurulda olduğu gibi değerlendireceğiz.',

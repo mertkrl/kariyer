@@ -3,6 +3,7 @@ import type { CandidateDetails } from '../../game/data/candidateDetails';
 import { followUpVerdict } from '../../game/data/interviewExtras';
 import { caseVerdict } from '../../game/events/interview';
 import { LEAD, leadView } from './interviewModel';
+import { APTITUDE_CUTOFF } from '../../game/events/aptitude';
 import styles from './Dossier.module.css';
 
 /*
@@ -17,11 +18,13 @@ export interface DossierProps {
   agreed: Record<string, number | null>;
   leadHeard: boolean;
   fit: number;
+  /** Genel Yetenek ve Uyum Değerlendirmesi puanı. */
+  testScore: number;
   followUsed: boolean;
   caseAsked: boolean;
 }
 
-export function Dossier({ candidate, details, selectedId, invitedOn, agreed, leadHeard, fit, followUsed, caseAsked }: DossierProps) {
+export function Dossier({ candidate, details, selectedId, invitedOn, agreed, leadHeard, fit, testScore, followUsed, caseAsked }: DossierProps) {
   return (
       <aside className={styles.dossier} aria-label="Aday dosyası">
         <h3>Dosya</h3>
@@ -36,6 +39,10 @@ export function Dossier({ candidate, details, selectedId, invitedOn, agreed, lea
               <dd>{agreed[selectedId] === null ? 'Anlaşılamadı' : `${agreed[selectedId]?.toLocaleString('tr-TR')} TL`}</dd>
             </>
           )}
+          <dt>Test puanı</dt>
+          <dd className={testScore < APTITUDE_CUTOFF ? styles.below : undefined}>
+            {testScore} · eşik {APTITUDE_CUTOFF}
+          </dd>
           <dt>Son görev</dt>
           <dd>{details.workHistory[0].title}</dd>
           <dt>Konum</dt>

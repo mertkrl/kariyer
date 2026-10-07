@@ -4,7 +4,7 @@ import { FINAL_INTERVIEW_QUESTIONS } from '../../game/data/candidateDetails';
 import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
 import { Scorecard } from './InterviewParts';
-import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES } from './interviewModel';
+import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES, TEST } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
 import own from './InterviewConsole.module.css';
 
@@ -31,6 +31,8 @@ export interface InterviewConsoleProps {
   /** Kendi sorduğun klasik sorular. */
   mine: number[];
   canFollow: boolean;
+  /** Test puanını sorma hakkı duruyor (ek soru, odada bir kez). */
+  canTest: boolean;
   scores: Scores;
   onScore: (criterion: (typeof CRITERIA)[number], value: number) => void;
   ask: (question: number) => void;
@@ -39,7 +41,7 @@ export interface InterviewConsoleProps {
   endInterview: () => void;
 }
 
-export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, canFollow, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
+export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, canFollow, canTest, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
   const first = candidate.name.split(' ')[0];
   const scored = Object.keys(scores).length > 0;
   return (
@@ -101,6 +103,12 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
                   </button>
                 ),
               )}
+            {canTest && (
+              <button className={`${own.question} ${own.testQuestion}`} onClick={() => ask(TEST)}>
+                <span className={styles.qNumber}>✎</span>
+                Test puanını ve cevap kâğıdını sor <small>(ek soru, hakkından düşmez)</small>
+              </button>
+            )}
           </div>
           {canFollow && mine.length > 0 && <p className={own.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
           {mine.length > 0 && (

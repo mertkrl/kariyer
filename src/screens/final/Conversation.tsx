@@ -5,7 +5,7 @@ import type { BackQuestion } from '../../game/data/interviewExtras';
 import { SALARY_CAP } from '../../game/store/store';
 import { PLAYER } from '../../game/lib/player';
 import { AnswerText, CaseCard } from './InterviewParts';
-import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, type Entry, type Typing } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, TEST, type Entry, type Typing } from './interviewModel';
 import styles from './Conversation.module.css';
 
 /*
@@ -143,7 +143,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   {questionText(e.q, e.about)}
                 </Turn>
               ) : (
-                <Turn who={PLAYER.name} role={e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
+                <Turn who={PLAYER.name} role={e.q === TEST ? 'Test sorusu' : e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
                   {questionText(e.q, e.about)}
                 </Turn>
               )}

@@ -18,6 +18,8 @@ export interface HireModalProps {
   pastRequests: { candidateId: string; want: Decision }[];
   /** Senin görüştüğün adaylara puan kartından verdiğin ortalama. */
   myScores: Record<string, number | null>;
+  /** Başkalarının görüşmelerinde odadaydın: verdiğin puanlar. */
+  sitIn: Record<string, number | null>;
   /** Yapılandırılmış mülakat: Hakan Bey'in uyum sütunu yok. */
   structured: boolean;
   agreed: Record<string, number | null>;
@@ -28,8 +30,8 @@ export interface HireModalProps {
 
 const fmt = (n: number | null) => (n === null ? '—' : n.toLocaleString('tr-TR', { maximumFractionDigits: 1, minimumFractionDigits: 1 }));
 
-export function HireModal({ pool, pastRequests, myScores, structured, agreed, onClose, onConfirm }: HireModalProps) {
-  const rows = panelRows(pool, pastRequests, myScores, agreed, structured).sort((a, b) => b.total - a.total);
+export function HireModal({ pool, pastRequests, myScores, sitIn, structured, agreed, onClose, onConfirm }: HireModalProps) {
+  const rows = panelRows(pool, pastRequests, myScores, agreed, structured, sitIn).sort((a, b) => b.total - a.total);
   const decided = panelVerdict(rows);
   const winner = candidateOf(decided);
   // senin önerin: kendi görüştüklerin arasında en yüksek puanı verdiğin (yoksa kurulun kararı)
@@ -41,7 +43,7 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
       <div className={`${own.modal} ${own.modalWide}`}>
         <h2 id="panel-title">Kurul · gün sonu değerlendirmesi</h2>
         <p className={own.panelBudget}>
-          Kurul: Hakan Kaya (İK Müdürü), {LEAD} (Yazılım Ekip Lideri), sen. Her aday üç puan alır; toplamı en yüksek ve bütçeye ({SALARY_CAP.toLocaleString('tr-TR')} TL/ay) sığan
+          Kurul: Hakan Kaya (İK Müdürü), {LEAD} (Yazılım Ekip Lideri), sen. Her aday görüşenin, Ümit'in ve Hakan Bey'in puanını alır; başkalarının görüşmelerinde senin puanın da eklenir. Ortalaması en yüksek ve bütçeye ({SALARY_CAP.toLocaleString('tr-TR')} TL/ay) sığan
           aday işe alınır.
         </p>
         <div className={own.compare}>
@@ -53,6 +55,7 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
                 <th>Görüşenin puanı</th>
                 <th>Teknik ({LEAD.split(' ')[0]})</th>
                 <th>Uyum (Hakan Bey)</th>
+                <th>Senin puanın</th>
                 <th>Toplam</th>
                 <th>Maaş</th>
               </tr>
@@ -70,6 +73,7 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
                   <td className="mono">{fmt(r.interviewer)}</td>
                   <td className="mono">{fmt(r.tech)}</td>
                   <td className="mono">{r.owner === 'hakan' ? '(görüşen)' : fmt(r.hakan)}</td>
+                  <td className="mono">{r.owner === 'you' ? '(görüşen)' : fmt(r.you)}</td>
                   <td className="mono">
                     <b>{fmt(r.total)}</b>
                   </td>

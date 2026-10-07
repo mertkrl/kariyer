@@ -5,8 +5,9 @@ import { candidateOf } from '../../game/data/candidates';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { backQuestionsFor, experienceYears, followUpAnswer } from '../../game/data/interviewExtras';
 import { average, caseAnswer, caseFor, salaryTalk, type SalaryMove, type Scores } from '../../game/events/interview';
+import { testTalk } from '../../game/events/aptitude';
 import { audioEngine } from '../../audio/audioEngine';
-import { CASE, FOLLOW, FORBIDDEN, THINKING_MS, TYPING_MS_PER_CHAR, type Entry, type Typing } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, TEST, THINKING_MS, TYPING_MS_PER_CHAR, type Entry, type Typing } from './interviewModel';
 import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from './interviewRoom';
 
 /*
@@ -17,6 +18,7 @@ import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleS
 export function useInterview({ selectedId, ownIds, structured }: { selectedId: string; ownIds: string[]; structured: boolean }) {
   const settleSalary = useGameStore((s) => s.settleSalary);
   const answerCandidate = useGameStore((s) => s.answerCandidate);
+  const seed = useGameStore((s) => s.seed);
   const [log, setLog] = useState<Record<string, Entry[]>>({});
   const [typing, setTyping] = useState<Typing | null>(null);
   const [scores, setScores] = useState<Record<string, Scores>>({});
@@ -70,6 +72,7 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
 
   function answerFor(id: string, question: number) {
     if (question === CASE) return caseAnswer(id, caseFor(id, ownIds));
+    if (question === TEST) return testTalk(id, seed).answer;
     if (question >= FOLLOW) return followUpAnswer(id, question - FOLLOW, candidateDetails[id].hireFit);
     return question === FORBIDDEN ? forbiddenAnswer(id, candidateOf(id).age) : candidateDetails[id].interview[question];
   }

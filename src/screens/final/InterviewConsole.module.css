@@ -118,3 +118,11 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.testQuestion {
+  border-style: dashed;
+}
+
+.testQuestion small {
+  color: var(--text-muted);
+}

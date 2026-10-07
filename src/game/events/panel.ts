@@ -1,6 +1,7 @@
 /*
- * Cuma kurulu. Herkes kendi adayının mülakatına girer: Defne kendi çağırdıklarıyla, Ayşe ve Emre
- * kendi kısa listeleriyle, Hakan Bey kendi önerdikleriyle görüşür. Ümit her mülakatta teknik
+ * Cuma kurulu. Her mülakatı adayı çağıran yürütür: Defne kendi çağırdıklarıyla, Ayşe ve Emre
+ * kendi kısa listeleriyle, Hakan Bey kendi önerdikleriyle görüşür; Defne bütün odalarda oturur ve
+ * başkalarının görüşmelerine de kendi puanını verir. Ümit her mülakatta teknik
  * soruyu sorar, Hakan Bey her mülakatta "uyum" sorusunu. Gün sonunda kurulda her adayın üç puanı
  * yan yana durur: görüşmeyi yapanın puanı, Ümit'in teknik puanı, Hakan Bey'in uyum puanı.
  * Toplamı en yüksek ve bütçeye sığan aday işe alınır.
@@ -80,6 +81,8 @@ export interface PanelRow {
   tech: number;
   /** Hakan Bey'in uyum puanı; yapılandırılmış mülakatta (listesi masada değil) null. */
   hakan: number | null;
+  /** Başkasının görüşmesinde odadaydın: senin puanın (verdiysen). Kendi görüşmende null; puanın `interviewer`dadır. */
+  you: number | null;
   total: number;
   /** Anlaşılan ya da beklenen aylık maaş; rakam yoksa null. */
   pay: number | null;
@@ -95,12 +98,14 @@ export function panelRows(
   myScores: Record<string, number | null>,
   agreed: Record<string, number | null>,
   structured = false,
+  sitIn: Record<string, number | null> = {},
 ): PanelRow[] {
   return finalists.map((f) => {
     const owner = ownerOf(f, pastRequests);
     const interviewer = owner === 'you' ? (myScores[f.id] ?? null) : colleagueScore(f.id, owner);
     const tech = techScore(f.id);
     const hakan = structured ? null : hakanScore(f.id, owner);
+    const you = owner === 'you' ? null : (sitIn[f.id] ?? null);
     const pay = f.id in agreed ? (agreed[f.id] ?? salaryOf(f.id)) : salaryOf(f.id);
     return {
       id: f.id,
@@ -108,8 +113,9 @@ export function panelRows(
       interviewer,
       tech,
       hakan,
+      you,
       // Hakan Bey kendi adayında hem görüşen hem uyum puanını verir: oyu bir kez sayılır
-      total: mean([...(interviewer === null ? [] : [interviewer]), tech, ...(hakan === null || owner === 'hakan' ? [] : [hakan])]),
+      total: mean([...(interviewer === null ? [] : [interviewer]), tech, ...(hakan === null || owner === 'hakan' ? [] : [hakan]), ...(you === null ? [] : [you])]),
       pay,
       affordable: (pay ?? 0) <= SALARY_CAP,
     };
