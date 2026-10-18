@@ -5,6 +5,41 @@ import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
 import styles from './WelcomeScreen.module.css';
 import { clearAllGameData } from '../game/lib/privacy';
+import { useDialog } from '../components/ui/useDialog';
+
+/** Yeni oyun kaydın üzerine yazar: oyunun kendi pencereleriyle aynı kâğıt kartta sorulur. */
+function NewGameDialog({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
+  const ref = useDialog<HTMLDivElement>(onClose);
+  return (
+    <div className={styles.overlay} onClick={onClose}>
+      <div
+        ref={ref}
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="new-game-title"
+        aria-describedby="new-game-desc"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={`${styles.dialogEyebrow} mono`}>UYARI · KAYITLI OYUN</div>
+        <h2 id="new-game-title" className={styles.dialogTitle}>
+          Yeni oyun başlatılsın mı?
+        </h2>
+        <p id="new-game-desc" className={styles.dialogText}>
+          Kaldığın yer, kararların ve puanların silinir; hafta Pazartesi sabahından yeniden başlar. Bu geri alınamaz.
+        </p>
+        <div className={styles.dialogActions}>
+          <button className={styles.dialogCancel} onClick={onClose}>
+            Vazgeç
+          </button>
+          <Button variant="danger" sound="start" className={styles.dialogConfirm} onClick={onConfirm}>
+            Evet, yeni oyun
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function WelcomeScreen() {
   // Bu ekran oyun yüklenmeden çizilir; oyun bu sırada indirilir.
@@ -20,6 +55,7 @@ export function WelcomeScreen() {
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmNew, setConfirmNew] = useState(false);
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -81,20 +117,21 @@ export function WelcomeScreen() {
           dinleyeceksin? Her tıkladığın buton, ekranın öbür ucunda birinin hayatını etkiliyor.
         </p>
 
-        {savedDay ? (
+        {savedDay && save ? (
           <div className={styles.actions}>
-            <Button variant="gold" sound="start" onClick={continueGame}>
-              DEVAM ET · {savedDay.dayName} →
-            </Button>
-            <Button variant="ghost" sound="start" onClick={startGame}>
-              Yeni oyun
-            </Button>
-            <small className={styles.saveNote}>Kayıt yalnızca bu tarayıcıda durur. Yeni oyunda ilanı seçtiğin anda eski kaydın üzerine yazılır.</small>
+            <div className={styles.buttonRow}>
+              <Button variant="gold" sound="start" className={styles.cta} onClick={continueGame}>
+                Devam et
+              </Button>
+              <Button variant="ghost" className={styles.secondary} onClick={() => setConfirmNew(true)}>
+                Yeni oyun
+              </Button>
+            </div>
           </div>
         ) : (
           <div className={styles.actions}>
-            <Button variant="gold" sound="start" onClick={startGame}>
-              İŞE BAŞLA →
+            <Button variant="gold" sound="start" className={styles.cta} onClick={startGame}>
+              İşe başla
             </Button>
             {save === null && saveWasLost() && (
               <small className={styles.saveNote} role="status">
@@ -106,7 +143,7 @@ export function WelcomeScreen() {
       </div>
 
       <div className={styles.bottomInfo}>
-        Gerçek iş arama deneyimlerinden ilham alınmıştır.
+        Karakterler, şirketler ve olaylar hayal ürünüdür; gerçek kişi ve kurumlarla benzerlik tesadüftür.
         <p className={styles.privacy}>
           Oyun hiçbir veri göndermez; ilerlemen ve ayarların yalnızca bu tarayıcıda durur.{' '}
           {confirmClear ? (
@@ -131,6 +168,7 @@ export function WelcomeScreen() {
           )}
         </p>
       </div>
+      {confirmNew && <NewGameDialog onConfirm={startGame} onClose={() => setConfirmNew(false)} />}
     </div>
   );
 }

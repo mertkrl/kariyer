@@ -114,8 +114,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
               </div>
               {details && (
                 <div className={styles.candidateMeta}>
-                  <span>📍 {details.location}</span>
-                  <span>🗣 {details.languages}</span>
+                  <span>{details.location}</span>
                 </div>
               )}
             </div>
@@ -198,9 +197,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                     </>
                   )}
                 </div>
-              ) : (
-                <div className={own.quotaLine}>Teste geçirmenin sınırı yok. Sonuç yarın sabah Değerlendirme uygulamasında.</div>
-              )}
+              ) : null}
               <div className={own.actionBar}>
                 <Button
                   variant="primary"
@@ -210,7 +207,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   title={quotaReason ?? (selection ? 'Adayı cuma günkü mülakata çağır' : 'Adayı Genel Yetenek ve Uyum Değerlendirmesi\'ne geçir')}
                   aria-keyshortcuts="M"
                 >
-                  {selection ? '✓ MÜLAKATA ÇAĞIR' : '✓ TESTE GEÇİR'}
+                  {selection ? '✓ MÜLAKATA ÇAĞIR' : '✓ SONRAKİ AŞAMA'}
                 </Button>
                 <Button variant="danger" sound="none" onClick={() => decide('reject')} title={selection ? 'Adayı mülakata çağırma' : 'Adayı reddet'} aria-keyshortcuts="R">
                   {selection ? '✕ ÇAĞIRMA' : '✕ REDDET'}

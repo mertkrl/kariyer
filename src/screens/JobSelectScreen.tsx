@@ -17,6 +17,17 @@ export function JobSelectScreen() {
 
   return (
     <div className={styles.screen}>
+      <button
+        className={styles.backButton}
+        onClick={() => {
+          audioEngine.playUi('click');
+          audioEngine.stopAmbient();
+          // kayıt yalnızca ilan yayınlanınca yazılır; geri dönmek eski kayda dokunmaz
+          useGameStore.setState({ phase: 'welcome' });
+        }}
+      >
+        ← Ana sayfaya dön
+      </button>
       <div className={styles.content}>
         <div className={styles.headerBlock}>
           <div className={styles.eyebrow}>Adım 1 / İlan Taslakları</div>

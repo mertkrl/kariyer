@@ -17,8 +17,10 @@ export function loadTextScale(): number {
   }
 }
 
-export function applyTextScale(value: number) {
+/** Ayarlar'dan seçilince saklanır; açılışta yalnızca uygulanır, "Verilerimi sil" sonrası anahtar geri yazılmasın. */
+export function applyTextScale(value: number, persist = true) {
   document.documentElement.style.setProperty('--ts', String(value));
+  if (!persist) return;
   try {
     window.localStorage.setItem(KEY, String(value));
   } catch {

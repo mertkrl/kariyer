@@ -311,6 +311,22 @@
   scrollbar-width: thin;
 }
 
+/* yapay zekâ kutusu hep kendi boyundadır (rapor üstüne balon olarak açılır); kalan yeri günün etkinliği alır */
+.portalArea .rightPanel,
+.portalArea .rightPanel > :first-child {
+  /* rapor balonu kutunun dışına, CV'nin üstüne taşar: kesilmesin */
+  overflow: visible;
+}
+
+.portalArea .rightPanel > :first-child {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.portalArea .rightPanel > :first-child + * {
+  flex: 1 1 0;
+}
+
 .portalArea .activity {
   flex: 0 0 auto;
   min-height: 0;
@@ -577,6 +593,7 @@
     .actionArea {
       flex-direction: row;
       align-items: center;
+      justify-content: center;
       gap: 14px;
     }
   }

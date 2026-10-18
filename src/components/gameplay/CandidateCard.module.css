@@ -87,11 +87,13 @@
 
 .actionBar {
   display: flex;
+  flex: 1;
+  justify-content: center;
   gap: 12px;
 }
 
 .actionBar > button {
-  flex: 1;
+  flex: 0 1 240px;
 }
 
 .stampApprove {

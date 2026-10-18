@@ -4,6 +4,17 @@ import { Button } from '../ui/Button';
 import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
 import own from './QueueSidebar.module.css';
+import { days } from '../../game/data/days';
+
+/** Kuyrukta her dosyanın bir bakışlık durumu: rengi tek başına taşımaz, sözcükle de söyler. */
+type QueueStatus = 'new' | 'opened' | 'reading' | 'approve' | 'reject';
+const STATUS_LABEL: Record<QueueStatus, (selection: boolean) => string> = {
+  new: () => 'Okunmadı',
+  opened: () => 'Açıldı',
+  reading: () => 'Önünde',
+  approve: (selection) => (selection ? '✓ Mülakata çağrıldı' : '✓ Teste geçti'),
+  reject: (selection) => (selection ? '✕ Çağrılmadı' : '✕ Reddedildi'),
+};
 
 /*
  * Portalın sol sütunu: müdürün günün notu, her dosyaya harcanan süreyle bugünün kuyruğu ve
@@ -43,6 +54,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   const stayingLate = useGameStore((s) => s.currentDayIndex === TEAM_LATE_DAY && s.workdayMinutes < TEAM_LATE_END);
 
   const lineup = lineupFor({ currentDayIndex, lineups });
+  const selection = Boolean(days[currentDayIndex]?.selection);
   const todaysRejects = lineup.filter((id) => decisions[id] === 'reject');
   const pendingMails = !rejectionMailsSent && todaysRejects.some((id) => !plannedRejections[id]);
   const plannedCount = Object.keys(plannedRejections).length;
@@ -58,6 +70,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
             const isSelected = id === currentCandidateId;
             const isOpened = openedIds.includes(id);
             const isDecided = !!decisions[id];
+            const status: QueueStatus = decisions[id] ?? (isSelected ? 'reading' : isOpened ? 'opened' : 'new');
             return (
               <button
                 key={id}
@@ -69,9 +82,14 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                 aria-current={isSelected ? 'true' : undefined}
               >
                 <span className={own.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
-                <span className={own.queueName}>
-                  {c.name}
-                  {id === NEIGHBOUR_ID && <em className={own.queueTag}>Tavsiye</em>}
+                <span className={own.queueText}>
+                  <span className={own.queueName}>
+                    {c.name}
+                    {id === NEIGHBOUR_ID && <em className={own.queueTag}>Tavsiye</em>}
+                  </span>
+                  <span className={`${own.queueStatus} ${own[`status_${status}`]}`} aria-hidden="true">
+                    {STATUS_LABEL[status](selection)}
+                  </span>
                 </span>
                 {/* görünen sütun bir bakışlıktır (bir süre, bir çizgi); ekran okuyucu onu sözcüklerle duyar */}
                 <span className="sr-only">

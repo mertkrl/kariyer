@@ -1,4 +1,8 @@
-/* CvBody bileşeninin kendi stilleri (GameplayScreen.module.css'ten ayrıldı). */
+/*
+ * CvBody: özgeçmiş düzeni. Bir İK uzmanının 6 saniyede taradığı sıra: özet → son pozisyon →
+ * başarılar; sağda bir bakışlık bilgiler. Başlıklar küçük harf aralıklı etiket + ince çizgi,
+ * dönemler sağa hizalı; süsten çok hiyerarşi.
+ */
 .verdictIcon {
   display: inline-flex;
   align-items: center;
@@ -30,19 +34,31 @@
   height: 1px;
 }
 
+.cv {
+  color: var(--ink);
+  row-gap: clamp(12px, 2vh, 20px);
+}
+
 .cvMain,
 .cvSide {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(12px, 2vh, 18px);
   min-width: 0;
 }
 
+/* yan sütun: kâğıdın içinde hafif bir kutu, sol kenarda ince bir ayraç */
 .cvSide {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #eef1f6;
-  border-left: 3px solid #2d3a55;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  background: var(--paper-muted);
+  border: 1px solid var(--border-muted);
+  border-top: 3px solid var(--gold);
+}
+
+/* ana sütunun bölümleri birbirinden net ayrılır */
+.cvMain > .cvSection + .cvSection {
+  padding-top: 2px;
 }
 
 .cvSection {
@@ -50,22 +66,31 @@
   border-radius: 6px;
 }
 
+/* bölüm başlığı: etiket + satırın sonuna uzanan ince çizgi */
 .cvSection h3 {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 0 0 4px;
+  gap: 8px;
+  margin: 0 0 10px;
   font-family: var(--font-body);
-  font-size: calc(10.5px * var(--ts, 1));
+  font-size: calc(11.5px * var(--ts, 1));
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: #2d3a55;
+  color: var(--ink);
+}
+
+.cvSection h3::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--ink);
+  opacity: 0.18;
 }
 
 .cvSection h3 small {
   font-size: calc(10.5px * var(--ts, 1));
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
   color: var(--text-dim);
@@ -73,225 +98,199 @@
 
 .cvSection p {
   margin: 0;
-  font-size: calc(12px * var(--ts, 1));
-  line-height: 1.45;
-  color: #2e2a22;
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.55;
+  color: var(--text-faint);
 }
 
-.cvQuote {
-  padding-left: 10px;
-  border-left: 3px solid #c9a227;
-  font-style: italic;
+.cvSummary {
+  font-size: calc(14px * var(--ts, 1)) !important;
+  color: var(--ink) !important;
 }
 
-.cvStrong {
-  font-family: var(--font-display);
-  font-size: calc(17px * var(--ts, 1)) !important;
-  font-weight: 700;
-  color: #1c2335 !important;
-}
-
-.cvTimeline {
+/* deneyim: unvan ve dönem aynı satırda, şirket altında, not en altta */
+.cvJobs {
   list-style: none;
   margin: 0;
-  padding: 0 0 0 12px;
-  border-left: 2px solid #c8cfdb;
+  padding: 0 0 0 16px;
+  border-left: 2px solid var(--border-muted);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: calc(12px * var(--ts, 1));
-  color: #2e2a22;
+  gap: 14px;
 }
 
-.cvTimeline li {
+.cvJobs li {
   position: relative;
-  display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
-  gap: 8px;
 }
 
-.cvTimeline li::before {
+.cvJobs li::before {
   content: '';
   position: absolute;
-  left: -17px;
-  top: 4px;
-  width: 8px;
-  height: 8px;
+  left: -22px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #2d3a55;
-  box-shadow: 0 0 0 2px var(--paper-light);
+  background: var(--gold);
+  box-shadow: 0 0 0 3px var(--paper-light);
 }
 
-.cvTimeline em {
-  display: block;
-  font-size: calc(11.5px * var(--ts, 1));
-  color: var(--text-dim);
+.cvJobHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.cvJobHead b {
+  font-weight: 700;
+  font-size: calc(14.5px * var(--ts, 1));
+  color: var(--ink);
 }
 
 .cvPeriod {
-  font-size: calc(10.5px * var(--ts, 1));
+  flex-shrink: 0;
+  font-size: calc(11.5px * var(--ts, 1));
   color: var(--text-muted);
-  padding-top: 1px;
+}
+
+.cvCompany {
+  font-size: calc(13px * var(--ts, 1));
+  font-weight: 600;
+  color: var(--blue-ink);
+}
+
+.cvJobNote {
+  margin-top: 4px !important;
+  font-size: calc(12.5px * var(--ts, 1)) !important;
 }
 
 .cvList {
   margin: 0;
-  padding-left: 16px;
-  font-size: calc(12px * var(--ts, 1));
-  line-height: 1.4;
-  color: #2e2a22;
-}
-
-.cvQa {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.cvQa div {
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: calc(11.5px * var(--ts, 1));
-  line-height: 1.4;
+  gap: 4px;
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.5;
+  color: var(--text-faint);
 }
 
-.cvQa b {
-  color: #1c2335;
+.cvList li {
+  position: relative;
+  padding-left: 14px;
 }
 
-.cvQa span {
-  font-style: italic;
-  color: #3a362f;
+.cvList li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  background: var(--gold);
+}
+
+.cvStrong {
+  font-family: var(--font-display);
+  font-size: calc(22px * var(--ts, 1)) !important;
+  font-weight: 700;
+  color: var(--ink) !important;
 }
 
 .cvChips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 
 .cvChips span {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid #c8cfdb;
-  font-size: calc(11px * var(--ts, 1));
-  color: #1c2335;
-}
-
-.cvMain {
-  gap: clamp(8px, 1.6vh, 16px);
-}
-
-.cvSide {
-  gap: clamp(8px, 1.6vh, 16px);
-  background: var(--paper-muted);
-  border-left: 3px solid var(--gold);
-  border-radius: 8px;
-  padding: 12px 14px;
-}
-
-.cvSection h3 {
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-light);
+  border: 1px solid var(--border-muted);
+  font-size: calc(12px * var(--ts, 1));
   color: var(--ink);
-  font-size: calc(11px * var(--ts, 1));
-  padding-bottom: 3px;
-  border-bottom: 1px solid var(--border-muted);
 }
 
-.cvSection p,
-.cvList,
-.cvTimeline {
-  font-size: calc(13px * var(--ts, 1));
-}
-
-.cvTimeline {
-  border-left-color: var(--border-muted);
-  gap: 8px;
-}
-
-.cvTimeline li::before {
-  background: var(--gold);
-  box-shadow: 0 0 0 2px #fffdf7;
-}
-
-.cvTimeline em,
-.cvPeriod {
-  font-size: calc(11.5px * var(--ts, 1));
+/* başvuru formu: CV'nin altında, iki sütun boyunca ayrı bir şerit */
+.cvForm {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(76, 127, 176, 0.06);
+  border: 1px dashed rgba(76, 127, 176, 0.4);
 }
 
 .cvQa div {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-light);
+}
+
+.cvQa {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+
+.cvQa div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.45;
 }
 
 .cvQa b {
+  font-weight: 600;
   color: var(--ink);
 }
 
-/* sorular ana sütunda kalan yüksekliği alır */
-.cvMain > .cvSection:last-child {
-  flex: 1;
-}
-
-.cvStrong {
-  font-size: calc(20px * var(--ts, 1)) !important;
-  color: var(--ink) !important;
-}
-
-.cvChips span {
-  background: #fffdf7;
-  border-color: var(--border-muted);
-  color: var(--ink);
-  font-size: calc(11.5px * var(--ts, 1));
-}
-
-.cvQuote {
-  border-left-color: var(--gold);
-  font-size: calc(13.5px * var(--ts, 1)) !important;
+.cvQa span {
+  color: var(--text-faint);
+  font-style: italic;
 }
 
 /* altta CV'nin devamı var: alt kenarı soluklaşır */
 .cvBodyMore {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
 }
-@media (max-height: 820px) {
 
+@media (max-height: 820px) {
   .cvMain,
   .cvSide {
-    gap: 6px;
+    gap: 10px;
   }
 
   .cvSide {
-    padding: 8px 10px;
+    padding: 10px 12px;
   }
 
   .cvSection h3 {
-    margin-bottom: 2px;
-    padding-bottom: 2px;
+    margin-bottom: 5px;
   }
 
   .cvSection p,
-  .cvList,
-  .cvTimeline {
+  .cvList {
     font-size: calc(12.5px * var(--ts, 1));
-    line-height: 1.35;
+    line-height: 1.45;
   }
 
-  .cvTimeline {
-    gap: 4px;
-  }
-
-  .cvQa div {
-    font-size: calc(12px * var(--ts, 1));
-    line-height: 1.35;
-  }
-
-  .cvQuote {
-    font-size: calc(12.5px * var(--ts, 1)) !important;
+  .cvJobs {
+    gap: 8px;
   }
 
   .cvStrong {
-    font-size: calc(17px * var(--ts, 1)) !important;
+    font-size: calc(18px * var(--ts, 1)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .cvQa {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

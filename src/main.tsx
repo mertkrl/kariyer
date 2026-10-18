@@ -10,7 +10,7 @@ import { connectSound } from './game/lib/sound'
 import { registerServiceWorker } from './swUpdate'
 import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/lib/prefs'
 
-applyTextScale(loadTextScale())
+applyTextScale(loadTextScale(), false)
 
 // Ses motoru, ilk tık sesinden önce kayıtlı sessiz modunu ve ses seviyelerini bilmeli.
 audioEngine.setMuted(readStoredMuted())
