@@ -21,7 +21,6 @@ const SECTIONS: { label: string; field?: EvaluatedField; ok: string }[] = [
 ];
 
 type Band = 'high' | 'mid' | 'low';
-const BAND_NAME: Record<Band, string> = { high: 'Güçlü', mid: 'Orta', low: 'Zayıf' };
 
 /** Aynı adayda hep aynı sayı: id ve bölümden küçük, kararlı bir oynama (-12…+12). */
 function wobble(id: string, label: string) {
@@ -145,7 +144,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
               {noteOpen ? 'Raporu kapat' : 'Analiz hazır · raporu aç'}
             </button>
           ) : (
-            <span>Puanı görmek kararını etkileyebilir. İstersen "Değerlendir" de; istemezsen dosyayı okuyarak karar ver.</span>
+            <span>İstersen değerlendirt; istemezsen dosyayı okuyarak karar ver.</span>
           )}
         </div>
       )}
@@ -164,22 +163,22 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
               ×
             </button>
           </div>
-          <div className={report.scoreHead}>Bölüm puanları · yüksekten düşüğe</div>
           <ol className={report.scoreList}>
             {sectionScores(candidate).map((r) => (
               <li key={r.label} className={`${report[`band_${r.band}`]} ${r.bad ? report.flagged : ''}`}>
-                <span className={report.scoreLabel}>
+                <span className={report.scoreLabel} title={r.text}>
                   <b>{r.label}</b>
-                  <small>{r.text}</small>
+                  {r.bad && <small>{r.text}</small>}
                 </span>
                 <span className={report.scoreTrack} aria-hidden="true">
                   <i style={{ width: `${r.score}%` }} />
                 </span>
                 <b className={`${report.scoreValue} mono`}>{r.score}</b>
-                <span className={report.scoreTag}>{BAND_NAME[r.band]}</span>
               </li>
             ))}
           </ol>
+          <details className={report.more}>
+            <summary>Ayrıntılar · ATS raporu ve sistem notu</summary>
           <div className={`${styles.noteGrid} ${report.bubbleGrid}`}>
             {(() => {
               const ats = atsReport(candidate, days[currentDayIndex].applicationTarget);
@@ -228,6 +227,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
               <div className={styles.internalNoteText}>{candidate.internalNote}</div>
             </div>
           </div>
+          </details>
         </div>
       )}
     </div>

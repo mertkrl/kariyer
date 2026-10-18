@@ -100,6 +100,7 @@ export function JobSelectScreen() {
 
               <p className={styles.postingAbout}>{selectedJob.aboutRole}</p>
 
+              <div className={styles.postingSections}>
               {(
                 [
                   ['Görev ve Sorumluluklar', selectedJob.responsibilities],
@@ -116,6 +117,7 @@ export function JobSelectScreen() {
                   </ul>
                 </section>
               ))}
+              </div>
             </article>
           </div>
         </div>

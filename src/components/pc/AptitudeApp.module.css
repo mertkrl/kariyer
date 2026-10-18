@@ -464,34 +464,165 @@
   color: var(--a-muted);
 }
 
-/* ── gözetimli sınav ── */
+/* ── gözetimli sınav: solda sayaç ve soru haritası, sağda soru ── */
 
 .exam {
   flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  background: #f6f8fb;
+}
+
+.examSide {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 0 16px 28px;
-}
-
-.examBar {
-  align-self: stretch;
-  display: flex;
-  align-items: center;
   gap: 16px;
-  padding: 10px 22px;
-  margin: 0 -16px;
+  padding: 20px 18px;
   background: #fff;
-  border-bottom: 1px solid var(--a-line);
-  font-size: var(--fs-small);
+  border-right: 1px solid var(--a-line);
+  overflow-y: auto;
 }
 
-.examSection {
-  font-weight: 600;
+.clockRing {
+  --p: 100;
+  position: relative;
+  width: 116px;
+  height: 116px;
+  margin: 0 auto 4px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--a-blue) calc(var(--p) * 1%), var(--a-line) 0);
+  transition: background 1s linear;
+}
+
+.clockRing::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.clockRing b {
+  position: relative;
+  z-index: 1;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.clockRing small {
+  position: absolute;
+  bottom: 26px;
+  z-index: 1;
+  font-size: var(--fs-label);
+  color: var(--a-muted);
+}
+
+.clockHurry {
+  background: conic-gradient(var(--a-bad) calc(var(--p) * 1%), var(--a-line) 0);
+}
+
+.clockHurry b {
+  color: var(--a-bad);
+}
+
+.mapSection {
+  margin-bottom: 6px;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+
+.mapSectionOn {
+  color: var(--a-blue);
+}
+
+.qMap {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qMap button {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--a-line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--a-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.qMap .qDone {
+  background: var(--a-blue);
+  border-color: var(--a-blue);
+  color: #fff;
+}
+
+.qMap .qLost {
+  background: #fbe9e5;
+  border-color: #f0c4ba;
+  color: var(--a-bad);
+}
+
+.qMap .qNow {
+  outline: 2px solid var(--a-blue);
+  outline-offset: 1px;
+}
+
+.mapLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: auto;
+  font-size: var(--fs-label);
+  color: var(--a-muted);
+}
+
+.mapLegend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 5px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.lgDone { background: var(--a-blue); }
+.lgLost { background: #fbe9e5; border: 1px solid #f0c4ba; }
+.lgNow { border: 2px solid var(--a-blue); }
+
+.examMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px clamp(18px, 3vw, 40px);
+  overflow-y: auto;
+}
+
+.crumbs {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--fs-small);
+  color: var(--a-muted);
 }
 
 .proctor {
   color: var(--a-bad);
+  font-weight: 600;
   animation: blink 1.6s steps(2) infinite;
 }
 
@@ -501,72 +632,77 @@
   }
 }
 
-.clock {
-  margin-left: auto;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.hurry {
-  color: var(--a-bad);
-}
-
-.steps {
-  display: flex;
-  gap: 6px;
-  margin: 18px 0 10px;
-  padding: 0;
-  list-style: none;
-}
-
-.steps li {
-  width: 22px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--a-line);
-}
-
-.steps .stepDone {
-  background: var(--a-blue);
-}
-
-.steps .stepNow {
-  background: var(--a-blue);
-  opacity: 0.45;
-}
-
-.timer {
-  width: 100%;
-  max-width: 600px;
-  height: 4px;
-  margin-bottom: 18px;
-  border-radius: 2px;
-  background: var(--a-line);
-  overflow: hidden;
-}
-
-.timer i {
-  display: block;
-  height: 100%;
-  background: var(--a-blue);
-  transition: width 1s linear;
-}
-
-.timer .timerHurry {
-  background: var(--a-bad);
-}
-
 .question {
-  width: 100%;
-  max-width: 600px;
-  padding: 22px 24px;
+  padding: 24px 28px;
   border: 1px solid var(--a-line);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 6px 20px rgba(29, 39, 51, 0.06);
+  box-shadow: 0 8px 24px rgba(29, 39, 51, 0.06);
+  animation: qIn 0.2s ease-out;
+}
+
+@keyframes qIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.examNav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.navBtn {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--a-line);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.navBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.navNext {
+  background: var(--a-blue);
+  border-color: var(--a-blue);
+  color: #fff;
+}
+
+.givenNow,
+.lockedNote {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: #eef3fd;
+  font-size: var(--fs-small);
+}
+
+.lockedNote {
+  background: #fbe9e5;
+}
+
+@media (max-width: 760px) {
+  .exam {
+    grid-template-columns: 1fr;
+  }
+
+  .examSide {
+    border-right: 0;
+    border-bottom: 1px solid var(--a-line);
+  }
 }
 
 .qMeta {
+  display: block;
   font-size: var(--fs-label);
   letter-spacing: 0.6px;
   text-transform: uppercase;
@@ -574,8 +710,8 @@
 }
 
 .prompt {
-  margin: 6px 0 14px;
-  font-size: 16px;
+  margin: 6px 0 18px;
+  font-size: 19px;
   font-weight: 600;
   line-height: 1.45;
 }

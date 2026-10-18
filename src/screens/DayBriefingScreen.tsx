@@ -20,17 +20,23 @@ export function DayBriefingScreen() {
           <div className={styles.divider} />
           <ul className={styles.introFacts}>
             <li>
-              <b>11 ay</b> işsiz kaldın. <b>214</b> başvuru, <b>9</b> mülakat, <b>1</b> teklif.
+              Alarm çalmadan uyandın. <b>11 aydır</b> ilk kez kalkman gereken bir sabah var.
             </li>
-            <li>Başvurularının çoğuna hiç cevap gelmedi. Birine, gönderdikten 0,4 saniye sonra otomatik ret geldi.</li>
-            <li>Annenle aynı evde oturuyorsun. Kardeşin üniversitede; okulu "ilk 10"da değil diye staj başvurularına kimse dönmüyor.</li>
             <li>
-              Bugün iki aylık deneme süren başlıyor. Unvanın: <b>İşe Alım Uzmanı</b>.
+              Telefonunda hâlâ o sayılar duruyor: <b>214</b> başvuru, <b>9</b> mülakat, <b>1</b> teklif. Bir şirketin
+              ret maili, sen "gönder"e bastıktan 0,4 saniye sonra gelmişti. Kimse okumamıştı bile.
+            </li>
+            <li>
+              Annen mutfakta çayı koymuş, "Bugün iyi giyin" diyor. Kardeşin yine staj başvurusu yapıyor; okulu "ilk
+              10"da değil diye kimse dönmüyor.
+            </li>
+            <li>
+              Bugün iki aylık deneme süren başlıyor. Kapıdaki kartında yazan unvan: <b>İşe Alım Uzmanı</b>.
             </li>
           </ul>
-          <p className={styles.introLine}>Artık CV'leri okuyan taraf sensin.</p>
+          <p className={styles.introLine}>Masana bir CV yığını gelecek. Bu kez okuyan sensin. Onlara, sana davranılmadığı gibi mi davranacaksın?</p>
           <Button variant="danger" sound="connect" className={styles.cta} onClick={() => setIntroDone(true)}>
-            Memoyu Oku →
+            Müdürün Notunu Oku →
           </Button>
         </div>
       </div>
@@ -42,7 +48,7 @@ export function DayBriefingScreen() {
       <div className={styles.card}>
         <div className={styles.stamp}>HİZMETE ÖZEL</div>
 
-        <div className={styles.header}>Tavrinsa Labs Inc. — Günlük Memo</div>
+        <div className={styles.header}>Tavrinsa Labs Inc. — Müdürden Günün Notu</div>
         <h1 className={styles.title}>
           Gün {day.day} — {day.dayName}
         </h1>

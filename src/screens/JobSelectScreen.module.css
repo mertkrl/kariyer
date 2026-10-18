@@ -114,19 +114,6 @@
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
-.draft::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 4px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-  opacity: 0.45;
-  transition: opacity 0.2s ease;
-}
-
 .draft:hover {
   border-color: color-mix(in srgb, var(--accent) 60%, var(--border-dark));
 }
@@ -135,10 +122,6 @@
   background: color-mix(in srgb, var(--accent) 14%, var(--ink));
   border-color: var(--accent);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
-}
-
-.draftSelected::before {
-  opacity: 1;
 }
 
 .draftTop {
@@ -247,10 +230,12 @@
 .posting {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  padding: 22px clamp(18px, 2.6vw, 34px) 26px;
+  overflow: hidden;
+  padding: clamp(12px, 2vh, 20px) clamp(16px, 2.2vw, 28px);
   color: var(--ink);
-  border-top: 4px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.4vh, 14px);
   animation: postingFadeIn 0.3s ease both;
 }
 
@@ -272,8 +257,8 @@
 }
 
 .postingLogo {
-  width: 48px;
-  height: 48px;
+  width: clamp(34px, 5vh, 44px);
+  height: clamp(34px, 5vh, 44px);
   border-radius: 10px;
   flex-shrink: 0;
   display: grid;
@@ -292,7 +277,7 @@
 .postingTitle {
   margin: 0;
   font-family: var(--font-display);
-  font-size: calc(22px * var(--ts, 1));
+  font-size: calc(clamp(17px, 2.6vh, 21px) * var(--ts, 1));
   font-weight: 700;
   line-height: 1.25;
 }
@@ -307,11 +292,11 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin: 18px 0;
+  margin: 0;
 }
 
 .facts div {
-  padding: 10px 12px;
+  padding: clamp(5px, 0.9vh, 9px) 12px;
   border-radius: var(--radius-sm);
   background: var(--paper-muted);
   border: 1px solid var(--border-muted);
@@ -326,8 +311,8 @@
 }
 
 .facts dd {
-  margin: 3px 0 0;
-  font-size: calc(14px * var(--ts, 1));
+  margin: 2px 0 0;
+  font-size: calc(13px * var(--ts, 1));
   font-weight: 600;
 }
 
@@ -337,15 +322,17 @@
 }
 
 .postingAbout {
-  margin: 0 0 18px;
-  font-size: calc(15px * var(--ts, 1));
-  line-height: 1.65;
+  margin: 0;
+  font-size: calc(clamp(12.5px, 1.75vh, 14.5px) * var(--ts, 1));
+  line-height: 1.5;
   color: #2e2a24;
-  max-width: 68ch;
 }
 
-.postingSection + .postingSection {
-  margin-top: 16px;
+.postingSections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 22px);
+  min-height: 0;
 }
 
 .postingSectionLabel {
@@ -362,16 +349,15 @@
 
 .postingList {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-width: 72ch;
+  gap: clamp(3px, 0.6vh, 6px);
 }
 
 .postingList li {
-  font-size: calc(14.5px * var(--ts, 1));
-  line-height: 1.5;
+  font-size: calc(clamp(12px, 1.65vh, 13.5px) * var(--ts, 1));
+  line-height: 1.4;
   color: #2e2a24;
 }
 
@@ -443,8 +429,13 @@
     grid-template-columns: 1fr;
   }
 
-  .facts {
+  .facts,
+  .postingSections {
     grid-template-columns: 1fr;
+  }
+
+  .posting {
+    overflow: visible;
   }
 
   .screen {

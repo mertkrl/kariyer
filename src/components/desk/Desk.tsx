@@ -142,13 +142,13 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   return (
     <div ref={rootRef} className={styles.desk} onKeyDown={moveFocus}>
       <DeskDefs />
-      {/* ilk sabahın yönlendirmesi sahnenin altında durur; hiçbir nesnenin üstünü örtmez */}
-      {firstClockIn && (
-        <div className={guide.guide} role="status">
-          <span className={guide.guideKey}>B</span> Güne başlamak için bilgisayara geç
-        </div>
-      )}
       <div className={styles.stage} style={stageStyle}>
+        {/* ilk sabahın yönlendirmesi bilgisayarın hemen üstünde durur */}
+        {firstClockIn && (
+          <div className={guide.guide} role="status">
+            Güne başlamak için bilgisayara geç
+          </div>
+        )}
         <DeskRoom className={styles.room} scale={scale} />
 
         {/* ── duvarda ── */}

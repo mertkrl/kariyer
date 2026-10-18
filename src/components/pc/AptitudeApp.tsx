@@ -224,76 +224,161 @@ function SelfTest({ onDone }: { onDone: () => void }) {
   const paused = useGameStore((s) => s.paused);
   const finish = useGameStore((s) => s.finishAptitude);
   const step = useGameStore((s) => s.aptitudeStep);
-  const [answers, setAnswers] = useState<AptitudeAnswer[]>([]);
-  const [left, setLeft] = useState(secondsOf(0));
-  const leftRef = useRef(left);
-  const index = answers.length;
-  // pencereyi yarıda kapatmak testi bitirir: cevaplanmayanlar boş sayılır (hiç cevap yoksa test başlamamıştır)
+  const N = APTITUDE_QUESTIONS.length;
+  // undefined: henüz dokunulmadı · null: süre doldu · sayı: işaretlenen şık
+  const [answers, setAnswers] = useState<(AptitudeAnswer | undefined)[]>(() => Array(N).fill(undefined));
+  // her sorunun kendi kalan süresi: geri dönünce kaldığı yerden işler, sıfırlanmaz
+  const [times, setTimes] = useState<number[]>(() => APTITUDE_QUESTIONS.map((_, i) => secondsOf(i)));
+  const [index, setIndex] = useState(0);
+  const [finished, setFinished] = useState(false);
   const pending = useRef(answers);
+  pending.current = answers;
 
-  const answer = (a: AptitudeAnswer) => {
-    const next = [...answers, a];
-    pending.current = next;
-    step();
-    setLeft(secondsOf(next.length));
-    setAnswers(next);
-    if (next.length === APTITUDE_QUESTIONS.length) {
-      finish(next);
-      onDone();
-    }
+  const complete = (list: (AptitudeAnswer | undefined)[]) => {
+    setFinished(true);
+    finish(list.map((a) => (a === undefined ? null : a)));
+    onDone();
   };
 
+  const answer = (a: AptitudeAnswer) => {
+    // mesai yalnızca soruya ilk kez cevap verilince düşer; fikir değiştirmek bedava
+    if (answers[index] === undefined) step();
+    const next = answers.slice();
+    next[index] = a;
+    setAnswers(next);
+    if (index < N - 1) setIndex(index + 1);
+  };
+
+  // pencereyi yarıda kapatmak testi bitirir: cevaplanmayanlar boş sayılır (hiç cevap yoksa test başlamamıştır)
   useEffect(
     () => () => {
-      if (pending.current.length > 0 && pending.current.length < APTITUDE_QUESTIONS.length) finish(pending.current);
+      const list = pending.current;
+      if (!finishedRef.current && list.some((a) => a !== undefined)) finish(list.map((a) => (a === undefined ? null : a)));
     },
     [finish],
   );
+  const finishedRef = useRef(finished);
+  finishedRef.current = finished;
 
-  // süre dolunca soru boş geçer; sayaç saniyede bir iner, oyun duraklatılınca durur
-  const answerRef = useRef(answer);
+  // süre dolunca soru boş geçer ve kilitlenir; sayaç saniyede bir iner, oyun duraklatılınca durur
+  const timeout = useRef(() => {});
+  timeout.current = () => {
+    if (answers[index] === undefined) {
+      step();
+      const next = answers.slice();
+      next[index] = null;
+      setAnswers(next);
+    }
+    if (index < N - 1) setIndex(index + 1);
+  };
+  const left = times[index];
   useEffect(() => {
-    answerRef.current = answer;
-    leftRef.current = left;
-  });
-  useEffect(() => {
-    if (paused) return;
-    const id = window.setInterval(() => {
-      setLeft((s) => s - 1);
-      if (leftRef.current <= 1) answerRef.current(null);
+    if (paused || left <= 0) return;
+    const id = window.setTimeout(() => {
+      setTimes((t) => t.map((v, i) => (i === index ? v - 1 : v)));
+      if (left <= 1) timeout.current();
     }, 1000);
-    return () => window.clearInterval(id);
-  }, [paused]);
+    return () => window.clearTimeout(id);
+  }, [paused, left, index]);
 
   const q = APTITUDE_QUESTIONS[index];
   if (!q) return null;
   const total = secondsOf(index);
   const section = sectionOf(q.kind);
+  const locked = left <= 0;
+  const given = answers[index];
+  const answeredCount = answers.filter((a) => a !== undefined).length;
+  const go = (i: number) => {
+    audioEngine.playUi('click');
+    setIndex(Math.max(0, Math.min(N - 1, i)));
+  };
+  const ratio = Math.max(0, left) / total;
   return (
     <div className={styles.exam}>
-      <div className={styles.examBar}>
-        <span className={styles.examSection}>
-          Bölüm {section + 1}/{APTITUDE_SECTIONS.length} · {APTITUDE_SECTIONS[section].title}
-        </span>
-        <span className={styles.proctor}>● Kamera gözetimi aktif</span>
-        <span className={`mono ${styles.clock} ${left <= 10 ? styles.hurry : ''}`}>00:{String(Math.max(0, left)).padStart(2, '0')}</span>
-      </div>
-      <ol className={styles.steps} aria-label={`Soru ${index + 1} / ${APTITUDE_QUESTIONS.length}`}>
-        {APTITUDE_QUESTIONS.map((x, i) => (
-          <li key={x.id} className={i < index ? styles.stepDone : i === index ? styles.stepNow : undefined} />
+      <aside className={styles.examSide}>
+        <div className={`${styles.clockRing} ${left <= 10 ? styles.clockHurry : ''}`} style={{ ['--p' as string]: ratio * 100 }} role="timer" aria-label={`Bu soru için kalan süre ${Math.max(0, left)} saniye`}>
+          <b className="mono">00:{String(Math.max(0, left)).padStart(2, '0')}</b>
+          <small>bu soru</small>
+        </div>
+        {APTITUDE_SECTIONS.map((sec, si) => (
+          <div key={sec.id}>
+            <div className={`${styles.mapSection} ${si === section ? styles.mapSectionOn : ''}`}>
+              Bölüm {si + 1} · {sec.title}
+            </div>
+            <ol className={styles.qMap}>
+              {APTITUDE_QUESTIONS.map((x, i) => ({ x, i }))
+                .filter(({ x }) => sectionOf(x.kind) === si)
+                .map(({ x, i }) => {
+                  const lost = answers[i] === null;
+                  const done = typeof answers[i] === 'number';
+                  return (
+                    <li key={x.id}>
+                      <button
+                        className={`${i === index ? styles.qNow : ''} ${done ? styles.qDone : ''} ${lost ? styles.qLost : ''}`}
+                        onClick={() => go(i)}
+                        aria-label={`Soru ${i + 1}${done ? ' · cevaplandı' : lost ? ' · süre doldu' : ''}`}
+                        aria-current={i === index ? 'step' : undefined}
+                      >
+                        {i + 1}
+                      </button>
+                    </li>
+                  );
+                })}
+            </ol>
+          </div>
         ))}
-      </ol>
-      <div className={styles.timer} aria-hidden="true">
-        <i style={{ width: `${(Math.max(0, left) / total) * 100}%` }} className={left <= 10 ? styles.timerHurry : ''} />
-      </div>
-      <div className={styles.question}>
-        <span className={styles.qMeta}>
-          Soru {index + 1} · {q.kind}
-        </span>
-        <p className={styles.prompt}>{q.prompt}</p>
-        {q.figure && <div className={styles.figure}>{q.figure}</div>}
-        <QuestionWidget key={q.id} q={q} onAnswer={answer} />
-        {q.hint && <p className={styles.hint}>{q.hint}</p>}
+        <div className={styles.mapLegend}>
+          <span><i className={styles.lgDone} />Cevaplandı</span>
+          <span><i className={styles.lgLost} />Süre doldu</span>
+          <span><i className={styles.lgNow} />Şu an</span>
+        </div>
+      </aside>
+
+      <div className={styles.examMain}>
+        <div className={styles.crumbs}>
+          <span>
+            Soru {index + 1} / {N} · {answeredCount} cevaplandı
+          </span>
+          <span className={styles.proctor}>● Kamera gözetimi aktif</span>
+        </div>
+        <div className={styles.question} key={q.id}>
+          <span className={styles.qMeta}>{q.kind}</span>
+          <p className={styles.prompt}>{q.prompt}</p>
+          {q.figure && <div className={styles.figure}>{q.figure}</div>}
+          {locked ? (
+            <p className={styles.lockedNote}>Bu sorunun süresi doldu. {given === null || given === undefined ? 'Boş geçti.' : <>İşaretlediğin: <b>{q.options[given]}</b></>}</p>
+          ) : (
+            <>
+              {typeof given === 'number' && (
+                <p className={styles.givenNow}>
+                  Şu anki cevabın: <b>{q.options[given]}</b> · istersen değiştir
+                </p>
+              )}
+              <QuestionWidget key={`${q.id}-${given ?? 'x'}`} q={q} onAnswer={answer} />
+            </>
+          )}
+          {q.hint && <p className={styles.hint}>{q.hint}</p>}
+        </div>
+        <div className={styles.examNav}>
+          <button className={styles.navBtn} onClick={() => go(index - 1)} disabled={index === 0}>
+            ← Önceki
+          </button>
+          {index < N - 1 ? (
+            <button className={`${styles.navBtn} ${styles.navNext}`} onClick={() => go(index + 1)}>
+              Sonraki →
+            </button>
+          ) : (
+            <button
+              className={`${styles.navBtn} ${styles.navNext}`}
+              onClick={() => {
+                audioEngine.playUi('click');
+                complete(answers);
+              }}
+            >
+              Testi bitir
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -115,6 +115,7 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
   const toggleMute = useGameStore((s) => s.toggleMute);
   const restart = useGameStore((s) => s.restart);
   const [confirmHome, setConfirmHome] = useState(false);
+  const [showKeys, setShowKeys] = useState(false);
   const [textScale, setTextScale] = useState(loadTextScale);
 
   useEffect(() => {
@@ -180,8 +181,18 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
           </div>
         </div>
 
-        <details className={styles.shortcuts}>
-          <summary>Klavye kısayolları</summary>
+        <button
+          className={styles.btn}
+          aria-expanded={showKeys}
+          onClick={() => {
+            audioEngine.playUi('click');
+            setShowKeys((v) => !v);
+          }}
+        >
+          {showKeys ? 'Kısayolları gizle' : 'Kısayolları göster'}
+        </button>
+        {showKeys && (
+        <div className={styles.shortcuts}>
           {SHORTCUTS.map((group) => (
             <div key={group.where} className={styles.shortcutGroup}>
               <div className={styles.shortcutWhere}>{group.where}</div>
@@ -201,7 +212,8 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
               </dl>
             </div>
           ))}
-        </details>
+        </div>
+        )}
 
         {confirmHome ? (
           <div className={styles.confirmHome}>
