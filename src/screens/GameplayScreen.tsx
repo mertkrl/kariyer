@@ -13,6 +13,7 @@ import { DeskCall } from '../components/desk/DeskCall';
 import { NotificationStack } from '../components/desk/NotificationStack';
 import { PcDesktop, type PcApp } from '../components/pc/PcDesktop';
 import { inbox } from '../game/day/mail';
+import { callbackLine } from '../game/day/desk';
 import type { ThreadId } from '../game/day/manager';
 import { RecallComposer } from '../components/gameplay/RecallComposer';
 import { EventBanner } from '../components/gameplay/EventBanner';
@@ -140,7 +141,10 @@ export function GameplayScreen() {
 
   const callState = { managerRequests, managerStance, hakanRapport, currentDayIndex, desk, performans, story, justifyRejects, finalists };
   const ringingCall = ringing ? callFor(callState, ringing) : undefined;
-  const activeCall = desk.inCall ? callFor(callState, desk.inCall) : undefined;
+  const answering = desk.inCall ? callFor(callState, desk.inCall) : undefined;
+  // cevapsız kalan bir aramayı geri aradın: konuşma onun tepkisiyle açılır
+  const activeCall =
+    answering && desk.calls[answering.id] === 'missed' ? { ...answering, outgoing: true, lines: [callbackLine(answering.caller), ...answering.lines] } : answering;
   const mails = inbox(currentDayIndex, workdayMinutes, extraMails);
   // yalnızca önemli e-posta omzuna dokunur; gerisi gelen kutusunda bekler
   const importantMails = mails.filter((m) => (m.folder ?? 'inbox') === 'inbox' && !m.spam && (m.important || m.reply));

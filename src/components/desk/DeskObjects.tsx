@@ -127,7 +127,7 @@ export function MouseArt() {
 
 /* ── Sabit hat ── */
 
-export function LandlineArt({ ringing, display }: { ringing: boolean; display: string }) {
+export function LandlineArt({ ringing, display, title = 'TAVRINSA' }: { ringing: boolean; display: string; title?: string }) {
   const keys: ReactElement[] = [];
   for (let row = 0; row < 4; row++) {
     for (let col = 0; col < 3; col++) {
@@ -149,7 +149,7 @@ export function LandlineArt({ ringing, display }: { ringing: boolean; display: s
       <path d="M116 50 H236 L240 88 H112 Z" fill={ringing ? '#cfe6c2' : '#9fae96'} />
       <path d="M116 50 H236 L240 88 H112 Z" fill="none" stroke="#1b1c1f" strokeWidth={2} />
       <text x={176} y={66} textAnchor="middle" fontSize={11} fontFamily="JetBrains Mono, monospace" fill="#1f2a1c" fontWeight={700}>
-        {ringing ? '☎ ARIYOR' : 'TAVRINSA'}
+        {ringing ? '☎ ARIYOR' : title}
       </text>
       <text x={176} y={81} textAnchor="middle" fontSize={10} fontFamily="JetBrains Mono, monospace" fill="#1f2a1c">
         {display}

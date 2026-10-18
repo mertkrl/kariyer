@@ -205,6 +205,12 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px;
+  /* telefondaki gibi: çubuk görünmez, tekerlek ya da parmakla kayar */
+  scrollbar-width: none;
+}
+
+.log::-webkit-scrollbar {
+  display: none;
 }
 
 .bubble {

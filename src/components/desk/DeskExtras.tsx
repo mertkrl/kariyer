@@ -31,7 +31,8 @@ export function deskExtras({ dayIndex, cleared }: Ctx): DeskExtra[] {
   if (dayIndex > BIRTHDAY_DAY) {
     out.push({
       id: 'cake',
-      box: [352, 500, 130, 70],
+      // masanın önünde, kupa ile cep telefonu arasında: monitöre ya da klasöre basarken araya girmesin
+      box: [1196, 676, 130, 70],
       label: 'Pasta tabağı',
       thought: dayIndex === BIRTHDAY_DAY + 1 ? 'Dünkü doğum günü pastasından kalan tabak. Mutfaktaki çöpe attın.' : 'İki gündür duran tabak. Krema kurumuştu. Çöpe attın.',
       art: <CakePlate stale={dayIndex > BIRTHDAY_DAY + 1} />,

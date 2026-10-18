@@ -209,11 +209,12 @@
   cursor: default;
 }
 
-/* yapay zekânın kararı: rozetinden sarkan bir baloncuk */
+/* yapay zekânın kararı: rozetinden sarkan bir baloncuk. Karar damgasının (z 5) üstünde durur:
+   rapor açıkken CV'nin "Reddedildi" damgası raporun üstüne binmesin */
 .systemBox {
   position: relative;
   overflow: visible;
-  z-index: 4;
+  z-index: 6;
 }
 
 button.systemIconBadge {

@@ -22,9 +22,11 @@ export interface DossierProps {
   testScore: number;
   followUsed: boolean;
   caseAsked: boolean;
+  /** Heyecanlı aday rahatlatılmadı: vakada takıldı. */
+  rattled?: boolean;
 }
 
-export function Dossier({ candidate, details, selectedId, invitedOn, agreed, leadHeard, fit, testScore, followUsed, caseAsked }: DossierProps) {
+export function Dossier({ candidate, details, selectedId, invitedOn, agreed, leadHeard, fit, testScore, followUsed, caseAsked, rattled = false }: DossierProps) {
   return (
       <aside className={styles.dossier} aria-label="Aday dosyası">
         <h3>Dosya</h3>
@@ -68,6 +70,7 @@ export function Dossier({ candidate, details, selectedId, invitedOn, agreed, lea
             <p>"{leadView(selectedId, fit)}"</p>
             {followUsed && <p>"{followUpVerdict(selectedId, fit)}"</p>}
             {caseAsked && <p>"{caseVerdict(selectedId)}"</p>}
+            {rattled && <p>"Çok gergindi; sorumda heyecandan takıldı. Sakin bir ortamda daha iyi çıkardı sanki. Puanını bir kırdım."</p>}
           </div>
         ) : (
           <p className={styles.leadEmpty}>Teknik bölümden sonra ekip liderinin görüşü burada görünür.</p>

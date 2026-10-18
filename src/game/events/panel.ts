@@ -1,13 +1,13 @@
 /*
- * Cuma kurulu. Her mülakatı adayı çağıran yürütür: Defne kendi çağırdıklarıyla, Ayşe ve Emre
- * kendi kısa listeleriyle, Hakan Bey kendi önerdikleriyle görüşür; Defne bütün odalarda oturur ve
- * başkalarının görüşmelerine de kendi puanını verir. Ümit her mülakatta teknik
- * soruyu sorar, Hakan Bey her mülakatta "uyum" sorusunu. Gün sonunda kurulda her adayın üç puanı
- * yan yana durur: görüşmeyi yapanın puanı, Ümit'in teknik puanı, Hakan Bey'in uyum puanı.
+ * Cuma kurulu. Panel beş kişiliktir: Defne'nin çağırdıkları ve ekibin (Ayşe, Emre, Hakan Bey)
+ * kısa listelerinden gelenler. Her görüşmeyi Defne yürütür; adayı getiren kendi sorusunu, Ümit
+ * teknik soruyu, Hakan Bey "uyum" sorusunu sorar. Kurulda her adayın puanları yan yana durur:
+ * Defne'nin, Ümit'in teknik puanı, Hakan Bey'in uyum puanı ve (ekipten geldiyse) getirenin puanı.
  * Toplamı en yüksek ve bütçeye sığan aday işe alınır.
  *
  * Puanlar kimin nasıl baktığını taşır: Ayşe dürüst puanlar, Emre ATS skoruna bakar, Hakan Bey
  * kendi önerdiklerini sever ve "uzun vadeli uyum" diye kadınlara ve 40 yaş üstüne düşük verir.
+ * Heyecanlı bir adayı kimse rahatlatmadıysa Ümit'in vakasında takılır ve bir puan kaybeder.
  */
 import type { Decision } from '../types';
 import type { Finalist } from '../store/storeTypes';
@@ -62,9 +62,10 @@ export function colleagueScore(id: string, who: Exclude<Interviewer, 'you'>): nu
 }
 
 /** Ümit'in teknik sorudan (kod vakasından) verdiği puan. Ozan teknikte kusursuzdur; sorunu başka yerde. */
-export function techScore(id: string): number {
+export function techScore(id: string, rattled = false): number {
   if (id === 'ozan') return 5;
-  return fitOf(id);
+  // heyecanı yatıştırılmayan aday vakada takılır: Ümit bir puan kırar
+  return Math.max(1, fitOf(id) - (rattled ? 1 : 0));
 }
 
 /** Hakan Bey'in "uyum" puanı: kendi adamlarına tam, listesindeki soruların hedeflediklerine (kadınlar, 40 yaş üstü) düşük. */
@@ -99,11 +100,12 @@ export function panelRows(
   agreed: Record<string, number | null>,
   structured = false,
   sitIn: Record<string, number | null> = {},
+  rattled: ReadonlySet<string> = new Set(),
 ): PanelRow[] {
   return finalists.map((f) => {
     const owner = ownerOf(f, pastRequests);
     const interviewer = owner === 'you' ? (myScores[f.id] ?? null) : colleagueScore(f.id, owner);
-    const tech = techScore(f.id);
+    const tech = techScore(f.id, rattled.has(f.id));
     const hakan = structured ? null : hakanScore(f.id, owner);
     const you = owner === 'you' ? null : (sitIn[f.id] ?? null);
     const pay = f.id in agreed ? (agreed[f.id] ?? salaryOf(f.id)) : salaryOf(f.id);

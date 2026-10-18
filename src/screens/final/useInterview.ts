@@ -4,10 +4,10 @@ import { forbiddenAnswer } from '../../game/day/story';
 import { candidateOf } from '../../game/data/candidates';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { backQuestionsFor, experienceYears, followUpAnswer } from '../../game/data/interviewExtras';
-import { average, caseAnswer, caseFor, salaryTalk, type SalaryMove, type Scores } from '../../game/events/interview';
+import { average, caseAnswer, caseFor, salaryMoves, salaryTalk, type SalaryMove, type Scores } from '../../game/events/interview';
 import { testTalk } from '../../game/events/aptitude';
 import { audioEngine } from '../../audio/audioEngine';
-import { CASE, FOLLOW, FORBIDDEN, TEST, THINKING_MS, TYPING_MS_PER_CHAR, type Entry, type Typing } from './interviewModel';
+import { CALM_ANSWERS, CASE, FOLLOW, FORBIDDEN, OWNER, TEST, THINKING_MS, TYPING_MS_PER_CHAR, isNervous, ownerSalaryMove, type Entry, type Typing } from './interviewModel';
 import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from './interviewRoom';
 
 /*
@@ -15,7 +15,22 @@ import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleS
  * maaşlar. Kurallar interviewRoom.ts'te; bu hook onları React durumuna ve zamanlayıcılara bağlar.
  * Ekran yalnızca seçili adayı ve kendi adaylarının listesini verir.
  */
-export function useInterview({ selectedId, ownIds, structured }: { selectedId: string; ownIds: string[]; structured: boolean }) {
+export function useInterview({
+  selectedId,
+  ownIds,
+  structured,
+  ownerOf,
+  runnerOf,
+}: {
+  selectedId: string;
+  /** Bugünkü panelin bütün adayları: hepsiyle sen görüşürsün. */
+  ownIds: string[];
+  structured: boolean;
+  /** Adayı panele kim getirdi. */
+  ownerOf: (id: string) => 'you' | 'ayse' | 'emre' | 'hakan';
+  /** Açılıştan sonra görüşmeyi kim sürdürür. */
+  runnerOf: (id: string) => 'you' | 'ayse' | 'emre' | 'hakan';
+}) {
   const settleSalary = useGameStore((s) => s.settleSalary);
   const answerCandidate = useGameStore((s) => s.answerCandidate);
   const seed = useGameStore((s) => s.seed);
@@ -34,8 +49,12 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
 
   const candidate = candidateOf(selectedId);
   const entries = log[selectedId] ?? [];
-  // adayın sonda sorduğu sorular: sayısı ve tarzı deneyimine bağlı
-  const backs = backQuestionsFor(selectedId, experienceYears(candidate.experience), ownIds);
+  // ekipten birinin yürüttüğü görüşme: sen gözlemcisin, en fazla iki soru sorarsın
+  const host = runnerOf(selectedId);
+  const bringer = ownerOf(selectedId);
+  const observed = host !== 'you';
+  // adayın sonda sorduğu sorular (yalnızca senin yürüttüğün görüşmede): sayısı ve tarzı deneyimine bağlı
+  const backs = observed ? [] : backQuestionsFor(selectedId, experienceYears(candidate.experience), ownIds);
   const room = roomState(entries, backs.length);
   const canFollow = canFollowUp(room, Boolean(typing));
   const endedFor = (id: string) => (log[id] ?? []).some((e) => e.kind === 'end');
@@ -70,11 +89,38 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
     }, THINKING_MS);
   }
 
+  const warmFor = (id: string) => (log[id] ?? []).some((e) => e.kind === 'warm' && e.warm);
+  /** Heyecanlı aday rahatlatılmadıysa: kekeler ve vakada takılır. */
+  const rattled = (id: string) => isNervous(id) && (log[id] ?? []).some((e) => e.kind === 'warm') && !warmFor(id);
+
+  /** Klasik sorunun cevabı: heyecanlı aday rahatlatıldıysa sakin hâli. */
+  function classicAnswer(id: string, k: number) {
+    const calm = warmFor(id) ? CALM_ANSWERS[id]?.[k as 0 | 1 | 2] : undefined;
+    return calm ?? candidateDetails[id].interview[k];
+  }
+
   function answerFor(id: string, question: number) {
-    if (question === CASE) return caseAnswer(id, caseFor(id, ownIds));
+    if (question === CASE) return `${rattled(id) ? 'Şey… pardon, bir saniye, heyecandan… ' : ''}${caseAnswer(id, caseFor(id, ownIds))}`;
     if (question === TEST) return testTalk(id, seed).answer;
+    if (question >= OWNER) return classicAnswer(id, question - OWNER);
     if (question >= FOLLOW) return followUpAnswer(id, question - FOLLOW, candidateDetails[id].hireFit);
-    return question === FORBIDDEN ? forbiddenAnswer(id, candidateOf(id).age) : candidateDetails[id].interview[question];
+    return question === FORBIDDEN ? forbiddenAnswer(id, candidateOf(id).age) : classicAnswer(id, question);
+  }
+
+  /**
+   * Görüşmeyi sen açarsın: samimi bir merhaba (aday rahatlar) ya da kurumsal bir giriş. Sonra
+   * görüşmeyi kim sürdürecekse (runner) o devam eder; ekipten biriyse ilk soruyu hemen sorar.
+   */
+  function open(warm: boolean) {
+    if (room.warm !== null || typing) return;
+    const id = selectedId;
+    audioEngine.playUi('click');
+    if (!observed) return push(id, { kind: 'warm', warm });
+    const opener: Entry = { kind: 'q', q: OWNER + 0, by: host as 'ayse' | 'emre' | 'hakan' };
+    setLog((l) => ({ ...l, [id]: [...(l[id] ?? []), { kind: 'warm', warm }, opener] }));
+    // kayıt henüz güncellenmediği için cevabın sakin hâli burada seçilir
+    const calm = warm ? CALM_ANSWERS[id]?.[0] : undefined;
+    typeAnswer(id, entries.length + 1, calm ?? candidateDetails[id].interview[0]);
   }
 
   function ask(question: number, about?: string) {
@@ -87,13 +133,21 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
 
   /** Söz Ümit'e geçer: teknik soru, ardından (yapılandırılmış mülakat yoksa) Hakan Bey'in uyum sorusu, sonra maaş. */
   function handOff() {
-    if (typing || room.handedOff || room.ended || room.mine.length === 0) return;
+    if (typing || room.handedOff || room.ended || (!observed && room.mine.length === 0)) return;
     const id = selectedId;
     audioEngine.playUi('click');
     push(id, { kind: 'handoff' });
-    const queue = handOffQuestions(structured);
+    // yürüten açılış sorusunu zaten sordu: sırada yalnızca Ümit ve (kendi adayı değilse) Hakan Bey
+    const queue = observed ? handOffQuestions(structured, 'you').filter((q) => !(bringer === 'hakan' && q.by === 'hakan')) : handOffQuestions(structured, bringer, room.mine);
     const next = (i: number, at: number) => {
-      if (i >= queue.length) return push(id, { kind: 'salary', move: null });
+      if (i >= queue.length) {
+        if (!observed) return push(id, { kind: 'salary', move: null });
+        // maaşı yürüten konuşur, kendi tarzıyla; senin hesabına yazılmaz
+        const move = ownerSalaryMove(host as 'ayse' | 'emre' | 'hakan', salaryMoves(id));
+        push(id, { kind: 'salary', move });
+        setAgreed((a) => ({ ...a, [id]: salaryTalk(id, move).agreed }));
+        return;
+      }
       push(id, queue[i]);
       typeAnswer(id, at, answerFor(id, queue[i].q), () => next(i + 1, at + 1));
     };
@@ -134,6 +188,10 @@ export function useInterview({ selectedId, ownIds, structured }: { selectedId: s
     interviewed,
     stateOf,
     answerFor,
+    observed,
+    host,
+    open,
+    rattled,
     ask,
     handOff,
     talkSalary,

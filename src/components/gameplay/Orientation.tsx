@@ -20,7 +20,7 @@ const STEPS: Step[] = [
     title: 'Hoş geldin! İlk gün: oryantasyon',
     text: 'Tavrinsa Labs İK ekibine hoş geldin. Mesai başlamadan portalı birlikte tanıyalım; iki dakika sürer. Bu hafta tek bir pozisyon için başvuruları değerlendireceksin: Yazılım Geliştirici.',
   },
-  { target: '[data-tour="queue"]', title: 'Adaylar', text: 'Bugün masana gelen dosyalar burada. Bir isme tıklayınca CV açılır; yanındaki süre, CV ekrandayken o dosyayı ne kadar okuduğunu gösterir; ✓ çıkınca dosyayı gerçekten okumuş sayılırsın.' },
+  { target: '[data-tour="queue"]', title: 'Adaylar', text: 'Bugün masana gelen dosyalar burada. Bir isme tıklayınca CV açılır. İsmin yanındaki süre o CV\'ye ne kadar baktığını sayar; birkaç saniye okuyunca yanında ✓ belirir. Okumadan verilen kararlar daha ağır sayılır.' },
   { target: '[data-tour="cv"]', title: 'CV', text: 'Profil, iş deneyimi, öne çıkanlar, şirket sorularına cevaplar, beceriler ve eğitim. Dosyayı gerçekten okuyup okumadığın kararlarının ağırlığını değiştirir.' },
   { target: '[data-tour="reference"]', title: 'Referansı ara', text: 'CV\'deki bir iddiayı doğrulamanın yolu: eski işverenini ararsın. Sabit hattan yapılır ve 8 dakika sürer.' },
   { target: '[data-tour="ai"]', title: 'Yapay Zekâ Analizi', text: '"Değerlendir" dersen sistem bir ATS raporu ve öneri üretir. Kullanmak zorunda değilsin; sistemin neye baktığını, neye bakmadığını da not al.' },
@@ -28,8 +28,8 @@ const STEPS: Step[] = [
   { target: '[data-tour="right"] > :nth-child(2)', title: 'Günün temposu', text: 'Karar süren, temponu ve son kararların buradan izlenir. Hakan Bey de aynı ekrana bakıyor.' },
   { target: '[data-tour="finish"]', title: 'Günün sonu', text: 'Bütün dosyalar karara bağlanınca reddettiklerine gidecek bildirimi seçersin; bildirimler 17:00\'de gönderilir. Ardından günü bitirebilirsin.' },
   {
-    title: 'Masanda da iş var',
-    text: 'Cep telefonuna ekipten, annenden ve Hakan Bey\'den mesajlar gelecek; masadaki sabit hat da çalacak. Hepsine cevap vermek zorunda değilsin ama her cevabın bir karşılığı var. Hazırsan saat 08:00, mesai başlıyor.',
+    title: 'Hazırsın',
+    text: 'Portal bu kadar. Unutma: her dosyanın arkasında bir insan var ve sistem çoğunu sen görmeden eledi bile. Önüne gelenlere nasıl bakacağın sana kalmış. Saat 08:00, ilk dosya seni bekliyor.',
   },
 ];
 
@@ -82,13 +82,10 @@ export function Orientation({ container, onDone }: Props) {
     setIndex(index + 1);
   }
 
-  // kart tek bir yerde durur; yalnızca CV'nin kendisi aydınlatılmışken sağa çekilir
-  const aside = step.target === '[data-tour="cv"]';
-
   return (
     <div className={styles.layer} role="dialog" aria-modal="true" aria-label="Oryantasyon">
       {box ? <div className={styles.spot} style={box} /> : <div className={styles.dim} />}
-      <div className={`${styles.card} ${aside ? styles.aside : styles.centered}`}>
+      <div className={`${styles.card} ${styles.centered}`}>
         <div className={styles.progress}>
           {index === 0 ? 'Oryantasyon' : `Adım ${index} / ${STEPS.length - 1}`}
           <span className={styles.dots}>

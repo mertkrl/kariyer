@@ -7,7 +7,7 @@ import type { Decision } from '../types';
 import type { Mail } from './mail';
 import { NEPHEW_ID, candidateOf, candidates } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
-import { REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
+import { CALLBACK_PREFIX, REQUEST_CALL_PREFIX, deskCall, type DeskCall } from './desk';
 import { RAPPORT, managerReaction, managerTone, replyText, requestCallLines, requestIsFair, type ManagerTone } from './manager';
 import { referenceFor } from './references';
 import { visitCall, LOBBY_PREFIX, VISIT_PREFIX } from './visits';
@@ -241,10 +241,42 @@ export function tolgaSnowCall(day: number): DeskCall {
 }
 
 /** Bir sabit hat kimliğinin arkasındaki arama: senaryolu bir arama ya da rica isteyen müdür. */
+/**
+ * Dış hattan arayan birini geri aramak: önce santral (Gülay Hanım) açar, numarayı çevirir. İlk
+ * denemede bazıları açmaz (telefon kapalı, yolda, otobüste); ikinci denemede bağlanır.
+ */
+function switchboardCallback(state: Parameters<typeof callFor>[0], original: string): DeskCall | undefined {
+  const call = callFor(state, original);
+  if (!call) return undefined;
+  const tried = state.desk.calls[CALLBACK_PREFIX + original] !== undefined;
+  const reachable = tried || [...original].reduce((n, ch) => n + ch.charCodeAt(0), 0) % 3 !== 0;
+  const name = call.caller;
+  return {
+    id: CALLBACK_PREFIX + original,
+    day: state.currentDayIndex,
+    at: 0,
+    outgoing: true,
+    caller: 'Gülay Hanım',
+    line: 'Santral · dahili 100',
+    lines: reachable
+      ? ['Santral, buyurun Defne Hanım.', `${name} az önce aramıştı, değil mi? Hemen bağlıyorum, bir saniye…`]
+      : ['Santral, buyurun Defne Hanım.', `${name} numarasını iki kez çevirdim, açmıyor. Telefonu kapalı olabilir.`],
+    choices: reachable
+      ? [{ text: 'Teşekkürler Gülay Hanım, bekliyorum.', reply: 'Bağladım, buyurun.', next: original }]
+      : [
+          { text: 'Not bırakın lütfen; birazdan tekrar ararım.', reply: 'Tamam, not bıraktım. Tekrar aradığınızda bir daha denerim.' },
+          { text: 'Peki, sağ olun.', reply: 'Rica ederim.' },
+        ],
+    minutes: 1,
+    missed: { note: '' },
+  };
+}
+
 export function callFor(
   state: Pick<GameState, 'managerRequests' | 'managerStance' | 'hakanRapport' | 'currentDayIndex' | 'desk'> & { performans?: number; story?: StoryState; justifyRejects?: boolean; finalists?: Finalist[]; decisions?: Record<string, Decision> },
   id: string,
 ): DeskCall | undefined {
+  if (id.startsWith(CALLBACK_PREFIX)) return switchboardCallback(state, id.slice(CALLBACK_PREFIX.length));
   if (id === 'revoke') return revokeCall(state.finalists ?? [], state.hakanRapport, state.currentDayIndex);
   if (id === SNOW_CALL_ID) return tolgaSnowCall(state.currentDayIndex);
   if (id === 'reform') return reformCall(state.performans ?? 50, state.managerStance.refusals, state.currentDayIndex);

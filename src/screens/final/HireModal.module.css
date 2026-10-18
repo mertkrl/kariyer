@@ -65,8 +65,12 @@
 
 .panelResult {
   margin-top: 4px !important;
-  padding-top: 8px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(201, 162, 39, 0.12);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  color: var(--ink) !important;
+  text-align: center;
 }
 
 .panelBudget {
@@ -76,9 +80,11 @@
 
 .compare {
   width: 100%;
-  max-height: 34vh;
+  max-height: 46vh;
   overflow-y: auto;
   text-align: left;
+  border: 1px solid var(--border-muted);
+  border-radius: 12px;
 }
 
 .compare table {
@@ -88,7 +94,10 @@
 }
 
 .compare th {
-  padding: 4px 8px;
+  position: sticky;
+  top: 0;
+  background: var(--paper-muted);
+  padding: 8px 10px;
   font-size: calc(11px * var(--ts, 1));
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -98,7 +107,8 @@
 }
 
 .compare td {
-  padding: 5px 8px;
+  padding: 8px 10px;
+  vertical-align: middle;
   border-bottom: 1px solid rgba(34, 31, 27, 0.06);
 }
 
@@ -118,8 +128,85 @@
 }
 
 .rowWinner td {
-  background: rgba(46, 157, 87, 0.12);
+  background: rgba(201, 162, 39, 0.12);
   font-weight: 600;
+}
+
+.rowWinner td:first-child {
+  box-shadow: inset 4px 0 0 var(--gold);
+}
+
+.num {
+  text-align: center;
+}
+
+.muted {
+  color: var(--text-dim);
+}
+
+.who {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.who > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.winnerTag {
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #8a6d12;
+}
+
+.score {
+  display: inline-block;
+  min-width: 34px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(34, 31, 27, 0.06);
+  font-weight: 700;
+}
+
+.scoreHigh {
+  background: rgba(63, 107, 99, 0.16);
+  color: var(--teal);
+}
+
+.scoreLow {
+  background: rgba(168, 64, 47, 0.14);
+  color: var(--red);
+}
+
+.total {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.totalBar {
+  flex: 1;
+  min-width: 50px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(34, 31, 27, 0.08);
+  overflow: hidden;
+}
+
+.totalBar i {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+}
+
+.overBudget {
+  display: block;
+  font-size: calc(10.5px * var(--ts, 1));
+  color: var(--red);
 }
 
 .rowOut td {
@@ -130,5 +217,59 @@
   from {
     opacity: 0;
     transform: translateY(6px);
+  }
+}
+
+/* kurul sonrası: teklif ve elenenlere ret */
+.closeTitle {
+  margin: 14px 0 8px;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.closeOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.closeOption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: var(--paper-light);
+  font: inherit;
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.45;
+  text-align: left;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.closeOption b {
+  color: var(--ink);
+  font-size: calc(13.5px * var(--ts, 1));
+}
+
+.closeOption:hover,
+.closeOption:focus-visible {
+  border-color: var(--gold);
+}
+
+.closeOn {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 2px rgba(63, 107, 99, 0.18);
+}
+
+.closeNote {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+@media (max-width: 760px) {
+  .closeOptions {
+    grid-template-columns: 1fr;
   }
 }

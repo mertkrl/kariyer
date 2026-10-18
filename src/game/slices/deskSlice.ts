@@ -3,7 +3,7 @@
  */
 import type { GetState, SetState } from '../store/storeApi';
 import type { DeskActions } from '../store/storeTypes';
-import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES } from '../day/desk';
+import { COFFEE_SIPS, COFFEE_THOUGHTS, COOLER_MINUTES, COOLER_THOUGHTS, IDLE_THOUGHTS, REFILL_MINUTES, REFILL_THOUGHTS, REQUEST_CALL_PREFIX, WATER_MINUTES, CALLBACK_PREFIX, callbackable, viaSwitchboard } from '../day/desk';
 import { referenceFor } from '../day/references';
 import { RAPPORT, REPLY_EFFECT, clampRapport, requestIsFair } from '../day/manager';
 import { sound } from '../lib/sound';
@@ -25,6 +25,15 @@ export const createDeskSlice = (set: SetState, get: GetState): DeskActions => ({
     const { desk } = get();
     if (!desk.ringing) return;
     set({ desk: { ...desk, inCall: desk.ringing, ringing: null } });
+  },
+
+  callBack: () => {
+    const { desk } = get();
+    const last = callbackable(desk).at(-1);
+    if (!last || desk.ringing || desk.inCall) return;
+    // dış hattan arayanı doğrudan değil, santral üzerinden ararsın
+    const call = callFor(get(), last);
+    set({ desk: { ...desk, inCall: call && viaSwitchboard(call) ? CALLBACK_PREFIX + last : last } });
   },
 
   answerCall: (choice) => {

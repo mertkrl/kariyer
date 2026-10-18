@@ -5,7 +5,7 @@ import type { BackQuestion } from '../../game/data/interviewExtras';
 import { SALARY_CAP } from '../../game/store/store';
 import { PLAYER } from '../../game/lib/player';
 import { AnswerText, CaseCard } from './InterviewParts';
-import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, TEST, type Entry, type Typing } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, LEAD, OWNER, SALARY_LINES, TEST, FORMAL_LINE, WARM_LINE, warmReply, type Entry, type Typing } from './interviewModel';
 import styles from './Conversation.module.css';
 
 /*
@@ -41,7 +41,7 @@ export interface ConversationProps {
   canFollow: boolean;
   chatRef: RefObject<HTMLDivElement | null>;
   answerFor: (id: string, question: number) => string;
-  questionText: (q: number, about?: string) => string;
+  questionText: (q: number, about?: string, by?: string) => string;
   ask: (question: number, about?: string) => void;
   /** Bugün henüz kimseyle görüşülmedi: oda nasıl işlediğini anlatır. */
   firstOfDay: boolean;
@@ -49,39 +49,50 @@ export interface ConversationProps {
   structured: boolean;
   /** Adayın sonda soracağı sorular (deneyimine göre 0–2). */
   backs: BackQuestion[];
+  /** Görüşmeyi ekipten biri yürütüyor: onun adı (sen gözlemcisin); sen yürütüyorsan null. */
+  host?: 'ayse' | 'emre' | 'hakan' | null;
 }
 
-export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, firstOfDay, structured, backs }: ConversationProps) {
+const HOST_NAME = { ayse: 'Ayşe Demir', emre: 'Emre Yıldız', hakan: 'Hakan Kaya' } as const;
+
+export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, firstOfDay, structured, backs, host = null }: ConversationProps) {
+  const speaker = host ? HOST_NAME[host] : PLAYER.name;
   return (
       <div className={styles.log} ref={chatRef} aria-live="polite">
         {entries.length === 0 && (
-          firstOfDay ? (
-            <div className={styles.rules} role="note" aria-label="Bugün nasıl işliyor">
-              <ol className={styles.steps}>
-                <li>
-                  <b>{QUESTION_BUDGET} soru</b> sen sor · <u>altı noktalı</u> ifadeye tıkla, takip et
-                </li>
-                <li>
-                  <b>{LEAD}</b> teknik soru{structured ? '' : ', Hakan Bey "uyum" sorusu sorar'}
-                </li>
-                <li>
-                  <b>Maaş</b> konuşulur, aday da soru sorabilir
-                </li>
-                <li>
-                  <b>Puanla:</b> 4 ölçüt, 1–5
-                </li>
-              </ol>
-              <span>{candidate.name.split(' ')[0]} karşında oturuyor. Aşağıdan ilk soruyu seç.</span>
+          <div className={styles.rules} role="note" aria-label="Görüşme planı">
+            <div className={styles.briefHead}>
+              <span className={styles.briefTitle}>Görüşme planı</span>
+              <span className={styles.briefMeta}>
+                Toplantı Odası 2 · Panel: {PLAYER.name}, {LEAD}
+                {structured ? '' : ', Hakan Kaya'}
+              </span>
             </div>
-          ) : (
-            <p className={styles.logEmpty}>
-              {candidate.name.split(' ')[0]} karşında oturuyor. Önce senin {QUESTION_BUDGET} sorun ve bir takip; sonra söz Ümit'te.
-            </p>
-          )
+            <ol className={styles.steps}>
+              {['Açılış', 'Sorular', 'Panel', 'Maaş', 'Değerlendirme'].map((step, i) => (
+                <li key={step} className={i === 0 ? styles.stepNow : undefined}>
+                  {step}
+                </li>
+              ))}
+            </ol>
+            {firstOfDay && <p className={styles.briefTip}>İpucu: cevaplardaki altı noktalı ifadelere tıklayıp takip sorusu sorabilirsin.</p>}
+          </div>
         )}
         {entries.map((e, index) => {
           if (e.kind === 'note') return <Note key={index}>{e.text}</Note>;
-          if (e.kind === 'handoff') return <Note key={index}>Söz {LEAD}'da.</Note>;
+          if (e.kind === 'warm')
+            return (
+              <div key={index} className={styles.exchange}>
+                <Turn who={PLAYER.name} role={e.warm ? 'Açılış · samimi' : 'Açılış · kurumsal'} tone="you">
+                  {e.warm ? WARM_LINE : FORMAL_LINE}
+                </Turn>
+                <Turn who={candidate.name} role="Aday" tone="candidate">
+                  {warmReply(selectedId, e.warm)}
+                </Turn>
+                {host && <Note>Görüşmeyi {HOST_NAME[host].split(' ')[0]} sürdürüyor. Sen gözlemcisin; istersen söz alabilirsin.</Note>}
+              </div>
+            );
+          if (e.kind === 'handoff') return <Note key={index}>Söz panelde.</Note>;
           if (e.kind === 'end') return <Note key={index}>Görüşme tamamlandı. Aday odadan çıkıyor.</Note>;
           if (e.kind === 'back') {
             const back = backs[e.n];
@@ -109,7 +120,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
             const result = e.move ? salaryTalk(selectedId, e.move) : null;
             return (
               <div key={index} className={styles.exchange}>
-                <Turn who={PLAYER.name} role="Maaş" tone="you">
+                <Turn who={speaker} role="Maaş" tone={host ? 'lead' : 'you'}>
                   Maaş beklentinizi konuşalım. Ne kadar bekliyorsunuz?
                 </Turn>
                 <Turn who={candidate.name} role="Aday" tone="candidate">
@@ -118,7 +129,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                 </Turn>
                 {e.move && result && (
                   <>
-                    <Turn who={PLAYER.name} role="Maaş" tone="you">
+                    <Turn who={speaker} role="Maaş" tone={host ? 'lead' : 'you'}>
                       {SALARY_LINES[e.move](salaryOffer(selectedId, e.move) ?? 0)}
                     </Turn>
                     <Turn who={candidate.name} role="Aday" tone="candidate">
@@ -134,16 +145,20 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
           return (
             <div key={index} className={styles.exchange}>
               {e.by === 'levent' ? (
-                <Turn who={LEAD} role="Yazılım Ekip Lideri · teknik soru" tone="lead">
-                  {questionText(e.q, e.about)}
+                <Turn who={LEAD} role="Yazılım Ekip Lideri · durum sorusu" tone="lead">
+                  {questionText(e.q, e.about, e.by)}
                 </Turn>
               ) : e.by === 'hakan' ? (
-                <Turn who="Hakan Kaya" role="İK Müdürü" tone="hakan">
-                  {questionText(e.q, e.about)}
+                <Turn who="Hakan Kaya" role={e.q >= OWNER ? 'İK Müdürü · görüşmeyi yürütüyor' : 'İK Müdürü'} tone="hakan">
+                  {questionText(e.q, e.about, e.by)}
+                </Turn>
+              ) : e.by === 'ayse' || e.by === 'emre' ? (
+                <Turn who={e.by === 'ayse' ? 'Ayşe Demir' : 'Emre Yıldız'} role="İK Uzmanı · görüşmeyi yürütüyor" tone="lead">
+                  {questionText(e.q, e.about, e.by)}
                 </Turn>
               ) : (
-                <Turn who={PLAYER.name} role={e.q === TEST ? 'Test sorusu' : e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
-                  {questionText(e.q, e.about)}
+                <Turn who={PLAYER.name} role={host ? 'Söz aldın' : e.q === TEST ? 'Test sorusu' : e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
+                  {questionText(e.q, e.about, e.by)}
                 </Turn>
               )}
               {e.q === CASE && <CaseCard c={caseFor(selectedId, poolIds)} />}
@@ -164,9 +179,9 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                     ) : (
                       <AnswerText
                         text={answer}
-                        fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : undefined}
+                        fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : e.q >= OWNER ? ((e.q - OWNER) as 0 | 1 | 2) : undefined}
                         canFollow={canFollow}
-                        onFollow={e.q < FORBIDDEN && !e.by ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
+                        onFollow={(e.q < FORBIDDEN && !e.by) || e.q >= OWNER ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
                       />
                     )}
                   </>

@@ -55,6 +55,13 @@ export const createStorySlice = (set: SetState, get: GetState): StoryActions => 
       performans: clampScore(state.performans + (honest ? -1 : 1)),
       vicdan: addVicdan(state.vicdan, (honest ? 2 : -2)) })),
 
+  closeHiring: (fairOffer, personalRejections) =>
+    set((state) => ({
+      // düşük beklentiyi piyasa değerine çekmek bütçeden yer ama doğrusu odur
+      performans: clampScore(state.performans + (fairOffer ? -1 : 0)),
+      vicdan: addVicdan(state.vicdan, (fairOffer ? 3 : 0) + (personalRejections ? 2 : -1)),
+    })),
+
   hire: (recommended, panel) => {
     const state = get();
     if (state.phase !== 'finalRound' || state.hiredId) return;

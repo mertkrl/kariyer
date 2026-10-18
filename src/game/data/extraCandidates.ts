@@ -384,7 +384,7 @@ export const EXTRA_DETAILS: Record<string, CandidateDetails> = {
     interview: [
       'Birçok projede tüm modern teknolojileri kullandım ve her zaman değer kattım. Müşteriler çok memnun kaldı.',
       'Açıkçası büyük bir hata yaptığımı hatırlamıyorum; her zaman titiz çalışırım.',
-      'Sinerji yaratır, süreçleri optimize eder, en iyi uygulamaları getirirdim.',
+      'Sinerji katar, süreçleri optimize eder, en iyi uygulamaları getirirdim.',
     ],
     hireFit: 2,
   },

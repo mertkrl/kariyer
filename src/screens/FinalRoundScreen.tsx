@@ -5,10 +5,11 @@ import { candidateOf } from '../game/data/candidates';
 import { candidateDetails, FINAL_INTERVIEW_QUESTIONS } from '../game/data/candidateDetails';
 import { FOLLOW_UP_QUESTIONS } from '../game/data/interviewExtras';
 import { Button } from '../components/ui/Button';
-import { INTERVIEWER, handOver, ownerOf } from '../game/events/panel';
+import { INTERVIEWER, ownerOf } from '../game/events/panel';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
-import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, QUESTION_BUDGET, TEST } from './final/interviewModel';
+import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, OWNER, PANEL_SIZE, QUESTION_BUDGET, TEST, ownerQuestion, runnerFor } from './final/interviewModel';
+import { APTITUDE_CUTOFF } from '../game/events/aptitude';
 import { candidateAptitude, testTalk } from '../game/events/aptitude';
 import { useInterview } from './final/useInterview';
 import { PoolPicker } from './final/PoolPicker';
@@ -16,15 +17,14 @@ import { Conversation } from './final/Conversation';
 import { Dossier } from './final/Dossier';
 import { HireModal } from './final/HireModal';
 import { InterviewConsole } from './final/InterviewConsole';
-import { ColleagueReport } from './final/ColleagueReport';
 import styles from './FinalRoundScreen.module.css';
 import { avatarStyle } from '../components/ui/avatarStyle';
 
 /*
- * Cuma: her mülakatı adayı çağıran yürütür ve sen hepsinde odadasın. Kendi çağırdıklarınla sırayla
- * sen klasik sorularını sorarsın, Ümit teknik soruyu, Hakan Bey "uyum" sorusunu sorar; maaşı
- * konuşur, puanlarsın. Ayşe, Emre ve Hakan Bey'in görüşmelerinde onlar sorar; sen bir kez söz alıp
- * test puanını sorabilir, kendi puanını verirsin. Gün sonunda kurul bütün puanları yan yana koyar.
+ * Cuma: panel günü. Kendi çağırdıklarınla görüşmeyi sen yürütürsün: açarsın, klasik sorularını
+ * sorarsın; Ümit bir durum sorusu, Hakan Bey "uyum" sorusu sorar; maaşı konuşur, puanlarsın.
+ * Ekibin (Ayşe, Emre, Hakan Bey) adaylarında görüşmeyi onlar yürütür, kendi tarzlarıyla; sen
+ * gözlemcisin, en fazla iki soru sorar ve puanını verirsin. Gün sonunda kurul puanları yan yana koyar.
  */
 export function FinalRoundScreen() {
   const finalists = useGameStore((s) => s.finalists);
@@ -40,36 +40,31 @@ export function FinalRoundScreen() {
   // senin günün yalnızca kendi adaylarını alır; uzun bir liste sabah kısaltılır
   const [chosen, setChosen] = useState<string[] | null>(() => (mineAll.length <= INTERVIEW_LIMIT ? mineAll.map((f) => f.id) : null));
   const own = chosen ? mineAll.filter((f) => chosen.includes(f.id)) : mineAll;
-  // seçmediklerin kaybolmaz: Ayşe ve Emre'nin odalarına eşit dağılır
-  const handed = chosen ? handOver(mineAll.filter((f) => !chosen.includes(f.id)), others, pastRequests) : [];
-  const panelPool = [...own, ...handed, ...others];
+  // kalan yerleri ekibin listeleri doldurur: önce Hakan Bey'in adayı, sonra Ayşe ile Emre sırayla
+  const byOwner = (o: string) => others.filter((f) => ownerOf(f, pastRequests) === o);
+  const queue = [...byOwner('hakan')];
+  const [ayse, emre] = [byOwner('ayse'), byOwner('emre')];
+  for (let i = 0; i < Math.max(ayse.length, emre.length); i++) queue.push(...[ayse[i], emre[i]].filter(Boolean));
+  const panelPool = [...own, ...queue.slice(0, Math.max(0, PANEL_SIZE - own.length))];
   const ownerOfId = (id: string) => ownerOf((panelPool.find((f) => f.id === id) ?? everyone.find((f) => f.id === id))!, pastRequests);
 
   const [selectedId, setSelectedId] = useState((own[0] ?? others[0]).id);
-  // başkalarının görüşmelerinde: söz aldın mı, kaç puan verdin
-  const [sitAsked, setSitAsked] = useState<Record<string, boolean>>({});
-  const [sitIn, setSitIn] = useState<Record<string, number | null>>({});
   const sitting = panelPool.filter((f) => ownerOf(f, pastRequests) !== 'you');
-  const groups = [
-    { label: 'Senin çağırdıkların', items: own },
-    ...([
-      ['ayse', "Ayşe'nin görüşmeleri"],
-      ['emre', "Emre'nin görüşmeleri"],
-      ['hakan', "Hakan Bey'in görüşmeleri"],
-    ] as const).map(([o, label]) => ({ label, items: sitting.filter((f) => ownerOf(f, pastRequests) === o) })),
-  ];
+  // tek liste: kimin getirdiği rozette; kimin yürüteceği görüşme açılınca belli olur
+  const groups = [{ label: 'Bugünün adayları', items: [...own, ...sitting] }];
   const listOrder = groups.flatMap((g) => g.items);
   const chatRef = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
-  const interview = useInterview({ selectedId, ownIds: own.map((f) => f.id), structured });
-  const { entries, typing, room, backs, canFollow, busy, interviewed, stateOf, answerFor, ask, handOff, talkSalary, answerBack, endInterview, scores, setScore, myScores, agreed } = interview;
+  const runnerOfId = (id: string) => runnerFor(id, seed, ownerOfId(id));
+  const interview = useInterview({ selectedId, ownIds: panelPool.map((f) => f.id), structured, ownerOf: ownerOfId, runnerOf: runnerOfId });
+  const { entries, typing, room, backs, canFollow, busy, interviewed, stateOf, answerFor, open, rattled, observed, ask, handOff, talkSalary, answerBack, endInterview, scores, setScore, myScores, agreed } = interview;
   const { mine, followUsed, handedOff, salaryPending, backsDone, backPending, ended, questions } = room;
-  const poolIds = own.map((f) => f.id);
+  const poolIds = panelPool.map((f) => f.id);
 
   const candidate = candidateOf(selectedId);
   const details = candidateDetails[selectedId];
   const selected = everyone.find((f) => f.id === selectedId);
-  const isMine = ownerOfId(selectedId) === 'you';
+  const bringer = ownerOfId(selectedId);
 
   useEffect(() => {
     audioEngine.setMusicMood('paused');
@@ -80,28 +75,35 @@ export function FinalRoundScreen() {
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
   }, [interview.log, typing, selectedId]);
 
-  const questionText = (q: number, about?: string) =>
-    q === TEST
+  const questionText = (q: number, about?: string, by?: string) =>
+    q >= OWNER && (by === 'ayse' || by === 'emre' || by === 'hakan')
+      ? ownerQuestion(by, FINAL_INTERVIEW_QUESTIONS[q - OWNER], candidateAptitude(selectedId, seed).score, APTITUDE_CUTOFF, by === bringer, by === runnerOfId(selectedId))
+      : q === TEST
       ? testTalk(selectedId, seed).question
       : q === CASE
-      ? 'Kısa bir vaka vereyim: bu kodda ne yanlış, nasıl düzeltirdiniz?'
+      ? 'Size bir durum anlatayım; sizce ne yapardınız?'
       : q >= FOLLOW
         ? `${about ? `"${about.replace(/[.;,]$/, '')}" dediniz. ` : ''}${FOLLOW_UP_QUESTIONS[q - FOLLOW]}`
         : q === FORBIDDEN
           ? forbiddenQuestion(selectedId, candidateOf(selectedId).age)
           : FINAL_INTERVIEW_QUESTIONS[q];
   const fit = details.hireFit;
-  // başkasının odasında teknik bölüm zaten geçti
-  const leadHeard = !isMine || (questions.some((e) => e.q === CASE) && !typing);
+  const leadHeard = questions.some((e) => e.q === CASE) && !typing;
 
   function select(id: string, index: number) {
     if (busy && id !== selectedId) return;
     audioEngine.playUi('select', index % 4);
     setSelectedId(id);
   }
-  const sat = sitting.filter((f) => sitIn[f.id] != null).length;
-  const done = interviewed + sat;
-  const total = own.length + sitting.length;
+  const done = interviewed;
+  const total = panelPool.length;
+  const panelLead = [LEAD.split(' ')[0], structured || bringer === 'hakan' ? null : 'Hakan Bey'].filter(Boolean).join(', ');
+  const runner = runnerOfId(selectedId);
+  // kimin sürdüreceği açılıştan sonra belli olur
+  const shownObserved = observed && room.warm !== null;
+  const hostName = shownObserved ? INTERVIEWER[runner].name.split(' ')[0] : null;
+  const askedClassic = questions.map((e) => (e.q >= OWNER ? e.q - OWNER : e.q)).filter((q) => q >= 0 && q < FORBIDDEN);
+  const rattledIds = new Set(poolIds.filter(rattled));
   const ready = done === total && !busy;
 
   return (
@@ -111,7 +113,7 @@ export function FinalRoundScreen() {
           <div className={styles.eyebrow}>Gün 5 · Cuma · Mülakatlar</div>
           <h1 className={styles.title}>Mülakat Günü</h1>
           <p className={styles.subtitle}>
-            Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Bütün görüşmelerde odadasın; gün sonunda kurul puanları yan yana koyar.
+            Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Her görüşmeyi sen açarsın; sonra görüşmeyi kim sürdürecekse o devam eder. Başkası sürdürürken en fazla 2 soru sorabilirsin.
             {structured && ' Bugün yapılandırılmış mülakat var: Hakan Bey\'in listesi masada değil.'}
           </p>
         </div>
@@ -168,12 +170,8 @@ export function FinalRoundScreen() {
                         <span className={styles.listText}>
                           <span className={styles.listName}>{c.name}</span>
                           <span className={styles.listRole}>{c.role.replace(' adayı', '')}</span>
-                          <span className={`${styles.listState} ${styles['state_' + (owner === 'you' ? stateOf(f.id) : sitIn[f.id] != null ? 'done' : 'waiting')]}`}>
-                            {owner === 'you'
-                              ? { waiting: 'Görüşülmedi', active: 'Görüşme sürüyor', done: 'Görüşüldü' }[stateOf(f.id)]
-                              : sitIn[f.id] != null
-                                ? `Puanın: ${sitIn[f.id]}`
-                                : `${INTERVIEWER[owner].name.split(' ')[0]} yürütüyor`}
+                          <span className={`${styles.listState} ${styles['state_' + stateOf(f.id)]}`}>
+                            {{ waiting: 'Görüşülmedi', active: 'Görüşme sürüyor', done: 'Görüşüldü' }[stateOf(f.id)]}
                           </span>
                         </span>
                         <span className={styles.listMeta}>
@@ -205,65 +203,53 @@ export function FinalRoundScreen() {
                     {candidate.age} yaşında · {candidate.role}
                   </div>
                 </div>
-                <span className={`${styles.roomState} ${styles['state_' + (isMine ? stateOf(selectedId) : 'done')]}`}>
-                  {!isMine ? `${INTERVIEWER[ownerOfId(selectedId)].name} yürütüyor` : ended ? 'Görüşme tamamlandı' : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
+                <span className={`${styles.roomState} ${styles['state_' + stateOf(selectedId)]}`}>
+                  {ended ? 'Görüşme tamamlandı' : hostName ? `${hostName} yürütüyor · sorun ${mine.length}/${QUESTION_BUDGET}` : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
                 </span>
               </header>
 
-              {isMine ? (
-                <>
-                  <Conversation
-                    entries={entries}
-                    selectedId={selectedId}
-                    candidate={candidate}
-                    poolIds={poolIds}
-                    typing={typing}
-                    canFollow={canFollow}
-                    chatRef={chatRef}
-                    answerFor={answerFor}
-                    questionText={questionText}
-                    ask={ask}
-                    firstOfDay={interviewed === 0}
-                    structured={structured}
-                    backs={backs}
-                  />
+              <Conversation
+                entries={entries}
+                selectedId={selectedId}
+                candidate={candidate}
+                poolIds={poolIds}
+                typing={typing}
+                canFollow={canFollow}
+                chatRef={chatRef}
+                answerFor={answerFor}
+                questionText={questionText}
+                ask={ask}
+                firstOfDay={interviewed === 0}
+                structured={structured}
+                backs={backs}
+                host={shownObserved ? (runner as 'ayse' | 'emre' | 'hakan') : null}
+              />
 
-                  <InterviewConsole
-                    candidate={candidate}
-                    typing={Boolean(typing)}
-                    handedOff={handedOff}
-                    salaryPending={salaryPending}
-                    salaryDone={backsDone}
-                    back={backPending ? backs[backPending.n] : null}
-                    answerBack={answerBack}
-                    ended={ended}
-                    allDone={done === total}
-                    mine={mine}
-                    canFollow={canFollow}
-                    canTest={!room.testUsed}
-                    scores={scores[selectedId] ?? {}}
-                    onScore={setScore}
-                    ask={ask}
-                    handOff={handOff}
-                    talkSalary={talkSalary}
-                    endInterview={endInterview}
-                  />
-                </>
-              ) : (
-                <ColleagueReport
-                  id={selectedId}
-                  owner={ownerOfId(selectedId) as Exclude<ReturnType<typeof ownerOf>, 'you'>}
-                  structured={structured}
-                  seed={seed}
-                  asked={Boolean(sitAsked[selectedId])}
-                  score={sitIn[selectedId] ?? null}
-                  onAsk={() => {
-                    audioEngine.playUi('click');
-                    setSitAsked((a) => ({ ...a, [selectedId]: true }));
-                  }}
-                  onScore={(v) => setSitIn((s) => ({ ...s, [selectedId]: v }))}
-                />
-              )}
+              <InterviewConsole
+                candidate={candidate}
+                typing={Boolean(typing)}
+                handedOff={handedOff}
+                salaryPending={salaryPending}
+                salaryDone={backsDone}
+                back={backPending ? backs[backPending.n] : null}
+                answerBack={answerBack}
+                ended={ended}
+                allDone={done === total}
+                mine={mine}
+                canFollow={canFollow}
+                canTest={!room.testUsed}
+                scores={scores[selectedId] ?? {}}
+                onScore={setScore}
+                ask={ask}
+                handOff={handOff}
+                talkSalary={talkSalary}
+                endInterview={endInterview}
+                opening={room.warm === null}
+                hostName={hostName}
+                asked={askedClassic}
+                open={open}
+                panelLead={panelLead}
+              />
             </section>
 
             <Dossier
@@ -277,12 +263,13 @@ export function FinalRoundScreen() {
               testScore={candidateAptitude(selectedId, seed).score}
               followUsed={followUsed && !typing}
               caseAsked={leadHeard}
+              rattled={leadHeard && rattled(selectedId)}
             />
           </div>
 
           <div className={styles.hireBar}>
             <span className={styles.hireHint}>
-              {done < total ? `Kurula geçmeden önce bütün görüşmeleri bitir: ${total - done} görüşme kaldı (başkalarınınkinde puanını ver).` : 'Görüşmeler bitti. Kurul toplanıyor.'}
+              {done < total ? `Kurula geçmeden önce bütün görüşmeleri bitir: ${total - done} görüşme kaldı.` : 'Görüşmeler bitti. Kurul toplanıyor.'}
             </span>
             <Button variant="gold" sound="click" onClick={() => setConfirming(true)} disabled={!ready} title={ready ? undefined : 'Önce bütün görüşmeleri bitir'}>
               Kurula geç →
@@ -296,7 +283,8 @@ export function FinalRoundScreen() {
           pool={panelPool}
           pastRequests={pastRequests}
           myScores={myScores}
-          sitIn={sitIn}
+          sitIn={Object.fromEntries(sitting.map((f) => [f.id, myScores[f.id] ?? null]))}
+          rattled={rattledIds}
           structured={structured}
           agreed={agreed}
           onClose={() => setConfirming(false)}

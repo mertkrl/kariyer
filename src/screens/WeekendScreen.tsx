@@ -185,12 +185,14 @@ function SlideToAnswer({ onAnswer }: { onAnswer: () => void }) {
   const start = useRef<number | null>(null);
   const [x, setX] = useState(0);
   const [done, setDone] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const max = () => (trackRef.current ? trackRef.current.clientWidth - 64 : 200);
 
   const down = (e: PointerEvent<HTMLButtonElement>) => {
     if (done) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     start.current = e.clientX - x;
+    setDragging(true);
   };
   const move = (e: PointerEvent<HTMLButtonElement>) => {
     if (start.current === null) return;
@@ -199,14 +201,15 @@ function SlideToAnswer({ onAnswer }: { onAnswer: () => void }) {
   const up = () => {
     if (start.current === null) return;
     start.current = null;
+    setDragging(false);
     if (x >= max() * 0.85) {
       setX(max());
       setDone(true);
       window.setTimeout(onAnswer, 180);
     } else setX(0);
   };
-  const dragging = start.current !== null;
-  const progress = x / max();
+  // yazı, düğme yol aldıkça söner (çubuğun tipik yolu ~216 px)
+  const progress = Math.min(1, x / 216);
 
   return (
     <div ref={trackRef} className={styles.slideTrack}>

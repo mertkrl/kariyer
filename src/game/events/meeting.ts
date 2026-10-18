@@ -113,11 +113,12 @@ function yourSummaries(you: TeamStats): string[] {
       'Dosya kapatmadım çünkü acele edip yanlış karar vermek istemedim.',
     ];
   const tool = you.ai >= 0.7 ? 'Çoğunu yapay zekâ analiziyle değerlendirdim' : you.ai <= 0.2 ? 'Yapay zekâ analizini pek kullanmadım, kendim okudum' : 'Bazılarında yapay zekâ analizine de baktım';
-  const invites = you.invites === 0 ? 'henüz kimseyi çağırmadım' : `${you.invites} kişiyi mülakata çağırdım`;
+  const passed = you.invites === 0 ? 'henüz kimseyi teste geçirmedim' : `${you.invites} kişiyi teste geçirdim`;
+  // üç farklı tavır: çekingen, rakamlarla, ilkesiyle; rakamlar zaten panoda
   return [
-    `Ben… ${you.files} dosya kapattım. Dosya başına ortalama ${you.avg} saniye, sanırım. ${tool}; ${invites}. Daha öğreniyorum.`,
-    `${you.files} dosya kapattım, dosya başına ortalama ${you.avg} saniye. ${tool}; ${invites}.`,
-    `${you.files} dosya, ortalama ${you.avg} saniye. Hızdan çok her dosyayı anlamaya çalıştım; ${invites}.`,
+    'Ben… şey, epey dosyaya baktım. Hızımı henüz tam oturtamadım ama her gün biraz daha iyi gidiyor.',
+    `${you.files} dosya kapattım, dosya başına ortalama ${you.avg} saniye. ${tool}; ${passed}.`,
+    'Hızdan çok her CV\'yi gerçekten anlamaya çalıştım. Bir de sistemin elediklerine bakmamız gerektiğini düşünüyorum.',
   ];
 }
 
@@ -154,7 +155,12 @@ export function buildOpening(you: TeamStats): Line[] {
     you.files === 0
       ? { who: 'hakan', text: 'Defne\'nin satırı boş. Üç gündür tek dosya kapatmamış. Deneme süresindeki biri için bu kabul edilemez; Cuma\'ya kadar bu satırı doldur.', board: { page: 'people', metric: 'files', focus: ['you'] } }
       : skimming
-      ? { who: 'hakan', text: `Dosya başına ${you.avg} saniye mi? Bu okumak değil, tıklamak. Sistem zaten eliyor; önüne düşen az sayıdaki CV'yi de mi sisteme bırakacaksın?`, board: { page: 'people', metric: 'avg', focus: ['you'] } }
+      ? {
+          who: 'hakan',
+          text: `Dosya başına ${you.avg} saniye mi? Defne, bu okumak değil, tıklamak. 1.840 başvurunun çoğunu sistem zaten eledi; sana yalnızca elemeden geçen bir avuç dosya kaldı. Onlara da bakmıyorsan seni bu masaya neden oturttuk? Bu, deneme süresi dosyana not olarak geçiyor.`,
+          board: { page: 'people', metric: 'avg', focus: ['you'] },
+          chat: [{ who: 'ayse', text: `${you.avg} saniye mi? 😳`, private: true }],
+        }
       : fast
       ? { who: 'hakan', text: `Dosya başına ${you.avg} saniye. Emre'yle birlikte ekibin en hızlısı sensin. Ekipten beklediğim tempo tam olarak bu.`, board: { page: 'people', metric: 'avg', focus: ['you'] } }
       : slow
@@ -164,12 +170,17 @@ export function buildOpening(you: TeamStats): Line[] {
     { who: 'ayse', text: 'Bir dakikada bir insanın on yılını okuyorum Hakan Bey. Daha hızlı okumamı istiyorsanız bunu yazılı verin.' },
     { who: 'hakan', text: 'Yazılı mı? Ayşe, deneme süresindesin. Bunu bu toplantıda bir kez söylüyorum.', chat: [{ who: 'ayse', text: 'Gördün mü? 🙃', private: true }] },
   ];
-  if (fast) lines.push({ who: 'levent', text: `${you.avg} saniyede bir CV okunmaz. Ben bir GitHub sayfasına bile daha uzun bakıyorum. Cuma karşıma kimi oturtacaksınız?`, board: { page: 'people', metric: 'avg', focus: ['you', 'emre'] } });
+  if (skimming)
+    lines.push(
+      { who: 'levent', text: `${you.avg} saniyede bir CV'nin adını bile okuyamazsın. O dosyaların her biri birinin yıllarca yaptığı iş. Cuma karşıma okumadığın birini oturtursan, ilk soruyu sana sorarım.`, board: { page: 'people', metric: 'avg', focus: ['you'] } },
+      { who: 'emre', text: 'Ben de hızlıyım ama ben en azından yapay zekâ raporuna bakıyorum. Hiç bakmadan karar vermek… o başka.' },
+    );
+  else if (fast) lines.push({ who: 'levent', text: `${you.avg} saniyede bir CV okunmaz. Ben bir GitHub sayfasına bile daha uzun bakıyorum. Cuma karşıma kimi oturtacaksınız?`, board: { page: 'people', metric: 'avg', focus: ['you', 'emre'] } });
   else if (slow) lines.push({ who: 'levent', text: 'Ben yavaş okuyanlardan yanayım. Cuma karşıma oturacak kişiyi siz seçiyorsunuz; acele eden değil, okuyan seçsin.' });
   if (you.ai >= 0.7) lines.push({ who: 'selin', text: `Defne'nin yapay zekâ analizi kullanımı ${pct(you.ai)}. Emre'yle aynı yöntem.`, board: { page: 'people', metric: 'ai', focus: ['you', 'emre'] } });
   else if (you.ai <= 0.2) lines.push({ who: 'emre', text: `Sen sistemi neredeyse hiç kullanmıyorsun (${pct(you.ai)}). Şirket o lisansa para ödüyor; boşuna mı alındı?`, board: { page: 'people', metric: 'ai', focus: ['you'] } });
   lines.push(
-    { who: 'selin', text: `Cuma herkesin kısa listesi mülakata giriyor: Ayşe'den Nehir ve Berk, Emre'den Çağan ve Sarp, Defne'nin ${you.invites} adayı.`, board: { page: 'shortlist' }, chat: [{ who: 'selin', text: 'Kısa liste panoda, üçüncü sekme.' }] },
+    { who: 'selin', text: `Cuma herkesin kısa listesi mülakata giriyor: Ayşe'den Nehir ve Berk, Emre'den Çağan ve Sarp. Defne'nin kısa listesi Perşembe test sonuçlarıyla netleşecek.`, board: { page: 'shortlist' }, chat: [{ who: 'selin', text: 'Kısa liste panoda, üçüncü sekme.' }] },
     { who: 'levent', text: 'Sarp\'ın CV\'si kusursuz ama GitHub\'ı boş. Nehir\'in iki yıl arası var ama yazdığı kod ortada.', board: { page: 'shortlist', focus: ['sarp', 'nehir'] } },
     { who: 'emre', text: 'Sarp\'ın ATS skoru 97. Sistem bunu boşuna vermiyor. Nehir iki yıl çalışmamış; ben sadece veriyi söylüyorum.', board: { page: 'shortlist', focus: ['sarp'] }, chat: [{ who: 'emre', text: 'ATS 97 👀' }] },
     { who: 'ayse', text: 'Hangi veri Emre? Çocuğuna baktığı iki yıl mı? Bunu CV\'sine dürüstçe yazdı diye mi eleyeceğiz?', board: { page: 'shortlist', focus: ['nehir'] }, chat: [{ who: 'levent', text: '+1 Ayşe' }] },

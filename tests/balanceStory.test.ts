@@ -36,5 +36,5 @@ test('kuyruk: hikâyenin insanları her tohumda kendi günlerinin ilk yarısınd
 
 test('ozan: teknik olarak güçlü, ama işe alınınca kötü çıkar', () => {
   assert.equal(candidateDetails.ozan?.hireFit, 2);
-  assert.match(caseVerdict('ozan'), /çözdü/);
+  assert.match(caseVerdict('ozan'), /iyi yönetti/);
 });

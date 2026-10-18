@@ -103,45 +103,39 @@ export interface CodeCase {
   answers: Record<'strong' | 'solid' | 'unsure' | 'weak', string>;
 }
 
+/*
+ * Ümit'in sorusu bir kod bilmecesi değil, bir iş anı: herkesin anlayacağı, baskı altında ne
+ * yaptığını gösteren bir durum. Oyuncunun yazılım bilmesi gerekmez; cevabın nasıl kurulduğuna bakar.
+ */
 export const CODE_CASES: CodeCase[] = [
   {
-    title: 'Sayfalama',
-    code: `function sayfa(liste, no, boyut) {
-  const bas = no * boyut;
-  return liste.slice(bas, bas + boyut - 1);
-}`,
+    title: 'Cuma akşamı arıza',
+    code: 'Cuma 17:30. Bir müşteri, sizin yaptığınız değişiklikten sonra ödeme alamadığını yazıyor. Ekip lideriniz izinde, telefonu kapalı. Ne yaparsınız?',
     answers: {
-      strong: 'slice\'ın bitişi zaten hariç; "- 1" yüzünden her sayfadan bir kayıt düşüyor. Onu kaldırırdım, sonra no 1\'den mi 0\'dan mı başlıyor diye sorardım ve bir sınır testi yazardım: son sayfa, boş liste.',
-      solid: 'Sondaki "- 1" fazla; slice zaten bitişi almıyor, her sayfada bir kayıt eksik kalıyor. Onu silerdim.',
-      unsure: 'Hmm… bas hesabı doğru gibi. Sanırım bir yerde bir kayıt kayıyor ama tam neresi olduğundan emin değilim; çalıştırıp bakmam lazım.',
-      weak: 'Bence kod doğru. Belki boyut çok büyük olunca yavaşlar?',
+      strong: 'Önce müşteriye "gördük, ilgileniyoruz" derim ki beklemesin. Değişikliğimi geri alıp ödemenin düzeldiğini kendim denerim. Sonra ekibe ne olduğunu, ne yaptığımı yazarım; Pazartesi de bunun neden olduğunu birlikte konuşuruz.',
+      solid: 'Değişikliği geri alırdım, ödemenin çalıştığını kontrol ederdim. Ekip liderine de mesajla durumu yazardım, döndüğünde görsün.',
+      unsure: 'Açıkçası panik olurdum… Herhalde birilerini aramaya çalışırdım. Ekip liderinin numarasından başka birine ulaşmaya çalışırdım.',
+      weak: 'Ekip lideri izindeyse Pazartesi bakılır diye düşünürdüm; kendi başıma bir şeye dokunup işi büyütmek istemezdim.',
     },
   },
   {
-    title: 'Toplam fiyat',
-    code: `function toplam(sepet) {
-  let t = 0;
-  for (const u of sepet) t += u.fiyat * u.adet;
-  return t.toFixed(2);
-}`,
+    title: 'İmkânsız teslim tarihi',
+    code: 'Yöneticiniz, iki haftalık bir işi üç günde bitirmenizi istiyor ve "herkes yapıyor" diyor. Ne dersiniz?',
     answers: {
-      strong: 'toFixed bir metin döndürüyor; bunu başka bir toplama eklersen "12.50" + 3 diye birleştirir. Para için kuruş cinsinden tam sayı tutardım, biçimlendirmeyi en sonda, ekrana basarken yapardım.',
-      solid: 'toFixed string döndürüyor, sonra matematik yapılırsa sorun çıkar. Sayı olarak döndürüp ekranda biçimlendirmek daha doğru.',
-      unsure: 'Döngü doğru. Belki adet boş gelirse NaN olur? Onu kontrol ederdim… ama asıl sorun bu mu bilmiyorum.',
-      weak: 'Gayet temiz bir kod. Ben de böyle yazardım.',
+      strong: 'Hayır demeden önce işi parçalara ayırırım: üç günde neyi sağlam teslim edebilirim, neyi edemem. Bunu yöneticime net söylerim ve seçeneği ona bırakırım; aceleyle yarım iş vermem.',
+      solid: 'Üç günde neyin yetişebileceğini çıkarır, gerisini sonraya bırakmayı önerirdim. Gizlice gece yarısına kadar çalışıp yetiştirmeye çalışmazdım.',
+      unsure: 'Herhalde denerdim… Fazla mesai yapıp yetiştirmeye çalışırdım. Olmazsa son gün söylerdim.',
+      weak: 'Yönetici istiyorsa yapılır. Gerekirse hafta sonu çalışırım, sorun değil.',
     },
   },
   {
-    title: 'Kullanıcı adı',
-    code: `async function ad(id) {
-  const k = await db.bul(id);
-  return k.ad.trim();
-}`,
+    title: 'Ekip arkadaşının hatası',
+    code: 'Bir ekip arkadaşınızın hatası yüzünden siz suçlanıyorsunuz. Toplantıda herkes size bakıyor. Ne yaparsınız?',
     answers: {
-      strong: 'Kayıt bulunamazsa k null gelir ve k.ad patlar; ad alanı hiç yoksa (undefined) trim de patlar. Önce yokluğu açıkça ele alırdım: 404 mü, boş ad mı, ona ürün karar versin. Bir de bu durum için test.',
-      solid: 'db.bul bir şey bulamazsa k null olur, k.ad hata verir. Bir null kontrolü eklerdim.',
-      unsure: 'await doğru kullanılmış… Belki trim\'e gerek yoktur? Hata yönetimi eklenebilir sanırım, try-catch gibi.',
-      weak: 'Burada bir sorun göremiyorum.',
+      strong: 'Toplantıda kimseyi işaret etmem; "sorunu çözelim, nasıl olduğuna sonra bakarız" derim. Sonra arkadaşımla yalnız konuşurum, birlikte yöneticiye ne olduğunu anlatırız. Amaç suçlu bulmak değil, tekrar olmaması.',
+      solid: 'O an tartışmazdım. Toplantıdan sonra arkadaşımla konuşur, durumu birlikte düzeltmeyi önerirdim.',
+      unsure: 'Zor bir durum… Herhalde susardım, sonra belki yöneticiye özelden anlatırdım.',
+      weak: 'Hemen orada açıklardım; benim hatam değilse üstüme almam, kimin yaptığını söylerdim.',
     },
   },
 ];
@@ -157,18 +151,18 @@ export function caseFor(id: string, day: readonly string[]): CodeCase {
 }
 
 export function caseAnswer(id: string, c: CodeCase): string {
-  if (id === 'ozan') return `${c.answers.strong} Açıkçası bu seviyede bir soru beklemiyordum.`;
-  if (id === 'volkan') return 'Böyle şeyleri genelde ekipteki arkadaşlar hallediyordu, ben daha çok büyük resme bakıyordum. Ama çözülür, zor bir şey değil.';
+  if (id === 'ozan') return `${c.answers.strong} Gerçi bu tür durumlar genelde ekipteki zayıf halkalardan çıkar.`;
+  if (id === 'volkan') return 'Böyle durumları genelde ekip hallediyordu, ben daha çok büyük resme bakıyordum. Ama yönetilir, zor bir şey değil.';
   return c.answers[tier(fitOf(id))];
 }
 
 /** Ekip liderinin vakadan çıkardığı. */
 export function caseVerdict(id: string): string {
-  if (id === 'volkan') return 'Vakaya hiç girmedi.';
-  // teknik olarak kusursuz; sorun vakada değil, ekipte
-  if (id === 'ozan') return 'Vakayı çözdü; anlatırken ekibi iki kez küçümsedi.';
+  if (id === 'volkan') return 'Duruma hiç girmedi; "ekip hallederdi" dedi.';
+  // işini bilir; sorun durumda değil, ekibe bakışında
+  if (id === 'ozan') return 'Durumu iyi yönetti; anlatırken ekibi küçümsedi.';
   const t = tier(fitOf(id));
-  return t === 'strong' ? 'Vakayı çözdü ve nedenini de anlattı.' : t === 'solid' ? 'Vakadaki hatayı buldu.' : t === 'unsure' ? 'Vakada takıldı.' : 'Vakadaki hatayı görmedi.';
+  return t === 'strong' ? 'Baskı altında sakin; önce müşteriyi, sonra ekibi düşündü.' : t === 'solid' ? 'Mantıklı bir yol çizdi.' : t === 'unsure' ? 'Durumda bocaladı.' : 'Durumu sahiplenmedi.';
 }
 
 /* ── Maaş ──────────────────────────────────────────────────────────────────────────────── */

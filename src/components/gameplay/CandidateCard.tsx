@@ -152,13 +152,11 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             >
               <div className={own.decisionInfo}>
                 <span className={own.decisionTitle}>
-                  {decidedForCurrent === 'approve' ? (selection ? '✓ Mülakata çağrıldı' : '✓ Teste geçirildi') : selection ? '✕ Çağrılmadı' : '✕ Reddedildi'}
+                  {decidedForCurrent === 'approve' ? (selection ? '✓ Mülakata çağrıldı' : '✓ Sonraki aşamaya geçti') : selection ? '✕ Çağrılmadı' : '✕ Reddedildi'}
                 </span>
                 {effect?.reason && (
                   <span className={own.decisionWhy}>
                     {effect.reason}
-                    <EffectChip label="Performans" value={effect.performans} />
-                    <EffectChip label="Vicdan" value={effect.vicdan} />
                   </span>
                 )}
                 <span className={`${own.decisionMeta} mono`}>
@@ -213,21 +211,10 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
       {/* karar ve yaptığı, ekran okuyucular için bir kez okunur */}
       <div className="sr-only" aria-live="polite">
         {candidate && decidedForCurrent && effect?.reason
-          ? `${decidedForCurrent === 'approve' ? (selection ? 'Mülakata çağrıldı' : 'Teste geçirildi') : selection ? 'Çağrılmadı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
+          ? `${decidedForCurrent === 'approve' ? (selection ? 'Mülakata çağrıldı' : 'Sonraki aşamaya geçti') : selection ? 'Çağrılmadı' : 'Reddedildi'}. ${effect.reason}`
           : ''}
       </div>
     </div>
   );
 }
 
-const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '±0');
-
-/** Bu karardan bir puanın değişimi; oynamadıysa hiçbir şey. */
-function EffectChip({ label, value }: { label: string; value: number }) {
-  if (value === 0) return null;
-  return (
-    <span className={`${own.effectChip} ${value > 0 ? own.effectUp : own.effectDown} mono`} aria-hidden="true">
-      {label} {signed(value)}
-    </span>
-  );
-}

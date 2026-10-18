@@ -281,7 +281,7 @@ export function FinalScreen() {
             <li>
               {structuredInterview
                 ? 'Cuma mülakatları yapılandırılmıştı: Hakan Bey\'in aile planı, memleket, emeklilik soruları masada değildi.'
-                : 'Cuma her mülakatta Hakan Bey aile planı, memleket ya da emeklilik sordu; kurulda bu soruların "uyum" puanı toplamın üçte biriydi.'}
+                : 'Cuma her mülakatta Hakan Bey aile planı, memleket ya da emeklilik sordu; kurulda bu soruların "uyum" puanı toplamı doğrudan aşağı çekti.'}
             </li>
             {rejections.standard + rejections.personal + rejections.pool + rejections.none > 0 && (
               <li>

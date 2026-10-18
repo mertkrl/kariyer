@@ -49,6 +49,8 @@ export interface DecisionActions {
 export interface DeskActions {
   /** Çalan sabit hattın ahizesini kaldır. */
   pickUpCall: () => void;
+  /** Son cevapsız aramayı geri ara. */
+  callBack: () => void;
   /** Söyleyeceğini söyle ve kapat. */
   answerCall: (choice: number) => void;
   /** Bir yudum kahve ve bir düşünce; ya da kupa boşsa mutfağa bir yürüyüş (birkaç dakika). */
@@ -98,6 +100,8 @@ export interface StoryActions {
   answerCandidate: (honest: boolean) => void;
   /** Son gün: kurula bir finalist öner; mülakatta belirlenenler (maaş, gerekçen) onunla gider. */
   hire: (id: string, panel?: PanelInput) => void;
+  /** Kurul sonrası: kazanana teklif (piyasa değeri mi, kendi beklentisi mi) ve elenenlere ret biçimi. */
+  closeHiring: (fairOffer: boolean, personalRejections: boolean) => void;
   /** Çarşamba toplantısından, söylediğini söylemiş olarak ayrıl. */
   finishMeeting: (choice: Exclude<MeetingChoice, null>) => void;
   /** Bildirimleri 17:00 için giden kutusuna koy (saat geçtiyse hemen). */

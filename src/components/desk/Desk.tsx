@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as 
 import { callFor, useGameStore, TEAM_LATE_DAY } from '../../game/store/store';
 import { PIZZA_SLICES } from '../../game/slices/deskSlice';
 import { days } from '../../game/data/days';
-import { COFFEE_SIPS, DRAWER_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState } from '../../game/day/desk';
+import { COFFEE_SIPS, DRAWER_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState, callbackable } from '../../game/day/desk';
 import { inbox } from '../../game/day/mail';
 import { formatClock } from '../../game/lib/time';
 import { audioEngine } from '../../audio/audioEngine';
@@ -43,6 +43,16 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   const extraMails = useGameStore((s) => s.extraMails);
   const ringingCaller = useGameStore((s) => (s.desk.ringing ? (callFor(s, s.desk.ringing)?.caller ?? null) : null));
   const pickUpCall = useGameStore((s) => s.pickUpCall);
+  const callBack = useGameStore((s) => s.callBack);
+  const missed = callbackable(desk);
+  const lastMissed = missed.length ? (callFor(useGameStore.getState(), missed[missed.length - 1])?.caller ?? null) : null;
+  // ekran sırayla "TAVRINSA" ve cevapsız çağrı sayısını gösterir
+  const [blink, setBlink] = useState(false);
+  useEffect(() => {
+    if (!missed.length) return;
+    const id = window.setInterval(() => setBlink((b) => !b), 1800);
+    return () => window.clearInterval(id);
+  }, [missed.length]);
   const drinkCoffee = useGameStore((s) => s.drinkCoffee);
   const waterFlower = useGameStore((s) => s.waterFlower);
   const visitCooler = useGameStore((s) => s.visitCooler);
@@ -274,17 +284,25 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
         {/* ── masanın önü ── */}
         <button
           className={`${styles.obj} ${styles.landline} ${ringingCaller ? styles.ringing : ''}`}
-          data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'} aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : 'Masa telefonu'}
+          data-label={ringingCaller ? `${ringingCaller} arıyor — aç` : lastMissed ? `Cevapsız çağrı · ${lastMissed} — geri ara` : 'Masa telefonu'}
+          aria-label={ringingCaller ? `${ringingCaller} arıyor — aç` : lastMissed ? `${missed.length} cevapsız çağrı. Son arayan ${lastMissed}; geri ara` : 'Masa telefonu'}
           data-key="h"
           aria-keyshortcuts="H"
           onClick={() => {
             if (ringingCaller) {
               audioEngine.playHandset();
               pickUpCall();
+            } else if (lastMissed) {
+              audioEngine.playHandset();
+              callBack();
             } else think('Çevir sesi. Kimi arayacaksın ki? Numaraların hepsi dahili.');
           }}
         >
-          <LandlineArt ringing={!!ringingCaller} display={ringingCaller ?? formatClock(minutes)} />
+          <LandlineArt
+            ringing={!!ringingCaller}
+            title={missed.length && blink ? `${missed.length} CEVAPSIZ` : 'TAVRINSA'}
+            display={ringingCaller ?? (missed.length && blink ? (lastMissed ?? '').toLocaleUpperCase('tr-TR').slice(0, 14) : formatClock(minutes))}
+          />
         </button>
         <button className={`${styles.obj} ${styles.keyboard}`} data-label="Klavye" aria-label="Klavye" onClick={onOpenPc} disabled={powerOut}>
           <KeyboardArt />

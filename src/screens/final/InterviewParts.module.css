@@ -101,6 +101,14 @@
   color: #fff;
 }
 
+.caseText {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: calc(13.5px * var(--ts, 1));
+  line-height: 1.55;
+  color: #dfe8f5;
+}
+
 .caseWhat {
   margin: 0;
   padding: 6px 12px 8px;

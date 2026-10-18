@@ -4,7 +4,7 @@
  * React durumuna bağlar; testler doğrudan bunları çalıştırır.
  */
 import type { SalaryMove } from '../../game/events/interview';
-import { CASE, FOLLOW, FORBIDDEN, QUESTION_BUDGET, TEST, type Entry } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, TEST, type Entry } from './interviewModel';
 
 type Question = Extract<Entry, { kind: 'q' }>;
 type Salary = Extract<Entry, { kind: 'salary' }>;
@@ -25,6 +25,8 @@ export interface RoomState {
   /** Maaş konuşuldu ve adayın bütün soruları cevaplandı: görüşme kapatılabilir. */
   backsDone: boolean;
   ended: boolean;
+  /** Görüşme nasıl açıldı: null ise henüz açılmadı. */
+  warm: boolean | null;
 }
 
 /** Kayıttan odanın durumu. `backs`: adayın sonda soracağı soru sayısı. */
@@ -47,6 +49,7 @@ export function roomState(entries: Entry[], backs: number): RoomState {
     backPending,
     backsDone: salaryDone && !backPending && backEntries.length >= backs,
     ended: entries.some((e) => e.kind === 'end'),
+    warm: (entries.find((e) => e.kind === 'warm') as { warm: boolean } | undefined)?.warm ?? null,
   };
 }
 
@@ -57,15 +60,23 @@ export const canFollowUp = (room: RoomState, typing: boolean) => !room.followUse
 
 /** Bu soru şimdi sorulabilir mi: sıra sende, hak ve tekrar kuralları. */
 export function canAsk(room: RoomState, question: number, typing: boolean): boolean {
-  if (typing || room.handedOff || room.ended) return false;
+  if (typing || room.handedOff || room.ended || room.warm === null) return false;
   if (isFollowUp(question)) return canFollowUp(room, typing);
   if (question === TEST) return !room.testUsed;
-  return !room.questions.some((e) => e.q === question) && room.mine.length < QUESTION_BUDGET;
+  // görüşmeyi yürüten aynı klasik soruyu sorduysa (OWNER + soru) tekrar sorulmaz
+  return !room.questions.some((e) => e.q === question || e.q === OWNER + question) && room.mine.length < QUESTION_BUDGET;
 }
 
-/** Söz Ümit'e geçerken sırayla sorulacaklar: teknik soru, sonra (yapılandırılmış değilse) Hakan Bey. */
-export function handOffQuestions(structured: boolean): Question[] {
-  return structured ? [{ kind: 'q', q: CASE, by: 'levent' }] : [{ kind: 'q', q: CASE, by: 'levent' }, { kind: 'q', q: FORBIDDEN, by: 'hakan' }];
+/**
+ * Söz panele geçerken sırayla sorulacaklar: adayı getiren (sen değilsen) senin sormadığın klasik
+ * soruyu kendi tarzıyla sorar, Ümit teknik soruyu, sonra (yapılandırılmış değilse ve aday onun
+ * değilse) Hakan Bey "uyum" sorusunu.
+ */
+export function handOffQuestions(structured: boolean, owner: 'you' | 'ayse' | 'emre' | 'hakan' = 'you', mine: number[] = []): Question[] {
+  const left = [0, 1, 2].find((q) => !mine.includes(q)) ?? 2;
+  const ownerQ: Question[] = owner === 'you' ? [] : [{ kind: 'q', q: OWNER + left, by: owner }];
+  const hakan: Question[] = structured || owner === 'hakan' ? [] : [{ kind: 'q', q: FORBIDDEN, by: 'hakan' }];
+  return [...ownerQ, { kind: 'q', q: CASE, by: 'levent' }, ...hakan];
 }
 
 /** Maaş konuşması sonuçlanır; adayın sorusu varsa ilki sıraya girer. */

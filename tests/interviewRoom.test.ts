@@ -4,17 +4,20 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CASE, FOLLOW, FORBIDDEN, QUESTION_BUDGET, type Entry } from '../src/screens/final/interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, type Entry } from '../src/screens/final/interviewModel';
 import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from '../src/screens/final/interviewRoom';
 
 const q = (n: number, by?: 'hakan' | 'levent'): Entry => ({ kind: 'q', q: n, ...(by ? { by } : {}) });
 
 test('klasik soru hakkı dolunca yeni soru sorulamaz, aynı soru iki kez sorulamaz', () => {
+  const opened: Entry = { kind: 'warm', warm: true };
   let entries: Entry[] = [];
+  assert.ok(!canAsk(roomState(entries, 0), 0, false), 'görüşme açılmadan soru sorulmaz');
+  entries = [opened];
   assert.ok(canAsk(roomState(entries, 0), 0, false));
-  entries = [q(0)];
+  entries = [opened, q(0)];
   assert.ok(!canAsk(roomState(entries, 0), 0, false), 'aynı soru');
-  entries = Array.from({ length: QUESTION_BUDGET }, (_, i) => q(i));
+  entries = [opened, ...Array.from({ length: QUESTION_BUDGET }, (_, i) => q(i))];
   assert.ok(!canAsk(roomState(entries, 0), QUESTION_BUDGET, false), 'hak doldu');
   // takip sorusu haktan düşmez
   assert.ok(canAsk(roomState(entries, 0), FOLLOW, false));
@@ -32,6 +35,9 @@ test('söz Ümit\'e geçince: teknik soru, sonra (yapılandırılmış değilse)
   assert.deepEqual(handOffQuestions(true).map((e) => e.kind === 'q' && [e.q, e.by]), [[CASE, 'levent']]);
   // Ümit'in ve Hakan Bey'in soruları senin hakkından düşmez
   assert.deepEqual(roomState([q(0), { kind: 'handoff' }, ...handOffQuestions(false)], 0).mine, [0]);
+  // adayı ekipten biri getirdiyse önce o, senin sormadığın klasik soruyu sorar; Hakan Bey kendi adayına uyum sorusu sormaz
+  assert.deepEqual(handOffQuestions(false, 'ayse', [0, 2]).map((e) => e.kind === 'q' && [e.q, e.by]), [[OWNER + 1, 'ayse'], [CASE, 'levent'], [FORBIDDEN, 'hakan']]);
+  assert.deepEqual(handOffQuestions(false, 'hakan', [0, 1]).map((e) => e.kind === 'q' && e.by), ['hakan', 'levent']);
 });
 
 test('maaştan sonra adayın soruları sırayla gelir; hepsi cevaplanınca görüşme kapatılabilir', () => {

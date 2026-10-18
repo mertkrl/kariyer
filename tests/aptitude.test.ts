@@ -20,7 +20,7 @@ test('anahtar 100, hiç cevap 0, aklı başında cevaplar eşiğin altında', ()
   assert.equal(scoreAptitude(APTITUDE_QUESTIONS.map((q) => q.sensible)).score, 0);
 });
 
-test('aday kâğıtları tohuma bağlı ve işini bilen ortalamada daha düşük alır', () => {
+test('aday kâğıtları tohuma bağlı; işini bilen ortalamada daha düşük alır ama çoğu aday eşiği geçer', () => {
   const ids = Object.keys(candidates);
   assert.deepEqual(candidateAptitude(ids[0], 7), candidateAptitude(ids[0], 7));
   const avg = (pick: (fit: number) => boolean) => {
@@ -28,7 +28,9 @@ test('aday kâğıtları tohuma bağlı ve işini bilen ortalamada daha düşük
     return xs.reduce((a, b) => a + b, 0) / xs.length;
   };
   assert.ok(avg((f) => f >= 4) < avg((f) => f <= 2));
-  assert.ok(avg((f) => f >= 4) < APTITUDE_CUTOFF);
+  // ama çoğu aday eşiği geçer: test herkesi değil, bazılarını eler
+  const all = ids.flatMap((id) => [1, 2, 3].map((s) => candidateAptitude(id, s).score));
+  assert.ok(all.filter((x) => x >= APTITUDE_CUTOFF).length > all.length / 2);
 });
 
 test('mülakatta test sorusu: aklı başında cevabı veren gerekçesini anlatır', () => {

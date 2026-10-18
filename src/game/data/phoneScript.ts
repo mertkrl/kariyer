@@ -185,7 +185,7 @@ export const AMBIENT: Ambient[][] = [
     },
     {
       at: 420, thread: 'office', sender: 'Emre', text: 'Bilginize: 3. kattaki yazıcı çalışıyor, 2. kattaki arızalı 🖨️',
-      replies: [{ text: 'Teşekkürler Emre Bey… pardon, Emre. Not aldım.', reaction: 'Rica ederim 👍', reactionSender: 'Emre' }],
+      replies: [{ text: 'Teşekkürler Emre, not aldım.', reaction: 'Rica ederim 👍', reactionSender: 'Emre' }],
       followUps: [{ after: 14, sender: 'Ayşe', text: 'Toner de bitmek üzere, idareli kullanalım.' }],
     },
   ],

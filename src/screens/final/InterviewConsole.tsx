@@ -4,7 +4,7 @@ import { FINAL_INTERVIEW_QUESTIONS } from '../../game/data/candidateDetails';
 import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
 import { Scorecard } from './InterviewParts';
-import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES, TEST } from './interviewModel';
+import { QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES, TEST } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
 import own from './InterviewConsole.module.css';
 
@@ -30,6 +30,8 @@ export interface InterviewConsoleProps {
   allDone: boolean;
   /** Kendi sorduğun klasik sorular. */
   mine: number[];
+  /** Bu odada (kim sorduysa) sorulmuş klasik sorular. */
+  asked?: number[];
   canFollow: boolean;
   /** Test puanını sorma hakkı duruyor (ek soru, odada bir kez). */
   canTest: boolean;
@@ -39,15 +41,36 @@ export interface InterviewConsoleProps {
   handOff: () => void;
   talkSalary: (move: SalaryMove) => void;
   endInterview: () => void;
+  /** Görüşme henüz açılmadı: sohbetle mi, doğrudan mı? */
+  opening: boolean;
+  open: (warm: boolean) => void;
+  /** Söz panele geçince kim konuşuyor (adayı getiren varsa adı). */
+  panelLead: string;
+  /** Görüşmeyi ekipten biri yürütüyor (adı); sen gözlemcisin. */
+  hostName?: string | null;
 }
 
-export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, canFollow, canTest, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
+export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, asked = mine, canFollow, canTest, scores, onScore, ask, handOff, talkSalary, endInterview, opening, open, panelLead, hostName = null }: InterviewConsoleProps) {
   const first = candidate.name.split(' ')[0];
   const scored = Object.keys(scores).length > 0;
   return (
     <div className={own.console}>
       {typing ? (
         <p className={own.consoleWait}>{first} cevaplıyor…</p>
+      ) : opening ? (
+        <>
+          <p className={own.consoleTitle}>{first} içeri giriyor. Görüşmeyi nasıl açıyorsun?</p>
+          <div className={own.options}>
+            <button className={own.option} onClick={() => open(true)}>
+              <b>Samimi bir merhaba</b>
+              <span>"Merhaba, hoş geldiniz! Yol nasıldı? Su ister misiniz? Acele yok, rahat olun."</span>
+            </button>
+            <button className={own.option} onClick={() => open(false)}>
+              <b>Kurumsal açılış</b>
+              <span>"İyi günler, ben Defne Aral, İşe Alım Uzmanı. Görüşmemiz yaklaşık yarım saat sürecek; başlayalım."</span>
+            </button>
+          </div>
+        </>
       ) : back ? (
         <>
           <p className={own.consoleTitle}>{first} bir soru soruyor. Nasıl cevaplıyorsun?</p>
@@ -63,7 +86,7 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
           </div>
         </>
       ) : handedOff && !salaryPending && !salaryDone ? (
-        <p className={own.consoleWait}>Söz {LEAD}'da. Dinliyorsun.</p>
+        <p className={own.consoleWait}>Söz panelde ({panelLead}). Dinliyorsun.</p>
       ) : salaryPending ? (
         <>
           <p className={own.consoleTitle}>
@@ -90,6 +113,32 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
             </button>
           )}
         </>
+      ) : hostName ? (
+        <>
+          <p className={own.consoleTitle}>
+            {hostName} yürütüyor · {mine.length < QUESTION_BUDGET ? `istersen söz al (${mine.length}/${QUESTION_BUDGET})` : 'söz hakkın bitti'}
+          </p>
+          <div className={own.questionList}>
+            {mine.length < QUESTION_BUDGET &&
+              FINAL_INTERVIEW_QUESTIONS.map((q, i) =>
+                asked.includes(i) ? null : (
+                  <button key={q} className={own.question} onClick={() => ask(i)}>
+                    <span className={styles.qNumber}>{i + 1}</span>
+                    {q}
+                  </button>
+                ),
+              )}
+            {canTest && (
+              <button className={`${own.question} ${own.testQuestion}`} onClick={() => ask(TEST)}>
+                <span className={styles.qNumber}>✎</span>
+                Test puanını ve cevap kâğıdını sor <small>(ek soru, hakkından düşmez)</small>
+              </button>
+            )}
+          </div>
+          <button className={own.endButton} onClick={handOff}>
+            {hostName} devam etsin: {panelLead} →
+          </button>
+        </>
       ) : (
         <>
           <p className={own.consoleTitle}>{mine.length < QUESTION_BUDGET ? `Soru seç · ${mine.length}/${QUESTION_BUDGET}` : 'Soruların bitti.'}</p>
@@ -113,7 +162,7 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
           {canFollow && mine.length > 0 && <p className={own.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
           {mine.length > 0 && (
             <button className={own.endButton} onClick={handOff}>
-              Sözü {LEAD}'a bırak: teknik bölüm →
+              Sözü panele bırak: {panelLead} →
             </button>
           )}
         </>

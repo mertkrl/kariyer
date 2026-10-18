@@ -62,12 +62,10 @@ export function CaseCard({ c }: { c: CodeCase }) {
   return (
     <figure className={styles.case}>
       <figcaption>
-        Mini vaka · {c.title} — <span>Bu kodda ne yanlış?</span>
+        Durum · <span>{c.title}</span>
       </figcaption>
-      <pre className="mono">{c.code}</pre>
-      <p className={styles.caseWhat}>
-        Kodu senin çözmen gerekmiyor. Bak: aday hatayı buluyor mu, nedenini anlatabiliyor mu, nasıl test edeceğini söylüyor mu? Cevaptan sonra Ümit'in yorumu da dosyada.
-      </p>
+      <p className={styles.caseText}>{c.code}</p>
+      <p className={styles.caseWhat}>Bak: aday sorumluluğu alıyor mu, baskı altında sakin mi, kimi düşünüyor? Ümit'in yorumu cevaptan sonra dosyada.</p>
     </figure>
   );
 }

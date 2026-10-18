@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../game/store/store';
 import { APTITUDE_MINUTES_PER_QUESTION, APTITUDE_QUESTIONS, APTITUDE_SECONDS, APTITUDE_SECTIONS, sectionOf } from '../../game/data/aptitudeTest';
-import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude, type AptitudeAnswer, type AptitudeResult } from '../../game/events/aptitude';
+import { APTITUDE_CUTOFF, aptitudeNote, paceOf, candidateAptitude, type AptitudeAnswer, type AptitudeResult } from '../../game/events/aptitude';
 import { candidateOf } from '../../game/data/candidates';
 import { PLAYER } from '../../game/lib/player';
 import { days } from '../../game/data/days';
@@ -234,6 +234,7 @@ function Report({ row }: { row: Row }) {
           <h2 className={styles.heading}>{row.name}</h2>
           <p className={styles.sub}>
             {result.correct} doğru · {APTITUDE_QUESTIONS.length - result.correct - result.timedOut} yanlış · {result.timedOut} boş
+            {paceOf(result) && ` · ${paceOf(result)!.text}`}
           </p>
         </div>
         <div className={`${styles.ring} ${below ? styles.ringBad : ''}`} style={{ ['--p' as string]: result.score }}>
@@ -260,6 +261,7 @@ function Report({ row }: { row: Row }) {
       </div>
 
       {note && <p className={styles.platformNote}>⚑ {note}</p>}
+      {paceOf(result)?.flag && <p className={styles.platformNote}>⏱ {paceOf(result)!.flag}</p>}
 
       {APTITUDE_SECTIONS.map((s, si) => (
         <section key={s.id} className={styles.answerSection}>
@@ -308,7 +310,9 @@ function SelfTest({ onDone }: { onDone: () => void }) {
   const [pos, setPos] = useState(0);
   const index = ORDER[pos];
   const pending = useRef(answers);
-  pending.current = answers;
+  useEffect(() => {
+    pending.current = answers;
+  }, [answers]);
   const finishedRef = useRef(false);
 
   const complete = (list: (AptitudeAnswer | undefined)[]) => {
@@ -338,7 +342,9 @@ function SelfTest({ onDone }: { onDone: () => void }) {
 
   // tek sayaç saniyede bir iner, oyun duraklatılınca durur; sıfırda test kendiliğinden teslim edilir
   const completeRef = useRef(complete);
-  completeRef.current = complete;
+  useEffect(() => {
+    completeRef.current = complete;
+  });
   useEffect(() => {
     if (paused) return;
     if (left <= 0) {

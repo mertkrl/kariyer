@@ -237,3 +237,26 @@ export const COOLER_THOUGHTS = [
 
 /** Çekmecede her ofis çekmecesinde olandan başka bir şey yok. */
 export const DRAWER_THOUGHT = 'Birkaç kalem, eski bir zımba, kurumuş bir sakız. Çekmeceyi kapattın.';
+
+/**
+ * Geri aranabilecek cevapsız aramalar, geliş sırasıyla (sonuncusu en yeni). Müdürün rica
+ * aramaları zaten kendisi yeniden çalar; referans aramalarını sen başlatırsın; geri alma ve kar
+ * aramalarının sonucu cevapsız kaldıklarında çoktan işlemiştir.
+ */
+export function callbackable(desk: { calls: Record<string, 'answered' | 'missed'> }): string[] {
+  return Object.entries(desk.calls)
+    .filter(([id, s]) => s === 'missed' && !id.startsWith(REQUEST_CALL_PREFIX) && !id.startsWith('cb:') && !id.startsWith('ref:') && id !== 'revoke' && id !== 'tolga-snow')
+    .map(([id]) => id);
+}
+
+/** Santral üzerinden yapılan geri arama: kimliği `cb:` + asıl aramanın kimliği. */
+export const CALLBACK_PREFIX = 'cb:';
+/** Dış hattan, santral aracılığıyla gelen arama mı (geri araması da santralden yapılır). */
+export const viaSwitchboard = (call: { line: string }) => /santral|dış hat/i.test(call.line);
+
+/** Geri aradığında arayanın ilk cümlesi. */
+export function callbackLine(caller: string) {
+  return caller === 'Hakan Bey'
+    ? 'Nihayet. Aradığımda açılmasını beklerim, Defne. Neyse, dinle.'
+    : `Alo? Ah, geri döndünüz, sağ olun. Az önce size ulaşamamıştım.`;
+}
