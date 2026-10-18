@@ -120,7 +120,7 @@ export function PcDesktop({ app, onOpen, onClose, portal, dayIndex, minutes, mai
           </span>
           <span className={styles.iconLabel}>Değerlendirme</span>
         </button>
-        <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş. Biri, senden önce, çok aceleyle boşaltmış.')}>
+        <button className={styles.icon} onClick={() => setToast('Geri Dönüşüm Kutusu boş.')}>
           <span aria-hidden="true" className={`${styles.glyph} ${styles.glyphBin}`}>
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6" />

@@ -265,34 +265,37 @@ function ChatWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<AptitudeWidge
   );
 }
 
-/** Kaçan düğme: ücret talebi imleç yaklaşınca kaçar; dört kaçıştan sonra yorulur ve yakalanabilir. */
-const RUNS = 4;
+/**
+ * Kaçan düğme: ücret talebi küçük ama görünür; imleç yaklaşınca kaçar. Birkaç denemeden sonra
+ * kaçmayı bırakır, ama tam basacağın an yerine "biz bir aileyiz" düğmesi geçer: tıklama ona gider.
+ */
+const RUNS = 5;
+const FLEE_LINES = ['Form yeniden yükleniyor…', 'Bu seçenek şu an bakımda.', 'Talebiniz sıraya alındı (sıra: 4.812).', 'Sunucu: "Emin misiniz?"', 'Bütçe dönemi kapalı.'];
 
 function RunawayWidget({ q, onAnswer }: WidgetProps) {
   const [runs, setRuns] = useState(0);
-  const [pos, setPos] = useState({ x: 8, y: 50 });
+  const [pos, setPos] = useState({ x: 8, y: 60 });
   const tired = runs >= RUNS;
+  // yorulduktan sonra imleç düğmeye girdiği an "aile" düğmesi onun yerine geçer
+  const [swapped, setSwapped] = useState(false);
   const flee = () => {
-    if (tired) return;
+    if (tired) {
+      setSwapped(true);
+      return;
+    }
     setRuns((n) => n + 1);
-    setPos({ x: 4 + Math.random() * 50, y: 8 + Math.random() * 50 });
+    setPos({ x: 2 + Math.random() * 60, y: 6 + Math.random() * 60 });
   };
   return (
     <div className={styles.runaway}>
-      <button
-        className={`${styles.runner} ${tired ? styles.runnerTired : ''}`}
-        style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-        onPointerEnter={flee}
-        onClick={() => {
-          click();
-          onAnswer(0);
-        }}
-      >
-        {tired ? '😮‍💨 ' : ''}
-        {q.options[0]}
-      </button>
+      {!swapped && (
+        <button className={`${styles.runner} ${tired ? styles.runnerTired : ''}`} style={{ left: `${pos.x}%`, top: `${pos.y}%` }} onPointerEnter={flee} onFocus={flee} onClick={flee}>
+          {q.options[0]}
+        </button>
+      )}
       <button
         className={`${styles.primary} ${styles.stay}`}
+        style={swapped ? { left: `${pos.x}%`, top: `${pos.y}%`, right: 'auto', bottom: 'auto' } : undefined}
         onClick={() => {
           click();
           onAnswer(1);
@@ -300,7 +303,7 @@ function RunawayWidget({ q, onAnswer }: WidgetProps) {
       >
         {q.options[1]}
       </button>
-      {runs > 0 && !tired && <small className={styles.runNote}>Form yeniden yükleniyor… ({runs}/{RUNS})</small>}
+      {runs > 0 && <small className={styles.runNote}>{tired ? 'Form sabitlendi. Artık tıklayabilirsiniz.' : FLEE_LINES[(runs - 1) % FLEE_LINES.length]}</small>}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { days } from '../../game/data/days';
 import { audioEngine } from '../../audio/audioEngine';
 import { QuestionWidget } from './AptitudeWidgets';
 import styles from './AptitudeApp.module.css';
+import empty from './AptitudeEmpty.module.css';
 
 /*
  * Assessa: şirketin dışarıdan aldığı "yetenek ölçüm platformu". Kurumsal bir panel: teste geçen
@@ -19,7 +20,25 @@ import styles from './AptitudeApp.module.css';
 const DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
 const SELF = '__self';
 const SELECTION_DAY = days.findIndex((d) => d.selection);
-const secondsOf = (i: number) => APTITUDE_QUESTIONS[i]?.seconds ?? APTITUDE_SECONDS;
+// testin tek, ortak süresi: soruların kılavuz sürelerinin toplamı; bitince test de biter
+const TOTAL_SECONDS = APTITUDE_QUESTIONS.reduce((n, q) => n + (q.seconds ?? APTITUDE_SECONDS), 0);
+// sınav bölüm bölüm ilerler; sonradan eklenen sorular da kendi bölümünde çıkar
+const ORDER = APTITUDE_QUESTIONS.map((_, i) => i).sort((a, b) => sectionOf(APTITUDE_QUESTIONS[a].kind) - sectionOf(APTITUDE_QUESTIONS[b].kind) || a - b);
+const clockText = (sec: number) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+
+/** Gözetmen kutusunun dönen uyarıları: platformun "yapay zekâ destekli" gözetimi. */
+const PROCTOR_LINES = [
+  'Göz teması algılanamadı. Lütfen kameraya daha istekli bakın.',
+  'Arka planda bir kedi tespit edildi. Kedi değerlendirmeye dahil edilmeyecektir.',
+  'Nefes ritminiz "kararsız" olarak işaretlendi.',
+  'Bu soruyu adayların %94\'ü 3 saniyede çözdü. (Kaynak: biz.)',
+  'Kaşınızı kaldırdınız. Not edildi.',
+  'Sekme değiştirmeyin. Değiştirmeyi düşünmeyin de.',
+  'Gülümsemeniz %12 eksik. Kültür uyumu puanınız güncelleniyor…',
+  'Cevaplarınız rakip şirketlerle paylaşılmaz.* (*satılır)',
+  'Ekran parlaklığınız motivasyon eksikliğine işaret ediyor olabilir.',
+  'Lütfen düşünürken daha az düşünün.',
+];
 
 interface Row {
   id: string;
@@ -96,7 +115,7 @@ export function AptitudeApp() {
               <span>Aday</span>
               <span>Puan</span>
             </div>
-            {rows.length === 0 && <p className={styles.empty}>Henüz tamamlanmış bir değerlendirme yok. Teste geçirdiğin adayların sonuçları ertesi sabah burada görünür.</p>}
+            {rows.length === 0 && <p className={styles.empty}>Liste boş. İlk sonuçlar ertesi sabah düşer.</p>}
             <ul>
               {rows.map((r) => (
                 <li key={r.id}>
@@ -110,7 +129,8 @@ export function AptitudeApp() {
                 </li>
               ))}
             </ul>
-            {!mine && (
+            {/* sol alttaki kutu yalnızca listede sonuç varken: boş ekranda aynı çağrı sağda zaten duruyor */}
+            {!mine && rows.length > 0 && (
               <div className={styles.selfBox}>
                 <b>Kendi deneyiminizi ölçün</b>
                 <p>
@@ -129,10 +149,67 @@ export function AptitudeApp() {
               </div>
             )}
           </aside>
-          <section className={styles.sheet}>{current ? <Report row={current} /> : <p className={styles.empty}>Bir sonuç seçin.</p>}</section>
+          <section className={styles.sheet}>
+            {current ? (
+              <Report row={current} />
+            ) : (
+              <EmptyState
+                canTake={!mine}
+                onTake={() => {
+                  audioEngine.playUi('click');
+                  setTaking(true);
+                }}
+              />
+            )}
+          </section>
         </div>
       </div>
     </Shell>
+  );
+}
+
+/** Hiç sonuç yokken: platformun kendini pazarladığı boş sayfa. */
+function EmptyState({ canTake, onTake }: { canTake: boolean; onTake: () => void }) {
+  return (
+    <div className={empty.emptyState}>
+      <svg className={empty.emptyArt} viewBox="0 0 160 120" aria-hidden="true">
+        <rect x="22" y="14" width="96" height="92" rx="8" fill="#fff" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
+        <rect x="36" y="32" width="50" height="6" rx="3" fill="currentColor" opacity="0.22" />
+        <rect x="36" y="48" width="66" height="6" rx="3" fill="currentColor" opacity="0.14" />
+        <rect x="36" y="64" width="40" height="6" rx="3" fill="currentColor" opacity="0.14" />
+        <rect x="36" y="80" width="56" height="6" rx="3" fill="currentColor" opacity="0.14" />
+        <circle cx="118" cy="84" r="22" fill="currentColor" opacity="0.12" />
+        <circle cx="118" cy="84" r="13" fill="none" stroke="currentColor" strokeWidth="4" />
+        <path d="m128 94 12 12" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+      </svg>
+      <h2 className={styles.heading}>Henüz ölçülecek kimse yok</h2>
+      <p className={empty.emptyLead}>
+        Portalda "Teste geçir" dediğin adaylar bu testi gece çözer; sonuçları ertesi sabah burada, yüzdelik dilimleri ve "kültür uyumu" yorumlarıyla belirir.
+      </p>
+      <ol className={empty.emptySteps}>
+        <li>
+          <b>1</b>
+          <span>Portalda adayı onayla</span>
+        </li>
+        <li>
+          <b>2</b>
+          <span>Aday {APTITUDE_QUESTIONS.length} soruyu gözetim altında çözer</span>
+        </li>
+        <li>
+          <b>3</b>
+          <span>Platform puanı verir, sen kararı</span>
+        </li>
+      </ol>
+      {canTake && (
+        <div className={empty.emptyCta}>
+          <p>Beklerken adayların neyle karşılaştığını görmek ister misin?</p>
+          <button className={styles.primary} onClick={onTake}>
+            Testi kendim çözeyim
+          </button>
+        </div>
+      )}
+      <p className={empty.emptyFoot}>Assessa · 2.400+ kurumun tercihi* · <span>*kurumların çoğu deneme sürümünde</span></p>
+    </div>
   );
 }
 
@@ -225,17 +302,18 @@ function SelfTest({ onDone }: { onDone: () => void }) {
   const finish = useGameStore((s) => s.finishAptitude);
   const step = useGameStore((s) => s.aptitudeStep);
   const N = APTITUDE_QUESTIONS.length;
-  // undefined: henüz dokunulmadı · null: süre doldu · sayı: işaretlenen şık
+  // undefined: dokunulmadı · sayı: işaretlenen şık; süre bitince dokunulmayanlar boş sayılır
   const [answers, setAnswers] = useState<(AptitudeAnswer | undefined)[]>(() => Array(N).fill(undefined));
-  // her sorunun kendi kalan süresi: geri dönünce kaldığı yerden işler, sıfırlanmaz
-  const [times, setTimes] = useState<number[]>(() => APTITUDE_QUESTIONS.map((_, i) => secondsOf(i)));
-  const [index, setIndex] = useState(0);
-  const [finished, setFinished] = useState(false);
+  const [left, setLeft] = useState(TOTAL_SECONDS);
+  const [pos, setPos] = useState(0);
+  const index = ORDER[pos];
   const pending = useRef(answers);
   pending.current = answers;
+  const finishedRef = useRef(false);
 
   const complete = (list: (AptitudeAnswer | undefined)[]) => {
-    setFinished(true);
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     finish(list.map((a) => (a === undefined ? null : a)));
     onDone();
   };
@@ -246,7 +324,7 @@ function SelfTest({ onDone }: { onDone: () => void }) {
     const next = answers.slice();
     next[index] = a;
     setAnswers(next);
-    if (index < N - 1) setIndex(index + 1);
+    if (pos < N - 1) setPos(pos + 1);
   };
 
   // pencereyi yarıda kapatmak testi bitirir: cevaplanmayanlar boş sayılır (hiç cevap yoksa test başlamamıştır)
@@ -257,48 +335,36 @@ function SelfTest({ onDone }: { onDone: () => void }) {
     },
     [finish],
   );
-  const finishedRef = useRef(finished);
-  finishedRef.current = finished;
 
-  // süre dolunca soru boş geçer ve kilitlenir; sayaç saniyede bir iner, oyun duraklatılınca durur
-  const timeout = useRef(() => {});
-  timeout.current = () => {
-    if (answers[index] === undefined) {
-      step();
-      const next = answers.slice();
-      next[index] = null;
-      setAnswers(next);
-    }
-    if (index < N - 1) setIndex(index + 1);
-  };
-  const left = times[index];
+  // tek sayaç saniyede bir iner, oyun duraklatılınca durur; sıfırda test kendiliğinden teslim edilir
+  const completeRef = useRef(complete);
+  completeRef.current = complete;
   useEffect(() => {
-    if (paused || left <= 0) return;
-    const id = window.setTimeout(() => {
-      setTimes((t) => t.map((v, i) => (i === index ? v - 1 : v)));
-      if (left <= 1) timeout.current();
-    }, 1000);
+    if (paused) return;
+    if (left <= 0) {
+      completeRef.current(pending.current);
+      return;
+    }
+    const id = window.setTimeout(() => setLeft((v) => v - 1), 1000);
     return () => window.clearTimeout(id);
-  }, [paused, left, index]);
+  }, [paused, left]);
 
   const q = APTITUDE_QUESTIONS[index];
   if (!q) return null;
-  const total = secondsOf(index);
   const section = sectionOf(q.kind);
-  const locked = left <= 0;
-  const given = answers[index];
   const answeredCount = answers.filter((a) => a !== undefined).length;
+  const proctorLine = PROCTOR_LINES[Math.floor((TOTAL_SECONDS - left) / 9) % PROCTOR_LINES.length];
   const go = (i: number) => {
     audioEngine.playUi('click');
-    setIndex(Math.max(0, Math.min(N - 1, i)));
+    setPos(Math.max(0, Math.min(N - 1, i)));
   };
-  const ratio = Math.max(0, left) / total;
+  const ratio = Math.max(0, left) / TOTAL_SECONDS;
   return (
     <div className={styles.exam}>
       <aside className={styles.examSide}>
-        <div className={`${styles.clockRing} ${left <= 10 ? styles.clockHurry : ''}`} style={{ ['--p' as string]: ratio * 100 }} role="timer" aria-label={`Bu soru için kalan süre ${Math.max(0, left)} saniye`}>
-          <b className="mono">00:{String(Math.max(0, left)).padStart(2, '0')}</b>
-          <small>bu soru</small>
+        <div className={`${styles.clockRing} ${left <= 30 ? styles.clockHurry : ''}`} style={{ ['--p' as string]: ratio * 100 }} role="timer" aria-label={`Testin kalan süresi ${Math.max(0, left)} saniye`}>
+          <b className="mono">{clockText(Math.max(0, left))}</b>
+          <small>kalan süre</small>
         </div>
         {APTITUDE_SECTIONS.map((sec, si) => (
           <div key={sec.id}>
@@ -309,17 +375,16 @@ function SelfTest({ onDone }: { onDone: () => void }) {
               {APTITUDE_QUESTIONS.map((x, i) => ({ x, i }))
                 .filter(({ x }) => sectionOf(x.kind) === si)
                 .map(({ x, i }) => {
-                  const lost = answers[i] === null;
-                  const done = typeof answers[i] === 'number';
+                  const done = answers[i] !== undefined;
                   return (
                     <li key={x.id}>
                       <button
-                        className={`${i === index ? styles.qNow : ''} ${done ? styles.qDone : ''} ${lost ? styles.qLost : ''}`}
-                        onClick={() => go(i)}
-                        aria-label={`Soru ${i + 1}${done ? ' · cevaplandı' : lost ? ' · süre doldu' : ''}`}
+                        className={`${i === index ? styles.qNow : ''} ${done ? styles.qDone : ''}`}
+                        onClick={() => go(ORDER.indexOf(i))}
+                        aria-label={`Soru ${ORDER.indexOf(i) + 1}${done ? ' · cevaplandı' : ''}`}
                         aria-current={i === index ? 'step' : undefined}
                       >
-                        {i + 1}
+                        {ORDER.indexOf(i) + 1}
                       </button>
                     </li>
                   );
@@ -327,9 +392,12 @@ function SelfTest({ onDone }: { onDone: () => void }) {
             </ol>
           </div>
         ))}
+        <p className={styles.proctorNote} aria-live="polite">
+          <b>Gözetmen</b>
+          {proctorLine}
+        </p>
         <div className={styles.mapLegend}>
           <span><i className={styles.lgDone} />Cevaplandı</span>
-          <span><i className={styles.lgLost} />Süre doldu</span>
           <span><i className={styles.lgNow} />Şu an</span>
         </div>
       </aside>
@@ -337,7 +405,7 @@ function SelfTest({ onDone }: { onDone: () => void }) {
       <div className={styles.examMain}>
         <div className={styles.crumbs}>
           <span>
-            Soru {index + 1} / {N} · {answeredCount} cevaplandı
+            Soru {pos + 1} / {N} · {answeredCount} cevaplandı
           </span>
           <span className={styles.proctor}>● Kamera gözetimi aktif</span>
         </div>
@@ -345,26 +413,17 @@ function SelfTest({ onDone }: { onDone: () => void }) {
           <span className={styles.qMeta}>{q.kind}</span>
           <p className={styles.prompt}>{q.prompt}</p>
           {q.figure && <div className={styles.figure}>{q.figure}</div>}
-          {locked ? (
-            <p className={styles.lockedNote}>Bu sorunun süresi doldu. {given === null || given === undefined ? 'Boş geçti.' : <>İşaretlediğin: <b>{q.options[given]}</b></>}</p>
-          ) : (
-            <>
-              {typeof given === 'number' && (
-                <p className={styles.givenNow}>
-                  Şu anki cevabın: <b>{q.options[given]}</b> · istersen değiştir
-                </p>
-              )}
-              <QuestionWidget key={`${q.id}-${given ?? 'x'}`} q={q} onAnswer={answer} />
-            </>
-          )}
+          <div className={styles.widgetArea}>
+            <QuestionWidget key={q.id} q={q} onAnswer={answer} />
+          </div>
           {q.hint && <p className={styles.hint}>{q.hint}</p>}
         </div>
         <div className={styles.examNav}>
-          <button className={styles.navBtn} onClick={() => go(index - 1)} disabled={index === 0}>
+          <button className={styles.navBtn} onClick={() => go(pos - 1)} disabled={pos === 0}>
             ← Önceki
           </button>
-          {index < N - 1 ? (
-            <button className={`${styles.navBtn} ${styles.navNext}`} onClick={() => go(index + 1)}>
+          {pos < N - 1 ? (
+            <button className={`${styles.navBtn} ${styles.navNext}`} onClick={() => go(pos + 1)}>
               Sonraki →
             </button>
           ) : (
@@ -395,11 +454,6 @@ function Shell({ children }: { children: React.ReactNode }) {
           </svg>
           Assessa <small>Talent Insights</small>
         </span>
-        <nav className={styles.brandNav} aria-hidden="true">
-          <span className={styles.navOn}>Sonuçlar</span>
-          <span>Normlar</span>
-          <span>Lisans</span>
-        </nav>
         <span className={styles.user}>Tavrinsa Labs · {PLAYER.name}</span>
       </header>
       <div className={styles.body}>{children}</div>

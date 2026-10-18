@@ -175,34 +175,6 @@ function paintFloor(g: CanvasRenderingContext2D, r: () => number) {
   g.fillRect(X0, FLOOR_LINE, X1 - X0, 30);
 }
 
-function paintPartition(g: CanvasRenderingContext2D, r: () => number) {
-  // yalnızca masanın arkasında alçak bir kumaş bölme; uçlarda direkleri zemine iner
-  const fab = g.createLinearGradient(0, WALL_BOTTOM, 0, DESK_BACK);
-  fab.addColorStop(0, '#5d6776');
-  fab.addColorStop(1, '#4d5663');
-  g.fillStyle = fab;
-  g.fillRect(DESK_BL, WALL_BOTTOM, DESK_BR - DESK_BL, FLOOR_LINE - WALL_BOTTOM);
-  for (let i = 0; i < 16000; i++) {
-    g.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)';
-    g.fillRect(DESK_BL + r() * (DESK_BR - DESK_BL), WALL_BOTTOM + r() * (FLOOR_LINE - WALL_BOTTOM), 2, 1);
-  }
-  const rail = g.createLinearGradient(0, WALL_BOTTOM - 8, 0, WALL_BOTTOM + 4);
-  rail.addColorStop(0, '#eceef0');
-  rail.addColorStop(0.5, '#adb1b8');
-  rail.addColorStop(1, '#6d727a');
-  g.fillStyle = rail;
-  g.fillRect(DESK_BL - 8, WALL_BOTTOM - 8, DESK_BR - DESK_BL + 16, 12);
-  for (const x of [DESK_BL - 8, DESK_BR - 4]) {
-    const post = g.createLinearGradient(x, 0, x + 12, 0);
-    post.addColorStop(0, '#c3c7cc');
-    post.addColorStop(1, '#7b8088');
-    g.fillStyle = post;
-    g.fillRect(x, WALL_BOTTOM - 8, 12, FLOOR_LINE + 6 - WALL_BOTTOM);
-    g.fillStyle = '#3b3e44';
-    g.fillRect(x - 4, FLOOR_LINE + 2, 20, 6);
-  }
-}
-
 function paintDesk(g: CanvasRenderingContext2D, r: () => number) {
   // masanın altı: gölgede ön panel, altındaki zemin daha da koyu
   const under = g.createLinearGradient(0, DESK_FRONT, 0, Y1);
@@ -289,7 +261,6 @@ function paint(g: CanvasRenderingContext2D) {
   paintCeiling(g);
   paintWall(g, r);
   paintFloor(g, r);
-  paintPartition(g, r);
   paintDesk(g, r);
 }
 

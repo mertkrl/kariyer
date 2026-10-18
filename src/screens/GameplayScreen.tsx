@@ -83,7 +83,7 @@ export function GameplayScreen() {
   const atPc = view === 'pc';
   const areaRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
-  const { area, stageScale, deskStyle, pcStyle, stackStyle, callStackStyle } = useDeskCamera(areaRef, atPc);
+  const { area, stageScale, deskStyle, pcStyle, stackStyle, callStackStyle } = useDeskCamera(areaRef, atPc, activeEvent?.kind === 'power', pcApp !== null);
   const deskLayerRef = useRef<HTMLDivElement>(null);
   const pcLayerRef = useRef<HTMLDivElement>(null);
 

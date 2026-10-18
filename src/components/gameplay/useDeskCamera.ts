@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState, type CSSProperties, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useState, type CSSProperties, type RefObject } from 'react';
 import { FIT_H, FIT_W, STAGE_H, STAGE_W } from '../desk/DeskRoom';
 
 /** Masa sahnesindeki monitör ekranının merkezi ve boyutu: kameranın yaklaştığı yer. */
@@ -11,7 +11,16 @@ const EASE = 'cubic-bezier(0.65, 0, 0.25, 1)';
  * büyür. Bildirim yığınlarının yükseldiği yer de burası: masadaki cep telefonu (sağ), sabit hat
  * (sol) ya da bilgisayardayken sağ alt.
  */
-export function useDeskCamera(areaRef: RefObject<HTMLDivElement | null>, atPc: boolean) {
+export function useDeskCamera(areaRef: RefObject<HTMLDivElement | null>, atPc: boolean, screenOff = false, appOpen = false) {
+  // ilk açılışta katmanlar yerlerine animasyonsuz oturur (yoksa siyah bir ekran monitöre küçülür);
+  // ilk çizimden sonra masa ↔ bilgisayar geçişi her zaman kayar
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    // ilk çizimin bitmesini bekle; sonrasında geçişler açılır
+    const id = window.setTimeout(() => setReady(true), 60);
+    return () => window.clearTimeout(id);
+  }, []);
+
   const [area, setArea] = useState({ w: 1280, h: 720 });
   useLayoutEffect(() => {
     const el = areaRef.current;
@@ -33,14 +42,23 @@ export function useDeskCamera(areaRef: RefObject<HTMLDivElement | null>, atPc: b
   const deskStyle: CSSProperties = {
     transformOrigin: `${ox}px ${oy}px`,
     transform: atPc ? `translate(${area.w / 2 - ox}px, ${area.h / 2 - oy}px) scale(${zoom})` : 'none',
-    transition: `transform 0.7s ${EASE}, filter 0.7s ease`,
+    transition: ready ? `transform 0.7s ${EASE}, filter 0.7s ease` : 'none',
     filter: atPc ? 'blur(3px) brightness(0.7)' : 'none',
   };
+  // masadan bakarken açık bir uygulama varsa aynı bilgisayar görünür: monitörün çerçevesine birebir
+  // oturur, kalktığın ekran (açık CV, e-posta…) olduğu gibi kalır (pencere ile monitörün oranı farklıysa
+  // görüntü o kadar esner). Uygulama açık değilse masanın kendi küçük masaüstü görünür; o zaman katman
+  // eskisi gibi orantılı küçülür ve monitöre yaklaşırken simgeler ikiye görünmesin diye ancak kamera
+  // yarı yoldayken belirir.
+  const mirror = appOpen && !screenOff;
+  const fitX = (SCREEN_SIZE.w * stageScale) / area.w;
+  const fitY = (SCREEN_SIZE.h * stageScale) / area.h;
+  const shrink = mirror ? `scale(${fitX}, ${fitY})` : `scale(${1 / zoom})`;
   const pcStyle: CSSProperties = {
     transformOrigin: '50% 50%',
-    transform: atPc ? 'none' : `translate(${ox - area.w / 2}px, ${oy - area.h / 2}px) scale(${1 / zoom})`,
-    opacity: atPc ? 1 : 0,
-    transition: atPc ? `transform 0.7s ${EASE}, opacity 0.35s ease 0.3s` : `transform 0.7s ${EASE}, opacity 0.25s ease`,
+    transform: atPc ? 'none' : `translate(${ox - area.w / 2}px, ${oy - area.h / 2}px) ${shrink}`,
+    opacity: atPc || mirror ? 1 : 0,
+    transition: !ready ? 'none' : mirror ? `transform 0.7s ${EASE}` : atPc ? `transform 0.7s ${EASE}, opacity 0.35s ease 0.3s` : `transform 0.7s ${EASE}, opacity 0.25s ease`,
   };
 
   const mobile = onStage(1482, 636);

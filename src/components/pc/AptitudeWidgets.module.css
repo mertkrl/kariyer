@@ -370,12 +370,13 @@
 
 .runner {
   position: absolute;
-  padding: 8px 12px;
+  padding: 3px 7px;
   border: 1px solid var(--a-line);
-  border-radius: var(--radius-sm);
+  border-radius: 5px;
   background: #fff;
   color: var(--a-text);
   font: inherit;
+  font-size: 10.5px;
   white-space: nowrap;
   cursor: pointer;
   transition:

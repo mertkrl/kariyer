@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useGameStore } from '../game/store/store';
 import { NEIGHBOUR_ID, candidateOf } from '../game/data/candidates';
 import { buildCall, type CallChoice, type CallLine } from '../game/events/weekend';
@@ -121,18 +121,12 @@ export function WeekendScreen() {
             <span className={styles.callerAvatar}>👩</span>
             <div className={styles.callerName}>Annem ❤️</div>
             <div className={styles.callerSub}>arıyor…</div>
-            <div className={styles.callActions}>
-              <button
-                className={styles.accept}
-                onClick={() => {
-                  audioEngine.playUi('connect');
-                  setStage('talking');
-                }}
-                aria-label="Aç"
-              >
-                📞
-              </button>
-            </div>
+            <SlideToAnswer
+              onAnswer={() => {
+                audioEngine.playUi('connect');
+                setStage('talking');
+              }}
+            />
             <button className={styles.skip} onClick={finishWeekend}>
               Sonra ararım — haftanın sonucuna geç
             </button>
@@ -181,6 +175,68 @@ export function WeekendScreen() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Telefonun kilit ekranındaki gibi: yeşil düğmeyi sağa kaydırınca açılır, yarıda bırakınca geri yaylanır. */
+function SlideToAnswer({ onAnswer }: { onAnswer: () => void }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const start = useRef<number | null>(null);
+  const [x, setX] = useState(0);
+  const [done, setDone] = useState(false);
+  const max = () => (trackRef.current ? trackRef.current.clientWidth - 64 : 200);
+
+  const down = (e: PointerEvent<HTMLButtonElement>) => {
+    if (done) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    start.current = e.clientX - x;
+  };
+  const move = (e: PointerEvent<HTMLButtonElement>) => {
+    if (start.current === null) return;
+    setX(Math.max(0, Math.min(max(), e.clientX - start.current)));
+  };
+  const up = () => {
+    if (start.current === null) return;
+    start.current = null;
+    if (x >= max() * 0.85) {
+      setX(max());
+      setDone(true);
+      window.setTimeout(onAnswer, 180);
+    } else setX(0);
+  };
+  const dragging = start.current !== null;
+  const progress = x / max();
+
+  return (
+    <div ref={trackRef} className={styles.slideTrack}>
+      <span className={styles.slideLabel} style={{ opacity: 1 - progress * 1.6 }}>
+        cevaplamak için kaydır
+      </span>
+      <button
+        className={styles.slideThumb}
+        style={{ transform: `translateX(${x}px)`, transition: dragging ? 'none' : 'transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1)' }}
+        onPointerDown={down}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            setX(max());
+            setDone(true);
+            window.setTimeout(onAnswer, 180);
+          }
+        }}
+        aria-label="Aramayı cevapla"
+      >
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"
+          />
+        </svg>
+      </button>
     </div>
   );
 }

@@ -39,23 +39,36 @@ export function MeetingRoom() {
   // satır yazılarak gelir; ilk tık onu tamamlar, sonraki ilerletir
   const [full, setFull] = useState(false);
   const [done, setDone] = useState(false);
+  // açılıştaki kendi satırların: oyuncunun seçtiği cümle, satırın sırasıyla
+  const [said, setSaid] = useState<Record<number, string>>({});
+  const opening = OPENING.map((l, i) => (said[i] ? { ...l, text: said[i] } : l));
 
   const lines: Line[] =
-    stage === 'opening' ? OPENING : stage === 'replies' && choice ? [{ who: 'you', text: choice.text }, ...choice.replies] : stage === 'closing' ? CLOSING : [];
+    stage === 'opening' ? opening : stage === 'replies' && choice ? [{ who: 'you', text: choice.text }, ...choice.replies] : stage === 'closing' ? CLOSING : [];
   const line = lines[index] ?? null;
   const active: Speaker | null = stage === 'choice' ? 'hakan' : (line?.who ?? null);
   // şimdiye kadar söylenen her şey: paylaşılan ekran en son panoyu gösterir, sohbet her mesajı tutar
   const replyLines: Line[] = choice ? [{ who: 'you', text: choice.text }, ...choice.replies] : [];
   const seen: Line[] = [
-    ...(stage === 'opening' ? OPENING.slice(0, index + 1) : OPENING),
+    ...(stage === 'opening' ? opening.slice(0, index + 1) : opening),
     ...(stage === 'replies' ? replyLines.slice(0, index + 1) : stage === 'closing' ? replyLines : []),
     ...(stage === 'closing' ? CLOSING.slice(0, index + 1) : []),
   ];
   const board: Board = [...seen].reverse().find((l) => l.board)?.board ?? { page: 'overview' };
   const chat = seen.flatMap((l) => l.chat ?? []);
 
+  // senin sıran: ne diyeceğini seçmeden konuşma ilerlemez
+  const yourTurn = stage === 'opening' && !!line?.choices && said[index] === undefined;
+
+  function say(text: string) {
+    audioEngine.playUi('select', 1);
+    setSaid((m) => ({ ...m, [index]: text }));
+    setFull(false);
+    setDone(false);
+  }
+
   function advance() {
-    if (!line) return;
+    if (!line || yourTurn) return;
     if (!done && !full) {
       setFull(true);
       return;
@@ -84,7 +97,14 @@ export function MeetingRoom() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (stage === 'choice') return;
+      const picks = stage === 'choice' ? OPTIONS.map((o) => () => pick(o)) : yourTurn && line?.choices ? line.choices.map((c) => () => say(c)) : [];
+      const n = Number(e.key);
+      if (picks.length && n >= 1 && n <= picks.length) {
+        e.preventDefault();
+        picks[n - 1]();
+        return;
+      }
+      if (stage === 'choice' || yourTurn) return;
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         advance();
@@ -115,16 +135,14 @@ export function MeetingRoom() {
               Hakan Kaya <small>İK Müdürü · sana soruyor</small>
             </div>
             <p className={styles.text}>"{OPENING[OPENING.length - 1].text}"</p>
-            <div className={styles.options}>
-              {OPTIONS.map((o) => (
-                <button key={o.id} className={styles.option} onClick={() => pick(o)}>
-                  <span className={styles.optionIcon} aria-hidden="true">
-                    ›
-                  </span>
-                  {o.text}
-                </button>
-              ))}
+            <ChoiceRow items={OPTIONS.map((o) => ({ key: o.id, text: o.text, onPick: () => pick(o) }))} />
+          </>
+        ) : yourTurn && line?.choices ? (
+          <>
+            <div className={styles.speaker} style={{ color: SPEAKERS.you.color }}>
+              {SPEAKERS.you.name} <small>senin sıran · ne diyeceksin?</small>
             </div>
+            <ChoiceRow items={line.choices.map((c) => ({ key: c, text: c, onPick: () => say(c) }))} />
           </>
         ) : (
           line && (
@@ -144,6 +162,22 @@ export function MeetingRoom() {
           )
         )}
       </div>
+    </div>
+  );
+}
+
+/** Seçenekler yan yana kartlar: konuşma alanı aşağı uzamaz; 1–3 tuşları da seçer. */
+function ChoiceRow({ items }: { items: { key: string; text: string; onPick: () => void }[] }) {
+  return (
+    <div className={styles.options}>
+      {items.map((it, i) => (
+        <button key={it.key} className={styles.option} onClick={it.onPick}>
+          <span className={`${styles.optionIcon} mono`} aria-hidden="true">
+            {i + 1}
+          </span>
+          <span>{it.text}</span>
+        </button>
+      ))}
     </div>
   );
 }

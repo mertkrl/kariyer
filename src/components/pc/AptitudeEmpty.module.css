@@ -1,0 +1,80 @@
+/* Assessa: hiç sonuç yokken sağ paneldeki boş durum (AptitudeApp.module.css boyut sınırı için ayrıldı). */
+
+.emptyState {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 28px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.emptyArt {
+  width: 150px;
+  color: var(--a-blue);
+}
+
+.emptyLead {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--a-muted);
+}
+
+.emptySteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin: 6px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emptySteps li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border: 1px solid var(--a-line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: var(--fs-label);
+  line-height: 1.4;
+}
+
+.emptySteps b {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--a-blue);
+  color: #fff;
+  font-size: 12px;
+}
+
+.emptyCta {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  background: #eef3fd;
+}
+
+.emptyCta p {
+  margin: 0 0 10px;
+  font-size: var(--fs-small);
+}
+
+.emptyFoot {
+  margin: 4px 0 0;
+  font-size: var(--fs-label);
+  color: var(--a-muted);
+}
+
+.emptyFoot span {
+  font-size: 9px;
+}

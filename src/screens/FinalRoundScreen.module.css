@@ -96,9 +96,17 @@
   grid-area: list;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+
+/* her grup kendi içinde sıkı durur: liste kaydırmadan sığsın */
+.list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .listLabel {
@@ -113,9 +121,11 @@
 .listItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  gap: 9px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border-radius: 10px;
   border: 1px solid var(--border-muted);
   background: var(--paper-light);
   text-align: left;
@@ -124,7 +134,7 @@
 }
 
 .listItem:hover {
-  transform: translateX(2px);
+  border-color: var(--gold);
 }
 
 .listItemSelected {
@@ -134,8 +144,8 @@
 
 .avatar {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -173,6 +183,7 @@
 }
 
 .listMeta {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 6px;

@@ -36,6 +36,8 @@ export interface Line {
   chat?: ChatMessage[];
   /** Biri bu satırda sohbete yazmaya başlar (ve hiç göndermeyebilir). */
   typing?: Speaker;
+  /** Senin satırın: ne söyleyeceğini oyuncu bu seçeneklerden seçer (`text` ilk seçenektir). */
+  choices?: string[];
 }
 
 /** Görüşmenin yan sohbetinde bir satır: birinden ya da bir sistem bildirimi; `private` yalnızca senin gördüğün anlamına gelir. */
@@ -102,12 +104,21 @@ export const COLLEAGUE_STATS: Record<'ayse' | 'emre', TeamStats> = {
 
 const pct = (x: number) => `%${Math.round(x * 100)}`;
 
-/** Oyuncunun kendi haftası, toplantıdaki özet turunda kendi ağzından. */
-function yourSummary(you: TeamStats): string {
-  if (you.files === 0) return 'Bu hafta henüz dosya kapatamadım; sistemi ve ilanı tanımaya çalıştım.';
+/** Oyuncunun kendi haftası, toplantıdaki özet turunda kendi ağzından: rakamlar aynı, ton oyuncunun. */
+function yourSummaries(you: TeamStats): string[] {
+  if (you.files === 0)
+    return [
+      'Şey… Bu hafta henüz dosya kapatamadım. Sistemi ve ilanı tanımaya çalıştım, özür dilerim.',
+      'Henüz dosya kapatmadım. Önce ilanı ve sistemi anlamak istedim.',
+      'Dosya kapatmadım çünkü acele edip yanlış karar vermek istemedim.',
+    ];
   const tool = you.ai >= 0.7 ? 'Çoğunu yapay zekâ analiziyle değerlendirdim' : you.ai <= 0.2 ? 'Yapay zekâ analizini pek kullanmadım, kendim okudum' : 'Bazılarında yapay zekâ analizine de baktım';
   const invites = you.invites === 0 ? 'henüz kimseyi çağırmadım' : `${you.invites} kişiyi mülakata çağırdım`;
-  return `${you.files} dosya kapattım, dosya başına ortalama ${you.avg} saniye. ${tool}; ${invites}.`;
+  return [
+    `Ben… ${you.files} dosya kapattım. Dosya başına ortalama ${you.avg} saniye, sanırım. ${tool}; ${invites}. Daha öğreniyorum.`,
+    `${you.files} dosya kapattım, dosya başına ortalama ${you.avg} saniye. ${tool}; ${invites}.`,
+    `${you.files} dosya, ortalama ${you.avg} saniye. Hızdan çok her dosyayı anlamaya çalıştım; ${invites}.`,
+  ];
 }
 
 /**
@@ -125,7 +136,12 @@ export function buildOpening(you: TeamStats): Line[] {
     { who: 'selin', text: 'Merhabalar, herkes hoş geldi. Sesim geliyor mu?', board: { page: 'off' }, chat: [{ who: 'emre', text: 'Geliyor 👍' }] },
     { who: 'ayse', text: 'Merhaba herkese, günaydın.', board: { page: 'off' } },
     { who: 'emre', text: 'Selamlar! Ben de buradayım.', board: { page: 'off' } },
-    { who: 'you', text: 'Merhaba, günaydın.', board: { page: 'off' } },
+    {
+      who: 'you',
+      text: 'Merhaba… günaydın. Sesim geliyor mu? Mikrofonum ilk defa açık da.',
+      choices: ['Merhaba… günaydın. Sesim geliyor mu? Mikrofonum ilk defa açık da.', 'Günaydın herkese.', 'Merhaba! İlk toplantım, biraz heyecanlıyım açıkçası.'],
+      board: { page: 'off' },
+    },
     { who: 'hakan', text: 'Merhaba. Hepimiz buradaysak başlayalım. Selin, raporu açar mısın?', board: { page: 'off' } },
     { who: 'selin', text: 'Tabii, ekranımı paylaşıyorum: Haftalık İşe Alım Performans Raporu.', board: { page: 'summary' }, chat: [{ who: 'selin', text: 'Ekranım görünüyor mu?' }, { who: 'emre', text: 'Görünüyor 👍' }] },
     { who: 'hakan', text: 'Kısa keseceğim. Holding dün akşam rakamları istedi: bu çeyrek kadro yüzde on beş küçülüyor, işe alım başına maliyet yüzde yirmi düşecek. Bu toplantıda kimse bana "ama" demeyecek.', board: { page: 'summary', focus: ['cost', 'headcount'] } },
@@ -133,7 +149,7 @@ export function buildOpening(you: TeamStats): Line[] {
     { who: 'hakan', text: 'Rakamlara geçmeden herkes kendi haftasını kısaca özetlesin. Emre, sen başla.', board: { page: 'people', metric: 'files' } },
     { who: 'emre', text: `${emre.files} dosya kapattım, dosya başına ortalama ${emre.avg} saniye. Hepsini önce yapay zekâ analizinden geçirdim; ${emre.invites} kişiyi çağırdım, Cuma'ya Çağan ve Sarp'ı getiriyorum.`, board: { page: 'people', metric: 'files', focus: ['emre'] }, chat: [{ who: 'emre', text: '8 saniye 💪' }] },
     { who: 'ayse', text: `Ben ${ayse.files} dosyaya baktım, her birini baştan sona okudum; dosya başına ${ayse.avg} saniye. ${ayse.invites} kişiyi çağırdım, kısa listemde Nehir ve Berk var.`, board: { page: 'people', metric: 'avg', focus: ['ayse'] } },
-    { who: 'you', text: yourSummary(you), board: { page: 'people', metric: 'files', focus: ['you'] } },
+    { who: 'you', text: yourSummaries(you)[0], choices: yourSummaries(you), board: { page: 'people', metric: 'files', focus: ['you'] } },
     { who: 'selin', text: 'Ben de raporu hazırladım, takvimi ve Cuma\'nın mülakat odalarını ayarladım. Kişi bazındaki rakamlar ekranda.', board: { page: 'people', metric: 'avg' } },
     you.files === 0
       ? { who: 'hakan', text: 'Defne\'nin satırı boş. Üç gündür tek dosya kapatmamış. Deneme süresindeki biri için bu kabul edilemez; Cuma\'ya kadar bu satırı doldur.', board: { page: 'people', metric: 'files', focus: ['you'] } }
@@ -181,7 +197,7 @@ export interface MeetingOption {
 export const OPTIONS: MeetingOption[] = [
   {
     id: 'sample',
-    text: 'Hızlı ama elediklerimize hiç bakmıyoruz. Her gün elenenlerden birkaç dosyayı rastgele elle kontrol edebiliriz.',
+    text: 'Şey… Belki yanlış görüyorumdur ama, hızlıyız, elediklerimize hiç bakmıyoruz. Her gün elenenlerden birkaç dosyayı rastgele elle kontrol etsek?',
     performans: -1,
     vicdan: 3,
     rapport: -6,
@@ -193,7 +209,7 @@ export const OPTIONS: MeetingOption[] = [
   },
   {
     id: 'praise',
-    text: 'İyi gidiyor. Rakamlar ortada.',
+    text: 'İyi gidiyor… bence. Rakamlar da ortada, sanırım.',
     performans: 2,
     vicdan: -2,
     rapport: 5,
@@ -203,7 +219,7 @@ export const OPTIONS: MeetingOption[] = [
   },
   {
     id: 'observe',
-    text: 'Henüz yeniyim. Biraz daha gözlemlemek istiyorum.',
+    text: 'Ben daha çok yeniyim… Biraz daha gözlemlesem olur mu?',
     performans: 0,
     vicdan: 0,
     rapport: 0,

@@ -98,37 +98,63 @@
   color: #9aa3ae;
 }
 
-.callActions {
+.slideTrack {
+  position: relative;
+  width: min(280px, 100%);
+  height: 72px;
   margin-top: 26px;
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  touch-action: none;
+  user-select: none;
 }
 
-.accept {
-  width: 72px;
-  height: 72px;
+/* kilit ekranındaki gibi soldan sağa akan parıltı */
+.slideLabel {
+  position: absolute;
+  inset: 0 0 0 64px;
+  display: grid;
+  place-items: center;
+  font-size: calc(16px * var(--ts, 1));
+  color: transparent;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, #fff 50%, rgba(255, 255, 255, 0.45) 100%) 0 0 / 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: slideShine 2.4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes slideShine {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+.slideThumb {
+  position: relative;
+  z-index: 1;
+  width: 64px;
+  height: 64px;
   border: none;
   border-radius: 50%;
   background: #2fb266;
-  font-size: calc(30px * var(--ts, 1));
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(47, 178, 102, 0.45);
-  animation: wiggle 1.7s ease-in-out infinite;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes wiggle {
-  0%,
-  60%,
-  100% {
-    transform: rotate(0);
-  }
-  65% {
-    transform: rotate(-14deg);
-  }
-  75% {
-    transform: rotate(14deg);
-  }
-  85% {
-    transform: rotate(-8deg);
-  }
+.slideThumb:active {
+  cursor: grabbing;
 }
 
 .skip {
@@ -291,8 +317,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .callerAvatar,
-.accept {
+.slideLabel {
     animation: none;
+    color: #fff;
   }
 }
 

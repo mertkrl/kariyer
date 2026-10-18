@@ -328,7 +328,7 @@
   align-self: center;
   margin-bottom: 18px;
   z-index: 2;
-  width: min(760px, calc(100% - 32px));
+  width: min(980px, calc(100% - 32px));
   box-sizing: border-box;
   padding: 16px 20px;
   border-radius: 16px;
@@ -401,23 +401,24 @@
 }
 
 .options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
   margin-top: 12px;
 }
 
 .option {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  padding: var(--choice-pad);
-  border-radius: var(--choice-radius);
-  border: 1px solid rgba(244, 239, 228, 0.2);
-  background: rgba(244, 239, 228, 0.06);
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(244, 239, 228, 0.18);
+  background: rgba(244, 239, 228, 0.05);
   color: #f4efe4;
   font: inherit;
-  font-size: calc(14.5px * var(--ts, 1));
+  font-size: calc(13.5px * var(--ts, 1));
   font-weight: 600;
   line-height: 1.45;
   text-align: left;
@@ -425,23 +426,35 @@
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
-.option:hover {
+.option:hover,
+.option:focus-visible {
   border-color: var(--choice-hover);
-  background: rgba(201, 162, 39, 0.1);
-  transform: translateX(2px);
+  background: rgba(201, 162, 39, 0.12);
+  transform: translateY(-2px);
 }
 
 .optionIcon {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(224, 176, 74, 0.18);
+  color: #e0b04a;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.option:hover .optionIcon {
   background: #e0b04a;
   color: #1b1917;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .options {
+    grid-template-columns: 1fr;
+  }
 }
 
 @keyframes roomIn {

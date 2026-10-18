@@ -158,8 +158,8 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 60, thread: 'office', sender: 'Ayşe', text: 'Günaydın herkese. Kahve makinesi yine bozuk ☕',
       replies: [
-        { text: 'Günaydın. Çay ocağında çay var, oradan idare edelim.', reaction: 'İyi fikir, ben de geçiyorum 🙂', reactionSender: 'Ayşe' },
-        { text: 'Günaydın. Teknik servise haber verildi mi?', reaction: 'Üç kere aradım, gelmiyorlar 🙄', reactionSender: 'Emre' },
+        { text: 'Günaydın… Şey, çay ocağında çay var galiba, ben oradan aldım. Yanlış yere girmediysem 😅', reaction: 'İyi fikir, ben de geçiyorum 🙂', reactionSender: 'Ayşe' },
+        { text: 'Günaydın. Teknik servise haber verildi mi acaba? Ben arayabilirim, numarası nerede yazıyor?', reaction: 'Üç kere aradım, gelmiyorlar 🙄', reactionSender: 'Emre' },
       ],
       followUps: [
         { after: 3, sender: 'Emre', text: 'Yine mi? Geçen hafta tamir edilmişti 😩' },
@@ -174,18 +174,18 @@ export const AMBIENT: Ambient[][] = [
       // herkes hoş geldin dedikten sonra: ilk cevabın teşekkür, ondan önce gruptaki hiçbir şeye cevap verilmez
       at: 14, thread: 'office', first: true, sender: 'Ayşe', text: 'Hoş geldin, kolay gelsin. Öğle yemeğinde tanışırız 🙂',
       replies: [
-        { text: 'Hepinize çok teşekkür ederim, iyi çalışmalar.', reaction: 'Biz teşekkür ederiz, kolay gelsin 🙂', reactionSender: 'Selin (İK)' },
-        { text: 'Teşekkürler, sıcak karşılamanız için sağ olun. Sorularım olursa sizi rahatsız edeceğim.', reaction: 'Rahatsızlık değil, rica ederim 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Çok teşekkür ederim, hepinize… İyi çalışmalar 🙂', reaction: 'Biz teşekkür ederiz, kolay gelsin 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Teşekkürler, çok naziksiniz. Şimdiden söyleyeyim, bolca soru soracağım galiba, kusura bakmayın 🙈', reaction: 'Rahatsızlık değil, rica ederim 🙂', reactionSender: 'Selin (İK)' },
       ],
     },
     {
       at: 330, thread: 'office', sender: 'Selin (İK)', text: 'Öğleden sonra yapay zekânın analiz butonu yavaş, sabırlı olalım.',
-      replies: [{ text: 'Bilgi için teşekkürler Selin Hanım.', reaction: 'Rica ederim 🙂', reactionSender: 'Selin (İK)' }],
+      replies: [{ text: 'Tamam, bilgi için teşekkürler Selin Hanım. Ben de bozdum sanmıştım 😅', reaction: 'Rica ederim 🙂', reactionSender: 'Selin (İK)' }],
       followUps: [{ after: 4, sender: 'Emre', text: 'Bende de öyle, yarım saattir dönüyor.' }],
     },
     {
       at: 420, thread: 'office', sender: 'Emre', text: 'Bilginize: 3. kattaki yazıcı çalışıyor, 2. kattaki arızalı 🖨️',
-      replies: [{ text: 'Teşekkürler Emre.', reaction: 'Rica ederim 👍', reactionSender: 'Emre' }],
+      replies: [{ text: 'Teşekkürler Emre Bey… pardon, Emre. Not aldım.', reaction: 'Rica ederim 👍', reactionSender: 'Emre' }],
       followUps: [{ after: 14, sender: 'Ayşe', text: 'Toner de bitmek üzere, idareli kullanalım.' }],
     },
   ],
@@ -193,14 +193,14 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 90, thread: 'ayse', text: 'Gruba yazmak istemedim. Nurten Hanım söyledi: deneme süresi bitince ikimizden sadece biri kalıyormuş. Kadro bir kişilik 😬',
       replies: [
-        { text: 'Ciddi misin?', reaction: 'Keşke olmasa. Hakan Bey cuma akşamı söyleyecekmiş. Haftanın daha ilk günü bitti, düşünsene 😩' },
-        { text: 'Kim kalırsa kalsın, birbirimizi ezmeyelim.', reaction: 'Anlaştık. Ama sayılarımı tutturmam lazım, bilmiş ol 😅' },
+        { text: 'Ciddi misin? Bunu… kimse söylemedi bana.', reaction: 'Keşke olmasa. Hakan Bey cuma akşamı söyleyecekmiş. Haftanın daha ilk günü bitti, düşünsene 😩' },
+        { text: 'Bilmiyordum… Ama kim kalırsa kalsın, birbirimizi ezmeyelim, olur mu?', reaction: 'Anlaştık. Ama sayılarımı tutturmam lazım, bilmiş ol 😅' },
       ],
     },
     {
       at: 200, thread: 'office', sender: 'Ayşe', text: 'Köprü yine kilitti, metrobüste köprünün ortasında 25 dakika durduk 😩',
       replies: [
-        { text: 'Ben de. Bağcılar\'dan çıkıp köprüyü geçmek 1,5 saat sürdü.', reaction: 'Avrupa yakasından gelenler kulübüne hoş geldin 🤝', reactionSender: 'Ayşe' },
+        { text: 'Ben de… Bağcılar\'dan çıkıp köprüyü geçmek 1,5 saat sürdü. Geç kaldım diye ödüm koptu.', reaction: 'Avrupa yakasından gelenler kulübüne hoş geldin 🤝', reactionSender: 'Ayşe' },
         { text: 'Marmaray\'a geçin, denizin altı daha sakin.', reaction: 'Ayrılık Çeşmesi aktarması da ayrı bir maraton ama 😂', reactionSender: 'Emre' },
       ],
       followUps: [
@@ -211,8 +211,8 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 350, thread: 'office', sender: 'Selin (İK)', text: 'ATS eşiği %60 oldu diye yarım saattir aynı CV\'ye bakıyorum. %59. Ne yapayım şimdi 😐',
       replies: [
-        { text: 'Dosyayı okuyup ona göre karar vermek lazım.', reaction: 'Haklısın. Okuyorum 🙂', reactionSender: 'Selin (İK)' },
-        { text: 'Kural kural, eleyelim.', reaction: 'Peki… Yine de içim rahat değil.', reactionSender: 'Selin (İK)' },
+        { text: 'Ben olsam… dosyayı okurdum sanırım. Bir puan için birini elemek bana biraz garip geliyor.', reaction: 'Haklısın. Okuyorum 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Kural öyleyse… eleyelim herhalde. Yeniyim, yanlış bir şey yapmak istemiyorum.', reaction: 'Peki… Yine de içim rahat değil.', reactionSender: 'Selin (İK)' },
       ],
       followUps: [
         { after: 3, sender: 'Ayşe', text: 'Eşik eşiktir 😅 Hakan Bey öyle diyor.' },
@@ -231,7 +231,7 @@ export const AMBIENT: Ambient[][] = [
     },
     {
       at: 430, thread: 'office', sender: 'Ayşe', text: 'Şemsiyesi olmayan var mı? Bende iki tane var ☔',
-      replies: [{ text: 'Ben alabilirim, çıkışta uğrarım. Teşekkürler.', reaction: 'Masamda, mavi olan senin ☂️', reactionSender: 'Ayşe' }],
+      replies: [{ text: 'Ben alırım! Sabah şemsiyesiz çıktım, annem haklı çıktı yine ☔', reaction: 'Masamda, mavi olan senin ☂️', reactionSender: 'Ayşe' }],
       followUps: [{ after: 10, sender: 'Emre', text: 'Bende de bir tane var, lazım olan alsın.' }],
     },
     // Çarşamba, yağmur dinmeden, ıslak toplantı odasının önünde ofisin iki tarafı kendini anlatır
@@ -244,8 +244,8 @@ export const AMBIENT: Ambient[][] = [
         { after: 9, sender: 'Selin (İK)', text: 'İkiniz de kendi yerinden haklısınız. Çaylar soğuyor ☕' },
       ],
       replies: [
-        { text: 'Bence ikiniz de aynı şeyden korkuyorsunuz: yanlış kişiye haksızlık etmekten.', reaction: 'Hiç böyle düşünmemiştim. Haklısın galiba.', reactionSender: 'Emre' },
-        { text: 'Ben de iş ararken aynısını yaşadım Ayşe. Ondan her CV\'yi okumaya çalışıyorum.', reaction: 'Biliyordum 🙂 Cuma mülakatta aynı tarafta olacağız.', reactionSender: 'Ayşe' },
+        { text: 'Belki haddim değil ama… bence ikiniz de aynı şeyden korkuyorsunuz: yanlış kişiye haksızlık etmekten.', reaction: 'Hiç böyle düşünmemiştim. Haklısın galiba.', reactionSender: 'Emre' },
+        { text: 'Ben de 11 ay iş aradım Ayşe. 214 başvuru. Ondan her CV\'yi okumaya çalışıyorum.', reaction: 'Biliyordum 🙂 Cuma mülakatta aynı tarafta olacağız.', reactionSender: 'Ayşe' },
         { text: 'Kurallar olmasa 600 dosyayı nasıl bitirirdik, Emre haklı.', reaction: 'Sağ ol. Bunu söyleyen ilk kişi sensin.', reactionSender: 'Emre' },
       ],
     },
@@ -254,8 +254,8 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 80, thread: 'office', sender: 'Emre', text: 'Yapay zekâ sistemi tamamen çöktü 😱 IT\'de herkes panikte',
       replies: [
-        { text: 'Neyse ki test puanları elimizde.', reaction: 'Puanlar var da… soruları gördün mü? 🙃', reactionSender: 'Ayşe' },
-        { text: 'Bugün iş uzun sürecek.', reaction: 'Kesin. Akşam fazla mesai var gibi 😩', reactionSender: 'Emre' },
+        { text: 'Neyse ki test puanları elimizde. Gerçi testi gördükten sonra "neyse ki" demek zor 🙃', reaction: 'Puanlar var da… soruları gördün mü? 🙃', reactionSender: 'Ayşe' },
+        { text: 'Bugün iş uzun sürecek. Kahveyi şimdiden ikiliyorum ☕☕', reaction: 'Kesin. Akşam fazla mesai var gibi 😩', reactionSender: 'Emre' },
       ],
       followUps: [
         { after: 4, sender: 'Selin (İK)', text: 'Hakan Bey\'den not: "70 altı listeye girmez. Sayılar ortada." Bilginize.' },
@@ -266,8 +266,8 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 300, thread: 'office', sender: 'Selin (İK)', text: 'Bir adayın cevap kâğıdına baktım. "Hangisi farklı: Pazartesi, Çarşamba, Cumartesi" sorusunda doğru cevap "Hiçbiri, hepsi iş günüdür"müş. Gülsem mi ağlasam mı.',
       replies: [
-        { text: 'Ben de fark ettim. Mantıklı cevap verenler puan kaybetmiş.', reaction: 'Bir şey söylüyor bu bize 🙂', reactionSender: 'Selin (İK)' },
-        { text: 'Kurum kültürü testi işte 🙂', reaction: 'Kültürümüz buysa… 😶', reactionSender: 'Selin (İK)' },
+        { text: 'Ben de fark ettim. Mantıklı cevap verenler puan kaybetmiş. Açıkçası bu beni rahatsız ediyor.', reaction: 'Bir şey söylüyor bu bize 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Kurum kültürü testi işte 🙂 Ben de çözdüm, kültüre pek uymuyormuşum.', reaction: 'Kültürümüz buysa… 😶', reactionSender: 'Selin (İK)' },
       ],
       followUps: [
         { after: 6, sender: 'Ayşe', text: 'Ben dün akşam kendim çözdüm. 58 aldım. Beni de işe almazdınız yani 🙃' },
@@ -277,8 +277,8 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 420, thread: 'office', sender: 'Selin (İK)', text: 'Hakan Bey\'den duyuru: sistem arızası ve mülakat listesi yüzünden bugün hep beraber 19:00\'a kadar kalıyoruz. Akşam yemeği şirketten 🍕',
       replies: [
-        { text: 'Anlaşıldı, ben de kalıyorum.', reaction: 'Hep beraber bitiririz 💪', reactionSender: 'Ayşe' },
-        { text: 'Evdekilere haber vereyim o zaman.', reaction: 'Ben de annemi aradım, "yine mi" dedi 😅', reactionSender: 'Ayşe' },
+        { text: 'Anlaşıldı, kalıyorum. Pizza olduğunu duyunca ikna oldum 🍕', reaction: 'Hep beraber bitiririz 💪', reactionSender: 'Ayşe' },
+        { text: 'Annemi arayayım, yoksa yemeği bekler.', reaction: 'Ben de annemi aradım, "yine mi" dedi 😅', reactionSender: 'Ayşe' },
       ],
       followUps: [
         { after: 3, sender: 'Emre', text: 'En azından pizza var 🍕' },
@@ -290,7 +290,7 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 630, thread: 'office', sender: 'Ayşe', text: 'Saat yediye geliyor. Kimde dosya kaldı?',
       replies: [
-        { text: 'Bende bitti, çıkıyorum. İyi akşamlar.', reaction: 'İyi akşamlar, yarın mülakatta görüşürüz 👋', reactionSender: 'Selin (İK)' },
+        { text: 'Bende bitti! İlk haftanın en uzun günüydü. İyi akşamlar herkese 👋', reaction: 'İyi akşamlar, yarın mülakatta görüşürüz 👋', reactionSender: 'Selin (İK)' },
         { text: 'Birkaç tane kaldı, bitirip çıkacağım.', reaction: 'Kolay gelsin, ben de az sonra çıkıyorum.', reactionSender: 'Ayşe' },
       ],
     },

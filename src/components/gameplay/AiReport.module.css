@@ -1,8 +1,6 @@
 /* Yapay zekâ raporunun balonu ve bölüm puanları (AiPanel.module.css boyut sınırı için ayrıldı). */
 /* rapor mesaj balonu: sütunun boyunu değiştirmez, kendi içinde kayar */
 .bubble {
-  max-height: min(420px, calc(100vh - var(--frame-topbar, 56px) - 160px));
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;

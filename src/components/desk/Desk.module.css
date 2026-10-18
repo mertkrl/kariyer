@@ -197,7 +197,7 @@
   opacity: 1;
 }
 
-/* mesai başlamadan önce bilgisayar parlar; ne yapılacağını alttaki şerit söyler (DeskGuide.module.css) */
+/* mesai başlamadan önce bilgisayar parlar; üstüne gelince etiketi "Güne başla" der */
 .beckon {
   animation: beckon 2.4s ease-in-out infinite;
 }
@@ -441,8 +441,8 @@
   left: 8px;
   top: 8px;
   display: grid;
-  gap: 6px;
-  width: 64px;
+  gap: 5px;
+  width: 70px;
 }
 
 .miniIcons span {
@@ -483,6 +483,10 @@
   background: #e0463a;
   font-size: 6.5px;
   line-height: 10px;
+}
+
+.miniTest {
+  background: #3b6fd8;
 }
 
 .miniPortal {
