@@ -3,9 +3,9 @@
  * selamları, annenin mesajları, ofis grubu, doğum günü sürprizi, ekibin dün yaptıklarına tepkisi.
  * Burada davranış yok: neyin ne zaman gönderileceğine manager.ts karar verir.
  */
-import { accusative, genitive } from '../turkish';
-import { PLAYER } from '../player';
-import type { Ambient, ManagerTone, QuickReply, RequestTemplate } from '../phoneTypes';
+import { accusative, genitive } from '../lib/turkish';
+import { PLAYER } from '../lib/player';
+import type { Ambient, ManagerTone, QuickReply, RequestTemplate } from '../day/phoneTypes';
 
 // Ricalar oyunun konusu olan belirli bir önyargıyı hedefler; `ids`ten bugünün kuyruğunda olan
 // ilk aday hedef olur.
@@ -73,7 +73,7 @@ export const REQUESTS: RequestTemplate[] = [
   {
     ids: ['yusuf', 'ece'],
     want: 'reject',
-    text: (n) => `${n} ücret beklentisini açıkça belirtmemiş. Şeffaf olmayan başvurularla ilerlemeyelim.`,
+    text: (n) => `${n} ücret konusunda şeffaf değil. Şeffaf olmayan başvurularla ilerlemeyelim.`,
   },
   {
     ids: ['baris'],
@@ -130,7 +130,10 @@ export const FAMILY: { at: number; text: string; replies?: QuickReply[] }[][] = 
       text: 'Bugün pazarda eski fabrikadan Nuran\'ı gördüm. Hatırlıyor musun, bizi 50 yaşında "genç kan lazım" deyip çıkarmışlardı. Sen iyi ki karar veren taraftasın yavrum',
       replies: [
         { text: 'Hatırlıyorum anne.', reaction: 'Unutma, her dosyanın arkasında bir anne var. Kolay gelsin' },
-        { text: 'Bazen karar ben vermiyorum anne, sistem veriyor.', reaction: 'Sistemi de insan yazmıyor mu yavrum?', vicdan: -1 },
+        { text: 'Bazen karar ben vermiyorum anne, sistem veriyor.', reaction: 'Sistemi de insan yazmıyor mu yavrum?', vicdan: -1, followUp: [
+          { text: 'Haklısın anne. Dosyaları okuyorum, merak etme.', reaction: 'Bilirim seni. Kolay gelsin yavrum' },
+          { text: 'Yazıyor ama bana sormuyorlar ki.', reaction: 'Sormasınlar, sen yine de bak. Gözün açık olsun' },
+        ] },
       ],
     },
   ],
@@ -251,25 +254,28 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 80, thread: 'office', sender: 'Emre', text: 'Yapay zekâ sistemi tamamen çöktü 😱 IT\'de herkes panikte',
       replies: [
-        { text: 'Bugün CV\'leri kendimiz okuyacağız.', reaction: 'Aynen, kahve stoku yapın ☕', reactionSender: 'Ayşe' },
+        { text: 'Neyse ki test puanları elimizde.', reaction: 'Puanlar var da… soruları gördün mü? 🙃', reactionSender: 'Ayşe' },
         { text: 'Bugün iş uzun sürecek.', reaction: 'Kesin. Akşam fazla mesai var gibi 😩', reactionSender: 'Emre' },
       ],
       followUps: [
-        { after: 4, sender: 'Selin (İK)', text: 'Bugün herkes gerçekten CV okuyacak desenize.' },
-        { after: 10, sender: 'Emre', text: 'Sistem yokken iş iki katına çıkıyor. O sistemi boşuna almadı şirket.' },
+        { after: 4, sender: 'Selin (İK)', text: 'Hakan Bey\'den not: "70 altı listeye girmez. Sayılar ortada." Bilginize.' },
+        { after: 10, sender: 'Emre', text: 'Sistem gitti ama test duruyor. Bence test puanı daha bile nesnel. Sayı sayıdır.' },
         { after: 25, sender: 'Ayşe', text: 'IT "öğleden sonra belki" diyor. Belki 🙃' },
       ],
     },
     {
-      at: 300, thread: 'office', sender: 'Selin (İK)', text: 'Sistem yokken CV okumak… İtiraf edeyim, bazılarını ilk kez gerçekten okudum.',
-      replies: [{ text: 'Ben de aynı şeyi fark ettim.', reaction: 'Bir şey söylüyor bu bize 🙂', reactionSender: 'Selin (İK)' }],
+      at: 300, thread: 'office', sender: 'Selin (İK)', text: 'Bir adayın cevap kâğıdına baktım. "Hangisi farklı: Pazartesi, Çarşamba, Cumartesi" sorusunda doğru cevap "Hiçbiri, hepsi iş günüdür"müş. Gülsem mi ağlasam mı.',
+      replies: [
+        { text: 'Ben de fark ettim. Mantıklı cevap verenler puan kaybetmiş.', reaction: 'Bir şey söylüyor bu bize 🙂', reactionSender: 'Selin (İK)' },
+        { text: 'Kurum kültürü testi işte 🙂', reaction: 'Kültürümüz buysa… 😶', reactionSender: 'Selin (İK)' },
+      ],
       followUps: [
-        { after: 6, sender: 'Ayşe', text: 'Ben de. Bazılarını hiç görmemişim meğer.' },
-        { after: 14, sender: 'Emre', text: 'Okumak güzel de, akşama kadar bitmez bu iş. Sistemin bir bildiği var.' },
+        { after: 6, sender: 'Ayşe', text: 'Ben dün akşam kendim çözdüm. 58 aldım. Beni de işe almazdınız yani 🙃' },
+        { after: 14, sender: 'Emre', text: 'Ben 91 aldım 😎 Test ne derse o.' },
       ],
     },
     {
-      at: 420, thread: 'office', sender: 'Selin (İK)', text: 'Hakan Bey\'den duyuru: sistem arızası yüzünden bugün hep beraber 19:00\'a kadar kalıyoruz. Akşam yemeği şirketten 🍕',
+      at: 420, thread: 'office', sender: 'Selin (İK)', text: 'Hakan Bey\'den duyuru: sistem arızası ve mülakat listesi yüzünden bugün hep beraber 19:00\'a kadar kalıyoruz. Akşam yemeği şirketten 🍕',
       replies: [
         { text: 'Anlaşıldı, ben de kalıyorum.', reaction: 'Hep beraber bitiririz 💪', reactionSender: 'Ayşe' },
         { text: 'Evdekilere haber vereyim o zaman.', reaction: 'Ben de annemi aradım, "yine mi" dedi 😅', reactionSender: 'Ayşe' },
@@ -362,7 +368,10 @@ export const MOM_POOL: { text: string; replies: QuickReply[] }[] = [
     text: 'Kargon geldi, kapıcı aldı',
     replies: [
       { text: 'Sağ ol anne', reaction: 'Rica ederim, akşam uğra al.' },
-      { text: 'Ne kargosu?', reaction: 'Bilmiyorum, kutu kocaman. Yine ne aldın?' },
+      { text: 'Ne kargosu?', reaction: 'Bilmiyorum, kutu kocaman. Yine ne aldın?', followUp: [
+        { text: 'Kitap sipariş etmiştim, unutmuşum.', reaction: 'Kitapsa iyi. Akşam gel al' },
+        { text: 'Hiçbir şey almadım, açma sakın.', reaction: 'Tamam açmam. Kapıcıya da sordururum' },
+      ] },
     ],
   },
   {
@@ -518,7 +527,10 @@ export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] 
       text: 'Yağmur hiç dinmedi. Hâlâ işte misin? Servisi kaçırma sakın',
       replies: [
         { text: 'Servis gitti anne, dosyalar bitmedi.', reaction: 'Eyvah… Dönüşte taksiye bin, parasını ben veririm.' },
-        { text: 'Kaçırmam, merak etme.', reaction: 'Tamam yavrum. Şemsiyen yanında mı?' },
+        { text: 'Kaçırmam, merak etme.', reaction: 'Tamam yavrum. Şemsiyen yanında mı?', followUp: [
+          { text: 'Yanımda anne.', reaction: 'Aferin. Islanma' },
+          { text: 'Unuttum, ofistekinden alırım.', reaction: 'Al mutlaka, hasta olma sonra' },
+        ] },
       ],
     },
     {

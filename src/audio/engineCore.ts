@@ -5,18 +5,15 @@ export type StampKind = 'approve' | 'reject';
  *
  *   SFX sesleri ──► sfxIn ──► sfxGlue (yumuşak kompresör) ──► sfxVolume ──┐
  *                                                                          ├──► master (sessiz) ──► sınırlayıcı ──► çıkış
- *   müzik döngüsü ──► highpass ──► lowpass ──► moodGain ──► musicVolume ──┘
+ *   müzik parçası ──► parça kazancı (geçişler) ──► highpass ──► lowpass ──► moodGain ──► musicVolume ──┘
  *
  * Kullanıcının gördüğü iki kaydırıcı (Müzik / Efektler) musicVolume ve sfxVolume'u yönetir. Son
  * sınırlayıcı üst üste binen ani sesleri (ör. aynı anda saçılan 60 CV) yakalar, hiçbir şey patlamaz.
  */
 
 export const SFX_LEVEL = 0.55;
-export const MUSIC_SRC = `${import.meta.env.BASE_URL}audio/theme-calm.m4a`;
 /** Gerçek bir yağmur kaydı; hava ve sokak sahnelerinin altında döngüde çalar. */
 export const RAIN_SRC = `${import.meta.env.BASE_URL}audio/rain.mp3`;
-/** theme-calm.m4a'nın tam döngü uzunluğu (66 BPM'de 32 ölçü); bkz. scripts/generate-calm-music.mjs. */
-export const MUSIC_LOOP_SECONDS = (60 / 66) * 4 * 32;
 
 /**
  * Arka plan müziğinin sahnede nasıl durduğu:
@@ -63,6 +60,26 @@ export interface PourSound {
  * tek seferlik sesleri ekler. Üyeler yalnızca bu ikisi için açıktır; src/audio dışında hiçbir şey
  * bu sınıfı kullanmaz.
  */
+/** Bir sesin tek çalınışındaki küçük sapmalar: perde, ses düzeyi ve filtre parlaklığı. */
+export interface Variation {
+  pitch: number;
+  gain: number;
+  filter: number;
+}
+
+/**
+ * Elle yapılan bir sesin doğal dağınıklığı: aynı damga 50. kez de biraz farklı vurur. Perde
+ * ±%1,5 (bir çeyrek yarım ses kadar), ses düzeyi ±%10, filtre ±%6. Akorlar bozulmasın diye bir
+ * olayın bütün parçaları aynı sapmayı paylaşır.
+ */
+export function makeVariation(rand: () => number = Math.random): Variation {
+  const spread = (amount: number) => 1 + (rand() * 2 - 1) * amount;
+  return { pitch: spread(0.015), gain: spread(0.1), filter: spread(0.06) };
+}
+
+/** Aynı anda (bu kadar ms içinde) çağrılan parçalar tek bir olaydır. */
+const EVENT_WINDOW_MS = 25;
+
 export class EngineCore {
   ctx: AudioContext | null = null;
   master: GainNode | null = null;
@@ -73,8 +90,9 @@ export class EngineCore {
   muted = false;
   musicLevel = 0.8;
   sfxLevel = 0.8;
-  musicBuffer: Promise<AudioBuffer> | null = null;
+  musicBuffers = new Map<string, Promise<AudioBuffer>>();
   musicSource: AudioBufferSourceNode | null = null;
+  musicSourceGain: GainNode | null = null;
   musicGain: GainNode | null = null;
   musicLowpass: BiquadFilterNode | null = null;
   musicHighpass: BiquadFilterNode | null = null;
@@ -220,6 +238,16 @@ export class EngineCore {
     param.exponentialRampToValueAtTime(0.0001, when + attack + decay);
   }
 
+  private variation: Variation & { at: number } = { at: -Infinity, pitch: 1, gain: 1, filter: 1 };
+
+  /** Bu olayın sapması: yeni bir olay yeni bir sapma alır, aynı olayın parçaları aynısını paylaşır. */
+  protected vary(): Variation {
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    if (now - this.variation.at > EVENT_WINDOW_MS) this.variation = { at: now, ...makeVariation() };
+    else this.variation.at = now;
+    return this.variation;
+  }
+
   tone(opts: {
     type?: OscillatorType;
     freq: number;
@@ -235,12 +263,13 @@ export class EngineCore {
     if (!this.sfxIn) return;
     const when = opts.when ?? ctx.currentTime;
     const attack = opts.attack ?? 0.004;
+    const v = this.vary();
     const osc = ctx.createOscillator();
     osc.type = opts.type ?? 'sine';
-    osc.frequency.setValueAtTime(opts.freq, when);
-    if (opts.freqEnd) osc.frequency.exponentialRampToValueAtTime(opts.freqEnd, when + attack + opts.decay);
+    osc.frequency.setValueAtTime(opts.freq * v.pitch, when);
+    if (opts.freqEnd) osc.frequency.exponentialRampToValueAtTime(opts.freqEnd * v.pitch, when + attack + opts.decay);
     const gain = ctx.createGain();
-    this.envelope(gain.gain, when, attack, opts.peak, opts.decay);
+    this.envelope(gain.gain, when, attack, opts.peak * v.gain, opts.decay);
     osc.connect(gain);
     const pan = this.panner(ctx, opts.pan ?? 0);
     gain.connect(pan);
@@ -266,19 +295,20 @@ export class EngineCore {
     const when = opts.when ?? ctx.currentTime;
     const attack = opts.attack ?? 0.003;
     const total = attack + opts.decay;
+    const v = this.vary();
     const src = this.noiseSource(ctx);
     const filter = ctx.createBiquadFilter();
     filter.type = opts.filter;
     filter.Q.value = opts.q ?? 0.8;
-    filter.frequency.setValueAtTime(opts.freq, when);
-    if (opts.freqEnd) filter.frequency.exponentialRampToValueAtTime(opts.freqEnd, when + total);
+    filter.frequency.setValueAtTime(opts.freq * v.filter, when);
+    if (opts.freqEnd) filter.frequency.exponentialRampToValueAtTime(opts.freqEnd * v.filter, when + total);
     const gain = ctx.createGain();
     if (opts.curve) {
       // Eğrinin zaman aralığını başka hiçbir otomasyon olayı paylaşamaz.
       gain.gain.value = 0;
-      gain.gain.setValueCurveAtTime(opts.curve, when, total);
+      gain.gain.setValueCurveAtTime(v.gain === 1 ? opts.curve : opts.curve.map((x) => x * v.gain), when, total);
     } else {
-      this.envelope(gain.gain, when, attack, opts.peak, opts.decay);
+      this.envelope(gain.gain, when, attack, opts.peak * v.gain, opts.decay);
     }
     const pan = this.panner(ctx, opts.pan ?? 0);
     src.connect(filter);

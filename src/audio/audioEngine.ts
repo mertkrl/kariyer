@@ -1,4 +1,5 @@
-import { EngineCore, MUSIC_LOOP_SECONDS, MUSIC_MOODS, MUSIC_SRC, sliderToGain, type MusicMood, type PourSound, type ScatterPaper, type StampKind } from './engineCore';
+import { MUSIC_TRACKS, type MusicTrack } from './musicPlan';
+import { EngineCore, MUSIC_MOODS, sliderToGain, type MusicMood, type PourSound, type ScatterPaper, type StampKind } from './engineCore';
 
 export type { MusicMood, PourSound } from './engineCore';
 
@@ -63,11 +64,21 @@ class AudioEngine extends EngineCore {
     }
   }
 
-  private loadMusic(ctx: AudioContext) {
-    this.musicBuffer ??= fetch(MUSIC_SRC)
-      .then((res) => res.arrayBuffer())
-      .then((data) => ctx.decodeAudioData(data));
-    return this.musicBuffer;
+  /** Çalan (ya da başlayınca çalacak) parça. */
+  private musicTrack: MusicTrack = 'calm';
+
+  private loadMusic(ctx: AudioContext, track: MusicTrack) {
+    const { src } = MUSIC_TRACKS[track];
+    let buffer = this.musicBuffers.get(src);
+    if (!buffer) {
+      buffer = fetch(src)
+        .then((res) => res.arrayBuffer())
+        .then((data) => ctx.decodeAudioData(data));
+      // yüklenemezse bir dahaki istekte yeniden denensin
+      buffer.catch(() => this.musicBuffers.delete(src));
+      this.musicBuffers.set(src, buffer);
+    }
+    return buffer;
   }
 
   /** Boşluksuz arka plan döngüsünü başlatır (Web Audio örnek hassasiyetinde döngü yapar; <audio loop> boşluk bırakır). */
@@ -76,22 +87,48 @@ class AudioEngine extends EngineCore {
     if (ctx.state === 'suspended') void ctx.resume();
     this.musicWanted = true;
     if (this.musicSource) return;
+    this.playTrack(this.musicTrack, 0.05);
+  }
 
-    void this.loadMusic(ctx)
+  /** Parçayı değiştirir: eskisi `fade` saniyede söner, yenisi aynı sürede girer. */
+  setMusicTrack(track: MusicTrack, fade = 3) {
+    if (track === this.musicTrack) return;
+    this.musicTrack = track;
+    if (!this.ctx || !this.musicWanted) return;
+    this.playTrack(track, fade);
+  }
+
+  private playTrack(track: MusicTrack, fade: number) {
+    const ctx = this.ensureContext();
+    void this.loadMusic(ctx, track)
       .then((buffer) => {
-        if (!this.musicWanted || this.musicSource || !this.musicHighpass) return;
+        // bu arada başka bir parça istendiyse ya da müzik durdurulduysa bu artık gerekmiyor
+        if (!this.musicWanted || this.musicTrack !== track || !this.musicHighpass) return;
+        const old = this.musicSource;
+        const oldGain = this.musicSourceGain;
+        const now = ctx.currentTime;
+        if (old && oldGain) {
+          oldGain.gain.cancelScheduledValues(now);
+          oldGain.gain.setValueAtTime(oldGain.gain.value, now);
+          oldGain.gain.linearRampToValueAtTime(0, now + fade);
+          old.stop(now + fade + 0.05);
+        }
         const source = ctx.createBufferSource();
         source.buffer = buffer;
         source.loop = true;
         source.loopStart = 0;
-        source.loopEnd = Math.min(buffer.duration, MUSIC_LOOP_SECONDS);
-        source.connect(this.musicHighpass);
-        source.start();
+        source.loopEnd = Math.min(buffer.duration, MUSIC_TRACKS[track].loopSeconds);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(1, now + fade);
+        source.connect(gain);
+        gain.connect(this.musicHighpass);
+        source.start(now);
         this.musicSource = source;
+        this.musicSourceGain = gain;
       })
       .catch(() => {
         // Müzik isteğe bağlı; oyun onsuz da sorunsuz oynanır.
-        this.musicBuffer = null;
       });
   }
 
@@ -99,7 +136,9 @@ class AudioEngine extends EngineCore {
     this.musicWanted = false;
     this.musicSource?.stop();
     this.musicSource?.disconnect();
+    this.musicSourceGain?.disconnect();
     this.musicSource = null;
+    this.musicSourceGain = null;
   }
 
   /** Lastik damga: alçak gövde gümbürtüsü + kâğıt şaplağı. Onay daha parlak, ret daha ağır. */
@@ -231,11 +270,11 @@ class AudioEngine extends EngineCore {
   // İlk ekrandan bir an sonra gelirler (main.tsx sayfa boştayken ister, init() ilk tıkta);
   // ondan önce istenen bir sahne beklemek yerine sessiz kalır.
 
-  private scenes: typeof import('./scenes') | null = null;
+  private scenes: typeof import('./scenes/index') | null = null;
   private scenesLoading: Promise<void> | null = null;
 
   loadScenes() {
-    this.scenesLoading ??= import('./scenes').then(
+    this.scenesLoading ??= import('./scenes/index').then(
       (m) => void (this.scenes = m),
       () => void (this.scenesLoading = null), // offline before it was cached: try again next time
     );

@@ -1,0 +1,254 @@
+/* SocialPost bileşeninin kendi stilleri (SocialApp.module.css dosyasından ayrıldı). */
+.postMine .postHead {
+  background: linear-gradient(90deg, rgba(201, 162, 39, 0.1), transparent);
+}
+
+.postHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.avatarPlain {
+  box-shadow: none;
+}
+
+.postMeta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.postMeta strong {
+  font-size: calc(12.5px * var(--ts, 1));
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.postMeta span {
+  font-size: calc(10.5px * var(--ts, 1));
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verified {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #0095f6;
+  color: #fff !important;
+  font-size: 8px !important;
+}
+
+.followBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  background: #0095f6;
+  color: #fff;
+  font: inherit;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.following {
+  background: #efefef;
+  color: #1c1b19;
+}
+
+.photo {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #eee;
+  user-select: none;
+  cursor: pointer;
+}
+
+.textCard {
+  position: relative;
+  margin: 0 10px;
+  padding: 26px 18px;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 1.12em;
+  font-weight: 700;
+  line-height: 1.4;
+  user-select: none;
+  cursor: pointer;
+}
+
+.adCta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 9px 12px;
+  background: rgba(0, 149, 246, 0.92);
+  color: #fff;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.poll {
+  margin: 0 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #f5f0ff, #fff3ea);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.poll strong {
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.poll small {
+  font-size: calc(10.5px * var(--ts, 1));
+  color: #777;
+}
+
+.pollOption {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #d9d2e6;
+  background: #fff;
+  font: inherit;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 600;
+  color: #1c1b19;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+}
+
+.pollOption:disabled {
+  cursor: default;
+}
+
+.pollOption i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #e8def8;
+  animation: grow 0.6s ease-out both;
+  transform-origin: left;
+}
+
+.pollOption span,
+.pollOption b {
+  position: relative;
+}
+
+.pollMine {
+  border-color: #8134af;
+}
+
+.pollMine i {
+  background: #d8c3f5;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 6px 0;
+}
+
+.action {
+  border: none;
+  background: none;
+  padding: 4px;
+  color: #1c1b19;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.action:active {
+  transform: scale(0.85);
+}
+
+.liked {
+  color: #ed4956;
+  animation: pop 0.35s ease;
+}
+
+.savedOn {
+  color: #1c1b19;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.likes {
+  padding: 0 10px;
+  font-size: calc(12px * var(--ts, 1));
+}
+
+.likes b {
+  display: inline-block;
+  animation: tick 0.25s ease;
+}
+
+.caption {
+  margin: 3px 10px 0;
+  font-size: calc(12px * var(--ts, 1));
+  line-height: 1.4;
+}
+
+.viewComments {
+  display: block;
+  margin: 3px 10px 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: calc(11.5px * var(--ts, 1));
+  color: #8e8e8e;
+  cursor: pointer;
+}
+
+.time {
+  display: block;
+  margin: 3px 10px 0;
+  font-size: calc(9.5px * var(--ts, 1));
+  color: #a0a0a0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes pop {
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+@keyframes tick {
+  from {
+    transform: translateY(-3px);
+    opacity: 0.4;
+  }
+}

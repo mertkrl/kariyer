@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { FlowerState } from '../../game/desk';
+import type { FlowerState } from '../../game/day/desk';
 
 /*
  * Hoş geldin orkidesi: saksıdaki bir phalaenopsis'in gerçek fotoğrafı (Unsplash Lisansı: kullanmak

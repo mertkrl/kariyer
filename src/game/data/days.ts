@@ -1,7 +1,7 @@
 import type { DayConfig } from '../types';
 
-/** 1–4. günler boyunca finale en fazla bu kadar aday ilerletilebilir. */
-export const FINALIST_LIMIT = 10;
+/** Tek mülakat kuralı: Perşembe, test sonuçlarıyla, en fazla bu kadar davet. Teste geçirmenin sınırı yoktur. */
+export const INVITE_LIMIT = 3;
 
 export const days: DayConfig[] = [
   {
@@ -11,14 +11,13 @@ export const days: DayConfig[] = [
     memoFrom: 'Hakan Kaya, İK Müdürü',
     memoTo: 'İşe Alım Uzmanı (siz)',
     memoBody:
-      'Tavrinsa Labs\'a hoş geldiniz. Deneme süreniz bugün başlıyor; masanız hazırlandı, sistem yetkileriniz tanımlandı.\n\nAçık pozisyonumuza 340 başvuru aldık. Yapay zekâ destekli ön eleme sistemimiz bunları sizin için birkaç dosyaya indirdi. Göreviniz bu dosyaları sonuçlandırmak: uygun gördüklerinizi cuma günkü mülakatlara çağırın, diğerlerini eleyin. Günde en fazla 3, hafta boyunca en fazla 10 aday çağırabilirsiniz. Cuma günü bu adaylar arasından yalnızca 1 kişiyi işe alacağız.\n\nMesai 08:00–17:00, öğle arası 12:00–13:00. Saat 17:00\'de açık dosya kalırsa tamamlanana kadar, en geç 20:00\'ye dek mesainiz uzar; fazla mesai ücreti ödenmez. Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor.',
+      'Tavrinsa Labs\'a hoş geldiniz. Deneme süreniz bugün başlıyor; masanız hazırlandı, sistem yetkileriniz tanımlandı.\n\nAçık pozisyonumuza 340 başvuru aldık. Yapay zekâ destekli ön eleme sistemimiz bunları sizin için birkaç dosyaya indirdi. Göreviniz bu dosyaları sonuçlandırmak: uygun gördüklerinizi bir sonraki aşamaya, Genel Yetenek ve Uyum Değerlendirmesi\'ne geçirin, diğerlerini eleyin. Teste geçirebileceğiniz kişi sayısında sınır yok. Sonuçlar ertesi sabah Değerlendirme uygulamasına düşer; mülakat davetlerini Perşembe, test puanlarına bakarak yapacağız. Cuma günü mülakata gelenler arasından yalnızca 1 kişiyi işe alacağız.\n\nMesai 08:00–17:00, öğle arası 12:00–13:00. Saat 17:00\'de açık dosya kalırsa tamamlanana kadar, en geç 20:00\'ye dek mesainiz uzar; fazla mesai ücreti ödenmez. Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor.',
     goals: [
       'Tüm dosyaları 17:00\'ye kadar sonuçlandır.',
-      'Bugün en fazla 3 adayı mülakata çağır (haftalık toplam 10).',
+      'Uygun gördüklerini teste geçir, gerisini ele.',
       'Dosya başına süreyi kısa tut; kuyruk bekletilmez.',
     ],
-    approvalLimit: 3,
-    candidateIds: ['ahmet', 'selin', 'caner', 'gokce', 'deniz', 'melis', 'hakan'],
+    candidateIds: ['ahmet', 'selin', 'caner', 'gokce', 'tolga', 'deniz', 'melis', 'baris', 'hakan'],
     companyQuestions: [
       'Bu pozisyonda sizi motive eden nedir?',
       'Kendinizi 5 yıl sonra nerede görüyorsunuz?',
@@ -35,11 +34,10 @@ export const days: DayConfig[] = [
       'Dünkü raporunuz elime ulaştı. İlk gün için makul.\n\nBu sabahtan itibaren ATS eşiği %60. Eşiğin altında kalan başvurular sistem tarafından işaretlenir; son onay yine sizdedir, ancak işaretli bir dosyayı ilerletecekseniz gerekçenizin sağlam olması gerekir. Hedeflerini tutturan ekip arkadaşlarımızın deneme süreci değerlendirmesinde bunun karşılığını gördüğünü hatırlatırım.',
     goals: [
       'Tüm dosyaları 17:00\'ye kadar sonuçlandır.',
-      'Bugün en fazla 3 adayı mülakata çağır; haftalık kontenjanı gözet.',
+      'Uygun gördüklerini teste geçir, gerisini ele.',
       'ATS eşiğinin altındaki dosyalarda gerekçesiz karar verme.',
     ],
-    approvalLimit: 3,
-    candidateIds: ['zeynep', 'irem', 'mert', 'derya', 'serkan', 'kerem', 'okan', 'nazli', 'ceren', 'sibel'],
+    candidateIds: ['zeynep', 'irem', 'mert', 'derya', 'serkan', 'volkan', 'kerem', 'okan', 'nazli', 'ceren', 'sibel'],
     companyQuestions: [
       'Neden bu şirkette çalışmak istiyorsunuz?',
       'Güçlü ve zayıf yönleriniz nelerdir?',
@@ -56,11 +54,10 @@ export const days: DayConfig[] = [
       'Dün akşam holdingle bütçe toplantısı yaptık. Pozisyonun bütçe rakamını paylaşamıyorum; ancak maaş beklentisi "yüksek" olan adaylar bu dönem mülakata alınmayacak. Yüksek ile uygun arasındaki çizgiyi sizin takdirinize bırakıyorum.\n\nDosyaların 17:00\'ye kadar kapatılmasını bekliyorum.',
     goals: [
       'Tüm dosyaları 17:00\'ye kadar sonuçlandır.',
-      'Bugün en fazla 3 adayı mülakata çağır; kontenjanı unutma.',
+      'Uygun gördüklerini teste geçir, gerisini ele.',
       'Maaş beklentisini bütçeyle birlikte değerlendir.',
     ],
-    approvalLimit: 3,
-    candidateIds: ['ozan', 'cem', 'aylin', 'nihan', 'burak', 'duygu', 'yusuf', 'murat', 'ferhat', 'seda'],
+    candidateIds: ['ozan', 'cem', 'aylin', 'nihan', 'burak', 'duygu', 'ece', 'yusuf', 'murat', 'ferhat', 'seda'],
     companyQuestions: [
       'Maaş beklentinizin gerekçesi nedir?',
       'Bu teklifi neden kabul etmelisiniz, biz neden sizi seçmeliyiz?',
@@ -70,24 +67,26 @@ export const days: DayConfig[] = [
   {
     day: 4,
     dayName: 'Perşembe',
-    ruleText: "Öncelik: yurt dışı deneyimi ve düşük ayrılma riski.",
+    ruleText: "Test puanı 70'in altında olanlar mülakata çağrılmaz.",
     memoFrom: 'Hakan Kaya, İK Müdürü',
     memoTo: 'İşe Alım Uzmanı (siz)',
     memoBody:
-      'Yapay Zekâ Analiz Sistemi gece arızalandı; bilgi işlem ekibi çalışıyor ama bugün düzelmesi beklenmiyor. Dosyaları skor ve sistem önerisi olmadan, kendi değerlendirmenizle sonuçlandıracaksınız. Bu nedenle bugün bütün ekip 19:00\'a kadar mesaide kalacaktır.\n\nBugün mülakat davetleri için son gün; yarın çağırdığınız adaylarla görüşeceğiz. Yazılı bir kriter eklemiyorum. Kurum kültürümüzü artık tanıyorsunuz: uzun vadede bizimle kalacak, ekibe uyum sağlayacak profillere öncelik verin.',
+      'Yapay Zekâ Analiz Sistemi gece arızalandı; bilgi işlem ekibi çalışıyor ama bugün düzelmesi beklenmiyor. Neyse ki elimizde nesnel bir ölçüt var: Genel Yetenek ve Uyum Değerlendirmesi sonuçları tamamlandı. Bugün yeni dosya yok. Teste geçirdiğiniz adaylar puanlarıyla birlikte portalınızda.\n\nBugün mülakat davetleri için son gün: en fazla 3 adayı yarınki mülakatlara çağırın. Test puanı 70\'in altında kalanlar mülakata çağrılmaz; sayılar ortada, uzun tartışmaya gerek görmüyorum. Ekip bugün 19:00\'a kadar mesaide kalacaktır.',
     goals: [
-      'Tüm dosyaları 17:00\'ye kadar sonuçlandır.',
-      'Son mülakat davetlerini yap; bugünden sonra kontenjan kapanıyor.',
-      'Sistem önerisi yok: her kararı kendi değerlendirmenle ver.',
+      'Teste geçenlerin dosyalarını sonuçlandır: çağır ya da çağırma.',
+      'En fazla 3 adayı yarınki mülakata çağır.',
+      'Puanlar Değerlendirme uygulamasında; cevap kâğıtlarına bakabilirsin.',
     ],
-    approvalLimit: 3,
+    approvalLimit: INVITE_LIMIT,
+    selection: true,
     aiDown: true,
-    candidateIds: ['kaan', 'gizem', 'asli', 'elif', 'volkan', 'baris', 'handan', 'ugur', 'tolga', 'tuncay', 'ece'],
+    // yeni dosya yok: kuyruk sabah, Pazartesi–Çarşamba teste geçenlerden kurulur
+    candidateIds: [],
     companyQuestions: [
       'Uzun vadede bu şirkette kalmayı düşünüyor musunuz?',
       'Kişisel hayatınız iş temponuzu etkiler mi?',
     ],
-    applicationTarget: 1240,
+    applicationTarget: 0,
   },
   {
     day: 5,

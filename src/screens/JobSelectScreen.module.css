@@ -12,6 +12,30 @@
   justify-content: center;
   padding: clamp(12px, 3vh, 36px) 24px;
   box-sizing: border-box;
+  position: relative;
+}
+
+.backButton {
+  position: absolute;
+  top: clamp(12px, 3vh, 28px);
+  left: 24px;
+  z-index: 2;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--on-dark-muted);
+  font-family: var(--font-body);
+  font-size: calc(13px * var(--ts, 1));
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.backButton:hover,
+.backButton:focus-visible {
+  color: var(--paper-muted);
+  border-color: var(--gold);
 }
 
 .content {

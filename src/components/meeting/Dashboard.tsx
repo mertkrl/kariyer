@@ -11,8 +11,9 @@ import {
   type BoardMetric,
   type BoardPage,
   type TeamStats,
-} from '../../game/meeting';
+} from '../../game/events/meeting';
 import styles from './Dashboard.module.css';
+import { prefersReducedMotion } from '../ui/motion';
 
 /*
  * Selin'in paylaştığı ekran: bu araçların göründüğü gibi bir BI raporu; koyu başlık çubuğu, beyaz
@@ -44,7 +45,13 @@ const nf = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 });
 function Count({ value, prefix = '', suffix = '', decimals = 0 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
+  // hareket azaltılmışsa sayı akmaz, yeni değer hemen görünür
+  const still = prefersReducedMotion();
   useEffect(() => {
+    if (still) {
+      from.current = value;
+      return;
+    }
     const start = performance.now();
     const a = from.current;
     let raf = 0;
@@ -61,8 +68,9 @@ function Count({ value, prefix = '', suffix = '', decimals = 0 }: { value: numbe
       cancelAnimationFrame(raf);
       from.current = value;
     };
-  }, [value]);
-  const n = decimals ? Number(shown.toFixed(decimals)) : Math.round(shown);
+  }, [value, still]);
+  const current = still ? value : shown;
+  const n = decimals ? Number(current.toFixed(decimals)) : Math.round(current);
   return (
     <>
       {prefix}

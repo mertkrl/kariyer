@@ -1,0 +1,188 @@
+/* Yapay zekâ raporunun balonu ve bölüm puanları (AiPanel.module.css boyut sınırı için ayrıldı). */
+/* rapor mesaj balonu: sütunun boyunu değiştirmez, kendi içinde kayar */
+.bubble {
+  max-height: calc(100vh - var(--frame-topbar, 56px) - 160px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.noteBubbleHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.noteBubbleHead > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.noteClose {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-muted);
+  border-radius: 50%;
+  background: var(--paper-light);
+  color: var(--text-faint);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.noteClose:hover,
+.noteClose:focus-visible {
+  background: var(--paper-muted);
+  color: var(--ink);
+}
+
+/* rapor kapalıyken kutuda tek satır: yeniden açmanın ikinci yolu */
+.reopenHint {
+  align-self: stretch;
+  min-height: 36px;
+  border: 1px dashed rgba(76, 127, 176, 0.5);
+  border-radius: 8px;
+  background: rgba(76, 127, 176, 0.06);
+  color: var(--blue-ink);
+  font: inherit;
+  font-size: calc(12.5px * var(--ts, 1));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reopenHint:hover,
+.reopenHint:focus-visible {
+  background: rgba(76, 127, 176, 0.12);
+}
+
+/* kutunun alt satırı: boşta ipucu, tararken durum, sonra raporun düğmesi — hep aynı yükseklikte */
+.statusSlot {
+  min-height: calc(4.6em * var(--ts, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  font-size: calc(12px * var(--ts, 1));
+  line-height: 1.5;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.statusSlot .reopenHint {
+  width: 100%;
+}
+
+/* "Değerlendir" düğmesi kaybolunca başlık kısalmasın */
+.header {
+  min-height: 43px;
+}
+
+/* ── Rapor A: bölüm puanları, yüksekten düşüğe; renk + sözcük (yalnız renge güvenmez) ── */
+.scoreHead {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-muted);
+  font-family: var(--font-mono);
+  font-size: calc(11px * var(--ts, 1));
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.scoreList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scoreList li {
+  --band: var(--teal);
+  --band-bg: rgba(63, 107, 99, 0.14);
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(80px, 1fr) 34px 64px;
+  align-items: center;
+  gap: 12px;
+}
+
+.band_mid {
+  --band: #8a6a12 !important;
+  --band-bg: rgba(201, 162, 39, 0.2) !important;
+}
+
+.band_low {
+  --band: #8a3324 !important;
+  --band-bg: rgba(168, 64, 47, 0.14) !important;
+}
+
+.scoreLabel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.scoreLabel b {
+  font-size: calc(13.5px * var(--ts, 1));
+  color: var(--ink);
+}
+
+.scoreLabel small {
+  font-size: calc(11.5px * var(--ts, 1));
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+.flagged .scoreLabel small {
+  color: var(--band);
+}
+
+.scoreTrack {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--paper-dim);
+  overflow: hidden;
+}
+
+.scoreTrack i {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--band);
+  animation: scoreGrow 0.6s var(--ease-enter) both;
+  transform-origin: left;
+}
+
+.scoreValue {
+  text-align: right;
+  font-size: calc(14px * var(--ts, 1));
+  color: var(--band);
+}
+
+.scoreTag {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--band-bg);
+  color: var(--band);
+  font-size: calc(11.5px * var(--ts, 1));
+  font-weight: 700;
+}
+
+@keyframes scoreGrow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scoreTrack i {
+    animation: none;
+  }
+}
+
+/* rapor balonunda ATS ve sistem notu yan yana */
+.bubbleGrid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+}

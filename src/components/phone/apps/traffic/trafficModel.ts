@@ -1,4 +1,4 @@
-import { WORK_START_HOUR } from '../../../../game/time';
+import { WORK_START_HOUR } from '../../../../game/lib/time';
 
 /*
  * "Trafik" uygulaması için İstanbul: 360×300 harita uzayında kıyılar, parklar, yollar, sokaklar,

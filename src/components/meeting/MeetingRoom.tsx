@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useGameStore } from '../../game/store';
+import { useGameStore } from '../../game/store/store';
 import { candidates, candidateOf } from '../../game/data/candidates';
-import { AD_KEYWORDS, atsReport } from '../../game/ats';
+import { AD_KEYWORDS, atsReport } from '../../game/day/ats';
 import { audioEngine } from '../../audio/audioEngine';
-import { buildOpening, CLOSING, OPTIONS, SHORTLIST, SPEAKERS, type Board, type Line, type MeetingOption, type Speaker, type TeamStats } from '../../game/meeting';
+import { buildOpening, CLOSING, OPTIONS, SHORTLIST, SPEAKERS, type Board, type Line, type MeetingOption, type Speaker, type TeamStats } from '../../game/events/meeting';
 import { CallScene } from './CallScene';
 import styles from './MeetingRoom.module.css';
 

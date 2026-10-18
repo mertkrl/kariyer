@@ -73,10 +73,10 @@ Teknik olarak: her vaka bir `id` + `decision` + `revealDay` (kaç gün sonra son
 
 ## 6. Sonlar (Ending Variations)
 
-Son, puan eşiklerinden değil **Defne'nin iki kararından** çıkar (`src/game/offer.ts`, `src/game/engine/ending.ts`):
+Son, puan eşiklerinden değil **Defne'nin iki kararından** çıkar (`src/game/events/offer.ts`, `src/game/engine/ending.ts`):
 
 1. **Cuma 18:40 — Hakan Bey'in kadro teklifi (iş).** Kadro tek kişilik: Defne ya da Ayşe. Seçenekler: *Kabul ediyorum* · *Bir şartla kabul* (Perşembe önerdiğin değişiklik; öneri yapmadıysan puan tablosunun açılması) · *Kadro Ayşe'nin olsun* · *Ben ayrılıyorum*. Şart reddedilirse son bir soru gelir: şartsız kabul mü, yoksa hiç mi?
-2. **Cuma 21:40 — annenle telefon (ev).** Kadro haberini duyar; son cümlen sonun son satırı olur (kahvaltı / uyku / iş değiştirmeyi düşünmek ya da ayrıldıysan yeni başvurular).
+2. **Cuma 21:40 — annenle telefon (ev).** Kadro haberini duyar; ayrıldıysan (istifa, kadroyu Ayşe'ye bırakmak, şartın reddi) konuşma bu haberle açılır, Hakan Bey'in ne dediğini sorar ve vedası da buna değinir; son cümlen sonun son satırı olur (kahvaltı / uyku / iş değiştirmeyi düşünmek ya da ayrıldıysan yeni başvurular).
 
 **Puanların rolü:** neyin masada olduğunu ve sonun tonunu belirlemek. Performans 35'in altındaysa (ya da 5+ itiraz ve Performans 55'in altı) teklif hiç gelmez. Şartın kabulü güvene bağlıdır: Perşembe kabul edilen öneri tutulur; reddedilen öneri ancak Performans ≥65 ve en fazla 3 itirazla ikinci kez dinlenir; puan tablosunu açmak hiç kabul edilmez. *Kabul ettiysen* hangi tür kalan olduğun haftandan okunur: yeğeni aldıysan "Dayının gözdesi", yüksek Performans + düşük Vicdan "Sistemin mükemmel bir parçası", iyi işe alım "Terfi aldın" / "Bir hayatı değiştirdin", yoğun yapay zekâ "Algoritmanın gölgesinde", yoksa "Sistemde kaldın".
 

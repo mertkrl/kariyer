@@ -1,0 +1,59 @@
+/* ShiftGate bileşeninin kendi stilleri (GameplayScreen.module.css'ten ayrıldı). */
+/* sabah: mesaiye başlayana kadar hiçbir şey işlemez */
+.shiftGate {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(239, 233, 216, 0.82);
+  backdrop-filter: blur(3px);
+}
+
+.shiftCard {
+  width: min(420px, 100%);
+  padding: 28px 28px 24px;
+  border-radius: 14px;
+  background: var(--paper-light);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  text-align: center;
+  color: var(--ink);
+}
+
+.shiftEyebrow {
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.shiftClock {
+  margin: 6px 0 10px;
+  font-size: calc(44px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.shiftCard p {
+  margin: 0 0 20px;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.6;
+}
+
+.shiftButton {
+  width: 100%;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--red);
+  color: #fff;
+  font: inherit;
+  font-size: calc(16px * var(--ts, 1));
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shiftButton:hover {
+  filter: brightness(1.08);
+}

@@ -8,8 +8,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { CSP_DIRECTIVES, HEADER_ONLY_DIRECTIVES, TT_POLICY } from '../csp';
-import { checkSave } from '../src/game/save';
-import { STORAGE_PREFIX } from '../src/game/privacy';
+import { checkSave } from '../src/game/store/save';
+import { STORAGE_PREFIX } from '../src/game/lib/privacy';
 
 const root = new URL('..', import.meta.url).pathname;
 const srcFiles = readdirSync(join(root, 'src'), { recursive: true, encoding: 'utf8' })
@@ -77,4 +77,20 @@ test('Trusted Types politikası yalnızca service worker adresine izin verir', (
   assert.match(sw, /if \(url !== SW_URL\) throw/);
   // başka hiçbir dosya politika oluşturamaz
   assert.deepEqual(srcFiles.filter(({ f, text }) => f !== 'swUpdate.ts' && /createPolicy\s*\(/.test(text)).map(({ f }) => f), []);
+});
+
+test('service worker: yalnızca kendi dosyaları, müzik ilk indirmede yok, her derleme yeni önbellek', async () => {
+  const { serviceWorkerSource } = await import('../serviceWorker');
+  const build = ['assets/index-a1.js', 'assets/index-a1.js.map', 'audio/rain.mp3', 'og.png', '_headers', 'favicon.svg'];
+  const sw = serviceWorkerSource(build);
+  const files = JSON.parse(sw.match(/const FILES = (\[.*\]);/)![1]) as string[];
+  assert.deepEqual(files, ['./', './assets/index-a1.js', './favicon.svg']);
+  // başka bir adrese giden ya da GET olmayan istek service worker'dan geçmez
+  assert.match(sw, /request\.method !== 'GET' \|\| new URL\(request\.url\)\.origin !== self\.location\.origin\) return/);
+  // eski önbellekler silinir, yeni sürüm oyuncunun onayını bekler
+  assert.match(sw, /names\.filter\(\(n\) => n !== CACHE\)/);
+  assert.match(sw, /event\.data === 'skip-waiting'/);
+  const name = (s: string) => s.match(/const CACHE = '([^']+)'/)![1];
+  assert.notEqual(name(sw), name(serviceWorkerSource([...build, 'assets/index-b2.js'])));
+  assert.equal(name(sw), name(serviceWorkerSource(build)));
 });

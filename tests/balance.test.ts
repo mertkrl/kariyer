@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { candidates } from '../src/game/data/candidates';
 import { CONSIDERED_SECONDS, isStrong, isWronglyFlagged, systemVerdict } from '../src/game/engine/scoring';
 import { FIRED_BELOW, getEnding } from '../src/game/engine/ending';
-import { rngFor } from '../src/game/rng';
+import { rngFor } from '../src/game/lib/rng';
 import { playWeek, type BotStyle } from './support/bot';
 
 const SEEDS = [7919, 15838, 23757];

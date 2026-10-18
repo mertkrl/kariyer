@@ -33,7 +33,7 @@ Göndermeden önce aynı denetimin yerelde çalışması için, depoyu klonladı
 git config core.hooksPath .githooks
 ```
 
-Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda `git push --no-verify`). Dependabot paket ve GitHub Actions güncellemeleri için haftalık PR açar; hata bildirimi ve PR için şablonlar `.github/` altında.
+Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda `git push --no-verify`). Çalışma akışı (dal → PR → `main`), dosyaların nereye konduğu ve sürüm yayımlama [CONTRIBUTING.md](CONTRIBUTING.md)'de; değişiklikler [CHANGELOG.md](CHANGELOG.md)'de. `v*` etiketi gönderilince `.github/workflows/release.yml` zip'i bir GitHub sürümüne ekler. Dependabot paket ve GitHub Actions güncellemeleri için haftalık PR açar; hata bildirimi ve PR için şablonlar `.github/` altında.
 
 ## Testler
 
@@ -46,9 +46,10 @@ Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda 
 - `data`: senaryo verisinin bütünlüğü (her aday, gün, rica ve hikâye rolü tutarlı; karışık kadrolar adayları kaybetmez); oyun mantığında `Math.random` yok
 - `layout`: bütün stil dosyaları yalnızca ortak kırılma noktalarını kullanır; çerçeve ölçüleri tek yerde ([docs/yerlesim.md](docs/yerlesim.md))
 - `security`, `privacy`: ağ isteği yok, HTML'den betik yok, her depolama anahtarı `kariyerweb-` önekli, kayıt oyunun durumunu kirletemez, sayfadaki ve başlıktaki güvenlik politikası aynı; "Verilerimi sil" her şeyi siler
+- `motion`: her `requestAnimationFrame` döngüsü hareket azaltma tercihini sorar; tercih tek yerden (`components/ui/motion.ts`) okunur
 - `balance`: farklı alışkanlıkta botlar (okumadan sisteme uyan, okuyarak uyan, dengeli, adayları savunan, hiç karar vermeyen) aynı haftaları oynar; puanların bu oyuncuları doğru sıraya dizmesi ve duvara dayanmaması denetlenir. Puanlama kuralları `game/engine/scoring.ts` başındaki açıklamada.
 
-Oyun mantığı ses çalmak için `game/sound.ts` üzerinden konuşur; ses motoru `main.tsx`'te bağlanır, testlerde sessizdir.
+Oyun mantığı ses çalmak için `game/lib/sound.ts` üzerinden konuşur; ses motoru `main.tsx`'te bağlanır, testlerde sessizdir.
 
 ## Oyunun akışı
 
@@ -69,25 +70,25 @@ src/
     meeting/              Görüntülü toplantı ve pano
     dayend/ ui/           Gün sonu sahneleri, ortak bileşenler
   game/
-    store.ts              Oyun durumu: yeni hafta, başlatma, devam etme, kayıt noktası (zustand)
-    storeLoader.ts        Store'u ilk ekrandan sonra arka planda yükler; App aşamayı buradan okur
-    prefs.ts              Ses tercihleri (store'dan bağımsız, ilk sesten önce okunur)
+    types.ts              Oyunun ortak tipleri (aday, karar, aşama)
+    store/                Oyun durumu (zustand): store (yeni hafta, devam, kayıt noktası), storeLoader (ilk
+                          ekrandan sonra arka planda yükler), storeTypes, storeDefaults, storeApi (döngüsel
+                          import olmadan erişim), save (localStorage kaydı, doğrulama, sürüm geçişleri)
     slices/               Eylemler: gün (sabah, saat, akşam), dosyalar ve kararlar, telefon, masa, hikâye, ayarlar
-    tick.ts               Mesainin bir saniyesi: saati durduran durumlar, toplantı, öğle arası, çalışılan dakika — sırası tek listede
-    clock.ts              Saat ilerledikçe olanlar: mesajlar, aramalar, 17:00 bildirimleri, gün sonu
-    storeDefaults.ts      Başlangıç kayıtları ve küçük saf yardımcılar
-    storeTypes.ts         Durumun tipleri
-    storeApi.ts           Store'a döngüsel import olmadan erişim
-    managerCalls.ts       Müdürün duruma bağlı telefon aramaları
-    manager.ts            Müdürün mesaj/istek mantığı
+    day/                  Mesainin kendisi: tick (bir saniye), clock (saat ilerledikçe olanlar), mail, desk,
+                          manager ve managerCalls (müdür), references, rejectionMails, visits, echoes,
+                          ats (sistemin okuduğu), lineups (aday havuzu), story, phoneTypes
+    events/               Haftanın özel anları: meeting (Çarşamba toplantısı), interview ve panel (Cuma),
+                          offer (Cuma 18:40), weekend (annenle telefon)
+    engine/               Puanlama, sonlar, başarımlar, oturum raporu
+    lib/                  Oyundan bağımsız küçük araçlar: rng (tohumlu rastgelelik), time, weekdays, turkish,
+                          later, sound (ses çıkışı, main.tsx'te bağlanır), prefs (ses tercihleri), privacy,
+                          textScale, player (oyuncunun adı)
     data/                 Metinler ve veriler: adaylar, günler, ilanlar, telefon senaryosu (phoneScript)
-    rng.ts                Tohumlu rastgelelik
-    player.ts             Oyuncunun adı (tek yerden değişir)
-    save.ts               Tarayıcıdaki kayıt (localStorage), doğrulama ve sürüm geçişleri
-    sound.ts              Oyun mantığının ses çıkışı (main.tsx'te ses motoruna bağlanır)
   audio/                  Ses: audioEngine (ayarlar, müzik, kısa sesler), engineCore (ses grafiği ve
                           sentez araçları), scenes/ (ofis, sokak, hava, öğle arası, tarama…)
-                          Müzik dosyaları public/audio altında, scripts/ ile üretilir
+                          musicPlan (hangi aşamada hangi parça: sakin, gergin, kapanış). Müzik dosyaları
+                          public/audio altında, scripts/generate-*-music.mjs ile üretilir
 docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları, yerleşim stratejisi, eğitmen rehberi
 ```
 
@@ -101,7 +102,7 @@ Oyun çökerse hata ekranındaki "Hata raporunu kopyala" düğmesi sürümü, oy
 
 ## Kayıt
 
-Her günün başında otomatik kayıt alınır ve karşılama ekranında "Devam et" düğmesi çıkar. Kayıt yüklenmeden önce oyunun bugünkü haliyle karşılaştırılır; şekli uymayan, olmayan bir güne ya da artık oyunda olmayan bir adaya ait kayıt yarım yüklenmek yerine silinir. Kayıt biçimi değişirse `save.ts` içindeki `SAVE_VERSION` artırılır ve mümkünse `MIGRATIONS` tablosuna bir geçiş adımı yazılır. Kayıt yalnızca oyuncunun tarayıcısında (`localStorage`) durur; sunucu yoktur, hiçbir veri dışarı gönderilmez. Gün ortasında kapatılan oyun o günün başından devam eder. Gizli pencerede ya da site verileri silinince kayıt kaybolur.
+Her günün başında otomatik kayıt alınır ve karşılama ekranında "Devam et" düğmesi çıkar. Kayıt yüklenmeden önce oyunun bugünkü haliyle karşılaştırılır; şekli uymayan, olmayan bir güne ya da artık oyunda olmayan bir adaya ait kayıt yarım yüklenmek yerine silinir. Kayıt biçimi değişirse `game/store/save.ts` içindeki `SAVE_VERSION` artırılır ve mümkünse `MIGRATIONS` tablosuna bir geçiş adımı yazılır. Kayıt yalnızca oyuncunun tarayıcısında (`localStorage`) durur; sunucu yoktur, hiçbir veri dışarı gönderilmez. Gün ortasında kapatılan oyun o günün başından devam eder. Gizli pencerede ya da site verileri silinince kayıt kaybolur.
 
 ## Aynı haftayı yeniden oynamak
 

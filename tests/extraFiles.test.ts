@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { useGameStore } from '../src/game/store';
-import { EXTRA_FILES_FROM, addExtraFiles } from '../src/game/clock';
-import { lineupFor } from '../src/game/storeDefaults';
+import { useGameStore } from '../src/game/store/store';
+import { EXTRA_FILES_FROM, addExtraFiles } from '../src/game/day/clock';
+import { lineupFor } from '../src/game/store/storeDefaults';
 
 test('işi erken bitirene ek dosyalar 14:00\'ten önce gelmez', () => {
   const s = () => useGameStore.getState();

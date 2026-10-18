@@ -1,6 +1,6 @@
 import type { Difficulty, EndingVariant } from '../types';
-import { FIRED_BELOW, leavesCompany, offerWithheld, type OfferResult } from '../offer';
-import type { ReformKind } from '../desk';
+import { FIRED_BELOW, leavesCompany, offerWithheld, type OfferResult } from '../events/offer';
+import type { ReformKind } from '../day/desk';
 
 export { FIRED_BELOW };
 

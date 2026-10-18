@@ -1,4 +1,4 @@
-import { keyCharacter } from '../../../game/story';
+import { keyCharacter } from '../../../game/day/story';
 
 /*
  * Reddedilen adaylar seni Kariyergram'da bulur, bazıları. Kimin yazdığı, yazmadan önce ne kadar
@@ -36,49 +36,55 @@ const VOICES: Record<Temper, Voice> = {
     openers: [
       () => 'Merhaba… 7 aydır iş arıyorum. Bu ret beni gerçekten yıktı. Kısa da olsa bir geri bildirim verebilir misiniz?',
       (c) => `Ben ${c.name.split(' ')[0]}. Ailem bu işe çok güveniyordu. Bir yerde hata mı yaptım?`,
+      () => 'Üç mülakattan sonra ilk kez ekran bile görmeden elendim. Neyi eksik yaptım, söyler misiniz?',
     ],
-    honest: ['Bunu duymak acı ama iyi geldi. Teşekkürler, gerçekten.', 'İlk kez biri açıkladı. Ağlamak mı gülmek mi bilemedim. Sağ olun.'],
-    template: ['Anladım…', 'Tamam. Yine de teşekkürler.'],
+    honest: ['Bunu duymak acı ama iyi geldi. Teşekkürler, gerçekten.', 'İlk kez biri açıkladı. Ağlamak mı gülmek mi bilemedim. Sağ olun.', 'Sağ olun. Bunu duyunca kendimi biraz daha az görünmez hissettim.'],
+    template: ['Anladım…', 'Tamam. Yine de teşekkürler.', 'Peki. Bir cevap aldım en azından.'],
   },
   öfkeli: {
     openers: [
       () => 'CV\'mi bir insan okudu mu, yoksa bir makine mi? Açık cevap istiyorum.',
       () => 'Şartların hepsini karşılıyordum. Mülakata bile çağrılmadım. Bu nasıl bir süreç?',
+      () => 'İlanınızdaki her maddeyi tek tek karşılıyorum. Hangi gerekçeyle elendiğimi yazılı olarak öğrenmek istiyorum.',
     ],
-    honest: ['…Tamam. En azından dürüst davrandınız. Öfkem size değil.', 'Demek öyle. Bunu bilmek bile bir şey. Teşekkürler.'],
-    template: ['Bu cevabı da otomatik mi yazdınız? Neyse.', '"Detay paylaşamıyoruz." Tabii. Hep böyle.'],
+    honest: ['…Tamam. En azından dürüst davrandınız. Öfkem size değil.', 'Demek öyle. Bunu bilmek bile bir şey. Teşekkürler.', 'Beklemediğim kadar açık bir cevap. Tamam, sakinleşiyorum.'],
+    template: ['Bu cevabı da otomatik mi yazdınız? Neyse.', '"Detay paylaşamıyoruz." Tabii. Hep böyle.', 'Kopyala-yapıştır cevap. Tahmin etmiştim.'],
   },
   kibar: {
     openers: [
       (c) => `Merhaba, ${c.role.split(' ·')[0]} ilanınıza başvurmuştum. Sonucu aldım, ilginiz için teşekkür ederim. Kısa bir geri bildirim rica edebilir miyim?`,
       () => 'İyi günler, rahatsız ediyorsam kusura bakmayın. Başvurumu nasıl daha iyi hâle getirebilirim?',
+      () => 'Merhaba, vakit ayırırsanız çok sevinirim: başvurumda hangi kısmı geliştirmem gerekiyor?',
     ],
-    honest: ['Çok teşekkür ederim, bu çok yardımcı oldu. İyi çalışmalar dilerim.', 'Zaman ayırdığınız için minnettarım. Bir dahakine buna göre hazırlanacağım.'],
-    template: ['Anlıyorum, teşekkür ederim. İyi çalışmalar.', 'Peki, yine de ilginiz için teşekkürler.'],
+    honest: ['Çok teşekkür ederim, bu çok yardımcı oldu. İyi çalışmalar dilerim.', 'Zaman ayırdığınız için minnettarım. Bir dahakine buna göre hazırlanacağım.', 'Ne kadar nazik bir açıklama, teşekkür ederim. Bunu not aldım.'],
+    template: ['Anlıyorum, teşekkür ederim. İyi çalışmalar.', 'Peki, yine de ilginiz için teşekkürler.', 'Anladım, yine de dönüş yaptığınız için teşekkürler.'],
   },
   pratik: {
     openers: [
       () => 'Merhaba. Tek soru: hangi kriterden elendim? Bir sonraki başvurum için bilmem lazım.',
       () => 'Ret aldım. Deneyim mi, maaş mı, format mı? Hangisiyse düzelteyim.',
+      () => 'Kısa bir soru: ATS mi eledi, insan mı? Ona göre CV formatımı değiştireceğim.',
     ],
-    honest: ['Net, teşekkürler. CV\'yi bu akşam düzenliyorum.', 'Tamam, anlaşıldı. Bir sonrakinde bunu değiştiririm.'],
-    template: ['Anlaşıldı. Başka yerde sorarım.', 'Peki. Bu cevapla bir şey düzeltemem ama sağ olun.'],
+    honest: ['Net, teşekkürler. CV\'yi bu akşam düzenliyorum.', 'Tamam, anlaşıldı. Bir sonrakinde bunu değiştiririm.', 'Süper, tam ihtiyacım olan bilgi. Teşekkürler.'],
+    template: ['Anlaşıldı. Başka yerde sorarım.', 'Peki. Bu cevapla bir şey düzeltemem ama sağ olun.', 'Bu cevaptan bir şey çıkaramadım ama olsun.'],
   },
   esprili: {
     openers: [
       () => 'Merhaba 😅 Ret mailiniz o kadar hızlı geldi ki CV\'mi göndermeden reddedildim sandım. Bir şey söyleyebilir misiniz?',
       () => 'Selam! Sizi Kariyergram\'da buldum, stalker değilim söz 😄 Başvurum hakkında bir ipucu?',
+      () => 'Selam! Ret mailinizi çerçeveletip duvarıma asacağım 😄 Ama önce bir ipucu alabilir miyim?',
     ],
-    honest: ['Vay, gerçek bir insan! 😄 Şaka bir yana, çok sağ olun.', 'Tamam, CV\'me "hızlı öğrenirim" yazmayı bırakıyorum 😅 Teşekkürler!'],
-    template: ['"Detay paylaşamıyoruz" — bunu bir yerden hatırlıyorum 😄 Başarılar.', 'Beklediğim cevap buydu zaten 😅 İyi günler.'],
+    honest: ['Vay, gerçek bir insan! 😄 Şaka bir yana, çok sağ olun.', 'Tamam, CV\'me "hızlı öğrenirim" yazmayı bırakıyorum 😅 Teşekkürler!', 'Bunu duyunca CV\'mi baştan yazasım geldi 😄 Çok sağ olun!'],
+    template: ['"Detay paylaşamıyoruz" — bunu bir yerden hatırlıyorum 😄 Başarılar.', 'Beklediğim cevap buydu zaten 😅 İyi günler.', 'Klasik cevap geldi, koleksiyonuma ekledim 😅'],
   },
   ısrarcı: {
     openers: [
       () => 'Merhaba, başvurum hakkında yazıyorum. Bu pozisyon için gerçekten uygun olduğuma inanıyorum. Tekrar değerlendirilmesi mümkün mü?',
       () => 'Tekrar başvurabilir miyim? Bir şans daha isterim. Ne gerekiyorsa yaparım.',
+      () => 'Başka bir pozisyon da olur. Ekibinize katılmak için gerçekten hevesliyim, bir şans daha mümkün mü?',
     ],
-    honest: ['Anladım. O zaman bir sonraki ilanda yine buradayım, bilesiniz 🙂', 'Teşekkürler. Pes etmiyorum ama.'],
-    template: ['Peki… Yine de bir sonraki ilana başvuracağım.', 'Anladım. Ama tekrar başvuracağım.'],
+    honest: ['Anladım. O zaman bir sonraki ilanda yine buradayım, bilesiniz 🙂', 'Teşekkürler. Pes etmiyorum ama.', 'Tamam, anladım. Ama bir dahakine çok daha hazır geleceğim.'],
+    template: ['Peki… Yine de bir sonraki ilana başvuracağım.', 'Anladım. Ama tekrar başvuracağım.', 'Anlaşıldı. Yine de bir sonraki ilanınızı bekliyorum.'],
   },
 };
 

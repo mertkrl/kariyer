@@ -571,7 +571,7 @@
       "age": 28,
       "role": "Yazılım Geliştirici adayı · orta seviye",
       "experience": "5 yıl",
-      "salary": "Belirtilmemiş",
+      "salary": "50.000 TL (bütçeye göre esnek)",
       "skills": "Java, test otomasyonu (Selenium), CI",
       "motivation": "\"Bütçeye göre esnek olabilirim, önce şirketi ve ekibi tanımak isterim.\"",
       "education": "Bilgisayar Mühendisliği Lisans.",
@@ -579,14 +579,14 @@
       "previousCompany": "YazılımEvi — Kıdemli Test Otomasyon Geliştiricisi (3 yıl).",
       "certifications": "ISTQB Foundation Level, Selenium WebDriver Sertifikası.",
       "companyAnswers": [
-        "Rakam belirtmek yerine önce şirketle uyumu görmek istedim.",
+        "Beklentimi yazdım ama esnek olabilirim; benim için önce şirketle uyum gelir.",
         "Beni seçmelisiniz çünkü hatasız yazılım için titizlikle çalışıyorum."
       ],
-      "internalNote": "Sistem notu: \"Maaş beklentisi belirsiz — otomatik düşük öncelik.\" Sistem net rakam vermeyen adayları riskli/opak olarak işaretliyor.",
+      "internalNote": "Sistem notu: \"Maaş beklentisi 'esnek' — kararsız aday, otomatik düşük öncelik.\" Sistem pazarlığa açık olduğunu yazan adayları riskli/opak olarak işaretliyor.",
       "verdict": "low",
-      "systemLine": "Öneri: Düşük öncelik · Gerekçe: Ücret beklentisi belirtilmemiş (opak başvuru) · Güven: %70",
+      "systemLine": "Öneri: Düşük öncelik · Gerekçe: Ücret beklentisi kesin değil (\"esnek\" notu) · Güven: %70",
       "outcomeNote": {
-        "reject": "Yusuf, net rakam vermediği için \"kararsız\" damgası yedi. Oysa sadece esnek davranmaya çalışıyordu.",
+        "reject": "Yusuf, beklentisinin yanına \"esnek\" yazdığı için \"kararsız\" damgası yedi. Oysa sadece esnek davranmaya çalışıyordu.",
         "approve": "Yusuf işe başladı ve ilk 3 ayda test sürecindeki hataları %40 azalttı."
       }
     },
@@ -599,9 +599,9 @@
       "age": 33,
       "role": "Yazılım Geliştirici adayı · kıdemli",
       "experience": "8 yıl",
-      "salary": "Belirtmek istemedi",
+      "salary": "60.000 TL (önceki maaşını paylaşmadı)",
       "skills": "React, TypeScript, ürün analitiği, A/B testleri",
-      "motivation": "\"Önceki maaşımı paylaşmak istemedim, piyasa değerime göre teklif bekliyorum.\"",
+      "motivation": "\"Beklentimi yazdım; önceki maaşımı paylaşmak istemedim, piyasa değerime göre teklif bekliyorum.\"",
       "education": "Bilgisayar Mühendisliği Lisans.",
       "references": "3 önceki yöneticiden referans.",
       "previousCompany": "Marka Grubu — Kıdemli Frontend Geliştirici (4 yıl).",

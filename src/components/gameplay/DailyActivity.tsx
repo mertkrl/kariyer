@@ -1,8 +1,7 @@
 import type { Candidate, Decision } from '../../game/types';
-import type { DecisionLogEntry } from '../../game/store';
-import { formatClock } from '../../game/time';
-import { CommuteScene } from './CommuteScene';
-import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN } from '../../game/time';
+import type { DecisionLogEntry } from '../../game/store/store';
+import { formatClock } from '../../game/lib/time';
+import { BREAK_END_MIN, BREAK_START_MIN, WORKDAY_END_MIN } from '../../game/lib/time';
 import styles from './DailyActivity.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
 
@@ -12,7 +11,6 @@ interface DailyActivityProps {
   decisions: Record<string, Decision>;
   decisionLog: DecisionLogEntry[];
   timeSpent: Record<string, number>;
-  currentCandidateId: string | null;
   className?: string;
   workdayMinutes: number;
 }
@@ -23,14 +21,13 @@ function formatDuration(totalSeconds: number) {
   return `${mm}:${ss < 10 ? '0' : ''}${ss}`;
 }
 
-/** "Bugünün İşlemleri": ilerleme, sayımlar ve o günkü mesai için canlı bir etkinlik günlüğü. */
+/** Günün temposu: ortalama süre, tempo ve o günkü mesai için canlı bir etkinlik günlüğü. */
 export function DailyActivity({
   candidateIds,
   candidates,
   decisions,
   decisionLog,
   timeSpent,
-  currentCandidateId,
   className,
   workdayMinutes,
 }: DailyActivityProps) {
@@ -38,7 +35,6 @@ export function DailyActivity({
   const approved = candidateIds.filter((id) => decisions[id] === 'approve').length;
   const rejected = candidateIds.filter((id) => decisions[id] === 'reject').length;
   const done = approved + rejected;
-  const pending = total - done;
 
   const decidedTimes = candidateIds.filter((id) => decisions[id]).map((id) => timeSpent[id] ?? 0);
   const avg = decidedTimes.length ? decidedTimes.reduce((a, b) => a + b, 0) / decidedTimes.length : null;
@@ -58,39 +54,7 @@ export function DailyActivity({
   const paceText = pace > 0 ? `${pace} dosya öndesin` : pace < 0 ? `${-pace} dosya geridesin` : 'tam zamanında';
 
   return (
-    <section className={`${styles.box} ${className ?? ''}`} aria-label="Bugünün işlemleri">
-      <CommuteScene dayIndex={0} title="Bugünün İşlemleri" progress={`${done}/${total}`} />
-
-      <div className={styles.segments} role="img" aria-label={`${done} / ${total} aday sonuçlandı`}>
-        {candidateIds.map((id) => {
-          const d = decisions[id];
-          return (
-            <span
-              key={id}
-              title={`${candidates[id].name}: ${d === 'approve' ? 'mülakatta' : d === 'reject' ? 'reddedildi' : 'bekliyor'}`}
-              className={`${styles.segment} ${d === 'approve' ? styles.segApprove : d === 'reject' ? styles.segReject : ''} ${
-                id === currentCandidateId && !d ? styles.segActive : ''
-              }`}
-            />
-          );
-        })}
-      </div>
-
-      <div className={styles.tiles}>
-        <div className={`${styles.tile} ${styles.tileApprove}`}>
-          <span className={`${styles.tileValue} mono`}>{approved}</span>
-          <span className={styles.tileLabel}>Mülakat</span>
-        </div>
-        <div className={`${styles.tile} ${styles.tileReject}`}>
-          <span className={`${styles.tileValue} mono`}>{rejected}</span>
-          <span className={styles.tileLabel}>Ret</span>
-        </div>
-        <div className={`${styles.tile} ${styles.tilePending}`}>
-          <span className={`${styles.tileValue} mono`}>{pending}</span>
-          <span className={styles.tileLabel}>Bekleyen</span>
-        </div>
-      </div>
-
+    <section className={`${styles.box} ${className ?? ''}`} aria-label="Günün temposu">
       <div className={styles.metrics}>
         <div className={styles.metric}>
           <span>Ort. karar süresi</span>

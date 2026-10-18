@@ -1,11 +1,12 @@
 import type { Candidate } from '../../game/types';
-import { SALARY_CAP } from '../../game/store';
+import { SALARY_CAP } from '../../game/store/store';
 import { FINAL_INTERVIEW_QUESTIONS } from '../../game/data/candidateDetails';
-import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/interview';
+import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
 import { Scorecard } from './InterviewParts';
-import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES } from './interviewModel';
+import { LEAD, QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES, TEST } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
+import own from './InterviewConsole.module.css';
 
 /*
  * Konuşmanın altındaki şerit: şu anda ne yapabileceğin. Önce klasik sorularını seç; sonra sözü
@@ -30,6 +31,8 @@ export interface InterviewConsoleProps {
   /** Kendi sorduğun klasik sorular. */
   mine: number[];
   canFollow: boolean;
+  /** Test puanını sorma hakkı duruyor (ek soru, odada bir kez). */
+  canTest: boolean;
   scores: Scores;
   onScore: (criterion: (typeof CRITERIA)[number], value: number) => void;
   ask: (question: number) => void;
@@ -38,37 +41,37 @@ export interface InterviewConsoleProps {
   endInterview: () => void;
 }
 
-export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, canFollow, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
+export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, canFollow, canTest, scores, onScore, ask, handOff, talkSalary, endInterview }: InterviewConsoleProps) {
   const first = candidate.name.split(' ')[0];
   const scored = Object.keys(scores).length > 0;
   return (
-    <div className={styles.console}>
+    <div className={own.console}>
       {typing ? (
-        <p className={styles.consoleWait}>{first} cevaplıyor…</p>
+        <p className={own.consoleWait}>{first} cevaplıyor…</p>
       ) : back ? (
         <>
-          <p className={styles.consoleTitle}>{first} bir soru soruyor. Nasıl cevaplıyorsun?</p>
-          <div className={styles.options}>
-            <button className={styles.option} onClick={() => answerBack(true)}>
+          <p className={own.consoleTitle}>{first} bir soru soruyor. Nasıl cevaplıyorsun?</p>
+          <div className={own.options}>
+            <button className={own.option} onClick={() => answerBack(true)}>
               <b>Olduğu gibi anlat</b>
               <span>{back.honest}</span>
             </button>
-            <button className={styles.option} onClick={() => answerBack(false)}>
+            <button className={own.option} onClick={() => answerBack(false)}>
               <b>Şirketi iyi göster</b>
               <span>{back.polished}</span>
             </button>
           </div>
         </>
       ) : handedOff && !salaryPending && !salaryDone ? (
-        <p className={styles.consoleWait}>Söz {LEAD}'da. Dinliyorsun.</p>
+        <p className={own.consoleWait}>Söz {LEAD}'da. Dinliyorsun.</p>
       ) : salaryPending ? (
         <>
-          <p className={styles.consoleTitle}>
+          <p className={own.consoleTitle}>
             Beklenti {expectedSalary(candidate.id)?.toLocaleString('tr-TR') ?? '—'} TL · bütçe tavanı {SALARY_CAP.toLocaleString('tr-TR')} TL. Ne diyorsun?
           </p>
-          <div className={styles.options}>
+          <div className={own.options}>
             {salaryMoves(candidate.id).map((m) => (
-              <button key={m} className={`${styles.option} ${m === 'cap' || m === 'match' ? styles.optionPrimary : ''}`} onClick={() => talkSalary(m)}>
+              <button key={m} className={`${own.option} ${m === 'cap' || m === 'match' ? own.optionPrimary : ''}`} onClick={() => talkSalary(m)}>
                 <b>{SALARY_LABEL[m]}</b>
                 <span>{SALARY_LINES[m](salaryOffer(candidate.id, m) ?? 0)}</span>
               </button>
@@ -77,33 +80,39 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
         </>
       ) : salaryDone ? (
         <>
-          <p className={styles.consoleTitle}>Puan kartı · {first} (her ölçüt 1–5)</p>
+          <p className={own.consoleTitle}>Puan kartı · {first} (her ölçüt 1–5)</p>
           <Scorecard scores={scores} onScore={onScore} />
           {ended ? (
-            <p className={styles.consoleWait}>{allDone ? 'Bütün görüşmelerin bitti; kurula geçebilirsin.' : ''}</p>
+            <p className={own.consoleWait}>{allDone ? 'Bütün görüşmelerin bitti; kurula geçebilirsin.' : ''}</p>
           ) : (
-            <button className={styles.endButton} onClick={endInterview} disabled={!scored} title={scored ? undefined : 'Önce puanla'}>
+            <button className={own.endButton} onClick={endInterview} disabled={!scored} title={scored ? undefined : 'Önce puanla'}>
               {scored ? 'Görüşmeyi kapat →' : 'Görüşmeyi kapat · önce puanla'}
             </button>
           )}
         </>
       ) : (
         <>
-          <p className={styles.consoleTitle}>{mine.length < QUESTION_BUDGET ? `Soru seç · ${mine.length}/${QUESTION_BUDGET}` : 'Soruların bitti.'}</p>
-          <div className={styles.questionList}>
+          <p className={own.consoleTitle}>{mine.length < QUESTION_BUDGET ? `Soru seç · ${mine.length}/${QUESTION_BUDGET}` : 'Soruların bitti.'}</p>
+          <div className={own.questionList}>
             {mine.length < QUESTION_BUDGET &&
               FINAL_INTERVIEW_QUESTIONS.map((q, i) =>
                 mine.includes(i) ? null : (
-                  <button key={q} className={styles.question} onClick={() => ask(i)}>
+                  <button key={q} className={own.question} onClick={() => ask(i)}>
                     <span className={styles.qNumber}>{i + 1}</span>
                     {q}
                   </button>
                 ),
               )}
+            {canTest && (
+              <button className={`${own.question} ${own.testQuestion}`} onClick={() => ask(TEST)}>
+                <span className={styles.qNumber}>✎</span>
+                Test puanını ve cevap kâğıdını sor <small>(ek soru, hakkından düşmez)</small>
+              </button>
+            )}
           </div>
-          {canFollow && mine.length > 0 && <p className={styles.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
+          {canFollow && mine.length > 0 && <p className={own.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
           {mine.length > 0 && (
-            <button className={styles.endButton} onClick={handOff}>
+            <button className={own.endButton} onClick={handOff}>
               Sözü {LEAD}'a bırak: teknik bölüm →
             </button>
           )}

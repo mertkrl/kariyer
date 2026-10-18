@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
-import type { GameState } from '../../game/store';
-import { RAINY_DAY } from '../../game/weekdays';
+import { trackFor } from '../../audio/musicPlan';
+import type { GameState } from '../../game/store/store';
+import { RAINY_DAY } from '../../game/lib/weekdays';
 
 interface Workday {
   onBreak: boolean;
@@ -47,4 +48,10 @@ export function useWorkdaySounds({ onBreak, meetingActive, paused, currentDayInd
   useEffect(() => {
     audioEngine.setMusicMood(paused ? 'paused' : onBreak ? 'break' : 'work');
   }, [paused, onBreak]);
+
+  // haftanın gerginliği: her günün kendi parçası (bkz. audio/musicPlan.ts)
+  useEffect(() => {
+    const track = trackFor('gameplay', currentDayIndex);
+    if (track) audioEngine.setMusicTrack(track);
+  }, [currentDayIndex]);
 }

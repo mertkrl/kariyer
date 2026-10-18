@@ -122,8 +122,11 @@
 }
 
 .glyphSheet {
-  background: linear-gradient(160deg, #3a9b5c, #1f6e3c);
-  font-family: var(--font-body);
+  background: linear-gradient(160deg, #8c7a9e, #5e4d6e);
+}
+
+.glyphTest {
+  background: linear-gradient(160deg, #4b8fd1, #2a5f98);
 }
 
 .glyphBin {
@@ -161,7 +164,7 @@
   flex-direction: column;
   background: var(--paper);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
-  animation: winIn 0.18s ease-out;
+  animation: winIn var(--motion-enter) var(--ease-enter);
 }
 
 @keyframes winIn {
@@ -321,7 +324,7 @@
   font-size: calc(13px * var(--ts, 1));
   line-height: 1.4;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-  animation: winIn 0.2s ease-out;
+  animation: winIn var(--motion-enter) var(--ease-enter);
 }
 
 /* ── e-posta ── */

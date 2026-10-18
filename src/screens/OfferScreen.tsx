@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useGameStore } from '../game/store';
+import { useGameStore } from '../game/store/store';
 import { NEPHEW_ID } from '../game/data/candidates';
-import { offerOpening, offerReply, type OfferBeat, type OfferContext, type OfferOption } from '../game/offer';
+import { offerOpening, offerReply, type OfferBeat, type OfferContext, type OfferOption } from '../game/events/offer';
 import { audioEngine } from '../audio/audioEngine';
 import { Button } from '../components/ui/Button';
 import styles from './OfferScreen.module.css';

@@ -7,6 +7,7 @@ import { e5Scene } from './city/scenes/e5';
 import { karakoyScene } from './city/scenes/karakoy';
 import { servisScene } from './city/scenes/servis';
 import styles from './DayEndBackdrop.module.css';
+import { prefersReducedMotion } from '../ui/motion';
 
 /*
  * Gün sonu arka planı: canvas'ta çizilen canlı bir İstanbul akşam trafiği, her gün için bir sahne.
@@ -18,7 +19,7 @@ const SCENES: (() => CityScene)[] = [bridgeScene, e5Scene, servisScene, karakoyS
 const CAPTIONS = [
   'Ortaköy · 15 Temmuz Şehitler Köprüsü — Avrupa yakasına dönüş başladı, köprü kilit.',
   'Zincirlikuyu · E-5 — köprüden inen metrobüs tıklım tıklım, Bağcılar daha çok uzak.',
-  'Servisin içinden · Ataşehir — 40 dakikadır köprü bağlantısında bekliyoruz.',
+  'Servisin camından · Ataşehir — 40 dakikadır köprü bağlantısında bekliyoruz.',
   'Karaköy İskelesi · Kar yağıyor — son vapura yetişmeye çalışanlar.',
 ];
 /** Yavaş yaklaşma için pay, böylece katmanlar son yakınlaşmaya yetecek netlikte çizilir. */
@@ -37,7 +38,7 @@ export function DayEndBackdrop({ dayIndex }: { dayIndex: number }) {
     const g = canvas.getContext('2d', { alpha: false });
     if (!g) return;
     const scene = SCENES[index]();
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const still = prefersReducedMotion();
     let base = 1;
     let raf = 0;
     let last = performance.now();

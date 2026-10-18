@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Candidate, EvaluatedField } from '../../game/types';
 import type { candidateDetails } from '../../game/data/candidateDetails';
-import { questionsFor } from '../../game/lineups';
+import { questionsFor } from '../../game/day/lineups';
 import { ThumbUpIcon, ThumbDownIcon } from '../ui/ThumbIcon';
 import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
+import own from './CvBody.module.css';
 
 /*
- * Bir CV'nin portalın gösterdiği gövdesi: ana sütun (profil, iş geçmişi, öne çıkanlar, şirketin
- * soruları) ve yan sütun (maaş, beceriler, eğitim, referanslar). Yapay zekâ tararken her bölüm
+ * Bir CV'nin portalın gösterdiği gövdesi, bir özgeçmiş gibi: ana sütun (özet, deneyim, başarılar,
+ * eğitim, sertifikalar), yan sütun (maaş, beceriler, diller, referanslar) ve altta başvuru formunun
+ * soruları. Yapay zekâ tararken her bölüm
  * sırayla yanar; taradıktan sonra her biri başparmak yukarı ya da aşağı alır.
  */
 
@@ -16,10 +18,10 @@ export function Verdict({ field, candidate }: { field?: EvaluatedField; candidat
   const isBad = !!field && candidate.flaggedField === field;
   return (
     <span
-      className={`${styles.verdictIcon} ${isBad ? styles.verdictBad : styles.verdictGood}`}
+      className={`${own.verdictIcon} ${isBad ? own.verdictBad : own.verdictGood}`}
       title={isBad ? 'Sistem bu alanı olumsuz değerlendirdi' : 'Sistem bu alanı olumlu değerlendirdi'}
     >
-      {isBad ? <ThumbDownIcon className={styles.verdictGlyph} /> : <ThumbUpIcon className={styles.verdictGlyph} />}
+      {isBad ? <ThumbDownIcon className={own.verdictGlyph} /> : <ThumbUpIcon className={own.verdictGlyph} />}
     </span>
   );
 }
@@ -74,30 +76,33 @@ function useSeenToEnd(onEnd: () => void) {
 export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }: { candidate: Candidate; details?: Details; scanning: boolean; verdicts: boolean; onReadThrough: () => void }) {
   const { ref, more } = useMoreBelow();
   const endRef = useSeenToEnd(onReadThrough);
+  const sweep = (i: number) => ({ className: `${own.cvSection} ${scanning ? styles.scanSweep : ''}`, style: scanAt(i) });
   return (
-    <div ref={ref} className={`${styles.cvBody} ${more ? styles.cvBodyMore : ''}`}>
-      <div className={styles.cvMain}>
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(1)}>
+    <div ref={ref} className={`${styles.cvBody} ${own.cv} ${more ? own.cvBodyMore : ''}`}>
+      {/* ── özgeçmişin kendisi: özet, deneyim, başarılar, eğitim ── */}
+      <div className={own.cvMain}>
+        <section {...sweep(1)}>
           <h3>
-            Profil {verdicts && <Verdict field="motivation" candidate={candidate} />}
+            Özet {verdicts && <Verdict field="motivation" candidate={candidate} />}
           </h3>
-          <p className={styles.cvQuote}>{candidate.motivation}</p>
+          <p className={own.cvSummary}>{candidate.motivation}</p>
         </section>
 
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(2)}>
+        <section {...sweep(2)}>
           <h3>
-            İş Deneyimi <small>· toplam {candidate.experience}</small>
+            Deneyim <small>{candidate.experience}</small>
             {verdicts && <Verdict field="experience" candidate={candidate} />}
           </h3>
           {details && (
-            <ol className={styles.cvTimeline}>
+            <ol className={own.cvJobs}>
               {details.workHistory.map((w) => (
                 <li key={`${w.period}-${w.title}`}>
-                  <span className={`${styles.cvPeriod} mono`}>{w.period}</span>
-                  <span>
-                    <b>{w.title}</b> · {w.company}
-                    <em>{w.note}</em>
-                  </span>
+                  <div className={own.cvJobHead}>
+                    <b>{w.title}</b>
+                    <span className={`${own.cvPeriod} mono`}>{w.period}</span>
+                  </div>
+                  <div className={own.cvCompany}>{w.company}</div>
+                  {w.note && <p className={own.cvJobNote}>{w.note}</p>}
                 </li>
               ))}
             </ol>
@@ -105,9 +110,9 @@ export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }
         </section>
 
         {details && (
-          <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(3)}>
-            <h3>Öne Çıkanlar {verdicts && <Verdict candidate={candidate} />}</h3>
-            <ul className={styles.cvList}>
+          <section {...sweep(3)}>
+            <h3>Başarılar {verdicts && <Verdict candidate={candidate} />}</h3>
+            <ul className={own.cvList}>
               {details.highlights.map((h) => (
                 <li key={h}>{h}</li>
               ))}
@@ -115,33 +120,30 @@ export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }
           </section>
         )}
 
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(4)}>
-          <h3>
-            Şirket Soruları {verdicts && <Verdict field="questions" candidate={candidate} />}
-          </h3>
-          <div className={styles.cvQa}>
-            {questionsFor(candidate.id).map((question, i) => (
-              <div key={question}>
-                <b>{question}</b>
-                <span>"{candidate.companyAnswers[i]}"</span>
-              </div>
-            ))}
-          </div>
+        <section {...sweep(7)}>
+          <h3>Eğitim {verdicts && <Verdict candidate={candidate} />}</h3>
+          <p>{candidate.education}</p>
+        </section>
+
+        <section {...sweep(8)}>
+          <h3>Sertifikalar {verdicts && <Verdict candidate={candidate} />}</h3>
+          <p>{candidate.certifications}</p>
         </section>
       </div>
 
-      <aside className={styles.cvSide}>
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(5)}>
+      {/* ── bir bakışta: maaş, beceriler, diller, referanslar ── */}
+      <aside className={own.cvSide}>
+        <section {...sweep(5)}>
           <h3>
-            Maaş Beklentisi {verdicts && <Verdict field="salary" candidate={candidate} />}
+            Maaş beklentisi {verdicts && <Verdict field="salary" candidate={candidate} />}
           </h3>
-          <p className={styles.cvStrong}>{candidate.salary}</p>
+          <p className={own.cvStrong}>{candidate.salary}</p>
         </section>
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(6)}>
+        <section {...sweep(6)}>
           <h3>
             Beceriler {verdicts && <Verdict field="skills" candidate={candidate} />}
           </h3>
-          <div className={styles.cvChips}>
+          <div className={own.cvChips}>
             {candidate.skills
               .split(/,\s*/)
               .filter(Boolean)
@@ -150,22 +152,20 @@ export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }
               ))}
           </div>
         </section>
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(7)}>
-          <h3>Eğitim {verdicts && <Verdict candidate={candidate} />}</h3>
-          <p>{candidate.education}</p>
-        </section>
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(8)}>
-          <h3>Sertifikalar {verdicts && <Verdict candidate={candidate} />}</h3>
-          <p>{candidate.certifications}</p>
-        </section>
-        <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(9)}>
+        {details?.languages && (
+          <section {...sweep(6)}>
+            <h3>Diller</h3>
+            <p>{details.languages}</p>
+          </section>
+        )}
+        <section {...sweep(9)}>
           <h3>Referanslar {verdicts && <Verdict candidate={candidate} />}</h3>
           <p>{candidate.references}</p>
         </section>
         {candidate.activities && (
-          <section className={`${styles.cvSection} ${scanning ? styles.scanSweep : ''}`} style={scanAt(9)}>
-            <h3>Gönüllülük ve İlgi Alanları</h3>
-            <ul className={styles.cvList}>
+          <section {...sweep(9)}>
+            <h3>Gönüllülük ve ilgi alanları</h3>
+            <ul className={own.cvList}>
               {candidate.activities.map((a) => (
                 <li key={a}>{a}</li>
               ))}
@@ -173,8 +173,23 @@ export function CvBody({ candidate, details, scanning, verdicts, onReadThrough }
           </section>
         )}
       </aside>
+
+      {/* CV'nin parçası değil: başvuru formunda şirketin sorduğu sorular, ayrı bir şerit */}
+      <section className={`${own.cvSection} ${own.cvForm} ${scanning ? styles.scanSweep : ''}`} style={scanAt(4)}>
+        <h3>
+          Başvuru formu · şirketin soruları {verdicts && <Verdict field="questions" candidate={candidate} />}
+        </h3>
+        <div className={own.cvQa}>
+          {questionsFor(candidate.id).map((question, i) => (
+            <div key={question}>
+              <b>{question}</b>
+              <span>"{candidate.companyAnswers[i]}"</span>
+            </div>
+          ))}
+        </div>
+      </section>
       {/* iki sütun boyunca dosyanın altı: bu ekranda bir kez göründüyse bütünüyle görülmüştür */}
-      <div ref={endRef} className={styles.cvEnd} aria-hidden="true" />
+      <div ref={endRef} className={own.cvEnd} aria-hidden="true" />
     </div>
   );
 }

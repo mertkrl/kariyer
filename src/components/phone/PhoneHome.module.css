@@ -1,0 +1,146 @@
+/* PhoneHome bileşeninin kendi stilleri (Phone.module.css dosyasından ayrıldı). */
+/* Ana ekran */
+
+.home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.2em 1.3em 0.6em;
+  color: #fff;
+  font-family: -apple-system, 'SF Pro Text', var(--font-body);
+}
+
+/* saat aracı: duvar kâğıdının üstünde buzlu cam */
+.widget {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.9em 1.1em 1em;
+  border-radius: 1.4em;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.25);
+  margin-bottom: 1.6em;
+}
+
+.widgetDay {
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ff6b5e;
+}
+
+.widgetTime {
+  font-size: 2.6em;
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.widgetNote {
+  font-size: calc(11px * var(--ts, 1));
+  opacity: 0.75;
+}
+
+.appGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 8px;
+}
+
+.appIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #fff;
+  font: inherit;
+}
+
+.appGlyph {
+  position: relative;
+  width: 3.9em;
+  height: 3.9em;
+  max-width: 58px;
+  max-height: 58px;
+  border-radius: 22.5%;
+  display: block;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.appGlyph > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 22.5%;
+}
+
+.appIcon:hover .appGlyph {
+  transform: scale(1.06);
+}
+
+.appIcon:active .appGlyph {
+  transform: scale(0.94);
+  filter: brightness(0.85);
+}
+
+.appBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #ff3b30;
+  color: #fff;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.appLabel {
+  white-space: nowrap;
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.pageDots {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 0;
+}
+
+.pageDots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.pageDots .pageDotOn {
+  background: #fff;
+}
+
+/* dok: en çok kullandığın uygulamalar için buzlu bir raf */
+.dockBar {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 0.7em 0.6em;
+  margin-bottom: 0.9em;
+  border-radius: 1.7em;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px) saturate(1.3);
+}

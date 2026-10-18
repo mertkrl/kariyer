@@ -4,11 +4,11 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { VICDAN_SOFT_FLOOR, addVicdan } from '../src/game/storeDefaults';
-import { KEY_CAST, STORY_FIXED, makeLineups } from '../src/game/lineups';
-import { rngFor } from '../src/game/rng';
+import { VICDAN_SOFT_FLOOR, addVicdan } from '../src/game/store/storeDefaults';
+import { KEY_CAST, STORY_FIXED, makeLineups } from '../src/game/day/lineups';
+import { rngFor } from '../src/game/lib/rng';
 import { candidateDetails } from '../src/game/data/candidateDetails';
-import { caseVerdict } from '../src/game/interview';
+import { caseVerdict } from '../src/game/events/interview';
 
 test('vicdan: eşiğin üstünde kayıp olduğu gibi işler, altında hafifler, kazanç hep tam işler', () => {
   assert.equal(addVicdan(60, -4), 56);

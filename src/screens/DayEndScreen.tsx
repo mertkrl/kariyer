@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { formatClock } from '../game/time';
-import { lineupFor, readingOf, useGameStore } from '../game/store';
-import { days, FINALIST_LIMIT } from '../game/data/days';
+import { formatClock } from '../game/lib/time';
+import { lineupFor, readingOf, useGameStore } from '../game/store/store';
+import { days } from '../game/data/days';
 import { candidateOf } from '../game/data/candidates';
 import { Button } from '../components/ui/Button';
 import { DayEndBackdrop } from '../components/dayend/DayEndBackdrop';
@@ -95,7 +95,7 @@ export function DayEndScreen() {
             <div className={styles.delta}>
               <span>Kısa liste</span>
               <b className="mono">
-                {finalists.length}/{FINALIST_LIMIT}
+                {finalists.length}
               </b>
             </div>
           </div>
@@ -136,7 +136,7 @@ export function DayEndScreen() {
 
           <section className={styles.card}>
             <div className={styles.panelHead}>
-              Günün kararları <span className="mono">{dayStats.approved} mülakat · {dayStats.rejected} ret</span>
+              Günün kararları <span className="mono">{dayStats.approved} {day.selection ? 'mülakat' : 'teste geçti'} · {dayStats.rejected} {day.selection ? 'çağrılmadı' : 'ret'}</span>
             </div>
             <ul className={`${styles.decisionList} ${lineup.length > 7 ? styles.decisionListTwo : ''}`}>
               {lineup.map((id) => {
@@ -196,7 +196,7 @@ export function DayEndScreen() {
           </section>
         </div>
 
-        {days[currentDayIndex + 1]?.final && <p className={styles.finalistNote}>Yarın mülakat günü: {Math.min(finalists.length, FINALIST_LIMIT)} adaydan yalnızca 1 kişi işe alınacak.</p>}
+        {days[currentDayIndex + 1]?.final && <p className={styles.finalistNote}>Yarın mülakat günü: {finalists.length} adaydan yalnızca 1 kişi işe alınacak.</p>}
 
         <div className={styles.footer}>
           <Button variant="primary" sound="confirm" className={styles.cta} onClick={nextDay}>

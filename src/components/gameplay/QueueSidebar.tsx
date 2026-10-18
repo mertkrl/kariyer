@@ -1,9 +1,20 @@
-import { useGameStore, isOnBreak, lineupFor, readingOf, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store';
+import { useGameStore, isOnBreak, lineupFor, readingOf, TEAM_LATE_DAY, TEAM_LATE_END } from '../../game/store/store';
 import { NEIGHBOUR_ID, candidateOf } from '../../game/data/candidates';
-import { days } from '../../game/data/days';
 import { Button } from '../ui/Button';
 import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
+import own from './QueueSidebar.module.css';
+import { days } from '../../game/data/days';
+
+/** Kuyrukta her dosyanın bir bakışlık durumu: rengi tek başına taşımaz, sözcükle de söyler. */
+type QueueStatus = 'new' | 'opened' | 'reading' | 'approve' | 'reject';
+const STATUS_LABEL: Record<QueueStatus, (selection: boolean) => string> = {
+  new: () => 'Okunmadı',
+  opened: () => 'Açıldı',
+  reading: () => 'Önünde',
+  approve: (selection) => (selection ? '✓ Mülakata çağrıldı' : '✓ Teste geçti'),
+  reject: (selection) => (selection ? '✕ Çağrılmadı' : '✕ Reddedildi'),
+};
 
 /*
  * Portalın sol sütunu: müdürün günün notu, her dosyaya harcanan süreyle bugünün kuyruğu ve
@@ -42,8 +53,8 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   const onBreak = useGameStore((s) => isOnBreak(s));
   const stayingLate = useGameStore((s) => s.currentDayIndex === TEAM_LATE_DAY && s.workdayMinutes < TEAM_LATE_END);
 
-  const day = days[currentDayIndex];
   const lineup = lineupFor({ currentDayIndex, lineups });
+  const selection = Boolean(days[currentDayIndex]?.selection);
   const todaysRejects = lineup.filter((id) => decisions[id] === 'reject');
   const pendingMails = !rejectionMailsSent && todaysRejects.some((id) => !plannedRejections[id]);
   const plannedCount = Object.keys(plannedRejections).length;
@@ -51,41 +62,43 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.ruleNote} data-tour="rule">
-        <div className={styles.ruleLabel}>İK Müdüründen Not</div>
-        <div className={styles.ruleText}>"{day.ruleText}"</div>
-      </div>
       <div className={styles.queueBox} data-tour="queue">
-        <div className={styles.queueLabel}>Adaylar</div>
+        <div className={own.queueLabel}>Adaylar</div>
         <div className={styles.queueList}>
           {lineup.map((id) => {
             const c = candidateOf(id);
             const isSelected = id === currentCandidateId;
             const isOpened = openedIds.includes(id);
             const isDecided = !!decisions[id];
+            const status: QueueStatus = decisions[id] ?? (isSelected ? 'reading' : isOpened ? 'opened' : 'new');
             return (
               <button
                 key={id}
-                className={`${styles.queueItem} ${isSelected ? styles.queueItemSelected : ''} ${
-                  decisions[id] === 'approve' ? styles.queueApproved : decisions[id] === 'reject' ? styles.queueRejected : ''
+                className={`${styles.queueItem} ${isSelected ? own.queueItemSelected : ''} ${
+                  decisions[id] === 'approve' ? own.queueApproved : decisions[id] === 'reject' ? own.queueRejected : ''
                 }`}
                 onClick={() => selectCandidate(id)}
                 disabled={onBreak}
                 aria-current={isSelected ? 'true' : undefined}
               >
-                <span className={styles.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
-                <span className={styles.queueName}>
-                  {c.name}
-                  {id === NEIGHBOUR_ID && <em className={styles.queueTag}>Tavsiye</em>}
+                <span className={own.queueAvatar} style={{ background: c.color, opacity: isOpened ? 1 : 0.5 }} />
+                <span className={own.queueText}>
+                  <span className={own.queueName}>
+                    {c.name}
+                    {id === NEIGHBOUR_ID && <em className={own.queueTag}>Tavsiye</em>}
+                  </span>
+                  <span className={`${own.queueStatus} ${own[`status_${status}`]}`} aria-hidden="true">
+                    {STATUS_LABEL[status](selection)}
+                  </span>
                 </span>
                 {/* görünen sütun bir bakışlıktır (bir süre, bir çizgi); ekran okuyucu onu sözcüklerle duyar */}
                 <span className="sr-only">
                   {decisions[id] === 'approve' ? ', mülakata çağrıldı' : decisions[id] === 'reject' ? ', reddedildi' : isOpened ? ', açıldı' : ', henüz açılmadı'}
                 </span>
-                <span className={`${styles.queueTime} mono`}>
+                <span className={`${own.queueTime} mono`}>
                   <span aria-hidden="true">{isOpened ? (isDecided ? `⏱ ${formatTime(timeSpent[id] ?? 0)}` : formatTime(timeSpent[id] ?? 0)) : '—'}</span>
                   {wasConsidered(readingOf({ timeSpent, readThrough, referenceChecks }, id)) && (
-                    <span className={styles.queueRead} title="Dosyayı okudun">
+                    <span className={own.queueRead} title="Dosyayı okudun">
                       {' '}✓<span className="sr-only">okundu</span>
                     </span>
                   )}
@@ -103,7 +116,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
       ) : (
         <>
           {!open && !pendingMails && plannedCount > 0 && !rejectionMailsSent && !editingMails && (
-            <button className={styles.outboxNote} onClick={onEditMails}>
+            <button className={own.outboxNote} onClick={onEditMails}>
               ✉ {plannedCount} bildirim giden kutusunda · 17:00 <span>Düzenle</span>
             </button>
           )}
@@ -124,22 +137,19 @@ function DayFinish({ decided, total, blocker, onFinish }: { decided: number; tot
   const ready = blocker === null;
   const pct = total ? Math.round((decided / total) * 100) : 100;
   return (
-    <div className={`${styles.finishCard} ${ready ? styles.finishReady : ''}`} data-tour="finish">
-      <div className={styles.finishHead}>
-        <span>Günün dosyaları</span>
+    <div className={`${own.finishCard} ${ready ? own.finishReady : ''}`} data-tour="finish">
+      <div className={own.finishRow}>
+        <span>Dosyalar</span>
+        <div className={own.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
+          <i style={{ width: `${pct}%` }} />
+        </div>
         <span className="mono">
           {decided}/{total}
         </span>
       </div>
-      <div className={styles.finishTrack} role="progressbar" aria-label="Karar verilen dosyalar" aria-valuenow={decided} aria-valuemin={0} aria-valuemax={total}>
-        <i style={{ width: `${pct}%` }} />
-      </div>
-      <button className={styles.finishButton} onClick={onFinish} disabled={!ready} aria-describedby="finish-state">
-        {ready ? 'Günü Bitir →' : 'Günü Bitir'}
+      <button className={own.finishButton} onClick={onFinish} disabled={!ready} title={blocker ?? undefined}>
+        {ready ? 'Günü Bitir →' : `Günü Bitir · ${blocker}`}
       </button>
-      <div id="finish-state" className={styles.finishState}>
-        {ready ? '✓ Bütün dosyalar kapandı' : blocker}
-      </div>
     </div>
   );
 }

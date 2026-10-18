@@ -50,8 +50,10 @@ export interface DayConfig {
   companyQuestions: string[];
   applicationTarget: number;
   aiDown?: boolean;
-  /** 1–4. günler: bugün finale kaç aday ilerletilebilir. */
+  /** Bugün mülakata kaç aday çağrılabilir (yalnızca seçim günü; CV günlerinde teste geçirmenin sınırı yok). */
   approvalLimit?: number;
+  /** 4. gün: yeni CV yok; teste geçenler puanlarıyla gelir, mülakat davetleri bugün yapılır. */
+  selection?: boolean;
   /** 5. gün: final turu; haftanın finalistleriyle mülakatlar, tek işe alım. */
   final?: boolean;
 }

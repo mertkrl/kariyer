@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PLAYER } from '../../game/player';
+import { PLAYER } from '../../game/lib/player';
 import { audioEngine } from '../../audio/audioEngine';
 import styles from './RecallComposer.module.css';
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadStore, withStore } from '../src/game/storeLoader';
+import { loadStore, withStore } from '../src/game/store/storeLoader';
 
 test('oyun bir kez yüklenir, sonraki çağrılar aynı modülü alır', async () => {
   const a = await loadStore();

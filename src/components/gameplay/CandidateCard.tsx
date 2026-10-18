@@ -1,14 +1,17 @@
 import { useEffect, type Ref } from 'react';
-import { approvalQuota, lineupFor, useGameStore } from '../../game/store';
+import { approvalQuota, lineupFor, useGameStore } from '../../game/store/store';
 import { candidateDetails } from '../../game/data/candidateDetails';
 import { candidates } from '../../game/data/candidates';
-import { referenceFor } from '../../game/references';
-import { formatClock } from '../../game/time';
+import { referenceFor } from '../../game/day/references';
+import { formatClock } from '../../game/lib/time';
 import { Button } from '../ui/Button';
 import { CvBody } from './CvBody';
 import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
+import own from './CandidateCard.module.css';
 import { avatarStyle } from '../ui/avatarStyle';
+import { days } from '../../game/data/days';
+import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude } from '../../game/events/aptitude';
 
 /*
  * Açık CV: referans aramalı başlık, dosyanın kendisi ve ya iki düğme (bugünün mülakat
@@ -36,6 +39,9 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const quotaCut = useGameStore((s) => s.quotaCut);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
   const effect = useGameStore((s) => (s.currentCandidateId ? s.decisionEffects[s.currentCandidateId] : undefined));
+  const seed = useGameStore((s) => s.seed);
+  // CV günlerinde onay teste geçirmektir; seçim günü (Perşembe) mülakata çağırmak
+  const selection = Boolean(days[currentDayIndex]?.selection);
   const lineBusy = useGameStore((s) => Boolean(s.desk.inCall || s.desk.ringing));
   const callReference = useGameStore((s) => s.callReference);
   const decide = useGameStore((s) => s.decide);
@@ -48,12 +54,13 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const details = candidate ? candidateDetails[candidate.id] : undefined;
   const decidedForCurrent = currentCandidateId ? decisions[currentCandidateId] : undefined;
   const quota = approvalQuota({ currentDayIndex, decisions, finalists, lineups, quotaCut });
-  const quotaReason = quota.totalLeft === 0 ? 'Haftalık mülakat kontenjanı doldu' : quota.dailyLeft === 0 ? 'Bugünkü kontenjan doldu' : null;
+  const quotaReason = quota.dailyLeft === 0 ? (quota.dailyLimit === 0 ? 'Performansın düşük: Hakan Bey mülakat hakkını kaldırdı' : 'Mülakat hakkın doldu') : null;
+  const test = selection && candidate ? candidateAptitude(candidate.id, seed) : null;
   const decidedAt = decisionLog.find((e) => e.id === currentCandidateId)?.at;
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);
 
-  // klavye: M mülakata çağırır, R reddeder, S sıradaki dosyayı açar (Ctrl/Cmd+Z geri alır, bkz.
+  // klavye: M teste geçirir (Perşembe mülakata çağırır), R reddeder, S sıradaki dosyayı açar (Ctrl/Cmd+Z geri alır, bkz.
   // GameplayScreen). Yalnızca portal oyuncunun dikkatindeyken, yazı yazarken asla.
   useEffect(() => {
     if (!reading || !candidate || onBreak) return;
@@ -73,15 +80,15 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   }, [reading, candidate, onBreak, decidedForCurrent, quota.canApprove, nextUndecidedId, decide, selectCandidate]);
 
   return (
-    <div className={`${styles.candidateCard} ${isAnalyzing ? styles.candidateCardScanning : ''}`} data-tour="cv">
+    <div className={`${styles.candidateCard} ${isAnalyzing ? own.candidateCardScanning : ''}`} data-tour="cv">
       {isAnalyzing && (
-        <div className={styles.scanOverlay}>
-          <div className={styles.scanLine} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerTL}`} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerTR}`} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerBL}`} />
-          <div className={`${styles.scanCorner} ${styles.scanCornerBR}`} />
-          <div className={styles.scanReadout}>VERİ TARANIYOR…</div>
+        <div className={own.scanOverlay}>
+          <div className={own.scanLine} />
+          <div className={`${own.scanCorner} ${own.scanCornerTL}`} />
+          <div className={`${own.scanCorner} ${own.scanCornerTR}`} />
+          <div className={`${own.scanCorner} ${own.scanCornerBL}`} />
+          <div className={`${own.scanCorner} ${own.scanCornerBR}`} />
+          <div className={own.scanReadout}>VERİ TARANIYOR…</div>
         </div>
       )}
       {candidate ? (
@@ -89,9 +96,9 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
           {decidedForCurrent && (
             <div
               key={`${candidate.id}-${decidedForCurrent}`}
-              className={`${styles.stamp} ${decidedForCurrent === 'approve' ? styles.stampApprove : styles.stampReject}`}
+              className={`${styles.stamp} ${decidedForCurrent === 'approve' ? own.stampApprove : own.stampReject}`}
             >
-              {decidedForCurrent === 'approve' ? 'MÜLAKATTA' : 'REDDEDİLDİ'}
+              {decidedForCurrent === 'approve' ? (selection ? 'MÜLAKATTA' : 'TESTTE') : selection ? 'ÇAĞRILMADI' : 'REDDEDİLDİ'}
             </div>
           )}
 
@@ -107,19 +114,18 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
               </div>
               {details && (
                 <div className={styles.candidateMeta}>
-                  <span>📍 {details.location}</span>
-                  <span>🗣 {details.languages}</span>
+                  <span>{details.location}</span>
                 </div>
               )}
             </div>
-          <div className={`${styles.referenceRow} ${styles.headerRef}`} data-tour="reference">
+          <div className={`${own.referenceRow} ${own.headerRef}`} data-tour="reference">
               {referenceChecks[candidate.id] ? (
-                <span className={`${styles.referenceResult} ${styles[`ref_${referenceChecks[candidate.id]}`]}`}>
+                <span className={`${own.referenceResult} ${own[`ref_${referenceChecks[candidate.id]}`]}`}>
                   {referenceChecks[candidate.id] === 'warn' ? '⚠' : referenceChecks[candidate.id] === 'mixed' ? '◐' : '✓'} Referans: {referenceFor(candidate.id)?.summary}
                 </span>
               ) : referenceFor(candidate.id) ? (
                 <button
-                  className={styles.referenceButton}
+                  className={own.referenceButton}
                   disabled={lineBusy || onBreak}
                   title={lineBusy ? 'Hat meşgul' : 'Eski işverenini ara ve CV\'deki bilgiyi doğrula'}
                   onClick={() => callReference(candidate.id)}
@@ -127,10 +133,22 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                   ☎ Referansı ara
                 </button>
               ) : (
-                <span className={styles.referenceNone}>☎ Aranacak referans yok</span>
+                <span className={own.referenceNone}>☎ Aranacak referans yok</span>
               )}
             </div>
           </header>
+
+          {test && (
+            <div className={`${own.testStrip} ${test.score < APTITUDE_CUTOFF ? own.testBelow : ''}`}>
+              <span className={own.testLabel}>Genel Yetenek ve Uyum</span>
+              <b className="mono">{test.score}</b>
+              <span>
+                {test.score < APTITUDE_CUTOFF ? `eşiğin (${APTITUDE_CUTOFF}) altında` : `eşiği (${APTITUDE_CUTOFF}) geçti`} · {test.correct} doğru, {test.timedOut} boş
+              </span>
+              <span className={own.testHint}>Cevap kâğıdı: Değerlendirme uygulaması</span>
+              {aptitudeNote(candidate!.id) && <span className={own.testNote}>⚑ {aptitudeNote(candidate!.id)}</span>}
+            </div>
+          )}
 
           {/* kişiye göre anahtarlı: her CV en üstünden açılır, bir öncekinin kaydırıldığı yerden değil */}
           <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} onReadThrough={() => markReadThrough(candidate.id)} />
@@ -139,71 +157,72 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
 
           {decidedForCurrent ? (
             <div
-              className={`${styles.decisionBar} ${decidedForCurrent === 'approve' ? styles.decisionBarApprove : styles.decisionBarReject}`}
+              className={`${styles.decisionBar} ${decidedForCurrent === 'approve' ? own.decisionBarApprove : own.decisionBarReject}`}
             >
-              <div className={styles.decisionInfo}>
-                <span className={styles.decisionTitle}>
-                  {decidedForCurrent === 'approve' ? '✓ Mülakata çağrıldı' : '✕ Reddedildi'}
+              <div className={own.decisionInfo}>
+                <span className={own.decisionTitle}>
+                  {decidedForCurrent === 'approve' ? (selection ? '✓ Mülakata çağrıldı' : '✓ Teste geçirildi') : selection ? '✕ Çağrılmadı' : '✕ Reddedildi'}
                 </span>
                 {effect?.reason && (
-                  <span className={styles.decisionWhy}>
+                  <span className={own.decisionWhy}>
                     {effect.reason}
                     <EffectChip label="Performans" value={effect.performans} />
                     <EffectChip label="Vicdan" value={effect.vicdan} />
                   </span>
                 )}
-                <span className={`${styles.decisionMeta} mono`}>
+                <span className={`${own.decisionMeta} mono`}>
                   {decidedAt !== undefined && `${formatClock(decidedAt)} · `}
                   geri alınabilir
                 </span>
               </div>
-              <button className={styles.undoButton} onClick={undoDecision}>
+              <button className={own.undoButton} onClick={undoDecision}>
                 ↶ Kararı Geri Al
               </button>
               {nextUndecidedId && (
-                <button className={styles.nextButton} onClick={() => selectCandidate(nextUndecidedId)} aria-keyshortcuts="S">
+                <button className={own.nextButton} onClick={() => selectCandidate(nextUndecidedId)} aria-keyshortcuts="S">
                   Sonraki Aday →
                 </button>
               )}
             </div>
           ) : (
             <div className={styles.actionArea} data-tour="actions">
-              <div className={`${styles.quotaLine} ${quotaReason ? styles.quotaFull : ''}`}>
-                {quotaCut && !quotaReason && <>⚠ Performansın düşük: Hakan Bey bugün mülakat hakkını bir azalttı. </>}
-                {quotaReason ? (
-                  <>⛔ {quotaReason} — bu adayı ancak reddedebilir ya da çağırdığın başka birini geri alabilirsin.</>
-                ) : (
-                  <>
-                    Mülakat kontenjanı · bugün <strong className="mono">{quota.dailyLeft}</strong> hak · haftada{' '}
-                    <strong className="mono">{quota.totalLeft}</strong> yer kaldı
-                  </>
-                )}
-              </div>
-              <div className={styles.actionBar}>
+              {selection ? (
+                <div className={`${own.quotaLine} ${quotaReason ? own.quotaFull : ''}`}>
+                  {quotaCut && !quotaReason && <>⚠ Performansın düşük: Hakan Bey mülakat hakkını bir azalttı. </>}
+                  {quotaReason ? (
+                    <>⛔ {quotaReason} — bu adayı çağırmayabilir ya da çağırdığın başka birini geri alabilirsin.</>
+                  ) : (
+                    <>
+                      <strong className="mono">{quota.dailyLeft}</strong>/{quota.dailyLimit} mülakat hakkın kaldı
+                    </>
+                  )}
+                </div>
+              ) : null}
+              <div className={own.actionBar}>
                 <Button
                   variant="primary"
                   sound="none"
                   onClick={() => decide('approve')}
                   disabled={!quota.canApprove}
-                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır'}
+                  title={quotaReason ?? (selection ? 'Adayı cuma günkü mülakata çağır' : 'Adayı Genel Yetenek ve Uyum Değerlendirmesi\'ne geçir')}
                   aria-keyshortcuts="M"
                 >
-                  ✓ MÜLAKATA ÇAĞIR
+                  {selection ? '✓ MÜLAKATA ÇAĞIR' : '✓ SONRAKİ AŞAMA'}
                 </Button>
-                <Button variant="danger" sound="none" onClick={() => decide('reject')} title="Adayı reddet" aria-keyshortcuts="R">
-                  ✕ REDDET
+                <Button variant="danger" sound="none" onClick={() => decide('reject')} title={selection ? 'Adayı mülakata çağırma' : 'Adayı reddet'} aria-keyshortcuts="R">
+                  {selection ? '✕ ÇAĞIRMA' : '✕ REDDET'}
                 </Button>
               </div>
             </div>
           )}
         </>
       ) : (
-        <div className={styles.emptyState}>Kuyruktan bir aday seç.</div>
+        <div className={own.emptyState}>Kuyruktan bir aday seç.</div>
       )}
       {/* karar ve yaptığı, ekran okuyucular için bir kez okunur */}
       <div className="sr-only" aria-live="polite">
         {candidate && decidedForCurrent && effect?.reason
-          ? `${decidedForCurrent === 'approve' ? 'Mülakata çağrıldı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
+          ? `${decidedForCurrent === 'approve' ? (selection ? 'Mülakata çağrıldı' : 'Teste geçirildi') : selection ? 'Çağrılmadı' : 'Reddedildi'}. ${effect.reason} Performans ${signed(effect.performans)}, vicdan ${signed(effect.vicdan)}.`
           : ''}
       </div>
     </div>
@@ -216,7 +235,7 @@ const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '±0');
 function EffectChip({ label, value }: { label: string; value: number }) {
   if (value === 0) return null;
   return (
-    <span className={`${styles.effectChip} ${value > 0 ? styles.effectUp : styles.effectDown} mono`} aria-hidden="true">
+    <span className={`${own.effectChip} ${value > 0 ? own.effectUp : own.effectDown} mono`} aria-hidden="true">
       {label} {signed(value)}
     </span>
   );

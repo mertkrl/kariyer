@@ -1,12 +1,12 @@
 import type { ReactNode, RefObject } from 'react';
 import type { Candidate } from '../../game/types';
-import { caseFor, expectedSalary, salaryOffer, salaryTalk } from '../../game/interview';
+import { caseFor, expectedSalary, salaryOffer, salaryTalk } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
-import { SALARY_CAP } from '../../game/store';
-import { PLAYER } from '../../game/player';
+import { SALARY_CAP } from '../../game/store/store';
+import { PLAYER } from '../../game/lib/player';
 import { AnswerText, CaseCard } from './InterviewParts';
-import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, type Entry, type Typing } from './interviewModel';
-import styles from '../FinalRoundScreen.module.css';
+import { CASE, FOLLOW, FORBIDDEN, LEAD, QUESTION_BUDGET, SALARY_LINES, TEST, type Entry, type Typing } from './interviewModel';
+import styles from './Conversation.module.css';
 
 /*
  * Odadaki kişiyle şimdiye kadarki konuşma, an an: senin soruların ve onun cevapları (canlı
@@ -43,8 +43,6 @@ export interface ConversationProps {
   answerFor: (id: string, question: number) => string;
   questionText: (q: number, about?: string) => string;
   ask: (question: number, about?: string) => void;
-  isNoted: (sentence: string) => boolean;
-  toggleNote: (sentence: string) => void;
   /** Bugün henüz kimseyle görüşülmedi: oda nasıl işlediğini anlatır. */
   firstOfDay: boolean;
   /** Yapılandırılmış mülakat: Hakan Bey'in listesi masada değil. */
@@ -53,7 +51,7 @@ export interface ConversationProps {
   backs: BackQuestion[];
 }
 
-export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, isNoted, toggleNote, firstOfDay, structured, backs }: ConversationProps) {
+export function Conversation({ entries, selectedId, candidate, poolIds, typing, canFollow, chatRef, answerFor, questionText, ask, firstOfDay, structured, backs }: ConversationProps) {
   return (
       <div className={styles.log} ref={chatRef} aria-live="polite">
         {entries.length === 0 && (
@@ -71,14 +69,14 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   Sonra <b>maaşı konuşursun</b>; bütçe tavanını aşan beklentiyi pazarlık edebilirsin. Aday da sana soru sorabilir: deneyimli adaylar daha çok ve daha keskin sorar.
                 </li>
                 <li>
-                  Bir cümlenin sonundaki <b>✎</b> ile not al; görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
+                  Görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
                 </li>
               </ol>
               <span>{candidate.name.split(' ')[0]} karşında oturuyor. Aşağıdan ilk soruyu seç.</span>
             </div>
           ) : (
             <p className={styles.logEmpty}>
-              {candidate.name.split(' ')[0]} karşında oturuyor. Önce senin {QUESTION_BUDGET} sorun ve bir takip; sonra söz Ümit'te. Önemli cümleleri ✎ ile not almayı unutma.
+              {candidate.name.split(' ')[0]} karşında oturuyor. Önce senin {QUESTION_BUDGET} sorun ve bir takip; sonra söz Ümit'te.
             </p>
           )
         )}
@@ -145,7 +143,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   {questionText(e.q, e.about)}
                 </Turn>
               ) : (
-                <Turn who={PLAYER.name} role={e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
+                <Turn who={PLAYER.name} role={e.q === TEST ? 'Test sorusu' : e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
                   {questionText(e.q, e.about)}
                 </Turn>
               )}
@@ -170,8 +168,6 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                         fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : undefined}
                         canFollow={canFollow}
                         onFollow={e.q < FORBIDDEN && !e.by ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
-                        noted={isNoted}
-                        onNote={toggleNote}
                       />
                     )}
                   </>

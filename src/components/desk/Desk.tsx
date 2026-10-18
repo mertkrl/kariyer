@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type RefObject } from 'react';
-import { callFor, useGameStore, TEAM_LATE_DAY } from '../../game/store';
+import { callFor, useGameStore, TEAM_LATE_DAY } from '../../game/store/store';
 import { PIZZA_SLICES } from '../../game/slices/deskSlice';
 import { days } from '../../game/data/days';
-import { COFFEE_SIPS, DRAWER_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState } from '../../game/desk';
-import { inbox } from '../../game/mail';
-import { formatClock } from '../../game/time';
+import { COFFEE_SIPS, DRAWER_THOUGHT, FLOWER_CARD, FLOWER_STATE_TEXT, REFILL_MINUTES, WATER_MINUTES, flowerState } from '../../game/day/desk';
+import { inbox } from '../../game/day/mail';
+import { formatClock } from '../../game/lib/time';
 import { audioEngine } from '../../audio/audioEngine';
-import type { ThreadId } from '../../game/manager';
+import type { ThreadId } from '../../game/day/manager';
 import { DeskRoom, STAGE_H, STAGE_W } from './DeskRoom';
 import { OfficeWindow, type WindowWeather } from './OfficeWindow';
 import { COFFEE_RINGS, deskExtras, type DeskExtra } from './DeskExtras';
@@ -16,7 +16,8 @@ import { OrchidArt } from './OrchidArt';
 import { AirConArt, DeskLampArt, ExtinguisherArt, PlantArt, PrinterCabinetArt, WaterCoolerArt } from './DeskDecor';
 import { DeskDefs, FoldersArt, KeyboardArt, LandlineArt, MobileArt, MonitorArt, MouseArt, MugArt, PedestalArt, PenCupArt, PosterArt, WallClockArt, WindowFrameArt } from './DeskObjects';
 import styles from './Desk.module.css';
-import { BIRTHDAY_DAY, MONDAY } from '../../game/weekdays';
+import guide from './DeskGuide.module.css';
+import { BIRTHDAY_DAY, MONDAY } from '../../game/lib/weekdays';
 
 const WEATHER: WindowWeather[] = ['sunny', 'windy', 'rainy', 'snowy', 'cloudy'];
 
@@ -141,6 +142,12 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
   return (
     <div ref={rootRef} className={styles.desk} onKeyDown={moveFocus}>
       <DeskDefs />
+      {/* ilk sabahın yönlendirmesi sahnenin altında durur; hiçbir nesnenin üstünü örtmez */}
+      {firstClockIn && (
+        <div className={guide.guide} role="status">
+          <span className={guide.guideKey}>B</span> Güne başlamak için bilgisayara geç
+        </div>
+      )}
       <div className={styles.stage} style={stageStyle}>
         <DeskRoom className={styles.room} scale={scale} />
 
@@ -247,7 +254,7 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
                     <i className={styles.miniCal}>21</i>Takvim
                   </span>
                   <span>
-                    <i className={styles.miniSheet}>X</i>Adaylar_FINAL_v7.xlsx
+                    <i className={styles.miniSheet}>≡</i>Adaylar_FINAL_v7
                   </span>
                   <span>
                     <i className={styles.miniBin}>🗑</i>Geri Dönüşüm

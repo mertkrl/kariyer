@@ -1,36 +1,26 @@
 import type { ReactNode } from 'react';
-import { CRITERIA, NOTE_TAG_NAME, hooksIn, sentencesOf, type CodeCase, type HookKind, type NoteTag, type Scores } from '../../game/interview';
+import { CRITERIA, hooksIn, sentencesOf, type CodeCase, type HookKind, type Scores } from '../../game/events/interview';
 import styles from './InterviewParts.module.css';
 
 /*
- * Cuma mülakatının odayı oluşturan parçaları (FinalRoundScreen): kurcalanıp not alınabilen
- * bir cevap, kodlama vakası, puan kartı, not defterin ve kurula sunduğun gerekçe.
+ * Cuma mülakatının odayı oluşturan parçaları (FinalRoundScreen): kurcalanabilen
+ * bir cevap, kodlama vakası ve puan kartı.
  */
 
-export interface Note {
-  text: string;
-  tag: NoteTag;
-}
-
 /**
- * Biten bir cevap. Altı çizili ifadeler bir takip sorusuna değer (mülakat başına bir tane);
- * her cümlenin sonundaki iğne onu not defterine yazar.
+ * Biten bir cevap. Altı çizili ifadeler bir takip sorusuna değer (mülakat başına bir tane).
  */
 export function AnswerText({
   text,
   fallback,
   canFollow,
   onFollow,
-  noted,
-  onNote,
 }: {
   text: string;
   /** Sorunun kendi türü; böylece her cevapta kurcalanacak bir şey olur. */
   fallback?: HookKind;
   canFollow: boolean;
   onFollow?: (kind: HookKind, phrase: string) => void;
-  noted: (sentence: string) => boolean;
-  onNote?: (sentence: string) => void;
 }) {
   const hooks = onFollow ? hooksIn(text, fallback) : [];
   return (
@@ -57,22 +47,9 @@ export function AnswerText({
           at = h.end;
         }
         if (at < end) parts.push(text.slice(at, end));
-        const isNoted = noted(s.text.trim());
         return (
-          <span key={s.start} className={isNoted ? styles.noted : undefined}>
-            {parts}
-            {onNote && (
-              <button
-                type="button"
-                className={`${styles.pin} ${isNoted ? styles.pinOn : ''}`}
-                onClick={() => onNote(s.text.trim())}
-                aria-pressed={isNoted}
-                aria-label={isNoted ? 'Nottan çıkar' : 'Not al'}
-                title={isNoted ? 'Nottan çıkar' : 'Not al'}
-              >
-                ✎
-              </button>
-            )}{' '}
+          <span key={s.start}>
+            {parts}{' '}
           </span>
         );
       })}
@@ -119,46 +96,5 @@ export function Scorecard({ scores, onScore }: { scores: Scores; onScore: (crite
         </div>
       ))}
     </div>
-  );
-}
-
-/** Bir kişi için not defterin: ne yazdığın ve bunun ne tür bir kanıt olduğu. */
-export function NotesList({ notes, onRemove }: { notes: Note[]; onRemove?: (text: string) => void }) {
-  if (!notes.length) return <p className={styles.notesEmpty}>Cevaplardaki bir cümlenin sonundaki ✎ ile not al; puanlarken notlarına bakarsın.</p>;
-  return (
-    <ul className={styles.notes}>
-      {notes.map((n) => (
-        <li key={n.text}>
-          <span className={`${styles.tag} ${styles['tag_' + n.tag]}`}>{NOTE_TAG_NAME[n.tag]}</span>
-          <span>{n.text}</span>
-          {onRemove && (
-            <button type="button" className={styles.noteRemove} onClick={() => onRemove(n.text)} aria-label="Notu sil">
-              ✕
-            </button>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** Kurula sunacağın notları seçmek (en fazla üç). */
-export function EvidencePicker({ notes, picked, onToggle }: { notes: Note[]; picked: string[]; onToggle: (text: string) => void }) {
-  if (!notes.length) return <p className={styles.notesEmpty}>Bu aday için hiç not almadın; elinde gösterecek bir şey yok.</p>;
-  return (
-    <ul className={styles.evidence}>
-      {notes.map((n) => {
-        const on = picked.includes(n.text);
-        return (
-          <li key={n.text}>
-            <label className={on ? styles.evidenceOn : undefined}>
-              <input type="checkbox" checked={on} disabled={!on && picked.length >= 3} onChange={() => onToggle(n.text)} />
-              <span className={`${styles.tag} ${styles['tag_' + n.tag]}`}>{NOTE_TAG_NAME[n.tag]}</span>
-              <span>"{n.text}"</span>
-            </label>
-          </li>
-        );
-      })}
-    </ul>
   );
 }

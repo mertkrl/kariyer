@@ -1,14 +1,14 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
-import { createPortal } from 'react-dom';
-import { useGameStore } from '../../game/store';
+import { useRef } from 'react';
+import { useGameStore } from '../../game/store/store';
 import { candidates } from '../../game/data/candidates';
 import { days } from '../../game/data/days';
 import type { Candidate, EvaluatedField } from '../../game/types';
-import { atsReport, systemLineWith } from '../../game/ats';
+import { aiScore, atsReport, systemLineWith } from '../../game/day/ats';
 import { AiIcon } from '../ui/AiIcon';
 import { ANALYZE_DURATION_MS, type AiAnalysis } from './useAiAnalysis';
 import { AnalysisRun, ScoreDial } from './AiRun';
-import styles from '../../screens/GameplayScreen.module.css';
+import styles from './AiPanel.module.css';
+import report from './AiReport.module.css';
 
 /** Yapay zekânın her bölümde "okuduğu": biri işaretli, geri kalanı hazır bir kalıpla geçiştirilmiş. */
 const SECTIONS: { label: string; field?: EvaluatedField; ok: string }[] = [
@@ -20,12 +20,32 @@ const SECTIONS: { label: string; field?: EvaluatedField; ok: string }[] = [
   { label: 'Eğitim, sertifika, referans', ok: 'Alan dolu; puanlamada ağırlığı yok.' },
 ];
 
-function sectionNotes(c: Candidate) {
+type Band = 'high' | 'mid' | 'low';
+const BAND_NAME: Record<Band, string> = { high: 'Güçlü', mid: 'Orta', low: 'Zayıf' };
+
+/** Aynı adayda hep aynı sayı: id ve bölümden küçük, kararlı bir oynama (-12…+12). */
+function wobble(id: string, label: string) {
+  let h = 7;
+  for (const ch of id + label) h = (h * 31 + ch.charCodeAt(0)) % 997;
+  return (h % 25) - 12;
+}
+
+/**
+ * Raporun bölüm puanları, yüksekten düşüğe. Sayılar genel puanın etrafında dağılır; sistemin
+ * işaretlediği bölüm hep en dipte kalır. Bu yalnızca sunuş: karar ve puanlama `aiScore`u okur.
+ */
+function sectionScores(c: Candidate) {
   const reason = /Gerekçe: ([^·]+)/.exec(systemLineWith(c, atsReport(c, 0)))?.[1]?.trim() ?? 'Sistem işareti.';
-  return SECTIONS.map((sec) => {
+  const overall = aiScore(c);
+  const rows = SECTIONS.map((sec) => {
     const bad = !!sec.field && sec.field === c.flaggedField;
-    return { label: sec.label, bad, text: bad ? reason : sec.ok };
+    const score = bad
+      ? Math.max(5, Math.min(35, Math.round(overall * 0.5)))
+      : Math.max(36, Math.min(96, overall + 18 + wobble(c.id, sec.label)));
+    const band: Band = score >= 70 ? 'high' : score >= 45 ? 'mid' : 'low';
+    return { label: sec.label, score, band, bad, text: bad ? reason : sec.ok };
   });
+  return rows.sort((a, b) => b.score - a.score);
 }
 
 interface Props {
@@ -44,9 +64,8 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
   const currentCandidateId = useGameStore((s) => s.currentCandidateId);
   const currentDayIndex = useGameStore((s) => s.currentDayIndex);
   const candidate = currentCandidateId ? candidates[currentCandidateId] : null;
-  const { isAnalyzing, isAnalyzed, hasNote, noteOpen, toggleNote, closeNote, analyze: handleAnalyze } = analysis;
+  const { isAnalyzing, isAnalyzed, hasNote, noteOpen, toggleNote, analyze: handleAnalyze } = analysis;
   const boxRef = useRef<HTMLDivElement>(null);
-  const noteAt = useNotePlacement(boxRef, hasNote && noteOpen);
 
   return (
     <div
@@ -54,7 +73,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
       className={`${styles.systemBox} ${aiOffline ? styles.systemBoxDown : ''}`}
       data-tour="ai"
     >
-      <div className={styles.systemHeader}>
+      <div className={`${styles.systemHeader} ${report.header}`}>
         <button
           type="button"
           className={`${styles.systemIconBadge} ${aiOffline ? styles.systemIconError : ''} ${
@@ -110,121 +129,107 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
         )}
       </div>
 
+      {/* tarama da raporla aynı balonda akar: kutu ve altındaki sütun yerinden oynamaz */}
       {isAnalyzing && candidate && (
-        <AnalysisRun key={candidate.id} candidate={candidate} applications={days[currentDayIndex].applicationTarget} durationMs={ANALYZE_DURATION_MS} />
+        <div className={`${styles.noteBubble} ${report.bubble}`} aria-live="polite">
+          <AnalysisRun key={candidate.id} candidate={candidate} applications={days[currentDayIndex].applicationTarget} durationMs={ANALYZE_DURATION_MS} />
+        </div>
       )}
-      {hasNote && candidate && <ScoreDial key={candidate.id} candidate={candidate} reportOpen={noteOpen} onToggleReport={toggleNote} />}
+      {/* kutunun boyu her durumda aynı: altındaki sütun hiç kaymaz */}
+      {!aiOffline && candidate && (
+        <div className={report.statusSlot}>
+          {isAnalyzing ? (
+            <span>Dosya taranıyor…</span>
+          ) : hasNote ? (
+            <button className={report.reopenHint} onClick={toggleNote}>
+              {noteOpen ? 'Raporu kapat' : 'Analiz hazır · raporu aç'}
+            </button>
+          ) : (
+            <span>Puanı görmek kararını etkileyebilir. İstersen "Değerlendir" de; istemezsen dosyayı okuyarak karar ver.</span>
+          )}
+        </div>
+      )}
 
       {aiOffline && (
         <div className={styles.systemLine}>{itOutage ? 'IT arızası: sistem yaklaşık 1 saat devre dışı. Bu arada kararlar sende.' : 'Bugün algoritmik öneri yok — kararlar tamamen sende.'}</div>
       )}
 
-      {hasNote && noteOpen && candidate && noteAt &&
-        createPortal(
-        <div className={styles.noteBubble} style={noteAt.style} role="dialog" aria-label="Yapay zeka analiz notu">
-          <button type="button" className={styles.noteBubbleClose} onClick={closeNote} aria-label="Kapat">
-            ✕
-          </button>
-          <div className={styles.noteGrid}>
-          <div>
-          {(() => {
-            const ats = atsReport(candidate, days[currentDayIndex].applicationTarget);
-            return (
-              <>
-              <div className={styles.systemLine}>{systemLineWith(candidate, ats)}</div>
-              <div className={styles.ats}>
-                <div className={styles.atsHead}>
-                  <span>ATS ayrıştırma raporu</span>
-                  <span className="mono">
-                    Sıra #{ats.rank} / {ats.of}
-                  </span>
-                </div>
-                <div className={styles.atsRow}>
-                  <span>Ayrıştırma</span>
-                  <b className={ats.parsed < 8 ? styles.atsBad : undefined}>
-                    {ats.parsed}/8 alan · {ats.parseNote}
-                  </b>
-                </div>
-                <div className={styles.atsRow}>
-                  <span>Unvan</span>
-                  <b className={ats.titleMatch ? undefined : styles.atsBad}>
-                    "{ats.title}" {ats.titleMatch ? '· ilanla eşleşti' : '· ilan unvanıyla eşleşmedi'}
-                  </b>
-                </div>
-                <div className={styles.atsRow}>
-                  <span>
-                    Anahtar kelime {ats.matched.length}/{ats.matched.length + ats.missing.length}
-                  </span>
-                  <span className={styles.atsChips}>
-                    {ats.matched.map((k) => (
-                      <i key={k} className={styles.atsHit}>
-                        {k}
-                      </i>
-                    ))}
-                    {ats.missing.map((k) => (
-                      <i key={k} className={styles.atsMiss}>
-                        {k}
-                      </i>
-                    ))}
-                  </span>
-                </div>
-              </div>
-              </>
-            );
-          })()}
+      {/* rapor bir mesaj gibi kutunun altında, CV'nin üstünde açılır: sütunu itmez, büyütmez;
+          simgeye (ya da "raporu aç"a) basınca yeniden açılır */}
+      {hasNote && noteOpen && candidate && (
+        <div className={`${styles.noteBubble} ${report.bubble}`} role="dialog" aria-label="Yapay zeka analiz notu">
+          <div className={report.noteBubbleHead}>
+            <ScoreDial key={candidate.id} candidate={candidate} reportOpen={noteOpen} onToggleReport={toggleNote} />
+            <button className={report.noteClose} onClick={toggleNote} aria-label="Raporu kapat">
+              ×
+            </button>
           </div>
-          <div>
-          <ul className={styles.sectionNotes}>
-            {sectionNotes(candidate).map((n) => (
-              <li key={n.label} className={n.bad ? styles.noteBad : ''}>
-                <b>{n.bad ? '✕' : '✓'}</b> {n.label}
-                <span>{n.text}</span>
+          <div className={report.scoreHead}>Bölüm puanları · yüksekten düşüğe</div>
+          <ol className={report.scoreList}>
+            {sectionScores(candidate).map((r) => (
+              <li key={r.label} className={`${report[`band_${r.band}`]} ${r.bad ? report.flagged : ''}`}>
+                <span className={report.scoreLabel}>
+                  <b>{r.label}</b>
+                  <small>{r.text}</small>
+                </span>
+                <span className={report.scoreTrack} aria-hidden="true">
+                  <i style={{ width: `${r.score}%` }} />
+                </span>
+                <b className={`${report.scoreValue} mono`}>{r.score}</b>
+                <span className={report.scoreTag}>{BAND_NAME[r.band]}</span>
               </li>
             ))}
-          </ul>
-          {/* Modelin gizli gerekçesi: yalnızca bir analiz çalıştırıldıktan sonra ortaya çıkar */}
-          <div className={styles.internalNoteBox}>
-            <div className={styles.internalNoteText}>{candidate.internalNote}</div>
+          </ol>
+          <div className={`${styles.noteGrid} ${report.bubbleGrid}`}>
+            {(() => {
+              const ats = atsReport(candidate, days[currentDayIndex].applicationTarget);
+              return (
+                <div className={styles.ats}>
+                  <div className={styles.atsHead}>
+                    <span>ATS ayrıştırma raporu</span>
+                    <span className="mono">
+                      Sıra #{ats.rank} / {ats.of}
+                    </span>
+                  </div>
+                  <div className={styles.atsRow}>
+                    <span>Ayrıştırma</span>
+                    <b className={ats.parsed < 8 ? styles.atsBad : undefined}>
+                      {ats.parsed}/8 alan · {ats.parseNote}
+                    </b>
+                  </div>
+                  <div className={styles.atsRow}>
+                    <span>Unvan</span>
+                    <b className={ats.titleMatch ? undefined : styles.atsBad}>
+                      "{ats.title}" {ats.titleMatch ? '· ilanla eşleşti' : '· ilan unvanıyla eşleşmedi'}
+                    </b>
+                  </div>
+                  <div className={styles.atsRow}>
+                    <span>
+                      Anahtar kelime {ats.matched.length}/{ats.matched.length + ats.missing.length}
+                    </span>
+                    <span className={styles.atsChips}>
+                      {ats.matched.map((k) => (
+                        <i key={k} className={styles.atsHit}>
+                          {k}
+                        </i>
+                      ))}
+                      {ats.missing.map((k) => (
+                        <i key={k} className={styles.atsMiss}>
+                          {k}
+                        </i>
+                      ))}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+            {/* Modelin gizli gerekçesi: yalnızca bir analiz çalıştırıldıktan sonra ortaya çıkar */}
+            <div className={styles.internalNoteBox}>
+              <div className={styles.internalNoteText}>{candidate.internalNote}</div>
+            </div>
           </div>
-          </div>
-          </div>
-        </div>,
-          noteAt.host,
-        )}
+        </div>
+      )}
     </div>
   );
-}
-
-/**
- * Notun açıldığı yer: yapay zekâ kutusunun altında, onunla sağa hizalı, CV'nin üstünde geniş.
- * Kayan ve onu sütun genişliğine kırpacak olan sağ sütunun içinde değil portal alanında
- * (data-note-host) çizilir. Sütun kaydığında ya da alan boyut değiştirdiğinde kutuyu izler ve
- * alanın alt kenarında durur.
- */
-function useNotePlacement(boxRef: RefObject<HTMLDivElement | null>, open: boolean) {
-  const [at, setAt] = useState<{ host: HTMLElement; style: CSSProperties } | null>(null);
-  useLayoutEffect(() => {
-    const host = boxRef.current?.closest<HTMLElement>('[data-note-host]');
-    if (!open || !host) {
-      setAt(null);
-      return;
-    }
-    const place = () => {
-      const box = boxRef.current?.getBoundingClientRect();
-      const area = host.getBoundingClientRect();
-      if (!box) return;
-      const top = box.bottom - area.top + 10;
-      setAt({ host, style: { top, right: area.right - box.right, maxHeight: Math.max(160, area.height - top - 12) } });
-    };
-    place();
-    const ro = new ResizeObserver(place);
-    ro.observe(host);
-    // sağ sütunun kayması (capture: kaydırma olayları yukarı kabarcıklanmaz)
-    window.addEventListener('scroll', place, true);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('scroll', place, true);
-    };
-  }, [boxRef, open]);
-  return at;
 }

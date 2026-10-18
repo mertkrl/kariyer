@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGameStore } from '../game/store';
+import { useGameStore } from '../game/store/store';
 import { NEIGHBOUR_ID, candidateOf } from '../game/data/candidates';
-import { buildCall, type CallChoice, type CallLine } from '../game/weekend';
+import { buildCall, type CallChoice, type CallLine } from '../game/events/weekend';
 import { audioEngine } from '../audio/audioEngine';
 import { Button } from '../components/ui/Button';
 import { HomeScene } from './weekend/HomeScene';

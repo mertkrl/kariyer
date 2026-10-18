@@ -4,7 +4,7 @@
  *  - adayın sonda kendi sorusu; dürüstçe ya da cilalayarak cevaplarsın,
  *  - Hakan Bey'in listesinden bir soruyla araya girmesi.
  */
-import { FEMALE } from '../story';
+import { FEMALE } from '../day/story';
 import { NEPHEW_ID } from './candidates';
 
 /** Haftanın hikâyesinin kişileri (lineups.ts KEY_CAST ile aynı; döngüsel içe aktarmadan kaçınmak için burada). */
@@ -53,10 +53,10 @@ const FOLLOW_UP_ANSWERS: Record<Tier, [string, string][]> = {
   unsure: [
     [
       'Ekipçe yaptık aslında. Benim payım daha çok test tarafıydı… Ölçümü kim yaptı, tam emin değilim.',
-      '(kısa bir duraksama) Bir kısmında ben de vardım. Sonuçları yöneticimiz sunmuştu, detayını çok bilmiyorum.',
+      'Bir kısmında ben de vardım. Sonuçları yöneticimiz sunmuştu, detayını çok bilmiyorum.',
     ],
     [
-      'Daha dikkatli olurdum herhalde. (bir süre düşünüyor) O dönem çok yoğundu açıkçası.',
+      'Daha dikkatli olurdum herhalde. O dönem çok yoğundu açıkçası.',
       'Bilmiyorum, belki yine aynısını yapardım. Zaman baskısı olunca başka seçenek kalmıyor.',
     ],
     [

@@ -1,0 +1,53 @@
+/* ChatList bileşeninin kendi stilleri (Phone.module.css dosyasından ayrıldı). */
+/* Sohbet listesi */
+
+.chatList {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rowText strong {
+  font-size: calc(13.5px * var(--ts, 1));
+  color: #1b1917;
+}
+
+.rowText span {
+  font-size: calc(12px * var(--ts, 1));
+  color: #7b7466;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: calc(10.5px * var(--ts, 1));
+  color: #7b7466;
+}
+
+.rowBadge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #25d366;
+  color: #062b19;
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}

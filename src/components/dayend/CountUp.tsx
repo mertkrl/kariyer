@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
+import { prefersReducedMotion } from '../ui/motion';
 
-const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /** 0'dan `value`ya yavaşlayarak bir kez sayar; hareket azaltılmışsa hemen gösterir. */
 export function CountUp({ value, duration = 1200, format = (n: number) => n.toLocaleString('tr-TR') }: { value: number; duration?: number; format?: (n: number) => string }) {
   const [shown, setShown] = useState(0);
-  const still = reducedMotion();
+  const still = prefersReducedMotion();
   useEffect(() => {
     if (still) return;
     let raf = 0;

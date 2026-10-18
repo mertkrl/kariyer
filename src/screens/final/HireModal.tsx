@@ -1,10 +1,11 @@
 import type { Decision } from '../../game/types';
-import { SALARY_CAP, type Finalist } from '../../game/store';
+import { SALARY_CAP, type Finalist } from '../../game/store/store';
 import { candidateOf } from '../../game/data/candidates';
-import { INTERVIEWER, panelRows, panelVerdict } from '../../game/panel';
+import { INTERVIEWER, panelRows, panelVerdict } from '../../game/events/panel';
 import { Button } from '../../components/ui/Button';
 import { LEAD } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
+import own from './HireModal.module.css';
 import { avatarStyle } from '../../components/ui/avatarStyle';
 
 /*
@@ -17,6 +18,8 @@ export interface HireModalProps {
   pastRequests: { candidateId: string; want: Decision }[];
   /** Senin görüştüğün adaylara puan kartından verdiğin ortalama. */
   myScores: Record<string, number | null>;
+  /** Başkalarının görüşmelerinde odadaydın: verdiğin puanlar. */
+  sitIn: Record<string, number | null>;
   /** Yapılandırılmış mülakat: Hakan Bey'in uyum sütunu yok. */
   structured: boolean;
   agreed: Record<string, number | null>;
@@ -27,8 +30,8 @@ export interface HireModalProps {
 
 const fmt = (n: number | null) => (n === null ? '—' : n.toLocaleString('tr-TR', { maximumFractionDigits: 1, minimumFractionDigits: 1 }));
 
-export function HireModal({ pool, pastRequests, myScores, structured, agreed, onClose, onConfirm }: HireModalProps) {
-  const rows = panelRows(pool, pastRequests, myScores, agreed, structured).sort((a, b) => b.total - a.total);
+export function HireModal({ pool, pastRequests, myScores, sitIn, structured, agreed, onClose, onConfirm }: HireModalProps) {
+  const rows = panelRows(pool, pastRequests, myScores, agreed, structured, sitIn).sort((a, b) => b.total - a.total);
   const decided = panelVerdict(rows);
   const winner = candidateOf(decided);
   // senin önerin: kendi görüştüklerin arasında en yüksek puanı verdiğin (yoksa kurulun kararı)
@@ -36,14 +39,14 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
   const recommended = mine[0]?.id ?? decided;
   const yourPickLost = mine.length > 0 && recommended !== decided;
   return (
-    <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="panel-title">
-      <div className={`${styles.modal} ${styles.modalWide}`}>
+    <div className={own.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="panel-title">
+      <div className={`${own.modal} ${own.modalWide}`}>
         <h2 id="panel-title">Kurul · gün sonu değerlendirmesi</h2>
-        <p className={styles.panelBudget}>
-          Kurul: Hakan Kaya (İK Müdürü), {LEAD} (Yazılım Ekip Lideri), sen. Her aday üç puan alır; toplamı en yüksek ve bütçeye ({SALARY_CAP.toLocaleString('tr-TR')} TL/ay) sığan
+        <p className={own.panelBudget}>
+          Kurul: Hakan Kaya (İK Müdürü), {LEAD} (Yazılım Ekip Lideri), sen. Her aday görüşenin, Ümit'in ve Hakan Bey'in puanını alır; başkalarının görüşmelerinde senin puanın da eklenir. Ortalaması en yüksek ve bütçeye ({SALARY_CAP.toLocaleString('tr-TR')} TL/ay) sığan
           aday işe alınır.
         </p>
-        <div className={styles.compare}>
+        <div className={own.compare}>
           <table>
             <thead>
               <tr>
@@ -52,13 +55,14 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
                 <th>Görüşenin puanı</th>
                 <th>Teknik ({LEAD.split(' ')[0]})</th>
                 <th>Uyum (Hakan Bey)</th>
+                <th>Senin puanın</th>
                 <th>Toplam</th>
                 <th>Maaş</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id} className={r.id === decided ? styles.rowWinner : !r.affordable ? styles.rowOut : undefined}>
+                <tr key={r.id} className={r.id === decided ? own.rowWinner : !r.affordable ? own.rowOut : undefined}>
                   <td>
                     <span className={styles.avatar} style={avatarStyle(candidateOf(r.id).color)}>
                       {candidateOf(r.id).initials}
@@ -69,6 +73,7 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
                   <td className="mono">{fmt(r.interviewer)}</td>
                   <td className="mono">{fmt(r.tech)}</td>
                   <td className="mono">{r.owner === 'hakan' ? '(görüşen)' : fmt(r.hakan)}</td>
+                  <td className="mono">{r.owner === 'you' ? '(görüşen)' : fmt(r.you)}</td>
                   <td className="mono">
                     <b>{fmt(r.total)}</b>
                   </td>
@@ -78,11 +83,11 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
             </tbody>
           </table>
           {rows.some((r) => r.hakan === 2) && (
-            <p className={styles.compareGap}>⚠ Hakan Bey kadın adaylara ve 40 yaş üstüne "uzun vadeli uyum" gerekçesiyle düşük puan verdi. Bu sütun toplamın üçte biri.</p>
+            <p className={own.compareGap}>⚠ Hakan Bey kadın adaylara ve 40 yaş üstüne "uzun vadeli uyum" gerekçesiyle düşük puan verdi. Bu sütun toplamın üçte biri.</p>
           )}
         </div>
-        <div className={styles.panelVotes}>
-          <p className={styles.panelResult}>
+        <div className={own.panelVotes}>
+          <p className={own.panelResult}>
             <span className={`${styles.avatar} ${styles.avatarLarge}`} style={avatarStyle(winner.color)}>
               {winner.initials}
             </span>{' '}
@@ -91,7 +96,7 @@ export function HireModal({ pool, pastRequests, myScores, structured, agreed, on
           </p>
         </div>
         <p>Diğer adaylar için süreç burada biter. Bu karar geri alınamaz.</p>
-        <div className={styles.modalActions}>
+        <div className={own.modalActions}>
           <Button variant="ghost" onClick={onClose}>
             Görüşmelere dön
           </Button>

@@ -2,6 +2,7 @@ import { PhotoArt } from '../PhotoArt';
 import { Icon } from './SocialIcon';
 import { ME, type Note, type Post } from './socialTypes';
 import styles from '../SocialApp.module.css';
+import own from './SocialTabs.module.css';
 import { avatarStyle } from '../../../ui/avatarStyle';
 
 /*
@@ -25,19 +26,19 @@ export function ExploreTab({ posts, filter, onFilter, onOpen }: ExploreTabProps)
       <div className={styles.searchBar}>
         <Icon name="search" /> Ara
       </div>
-      <div className={styles.tagRow}>
+      <div className={own.tagRow}>
         {TAGS.map((t) => (
-          <button key={t} className={`${styles.tag} ${filter === t ? styles.tagOn : ''}`} onClick={() => onFilter(t)} aria-pressed={filter === t}>
+          <button key={t} className={`${own.tag} ${filter === t ? own.tagOn : ''}`} onClick={() => onFilter(t)} aria-pressed={filter === t}>
             {t === 'tümü' ? 'Tümü' : `#${t}`}
           </button>
         ))}
       </div>
-      <div className={styles.grid}>
+      <div className={own.grid}>
         {shown.map((p, i) =>
           p.photo ? (
-            <button key={p.id} className={`${styles.tile} ${i % 7 === 0 ? styles.tileBig : ''}`} onClick={() => onOpen(p.id)}>
+            <button key={p.id} className={`${own.tile} ${i % 7 === 0 ? own.tileBig : ''}`} onClick={() => onOpen(p.id)}>
               <PhotoArt kind={p.photo} className={styles.photoArt} />
-              <span className={styles.tileLikes}>♥ {p.likes}</span>
+              <span className={own.tileLikes}>♥ {p.likes}</span>
             </button>
           ) : null,
         )}
@@ -49,18 +50,18 @@ export function ExploreTab({ posts, filter, onFilter, onOpen }: ExploreTabProps)
 
 export function ActivityTab({ notes }: { notes: Note[] }) {
   return (
-    <div className={styles.activity}>
+    <div className={own.activity}>
       <h3>Bildirimler</h3>
       {notes.map((n) => (
-        <div key={n.id} className={`${styles.noteRow} ${n.unread ? styles.noteNew : ''}`}>
+        <div key={n.id} className={`${own.noteRow} ${n.unread ? own.noteNew : ''}`}>
           <span className={styles.avatar} style={avatarStyle(n.color)}>
             {n.who.slice(0, 2).toUpperCase()}
           </span>
-          <span className={styles.noteText}>
+          <span className={own.noteText}>
             <b>{n.who}</b> {n.text}
           </span>
           {n.photo ? (
-            <span className={styles.noteThumb}>
+            <span className={own.noteThumb}>
               <PhotoArt kind={n.photo} className={styles.photoArt} />
             </span>
           ) : null}
@@ -79,12 +80,12 @@ interface ProfileTabProps {
 
 export function ProfileTab({ savedPosts, followers, followingCount, onOpen }: ProfileTabProps) {
   return (
-    <div className={styles.profile}>
-      <div className={styles.profileTop}>
-        <span className={`${styles.avatar} ${styles.avatarBig}`} style={avatarStyle(ME.color)}>
+    <div className={own.profile}>
+      <div className={own.profileTop}>
+        <span className={`${styles.avatar} ${own.avatarBig}`} style={avatarStyle(ME.color)}>
           {ME.initials}
         </span>
-        <div className={styles.stats}>
+        <div className={own.stats}>
           <span>
             <b className="mono">{savedPosts.length}</b>kaydedilen
           </span>
@@ -99,18 +100,18 @@ export function ProfileTab({ savedPosts, followers, followingCount, onOpen }: Pr
           </span>
         </div>
       </div>
-      <div className={styles.bio}>
+      <div className={own.bio}>
         <strong>Sen</strong>
         <span>İnsan Kaynakları Uzmanı @ Tavrinsa Labs</span>
         <span>CV'leri gerçekten okuyan son insan 📄👀</span>
       </div>
-      <div className={styles.bioChips}>
+      <div className={own.bioChips}>
         <span>📍 Ataşehir</span>
         <span>☕ çaycı</span>
         <span>🤝 İK</span>
       </div>
-      <div className={styles.profileTabs}>
-        <span className={styles.profileTabOn}>🔖 Kaydedilenler</span>
+      <div className={own.profileTabs}>
+        <span className={own.profileTabOn}>🔖 Kaydedilenler</span>
       </div>
       {savedPosts.length === 0 ? (
         <div className={styles.emptyProfile}>
@@ -119,15 +120,15 @@ export function ProfileTab({ savedPosts, followers, followingCount, onOpen }: Pr
           <span>Beğendiğin gönderilerdeki 🔖 simgesine dokun.</span>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <div className={own.grid}>
           {savedPosts.map((p) =>
             p.photo ? (
-              <button key={p.id} className={styles.tile} onClick={() => onOpen(p.id)}>
+              <button key={p.id} className={own.tile} onClick={() => onOpen(p.id)}>
                 <PhotoArt kind={p.photo} className={styles.photoArt} />
-                <span className={styles.tileLikes}>♥ {p.likes}</span>
+                <span className={own.tileLikes}>♥ {p.likes}</span>
               </button>
             ) : (
-              <button key={p.id} className={`${styles.tile} ${styles.tileText}`} style={{ background: p.author.color }} onClick={() => onOpen(p.id)}>
+              <button key={p.id} className={`${own.tile} ${own.tileText}`} style={{ background: p.author.color }} onClick={() => onOpen(p.id)}>
                 {p.text.slice(0, 60)}…
               </button>
             ),

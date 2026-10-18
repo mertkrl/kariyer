@@ -3,19 +3,20 @@ import {
   GROUP_THREADS,
   TONE_STATUS,
   managerTone,
-  replyText,
   type ManagerRequest,
   type PhoneMessage,
   type ThreadId,
-} from '../../game/manager';
-import { formatClock } from '../../game/time';
-import { AppIcon, type IconId } from './AppIcons';
+} from '../../game/day/manager';
 import { PromotionGame } from './apps/PromotionGame';
 import type { SocialAuthor } from './apps/SocialApp';
 import type { DmCandidate } from './apps/candidateDms';
-import type { DmKind } from '../../game/store';
+import type { DmKind } from '../../game/store/store';
 import { useDialog } from '../ui/useDialog';
 import styles from './Phone.module.css';
+import { CONTACTS, sumUnread, type AppId } from './phoneShared';
+import { PhoneHome } from './PhoneHome';
+import { ChatList } from './ChatList';
+import { ChatThread } from './ChatThread';
 import { avatarStyle } from '../ui/avatarStyle';
 
 /*
@@ -31,35 +32,7 @@ const SocialApp = lazy(() => loadSocial().then((m) => ({ default: m.SocialApp })
 const TrafficApp = lazy(() => loadTraffic().then((m) => ({ default: m.TrafficApp })));
 
 type Screen = { kind: 'home' } | { kind: 'chats' } | { kind: 'chat'; thread: ThreadId } | { kind: 'app'; app: AppId };
-type AppId = 'terfi' | 'social' | 'traffic';
 
-interface Contact {
-  name: string;
-  avatar: string;
-  color: string;
-}
-
-const CONTACTS: Record<ThreadId, Contact> = {
-  manager: { name: 'Hakan Bey', avatar: 'HB', color: '#c9a227' },
-  mom: { name: 'Annem ❤️', avatar: '👩', color: '#e8b4a8' },
-  office: { name: 'Ofis Ekibi 🏢', avatar: '👥', color: '#7fa7c9' },
-  ayse: { name: 'Ayşe', avatar: 'A', color: '#6f8fa3' },
-  birthday: { name: 'Emre\'ye Sürpriz 🎂', avatar: '🎂', color: '#e0a458' },
-};
-
-/** Yalnızca biri içine yazınca görünen sohbetler. */
-const LATE_THREADS: ThreadId[] = ['ayse', 'birthday'];
-const sumUnread = (u: Record<ThreadId, number>) => Object.values(u).reduce((a, b) => a + b, 0);
-
-const APPS: { id: AppId | 'chats'; label: string }[] = [
-  { id: 'chats', label: 'Mesajlar' },
-  { id: 'terfi', label: 'Terfi' },
-  { id: 'social', label: 'Kariyergram' },
-  { id: 'traffic', label: 'Trafik' },
-];
-
-/** Ana ekranın altındaki dokta tutulan iki uygulama. */
-const DOCK: (AppId | 'chats')[] = ['chats', 'social'];
 
 /** Her ekranın durum çubuğunun arkasına koyduğu renk. */
 const STATUS_THEME: Record<AppId, StatusTheme> = { terfi: 'dark', social: 'light', traffic: 'light' };
@@ -93,18 +66,6 @@ interface PhoneProps {
   onToggleMute?: (thread: ThreadId) => void;
   /** Bu sohbette biri cevap yazıyor. */
   typing?: ThreadId | null;
-}
-
-const DAY_NAMES = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
-
-/** Bir mesaj; sohbet yeni bir güne geçince üstünde gün etiketiyle. */
-function MessageRow({ m, newDay, children }: { m: PhoneMessage; newDay: boolean; children: ReactNode }) {
-  return (
-    <>
-      {newDay && m.day !== undefined && <div className={styles.dayDivider}>{DAY_NAMES[m.day]}</div>}
-      {children}
-    </>
-  );
 }
 
 /** Sessiz anahtarı: bir zil, grup sessizdeyken üstü çizili. */
@@ -230,7 +191,6 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
   // Bir sohbeti okumak rozetini temizler; yeni mesajlar gelirken de temiz tut.
   useEffect(() => {
     if (thread && unread[thread] > 0) onRead(thread);
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
   }, [thread, unread, onRead, threadMessages.length]);
 
   const pending = thread === 'manager' ? requests.find((r) => r.answer === null) : undefined;
@@ -259,67 +219,12 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
 
   let body: ReactNode;
   if (screen.kind === 'home') {
-    const icon = (app: (typeof APPS)[number], inDock = false) => (
-      <button
-        key={app.id}
-        className={styles.appIcon}
-        onClick={() => setScreen(app.id === 'chats' ? { kind: 'chats' } : { kind: 'app', app: app.id })}
-        aria-label={app.label}
-      >
-        <span className={styles.appGlyph}>
-          <AppIcon id={app.id as IconId} />
-          {app.id === 'chats' && totalUnread > 0 && <span className={styles.appBadge}>{totalUnread}</span>}
-          {app.id === 'social' && dmPending > 0 && <span className={styles.appBadge}>{dmPending}</span>}
-        </span>
-        {!inDock && <span className={styles.appLabel}>{app.label}</span>}
-      </button>
-    );
-    body = (
-      <div className={styles.home}>
-        <div className={styles.widget}>
-          <span className={styles.widgetDay}>{props.dayName}</span>
-          <strong className={styles.widgetTime}>{clock}</strong>
-          <span className={styles.widgetNote}>Tavrinsa Labs · mesai 08:00–17:00</span>
-        </div>
-        <div className={styles.appGrid}>{APPS.filter((a) => !DOCK.includes(a.id)).map((a) => icon(a))}</div>
-        <div className={styles.pageDots} aria-hidden="true">
-          <i className={styles.pageDotOn} />
-          <i />
-        </div>
-        <div className={styles.dockBar}>{APPS.filter((a) => DOCK.includes(a.id)).map((a) => icon(a, true))}</div>
-      </div>
-    );
+    body = <PhoneHome dayName={props.dayName} clock={clock} totalUnread={totalUnread} dmPending={dmPending} onOpen={(id) => setScreen(id === 'chats' ? { kind: 'chats' } : { kind: 'app', app: id })} />;
   } else if (screen.kind === 'chats') {
     body = (
       <>
         {header('Mesajlar')}
-        <div className={styles.chatList}>
-          {(Object.keys(CONTACTS) as ThreadId[])
-            // Ayşe's private chat and the birthday group show up once someone has written
-            .filter((t) => !LATE_THREADS.includes(t) || messages.some((m) => m.thread === t))
-            .map((t) => {
-            const last = [...messages].reverse().find((m) => m.thread === t);
-            const c = CONTACTS[t];
-            return (
-              <button key={t} className={styles.chatRow} onClick={() => setScreen({ kind: 'chat', thread: t })}>
-                <span className={styles.rowAvatar} style={avatarStyle(c.color)}>
-                  {c.avatar}
-                </span>
-                <span className={styles.rowText}>
-                  <strong>
-                    {c.name} {t === 'manager' && <span title="Müdürün havası">{TONE_STATUS[tone].mood}</span>}
-                    {muted.includes(t) && <span title="Sessizde"> 🔕</span>}
-                  </strong>
-                  <span>{last ? `${last.from === 'me' ? 'Sen: ' : last.sender ? `${last.sender}: ` : ''}${last.text}` : 'Henüz mesaj yok'}</span>
-                </span>
-                <span className={styles.rowMeta}>
-                  {last && <span className="mono">{formatClock(last.at)}</span>}
-                  {unread[t] > 0 && <span className={styles.rowBadge}>{unread[t]}</span>}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <ChatList messages={messages} unread={unread} muted={muted} toneMood={TONE_STATUS[tone].mood} onOpen={(t) => setScreen({ kind: 'chat', thread: t })} />
       </>
     );
   } else if (screen.kind === 'chat') {
@@ -328,7 +233,10 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
       <>
         {header(
           c.name,
-          screen.thread === 'manager'
+          // karşı taraf yazarken başlık bunu söyler, tıpkı gerçek bir mesajlaşma uygulaması gibi
+          typing === screen.thread
+            ? 'yazıyor…'
+            : screen.thread === 'manager'
             ? `İK Müdürü · ${TONE_STATUS[tone].status}`
             : screen.thread === 'office'
               ? 'Ayşe, Emre, Selin, sen'
@@ -346,48 +254,17 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
             </button>
           ) : undefined,
         )}
-        <div className={styles.messages} ref={chatRef} aria-live="polite">
-          {threadMessages.length === 0 && <div className={styles.empty}>Mesaj yok. Şimdilik.</div>}
-          {threadMessages.map((m, i) => (
-            <MessageRow key={m.id} m={m} newDay={i === 0 || (threadMessages[i - 1].day ?? 0) !== (m.day ?? 0)}>
-            <div key={m.id} className={`${styles.bubble} ${m.from === 'me' ? `${styles.mine} ${styles.sent}` : styles.theirs}`}>
-              {m.sender && <span className={styles.sender}>{m.sender}</span>}
-              {m.text}
-              <span className={`${styles.time} mono`}>
-                {formatClock(m.at)}
-                {m.from === 'me' && <span className={styles.ticks}> ✓✓</span>}
-              </span>
-            </div>
-            </MessageRow>
-          ))}
-          {typing === thread && (
-            <div className={`${styles.bubble} ${styles.theirs} ${styles.typingBubble}`} aria-label="yazıyor">
-              <i />
-              <i />
-              <i />
-            </div>
-          )}
-        </div>
-        {quick && (
-          <div className={styles.replies}>
-            <span className={styles.replyHint}>{thread === 'manager' ? 'Müdür cevabını bekliyor' : 'Cevap vermek sana kalmış'}</span>
-            {quick.replies!.map((r, i) => (
-              <button key={r.text} className={`${styles.replyComply} ${styles.replyChip}`} style={{ animationDelay: `${i * 70}ms` }} onClick={() => onQuickReply(quick.id, i)}>
-                {r.text}
-              </button>
-            ))}
-          </div>
-        )}
-        {pending && (
-          <div className={styles.replies}>
-            <button className={styles.replyComply} onClick={() => onAnswer(pending.id, 'comply')}>
-              {replyText('comply', stance)}
-            </button>
-            <button className={styles.replyRefuse} onClick={() => onAnswer(pending.id, 'refuse')}>
-              {replyText('refuse', stance)}
-            </button>
-          </div>
-        )}
+        <ChatThread
+          ref={chatRef}
+          thread={screen.thread}
+          messages={threadMessages}
+          typing={typing === thread}
+          quick={quick}
+          pending={pending}
+          stance={stance}
+          onQuickReply={onQuickReply}
+          onAnswer={onAnswer}
+        />
       </>
     );
   } else {
@@ -412,7 +289,12 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
         <div className={`${styles.display} ${screen.kind === 'home' ? styles.displayHome : ''}`}>
           <div className={styles.notch} />
           <StatusBar clock={clock} theme={screen.kind === 'home' ? 'wallpaper' : screen.kind === 'app' ? STATUS_THEME[screen.app] : 'chat'} />
-          <div className={styles.screen}>{body}</div>
+          <div className={styles.screen}>
+            {/* her ekran değişiminde içerik aynı kısa geçişle gelir */}
+            <div key={screen.kind === 'chat' ? `chat-${screen.thread}` : screen.kind === 'app' ? `app-${screen.app}` : screen.kind} className={styles.screenBody}>
+              {body}
+            </div>
+          </div>
           <button
             className={styles.homeBar}
             onClick={() => (screen.kind === 'home' ? onClose() : setScreen({ kind: 'home' }))}
@@ -420,7 +302,6 @@ export function PhoneOverlay(props: PhoneProps & { onClose: () => void; thread?:
           />
         </div>
       </div>
-      <div className={styles.overlayHint}>Alttaki çizgi: ana ekran</div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { rngFor } from '../src/game/rng';
+import { rngFor } from '../src/game/lib/rng';
 
 const draw = (r: () => number, n: number) => Array.from({ length: n }, r);
 

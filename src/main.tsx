@@ -4,13 +4,13 @@ import './styles/fonts.css'
 import './styles/global.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
-import { applyTextScale, loadTextScale } from './game/textScale'
+import { applyTextScale, loadTextScale } from './game/lib/textScale'
 import { audioEngine } from './audio/audioEngine'
-import { connectSound } from './game/sound'
+import { connectSound } from './game/lib/sound'
 import { registerServiceWorker } from './swUpdate'
-import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/prefs'
+import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/lib/prefs'
 
-applyTextScale(loadTextScale())
+applyTextScale(loadTextScale(), false)
 
 // Ses motoru, ilk tık sesinden önce kayıtlı sessiz modunu ve ses seviyelerini bilmeli.
 audioEngine.setMuted(readStoredMuted())

@@ -3,11 +3,11 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ownerOf, panelRows, panelVerdict, hakanScore } from '../src/game/panel';
-import { MIN_WAGE, salaryOffer, salaryMoves } from '../src/game/interview';
-import { managerTone, RAPPORT_START } from '../src/game/manager';
+import { ownerOf, panelRows, panelVerdict, hakanScore } from '../src/game/events/panel';
+import { MIN_WAGE, salaryOffer, salaryMoves } from '../src/game/events/interview';
+import { managerTone, RAPPORT_START } from '../src/game/day/manager';
 import { AMBIENT } from '../src/game/data/phoneScript';
-import type { Finalist } from '../src/game/storeTypes';
+import type { Finalist } from '../src/game/store/storeTypes';
 
 test('kurul: herkes kendi adayıyla görüşür', () => {
   assert.equal(ownerOf({ id: 'nehir', day: 0, by: 'ayse' }, []), 'ayse');
@@ -61,4 +61,14 @@ test('ilk gün: grupta önce teşekkür edilir', () => {
   assert.ok(gate[0].replies?.every((r) => /teşekkür/i.test(r.text)));
   // karşılamadan önce cevap beklenen başka bir grup mesajı yok
   assert.ok(monday.filter((a) => a.replies && a.at < gate[0].at).length === 0);
+});
+
+test('başkasının görüşmesinde verdiğin puan kurulda o adayın ortalamasına girer; kendi görüşmende ayrı sayılmaz', () => {
+  const pool = [{ id: 'cagan', day: 0, by: 'emre' as const }, { id: 'kerem', day: 4 }];
+  const without = panelRows(pool, [], { kerem: 4 }, {});
+  const withLow = panelRows(pool, [], { kerem: 4 }, {}, false, { cagan: 1, kerem: 5 });
+  assert.equal(withLow[0].you, 1);
+  assert.ok(withLow[0].total < without[0].total);
+  assert.equal(withLow[1].you, null);
+  assert.equal(withLow[1].total, without[1].total);
 });

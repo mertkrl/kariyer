@@ -4,14 +4,14 @@
  * cümleleri ve mülakat kaydının biçimi. Ekran (FinalRoundScreen) ve bu klasördeki parçaları
  * bunları paylaşır.
  */
-import type { Finalist } from '../../game/store';
+import type { Finalist } from '../../game/store/store';
 import { NEPHEW_ID } from '../../game/data/candidates';
-import type { SalaryMove } from '../../game/interview';
+import type { SalaryMove } from '../../game/events/interview';
 
 /** Bütün hafta kimse ilerletilmediyse yönetim finali kendi iç referansıyla doldurur. */
 export const FALLBACK: Finalist[] = [{ id: NEPHEW_ID, day: 0 }];
 /** Bir mülakat gününün kaç kişi aldığı; daha uzun bir liste sabah kısaltılır. */
-export const INTERVIEW_LIMIT = 6;
+export const INTERVIEW_LIMIT = 3;
 
 /** Ekibin geri kalanı da eleme yaptı: kısa listeleri Cuma aynı odada oturur. */
 export const COLLEAGUES: Finalist[] = [
@@ -53,6 +53,8 @@ export const THINKING_MS = 900;
 export const FOLLOW = 10;
 /** Ümit'in teknik sorusu: kısa bir kod vakası. */
 export const CASE = 20;
+/** Senin ek sorun: test puanı ve cevap kâğıdı (hakkından düşmez, odada bir kez). */
+export const TEST = 30;
 export const SALARY_LINES: Record<SalaryMove, (offer: number) => string> = {
   match: () => 'Beklentiniz bütçemize uygun; bu rakamla ilerleyebiliriz.',
   pass: () => 'Beklentinizi not aldım; kurulda olduğu gibi değerlendireceğiz.',

@@ -1,4 +1,4 @@
-import { useGameStore } from '../../game/store';
+import { useGameStore } from '../../game/store/store';
 import { SpeakerIcon, SpeakerMuteIcon } from './ControlIcons';
 import styles from './SoundToggle.module.css';
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cancelLater, later } from '../src/game/later';
-import { useGameStore } from '../src/game/store';
+import { cancelLater, later } from '../src/game/lib/later';
+import { useGameStore } from '../src/game/store/store';
 
 test('yeni hafta, eski haftanın bekleyen olaylarını iptal eder', async () => {
   let fired = 0;

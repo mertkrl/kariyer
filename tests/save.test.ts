@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SAVE_VERSION, checkSave, clearSave, readSave, saveWasLost, writeSave } from '../src/game/save';
-import { loadSave, useGameStore } from '../src/game/store';
-import type { GameState } from '../src/game/storeTypes';
+import { SAVE_VERSION, checkSave, clearSave, readSave, saveWasLost, writeSave } from '../src/game/store/save';
+import { loadSave, useGameStore } from '../src/game/store/store';
+import type { GameState } from '../src/game/store/storeTypes';
 
 const KEY = 'kariyerweb-save';
 const state = () => useGameStore.getState();

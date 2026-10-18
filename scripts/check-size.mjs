@@ -8,6 +8,8 @@ import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
 const BUDGET_KB = 90;
+// oyunun çekirdeği (store, kurallar, aday verisi) ilk ekranın arkasından iner; yine de sınırsız büyümesin
+const CORE_BUDGET_KB = 95;
 const dist = 'dist';
 const kb = (bytes) => Math.round(bytes / 102.4) / 10;
 const gz = (path) => gzipSync(readFileSync(path)).length;
@@ -23,6 +25,17 @@ console.log(`İlk açılış (gzip): ${kb(initialBytes)} KB / bütçe ${BUDGET_K
 for (const f of initial) console.log(`  ${f}  ${kb(gz(join(dist, f)))} KB`);
 console.log('En büyük parçalar:');
 for (const { f, size } of rest.slice(0, 5)) console.log(`  ${f}  ${kb(size)} KB`);
+
+const core = rest.find(({ f }) => /^store-.*\.js$/.test(f));
+if (!core) {
+  console.error('Oyun çekirdeği (store-*.js) bulunamadı: storeLoader.ts hâlâ ayrı bir parça mı yüklüyor?');
+  process.exit(1);
+}
+console.log(`Oyun çekirdeği (gzip): ${kb(core.size)} KB / bütçe ${CORE_BUDGET_KB} KB`);
+if (core.size > CORE_BUDGET_KB * 1024) {
+  console.error(`Çekirdek bütçesi aşıldı: ${kb(core.size)} KB > ${CORE_BUDGET_KB} KB`);
+  process.exit(1);
+}
 
 if (initialBytes > BUDGET_KB * 1024) {
   console.error(`Bütçe aşıldı: ${kb(initialBytes)} KB > ${BUDGET_KB} KB`);

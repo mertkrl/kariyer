@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getEnding, type EndingContext } from '../src/game/engine/ending';
-import type { OfferOutcome } from '../src/game/offer';
+import type { OfferOutcome } from '../src/game/events/offer';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../src/game/engine/achievements';
 
 const ctx = (over: Partial<EndingContext> = {}): EndingContext => ({ refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal', ...over });
@@ -48,7 +48,7 @@ test('bütün puan aralığında bir son vardır', () => {
 
 const input = (over: Partial<AchievementInput> = {}): AchievementInput => ({
   performans: 50, vicdan: 50, aiUses: 1, refusals: 1, complies: 0, undecided: 1, reviewed: 10, avgSeconds: 30, hireFit: 3,
-  momMessages: 2, momAnswered: 0, difficulty: 'normal', weekendChoice: null, finalists: 5, events: 0, dmHonest: 0, ...over,
+  momMessages: 2, momAnswered: 0, difficulty: 'normal', weekendChoice: null, finalists: 5, events: 0, dmHonest: 0, tested: 0, invitedBelowStrong: 0, selfScore: null, cutoff: 70, ...over,
 });
 
 test('başarım kimlikleri benzersiz', () => {

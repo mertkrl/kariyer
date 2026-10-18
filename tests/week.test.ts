@@ -4,10 +4,10 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { minutesPerTick, useGameStore } from '../src/game/store';
-import { FINALIST_LIMIT } from '../src/game/data/days';
+import { minutesPerTick, useGameStore } from '../src/game/store/store';
+import { INVITE_LIMIT } from '../src/game/data/days';
 import { playWeek, type BotStyle, type Run } from './support/bot';
-import { rngFor } from '../src/game/rng';
+import { rngFor } from '../src/game/lib/rng';
 
 const store = useGameStore;
 
@@ -28,7 +28,7 @@ for (const style of ['approve', 'reject', 'mixed'] as const) {
     assert.ok(run.scoresSeen.every((v) => v >= 0 && v <= 100), 'puan 0–100 dışına çıktı');
     assert.equal(new Set(run.finalists).size, run.finalists.length, 'aynı finalist iki kez');
     const byPlayer = store.getState().finalists.filter((f) => !f.byManager).length;
-    assert.ok(byPlayer <= FINALIST_LIMIT, `kontenjan aşıldı: ${byPlayer}`);
+    assert.ok(byPlayer <= INVITE_LIMIT, `kontenjan aşıldı: ${byPlayer}`);
   });
 }
 
@@ -62,7 +62,7 @@ test('onaylayan ve reddeden oyuncu farklı yerlere varır', () => {
 
 
 test('gerçek bir haftanın gün başı kaydı eksiksiz geri yüklenir', async () => {
-  const { loadSave } = await import('../src/game/store');
+  const { loadSave } = await import('../src/game/store/store');
   playStyle(31, 'mixed');
   const save = loadSave();
   assert.ok(save, 'son gün başı kaydı geçersiz sayıldı');

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { audioEngine } from '../../../audio/audioEngine';
 import { DmInbox } from './DmInbox';
 import type { DmCandidate } from './candidateDms';
-import type { DmKind } from '../../../game/store';
+import type { DmKind } from '../../../game/store/store';
 import { SOCIAL_DAYS } from './socialContent';
 import { Icon } from './social/SocialIcon';
 import { SocialPost } from './social/SocialPost';

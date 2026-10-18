@@ -7,8 +7,8 @@ import { candidateDetails } from '../src/game/data/candidateDetails';
 import { EXTRA_CANDIDATES, EXTRA_FEMALE } from '../src/game/data/extraCandidates';
 import { days } from '../src/game/data/days';
 import { REQUESTS } from '../src/game/data/phoneScript';
-import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/game/lineups';
-import { rngFor } from '../src/game/rng';
+import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/game/day/lineups';
+import { rngFor } from '../src/game/lib/rng';
 import { jobDrafts, salaryText } from '../src/game/data/jobs';
 
 /** Her kararın sistem satırını açtığı etiket. Puanlama `verdict`i okur; oyuncular satırı okur. */
@@ -35,7 +35,7 @@ test('hikâye rolleri verideki adaylara bağlı', () => {
 test('oyun mantığı Math.random kullanmaz (rng.ts dışında)', () => {
   const root = new URL('../src/game', import.meta.url).pathname;
   const offenders = readdirSync(root, { recursive: true, encoding: 'utf8' })
-    .filter((f) => /\.tsx?$/.test(f) && f !== 'rng.ts')
+    .filter((f) => /\.tsx?$/.test(f) && f !== 'lib/rng.ts')
     .filter((f) => /Math\.random\s*\(/.test(readFileSync(join(root, f), 'utf8')));
   assert.deepEqual(offenders, []);
 });
@@ -78,7 +78,7 @@ test('karışık kadro aynı adayları dağıtır, hikâye karakterleri kendi g�
 });
 
 test('yapay zekâ puanı 0–100 arasında, sabit ve sistemin önerisiyle aynı sırada', async () => {
-  const { aiScore } = await import('../src/game/ats');
+  const { aiScore } = await import('../src/game/day/ats');
   const order = ['out', 'low', 'review', 'priority'];
   const byVerdict = new Map<string, number[]>();
   for (const c of Object.values(candidates)) {

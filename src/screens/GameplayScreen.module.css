@@ -62,44 +62,11 @@
   gap: 16px;
 }
 
-.ruleNote {
-  background: #f6e27a;
-  padding: 18px;
-  border-radius: 2px;
-  box-shadow: 3px 4px 0 rgba(34, 31, 27, 0.15);
-  transform: rotate(-2deg);
-}
-
-.ruleLabel {
-  font-size: calc(11px * var(--ts, 1));
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #6b5a00;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.ruleText {
-  font-family: var(--font-display);
-  font-size: calc(16px * var(--ts, 1));
-  line-height: 1.35;
-  color: var(--ink);
-}
-
 .queueBox {
   background: var(--paper-dim);
   padding: 16px;
   border-radius: 8px;
   border: 1px solid var(--border-muted);
-}
-
-.queueLabel {
-  font-size: calc(11px * var(--ts, 1));
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  font-weight: 600;
-  margin-bottom: 10px;
 }
 
 .queueList {
@@ -127,63 +94,6 @@
   cursor: not-allowed;
 }
 
-.queueItemSelected {
-  border-color: var(--ink);
-}
-
-/* Karar verilen adaylar bir bakışta okunur: yeşil = mülakata çağrıldı, kırmızı = reddedildi. */
-.queueApproved {
-  background: rgba(63, 107, 99, 0.16);
-  border-color: rgba(63, 107, 99, 0.55);
-  box-shadow: inset 3px 0 0 var(--teal);
-}
-
-.queueRejected {
-  background: rgba(168, 64, 47, 0.12);
-  border-color: rgba(168, 64, 47, 0.5);
-  box-shadow: inset 3px 0 0 var(--red);
-}
-
-.queueRejected .queueName {
-  /* --red'den koyu bir kırmızı: üstü çizili isim renkli satırda yine 5:1 okunur */
-  color: #8a3324;
-  text-decoration: line-through;
-  text-decoration-color: rgba(168, 64, 47, 0.45);
-}
-
-.queueApproved .queueName {
-  color: var(--teal);
-  font-weight: 700;
-}
-
-.queueApproved.queueItemSelected,
-.queueRejected.queueItemSelected {
-  border-width: 2px;
-}
-
-.queueAvatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.queueName {
-  font-size: calc(13px * var(--ts, 1));
-  font-weight: 500;
-  flex-grow: 1;
-}
-
-.queueTime {
-  font-size: calc(11px * var(--ts, 1));
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.queueRead {
-  color: var(--teal);
-}
-
 .candidateCard {
   /* Taban 0: kart, metin genişliği yerine yan sütunlardan kalan alanı alır. */
   flex: 1 1 0;
@@ -198,111 +108,6 @@
   gap: 18px;
   position: relative;
   overflow: hidden;
-}
-
-.candidateCardScanning {
-  box-shadow: 0 0 0 2px var(--blue), 0 8px 28px rgba(76, 127, 176, 0.35);
-}
-
-.scanOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  pointer-events: none;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.scanLine {
-  /* perde değil bir okuma kafası: üstünde kısa bir parıltı kalan ince parlak bir çizgi */
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(143, 208, 255, 0.95) 12%, #d8f1ff 50%, rgba(143, 208, 255, 0.95) 88%, transparent);
-  box-shadow: 0 0 10px 1px rgba(143, 208, 255, 0.75), 0 -28px 36px -10px rgba(76, 127, 176, 0.28);
-  animation: scanSweep 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-
-@keyframes scanSweep {
-  0% {
-    top: -90px;
-  }
-  100% {
-    top: 100%;
-  }
-}
-
-.scanCorner {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  border: 2.5px solid var(--blue);
-  opacity: 0.85;
-  filter: drop-shadow(0 0 4px rgba(76, 127, 176, 0.6));
-}
-
-.scanCornerTL {
-  top: 10px;
-  left: 10px;
-  border-right: none;
-  border-bottom: none;
-  border-radius: 4px 0 0 0;
-}
-
-.scanCornerTR {
-  top: 10px;
-  right: 10px;
-  border-left: none;
-  border-bottom: none;
-  border-radius: 0 4px 0 0;
-}
-
-.scanCornerBL {
-  bottom: 10px;
-  left: 10px;
-  border-right: none;
-  border-top: none;
-  border-radius: 0 0 0 4px;
-}
-
-.scanCornerBR {
-  bottom: 10px;
-  right: 10px;
-  border-left: none;
-  border-top: none;
-  border-radius: 0 0 4px 0;
-}
-
-.scanReadout {
-  position: absolute;
-  top: 14px;
-  right: 42px;
-  font-family: var(--font-mono);
-  font-size: calc(10px * var(--ts, 1));
-  letter-spacing: 1.5px;
-  font-weight: 700;
-  color: var(--blue);
-  background: rgba(76, 127, 176, 0.12);
-  padding: 4px 10px;
-  border-radius: 4px;
-  animation: scanReadoutBlink 1s ease-in-out infinite;
-}
-
-@keyframes scanReadoutBlink {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.emptyState {
-  margin: auto;
-  color: var(--text-dim);
-  font-size: calc(14px * var(--ts, 1));
 }
 
 .avatar {
@@ -331,203 +136,8 @@
   margin-top: 4px;
 }
 
-.verdictIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 19px;
-  height: 19px;
-  border-radius: 50%;
-  animation: verdictPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-.verdictGlyph {
-  width: 11px;
-  height: 11px;
-}
-
-.verdictGood {
-  background: rgba(111, 163, 122, 0.18);
-  color: var(--green);
-}
-
-.verdictBad {
-  background: rgba(168, 64, 47, 0.16);
-  color: var(--red);
-}
-
-@keyframes verdictPop {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.internalNoteBox {
-  background: #221f1b;
-  border: 1px dashed var(--red);
-  border-radius: 8px;
-  padding: 10px 12px;
-  animation: barIn 0.3s ease 0.15s both;
-}
-
-.internalNoteText {
-  font-size: calc(12px * var(--ts, 1));
-  line-height: 1.5;
-  color: #c9c2af;
-  font-family: var(--font-mono);
-}
-
 .grow {
   flex-grow: 1;
-}
-
-.actionBar {
-  display: flex;
-  gap: 12px;
-}
-
-.actionBar > button {
-  flex: 1;
-}
-
-
-.systemBoxDown {
-  border: 1px dashed var(--red);
-}
-
-.systemIconBadge {
-  position: relative;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201, 162, 39, 0.18), transparent 72%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.systemIconBadge::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid rgba(201, 162, 39, 0.35);
-}
-
-.systemIconGlyph {
-  width: 24px;
-  height: 24px;
-  color: var(--gold);
-  filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.5));
-  animation: systemIconIdle 2.6s ease-in-out infinite;
-}
-
-@keyframes systemIconIdle {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.06);
-  }
-}
-
-.systemIconScanning {
-  background: radial-gradient(circle, rgba(76, 127, 176, 0.22), transparent 72%);
-}
-
-.systemIconScanning::before {
-  border-color: rgba(76, 127, 176, 0.45);
-}
-
-.systemIconScanning .systemIconGlyph {
-  color: var(--blue);
-  filter: drop-shadow(0 0 8px rgba(76, 127, 176, 0.7));
-  animation: systemIconPulse 0.6s ease-in-out infinite;
-}
-
-@keyframes systemIconPulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.16);
-  }
-}
-
-.systemScanRing {
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  border-top-color: var(--blue);
-  border-right-color: var(--blue);
-  animation: spin 0.85s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.systemIconError {
-  background: radial-gradient(circle, rgba(168, 64, 47, 0.2), transparent 72%);
-}
-
-.systemIconError::before {
-  border-color: rgba(168, 64, 47, 0.45);
-}
-
-.systemIconError .systemIconGlyph {
-  color: var(--red);
-  opacity: 0.55;
-  filter: drop-shadow(0 0 6px rgba(168, 64, 47, 0.6));
-  animation: none;
-}
-
-.systemIconSlash {
-  position: absolute;
-  width: 28px;
-  height: 2px;
-  background: var(--red);
-  border-radius: 2px;
-  transform: rotate(45deg);
-  box-shadow: 0 0 5px rgba(168, 64, 47, 0.7);
-}
-
-.analyzingDots {
-  display: inline-flex;
-  gap: 3px;
-}
-
-.analyzingDots span {
-  animation: analyzeBlink 1s ease-in-out infinite;
-}
-
-.analyzingDots span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.analyzingDots span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes analyzeBlink {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 1;
-  }
 }
 
 /* ── Karar damgası (küçük, CV'nin sağ üstünde) ── */
@@ -548,14 +158,6 @@
   background: rgba(251, 248, 240, 0.9);
   transform: rotate(-8deg);
   animation: stampDown 0.32s cubic-bezier(0.3, 1.5, 0.5, 1) both;
-}
-
-.stampApprove {
-  color: var(--teal);
-}
-
-.stampReject {
-  color: var(--red);
 }
 
 @keyframes stampDown {
@@ -589,102 +191,6 @@
   }
 }
 
-.decisionBarApprove {
-  background: rgba(63, 107, 99, 0.08);
-  border-color: rgba(63, 107, 99, 0.3);
-}
-
-.decisionBarReject {
-  background: rgba(168, 64, 47, 0.06);
-  border-color: rgba(168, 64, 47, 0.28);
-}
-
-.decisionInfo {
-  flex: 1;
-  min-width: 160px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.decisionTitle {
-  font-family: var(--font-display);
-  font-size: calc(16px * var(--ts, 1));
-  font-weight: 700;
-}
-
-.decisionBarApprove .decisionTitle {
-  color: var(--teal);
-}
-
-.decisionBarReject .decisionTitle {
-  color: var(--red);
-}
-
-.decisionMeta {
-  font-size: calc(11px * var(--ts, 1));
-  color: var(--text-dim);
-}
-
-/* puanların neden oynadığı: kararın tek satırlık gerekçesi ve etkisi */
-.decisionWhy {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
-  font-size: calc(12.5px * var(--ts, 1));
-  line-height: 1.35;
-  color: var(--ink);
-}
-
-.effectChip {
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-size: calc(11px * var(--ts, 1));
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.effectUp {
-  background: rgba(63, 107, 99, 0.14);
-  color: #2f5a52;
-}
-
-.effectDown {
-  background: rgba(168, 64, 47, 0.12);
-  color: #8f3527;
-}
-
-.undoButton,
-.nextButton {
-  border-radius: 9px;
-  padding: 10px 14px;
-  font-size: calc(13px * var(--ts, 1));
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.undoButton {
-  background: var(--paper-light);
-  border: 1px solid var(--border-muted);
-  color: var(--ink);
-}
-
-.undoButton:hover {
-  background: var(--paper-dim);
-}
-
-.nextButton {
-  background: var(--ink);
-  border: 1px solid var(--ink);
-  color: var(--paper-muted);
-}
-
-.nextButton:hover {
-  transform: translateX(2px);
-}
-
 /* ── Sağ panel: saat hiç kımıldamasın diye sabit yükseklikte sütun ── */
 
 .rightPanel {
@@ -706,122 +212,12 @@
   min-height: 250px;
 }
 
-/* ── Küçük yapay zekâ paneli ── */
-
-.systemBox {
-  /* Etkinlik panelinden önce küçülür (ve kayar), böylece günün özeti okunur kalır. */
-  flex: 0 1 auto;
-  min-height: 60px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  background: var(--paper-light);
-  border: 1px solid var(--border-muted);
-  border-radius: 14px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.systemHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.systemText {
-  flex: 1;
-  min-width: 0;
-}
-
-.systemTitle {
-  font-size: calc(12.5px * var(--ts, 1));
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.systemSub {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: calc(11px * var(--ts, 1));
-  color: var(--text-dim);
-}
-
-.statusDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-muted);
-}
-
-.statusBusy {
-  background: var(--blue);
-  animation: analyzeBlink 0.8s ease-in-out infinite;
-}
-
-.statusDone {
-  background: var(--teal);
-}
-
-.statusDown {
-  background: var(--red);
-}
-
-.systemLine {
-  background: var(--paper-muted);
-  border-radius: 8px;
-  padding: 9px 10px;
-  font-size: calc(12.5px * var(--ts, 1));
-  line-height: 1.45;
-  color: #3a362f;
-  animation: barIn 0.25s ease both;
-}
-
-.analyzeButton {
-  flex-shrink: 0;
-  background: transparent;
-  color: var(--blue-ink);
-  border: 1px solid rgba(76, 127, 176, 0.45);
-  border-radius: 999px;
-  padding: 5px 11px;
-  font-size: calc(12px * var(--ts, 1));
-  font-weight: 700;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-  min-width: 40px;
-}
-
-.analyzeButton:hover:not(:disabled) {
-  background: var(--blue-ink);
-  color: var(--paper-light);
-}
-
-.analyzeButton:disabled {
-  cursor: default;
-}
-
 /* ── Karar düğmelerinin üstündeki kontenjan satırı ── */
 
 .actionArea {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.quotaLine {
-  font-size: calc(12.5px * var(--ts, 1));
-  color: var(--text-dim);
-}
-
-.quotaLine strong {
-  color: var(--ink);
-}
-
-.quotaFull {
-  color: var(--red);
-  font-weight: 600;
 }
 
 /* ── Ayrıntılı CV ── */
@@ -845,98 +241,6 @@
   gap: 3px;
 }
 
-/* ── Zor mod olayları ── */
-
-.powerOut {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: rgba(4, 4, 6, 0.9);
-  color: #e8e2d2;
-  text-align: center;
-  padding: 24px;
-  animation: powerFlicker 1.6s steps(1) both;
-}
-
-@keyframes powerFlicker {
-  0% {
-    background: rgba(4, 4, 6, 0.95);
-  }
-  8% {
-    background: rgba(4, 4, 6, 0.4);
-  }
-  14% {
-    background: rgba(4, 4, 6, 0.95);
-  }
-  20% {
-    background: rgba(4, 4, 6, 0.6);
-  }
-  26%,
-  100% {
-    background: rgba(4, 4, 6, 0.9);
-  }
-}
-
-.powerOutTitle {
-  font-family: var(--font-display);
-  font-size: calc(34px * var(--ts, 1));
-  font-weight: 800;
-  color: #f2c94c;
-  text-shadow: 0 0 24px rgba(242, 201, 76, 0.5);
-}
-
-.powerOutText {
-  max-width: 440px;
-  font-size: calc(15px * var(--ts, 1));
-  line-height: 1.5;
-  color: #b8b0a0;
-}
-
-.eventToast {
-  position: fixed;
-  top: 96px;
-  left: 50%;
-  z-index: 70;
-  max-width: min(560px, calc(100vw - 32px));
-  padding: 12px 18px;
-  border-radius: 14px;
-  background: #2a1d1a;
-  border: 1px solid #c8543f;
-  color: #f6e8e2;
-  font-size: calc(14px * var(--ts, 1));
-  font-weight: 600;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  transform: translateX(-50%);
-  animation: eventToast 6s ease both;
-  pointer-events: none;
-}
-
-@keyframes eventToast {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -12px);
-  }
-  6%,
-  85% {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -6px);
-  }
-}
-
-.eventCalm {
-  background: #1d2a33;
-  border-color: #4c7fb0;
-}
-
 /* penceresinin içindeki portal: her şey sığar, yalnızca uzun listeler kendi kutularında kayar */
 .portalArea {
   /* yapay zekâ notu burada, CV'nin üstünde açılır (AiPanel: useNotePlacement) */
@@ -950,17 +254,9 @@
 }
 
 .portalArea .sidebar {
-  width: 210px;
+  width: 250px;
   min-height: 0;
   gap: 10px;
-}
-
-.portalArea .ruleNote {
-  padding: 10px 12px;
-}
-
-.portalArea .ruleText {
-  font-size: calc(14px * var(--ts, 1));
 }
 
 .portalArea .queueBox {
@@ -975,11 +271,15 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  gap: 5px;
+  gap: 4px;
 }
 
+/* Satırlar sütunun yüksekliğini paylaşır: kuyruk kaydırmadan sığar, alan varsa ferahlar. */
 .portalArea .queueItem {
-  padding: 5px 8px;
+  flex: 1 1 0;
+  min-height: 30px;
+  max-height: 46px;
+  padding: 4px 10px;
 }
 
 .portalArea .candidateCard {
@@ -1003,215 +303,41 @@
   gap: 10px;
 }
 
-/* sabit hattan referans kontrolü */
-.referenceRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* portalda yapay zekâ paneli sütunun çoğunu alır; günün temposu altta kendi boyunda durur */
+.portalArea .rightPanel > :first-child {
+  flex: 1 1 0;
+  min-height: 160px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.referenceButton {
-  display: inline-flex;
-  align-items: center;
+/* yapay zekâ kutusu hep kendi boyundadır (rapor üstüne balon olarak açılır); kalan yeri günün etkinliği alır */
+.portalArea .rightPanel,
+.portalArea .rightPanel > :first-child {
+  /* rapor balonu kutunun dışına, CV'nin üstüne taşar: kesilmesin */
+  overflow: visible;
+}
+
+.portalArea .rightPanel > :first-child {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.portalArea .rightPanel > :first-child + * {
+  flex: 1 1 0;
+}
+
+.portalArea .activity {
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: 45%;
+  padding: 12px 14px;
   gap: 8px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-muted);
-  background: var(--paper-muted);
-  color: var(--ink);
-  font: 600 12.5px var(--font-body);
-  cursor: pointer;
-}
-
-.referenceButton small {
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.referenceButton:hover:not(:disabled) {
-  border-color: #2d3a55;
-  background: #eef1f7;
-}
-
-.referenceButton:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.referenceResult {
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: calc(12.5px * var(--ts, 1));
-  line-height: 1.35;
-}
-
-.ref_ok {
-  background: rgba(111, 163, 122, 0.16);
-  color: #2f5f3a;
-}
-
-.ref_mixed {
-  background: rgba(201, 162, 39, 0.16);
-  color: #6b5a00;
-}
-
-.ref_warn {
-  background: rgba(168, 64, 47, 0.14);
-  color: var(--red);
-}
-
-.referenceNone {
-  font-size: calc(12px * var(--ts, 1));
-  color: var(--text-muted);
 }
 
 /* son kararın ne yaptığı ve neden */
 .portalArea {
   position: relative;
-}
-
-/* sabah: mesaiye başlayana kadar hiçbir şey işlemez */
-.shiftGate {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgba(239, 233, 216, 0.82);
-  backdrop-filter: blur(3px);
-}
-
-.shiftCard {
-  width: min(420px, 100%);
-  padding: 28px 28px 24px;
-  border-radius: 14px;
-  background: var(--paper-light);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-  text-align: center;
-  color: var(--ink);
-}
-
-.shiftEyebrow {
-  font-size: calc(12px * var(--ts, 1));
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-
-.shiftClock {
-  margin: 6px 0 10px;
-  font-size: calc(44px * var(--ts, 1));
-  font-weight: 700;
-}
-
-.shiftCard p {
-  margin: 0 0 20px;
-  font-size: calc(14px * var(--ts, 1));
-  line-height: 1.6;
-}
-
-.shiftButton {
-  width: 100%;
-  padding: 14px 18px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--red);
-  color: #fff;
-  font: inherit;
-  font-size: calc(16px * var(--ts, 1));
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.shiftButton:hover {
-  filter: brightness(1.08);
-}
-
-/* yapay zekânın kararı: rozetinden sarkan bir baloncuk */
-.systemBox {
-  position: relative;
-  overflow: visible;
-  z-index: 4;
-}
-
-button.systemIconBadge {
-  position: relative;
-  padding: 0;
-  border: 0;
-  font: inherit;
-  cursor: default;
-}
-
-.systemIconHasNote {
-  cursor: pointer !important;
-}
-
-.systemNoteDot {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 0 2px var(--paper-light);
-}
-
-.noteBubble {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 0;
-  right: 0;
-  z-index: 8;
-
-  padding: 14px 14px 12px;
-  border-radius: 12px;
-  background: var(--paper-light);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-  animation: bubbleIn 0.18s ease-out;
-}
-
-.noteBubble::before {
-  content: '';
-  position: absolute;
-  top: -7px;
-  left: 30px;
-  width: 14px;
-  height: 14px;
-  background: var(--paper-light);
-  transform: rotate(45deg);
-}
-
-.noteBubbleClose {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  border: 0;
-  background: none;
-  font-size: calc(13px * var(--ts, 1));
-  color: var(--text-dim);
-  cursor: pointer;
-}
-
-.queueTag {
-  margin-left: 6px;
-  padding: 1px 6px;
-  border-radius: 5px;
-  background: var(--gold);
-  color: var(--ink);
-  font-size: calc(10px * var(--ts, 1));
-  font-style: normal;
-  font-weight: 700;
-  vertical-align: 1px;
-}
-
-@keyframes bubbleIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
 }
 
 /* ── aday dosyası: her şey tek ekranda, kaydırma yok ── */
@@ -1241,13 +367,6 @@ button.systemIconBadge {
 .candidateCard .candidateSub {
   margin-top: 2px;
   font-size: calc(13px * var(--ts, 1));
-}
-
-/* referans araması sağ üstte, isimle aynı hizada durur */
-.headerRef {
-  flex-shrink: 0;
-  max-width: 45%;
-  justify-content: flex-end;
 }
 
 .candidateCard .highlights {
@@ -1281,162 +400,6 @@ button.systemIconBadge {
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   gap: 14px;
   min-height: 0;
-}
-
-/* dosya sonu işareti (CvBody: useSeenToEnd) */
-.cvEnd {
-  grid-column: 1 / -1;
-  height: 1px;
-}
-
-.cvMain,
-.cvSide {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.cvSide {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #eef1f6;
-  border-left: 3px solid #2d3a55;
-}
-
-.cvSection {
-  position: relative;
-  border-radius: 6px;
-}
-
-.cvSection h3 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 4px;
-  font-family: var(--font-body);
-  font-size: calc(10.5px * var(--ts, 1));
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #2d3a55;
-}
-
-.cvSection h3 small {
-  font-size: calc(10.5px * var(--ts, 1));
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text-dim);
-}
-
-.cvSection p {
-  margin: 0;
-  font-size: calc(12px * var(--ts, 1));
-  line-height: 1.45;
-  color: #2e2a22;
-}
-
-.cvQuote {
-  padding-left: 10px;
-  border-left: 3px solid #c9a227;
-  font-style: italic;
-}
-
-.cvStrong {
-  font-family: var(--font-display);
-  font-size: calc(17px * var(--ts, 1)) !important;
-  font-weight: 700;
-  color: #1c2335 !important;
-}
-
-.cvTimeline {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 12px;
-  border-left: 2px solid #c8cfdb;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: calc(12px * var(--ts, 1));
-  color: #2e2a22;
-}
-
-.cvTimeline li {
-  position: relative;
-  display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
-  gap: 8px;
-}
-
-.cvTimeline li::before {
-  content: '';
-  position: absolute;
-  left: -17px;
-  top: 4px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #2d3a55;
-  box-shadow: 0 0 0 2px var(--paper-light);
-}
-
-.cvTimeline em {
-  display: block;
-  font-size: calc(11.5px * var(--ts, 1));
-  color: var(--text-dim);
-}
-
-.cvPeriod {
-  font-size: calc(10.5px * var(--ts, 1));
-  color: var(--text-muted);
-  padding-top: 1px;
-}
-
-.cvList {
-  margin: 0;
-  padding-left: 16px;
-  font-size: calc(12px * var(--ts, 1));
-  line-height: 1.4;
-  color: #2e2a22;
-}
-
-.cvQa {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.cvQa div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: calc(11.5px * var(--ts, 1));
-  line-height: 1.4;
-}
-
-.cvQa b {
-  color: #1c2335;
-}
-
-.cvQa span {
-  font-style: italic;
-  color: #3a362f;
-}
-
-.cvChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.cvChips span {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid #c8cfdb;
-  font-size: calc(11px * var(--ts, 1));
-  color: #1c2335;
 }
 
 /* tarama: bir ışık sırayla her bölümü süpürür, ince bir okuma çizgisiyle */
@@ -1489,38 +452,6 @@ button.systemIconBadge {
   }
 }
 
-/* yapay zekâ baloncuğunda bölüm bölüm okuma */
-.sectionNotes {
-  list-style: none;
-  margin: 8px 0 8px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: calc(11.5px * var(--ts, 1));
-}
-
-.sectionNotes li {
-  display: grid;
-  grid-template-columns: 14px auto;
-  column-gap: 4px;
-  color: #3f6b63;
-}
-
-.sectionNotes li b {
-  grid-row: span 2;
-}
-
-.sectionNotes li span {
-  grid-column: 2;
-  color: var(--text-dim);
-}
-
-.sectionNotes .noteBad {
-  color: var(--red);
-  font-weight: 700;
-}
-
 /* damga başlığın düğmelerine değil, CV'nin gövdesine düşer */
 .candidateCard .stamp {
   top: 118px;
@@ -1551,76 +482,6 @@ button.systemIconBadge {
   align-items: stretch;
 }
 
-.cvMain {
-  gap: clamp(8px, 1.6vh, 16px);
-}
-
-.cvSide {
-  gap: clamp(8px, 1.6vh, 16px);
-  background: var(--paper-muted);
-  border-left: 3px solid var(--gold);
-  border-radius: 8px;
-  padding: 12px 14px;
-}
-
-.cvSection h3 {
-  color: var(--ink);
-  font-size: calc(11px * var(--ts, 1));
-  padding-bottom: 3px;
-  border-bottom: 1px solid var(--border-muted);
-}
-
-.cvSection p,
-.cvList,
-.cvTimeline {
-  font-size: calc(13px * var(--ts, 1));
-}
-
-.cvTimeline {
-  border-left-color: var(--border-muted);
-  gap: 8px;
-}
-
-.cvTimeline li::before {
-  background: var(--gold);
-  box-shadow: 0 0 0 2px #fffdf7;
-}
-
-.cvTimeline em,
-.cvPeriod {
-  font-size: calc(11.5px * var(--ts, 1));
-}
-
-.cvQa div {
-  font-size: calc(12.5px * var(--ts, 1));
-}
-
-.cvQa b {
-  color: var(--ink);
-}
-
-/* sorular ana sütunda kalan yüksekliği alır */
-.cvMain > .cvSection:last-child {
-  flex: 1;
-}
-
-.cvStrong {
-  font-size: calc(20px * var(--ts, 1)) !important;
-  color: var(--ink) !important;
-}
-
-.cvChips span {
-  background: #fffdf7;
-  border-color: var(--border-muted);
-  color: var(--ink);
-  font-size: calc(11.5px * var(--ts, 1));
-}
-
-.cvQuote {
-  border-left-color: var(--gold);
-  font-size: calc(13.5px * var(--ts, 1)) !important;
-}
-
 .candidateCard .grow {
   display: none;
 }
@@ -1639,11 +500,6 @@ button.systemIconBadge {
   scrollbar-width: thin;
 }
 
-/* altta CV'nin devamı var: alt kenarı soluklaşır */
-.cvBodyMore {
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
-}
-
 /* Kısa ekran (13" bir dizüstü, araç çubukları olan bir tarayıcı): CV sıkılaşır ve çoğu kişide
    tek ekrana sığar; en uzunlar yine üstteki solmayla kayar. */
 @media (max-height: 820px) {
@@ -1659,150 +515,10 @@ button.systemIconBadge {
   .cvBody {
     gap: 12px;
   }
-
-  .cvMain,
-  .cvSide {
-    gap: 6px;
-  }
-
-  .cvSide {
-    padding: 8px 10px;
-  }
-
-  .cvSection h3 {
-    margin-bottom: 2px;
-    padding-bottom: 2px;
-  }
-
-  .cvSection p,
-  .cvList,
-  .cvTimeline {
-    font-size: calc(12.5px * var(--ts, 1));
-    line-height: 1.35;
-  }
-
-  .cvTimeline {
-    gap: 4px;
-  }
-
-  .cvQa div {
-    font-size: calc(12px * var(--ts, 1));
-    line-height: 1.35;
-  }
-
-  .cvQuote {
-    font-size: calc(12.5px * var(--ts, 1)) !important;
-  }
-
-  .cvStrong {
-    font-size: calc(17px * var(--ts, 1)) !important;
-  }
-}
-
-/* yapay zekâ notundaki ATS ayrıştırma raporu: makinenin gerçekte ne saydığı */
-.ats {
-  margin-top: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-muted);
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: calc(11.5px * var(--ts, 1));
-  animation: barIn 0.25s ease 0.05s both;
-}
-
-.atsHead {
-  display: flex;
-  justify-content: space-between;
-  font-size: calc(10px * var(--ts, 1));
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.atsRow {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 8px;
-  align-items: baseline;
-  color: var(--text-dim);
-}
-
-.atsRow b {
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.atsRow .atsBad {
-  color: var(--red);
-}
-
-.atsChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-
-.atsChips i {
-  font-style: normal;
-  font-family: var(--font-mono);
-  font-size: calc(10px * var(--ts, 1));
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-.atsHit {
-  background: rgba(63, 107, 99, 0.14);
-  color: var(--teal);
-  font-weight: 700;
-}
-
-.atsMiss {
-  background: rgba(34, 31, 27, 0.05);
-  color: #8a8270;
-  text-decoration: line-through;
-}
-
-/* analiz geniş açılır, CV'nin üstünde; söylediği her şey kaydırmadan sığsın */
-.noteBubble {
-  /* sağ sütuna değil portal alanına yerleşir (AiPanel: useNotePlacement top, right ve
-     max-height'ı ayarlar): sütun kayar ve notu kendi genişliğine kırpardı */
-  left: auto;
-  z-index: 30;
-  width: min(660px, calc(100vw - 360px));
-  overflow-y: auto;
-}
-
-.noteBubble::before {
-  left: auto;
-  right: 30px;
-}
-
-.noteGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
-}
-
-.noteGrid .sectionNotes {
-  margin-top: 0;
 }
 
 /* dar pencere: tek sütun; sağ sütuna sıkışmak yerine yine CV'nin üstünde geniş açılır ve
    ekranın altından taşmak yerine kendi içinde kayar */
-@media (max-width: 960px) {
-  .noteBubble {
-    width: min(480px, calc(100vw - 48px));
-  }
-
-  .noteGrid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* Bilgisayardayken imleç bilgisayarındır: klasik bir ok, tıklanabilir şeylerin üstünde bir el.
    İmleç kalıtımla geçer, bu yüzden katmana vermek içindeki her şeyi kapsar. */
@@ -1824,29 +540,6 @@ button.systemIconBadge {
 
 .pcLayer :is(input:not([type='range']):not([type='checkbox']), textarea, [contenteditable='true']) {
   cursor: text;
-}
-
-/* 17:00'yi bekleyen bildirimler, düzenlemeye bir tık uzaklıkta */
-.outboxNote {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 8px 10px;
-  border: 1px dashed #b9ae8f;
-  border-radius: 8px;
-  background: #f6f1e3;
-  font-size: calc(12px * var(--ts, 1));
-  font-weight: 600;
-  color: #3a362f;
-  text-align: left;
-}
-
-.outboxNote span {
-  margin-left: auto;
-  color: #2d3a55;
-  text-decoration: underline;
 }
 
 /* ── Dar bir CV kartı (1024px bir dizüstü, yarım ekran pencere) ──
@@ -1885,30 +578,9 @@ button.systemIconBadge {
   .cvHead .candidateSub {
     font-size: calc(13px * var(--ts, 1));
   }
-
-  .headerRef {
-    grid-column: 3;
-    grid-row: 1;
-    max-width: none;
-  }
-
-  .actionBar > button {
-    padding: 10px 14px;
-    font-size: calc(14px * var(--ts, 1));
-  }
 }
 
 /* dar pencere: sağ sütun CV'ye biraz daha yer bırakır */
-@media (max-width: 1100px) {
-  /* yapay zekâ kutusunun düğmesi başlığı üç satıra sıkıştırmak yerine onun altına geçer */
-  .systemHeader {
-    flex-wrap: wrap;
-  }
-
-  .analyzeButton {
-    margin-left: 44px;
-  }
-}
 
 /* Kısa ekran: karar satırı CV'ye verebildiğini geri verir; daha ince düğmeler ve geniş
    kartta kontenjan kendi satırında değil onların yanında durur. */
@@ -1917,26 +589,12 @@ button.systemIconBadge {
     gap: 4px;
   }
 
-  .actionBar > button {
-    padding: 10px 14px;
-    font-size: calc(14px * var(--ts, 1));
-  }
-
   @container cv (min-width: 621px) {
     .actionArea {
       flex-direction: row;
       align-items: center;
+      justify-content: center;
       gap: 14px;
-    }
-
-    .quotaLine {
-      flex: 1;
-      min-width: 0;
-      line-height: 1.35;
-    }
-
-    .actionBar {
-      flex: 0 0 62%;
     }
   }
 }
@@ -1984,270 +642,3 @@ button.systemIconBadge {
   }
 }
 
-/* ── günün sonu (QueueSidebar: DayFinish) ── */
-.finishCard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px 12px;
-  border-radius: 12px;
-  background: var(--paper-light);
-  border: 1px solid var(--border-muted);
-  box-shadow: 0 2px 10px rgba(34, 31, 27, 0.06);
-}
-
-.finishHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: calc(var(--fs-label) * var(--ts, 1));
-  font-weight: 700;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.finishHead .mono {
-  font-size: calc(12px * var(--ts, 1));
-  letter-spacing: 0;
-  color: var(--ink);
-}
-
-.finishTrack {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--paper-dim);
-  overflow: hidden;
-}
-
-.finishTrack i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--teal), #4f8a7f);
-  transition: width 0.4s ease;
-}
-
-.finishButton {
-  padding: 10px 14px;
-  border: 1px solid var(--border-muted);
-  border-radius: 9px;
-  background: var(--paper-dim);
-  color: var(--text-dim);
-  font: 700 calc(14px * var(--ts, 1)) / 1.2 var(--font-body);
-  letter-spacing: 0.3px;
-  cursor: not-allowed;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.finishState {
-  font-size: calc(12px * var(--ts, 1));
-  color: var(--text-dim);
-  text-align: center;
-}
-
-/* her şey karara bağlandı: düğme yanar */
-.finishReady {
-  border-color: rgba(63, 107, 99, 0.45);
-  background: linear-gradient(180deg, #f2f7f4, var(--paper-light));
-}
-
-.finishReady .finishTrack i {
-  background: linear-gradient(90deg, #3f8f6a, #5aa77f);
-}
-
-.finishReady .finishButton {
-  border-color: transparent;
-  background: linear-gradient(180deg, #3f7d6f, var(--teal));
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 6px 16px rgba(63, 107, 99, 0.35);
-  animation: finishPulse 2.4s ease-in-out infinite;
-}
-
-.finishReady .finishButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(63, 107, 99, 0.42);
-}
-
-.finishReady .finishState {
-  color: var(--teal);
-  font-weight: 600;
-}
-
-@keyframes finishPulse {
-  50% {
-    box-shadow: 0 6px 16px rgba(63, 107, 99, 0.35), 0 0 0 5px rgba(63, 107, 99, 0.14);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .finishReady .finishButton {
-    animation: none;
-  }
-}
-
-/* ── Yapay zekâ kutusu: diğerleri gibi bir portal modülü — kâğıt kart, mavi "sistem" vurgusu ── */
-.systemBox {
-  background: var(--paper-light);
-  border: 1px solid var(--border-muted);
-  border-top: 3px solid var(--blue);
-  box-shadow: 0 4px 14px rgba(34, 31, 27, 0.08);
-  color: var(--ink);
-}
-
-.systemBox .systemTitle {
-  font-size: calc(13px * var(--ts, 1));
-  color: var(--ink);
-}
-
-.systemBox .systemSub {
-  color: var(--text-dim);
-}
-
-.systemBox .systemLine {
-  background: rgba(76, 127, 176, 0.08);
-  color: #2e3a4a;
-}
-
-.systemBox .systemIconBadge {
-  background: rgba(76, 127, 176, 0.1);
-}
-
-.systemBox .systemIconBadge::before {
-  border-color: rgba(76, 127, 176, 0.35);
-}
-
-.systemBox .systemIconGlyph {
-  color: var(--blue-ink);
-  filter: none;
-}
-
-.systemBox .analyzeButton {
-  color: #fff;
-  /* --blue değil --blue-ink: --blue üzerinde beyaz yalnızca 4.2:1 */
-  border-color: var(--blue-ink);
-  background: var(--blue-ink);
-  box-shadow: 0 2px 6px rgba(76, 127, 176, 0.3);
-}
-
-.systemBox .analyzeButton:hover:not(:disabled) {
-  background: #2f5578;
-}
-
-.systemBox .analyzeButton:disabled {
-  background: rgba(76, 127, 176, 0.15);
-  color: var(--blue-ink);
-  box-shadow: none;
-}
-
-/* rapor: CV'nin üstüne serilmiş, portalın kendi panelleri gibi düzenlenmiş bir kâğıt */
-.noteBubble {
-  background: var(--paper-light);
-  color: var(--ink);
-  border: 1px solid var(--border-muted);
-  border-top: 3px solid var(--blue);
-  box-shadow: 0 18px 44px rgba(34, 31, 27, 0.28);
-  padding: 16px 18px 14px;
-}
-
-.noteBubble::before {
-  background: var(--blue);
-  border: 0;
-  top: -8px;
-}
-
-.noteBubble .systemLine {
-  background: rgba(76, 127, 176, 0.08);
-  border-left: 3px solid var(--blue);
-  border-radius: 6px;
-  color: #2e3a4a;
-  font-weight: 600;
-}
-
-.noteBubble .ats {
-  background: #fff;
-  border-color: var(--border-muted);
-  gap: 7px;
-  font-size: calc(12px * var(--ts, 1));
-}
-
-.noteBubble .atsHead {
-  padding-bottom: 5px;
-  border-bottom: 1px solid var(--border-muted);
-  color: var(--text-muted);
-}
-
-.noteBubble .atsRow {
-  color: var(--text-dim);
-}
-
-.noteBubble .atsRow b {
-  color: var(--ink);
-}
-
-.noteBubble .atsHit {
-  background: rgba(63, 107, 99, 0.12);
-  color: var(--teal);
-}
-
-.noteBubble .atsMiss {
-  background: rgba(34, 31, 27, 0.05);
-  color: #8a8270;
-}
-
-.noteBubble .sectionNotes {
-  gap: 6px;
-  font-size: calc(12px * var(--ts, 1));
-}
-
-.noteBubble .sectionNotes li {
-  padding: 5px 8px;
-  border-radius: 6px;
-  background: rgba(63, 107, 99, 0.06);
-  color: var(--teal);
-  font-weight: 600;
-}
-
-.noteBubble .sectionNotes span {
-  color: var(--text-dim);
-  font-weight: 400;
-}
-
-.noteBubble .sectionNotes .noteBad {
-  background: rgba(168, 64, 47, 0.08);
-  color: var(--red);
-}
-
-.noteBubble .sectionNotes .noteBad span {
-  color: var(--red);
-}
-
-.noteBubble .atsBad {
-  color: var(--red);
-}
-
-.noteBubble .internalNoteBox {
-  background: #fff6ec;
-  border: 1px dashed var(--red);
-}
-
-.noteBubble .internalNoteText {
-  color: #6b2f24;
-}
-
-.noteBubble .noteBubbleClose {
-  color: var(--text-dim);
-}
-
-.noteBubble .noteBubbleClose:hover {
-  color: var(--ink);
-}
-
-/* yapay zekâ okurken CV soluk bir milimetrik kâğıdın arkasındadır: makinenin sayfaya bakışı */
-.candidateCardScanning .scanOverlay {
-  background-image:
-    linear-gradient(rgba(76, 127, 176, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(76, 127, 176, 0.07) 1px, transparent 1px);
-  background-size: 22px 22px;
-}

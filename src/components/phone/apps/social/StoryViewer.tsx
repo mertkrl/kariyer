@@ -3,6 +3,7 @@ import { audioEngine } from '../../../../audio/audioEngine';
 import { PhotoArt } from '../PhotoArt';
 import type { StorySeed } from '../socialContent';
 import styles from '../SocialApp.module.css';
+import own from './StoryViewer.module.css';
 
 interface StoryViewerProps {
   stories: readonly StorySeed[];
@@ -34,7 +35,7 @@ export function StoryViewer({ stories, index: story, onOpen }: StoryViewerProps)
   const current = stories[story];
   return (
     <div
-      className={styles.storyViewer}
+      className={own.storyViewer}
       role="button"
       tabIndex={0}
       aria-label="Hikâye: sağa dokun ya da sağ ok sonraki, sola dokun ya da sol ok önceki"
@@ -56,11 +57,11 @@ export function StoryViewer({ stories, index: story, onOpen }: StoryViewerProps)
       }}
     >
       <PhotoArt kind={current.photo} className={styles.storyArt} />
-      <span className={styles.storyShade} />
-      <span className={styles.storyBars}>
+      <span className={own.storyShade} />
+      <span className={own.storyBars}>
         {stories.map((_, i) => (
           <span key={i}>
-            <i className={i < story ? styles.barDone : i === story ? styles.barNow : undefined} key={`${story}-${i}`} />
+            <i className={i < story ? own.barDone : i === story ? own.barNow : undefined} key={`${story}-${i}`} />
           </span>
         ))}
       </span>
@@ -70,9 +71,9 @@ export function StoryViewer({ stories, index: story, onOpen }: StoryViewerProps)
         </span>
         {current.who} <small>· {2 + story * 3} sa</small>
       </span>
-      <span className={styles.storyText}>{current.text}</span>
+      <span className={own.storyText}>{current.text}</span>
       <button
-        className={styles.storyClose}
+        className={own.storyClose}
         aria-label="Kapat"
         onClick={(e) => {
           e.stopPropagation();

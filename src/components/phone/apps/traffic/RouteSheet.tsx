@@ -1,5 +1,5 @@
 import { audioEngine } from '../../../../audio/audioEngine';
-import { WORKDAY_END_MIN } from '../../../../game/time';
+import { WORKDAY_END_MIN } from '../../../../game/lib/time';
 import { MODE_ICON, ROUTES, arrival, trafficAt, type Route } from './trafficModel';
 import styles from '../TrafficApp.module.css';
 

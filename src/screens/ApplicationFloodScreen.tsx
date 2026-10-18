@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { lineupFor, useGameStore } from '../game/store';
+import { lineupFor, useGameStore } from '../game/store/store';
 import { days } from '../game/data/days';
-import { AD_EFFECT } from '../game/data/jobs';
 import { Button } from '../components/ui/Button';
 import { AiIcon } from '../components/ui/AiIcon';
 import { audioEngine } from '../audio/audioEngine';
@@ -9,6 +8,7 @@ import { PaperStorm, type Point } from './flood/PaperStorm';
 import { ParquetFloor } from './flood/ParquetFloor';
 import { CrashLog } from './flood/CrashLog';
 import styles from './ApplicationFloodScreen.module.css';
+import { prefersReducedMotion } from '../components/ui/motion';
 
 const COUNT_DURATION_MS = 2200;
 const SCAN_DURATION_MS = 1300;
@@ -36,7 +36,6 @@ export function ApplicationFloodScreen() {
   const proceedToBriefing = useGameStore((s) => s.proceedToBriefing);
   const day = days[currentDayIndex];
   // ilk sabah: seçtiğin ilan yüzünden hiç başvurmayanlar
-  const adNote = useGameStore((s) => (s.currentDayIndex === 0 && s.selectedJobId ? AD_EFFECT[s.selectedJobId]?.note : undefined));
   const lineups = useGameStore((s) => s.lineups);
   const shortlist = lineupFor({ currentDayIndex, lineups }).length;
   const startValue = currentDayIndex > 0 ? days[currentDayIndex - 1].applicationTarget : 0;
@@ -71,12 +70,14 @@ export function ApplicationFloodScreen() {
     audioEngine.startFloodRiser(COUNT_DURATION_MS / 1000);
 
     // Sayaç: hızlı başlayıp yavaşlamayla birlikte seyrelen mekanik tıkırtılar, duran bir çark gibi.
+    const still = prefersReducedMotion();
     const start = performance.now();
     let lastTick = 0;
     let lastValue = startValue;
     function step(now: number) {
       const elapsed = now - start;
-      const progress = Math.min(1, elapsed / COUNT_DURATION_MS);
+      // hareket azaltılmışsa sayaç akmaz, hedef sayı hemen görünür
+      const progress = still ? 1 : Math.min(1, elapsed / COUNT_DURATION_MS);
       const eased = 1 - (1 - progress) * (1 - progress);
       const value = Math.round(startValue + (day.applicationTarget - startValue) * eased);
       setCount(value);
@@ -132,7 +133,7 @@ export function ApplicationFloodScreen() {
 
     function step(now: number) {
       const elapsed = now - start;
-      const progress = Math.min(1, elapsed / SORT_COUNTDOWN_MS);
+      const progress = prefersReducedMotion() ? 1 : Math.min(1, elapsed / SORT_COUNTDOWN_MS);
       const eased = 1 - (1 - progress) * (1 - progress);
       const value = Math.round(startCount - (startCount - shortlist) * eased);
       setCount(value);
@@ -239,7 +240,6 @@ export function ApplicationFloodScreen() {
                 ✓ {shortlist} aday seçildi — Adayları Gör →
               </button>
             )}
-            {stage === 'sorting' && adNote && <div className={styles.adNote}>📢 {adNote}</div>}
             {stage === 'sorting' && day.aiDown && <CrashLog durationMs={CRASH_DURATION_MS} />}
           </div>
 
