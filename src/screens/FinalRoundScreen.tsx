@@ -8,7 +8,7 @@ import { Button } from '../components/ui/Button';
 import { INTERVIEWER, handOver, ownerOf } from '../game/events/panel';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
-import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, QUESTION_BUDGET, TEST } from './final/interviewModel';
+import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, QUESTION_BUDGET, TEST } from './final/interviewModel';
 import { candidateAptitude, testTalk } from '../game/events/aptitude';
 import { useInterview } from './final/useInterview';
 import { PoolPicker } from './final/PoolPicker';
@@ -111,9 +111,7 @@ export function FinalRoundScreen() {
           <div className={styles.eyebrow}>Gün 5 · Cuma · Mülakatlar</div>
           <h1 className={styles.title}>Mülakat Günü</h1>
           <p className={styles.subtitle}>
-            Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Her mülakatı adayı çağıran yürütüyor ve <strong>sen hepsinde odadasın</strong>: kendi çağırdıklarınla sen,
-            Ayşe ve Emre kendi kısa listeleriyle, Hakan Bey kendi önerdikleriyle görüşüyor. Teknik soruyu <strong>{LEAD}</strong>, uyum sorusunu <strong>Hakan Bey</strong> soruyor.
-            Başkalarının görüşmelerinde bir kez söz alabilir ve kendi puanını verirsin. Gün sonunda kurul bütün puanları yan yana koyuyor.
+            Bütçe kesildi: <strong>sadece 1 kişi</strong> işe alınacak. Bütün görüşmelerde odadasın; gün sonunda kurul puanları yan yana koyar.
             {structured && ' Bugün yapılandırılmış mülakat var: Hakan Bey\'in listesi masada değil.'}
           </p>
         </div>

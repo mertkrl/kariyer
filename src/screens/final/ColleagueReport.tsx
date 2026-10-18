@@ -13,12 +13,24 @@ import parts from './InterviewParts.module.css';
  * Görüşmeyi onlar yapar; sen dinlersin, bir kez söz alıp test puanını sorabilirsin ve kendi
  * puanını verirsin. Kurulda o puan da masada durur.
  */
-const NOTE: Record<Exclude<Interviewer, 'you'>, (first: string, fit: number) => string> = {
-  ayse: (first, fit) =>
+/** Aynı kişinin iki adayına aynı notu yazmaması için: adaya göre sabit bir seçim. */
+const pick = (id: string, list: string[]) => list[[...id].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 9973, 7) % list.length];
+
+const NOTE: Record<Exclude<Interviewer, 'you'>, (first: string, fit: number, id: string) => string> = {
+  ayse: (first, fit, id) =>
     fit >= 4
-      ? `${first} her soruya somut örnekle cevap verdi; neyi kendisinin yaptığını, neyi ekibin yaptığını ayırarak anlattı. Ben ikna oldum.`
+      ? pick(id, [
+          `${first} her soruya somut örnekle cevap verdi; neyi kendisinin yaptığını, neyi ekibin yaptığını ayırarak anlattı. Ben ikna oldum.`,
+          `${first} rakamlarını savundu, sorduğumda kaynağını da söyledi. Test puanı beni hiç ilgilendirmiyor; bu kişi işini biliyor.`,
+          `Başta çekingendi ama ${first} açıldıkça ne kadar derin bildiği ortaya çıktı. Ekipte en çok böyle birine ihtiyacımız var.`,
+        ])
       : `${first} iyi niyetli ama cevapları genel kaldı; takip sorusunda dağıldı. Dürüst olayım, emin değilim.`,
-  emre: (first) => `${first}'ın sistemdeki skoru çok yüksek, sunumu kusursuzdu. Bence risk yok; veriler ortada.`,
+  emre: (first, _fit, id) =>
+    pick(id, [
+      `${first}'ın sistemdeki skoru çok yüksek, sunumu kusursuzdu. Bence risk yok; veriler ortada.`,
+      `ATS skoru ekibin en yükseği. Test puanı düşük ama o testin nasıl hazırlandığını hepimiz biliyoruz. ${first} kâğıt üstünde tartışmasız.`,
+      `${first} kendinden emin, sistemin önerdiği profile birebir uyuyor. Ben veriye güvenirim.`,
+    ]),
   hakan: (first) => `${first} uzun vadeli uyum açısından çok uygun. Ailesi, çevresi, kafa yapısı; bizim şirkete göre biri.`,
 };
 
@@ -29,7 +41,7 @@ function opening(owner: Exclude<Interviewer, 'you'>, id: string, score: number):
   if (owner === 'ayse') return { q: FINAL_INTERVIEW_QUESTIONS[0], a: d.interview[0] };
   if (owner === 'emre')
     return {
-      q: score >= APTITUDE_CUTOFF ? `Test puanınız ${score}, tebrik ederim; sistem skorunuz da çok iyi. ${FINAL_INTERVIEW_QUESTIONS[1]}` : `Test puanınız ${score}; açık konuşayım, eşiğin altında. ${FINAL_INTERVIEW_QUESTIONS[1]}`,
+      q: score >= APTITUDE_CUTOFF ? `Test puanınız ${score}, tebrik ederim; sistem skorunuz da çok iyi. ${FINAL_INTERVIEW_QUESTIONS[1]}` : `Test puanınız ${score}; eşiğin altında, biliyorum. Ama sistem skorunuz çok yüksek, Hakan Bey'den sizin için istisna aldım. ${FINAL_INTERVIEW_QUESTIONS[1]}`,
       a: d.interview[1],
     };
   return { q: forbiddenQuestion(id, c.age), a: forbiddenAnswer(id, c.age) };
@@ -92,7 +104,7 @@ export function ColleagueReport({ id, owner, structured, seed, asked, score, onA
         </>
       )}
       <Turn who={host} role="Görüşme notu" tone="hakan">
-        {NOTE[owner](first, fit)}
+        {NOTE[owner](first, fit, id)}
       </Turn>
       <div className={styles.yourTurn}>
         {!asked && (

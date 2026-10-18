@@ -64,7 +64,7 @@ const PROFILES: Record<string, Profile> = {
   irem: {
     answers: APTITUDE_QUESTIONS.map((_, i) => ([0, 2, 3, 7, 9, 11].includes(i) ? null : [5, 6].includes(i) ? sensible(i) : key(i))),
     note: 'Başvuru formu: "Disleksi tanım var; okuma ağırlıklı testlerde ek süre talep ediyorum." Platform yanıtı: ek süre özelliği bu pakette yoktur.',
-    talk: 'Disleksim var; formda ek süre istemiştim, verilmedi. Otuz saniyede uzun bir mantık sorusunu okuyamıyorum. Kod okurken de yazarken de böyle bir sorunum yok; çünkü orada kimse kronometre tutmuyor.',
+    talk: 'Disleksim var; formda ek süre istemiştim, verilmedi. Kronometre işlerken uzun bir mantık sorusunu okuyup yetiştiremiyorum; yarısı boş kaldı. Kod okurken de yazarken de böyle bir sorunum yok; çünkü orada kimse kronometre tutmuyor.',
   },
   // test bazen tutar: güçlü ve yüksek
   murat: {
@@ -95,15 +95,28 @@ export function candidateAptitude(id: string, seed: number): AptitudeResult {
 }
 
 /** Mülakatta test puanı sorulduğunda: soru ve adayın cevabı, kendi cevap kâğıdından. */
+/** Cevap kâğıdı tohumdan gelen ama mülakattaki tavrı hikâyece belli adaylar. */
+const TALKS: Record<string, string> = {
+  // CV'si kusursuz, GitHub'ı boş: testi de sunum gibi çözer, içerik yok
+  // iki yıl ara vermiş güçlü aday: testin neyi ölçtüğünü görmüş
+  nehir: '21 mi? Hiç şaşırmadım. "Hangisi diğerlerinden farklı" sorusunda Cumartesi dedim, çünkü Cumartesi iş günü değil. Anahtar başka bir şey bekliyormuş. Ben düşündüğümü yazdım.',
+  // Emre'nin ATS gözdesi: kendinden emin, testi ciddiye almamış
+  cagan: 'Testin bir kısmını telefonda çözdüm, açıkçası çok önemsemedim. Gerçek iş performansını ölçtüğünü düşünmüyorum; ATS skorum zaten ortada.',
+  sarp: 'Açıkçası pek hatırlamıyorum, hızlı geçtim. Bu tür testlerde ilk içgüdüme güvenirim; genelde de doğru çıkar. Puanım düşükse sistemde bir sorun olabilir.',
+};
+
 export function testTalk(id: string, seed: number): { question: string; answer: string } {
   const result = candidateAptitude(id, seed);
   const question = `Testte ${result.score} aldınız. Cevap kâğıdınıza baktım; bazı cevaplarınızı merak ettim. Nasıl düşündünüz?`;
   if (PROFILES[id]?.talk) return { question, answer: PROFILES[id].talk };
-  const i = APTITUDE_QUESTIONS.findIndex((q, n) => result.answers[n] === q.sensible);
+  if (TALKS[id]) return { question, answer: TALKS[id] };
+  // aklı başında cevap verdiği sorulardan biri; aday başına farklısı, herkes aynı soruyu anmasın
+  const sensibleOnes = APTITUDE_QUESTIONS.map((q, n) => (result.answers[n] === q.sensible ? n : -1)).filter((n) => n >= 0);
+  const i = sensibleOnes.length ? sensibleOnes[[...id].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 9973, 7) % sensibleOnes.length] : -1;
   if (i >= 0) {
     const q = APTITUDE_QUESTIONS[i];
     return { question, answer: `"${q.options[q.sensible]}" dediğim soruyu hatırlıyorum. ${q.why}` };
   }
-  if (result.timedOut > 0) return { question, answer: `Bazı sorulara süre yetmedi, açıkçası. Otuz saniyede bir trenin yolcularını düşünmek zor.` };
+  if (result.timedOut > 0) return { question, answer: `Bazı sorulara süre yetmedi, açıkçası. Kronometre akarken bir trenin yolcularını düşünmek zor.` };
   return { question, answer: 'Bu testler hep aynı; doğru cevabı değil, beklenen cevabı seçiyorsunuz. Ben de ne beklendiğini tahmin ettim.' };
 }

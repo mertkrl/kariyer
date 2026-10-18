@@ -114,13 +114,44 @@ export function forbiddenQuestion(id: string, age = 0) {
 const FORBIDDEN_ANSWERS: Record<string, string> = {
   seda: 'Kızım var, onu tek başıma büyütüyorum. Bu, işimi etkiler mi diye mi soruyorsunuz? On bir yılda tek teslim tarihi kaçırmadım.',
   derya: 'Evli değilim, çocuk planım da yok. Ama bu sorunun pozisyonla ilgisini anlamadım. Başka sorunuz var mı?',
-  kerem: 'Emekliliğime mi? 45 yaşındayım, yirmi yıl daha çalışırım. Asıl sormak istediğiniz yaşım mı?',
   tolga: 'Kars. Babam çiftçi, annem ev hanımı. …Bunun pozisyonla ilgisi nedir, sorabilir miyim?',
+  irem: '…Bunu sormanız gerekiyor mu? Şimdilik bir planım yok. Ama olsaydı da işimi etkilemezdi.',
+  nehir: '…Bir oğlum var, iki yıl onunla evdeydim; CV\'mde de yazıyor. Şimdi kreşte. Başka bir şey sormak ister misiniz?',
+  ceren: 'Nişanlıyım, evet. Düğün yazın ama izin almadan hallederiz, merak etmeyin. …Bunu neden sorduğunuzu tam anlamadım ama.',
+  murat: 'Emekliliğe daha çok var. Bunun işle ne ilgisi olduğunu anlamadım açıkçası. Tecrübemi sormanızı tercih ederdim.',
+  sarp: 'Ankaralıyım, babam bankacı, annem öğretmen. Klasik bir aile, merak etmeyin.',
+  berk: 'İzmir. …Pardon, bunun pozisyonla bağlantısını tam anlayamadım?',
+  cagan: 'Trabzon. Babamın küçük bir nakliye şirketi var. Neden sordunuz, merak ettim.',
+  ahmet: 'Şey… Erzurum. Babam emekli memur. …Bir sorun mu var?',
+  kerem: 'Emekliliğime mi? 45 yaşındayım, yirmi yıl daha çalışırım. Asıl sormak istediğiniz yaşım mı?',
 };
+
+/** Listede olmayanlar için birkaç farklı tepki: herkes aynı cümleyle cevap vermesin. */
+const FALLBACK_ANSWERS = {
+  female: [
+    'Evlendim geçen yıl. Çocuk… şimdilik yok, yani planlamıyoruz. Bu bir sorun olmaz, söz veriyorum.',
+    '…Bunu sormanız gerekiyor mu? Şimdilik bir planım yok.',
+    '…Özel hayatımla ilgili konuşmak istemiyorum, kusura bakmayın.',
+    'Hayır, yok. …Bunu erkek adaylara da soruyor musunuz?',
+  ],
+  older: [
+    'Sekiz yıl var. Ama sağlığım yerinde, yeni teknolojileri de takip ediyorum, merak etmeyin.',
+    'Emekliliğe daha çok var. Bunun işle ne ilgisi olduğunu anlamadım açıkçası.',
+    'On beş yıl falan. Yaşımı mı soruyorsunuz aslında?',
+    'Emeklilik mi? Daha öğrenecek çok şeyim var.',
+  ],
+  other: [
+    'Sivas. Babam inşaatta çalışıyor, annem ev hanımı. …İyi bir aileyiz, yani.',
+    'Memleketimi ve ailemin ne iş yaptığını neden sorduğunuzu anlamadım. Bunun pozisyonla bir ilgisi var mı?',
+    'Konyalıyım. Babam esnaf. …Başka?',
+    'Bunu cevaplamam gerekiyor mu? İsterseniz projelerimden konuşalım.',
+  ],
+};
+const pickBy = (id: string, list: string[]) => list[[...id].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 9973, 7) % list.length];
 
 export function forbiddenAnswer(id: string, age: number) {
   if (FORBIDDEN_ANSWERS[id]) return FORBIDDEN_ANSWERS[id];
-  if (FEMALE.has(id)) return '…Bunu sormanız gerekiyor mu? Şimdilik bir planım yok. Bunun pozisyonla ilgisini anlamadım ama.';
-  if (age >= 40) return 'Emekliliğe daha çok var. Bunun işle ne ilgisi olduğunu anlamadım açıkçası.';
-  return 'Memleketimi ve ailemin ne iş yaptığını neden sorduğunuzu anlamadım. Bunun pozisyonla bir ilgisi var mı?';
+  if (FEMALE.has(id)) return pickBy(id, FALLBACK_ANSWERS.female);
+  if (age >= 40) return pickBy(id, FALLBACK_ANSWERS.older);
+  return pickBy(id, FALLBACK_ANSWERS.other);
 }

@@ -57,19 +57,18 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
         {entries.length === 0 && (
           firstOfDay ? (
             <div className={styles.rules} role="note" aria-label="Bugün nasıl işliyor">
-              <b>Bugün nasıl işliyor?</b>
-              <ol>
+              <ol className={styles.steps}>
                 <li>
-                  Önce sen sorarsın: <b>{QUESTION_BUDGET} klasik soru</b>. Cevaplardaki <u>altı noktalı ifadeye</u> tıklarsan bir <b>takip sorusu</b> da sorabilirsin.
+                  <b>{QUESTION_BUDGET} soru</b> sen sor · <u>altı noktalı</u> ifadeye tıkla, takip et
                 </li>
                 <li>
-                  Sorularını bitirince söz <b>{LEAD}</b>'a geçer: teknik soruyu o sorar.{structured ? '' : ' Ardından Hakan Bey kendi listesinden bir "uyum" sorusu sorar.'} Araya giremezsin.
+                  <b>{LEAD}</b> teknik soru{structured ? '' : ', Hakan Bey "uyum" sorusu sorar'}
                 </li>
                 <li>
-                  Sonra <b>maaşı konuşursun</b>; bütçe tavanını aşan beklentiyi pazarlık edebilirsin. Aday da sana soru sorabilir: deneyimli adaylar daha çok ve daha keskin sorar.
+                  <b>Maaş</b> konuşulur, aday da soru sorabilir
                 </li>
                 <li>
-                  Görüşme bitince adayı dört ölçütte puanla. Puanın kurulda Ümit'in ve Hakan Bey'in puanlarıyla yan yana durur.
+                  <b>Puanla:</b> 4 ölçüt, 1–5
                 </li>
               </ol>
               <span>{candidate.name.split(' ')[0]} karşında oturuyor. Aşağıdan ilk soruyu seç.</span>

@@ -25,7 +25,7 @@ const FOLLOW_UP_ANSWERS: Record<Tier, [string, string][]> = {
   strong: [
     [
       'Tasarımı ve kodu ben yazdım, gözden geçirmeyi ekip lideri yaptı. Önceki ve sonraki ölçümleri ben aldım; ekran görüntüleri hâlâ bende, isterseniz gösteririm.',
-      'Fikir benimdi, iki arkadaşla birlikte uyguladık. Ölçümü üretim kayıtlarından yaptık; üç ay takip ettim, düşüş kalıcı oldu.',
+      'Fikir benimdi, iki arkadaşla birlikte uyguladık. Ölçümü şirketin kendi kayıtlarından yaptık; üç ay takip ettim, düşüş kalıcı oldu.',
     ],
     [
       'Değişikliği küçük parçalara bölerdim ve önce test ortamında denerdim. O olaydan sonra ekibe bir kontrol listesi önerdim, hâlâ kullanılıyor.',

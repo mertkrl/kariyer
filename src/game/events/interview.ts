@@ -138,7 +138,7 @@ export const CODE_CASES: CodeCase[] = [
   return k.ad.trim();
 }`,
     answers: {
-      strong: 'Kayıt bulunamazsa k null gelir ve k.ad patlar; ad alanı boşsa trim de patlar. Önce yokluğu açıkça ele alırdım: 404 mü, boş ad mı, ona ürün karar versin. Bir de bu durum için test.',
+      strong: 'Kayıt bulunamazsa k null gelir ve k.ad patlar; ad alanı hiç yoksa (undefined) trim de patlar. Önce yokluğu açıkça ele alırdım: 404 mü, boş ad mı, ona ürün karar versin. Bir de bu durum için test.',
       solid: 'db.bul bir şey bulamazsa k null olur, k.ad hata verir. Bir null kontrolü eklerdim.',
       unsure: 'await doğru kullanılmış… Belki trim\'e gerek yoktur? Hata yönetimi eklenebilir sanırım, try-catch gibi.',
       weak: 'Burada bir sorun göremiyorum.',

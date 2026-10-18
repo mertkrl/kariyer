@@ -22,8 +22,8 @@
         "Hackathon ikinciliği (2024)"
       ],
       "interview": [
-        "Stajımda yavaş çalışan bir raporlama sorgusunu yeniden yazdım; 40 saniyeden 3 saniyeye indi ve ekip bunu her gün kullanıyor.",
-        "Canlıya test etmeden küçük bir değişiklik gönderdim, yarım saat ödeme sayfası hata verdi. O günden beri her PR'a test yazmadan dokunmuyorum.",
+        "Şey… pardon, biraz heyecanlıyım. Stajımda… bir raporlama sorgusu vardı, çok yavaştı. Onu yeniden yazdım; 40 saniyeden 3 saniyeye indi. Ekip hâlâ her gün kullanıyor, yani… işe yaradı.",
+        "Hata… hiç yapmadım diyecektim ama doğru olmaz. Canlıya test etmeden küçük bir değişiklik gönderdim, yarım saat ödeme sayfası çöktü. Çok utandım. O günden beri test yazmadan hiçbir şeye dokunmuyorum.",
         "Önce kod tabanını ve dokümantasyonu öğrenirim; eksik dokümanları tamamlayarak katkıya başlarım. Sessiz ama güvenilir bir başlangıç isterim."
       ],
       "hireFit": 4
@@ -276,7 +276,7 @@
         "2 hakemli makale"
       ],
       "interview": [
-        "Kurduğum talep tahmin modeli sayesinde depolardaki fazla stok %18 azaldı; yıllık tasarruf yaklaşık 6 milyon TL.",
+        "Kurduğum talep tahmin modeli sayesinde depo maliyetleri %12 düştü; yıllık tasarruf yaklaşık 6 milyon TL.",
         "Bir modeli gerçek dünyada test etmeden canlıya aldım; bayram haftasında tamamen yanıldı. Artık her modelin sınır koşullarını iş birimiyle birlikte belirliyorum.",
         "Önce hangi kararların sezgiyle verildiğini bulurum; en pahalısını seçip veriyle desteklenen bir karar sürecine çeviririm."
       ],
@@ -478,7 +478,7 @@
         "Bölüm ikincisi"
       ],
       "interview": [
-        "Fatura eşleştirme işini bir Python servisiyle otomatikleştirdim; ayda 60 saatlik elle çalışma 4 saate indi.",
+        "Ekip olarak çok şey başardık… yok, dur, siz benim yaptığımı soruyorsunuz. Fatura eşleştirmeyi bir Python servisiyle tek başıma otomatikleştirdim; ayda 60 saatlik elle iş 4 saate indi.",
         "Betiğimi yeterince test etmeden kullandım, bir ay yanlış KDV oranı uygulandı. Artık her otomasyonu önce geçmiş verilerle test ediyorum.",
         "Tekrarlayan işleri listeler, en çok saat yiyen ikisini otomatikleştirirdim. İnsanlar kontrol ve analize vakit ayırabilmeli."
       ],
@@ -762,7 +762,7 @@
       "interview": [
         "Marmara Tekstil'in ERP sistemini 12 yıl geliştirdim; bağımsız denetimler tek bir bulgu çıkmadan geçti, ay sonu kapanışı 10 günden 3 güne indi.",
         "Bir mevzuat değişikliğini koda geç yansıttım, bir beyanname düzeltmesi yapmak zorunda kaldık. Artık mevzuat değişikliklerini haftalık takip ediyorum.",
-        "Raporlama tarafındaki elle yapılan kontrolleri otomatik testlere çevirirdim."
+        "Bizim fabrikada bir dönem… neyse, uzun hikâye, kısaltayım. Raporlama tarafındaki elle yapılan kontrolleri otomatik testlere çevirirdim."
       ],
       "hireFit": 5
     }
@@ -1130,7 +1130,7 @@
         "Bitirme projesi: otobüs verisiyle durak yoğunluğu tahmini"
       ],
       "interview": [
-        "Stajda haftalık satış raporunu elle hazırlanmaktan çıkarıp SQL sorgusuna bağladım; rapor süresi yarım günden bir saate indi.",
+        "Bunu hazırlamıştım aslında, ezber gibi olmasın… Stajda haftalık satış raporunu SQL sorgusuna bağladım; yarım günden bir saate indi. …Rakamı tam hatırlıyor muyum? Evet, bir saat.",
         "Bitirme projesinde veriyi temizlemeden modele verdim, sonuçlar saçmaladı. O günden beri önce veriye bakıyorum.",
         "Önce mevcut raporları öğrenirim. Elle yapılan bir şey varsa otomatikleştirmeyi öneririm."
       ],
@@ -1161,7 +1161,7 @@
       ],
       "interview": [
         "Ödeme servisinde işlem gecikmesini %40 düşürdüm; darboğaz veritabanı kilitleriydi, ölçüp gösterdim.",
-        "Bir iade akışını canlıya testsiz aldım, 300 iade iki kez yapıldı. O günden beri iade akışlarında çift onay var, ben kurdum.",
+        "…Bunu anlatmak hâlâ zor. Bir iade akışını canlıya testsiz aldım, 300 iade iki kez yapıldı. Ertesi sabah müdürüme ilk ben söyledim. O günden beri iade akışlarında çift onay var; ben kurdum.",
         "İlk ay ödeme hatalarının kayıtlarını okurum; en pahalı olanı seçip düzeltir, ekibe süreci anlatırım."
       ],
       "hireFit": 5
