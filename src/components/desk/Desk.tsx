@@ -260,9 +260,6 @@ export function Desk({ scale, onOpenPc, onOpenPhone }: DeskProps) {
                     <i className={styles.miniSheet}>≡</i>Adaylar_FINAL_v7
                   </span>
                   <span>
-                    <i className={styles.miniTest}>✎</i>Değerlendirme
-                  </span>
-                  <span>
                     <i className={styles.miniBin}>🗑</i>Geri Dönüşüm
                   </span>
                 </div>

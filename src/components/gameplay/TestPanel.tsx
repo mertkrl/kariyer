@@ -2,8 +2,7 @@ import { APTITUDE_CUTOFF, aptitudeNote, type AptitudeResult } from '../../game/e
 import styles from './TestPanel.module.css';
 
 /**
- * Perşembe CV'nin üstündeki test şeridi: yalnızca puan. Rengi eşiğe göre, ince göstergede 70'te
- * bir çentik; ayrıntı (cevap kâğıdı) Değerlendirme uygulamasında.
+ * Perşembe CV'nin üstündeki test şeridi: yalnızca puan. Rengi eşiğe göre, ince göstergede 70'te bir çentik.
  */
 export function TestPanel({ id, result }: { id: string; result: AptitudeResult }) {
   const below = result.score < APTITUDE_CUTOFF;

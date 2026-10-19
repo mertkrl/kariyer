@@ -4,7 +4,7 @@ import { audioEngine } from './audio/audioEngine';
 import { trackFor } from './audio/musicPlan';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { UpdateNotice } from './components/ui/UpdateNotice';
-import { RotateHint } from './components/ui/RotateHint';
+import { MobileBlock } from './components/ui/MobileBlock';
 import { useScreenFocus } from './components/ui/useScreenFocus';
 import { useModalTrap } from './components/ui/useModalTrap';
 
@@ -93,7 +93,8 @@ function App() {
         {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
       </Suspense>
       {phase === 'welcome' && <UpdateNotice />}
-      {(phase === 'gameplay' || phase === 'finalRound') && <RotateHint />}
+      {/* telefonda oyun başlamaz: açılış sayfası okunur, gerisi geniş ekran ister */}
+      {phase !== 'welcome' && <MobileBlock />}
     </>
   );
 }

@@ -30,6 +30,17 @@ export function Dossier({ candidate, details, selectedId, invitedOn, agreed, lea
   return (
       <aside className={styles.dossier} aria-label="Aday dosyası">
         <h3>Dosya</h3>
+        <div className={`${styles.test} ${testScore < APTITUDE_CUTOFF ? styles.testBelow : ''}`} aria-label={`Genel yetenek testi ${testScore} / 100, eşik ${APTITUDE_CUTOFF}`}>
+          <span className={styles.testLabel}>Genel yetenek testi</span>
+          <b className="mono">
+            {testScore}
+            <small>/100</small>
+          </b>
+          <span className={styles.testGauge} aria-hidden="true">
+            <i style={{ width: `${testScore}%` }} />
+            <i className={styles.testCut} style={{ left: `${APTITUDE_CUTOFF}%` }} />
+          </span>
+        </div>
         <dl className={styles.facts}>
           <dt>Deneyim</dt>
           <dd>{candidate.experience}</dd>
@@ -41,10 +52,6 @@ export function Dossier({ candidate, details, selectedId, invitedOn, agreed, lea
               <dd>{agreed[selectedId] === null ? 'Anlaşılamadı' : `${agreed[selectedId]?.toLocaleString('tr-TR')} TL`}</dd>
             </>
           )}
-          <dt>Test puanı</dt>
-          <dd className={testScore < APTITUDE_CUTOFF ? styles.below : undefined}>
-            {testScore} · eşik {APTITUDE_CUTOFF}
-          </dd>
           <dt>Son görev</dt>
           <dd>{details.workHistory[0].title}</dd>
           <dt>Konum</dt>

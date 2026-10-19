@@ -82,3 +82,62 @@
   color: var(--red);
   font-weight: 600;
 }
+
+/* Adayın genel yetenek testi puanı: dosyanın başında, eşik çentiğiyle. */
+.test {
+  --tone: var(--teal);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(63, 107, 99, 0.1);
+  box-shadow: inset 3px 0 0 var(--tone);
+}
+
+.testBelow {
+  --tone: var(--red);
+  background: rgba(168, 64, 47, 0.08);
+}
+
+.testLabel {
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.test b {
+  font-size: calc(22px * var(--ts, 1));
+  color: var(--tone);
+}
+
+.test small {
+  font-size: 0.5em;
+  color: var(--text-dim);
+}
+
+.testGauge {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(34, 31, 27, 0.1);
+}
+
+.testGauge i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 2px;
+  background: var(--tone);
+}
+
+.testGauge .testCut {
+  inset: -4px auto -4px auto;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+  opacity: 0.4;
+}

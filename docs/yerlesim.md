@@ -10,7 +10,7 @@ Oyun tek bir masaüstü tasarımının küçültülmüş hali değil; ekranı ü
 | **Uygulama (akışkan arayüz)** | Bilgisayar (portal, e-posta, takvim), telefon, toplantı | Gerçek arayüz gibi akar: sütunlar daralır, satırlar sıkışır. Kırılma noktaları ve çerçeve ölçüleri burada çalışır. |
 | **Sayfa (belge)** | Karşılama, ilan, brifing, gün sonu, final, hafta sonu, oturum raporu | Dikey okunur; dar ekranda tek sütuna iner. Telefonda dik tutulabilir. |
 
-Masa, bilgisayar ve toplantı yatay ekran için tasarlandı. Dik tutulan telefonda (dik ve 760px'ten dar) `RotateHint` ekranı kapatıp yan çevirmeyi ister; oyuncu "yine de dik devam et" diyebilir. Sayfalar dik ekranda da okunur.
+Oyun geniş ekran için tasarlandı. Telefon boyutundaki ekranda (760px'ten dar ya da 520px'ten alçak) açılış sayfası dışında `MobileBlock` ekranı kapatır ve oyunu bilgisayardan açmayı ister; geçilemez.
 
 ## Ortak kırılma noktaları
 
@@ -21,7 +21,7 @@ Bütün stil dosyaları yalnızca bunları kullanır (`styles/layout.css`). `tes
 | Genişlik | ≤1240 | Orta ekran: üst çubuk sıkılaşır |
 | | ≤1100 | Dar pencere: portalın sağ sütunu daralır |
 | | ≤960 | Tablet ya da küçük dizüstü: iki sütunlu sayfalar teke iner, e-posta sütunları daralır |
-| | ≤760 | Telefon: dik tutulursa yan çevirme ipucu |
+| | ≤760 | Telefon: açılış dışında oyun kapanır (`MobileBlock`) |
 | | ≤560 | Küçük telefon: sayfaların kenar boşlukları ve ızgaraları |
 | Yükseklik | ≤820 | Kısa ekran (ör. 1366×657, 1280×720): oyunun çerçevesi incelir |
 | | ≤520 | Çok kısa: yan çevrilmiş telefon; üst çubuk tek satır |

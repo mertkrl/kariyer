@@ -11,7 +11,7 @@ export const days: DayConfig[] = [
     memoFrom: 'Hakan Kaya, İK Müdürü',
     memoTo: 'İşe Alım Uzmanı (siz)',
     memoBody:
-      'Tavrinsa Labs\'a hoş geldiniz. Deneme süreniz bugün başlıyor; masanız hazırlandı, sistem yetkileriniz tanımlandı.\n\nAçık pozisyonumuza 340 başvuru aldık. Yapay zekâ destekli ön eleme sistemimiz bunları sizin için birkaç dosyaya indirdi. Göreviniz bu dosyaları sonuçlandırmak: uygun gördüklerinizi bir sonraki aşamaya, Genel Yetenek ve Uyum Değerlendirmesi\'ne geçirin, diğerlerini eleyin. Teste geçirebileceğiniz kişi sayısında sınır yok. Sonuçlar ertesi sabah Değerlendirme uygulamasına düşer; mülakat davetlerini Perşembe, test puanlarına bakarak yapacağız. Cuma günü mülakata gelenler arasından yalnızca 1 kişiyi işe alacağız.\n\nMesai 08:00–17:00, öğle arası 12:00–13:00. Saat 17:00\'de açık dosya kalırsa tamamlanana kadar, en geç 20:00\'ye dek mesainiz uzar; fazla mesai ücreti ödenmez. Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor.',
+      'Tavrinsa Labs\'a hoş geldiniz. Deneme süreniz bugün başlıyor; masanız hazırlandı, sistem yetkileriniz tanımlandı.\n\nAçık pozisyonumuza 340 başvuru aldık. Yapay zekâ destekli ön eleme sistemimiz bunları sizin için birkaç dosyaya indirdi. Göreviniz bu dosyaları sonuçlandırmak: uygun gördüklerinizi bir sonraki aşamaya, Genel Yetenek ve Uyum Değerlendirmesi\'ne geçirin, diğerlerini eleyin. Teste geçirebileceğiniz kişi sayısında sınır yok. Sonuçlar ertesi sabah adayların dosyalarına düşer; mülakat davetlerini Perşembe, test puanlarına bakarak yapacağız. Cuma günü mülakata gelenler arasından yalnızca 1 kişiyi işe alacağız.\n\nMesai 08:00–17:00, öğle arası 12:00–13:00. Saat 17:00\'de açık dosya kalırsa tamamlanana kadar, en geç 20:00\'ye dek mesainiz uzar; fazla mesai ücreti ödenmez. Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor.',
     goals: [
       'Tüm dosyaları 17:00\'ye kadar sonuçlandır.',
       'Uygun gördüklerini teste geçir, gerisini ele.',
@@ -75,7 +75,7 @@ export const days: DayConfig[] = [
     goals: [
       'Teste geçenlerin dosyalarını sonuçlandır: çağır ya da çağırma.',
       'En fazla 3 adayı yarınki mülakata çağır.',
-      'Puanlar Değerlendirme uygulamasında; cevap kâğıtlarına bakabilirsin.',
+      'Puanlar adayların dosyalarında, CV\'nin üstünde.',
     ],
     approvalLimit: INVITE_LIMIT,
     selection: true,
