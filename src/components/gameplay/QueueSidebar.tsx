@@ -4,16 +4,15 @@ import { Button } from '../ui/Button';
 import { wasConsidered } from '../../game/engine/scoring';
 import styles from '../../screens/GameplayScreen.module.css';
 import own from './QueueSidebar.module.css';
-import { days } from '../../game/data/days';
 
 /** Kuyrukta her dosyanın bir bakışlık durumu: rengi tek başına taşımaz, sözcükle de söyler. */
 type QueueStatus = 'new' | 'opened' | 'reading' | 'approve' | 'reject';
-const STATUS_LABEL: Record<QueueStatus, (selection: boolean) => string> = {
-  new: () => 'Okunmadı',
-  opened: () => 'Açıldı',
-  reading: () => 'Önünde',
-  approve: (selection) => (selection ? '✓ Mülakata çağrıldı' : '✓ Teste geçti'),
-  reject: (selection) => (selection ? '✕ Çağrılmadı' : '✕ Reddedildi'),
+const STATUS_LABEL: Record<QueueStatus, string> = {
+  new: 'Okunmadı',
+  opened: 'Açıldı',
+  reading: 'Önünde',
+  approve: '✓ Mülakata çağrıldı',
+  reject: '✕ Reddedildi',
 };
 
 /*
@@ -54,7 +53,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
   const stayingLate = useGameStore((s) => s.currentDayIndex === TEAM_LATE_DAY && s.workdayMinutes < TEAM_LATE_END);
 
   const lineup = lineupFor({ currentDayIndex, lineups });
-  const selection = Boolean(days[currentDayIndex]?.selection);
+  // her gün onay mülakata davettir
   const todaysRejects = lineup.filter((id) => decisions[id] === 'reject');
   const pendingMails = !rejectionMailsSent && todaysRejects.some((id) => !plannedRejections[id]);
   const plannedCount = Object.keys(plannedRejections).length;
@@ -88,7 +87,7 @@ export function QueueSidebar({ mailsHidden, onShowMails, editingMails, onEditMai
                     {id === NEIGHBOUR_ID && <em className={own.queueTag}>Tavsiye</em>}
                   </span>
                   <span className={`${own.queueStatus} ${own[`status_${status}`]}`} aria-hidden="true">
-                    {STATUS_LABEL[status](selection)}
+                    {STATUS_LABEL[status]}
                   </span>
                 </span>
                 {/* görünen sütun bir bakışlıktır (bir süre, bir çizgi); ekran okuyucu onu sözcüklerle duyar */}

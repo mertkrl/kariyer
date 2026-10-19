@@ -52,7 +52,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'rightone', icon: '🎯', title: 'Doğru Kişi', desc: 'İşe aldığın kişi ekibin yıldızı oldu.', test: (a) => a.hireFit >= 5 },
   { id: 'mom', icon: '❤️', title: 'Annenin Gözbebeği', desc: 'Annenin bütün mesajlarına cevap verdin.', test: (a) => a.momMessages > 0 && a.momAnswered >= a.momMessages },
   { id: 'balance', icon: '⚖️', title: 'Denge Ustası', desc: "Performans ve Vicdan'ı 60'ın üstünde bitirdin.", test: (a) => a.performans >= 60 && a.vicdan >= 60 },
-  { id: 'wide', icon: '📋', title: 'Geniş Ağ', desc: 'Hafta boyunca 10 ya da daha fazla kişiyi teste geçirdin.', test: (a) => a.tested >= 10 },
+  { id: 'wide', icon: '📋', title: 'Geniş Ağ', desc: 'Hafta boyunca 6 ya da daha fazla kişiyi mülakata çağırdın.', test: (a) => a.tested >= 6 },
   { id: 'human-number', icon: '🧮', title: 'Sayıya Değil İnsana', desc: 'Test puanı eşiğin altında kalan güçlü bir adayı yine de mülakata çağırdın.', test: (a) => a.invitedBelowStrong >= 1 },
   { id: 'same-test', icon: '✎', title: 'Aynı Sınavdan', desc: 'Adaylara çözdürülen testi kendin de çözdün.', test: (a) => a.selfScore !== null },
   { id: 'mirror', icon: '🪞', title: 'Ben de Kalırdım', desc: 'Kendi test puanın eşiğin altında kaldı.', test: (a) => a.selfScore !== null && a.selfScore < a.cutoff },

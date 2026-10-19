@@ -30,17 +30,16 @@ function wobble(id: string, label: string) {
 }
 
 /**
- * Raporun bölüm puanları, yüksekten düşüğe. Sayılar genel puanın etrafında dağılır; sistemin
- * işaretlediği bölüm hep en dipte kalır. Bu yalnızca sunuş: karar ve puanlama `aiScore`u okur.
+ * Raporun bölüm puanları, yüksekten düşüğe. Model her bölümü ilanla eşleştirir ve hepsine yüksek
+ * verir; kuralın işaretlediği bölüm de yüksek kalır, yalnızca yanına kuralın gerekçesi düşer.
+ * Model ile kural birbirinden habersizdir. Bu yalnızca sunuş: puanlama `aiScore`u okur.
  */
 function sectionScores(c: Candidate) {
   const reason = /Gerekçe: ([^·]+)/.exec(systemLineWith(c, atsReport(c, 0)))?.[1]?.trim() ?? 'Sistem işareti.';
   const overall = aiScore(c);
   const rows = SECTIONS.map((sec) => {
     const bad = !!sec.field && sec.field === c.flaggedField;
-    const score = bad
-      ? Math.max(5, Math.min(35, Math.round(overall * 0.5)))
-      : Math.max(36, Math.min(96, overall + 18 + wobble(c.id, sec.label)));
+    const score = Math.max(72, Math.min(99, overall + Math.round(wobble(c.id, sec.label) / 2) - (bad ? 3 : 0)));
     const band: Band = score >= 70 ? 'high' : score >= 45 ? 'mid' : 'low';
     return { label: sec.label, score, band, bad, text: bad ? reason : sec.ok };
   });
@@ -113,7 +112,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
             className={styles.analyzeButton}
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            title="Yapay zekaya bu adayı değerlendirt"
+            title="Yapay zekâya bu CV'nin ilanla eşleşmesini ölçtür"
           >
             {isAnalyzing ? (
               <span className={styles.analyzingDots}>
@@ -168,7 +167,7 @@ export function AiPanel({ analysis, aiOffline, itOutage, onBreak }: Props) {
               <li key={r.label} className={`${report[`band_${r.band}`]} ${r.bad ? report.flagged : ''}`}>
                 <span className={report.scoreLabel} title={r.text}>
                   <b>{r.label}</b>
-                  {r.bad && <small>{r.text}</small>}
+                  {r.bad && <small>Kural: {r.text}</small>}
                 </span>
                 <span className={report.scoreTrack} aria-hidden="true">
                   <i style={{ width: `${r.score}%` }} />

@@ -127,6 +127,7 @@ export function WelcomeScreen() {
                 Yeni oyun
               </Button>
             </div>
+            <p className={styles.resumeNote}>{savedDay.dayName} sabahından devam edersin.</p>
           </div>
         ) : (
           <div className={styles.actions}>

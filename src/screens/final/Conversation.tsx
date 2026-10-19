@@ -5,7 +5,7 @@ import type { BackQuestion } from '../../game/data/interviewExtras';
 import { SALARY_CAP } from '../../game/store/store';
 import { PLAYER } from '../../game/lib/player';
 import { AnswerText, CaseCard } from './InterviewParts';
-import { CASE, FOLLOW, FORBIDDEN, LEAD, OWNER, SALARY_LINES, TEST, FORMAL_LINE, WARM_LINE, warmReply, type Entry, type Typing } from './interviewModel';
+import { CASE, FOLLOW, FORBIDDEN, LEAD, OWNER, SALARY_LINES, TEST, FORMAL_LINE, WARM_LINE, warmReply, type Entry, type Typing, EVIDENCE } from './interviewModel';
 import styles from './Conversation.module.css';
 
 /*
@@ -149,7 +149,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   {questionText(e.q, e.about, e.by)}
                 </Turn>
               ) : e.by === 'hakan' ? (
-                <Turn who="Hakan Kaya" role={e.q >= OWNER ? 'İK Müdürü · görüşmeyi yürütüyor' : 'İK Müdürü'} tone="hakan">
+                <Turn who="Hakan Kaya" role={e.q >= OWNER && e.q < EVIDENCE ? 'İK Müdürü · görüşmeyi yürütüyor' : 'İK Müdürü'} tone="hakan">
                   {questionText(e.q, e.about, e.by)}
                 </Turn>
               ) : e.by === 'ayse' || e.by === 'emre' ? (
@@ -157,7 +157,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                   {questionText(e.q, e.about, e.by)}
                 </Turn>
               ) : (
-                <Turn who={PLAYER.name} role={host ? 'Söz aldın' : e.q === TEST ? 'Test sorusu' : e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
+                <Turn who={PLAYER.name} role={e.q >= EVIDENCE ? 'Kanıttan soru' : host ? 'Söz aldın' : e.q === TEST ? 'Test sorusu' : e.q >= FOLLOW ? 'Takip sorusu' : 'İK Uzmanı'} tone="you">
                   {questionText(e.q, e.about, e.by)}
                 </Turn>
               )}
@@ -179,9 +179,9 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
                     ) : (
                       <AnswerText
                         text={answer}
-                        fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : e.q >= OWNER ? ((e.q - OWNER) as 0 | 1 | 2) : undefined}
+                        fallback={e.q < FORBIDDEN ? (e.q as 0 | 1 | 2) : e.q >= OWNER && e.q < EVIDENCE ? ((e.q - OWNER) as 0 | 1 | 2) : undefined}
                         canFollow={canFollow}
-                        onFollow={(e.q < FORBIDDEN && !e.by) || e.q >= OWNER ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
+                        onFollow={(e.q < FORBIDDEN && !e.by) || (e.q >= OWNER && e.q < EVIDENCE) ? (kind, phrase) => ask(FOLLOW + kind, phrase) : undefined}
                       />
                     )}
                   </>

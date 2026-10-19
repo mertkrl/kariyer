@@ -31,7 +31,7 @@ export function DayBriefingScreen() {
               10"da değil diye kimse dönmüyor.
             </li>
             <li>
-              Bugün iki aylık deneme süren başlıyor. Kapıdaki kartında yazan unvan: <b>İşe Alım Uzmanı</b>.
+              Bugün iki aylık deneme süren başlıyor. Resepsiyonda seni bekleyen yaka kartındaki unvan: <b>İşe Alım Uzmanı</b>.
             </li>
           </ul>
           <p className={styles.introLine}>Masana bir CV yığını gelecek. Bu kez okuyan sensin. Onlara, sana davranılmadığı gibi mi davranacaksın?</p>

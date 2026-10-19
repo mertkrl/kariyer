@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useGameStore } from '../../game/store/store';
 import { audioEngine } from '../../audio/audioEngine';
 import { TEXT_SCALES, applyTextScale, loadTextScale } from '../../game/lib/textScale';
+import { applyMotionReduced, loadMotionReduced } from './motion';
 import styles from './SettingsPanel.module.css';
 
 function MusicGlyph() {
@@ -117,6 +118,7 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
   const [confirmHome, setConfirmHome] = useState(false);
   const [showKeys, setShowKeys] = useState(false);
   const [textScale, setTextScale] = useState(loadTextScale);
+  const [motionReduced, setMotionReduced] = useState(loadMotionReduced);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -179,6 +181,20 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
               ))}
             </div>
           </div>
+          <label className={styles.switchRow}>
+            <span>Hareketi azalt</span>
+            <input
+              type="checkbox"
+              checked={motionReduced}
+              onChange={() => {
+                applyMotionReduced(!motionReduced);
+                setMotionReduced(!motionReduced);
+              }}
+            />
+            <span className={styles.switchTrack} aria-hidden="true">
+              <span className={styles.switchThumb} />
+            </span>
+          </label>
         </div>
 
         <button
@@ -217,7 +233,7 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
 
         {confirmHome ? (
           <div className={styles.confirmHome}>
-            <span>İlerlemen kaybolacak. Emin misin?</span>
+            <span>Bugünkü ilerlemen kaybolacak; ana sayfadaki “Devam et” seni bu günün başına götürür. Emin misin?</span>
             <div className={styles.actions}>
               <button className={styles.btn} onClick={() => setConfirmHome(false)}>
                 Vazgeç

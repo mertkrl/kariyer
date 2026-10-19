@@ -136,7 +136,7 @@ export function DayEndScreen() {
 
           <section className={styles.card}>
             <div className={styles.panelHead}>
-              Günün kararları <span className="mono">{dayStats.approved} {day.selection ? 'mülakat' : 'teste geçti'} · {dayStats.rejected} {day.selection ? 'çağrılmadı' : 'ret'}</span>
+              Günün kararları <span className="mono">{dayStats.approved} mülakata çağrıldı · {dayStats.rejected} ret</span>
             </div>
             <ul className={`${styles.decisionList} ${lineup.length > 7 ? styles.decisionListTwo : ''}`}>
               {lineup.map((id) => {

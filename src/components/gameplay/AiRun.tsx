@@ -21,7 +21,7 @@ function stepsFor(c: Candidate, applications: number) {
     { label: 'Belge ayrıştırılıyor', log: `parse  ${ats.parsed}/8 alan · ${ats.parseNote}` },
     { label: 'Alanlar çıkarılıyor', log: `ner    deneyim="${c.experience}" · unvan="${ats.title}"` },
     { label: 'Anahtar kelime eşleşmesi', log: `match  ${ats.matched.length}/${AD_KEYWORDS.length} · ATS %${pct}` },
-    { label: 'Model puanlaması', log: 'score  tavsiye-modeli v3.2 · 41 özellik' },
+    { label: 'Model puanlaması', log: 'score  eşleşme-modeli v3.2 · ilan metnine benzerlik' },
     { label: 'Sıralama', log: `rank   #${ats.rank} / ${ats.of}` },
   ];
 }
@@ -95,7 +95,7 @@ export function ScoreDial({ candidate, reportOpen, onToggleReport }: { candidate
   const C = 2 * Math.PI * R;
   return (
     <div className={`${styles.result} ${tone}`}>
-      <svg className={styles.dial} viewBox="0 0 52 52" role="img" aria-label={`Uygunluk puanı ${score} / 100`}>
+      <svg className={styles.dial} viewBox="0 0 52 52" role="img" aria-label={`İlanla eşleşme ${score} / 100`}>
         <circle className={styles.dialTrack} cx="26" cy="26" r={R} />
         <circle className={styles.dialValue} cx="26" cy="26" r={R} strokeDasharray={C} strokeDashoffset={C * (1 - shown / 100)} />
         <text x="26" y="29.5" textAnchor="middle" className={styles.dialText}>
@@ -103,8 +103,8 @@ export function ScoreDial({ candidate, reportOpen, onToggleReport }: { candidate
         </text>
       </svg>
       <div className={styles.resultText}>
-        <span className={styles.resultLabel}>Uygunluk puanı · 100 üzerinden</span>
-        <b>{VERDICT_NAME[candidate.verdict]}</b>
+        <span className={styles.resultLabel}>İlanla eşleşme · 100 üzerinden</span>
+        <b>Kural kontrolü: {VERDICT_NAME[candidate.verdict]}</b>
         <button type="button" className={styles.reportButton} onClick={onToggleReport} aria-expanded={reportOpen}>
           {reportOpen ? 'Raporu kapat' : 'Raporu aç →'}
         </button>

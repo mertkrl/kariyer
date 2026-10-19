@@ -8,6 +8,7 @@ import { EXTRA_CANDIDATES, EXTRA_FEMALE } from '../src/game/data/extraCandidates
 import { days } from '../src/game/data/days';
 import { REQUESTS } from '../src/game/data/phoneScript';
 import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/game/day/lineups';
+import { hasSite } from '../src/game/data/portfolios';
 import { rngFor } from '../src/game/lib/rng';
 import { jobDrafts, salaryText } from '../src/game/data/jobs';
 
@@ -77,21 +78,19 @@ test('karışık kadro aynı adayları dağıtır, hikâye karakterleri kendi g�
   }
 });
 
-test('yapay zekâ puanı 0–100 arasında, sabit ve sistemin önerisiyle aynı sırada', async () => {
+test('yapay zekâ eşleşme puanı masadaki herkese yüksek, sabit ve kimseyi ayırmıyor', async () => {
   const { aiScore } = await import('../src/game/day/ats');
-  const order = ['out', 'low', 'review', 'priority'];
   const byVerdict = new Map<string, number[]>();
   for (const c of Object.values(candidates)) {
     const s = aiScore(c);
-    assert.ok(Number.isInteger(s) && s >= 0 && s <= 100, `${c.id}: ${s}`);
+    assert.ok(Number.isInteger(s) && s >= 84 && s <= 98, `${c.id}: ${s}`);
     assert.equal(aiScore(c), s);
     byVerdict.set(c.verdict, [...(byVerdict.get(c.verdict) ?? []), s]);
   }
-  for (let i = 1; i < order.length; i++) {
-    const below = Math.max(...(byVerdict.get(order[i - 1]) ?? [0]));
-    const above = Math.min(...(byVerdict.get(order[i]) ?? [100]));
-    assert.ok(below < above, `${order[i - 1]} en yüksek ${below} ≥ ${order[i]} en düşük ${above}`);
-  }
+  // kuralın elediği en iyi dosya, önceliklilerin en kötüsünü geçebilir: puan ayırıcı değil
+  assert.ok(Math.max(...(byVerdict.get('out') ?? [0])) > Math.min(...(byVerdict.get('priority') ?? [100])));
+  // cilalı CV'ler en tepede
+  assert.equal(Math.max(...Object.values(candidates).map(aiScore)), aiScore(candidates.serkan));
 });
 
 test('her ilan maaş aralığını açıkça yazar', () => {
@@ -119,5 +118,14 @@ test('adayların karşı soruları deneyime bağlı: yeniler az ve amatörce, de
   for (const id of ids) {
     const qs = backQuestionsFor(id, experienceYears(candidates[id].experience), ids.slice(0, 6)).map((q) => q.question);
     assert.equal(new Set(qs).size, qs.length, id);
+  }
+});
+
+test('her CV gününde en az bir adayın sitesi var', () => {
+  for (let seed = 1; seed <= 300; seed++) {
+    const lineups = makeLineups(rngFor(seed, 'lineups'));
+    lineups.forEach((l, d) => {
+      if (l.length) assert.ok(l.some(hasSite), `tohum ${seed}, gün ${d + 1}: sitesi olan aday yok`);
+    });
   }
 });

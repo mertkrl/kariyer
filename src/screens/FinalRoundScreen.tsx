@@ -8,7 +8,7 @@ import { Button } from '../components/ui/Button';
 import { INTERVIEWER, ownerOf } from '../game/events/panel';
 import { SoundToggle } from '../components/ui/SoundToggle';
 import { audioEngine } from '../audio/audioEngine';
-import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, OWNER, PANEL_SIZE, QUESTION_BUDGET, TEST, ownerQuestion, runnerFor } from './final/interviewModel';
+import { CASE, COLLEAGUES, FALLBACK, FOLLOW, FORBIDDEN, INTERVIEW_LIMIT, LEAD, OWNER, PANEL_SIZE, QUESTION_BUDGET, TEST, ownerQuestion, runnerFor, EVIDENCE } from './final/interviewModel';
 import { APTITUDE_CUTOFF } from '../game/events/aptitude';
 import { candidateAptitude, testTalk } from '../game/events/aptitude';
 import { useInterview } from './final/useInterview';
@@ -76,7 +76,9 @@ export function FinalRoundScreen() {
   }, [interview.log, typing, selectedId]);
 
   const questionText = (q: number, about?: string, by?: string) =>
-    q >= OWNER && (by === 'ayse' || by === 'emre' || by === 'hakan')
+    q >= EVIDENCE
+      ? (interview.cards.find((c) => c.code === q)?.question ?? '')
+      : q >= OWNER && (by === 'ayse' || by === 'emre' || by === 'hakan')
       ? ownerQuestion(by, FINAL_INTERVIEW_QUESTIONS[q - OWNER], candidateAptitude(selectedId, seed).score, APTITUDE_CUTOFF, by === bringer, by === runnerOfId(selectedId))
       : q === TEST
       ? testTalk(selectedId, seed).question
@@ -203,9 +205,23 @@ export function FinalRoundScreen() {
                     {candidate.age} yaşında · {candidate.role}
                   </div>
                 </div>
-                <span className={`${styles.roomState} ${styles['state_' + stateOf(selectedId)]}`}>
-                  {ended ? 'Görüşme tamamlandı' : hostName ? `${hostName} yürütüyor · sorun ${mine.length}/${QUESTION_BUDGET}` : entries.length ? `Soru ${mine.length}/${QUESTION_BUDGET}` : 'Görüşme başlamadı'}
-                </span>
+                <div className={styles.track}>
+                  <ol aria-label="Görüşmenin adımları">
+                    {['Açılış', 'Sorular', 'Panel', 'Maaş', 'Puan'].map((step, i) => {
+                      const now = ended ? 5 : room.warm === null ? 0 : !handedOff ? 1 : !salaryPending && !backsDone && !room.salaryDone ? 2 : !backsDone ? 3 : 4;
+                      return (
+                        <li key={step} className={i < now ? styles.trackDone : i === now ? styles.trackNow : undefined} aria-current={i === now ? 'step' : undefined}>
+                          {step}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                  <span className={`${styles.roomState} ${styles['state_' + stateOf(selectedId)]}`}>
+                    {ended
+                      ? 'Görüşme tamamlandı'
+                      : `${hostName ? `${hostName} yürütüyor · ` : ''}soru ${mine.length}/${QUESTION_BUDGET}${interview.cards.filter((c) => !questions.some((e) => e.q === c.code)).length ? ` · ${interview.cards.filter((c) => !questions.some((e) => e.q === c.code)).length} kanıt` : ''}`}
+                  </span>
+                </div>
               </header>
 
               <Conversation
@@ -238,6 +254,7 @@ export function FinalRoundScreen() {
                 mine={mine}
                 canFollow={canFollow}
                 canTest={!room.testUsed}
+                cards={interview.cards.filter((c) => !questions.some((e) => e.q === c.code))}
                 scores={scores[selectedId] ?? {}}
                 onScore={setScore}
                 ask={ask}
@@ -264,6 +281,7 @@ export function FinalRoundScreen() {
               followUsed={followUsed && !typing}
               caseAsked={leadHeard}
               rattled={leadHeard && rattled(selectedId)}
+              evidence={interview.cards.map((c) => c.label)}
             />
           </div>
 
@@ -288,7 +306,7 @@ export function FinalRoundScreen() {
           structured={structured}
           agreed={agreed}
           onClose={() => setConfirming(false)}
-          onConfirm={(decided, recommended) => hire(recommended, { agreed, decided })}
+          onConfirm={(decided, recommended) => hire(recommended, { agreed, decided, scores })}
         />
       )}
     </div>

@@ -9,10 +9,7 @@ import { CvBody } from './CvBody';
 import { scanAt } from './scan';
 import styles from '../../screens/GameplayScreen.module.css';
 import own from './CandidateCard.module.css';
-import { TestPanel } from './TestPanel';
 import { avatarStyle } from '../ui/avatarStyle';
-import { days } from '../../game/data/days';
-import { candidateAptitude } from '../../game/events/aptitude';
 
 /*
  * Açık CV: referans aramalı başlık, dosyanın kendisi ve ya iki düğme (bugünün mülakat
@@ -40,9 +37,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const quotaCut = useGameStore((s) => s.quotaCut);
   const referenceChecks = useGameStore((s) => s.referenceChecks);
   const effect = useGameStore((s) => (s.currentCandidateId ? s.decisionEffects[s.currentCandidateId] : undefined));
-  const seed = useGameStore((s) => s.seed);
-  // CV günlerinde onay teste geçirmektir; seçim günü (Perşembe) mülakata çağırmak
-  const selection = Boolean(days[currentDayIndex]?.selection);
+  // her CV gününde onay, Cuma mülakatına davettir
   const lineBusy = useGameStore((s) => Boolean(s.desk.inCall || s.desk.ringing));
   const callReference = useGameStore((s) => s.callReference);
   const decide = useGameStore((s) => s.decide);
@@ -56,7 +51,6 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
   const decidedForCurrent = currentCandidateId ? decisions[currentCandidateId] : undefined;
   const quota = approvalQuota({ currentDayIndex, decisions, finalists, lineups, quotaCut });
   const quotaReason = quota.dailyLeft === 0 ? (quota.dailyLimit === 0 ? 'Performansın düşük: Hakan Bey mülakat hakkını kaldırdı' : 'Mülakat hakkın doldu') : null;
-  const test = selection && candidate ? candidateAptitude(candidate.id, seed) : null;
   const decidedAt = decisionLog.find((e) => e.id === currentCandidateId)?.at;
   const lineup = lineupFor({ currentDayIndex, lineups });
   const nextUndecidedId = lineup.find((id) => !decisions[id] && id !== currentCandidateId);
@@ -99,7 +93,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
               key={`${candidate.id}-${decidedForCurrent}`}
               className={`${styles.stamp} ${decidedForCurrent === 'approve' ? own.stampApprove : own.stampReject}`}
             >
-              {decidedForCurrent === 'approve' ? (selection ? 'MÜLAKATTA' : 'TESTTE') : selection ? 'ÇAĞRILMADI' : 'REDDEDİLDİ'}
+              {decidedForCurrent === 'approve' ? 'MÜLAKATTA' : 'REDDEDİLDİ'}
             </div>
           )}
 
@@ -139,10 +133,9 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           </header>
 
-          {test && <TestPanel id={candidate.id} result={test} />}
 
           {/* kişiye göre anahtarlı: her CV en üstünden açılır, bir öncekinin kaydırıldığı yerden değil */}
-          <CvBody key={candidate.id} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} onReadThrough={() => markReadThrough(candidate.id)} />
+          <CvBody key={candidate.id} onBreak={onBreak} candidate={candidate} details={details} scanning={isAnalyzing} verdicts={isAnalyzed && !isAnalyzing} onReadThrough={() => markReadThrough(candidate.id)} />
 
           <div className={styles.grow} />
 
@@ -152,7 +145,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             >
               <div className={own.decisionInfo}>
                 <span className={own.decisionTitle}>
-                  {decidedForCurrent === 'approve' ? (selection ? '✓ Mülakata çağrıldı' : '✓ Sonraki aşamaya geçti') : selection ? '✕ Çağrılmadı' : '✕ Reddedildi'}
+                  {decidedForCurrent === 'approve' ? '✓ Mülakata çağrıldı' : '✕ Reddedildi'}
                 </span>
                 {effect?.reason && (
                   <span className={own.decisionWhy}>
@@ -175,8 +168,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
             </div>
           ) : (
             <div className={styles.actionArea} data-tour="actions">
-              {selection ? (
-                <div className={`${own.quotaLine} ${quotaReason ? own.quotaFull : ''}`}>
+              <div className={`${own.quotaLine} ${quotaReason ? own.quotaFull : ''}`}>
                   {quotaCut && !quotaReason && <>⚠ Performansın düşük: Hakan Bey mülakat hakkını bir azalttı. </>}
                   {quotaReason ? (
                     <>⛔ {quotaReason} — bu adayı çağırmayabilir ya da çağırdığın başka birini geri alabilirsin.</>
@@ -186,20 +178,19 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
                     </>
                   )}
                 </div>
-              ) : null}
               <div className={own.actionBar}>
                 <Button
                   variant="primary"
                   sound="none"
                   onClick={() => decide('approve')}
                   disabled={!quota.canApprove}
-                  title={quotaReason ?? (selection ? 'Adayı cuma günkü mülakata çağır' : 'Adayı Genel Yetenek ve Uyum Değerlendirmesi\'ne geçir')}
+                  title={quotaReason ?? 'Adayı cuma günkü mülakata çağır'}
                   aria-keyshortcuts="M"
                 >
-                  {selection ? '✓ MÜLAKATA ÇAĞIR' : '✓ SONRAKİ AŞAMA'}
+                  ✓ MÜLAKATA ÇAĞIR
                 </Button>
-                <Button variant="danger" sound="none" onClick={() => decide('reject')} title={selection ? 'Adayı mülakata çağırma' : 'Adayı reddet'} aria-keyshortcuts="R">
-                  {selection ? '✕ ÇAĞIRMA' : '✕ REDDET'}
+                <Button variant="danger" sound="none" onClick={() => decide('reject')} title="Adayı reddet" aria-keyshortcuts="R">
+                  ✕ REDDET
                 </Button>
               </div>
             </div>
@@ -211,7 +202,7 @@ export function CandidateCard({ isAnalyzing, isAnalyzed, onBreak, nameRef }: Pro
       {/* karar ve yaptığı, ekran okuyucular için bir kez okunur */}
       <div className="sr-only" aria-live="polite">
         {candidate && decidedForCurrent && effect?.reason
-          ? `${decidedForCurrent === 'approve' ? (selection ? 'Mülakata çağrıldı' : 'Sonraki aşamaya geçti') : selection ? 'Çağrılmadı' : 'Reddedildi'}. ${effect.reason}`
+          ? `${decidedForCurrent === 'approve' ? 'Mülakata çağrıldı' : 'Reddedildi'}. ${effect.reason}`
           : ''}
       </div>
     </div>

@@ -126,3 +126,8 @@
 .testQuestion small {
   color: var(--text-muted);
 }
+
+/* kanıttan soru: haftanın kanıtı, mavi bir kenarla */
+.evidenceQuestion {
+  box-shadow: inset 3px 0 0 #1a56c4;
+}

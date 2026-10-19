@@ -1,8 +1,10 @@
 /*
- * CvBody: özgeçmiş düzeni. Bir İK uzmanının 6 saniyede taradığı sıra: özet → son pozisyon →
- * başarılar; sağda bir bakışlık bilgiler. Başlıklar küçük harf aralıklı etiket + ince çizgi,
- * dönemler sağa hizalı; süsten çok hiyerarşi.
+ * CvBody: kartın tamamını kaplayan bir özgeçmiş sayfası. Solda krem bir bilgi sütunu, sağda
+ * özgeçmiş. Renkler oyunun kendi sistemi: kâğıt, mürekkep, teal başlıklar, altın vurgu. Ölçüler ekran
+ * yüksekliğiyle birlikte daralır, yazılar oyunun yazı ölçeğine (--ts) uyar.
  */
+
+/* ── yapay zekânın başparmakları ── */
 .verdictIcon {
   display: inline-flex;
   align-items: center;
@@ -19,303 +21,13 @@
 }
 
 .verdictGood {
-  background: rgba(111, 163, 122, 0.18);
+  background: rgba(111, 163, 122, 0.22);
   color: var(--green);
 }
 
 .verdictBad {
-  background: rgba(168, 64, 47, 0.16);
+  background: rgba(168, 64, 47, 0.18);
   color: var(--red);
-}
-
-/* dosya sonu işareti (CvBody: useSeenToEnd) */
-.cvEnd {
-  grid-column: 1 / -1;
-  height: 1px;
-}
-
-.cv {
-  color: var(--ink);
-  row-gap: clamp(6px, 1vh, 16px);
-}
-
-.cvMain,
-.cvSide {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 2vh, 18px);
-  min-width: 0;
-}
-
-/* yan sütun: kâğıdın içinde hafif bir kutu, sol kenarda ince bir ayraç */
-.cvSide {
-  padding: 16px 18px;
-  border-radius: var(--radius-md);
-  background: var(--paper-muted);
-  border: 1px solid var(--border-muted);
-  border-top: 3px solid var(--gold);
-}
-
-/* ana sütunun bölümleri birbirinden net ayrılır */
-.cvMain > .cvSection + .cvSection {
-  padding-top: 2px;
-}
-
-.cvSection {
-  position: relative;
-  border-radius: 6px;
-}
-
-/* bölüm başlığı: etiket + satırın sonuna uzanan ince çizgi */
-.cvSection h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 10px;
-  font-family: var(--font-body);
-  font-size: calc(11.5px * var(--ts, 1));
-  font-weight: 800;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-.cvSection h3::after {
-  content: '';
-  flex: 1;
-  height: 2px;
-  background: var(--ink);
-  opacity: 0.18;
-}
-
-.cvSection h3 small {
-  font-size: calc(10.5px * var(--ts, 1));
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text-dim);
-}
-
-.cvSection p {
-  margin: 0;
-  font-size: calc(13px * var(--ts, 1));
-  line-height: 1.55;
-  color: var(--text-faint);
-}
-
-.cvSummary {
-  font-size: calc(14px * var(--ts, 1)) !important;
-  color: var(--ink) !important;
-}
-
-/* deneyim: unvan ve dönem aynı satırda, şirket altında, not en altta */
-.cvJobs {
-  list-style: none;
-  margin: 0 0 0 8px;
-  padding: 0 0 0 16px;
-  border-left: 2px solid var(--border-muted);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.cvJobs li {
-  position: relative;
-}
-
-.cvJobs li::before {
-  content: '';
-  position: absolute;
-  left: -22px;
-  top: 5px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0 3px var(--paper-light);
-}
-
-.cvJobHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  font-size: calc(14px * var(--ts, 1));
-}
-
-.cvJobHead b {
-  font-weight: 700;
-  font-size: calc(14.5px * var(--ts, 1));
-  color: var(--ink);
-}
-
-.cvPeriod {
-  flex-shrink: 0;
-  font-size: calc(11.5px * var(--ts, 1));
-  color: var(--text-muted);
-}
-
-.cvCompany {
-  font-size: calc(13px * var(--ts, 1));
-  font-weight: 600;
-  color: var(--blue-ink);
-}
-
-.cvJobNote {
-  margin-top: 4px !important;
-  font-size: calc(12.5px * var(--ts, 1)) !important;
-}
-
-.cvList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: calc(13px * var(--ts, 1));
-  line-height: 1.5;
-  color: var(--text-faint);
-}
-
-.cvList li {
-  position: relative;
-  padding-left: 14px;
-}
-
-.cvList li::before {
-  content: '';
-  position: absolute;
-  left: 2px;
-  top: 0.62em;
-  width: 5px;
-  height: 5px;
-  background: var(--gold);
-}
-
-.cvStrong {
-  font-family: var(--font-display);
-  font-size: calc(22px * var(--ts, 1)) !important;
-  font-weight: 700;
-  color: var(--ink) !important;
-}
-
-.cvChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.cvChips span {
-  padding: 3px 9px;
-  border-radius: var(--radius-sm);
-  background: var(--paper-light);
-  border: 1px solid var(--border-muted);
-  font-size: calc(12px * var(--ts, 1));
-  color: var(--ink);
-}
-
-/* başvuru formu: CV'nin altında, iki sütun boyunca ayrı bir şerit */
-.cvForm {
-  grid-column: 1 / -1;
-  padding: 12px 0 0;
-  border-top: 1px solid var(--border-muted);
-}
-
-/* her cevap bir alıntı: solda ince bir çizgi, zemin yok; soru küçük etiket, cevap okunur metin */
-.cvQa div {
-  padding: 2px 0 2px 12px;
-  border-left: 2px solid rgba(201, 162, 39, 0.55);
-}
-
-.cvQa {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 20px;
-}
-
-.cvQa div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: calc(12.5px * var(--ts, 1));
-  line-height: 1.45;
-}
-
-.cvQa b {
-  font-size: calc(11px * var(--ts, 1));
-  font-weight: 600;
-  color: var(--text-dim);
-}
-
-.cvQa span {
-  color: var(--ink);
-}
-
-/* altta CV'nin devamı var: alt kenarı soluklaşır */
-.cvBodyMore {
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
-}
-
-/* CV tek ekrana sığsın: aralıklar ve yazılar ekran yüksekliğiyle birlikte daralır */
-.cvMain,
-.cvSide {
-  gap: clamp(6px, 0.95vh, 14px);
-}
-
-.cvSide {
-  padding: clamp(8px, 1.3vh, 14px) 14px;
-}
-
-.cvSection h3 {
-  margin-bottom: clamp(3px, 0.5vh, 8px);
-}
-
-.cvSection p,
-.cvList {
-  font-size: calc(clamp(11.5px, 1.4vh, 13px) * var(--ts, 1));
-  line-height: 1.38;
-}
-
-.cvJobs {
-  gap: clamp(4px, 0.8vh, 12px);
-}
-
-.cvJobHead,
-.cvJobHead b {
-  font-size: calc(clamp(12px, 1.5vh, 14px) * var(--ts, 1));
-}
-
-.cvCompany,
-.cvJobNote {
-  font-size: calc(clamp(11px, 1.35vh, 12.5px) * var(--ts, 1)) !important;
-}
-
-.cvStrong {
-  font-size: calc(clamp(16px, 2.2vh, 20px) * var(--ts, 1)) !important;
-}
-
-.cvForm {
-  padding: clamp(6px, 1vh, 12px) 14px;
-}
-
-.cvSummary {
-  font-size: calc(clamp(12.5px, 1.55vh, 14px) * var(--ts, 1)) !important;
-}
-
-.cvQa {
-  gap: 8px 16px;
-}
-
-.cvQa div {
-  padding: 1px 0 1px 12px;
-  font-size: calc(clamp(11px, 1.35vh, 12.5px) * var(--ts, 1));
-}
-
-@media (max-width: 760px) {
-  .cvQa {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @keyframes verdictPop {
@@ -329,13 +41,458 @@
   }
 }
 
-/* eğitim ve sertifikalar yan yana: kısa iki bölüm bir satır kaplar, CV kaydırmadan sığar */
-.cvMain {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 16px;
+/* ── görüntüleyici: kartın içinde kayan gri zemin ── */
+.viewer {
+  container-type: inline-size;
+  display: flex !important;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vh, 16px);
+  padding: 2px 2px 6px;
 }
 
-.cvMain > .cvSection:not(:nth-last-child(-n + 2)) {
-  grid-column: 1 / -1;
+.viewerMore {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
+}
+
+.end {
+  height: 1px;
+}
+
+/* ── sayfa ── */
+.sheet {
+  flex: 1 0 auto;
+  display: grid;
+  grid-template-columns: minmax(170px, 32%) minmax(0, 1fr);
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  background: #fffdf8;
+  box-shadow: 0 1px 0 rgba(34, 31, 27, 0.04), 0 6px 18px rgba(34, 31, 27, 0.07);
+}
+
+.block {
+  position: relative;
+  border-radius: 4px;
+}
+
+/* ── sol sütun: lacivert, açık yazı ── */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.9vh, 20px);
+  padding: clamp(16px, 2.4vh, 26px) clamp(14px, 1.6vw, 22px);
+  border-right: 1px solid var(--border-muted);
+  background: var(--paper-muted);
+  color: var(--text-faint);
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.5;
+}
+
+.side h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border-muted);
+  color: var(--teal);
+  font-family: var(--font-body);
+  font-size: calc(10.5px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.side p {
+  margin: 0;
+  color: var(--text-faint);
+}
+
+.contact,
+.plain {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  word-break: break-word;
+}
+
+.salary b {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: calc(clamp(18px, 2.4vh, 22px) * var(--ts, 1));
+  line-height: 1.1;
+}
+
+.salary small {
+  color: var(--text-muted);
+  font-size: calc(11px * var(--ts, 1));
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skills li {
+  padding: 2px 9px;
+  border: 1px solid var(--border-muted);
+  border-radius: 999px;
+  background: var(--paper-light);
+  color: var(--ink);
+  font-size: calc(11.5px * var(--ts, 1));
+}
+
+/* ── sağ sütun: özgeçmişin kendisi ── */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.9vh, 20px);
+  min-width: 0;
+  padding: clamp(16px, 2.4vh, 28px) clamp(16px, 2vw, 30px);
+  color: var(--text-faint);
+  font-size: calc(13px * var(--ts, 1));
+  line-height: 1.5;
+}
+
+.title {
+  padding-bottom: clamp(8px, 1.3vh, 14px);
+  border-bottom: 2px solid var(--ink);
+}
+
+.title h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: calc(clamp(22px, 3.2vh, 30px) * var(--ts, 1));
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.title span {
+  display: block;
+  margin-top: 3px;
+  color: var(--teal);
+  font-size: calc(12.5px * var(--ts, 1));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.main h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: var(--teal);
+  font-family: var(--font-body);
+  font-size: calc(11.5px * var(--ts, 1));
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.main h4::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-muted);
+}
+
+.main h4 small {
+  color: var(--text-muted);
+  font-size: calc(11px * var(--ts, 1));
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.main p {
+  margin: 0;
+}
+
+.profile {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: calc(clamp(13px, 1.7vh, 15px) * var(--ts, 1));
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* deneyim: unvan ve dönem bir satırda, şirket altında, açıklama en altta */
+.jobs {
+  display: grid;
+  gap: clamp(8px, 1.3vh, 14px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jobs li {
+  padding-left: 12px;
+  border-left: 2px solid var(--gold);
+}
+
+.jobHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.jobHead b {
+  color: var(--ink);
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.jobHead span {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: calc(11.5px * var(--ts, 1));
+}
+
+.company {
+  color: var(--blue-ink);
+  font-size: calc(12.5px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.jobs p {
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: calc(12.5px * var(--ts, 1));
+}
+
+.bullets {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bullets li {
+  position: relative;
+  padding-left: 16px;
+}
+
+.bullets li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+/* ── ATS paneli: sayfanın dışında, sistemin kendi formu ── */
+.form {
+  flex-shrink: 0;
+  width: 100%;
+  padding: clamp(10px, 1.5vh, 14px) clamp(12px, 1.6vw, 18px);
+  border: 1px dashed var(--border-muted);
+  border-radius: var(--radius-md);
+  background: var(--paper-muted);
+  box-sizing: border-box;
+}
+
+.form h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 700;
+}
+
+.formTag {
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: var(--teal);
+  color: var(--paper-light);
+  font-size: calc(10px * var(--ts, 1));
+  letter-spacing: 0.1em;
+}
+
+.qa {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.qa div {
+  display: grid;
+  gap: 4px;
+}
+
+.qa b {
+  color: var(--text-dim);
+  font-size: calc(11.5px * var(--ts, 1));
+  font-weight: 600;
+}
+
+.qa span {
+  padding: 7px 10px;
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  background: #fffdf8;
+  color: var(--ink);
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.45;
+}
+
+/* sütunların içi: bölümler alt alta */
+.colA,
+.colB {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vh, 18px);
+  min-width: 0;
+}
+
+/* geniş kart: CV aşağı değil yana yayılır, kaydırmadan sığar. Özgeçmiş iki sütun
+   (profil + deneyim | projeler + başarılar + eğitim), bilgi sütunu sağa geçer. */
+@container (min-width: 1000px) {
+  .sheet {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 34%);
+  }
+
+  /* bilgi sütunu iki sütuna bölünür: kısa bölümler yan yana, uzunlar tam genişlik */
+  .side {
+    order: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-content: start;
+    column-gap: 16px;
+    row-gap: clamp(6px, 1.1vh, 12px);
+    border-right: 0;
+    border-left: 1px solid var(--border-muted);
+    padding: clamp(10px, 1.5vh, 18px) 18px;
+  }
+
+  .side > .wide {
+    grid-column: 1 / -1;
+  }
+
+  /* sayfa kartın altına kadar uzanır: form en altta, aradaki yer özgeçmişin */
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    align-content: stretch;
+    column-gap: 28px;
+    row-gap: clamp(8px, 1.2vh, 14px);
+    padding: clamp(10px, 1.5vh, 18px) 24px;
+  }
+
+  .title,
+  .full {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .title span {
+    margin-top: 0;
+  }
+
+  .colA,
+  .colB {
+    gap: clamp(8px, 1.4vh, 14px);
+  }
+
+  .form {
+    grid-column: 1 / -1;
+    align-self: end;
+    padding: 8px 14px;
+  }
+
+  /* yer var: yazılar bir kademe büyür, bölümler yukarıdan hizalı kalır */
+  .main {
+    font-size: calc(13.5px * var(--ts, 1));
+  }
+
+  .side {
+    font-size: calc(12.5px * var(--ts, 1));
+  }
+
+  .profile {
+    font-size: calc(clamp(14px, 1.8vh, 16px) * var(--ts, 1));
+  }
+
+  .jobHead b {
+    font-size: calc(15px * var(--ts, 1));
+  }
+
+  .company,
+  .jobs p,
+  .qa span {
+    font-size: calc(13px * var(--ts, 1));
+  }
+
+  .viewer {
+    padding: 0 0 2px;
+  }
+
+  .side h4,
+  .main h4 {
+    margin-bottom: 4px;
+    padding-bottom: 3px;
+  }
+
+  .main h4 {
+    padding-bottom: 0;
+  }
+
+  .side,
+  .main {
+    line-height: 1.42;
+  }
+
+  .form h4 {
+    margin-bottom: 6px;
+  }
+
+  /* cevaplar kutusuz: soru küçük etiket, cevap tek düz metin */
+  .qa span {
+    padding: 0 0 0 10px;
+    border: 0;
+    border-left: 2px solid var(--gold);
+    border-radius: 0;
+    background: none;
+  }
+}
+
+/* dar kart: sayfa tek sütun, sol sütun üste */
+@container (max-width: 640px) {
+  .sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side {
+    order: 2;
+  }
+
+  .qa {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .qa {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

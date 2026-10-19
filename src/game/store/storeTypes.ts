@@ -74,6 +74,10 @@ export interface StoryState {
   stranded?: string[];
   /** Değerlendirme uygulamasında kendin çözdüğün test; adayların arasında görünür. */
   aptitude?: AptitudeResult;
+  /** Hafta boyunca CV'deki bağlantısını açıp sitesine baktığın adaylar (Cuma kanıt kartları). */
+  sitesOpened?: string[];
+  /** Cuma mülakatlarında puan kartına verdiğin puanlar (aday → ölçüt → 1–5). */
+  interviewScores?: Record<string, Partial<Record<string, number>>>;
 }
 
 /** Bilgisayarın çevresindeki masa: sabit hat, kahve kupası, hoş geldin çiçekleri. */

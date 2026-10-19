@@ -266,6 +266,18 @@ export function scoreGap(scores: Record<string, Scores>, targets: (id: string) =
   return gap >= 0.75 ? Math.round(gap * 10) / 10 : null;
 }
 
+/**
+ * Puanların isabeti: verdiğin ortalama ile adayın işte gerçekte nasıl çıktığı (hireFit, 1–5).
+ * Bir puandan fazla sapanlar "yanılgı"dır; yönü (fazla mı, az mı verdin) ayrıca tutulur.
+ */
+export function scoreCalibration(scores: Record<string, Scores>, fitOf: (id: string) => number) {
+  const rated = Object.keys(scores)
+    .map((id) => ({ id, given: average(scores[id]), fit: fitOf(id) }))
+    .filter((r): r is { id: string; given: number; fit: number } => r.given !== null);
+  const misses = rated.filter((r) => Math.abs(r.given - r.fit) > 1).map((r) => ({ ...r, given: Math.round(r.given * 10) / 10, over: r.given > r.fit }));
+  return { rated: rated.length, hits: rated.length - misses.length, misses };
+}
+
 /* ── Seçimini kurulun önünde savunmak ──────────────────────────────────────────────────── */
 
 export const DEFENSE_THRESHOLD = 3;

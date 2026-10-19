@@ -58,8 +58,9 @@ test('rapor: eşikte takılan güçlü dosyalar ve kendi puanın tartışma soru
     weekLog: [{ id: 'irem', day: 1, decision: 'approve' }, { id: 'serkan', day: 1, decision: 'approve' }, { id: 'serkan', day: 3, decision: 'approve' }],
     finalists: [{ id: 'serkan' }], hiredId: null, referenceChecks: {}, aiUses: 0, complies: 0, refusals: 0, selfScore: 42,
   });
-  assert.equal(r.decided, 2);
-  assert.deepEqual(r.test.strongBelow.map((t) => [t.name.split(' ')[0], t.invited]), [['İrem', false]]);
+  assert.equal(r.decided, 3);
+  // her CV gününün onayı mülakata davettir
+  assert.deepEqual(r.test.strongBelow.map((t) => [t.name.split(' ')[0], t.invited]), [['İrem', true]]);
   assert.ok(r.test.weakAbove.some((t) => t.invited));
   assert.ok(r.questions.some((q) => q.includes('sen de mülakata çağrılmazdın')));
 });

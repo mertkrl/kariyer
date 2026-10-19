@@ -4,7 +4,7 @@
  * React durumuna bağlar; testler doğrudan bunları çalıştırır.
  */
 import type { SalaryMove } from '../../game/events/interview';
-import { CASE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, TEST, type Entry } from './interviewModel';
+import { CASE, EVIDENCE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, TEST, type Entry } from './interviewModel';
 
 type Question = Extract<Entry, { kind: 'q' }>;
 type Salary = Extract<Entry, { kind: 'salary' }>;
@@ -63,6 +63,8 @@ export function canAsk(room: RoomState, question: number, typing: boolean): bool
   if (typing || room.handedOff || room.ended || room.warm === null) return false;
   if (isFollowUp(question)) return canFollowUp(room, typing);
   if (question === TEST) return !room.testUsed;
+  // kanıttan soru: her kanıt bir kez, hakkından düşmez
+  if (question >= EVIDENCE) return !room.questions.some((e) => e.q === question);
   // görüşmeyi yürüten aynı klasik soruyu sorduysa (OWNER + soru) tekrar sorulmaz
   return !room.questions.some((e) => e.q === question || e.q === OWNER + question) && room.mine.length < QUESTION_BUDGET;
 }

@@ -71,7 +71,7 @@ export const createStorySlice = (set: SetState, get: GetState): StoryActions => 
     const performans = Math.max(0, Math.min(100, state.performans + (fit - 3) * 6));
     const vicdan = Math.max(0, Math.min(100, state.vicdan + (fit >= 4 ? 4 : fit <= 2 ? -4 : 0)));
     sound().playUi('confirm');
-    set({ hiredId: id, recommendedId: recommended, performans, vicdan, phase: 'offer' });
+    set({ hiredId: id, recommendedId: recommended, performans, vicdan, phase: 'offer', story: { ...state.story, interviewScores: panel?.scores ?? state.story.interviewScores } });
   },
 
   finishMeeting: (choice) => {
@@ -116,6 +116,8 @@ export const createStorySlice = (set: SetState, get: GetState): StoryActions => 
     }
   },
 
+  noteSite: (id) =>
+    set((state) => (state.story.sitesOpened?.includes(id) ? state : { story: { ...state.story, sitesOpened: [...(state.story.sitesOpened ?? []), id] } })),
   readMail: (id) => set((state) => (state.mailRead.includes(id) ? state : { mailRead: [...state.mailRead, id] })),
   settleSalary: (id, move) => {
     const state = get();

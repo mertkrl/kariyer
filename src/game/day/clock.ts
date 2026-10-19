@@ -105,7 +105,7 @@ const CALL_SOURCES: ((state: GameState, minutes: number) => Patch | null)[] = [
   },
   // Perşembe öğleden sonra: mülakata çağırdığın Tolga Kars'ta karda kaldı
   (state, minutes) =>
-    state.currentDayIndex === THANKS_DAY && minutes >= SNOW_CALL_AT && !state.desk.calls[SNOW_CALL_ID] && state.decisions.tolga === 'approve'
+    state.currentDayIndex === THANKS_DAY && minutes >= SNOW_CALL_AT && !state.desk.calls[SNOW_CALL_ID] && state.finalists.some((f) => f.id === 'tolga')
       ? ring(state.desk, SNOW_CALL_ID, minutes)
       : null,
   // dün geri çevirdiğin biri lobide bekliyor
@@ -371,7 +371,7 @@ function extraFilesReplies(n: number): QuickReply[] {
 export function addExtraFiles(): boolean {
   const s = getState();
   const day = s.currentDayIndex;
-  if (s.phase !== 'gameplay' || days[day]?.final || days[day]?.selection || s.overtime || s.extraFiles[day] || s.workdayMinutes < EXTRA_FILES_FROM || s.workdayMinutes >= EXTRA_FILES_BEFORE) return false;
+  if (s.phase !== 'gameplay' || days[day]?.final || s.overtime || s.extraFiles[day] || s.workdayMinutes < EXTRA_FILES_FROM || s.workdayMinutes >= EXTRA_FILES_BEFORE) return false;
   if (!lineupFor(s).every((id) => s.decisions[id])) return false;
   const inWeek = new Set(s.lineups.flat());
   const rand = rngFor(s.seed, `extras-${day}`);

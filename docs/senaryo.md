@@ -54,7 +54,7 @@ Dramatik ironi: bir yıl boyunca CV'si okunmayan kişi, artık CV okuyan taraf.
 | **Kerem Aksoy**, 45 | Salı | 18 yıllık yazılımcı, eski teknik direktör; şirketi küçülünce maaşı yüzünden çıkarılmış. | "Aşırı nitelikli, 6 ayda gider" (yaş) |
 | **Derya Yıldız**, 33 | Salı | Kıdemli geliştirici; babasının batan şirketinin borçlarını kapatmak için iki yıl ara vermiş. | "12+ ay boşluk, ek inceleme" |
 | **Seda Uysal**, 35 | Çarşamba | 11 yıllık geliştirici, kızını tek başına büyütüyor, esnek saat istiyor. | "Devamlılık riski (aile durumu)" |
-| **Tolga Şen**, 24 | Perşembe | Kars'tan, ailesinin ilk üniversite mezunu; 1.200+ commit'lik açık kaynak katkıcısı. Çağırırsan Perşembe kar Kars'ın yolunu kapatır; görüşmeyi ekrandan yapmayı rica eder. | "Maaşlı deneyim: 0" |
+| **Tolga Şen**, 24 | Pazartesi | Kars'tan, ailesinin ilk üniversite mezunu; 1.200+ commit'lik açık kaynak katkıcısı. Çağırırsan Perşembe kar Kars'ın yolunu kapatır; görüşmeyi ekrandan yapmayı rica eder. | "Maaşlı deneyim: 0" |
 
 ### Gri adaylar (sistemin haklı çıktığı ya da iyi niyetin yetmediği dosyalar)
 - **Volkan Tekin.** Hikâyesi dokunaklı (evin tek geliri, kredi borcu), çok iyi konuşuyor, ama mülakatta tek bir rakam veremiyor; referans araması CV'deki şirketlerden birinin onu tanımadığını, imzanın sahte olduğunu ortaya çıkarır.
@@ -63,7 +63,7 @@ Dramatik ironi: bir yıl boyunca CV'si okunmayan kişi, artık CV okuyan taraf.
 - **Barış Koç.** Hakan Bey'in Perşembe "tavsiyesi" ve gerçekten güçlü bir aday: talebin kimden geldiğine değil dosyaya bakmayı öğreten dosya.
 - **Onur Kaplan** (koşullu). Komşunun oğlu; oyuncu "CV'sini atsın" derse Perşembe listeye "Tavsiye" etiketiyle girer. Vasat ama fena değil. Sistem onu *senin* tavsiyen yüzünden öne alır: bu kez kayırmayı yapan sensin.
 
-Hikâyenin insanları (beş kilit aday, Ozan ve Barış) her oyunda kendi günlerinde ve kuyruğun ilk yarısında durur; günlük üç hak onlara varmadan dolmaz.
+Hikâyenin insanları (beş kilit aday, Ozan ve Barış) her oyunda kendi günlerinde ve kuyruğun ilk yarısında durur; günlük iki hak onlara varmadan dolmaz.
 
 Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunamayan CV (Markdown, iki sütun, LinkedIn PDF'i, Türkçe karakter bozulması), İngilizce CV, düşük/yüksek/belirtilmemiş maaş, önceki maaşı paylaşmama, iş değiştirme sıklığı, bootcamp/kariyer değişikliği, yarı zamanlı deneyim, semt (Esenyurt), yurt dışı deneyim ve devlet üniversitesi, sosyal medyadaki hamilelik paylaşımı, evli olmak, yaş (52, 55), hibrit çalışma isteği, yarı zamanlı çalışma isteği, maaş pazarlığında "fazla net" konuşan kadın aday.
 
@@ -89,7 +89,7 @@ Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunama
 
 - **Memo** → **Masa.** Masada: bilgisayar, sabit telefon, cep telefonu, kahve kupası, çiçek, sebil, çekmece.
 - **Mesaiye Başla.** Saat, oyuncu İşe Alım Portalı'nda "Mesaiye Başla"ya basınca işler (08:00; hava durumu ya da önceki akşamın kararları yüzünden gecikmeli olabilir).
-- **Portal.** Kuyruktaki her aday için CV, şirket soruları, isteğe bağlı *yapay zekâ analizi* (alanlara olumlu/olumsuz işaret ve gizli "Sistem Notu" baloncuğu; sistem espri yapmaz, bürokratik konuşur: *"Öneri: Düşük öncelik · Gerekçe: Aşırı nitelik, 6 ay içinde ayrılma olasılığı %71 · Güven: %82"*), *referans araması* (8 dk). Karar: **Mülakata Çağır** ya da **Reddet**. Günde en fazla 3, haftada en fazla 10 kişi çağrılabilir.
+- **Portal.** Kuyruktaki her aday için CV, şirket soruları, isteğe bağlı *yapay zekâ analizi* (alanlara olumlu/olumsuz işaret ve gizli "Sistem Notu" baloncuğu; sistem espri yapmaz, bürokratik konuşur: *"Öneri: Düşük öncelik · Gerekçe: Aşırı nitelik, 6 ay içinde ayrılma olasılığı %71 · Güven: %82"*), *referans araması* (8 dk). Karar: **Mülakata Çağır** ya da **Reddet**. Günde en fazla 2 kişi çağrılabilir (Pazartesi–Perşembe, toplam en fazla 8).
 - **Kesintiler.** Sabit telefon (resepsiyon, IT, muhasebe, Hakan Bey'in "rica"ları, lobideki ziyaretçiler), cep telefonu (anne, Hakan Bey, ofis grubu, Ayşe), e-posta, Kariyergram (reddettiğin adayların mesajları). Bildirimler tek tek gelir; ofis grubu hariç her mesajın bir cevabı ve karşılığı vardır. Grupta biri konuyu kapatınca (*"Konuyu kapatalım lütfen."*) o mesaja artık cevap verilemez. Kariyergram'da her mesaj isteği için iki cevap taslağı gösterilir (dürüst: *politikaya aykırı*, kurumsal: *hukuk onaylı*), gönderilecek metnin önizlemesiyle.
 - **Öğle arası 12:00–13:00.** Yemekhane; pencereden ofisin baktığı plaza bölgesi görünür (cam kuleler, vinçli bir inşaat, otoyol trafiği; hava günün havasına göre). Erken dönsen de mesai 13:00'te başlar.
 - **Ret bildirimleri (zamanlanmış gönderim).** Bütün dosyalar karara bağlanınca portal, o gün reddedilenler için bildirim adımını açar. Her kişi için şablon: *Standart ret*, *Kişisel geri bildirim* (gerçek sebep + CV'deki güçlü yan; 2 dk), *"Havuzda tutacağız"*, *Gönderme*. "Tümüne uygula" seçimi anında bütün satırlara uygulanır. Bildirimler **17:00'de gönderilmek üzere** Giden Kutusu'na planlanır: o saate kadar bir kararı geri alırsan o kişinin bildirimi giden kutusundan otomatik çıkar, yeni bir ret verirsen panel yeniden açılır; planlananlar "Düzenle" ile değiştirilebilir. 17:00'de (ya da gün erken bitirilirse yine 17:00 damgasıyla) gönderilir ve etkiler o anda işler: kişisel geri bildirim kişi başı Vicdan +1, her üç kişide Performans −1; bildirimi olmayan (Gönderme ya da hiç planlanmamış) kişi başı Vicdan −1. 17:00'de planlanmamış ret varsa fazla mesai başlar; 17:00'den sonra planlanan bildirimler hemen gider. Adreslerin ve imzanın tamamı uydurmadır (…@tavrinsalabs.test, …@eposta.test, +90 212 123 45 67).
@@ -126,9 +126,9 @@ Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunama
 
 **Hava:** Güneşli, 14°C. **Kural:** *Junior pozisyon için minimum 5 yıl deneyim şart.*
 
-**Memo:** Hoş geldiniz; 340 başvuru yapay zekâyla birkaç dosyaya indirildi; günde en fazla 3 çağrı (haftalık ayrı sınır yok); mesai kuralları; "Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor."
+**Memo:** Hoş geldiniz; 340 başvuru yapay zekâyla birkaç dosyaya indirildi; günde en fazla 2 çağrı; mesai kuralları; "Gün içinde sizi dahili hattan arayabilirim; bazı konular telefonda daha rahat konuşuluyor."
 
-**Kuyruk:** Ahmet, Ilgın, Caner, Gökçe, Deniz, Melis, Cihan (tur başına biraz karışır).
+**Kuyruk:** Ahmet, Ilgın, Caner, Gökçe, **Tolga**, Deniz, Melis, Cihan, Tuncay (tur başına biraz karışır; hikâye kişileri yerinden oynamaz).
 
 | Saat | Olay |
 |---|---|
@@ -152,7 +152,7 @@ Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunama
 
 **Memo:** Dünkü rapor "ilk gün için makul"; ATS eşiği; "Hedeflerini tutturan ekip arkadaşlarımızın deneme süreci değerlendirmesinde bunun karşılığını gördüğünü hatırlatırım."
 
-**Kuyruk:** Zeynep, İrem, Mert, **Derya**, Serkan, **Kerem**, **Okan**, Nazlı, Ceren, Sibel.
+**Kuyruk:** Zeynep, İrem, Mert, **Derya**, Serkan, **Volkan**, **Kerem**, **Okan**, Kaan, Pınar.
 
 | Saat | Olay |
 |---|---|
@@ -172,9 +172,9 @@ Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunama
 
 **Hava:** Sağanak, 8°C. **Kural:** *Maaş beklentisi "yüksek" bulunan adaylar görüşmeye alınmaz* (bütçe söylenmez, "yüksek"i sen belirlersin).
 
-**Kuyruk:** **Ozan T.**, Cem, Aylin, Nihan, Batuhan, Duygu, Yusuf, Murat, Ferhat, **Seda**.
+**Kuyruk:** **Ozan T.**, Cem, Aylin, Nihan, Batuhan, Duygu, Murat, Ferhat, **Seda**, Aslı.
 
-Salı verilen kararların geri döndüğü gün: Kerem santralde, Derya lobide, karşı çıktıysan Hakan Bey'in odası, uyduysan ofisin bakışları.
+Salı verilen kararların geri döndüğü gün: Kerem santralde, Derya telefonda, karşı çıktıysan Hakan Bey'in odası, uyduysan ofisin bakışları.
 
 | Saat | Olay |
 |---|---|
@@ -182,7 +182,7 @@ Salı verilen kararların geri döndüğü gün: Kerem santralde, Derya lobide, 
 | sabah | **Koşullu — ofis grubu** dünkü tavrını fark eder. Uyduysan Ayşe: "Mülakat listesini gördüm. Bazı isimler… tanıdık geldi 🙂". Karşı çıktıysan: "Hakan Bey masanın önünden iki kez geçti… öğlen bizimle gel." |
 | 08:50 | **Koşullu — ☎ Santral: dış hatta Kerem Aksoy** (dün reddettiysen). "Bağlayayım mı?" Bağlarsan telefonda: "Yaşım yüzünden mi?" Dürüst cevap (CV'nden doğum yılını çıkar…) ya da kalıp cümle. Ya da "müsait değilim" / "güvenliğe haber verin". |
 | 13:00 | ☎ Seda Uysal (santralden): "Kreşin çıkış saati yaklaşıyor… Sadece bir dönüş olacak mı?" |
-| 13:20 | **Koşullu — ☎ Lobide Derya** (dün reddettiysen): tasfiye belgeleriyle gelmiş. Dürüst cevap: "Bu belgeleri alamam… ama o iki yılı CV'nde saklama." |
+| 13:20 | **Koşullu — ☎ Santralden Derya** (dün reddettiysen): tasfiye belgeleriyle gelmiş. Dürüst cevap: "Bu belgeleri alamam… ama o iki yılı CV'nde saklama." |
 | 13:30 | 📱 Anne: "Alt kattaki Nermin Hanım'ın oğlu… CV'sini atsın mı?" *Atsın, bakayım* dersen adını söyler: Onur Kaplan. |
 | 15:00 | **Koşullu — ☎ Hakan Bey: iki davet geri alınıyor.** Kendi çağırdığın en az üç kişi listedeyse, en yaşlı ikisinin daveti "holding kadro planını revize etti" diye geri alınır. Aramadan sonra e-posta açılır; metni sen seçersin: *"sehven gönderildi"* (Vicdan −3) ya da doğrusu (Vicdan −1). Ertesi sabah biri cevap yazar. |
 | 15:50 | Ofis grubu, ıslak toplantı odasının önünde: Ayşe Emre'ye neden hep kurallardan yana olduğunu sorar. Emre önceki işinde kuralın dışında bir adayı aldırdığını, aday ayrılınca hesabın ondan sorulduğunu anlatır. Ayşe iki yıl iş aradığını, kimsenin CV'sini okumadığını söyler. |
@@ -200,16 +200,16 @@ Toplantı 35 dakika sürer.
 
 ## Perşembe — "Sistem çöktü, kararlar senin"
 
-**Hava:** Kar, −1°C. **Kural:** *Yazılı olmayan tercihler: "yurt dışı deneyim" ve "düşük ayrılma riski".* **Yapay zekâ çalışmıyor.** Mülakat daveti için son gün.
+**Hava:** Kar, −1°C. **Kural:** *Yapay zekâ çevrimdışı: kararlar tamamen sende.* Mülakat daveti için son gün.
 
-**Kuyruk:** Kaan, Gizem, Aslı, Elif, **Volkan**, **Barış**, Handan, Uğur, **Tolga**, Tuncay, Ece; koşullu olarak en altta **Onur (Tavsiye)**.
+**Kuyruk:** Nazlı, Ceren, Sibel, Yusuf, Ece, **Barış**, Gizem, Elif, Handan, Uğur; koşullu olarak en altta **Onur (Tavsiye)**. Çağrılan adaylar Assessa testine otomatik davet edilir; puanlar Cuma dosyasında görünür.
 
 | Saat | Olay |
 |---|---|
 | 08:00 | E-posta: *ACİL: Yapay zekâ modülü çalışmıyor.* |
 | 09:15 | ☎ Hakan Bey: "Sistem çökmüş. Bugün kararları siz vereceksiniz. Yanlış birini çağırırsanız hesabını da siz verirsiniz." |
 | 10:10 | **Hakan Bey kapısını kapatıp arar:** "Holding bu çeyrek %15 kadro kesintisi istiyor. Sayıları tutturamazsak bizim ekipten üç kişi gidecek. Sen dahil. Sistemin aday puanlama tablosunu biliyorsun; kimin kaç yaşında, hangi semtte oturduğuna, hangi okuldan mezun olduğuna kaç puan verileceğini o belirliyor. O tabloyu holding gönderdi, ben yazmadım. Ama altında benim imzam var." (Tablo Pazartesi Bilgi İşlem'in kılavuzunda ekilir: *Aday Puanlama Tablosu, İK Müdürü onayıyla yüklenmiştir — onaylayan: H. Kaya.*) Cevabın: *Anlıyorum, kolay değil* / *Bu, adaylara yapılanı haklı çıkarmaz.* / **Bir önerim var.** Öneri seçersen: *yapılandırılmış mülakat* (Performans ≥60 ve en fazla 2 karşı çıkışla kabul; Cuma herkese aynı sorular, yasak soru listesi kalkar), *kör CV* (Performans ≥70 gerekir; bir sonraki ilanda isim/yaş/fotoğraf gizlenir) ya da *puanlama tablosunun insan denetimi* (hep reddedilir: "O tabloyu açarsak altında ilk benim imzam çıkar."). Reddedilse bile Vicdan artar. |
-| 10:30 | **Koşullu — ☎ Lobide Seda** kızıyla (dün reddettiysen): "Dürüst cevap verdiğim için mi?" |
+| 10:30 | **Koşullu — ☎ Santralden Seda** (kreş karda kapalı, kızı yanında) (dün reddettiysen): "Dürüst cevap verdiğim için mi?" |
 | 10:30 | E-posta: *Dün çağırdıkların hk.* (Ümit Arslan) — Ozan dünkü kuyruktaysa: "Ozan konusunda yanılmışım. Eski ekibinden iki kişiyle konuştum; referans abartmıyormuş." Çağırdıysan sorumluluğu üstlenir, elediysen "haklıymışsın" der. |
 | 10:40 | E-posta: *Re: Sistem* (Ümit Arslan) — "Kısa listeye 'skoru yüksek' diye değil, 'işi yapabilir' diye girsinler." |
 | 11:50 | E-posta: *Mülakat listesi yarın kesinleşiyor.* |
@@ -217,7 +217,7 @@ Toplantı 35 dakika sürer.
 | 13:30 | ☎ **Hakan Bey'in talebi:** Barış'ı çağır — "Eski bir çalışma arkadaşımın oğlu; ama dosyasına bakarsanız tavsiyeye ihtiyacı olmadığını göreceksiniz." **Bu sefer haklı.** |
 | 15:00 | Ofis grubu: bugün bütün ekip 19:00'a kadar kalıyor, akşam yemeği şirketten. 17:00'de fazla mesai herkes için başlar; gün 19:00'dan önce bitirilemez. |
 | 15:10 | E-posta: *Yarınki mülakatlar — hazırlık ve soru listesi* (Hakan Kaya). |
-| 15:40 | **Koşullu — ☎ Kars'tan Tolga** (onu çağırdıysan): kar yüzünden Kars'ta bütün seferler iptal, Sarıkamış yolu kapalı. "Görüşmeyi ekrandan yapabilir miyiz? Köy kahvesinden de bağlanırım." *Ekrandan bağlanın, Hakan Bey'e ben anlatırım* (Vicdan +2, Performans −1) / *Mülakatlar yüz yüze, gelemezseniz listeden düşersiniz* (Vicdan −3, Performans +1; Tolga listeden çıkar). Açmazsan da listeden düşer. Bir Yıl Sonra ekranı onun gelemediğini bilir. Tolga'yı reddettiysen kar Kariyergram mesajında geri gelir: "Burada kar bütün yolları kapattı; çağrılsaydım bile gelemezdim belki." |
+| 15:40 | **Koşullu — ☎ Kars'tan Tolga** (onu çağırdıysan): kar yüzünden Kars'ta bütün seferler iptal, Sarıkamış yolu kapalı. "Görüşmeyi ekrandan yapabilir miyiz? Köy kahvesinden de bağlanırım." *Ekrandan bağlanın, Hakan Bey'e ben anlatırım* (Vicdan +2, Performans −1) / *Mülakatlar yüz yüze, gelemezseniz listeden düşersiniz* (Vicdan −3, Performans +1; Tolga listeden çıkar). Açmazsan da listeden düşer. Bir Yıl Sonra ekranı onun gelemediğini bilir. Tolga'yı Pazartesi reddettiysen Kariyergram'dan "deneyim" gerekçesini sorar. |
 
 
 ---

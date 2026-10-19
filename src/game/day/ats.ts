@@ -55,19 +55,22 @@ export function systemLineWith(c: Candidate, report: AtsReport) {
 }
 
 /**
- * Modelin 100 üzerinden "uyum puanı", portalın gösterdiği gibi. Sistemin kendi kararını izler
- * (işaretli bir dosya ne derse desin düşük puan alır); kişi başına sabit bir sapma vardır, böylece
- * aynı karardaki iki dosya aynı okunmaz. Sayı kesin görünür; aslında ondalıklı bir güvenle
- * söylenmiş karardır.
+ * Modelin 100 üzerinden "ilanla eşleşme" puanı. Masaya gelen her dosya bu modelin ön elemesinden
+ * zaten geçti; bu yüzden hepsi yüksek alır ve sayı adayları birbirinden ayırmaz. Bantlar
+ * üst üste biner: kuralın elediği bir dosya da önceliklilerle aynı yerde durabilir. Kişi başına
+ * sabit bir sapma vardır. Anahtar kelimeyle cilalanmış CV'ler en tepeye çıkar.
  */
 const SCORE_BAND: Record<Candidate['verdict'], [number, number]> = {
-  priority: [82, 96],
-  review: [54, 72],
-  low: [36, 52],
-  out: [9, 31],
+  priority: [88, 96],
+  review: [86, 94],
+  low: [85, 93],
+  out: [84, 94],
 };
+/** İlan metnine göre yazılmış CV'ler: model onları en çok sever. */
+const POLISHED: Record<string, number> = { serkan: 98, cagan: 97, sarp: 96 };
 
 export function aiScore(c: Pick<Candidate, 'id' | 'verdict'>): number {
+  if (POLISHED[c.id]) return POLISHED[c.id];
   const [lo, hi] = SCORE_BAND[c.verdict];
   return lo + (hash(c.id) % (hi - lo + 1));
 }

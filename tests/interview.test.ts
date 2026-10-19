@@ -98,3 +98,13 @@ test('kanıt gücü göstergesi savunmanın saydığıyla aynı: en iyi üç not
     assert.equal(defenseHolds(ok, [...tags], false).holds, meterSaysEnough, tags.join(','));
   }
 });
+
+test('kanıt kartları yalnızca oyuncunun baktığı şeylerden doğar', async () => {
+  const { evidenceFor, EVIDENCE_SITE } = await import('../src/game/data/evidence');
+  assert.deepEqual(evidenceFor('ferhat', { site: false, reference: false }), []);
+  const cards = evidenceFor('ferhat', { site: true, reference: true });
+  assert.ok(cards.some((c) => c.code === EVIDENCE_SITE && c.answer.length > 40));
+  assert.ok(cards.some((c) => c.label === 'Referans araması'));
+  // sitesi olmayanın site kartı olmaz
+  assert.deepEqual(evidenceFor('ahmet', { site: true, reference: false }), []);
+});

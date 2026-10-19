@@ -3,6 +3,7 @@ import { SALARY_CAP } from '../../game/store/store';
 import { FINAL_INTERVIEW_QUESTIONS } from '../../game/data/candidateDetails';
 import { expectedSalary, salaryMoves, salaryOffer, type CRITERIA, type SalaryMove, type Scores } from '../../game/events/interview';
 import type { BackQuestion } from '../../game/data/interviewExtras';
+import type { EvidenceCard } from '../../game/data/evidence';
 import { Scorecard } from './InterviewParts';
 import { QUESTION_BUDGET, SALARY_LABEL, SALARY_LINES, TEST } from './interviewModel';
 import styles from '../FinalRoundScreen.module.css';
@@ -35,6 +36,8 @@ export interface InterviewConsoleProps {
   canFollow: boolean;
   /** Test puanını sorma hakkı duruyor (ek soru, odada bir kez). */
   canTest: boolean;
+  /** Bu hafta baktığın kanıtlardan henüz sorulmamış olanlar (ek soru, her biri bir kez). */
+  cards?: EvidenceCard[];
   scores: Scores;
   onScore: (criterion: (typeof CRITERIA)[number], value: number) => void;
   ask: (question: number) => void;
@@ -50,7 +53,7 @@ export interface InterviewConsoleProps {
   hostName?: string | null;
 }
 
-export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, asked = mine, canFollow, canTest, scores, onScore, ask, handOff, talkSalary, endInterview, opening, open, panelLead, hostName = null }: InterviewConsoleProps) {
+export function InterviewConsole({ candidate, typing, handedOff, salaryPending, salaryDone, back, answerBack, ended, allDone, mine, asked = mine, canFollow, canTest, cards = [], scores, onScore, ask, handOff, talkSalary, endInterview, opening, open, panelLead, hostName = null }: InterviewConsoleProps) {
   const first = candidate.name.split(' ')[0];
   const scored = Object.keys(scores).length > 0;
   return (
@@ -134,6 +137,12 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
                 Test puanını ve cevap kâğıdını sor <small>(ek soru, hakkından düşmez)</small>
               </button>
             )}
+            {cards.map((c) => (
+              <button key={c.code} className={`${own.question} ${own.evidenceQuestion}`} onClick={() => ask(c.code)}>
+                <span className={styles.qNumber}>◆</span>
+                {c.label}: kanıttan sor <small>(ek soru)</small>
+              </button>
+            ))}
           </div>
           <button className={own.endButton} onClick={handOff}>
             {hostName} devam etsin: {panelLead} →
@@ -158,6 +167,12 @@ export function InterviewConsole({ candidate, typing, handedOff, salaryPending, 
                 Test puanını ve cevap kâğıdını sor <small>(ek soru, hakkından düşmez)</small>
               </button>
             )}
+            {cards.map((c) => (
+              <button key={c.code} className={`${own.question} ${own.evidenceQuestion}`} onClick={() => ask(c.code)}>
+                <span className={styles.qNumber}>◆</span>
+                {c.label}: kanıttan sor <small>(ek soru)</small>
+              </button>
+            ))}
           </div>
           {canFollow && mine.length > 0 && <p className={own.consoleHint}>İpucu: cevaplardaki altı noktalı bir ifadeye tıklarsan onun üzerine bir takip sorusu sorarsın (bir hak).</p>}
           {mine.length > 0 && (

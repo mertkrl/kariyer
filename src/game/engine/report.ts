@@ -9,8 +9,9 @@ import type { WeekEntry } from '../day/echoes';
 import { candidateOf, NEIGHBOUR_ID, NEPHEW_ID } from '../data/candidates';
 import { candidateDetails } from '../data/candidateDetails';
 import { isStrong, isWronglyFlagged, systemVerdict } from './scoring';
-import { days } from '../data/days';
 import { APTITUDE_CUTOFF, candidateAptitude } from '../events/aptitude';
+import { scoreCalibration, scoreGap, type Scores } from '../events/interview';
+import { hakanTarget } from '../data/interviewExtras';
 
 export interface ReportInput {
   seed: number;
@@ -27,6 +28,17 @@ export interface ReportInput {
   refusals: number;
   /** Testi kendin çözdüysen puanın. */
   selfScore?: number | null;
+  /** Cuma mülakatlarında puan kartına verdiğin puanlar. */
+  interviewScores?: Record<string, Scores>;
+}
+
+/** Mülakat puanların: Hakan Bey'in hedeflerine fark ve gerçekle ne kadar örtüştüğü. */
+export interface ScoringSummary {
+  /** Kadınlara ve 40 yaş üstüne diğerlerinden ne kadar düşük verdin; anlamlı değilse null. */
+  gap: number | null;
+  rated: number;
+  hits: number;
+  misses: { name: string; given: number; fit: number; over: boolean }[];
 }
 
 /** Testin haftası: kim teste girdi, kim eşikte takıldı, Perşembe kimi çağırdın. */
@@ -69,6 +81,7 @@ export interface SessionReport {
   nephewInterviewed: boolean;
   neighbourInterviewed: boolean;
   test: TestSummary;
+  scoring: ScoringSummary;
   questions: string[];
 }
 
@@ -77,8 +90,8 @@ const nameOf = (id: string) => candidateOf(id).name;
 
 export function sessionReport(input: ReportInput): SessionReport {
   // CV kararları; Perşembe'nin kayıtları aynı insanlar için davettir, ayrıca sayılır
-  const log = input.weekLog.filter((e) => !days[e.day]?.selection);
-  const invited = new Set(input.weekLog.filter((e) => days[e.day]?.selection && e.decision === 'approve').map((e) => e.id));
+  const log = input.weekLog;
+  const invited = new Set(input.weekLog.filter((e) => e.decision === 'approve').map((e) => e.id));
   const tested = [...new Set(log.filter((e) => e.decision === 'approve').map((e) => e.id))].map((id) => ({ id, score: candidateAptitude(id, input.seed).score }));
   const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
   const known = log.filter((e) => e.considered !== undefined);
@@ -114,10 +127,21 @@ export function sessionReport(input: ReportInput): SessionReport {
       weakAbove: tested.filter((t) => fitOf(t.id) <= 2 && t.score >= APTITUDE_CUTOFF).map((t) => ({ name: nameOf(t.id), score: t.score, invited: invited.has(t.id) })),
       selfScore: input.selfScore ?? null,
     },
+    scoring: scoringOf(input.interviewScores ?? {}),
     questions: [],
   };
   report.questions = questionsFor(report);
   return report;
+}
+
+function scoringOf(scores: Record<string, Scores>): ScoringSummary {
+  const cal = scoreCalibration(scores, (id) => candidateDetails[id]?.hireFit ?? 3);
+  return {
+    gap: scoreGap(scores, (id) => hakanTarget(id, candidateOf(id).age)),
+    rated: cal.rated,
+    hits: cal.hits,
+    misses: cal.misses.map((m) => ({ name: nameOf(m.id), given: m.given, fit: m.fit, over: m.over })),
+  };
 }
 
 /** Tartışma soruları, önce bu oyuncunun kendi seçimleriyle ilgili olanlar. */
@@ -131,10 +155,10 @@ function questionsFor(r: SessionReport): string[] {
   }
   const passedOver = r.flaggedStrong.filter((f) => f.decision === 'approve');
   if (passedOver.length) {
-    q.push(`${passedOver.map((f) => f.name).join(', ')} için sistemin işaretine rağmen teste geçirme kararı verdin. Bunu gerçek bir işyerinde yöneticine nasıl gerekçelendirirdin?`);
+    q.push(`${passedOver.map((f) => f.name).join(', ')} için sistemin işaretine rağmen mülakata çağırma kararı verdin. Bunu gerçek bir işyerinde yöneticine nasıl gerekçelendirirdin?`);
   }
   if (r.priorityWeakApproved.length) {
-    q.push(`Sistem ${r.priorityWeakApproved.join(', ')} için "öncelikli" dedi ve sen teste geçirdin. Bir aracın yüksek puanı ne zaman güven verir, ne zaman sorgulanmalı?`);
+    q.push(`Sistem ${r.priorityWeakApproved.join(', ')} için "öncelikli" dedi ve sen mülakata çağırdın. Bir aracın yüksek puanı ne zaman güven verir, ne zaman sorgulanmalı?`);
   }
   if (r.complies > 0) {
     q.push(`Müdürün ${r.complies} ricasına uydun. Hangisi sana zor geldi? "Herkese aynı ölçüt" ilkesi bir rica karşısında nasıl korunur?`);
@@ -155,6 +179,21 @@ function questionsFor(r: SessionReport): string[] {
         : `Testi kendin çözdün ve ${r.test.selfScore} aldın. Bunun için bildiğin bir şeyi mi, beklenen cevabı mı işaretledin?`,
     );
   }
+  if (r.scoring.gap !== null) {
+    q.push(`Mülakat puan kartında kadınlara ve 40 yaş üstü adaylara diğerlerinden ortalama ${r.scoring.gap.toLocaleString('tr-TR')} puan düşük verdin. Hakan Bey'in "uzun vadeli uyum" sorularından ne kadarı senin puanlarına sızdı?`);
+  }
+  const over = r.scoring.misses.filter((m) => m.over);
+  const under = r.scoring.misses.filter((m) => !m.over);
+  if (over.length || under.length) {
+    q.push(
+      [
+        over.length ? `${over.map((m) => m.name).join(', ')} için puanın gerçekte çıktıklarından yüksekti` : '',
+        under.length ? `${under.map((m) => m.name).join(', ')} için düşüktü` : '',
+      ]
+        .filter(Boolean)
+        .join('; ') + '. Mülakatta seni yanıltan neydi: anlatımı mı, özgüveni mi, dosyası mı?',
+    );
+  }
   if (r.nephewInterviewed) q.push('Müdürün yeğeni mülakat listesine girdi. Tavsiye ile torpil arasındaki çizgi nerede?');
   if (r.neighbourInterviewed) q.push('Kendi tanıdığın da listeye girdi. Kendi önyargını fark etmek, başkasınınkini fark etmekten neden daha zor?');
   if (r.readShare !== null && r.readShare < 0.5) {
@@ -171,7 +210,7 @@ function questionsFor(r: SessionReport): string[] {
 }
 
 const pct = (n: number | null) => (n === null ? '—' : `%${Math.round(n * 100)}`);
-const fileLine = (f: FileLine) => `${f.name}: ${f.decision === 'approve' ? 'teste geçirildi' : 'reddedildi'}${f.considered === null ? '' : f.considered ? ' (okunarak)' : ' (okunmadan)'}`;
+const fileLine = (f: FileLine) => `${f.name}: ${f.decision === 'approve' ? 'mülakata çağrıldı' : 'reddedildi'}${f.considered === null ? '' : f.considered ? ' (okunarak)' : ' (okunmadan)'}`;
 
 /** Düz metin olarak rapor: bir ders sayfasına, bir e-postaya ya da paylaşılan bir belgeye yapıştırmak için. */
 export function reportText(r: SessionReport): string {
@@ -180,13 +219,16 @@ export function reportText(r: SessionReport): string {
     `Oyun kodu #${r.seed} · zorluk: ${DIFFICULTY_NAME[r.difficulty]}`,
     `Son: ${r.endingTitle} · Performans ${r.performans} · Vicdan ${r.vicdan}`,
     '',
-    `Kararlar: ${r.decided} dosya · ${r.approved} teste geçirildi · ${r.rejected} ret · okuyarak verilen: ${pct(r.readShare)}`,
+    `Kararlar: ${r.decided} dosya · ${r.approved} mülakata çağrıldı · ${r.rejected} ret · okuyarak verilen: ${pct(r.readShare)}`,
     `Referans araması: ${r.references} · yapay zekâ önerisi: ${r.aiUses} · müdürün ricası: ${r.complies} uyuldu, ${r.refusals} geri çevrildi`,
     r.hired ? `İşe alınan: ${r.hired.name} (uygunluk ${r.hired.fit}/5)` : 'İşe alım yapılmadı',
     '',
     `Test: ${r.test.tested} kişi teste geçti${r.test.selfScore === null ? '' : ` · senin puanın ${r.test.selfScore}`}`,
     ...r.test.strongBelow.map((t) => `- ${t.name}: güçlü dosya, test ${t.score}${t.invited ? ' · yine de çağrıldı' : ' · çağrılmadı'}`),
     ...r.test.weakAbove.map((t) => `- ${t.name}: zayıf dosya, test ${t.score}${t.invited ? ' · çağrıldı' : ''}`),
+    '',
+    r.scoring.rated ? `Mülakat puanların: ${r.scoring.rated} adaydan ${r.scoring.hits} tanesinde gerçekle örtüştü${r.scoring.gap === null ? '' : ` · kadınlara ve 40 yaş üstüne ${r.scoring.gap.toLocaleString('tr-TR')} puan düşük`}` : 'Mülakat puan kartı doldurulmadı',
+    ...r.scoring.misses.map((m) => `- ${m.name}: sen ${m.given.toLocaleString('tr-TR')} verdin, gerçekte ${m.fit}/5 çıktı`),
     '',
     'Sistemin haksız yere aşağı ittiği güçlü adaylar:',
     ...(r.flaggedStrong.length ? r.flaggedStrong.map((f) => `- ${fileLine(f)}`) : ['- (bu hafta önüne gelmedi)']),

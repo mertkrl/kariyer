@@ -49,12 +49,12 @@ export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingC
   const missed = yesterday.find((e) => e.decision === 'reject' && fitOf(e.id) >= 5 && !LEVENT_SPECIAL[e.id]);
   const lines = invited.length
     ? [
-        'Dün teste geçirdiğin adayların CV\'lerine ekip olarak baktık:',
+        'Dün mülakata çağırdığın adayların CV\'lerine ekip olarak baktık:',
         '',
         ...invited.slice(0, 4).map((id) => `• ${first(id)}: ${leventOn(id)}`),
         ...(invited.length > 4 ? [`• …ve ${invited.length - 4} kişi daha. Hepsine bakmaya vaktimiz olmadı.`] : []),
       ]
-    : ['Dün kimseyi teste geçirmemişsin. Ekip Cuma\'yı bekliyor; boş gelmeyelim.'];
+    : ['Dün kimseyi mülakata çağırmamışsın. Ekip Cuma\'yı bekliyor; boş gelmeyelim.'];
   if (missed) {
     lines.push('', `Bir de: ${candidateOf(missed.id).name} dün elenmiş. Profilini tesadüfen gördüm; aradığımız tam oydu. Ne oldu?`);
   }

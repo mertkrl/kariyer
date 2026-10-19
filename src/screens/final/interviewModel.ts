@@ -59,6 +59,8 @@ export const CASE = 20;
 export const TEST = 30;
 /** Adayı panele getirenin (Ayşe, Emre ya da Hakan Bey) sorusu: OWNER + senin sormadığın klasik sorunun sırası. */
 export const OWNER = 40;
+/** Kanıttan soru (evidence.ts: site 50, referans 51): hakkından düşmez, her kanıt bir kez. */
+export const EVIDENCE = 50;
 
 /*
  * Heyecanlı adaylar: biri onları rahatlatmazsa cevapları kekeme kalır ve Ümit'in vakasında

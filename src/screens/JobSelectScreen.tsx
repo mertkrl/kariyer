@@ -32,7 +32,7 @@ export function JobSelectScreen() {
         <div className={styles.headerBlock}>
           <div className={styles.eyebrow}>Adım 1 / İlan Taslakları</div>
           <h1 className={styles.title}>Hangi ilanı yayınlıyorsun?</h1>
-          <p className={styles.subtitle}>Şirket 3 taslak hazırladı. Seçtiğin ilan hafta boyunca yayında kalacak.</p>
+          <p className={styles.subtitle}>İşe başlamadan önceki cuma Hakan Bey üç taslak gönderdi ve ilk kararı sana bıraktı. Seçtiğin ilan hafta sonu yayına girecek ve hafta boyunca yayında kalacak.</p>
         </div>
 
         <div className={styles.workspace}>

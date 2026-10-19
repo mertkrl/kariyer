@@ -57,3 +57,20 @@ test('metin hali oyun kodunu, sonu ve soruları taşır', () => {
   assert.match(text, /Tartışma soruları:\n1\. /);
   assert.match(text, new RegExp(candidates[strongFlagged[0]].name));
 });
+
+test('rapor mülakat puanlarının isabetini ve Hakan Bey\'in hedeflerine farkı söyler', async () => {
+  const { sessionReport } = await import('../src/game/engine/report');
+  const { candidateDetails } = await import('../src/game/data/candidateDetails');
+  const ids = Object.keys(candidateDetails);
+  const strong = ids.find((id) => candidateDetails[id].hireFit === 5)!;
+  const weak = ids.find((id) => candidateDetails[id].hireFit === 1)!;
+  const r = sessionReport({
+    seed: 1, difficulty: 'normal', endingTitle: 'x', performans: 50, vicdan: 50, weekLog: [], finalists: [], hiredId: null,
+    referenceChecks: {}, aiUses: 0, complies: 0, refusals: 0,
+    interviewScores: { [strong]: { 'Teknik yetkinlik': 1, İletişim: 2 }, [weak]: { 'Teknik yetkinlik': 5, İletişim: 5 } },
+  });
+  assert.equal(r.scoring.rated, 2);
+  assert.equal(r.scoring.hits, 0);
+  assert.deepEqual(r.scoring.misses.map((m) => m.over).sort(), [false, true]);
+  assert.ok(r.questions.some((q) => q.includes('yanıltan')));
+});

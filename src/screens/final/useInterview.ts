@@ -6,6 +6,7 @@ import { candidateDetails } from '../../game/data/candidateDetails';
 import { backQuestionsFor, experienceYears, followUpAnswer } from '../../game/data/interviewExtras';
 import { average, caseAnswer, caseFor, salaryMoves, salaryTalk, type SalaryMove, type Scores } from '../../game/events/interview';
 import { testTalk } from '../../game/events/aptitude';
+import { EVIDENCE_SITE, evidenceFor } from '../../game/data/evidence';
 import { audioEngine } from '../../audio/audioEngine';
 import { CALM_ANSWERS, CASE, FOLLOW, FORBIDDEN, OWNER, TEST, THINKING_MS, TYPING_MS_PER_CHAR, isNervous, ownerSalaryMove, type Entry, type Typing } from './interviewModel';
 import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from './interviewRoom';
@@ -34,6 +35,9 @@ export function useInterview({
   const settleSalary = useGameStore((s) => s.settleSalary);
   const answerCandidate = useGameStore((s) => s.answerCandidate);
   const seed = useGameStore((s) => s.seed);
+  const sitesOpened = useGameStore((s) => s.story.sitesOpened);
+  const referenceChecks = useGameStore((s) => s.referenceChecks);
+  const cardsFor = (id: string) => evidenceFor(id, { site: !!sitesOpened?.includes(id), reference: !!referenceChecks[id] });
   const [log, setLog] = useState<Record<string, Entry[]>>({});
   const [typing, setTyping] = useState<Typing | null>(null);
   const [scores, setScores] = useState<Record<string, Scores>>({});
@@ -101,6 +105,7 @@ export function useInterview({
 
   function answerFor(id: string, question: number) {
     if (question === CASE) return `${rattled(id) ? 'Şey… pardon, bir saniye, heyecandan… ' : ''}${caseAnswer(id, caseFor(id, ownIds))}`;
+    if (question >= EVIDENCE_SITE) return cardsFor(id).find((c) => c.code === question)?.answer ?? '';
     if (question === TEST) return testTalk(id, seed).answer;
     if (question >= OWNER) return classicAnswer(id, question - OWNER);
     if (question >= FOLLOW) return followUpAnswer(id, question - FOLLOW, candidateDetails[id].hireFit);
@@ -188,6 +193,8 @@ export function useInterview({
     interviewed,
     stateOf,
     answerFor,
+    cards: cardsFor(selectedId),
+    cardsFor,
     observed,
     host,
     open,

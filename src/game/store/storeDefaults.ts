@@ -7,7 +7,6 @@ import { COFFEE_SIPS } from '../day/desk';
 import { type DayEvent, type DeskState, type DmKind, type GameState, type InterviewStance, type StoryState, type WeekLog } from './storeTypes';
 import { type DayStats, type Difficulty, type EventKind } from '../types';
 import { days } from '../data/days';
-import { candidateDetails } from '../data/candidateDetails';
 import { MINUTES_PER_TICK } from '../lib/time';
 import { shuffle } from '../lib/rng';
 import { type ThreadId } from '../day/manager';
@@ -18,21 +17,9 @@ export function lineupFor(state: Pick<GameState, 'currentDayIndex' | 'lineups'>,
   return state.lineups[dayIndex] ?? days[dayIndex].candidateIds;
 }
 
-/** Pazartesi–Çarşamba teste geçirdiklerin (geçirildikleri gün sırasıyla, her biri bir kez): Perşembe'nin kuyruğu. */
-/** Perşembe masaya en fazla bu kadar test sonucu gelir; fazlası bir günde okunmaz. */
-export const TEST_POOL_LIMIT = 8;
-
-/**
- * Perşembe'nin dosyaları: teste geçirdiklerin. Liste uzunsa platform "en uygun" sekizini gönderir:
- * önce gerçekten güçlü olanlar (haftanın asıl ikilemleri onlarda), sonra geçirdiğin sırayla.
- */
+/** Mülakata çağırdıkların (her biri bir kez): hepsi Assessa testine otomatik davet edilir. */
 export function testPool(state: Pick<GameState, 'weekLog'>): string[] {
-  const selectionDay = days.findIndex((d) => d.selection);
-  const all = [...new Set(state.weekLog.filter((e) => e.decision === 'approve' && e.day < selectionDay).map((e) => e.id))];
-  if (all.length <= TEST_POOL_LIMIT) return all;
-  const strong = (id: string) => (candidateDetails[id]?.hireFit ?? 3) >= 4;
-  const picked = new Set([...all.filter(strong), ...all].slice(0, TEST_POOL_LIMIT));
-  return all.filter((id) => picked.has(id));
+  return [...new Set(state.weekLog.filter((e) => e.decision === 'approve').map((e) => e.id))];
 }
 
 /** Bugünkü mülakat hakkı: oyunun tek davet kuralı günlük sınırdır. */

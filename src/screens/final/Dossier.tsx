@@ -24,11 +24,24 @@ export interface DossierProps {
   caseAsked: boolean;
   /** Heyecanlı aday rahatlatılmadı: vakada takıldı. */
   rattled?: boolean;
+  /** Bu hafta bu aday için baktığın kanıtlar (site, referans). */
+  evidence?: string[];
 }
 
-export function Dossier({ candidate, details, selectedId, invitedOn, agreed, leadHeard, fit, testScore, followUsed, caseAsked, rattled = false }: DossierProps) {
+export function Dossier({ candidate, details, selectedId, invitedOn, agreed, leadHeard, fit, testScore, followUsed, caseAsked, rattled = false, evidence = [] }: DossierProps) {
   return (
       <aside className={styles.dossier} aria-label="Aday dosyası">
+        {leadHeard && (
+          <>
+            <h3>{LEAD}'ın notu</h3>
+            <div className={styles.leadNote} role="status">
+              <p>"{leadView(selectedId, fit)}"</p>
+              {followUsed && <p>"{followUpVerdict(selectedId, fit)}"</p>}
+              {caseAsked && <p>"{caseVerdict(selectedId)}"</p>}
+              {rattled && <p>"Çok gergindi; sorumda heyecandan takıldı. Sakin bir ortamda daha iyi çıkardı sanki. Puanını bir kırdım."</p>}
+            </div>
+          </>
+        )}
         <h3>Dosya</h3>
         <div className={`${styles.test} ${testScore < APTITUDE_CUTOFF ? styles.testBelow : ''}`} aria-label={`Genel yetenek testi ${testScore} / 100, eşik ${APTITUDE_CUTOFF}`}>
           <span className={styles.testLabel}>Genel yetenek testi</span>
@@ -54,34 +67,27 @@ export function Dossier({ candidate, details, selectedId, invitedOn, agreed, lea
           )}
           <dt>Son görev</dt>
           <dd>{details.workHistory[0].title}</dd>
-          <dt>Konum</dt>
-          <dd>{details.location}</dd>
-          <dt>Dil</dt>
-          <dd>{details.languages}</dd>
-          {invitedOn > 0 && (
-            <>
-              <dt>Mülakata çağrılma</dt>
-              <dd>{invitedOn}. gün</dd>
-            </>
-          )}
         </dl>
+        <p className={styles.meta}>
+          {details.location} · {details.languages}
+          {invitedOn > 0 && <> · {invitedOn}. gün çağrıldı</>}
+        </p>
+        <h3>Kanıtların</h3>
+        {evidence.length ? (
+          <ul className={styles.evidence}>
+            {evidence.map((e) => (
+              <li key={e}>◆ {e}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.leadEmpty}>Bu hafta sitesine ya da referansına bakmadın.</p>
+        )}
         <h3>Öne çıkanlar</h3>
         <ul className={styles.highlights}>
           {details.highlights.map((h) => (
             <li key={h}>{h}</li>
           ))}
         </ul>
-        <h3>{LEAD}'ın notu</h3>
-        {leadHeard ? (
-          <div className={styles.leadNote} role="status">
-            <p>"{leadView(selectedId, fit)}"</p>
-            {followUsed && <p>"{followUpVerdict(selectedId, fit)}"</p>}
-            {caseAsked && <p>"{caseVerdict(selectedId)}"</p>}
-            {rattled && <p>"Çok gergindi; sorumda heyecandan takıldı. Sakin bir ortamda daha iyi çıkardı sanki. Puanını bir kırdım."</p>}
-          </div>
-        ) : (
-          <p className={styles.leadEmpty}>Teknik bölümden sonra ekip liderinin görüşü burada görünür.</p>
-        )}
       </aside>
   );
 }

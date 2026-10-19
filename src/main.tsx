@@ -5,12 +5,14 @@ import './styles/global.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 import { applyTextScale, loadTextScale } from './game/lib/textScale'
+import { applyMotionReduced, loadMotionReduced } from './components/ui/motion'
 import { audioEngine } from './audio/audioEngine'
 import { connectSound } from './game/lib/sound'
 import { registerServiceWorker } from './swUpdate'
 import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './game/lib/prefs'
 
 applyTextScale(loadTextScale(), false)
+applyMotionReduced(loadMotionReduced(), false)
 
 // Ses motoru, ilk tık sesinden önce kayıtlı sessiz modunu ve ses seviyelerini bilmeli.
 audioEngine.setMuted(readStoredMuted())

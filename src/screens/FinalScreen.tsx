@@ -330,6 +330,8 @@ export function FinalScreen() {
               <b>İşe alım yapıyorsan</b>
               <p>6701 sayılı TİHEK Kanunu; yaş, cinsiyet, medeni hal, sağlık durumu gibi nedenlerle işe alım sürecinde de ayrımcılığı yasaklar. "Kültür uyumu" ya da "devamlılık" gibi kriterler bu nedenlere dolaylı yoldan dayanıyorsa sorun ortadan kalkmaz.</p>
               <p>KVKK, aday verisinin amaçla bağlantılı, sınırlı ve ölçülü işlenmesini ister: sorulmayan bilgiyi sosyal medyadan toplamak ya da işle ilgisi olmayan soruları sormak bu ilkeyle çelişebilir.</p>
+              <p>İlanda yaş aralığı, cinsiyet ya da "genç ekip" gibi ibareler ve mülakatta evlilik, çocuk, askerlik, emeklilik soruları aynı yasağa takılabilir; ölçülecek olan işin gerektirdiği yetkinliktir.</p>
+              <p>4857 sayılı İş Kanunu'na göre haftalık 45 saati aşan çalışma fazla mesaidir ve her saati en az %50 zamlı ödenir; "ekip ruhu" bunu değiştirmez. Deneme süresi en fazla iki aydır (toplu sözleşmeyle dört ay).</p>
               <p>Otomatik skorlama kullanıyorsan, hangi özelliğin puanı nasıl etkilediğini bilmek ve son kararı bir insanın gerekçeli vermesi en temel güvencedir.</p>
             </div>
             <div>
@@ -337,6 +339,7 @@ export function FinalScreen() {
               <p>ATS'ler için tek sütunlu, sade bir CV kullan; ilandaki anahtar kelimeleri kendi deneyiminle eşleştir.</p>
               <p>Kariyer boşluğunu saklama, adını koy: "aile işi", "eğitim", "kendi projem". Açık kaynak ve yarı zamanlı işler de deneyimdir; somut çıktılarıyla yaz.</p>
               <p>Ret aldığında kısa ve kibar bir geri bildirim iste; çoğu cevap vermez, ama cevap veren bir kişi bile yön değiştirir.</p>
+              <p>Mülakatta özel hayatına dair bir soru gelirse cevap vermek zorunda değilsin; sorunun işle bağlantısını sorabilirsin. İşe girdiysen, ücreti ödenmeyen fazla mesaiyi tarih ve saatleriyle not et.</p>
               <p>Ayrımcılığa uğradığını düşünüyorsan TİHEK'e başvurabilir, ÇSGB'nin ALO 170 hattından bilgi alabilirsin.</p>
             </div>
           </div>

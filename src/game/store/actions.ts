@@ -106,6 +106,8 @@ export interface StoryActions {
   /** Bildirimleri 17:00 için giden kutusuna koy (saat geçtiyse hemen). */
   planRejectionMails: (choices: Record<string, RejectTemplate>) => void;
   readMail: (id: string) => void;
+  /** Adayın sitesini açtın: Cuma bir kanıt kartı olur. */
+  noteSite: (id: string) => void;
   /** Reddine cevap veren bir adaya yaz (rejectionMails.ts: REPLY_BACK). */
   answerCandidateMail: (mailId: string, kind: ReplyBack) => void;
   /** Cuma: bir adayla maaş konuşmasının puanlarına yaptığı. */

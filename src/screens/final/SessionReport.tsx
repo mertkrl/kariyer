@@ -58,7 +58,7 @@ export function SessionReport({ report, onClose }: { report: Report; onClose: ()
           <h3>Hafta</h3>
           <ul className={styles.facts}>
             <li>
-              {report.decided} dosya: {report.approved} teste geçirildi, {report.rejected} ret
+              {report.decided} dosya: {report.approved} mülakata çağrıldı, {report.rejected} ret
               {report.readShare !== null && <> · okuyarak verilen kararlar %{Math.round(report.readShare * 100)}</>}
             </li>
             <li>
@@ -68,6 +68,17 @@ export function SessionReport({ report, onClose }: { report: Report; onClose: ()
               Müdürün ricaları: {report.complies} uyuldu, {report.refusals} geri çevrildi
             </li>
             <li>{report.hired ? `İşe alınan: ${report.hired.name} (uygunluk ${report.hired.fit}/5)` : 'İşe alım yapılmadı'}</li>
+            {report.scoring.rated > 0 && (
+              <li>
+                Mülakat puanların {report.scoring.rated} adaydan {report.scoring.hits} tanesinde gerçekle örtüştü
+                {report.scoring.gap !== null && <> · kadınlara ve 40 yaş üstüne ortalama {report.scoring.gap.toLocaleString('tr-TR')} puan düşük verdin</>}
+                {report.scoring.misses.map((m) => (
+                  <span key={m.name} className={styles.miss}>
+                    {m.name}: sen {m.given.toLocaleString('tr-TR')} verdin, gerçekte {m.fit}/5 çıktı
+                  </span>
+                ))}
+              </li>
+            )}
           </ul>
         </section>
 
@@ -100,7 +111,7 @@ export function SessionReport({ report, onClose }: { report: Report; onClose: ()
             <ul className={styles.facts}>
               {report.flaggedStrong.map((f) => (
                 <li key={f.name}>
-                  <b>{f.name}</b>: {f.decision === 'approve' ? 'teste geçirildi' : 'reddedildi'}
+                  <b>{f.name}</b>: {f.decision === 'approve' ? 'mülakata çağrıldı' : 'reddedildi'}
                   {f.considered !== null && <em>{f.considered ? ' · okunarak' : ' · okunmadan'}</em>}
                 </li>
               ))}

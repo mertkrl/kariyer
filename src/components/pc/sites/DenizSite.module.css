@@ -1,0 +1,503 @@
+/* Deniz'in takip uygulaması: sade, işlevsel, tasarımcı eli değmemiş ama düzgün. */
+
+.site {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f5f7fa;
+  color: #1c2533;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: calc(16px * var(--ts, 1));
+  line-height: 1.55;
+}
+
+.site button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.head {
+  padding-inline: max(32px, calc((100% - 900px) / 2 + 32px)) !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 19px;
+  background: #fff;
+  border-bottom: 1px solid #dde3ea;
+}
+
+.logo {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-weight: 700;
+}
+
+.head nav {
+  display: flex;
+  gap: 4px;
+}
+
+.head nav button {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #4a5668;
+}
+
+.head nav .on {
+  background: #e6edf7;
+  color: #1c2533;
+}
+
+.demo {
+  padding-inline: max(32px, calc((100% - 900px) / 2 + 32px)) !important;
+  padding: 6px 19px;
+  background: #fff7d6;
+  color: #7a5b00;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.main {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 19px;
+}
+
+.main h1 {
+  margin: 0 0 16px;
+  font-size: calc(30px * var(--ts, 1));
+}
+
+.main h2 {
+  margin: 24px 0 6px;
+  font-size: calc(19px * var(--ts, 1));
+}
+
+.hero {
+  padding-inline: max(32px, calc((100% - 900px) / 2 + 32px)) !important;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: center;
+  gap: 17px;
+  padding: 24px 22px 22px;
+  background: linear-gradient(135deg, #0d3b8c, #1f6feb);
+  color: #fff;
+}
+
+.hero h1 {
+  margin: 0 0 6px;
+  font-size: calc(38px * var(--ts, 1));
+}
+
+.heroLead {
+  margin: 0 0 18px;
+  color: #d6e4fb;
+}
+
+.hero .try {
+  color: #c9daf8;
+}
+
+.hero .search button {
+  background: #ffcc33;
+  color: #1c2533;
+}
+
+.van {
+  width: 100%;
+  max-width: 300px;
+  justify-self: center;
+}
+
+.how {
+  margin-top: 22px;
+}
+
+.how h2 {
+  margin: 0 0 14px;
+  font-size: calc(22px * var(--ts, 1));
+}
+
+.how ol {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how li {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #dde3ea;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.how li > b {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e6edf7;
+  color: #1f6feb;
+}
+
+.how span {
+  display: grid;
+  color: #6b778a;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.how strong {
+  color: #1c2533;
+  font-size: calc(15px * var(--ts, 1));
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.figures div {
+  padding: 18px;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+}
+
+.figures b {
+  display: block;
+  color: #1f6feb;
+  font-size: calc(28px * var(--ts, 1));
+}
+
+.figures span {
+  color: #6b778a;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.search {
+  display: flex;
+  gap: 8px;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #c4ceda;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.search button {
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #1f6feb;
+  color: #fff;
+  font-weight: 600;
+}
+
+.try {
+  margin: 10px 0 0;
+  color: #6b778a;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.sample {
+  margin-right: 6px;
+  padding: 2px 8px;
+  border: 1px solid #c4ceda;
+  border-radius: 6px;
+  background: #fff;
+  color: #1f6feb;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 13px !important;
+}
+
+.error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fdecec;
+  color: #a12828;
+}
+
+.result {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.bar {
+  height: 6px;
+  margin-top: 12px;
+  border-radius: 3px;
+  background: #e6edf7;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: #1a8f4a;
+}
+
+.steps {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  position: relative;
+  display: grid;
+  padding: 0 0 14px 26px;
+  border-left: 2px solid #dde3ea;
+  margin-left: 6px;
+}
+
+.steps li::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: -8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c4ceda;
+}
+
+.steps .done::before {
+  background: #1a8f4a;
+}
+
+.steps .next::before {
+  background: #fff;
+  box-shadow: inset 0 0 0 3px #1f6feb;
+}
+
+.steps small {
+  color: #6b778a;
+}
+
+.endpoint {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.endpoint b span {
+  margin-right: 6px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: #e6f4ea;
+  color: #1a7a40;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.endpoint ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.endpoint code,
+.code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.code {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: #1c2533;
+  color: #d6e2f0;
+}
+
+.loadingCard {
+  height: 150px;
+  margin-top: 18px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #eef2f7 25%, #f8fafc 50%, #eef2f7 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.search button:disabled,
+.tryRow button:disabled {
+  opacity: 0.7;
+}
+
+.tryRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tryRow code {
+  color: #4a5668;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.tryRow input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #c4ceda;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.tryRow button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: #1f6feb;
+  color: #fff;
+  font-weight: 600;
+}
+
+.quota {
+  display: block;
+  margin-top: 6px;
+  color: #6b778a;
+}
+
+.resHead {
+  margin-top: 12px;
+  color: #6b778a;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.ok,
+.bad {
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-weight: 700;
+}
+
+.ok {
+  background: #e6f4ea;
+  color: #1a7a40;
+}
+
+.bad {
+  background: #fdecec;
+  color: #a12828;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingCard {
+    animation: none;
+  }
+}
+
+.quoteForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.quoteForm label {
+  display: grid;
+  gap: 4px;
+  color: #4a5668;
+  font-size: calc(14px * var(--ts, 1));
+}
+
+.quoteForm input,
+.quoteForm select {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #c4ceda;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.dims {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.quoteForm button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 11px 24px;
+  border: 0;
+  border-radius: 8px;
+  background: #1f6feb;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bigPrice {
+  display: block;
+  font-size: calc(34px * var(--ts, 1));
+}
+
+.foot {
+  padding-inline: max(32px, calc((100% - 900px) / 2 + 32px)) !important;
+  margin-top: auto;
+  padding: 18px 19px;
+  border-top: 1px solid #dde3ea;
+  color: #6b778a;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+@container (max-width: 600px) {
+  .head,
+  .demo,
+  .main,
+  .foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .search {
+    flex-direction: column;
+  }
+
+  .hero,
+  .how ol,
+  .figures {
+    grid-template-columns: 1fr;
+  }
+
+  .search button {
+    padding: 12px;
+  }
+}

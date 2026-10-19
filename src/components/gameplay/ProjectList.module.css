@@ -1,0 +1,100 @@
+/* CV'deki projeler: her biri küçük bir kart; varsa adresi bir çip, tıklayınca site açılır. */
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: var(--paper-light);
+  font-size: calc(12.5px * var(--ts, 1));
+  line-height: 1.4;
+}
+
+.list b {
+  color: var(--ink);
+  font-size: calc(13.5px * var(--ts, 1));
+}
+
+.list span {
+  color: var(--text-muted);
+}
+
+.list b,
+.list span {
+  grid-column: 1;
+}
+
+.link,
+.none {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.link {
+  justify-self: end;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(26, 86, 196, 0.08);
+  color: #1a56c4;
+  font-size: calc(12px * var(--ts, 1));
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link::before {
+  content: '🔗';
+  font-size: 0.9em;
+}
+
+.link::after {
+  content: '↗';
+}
+
+.link:hover {
+  background: rgba(26, 86, 196, 0.16);
+}
+
+.link[aria-disabled='true'] {
+  background: rgba(34, 31, 27, 0.06);
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.none {
+  justify-self: end;
+  color: var(--text-dim) !important;
+  font-size: calc(11px * var(--ts, 1));
+}
+
+/* dar CV sayfasında ve geniş düzenin dar proje sütununda bağlantı açıklamanın altına iner:
+   uzun adres metni sıkıştırmasın */
+@container (max-width: 640px) or (min-width: 1000px) {
+  .list li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .link,
+  .none {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 4px;
+  }
+}

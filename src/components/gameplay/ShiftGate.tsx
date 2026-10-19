@@ -28,15 +28,7 @@ export function ShiftGate() {
               <br />
             </>
           )}
-          {day.selection ? (
-            <>
-              Bugün yeni dosya yok: teste geçen <b>{lineupSize} aday</b> puanlarıyla bekliyor. En fazla <b>{dailyLimit}</b> kişiyi mülakata çağırabilirsin.
-            </>
-          ) : (
-            <>
-              Kuyrukta bugün <b>{lineupSize} dosya</b> var. Uygun gördüklerini teste geçir; sınır yok.
-            </>
-          )}
+          Kuyrukta bugün <b>{lineupSize} dosya</b> var. Uygun gördüklerini Cuma mülakatına çağır; bugün en fazla <b>{dailyLimit}</b> kişi.
           <br />
           Mesaiyi başlattığında saat işlemeye başlar.
         </p>

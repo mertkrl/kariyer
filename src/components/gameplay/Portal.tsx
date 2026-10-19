@@ -73,7 +73,7 @@ export function Portal({
   }, [day.day]);
 
   return (
-    <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef}>
+    <div className={`${styles.mainArea} ${styles.portalArea}`} ref={portalRef} data-site-host>
       {!shiftStarted && needsOrientation && <Orientation container={portalRef} onDone={finishOrientation} />}
       {!shiftStarted && !needsOrientation && <ShiftGate />}
       <QueueSidebar mailsHidden={mailsHidden} onShowMails={() => setMailsHidden(false)} editingMails={editingMails} onEditMails={() => setEditingMails(true)} />

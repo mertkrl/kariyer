@@ -421,3 +421,10 @@
     padding: 0 16px;
   }
 }
+
+.resumeNote {
+  margin: 10px 0 0;
+  font-size: calc(13px * var(--ts, 1));
+  color: var(--on-dark-muted);
+  text-align: center;
+}

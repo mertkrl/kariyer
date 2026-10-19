@@ -42,10 +42,10 @@ export const jobDrafts: JobDraft[] = [
       'Sözlü ve yazılı iletişim becerisi',
     ],
     benefits: [
-      'Özel sağlık sigortası (kullanacak vakti bulursan)',
-      'Hibrit çalışma imkanı ("hibrit"in ofis günü ağırlıklı olduğu türden)',
-      'Yasal asgari izin hakları — tam da kanunun izin verdiği kadar, gramı fazlası yok',
-      'Enflasyona yetişip yetişmeyeceği sürpriz olan bir yemek kartı',
+      'Tamamlayıcı sağlık sigortası',
+      'Hibrit çalışma imkânı (ekip ihtiyacına göre)',
+      'Yasal yıllık izin hakları',
+      'Yemek kartı',
     ],
   },
   {
@@ -74,10 +74,10 @@ export const jobDrafts: JobDraft[] = [
       'Genç ve dinamik ekip kültürüne uyum',
     ],
     benefits: [
-      'Sınırsız kahve (uykusuzluğun resmi çözümü)',
-      '"Aile ortamı" (mesai kavramını da aileden saydık)',
-      'Haftalık ekip yemekleri — Cuma 21:00, hâlâ ofisteysen zaten oradasın',
-      'Esnek çalışma saatleri (esnekliğin yönü hep aynı: daha fazla)',
+      'Sınırsız kahve ve atıştırmalık',
+      'Aile sıcaklığında bir çalışma ortamı',
+      'Haftalık ekip yemekleri (Cuma akşamları, ofiste)',
+      'Esnek çalışma saatleri (yoğun dönemlerde ekip ruhuyla)',
     ],
   },
   {
@@ -106,10 +106,10 @@ export const jobDrafts: JobDraft[] = [
       'Rekabetçi ortamlara yatkınlık',
     ],
     benefits: [
-      'Performansa dayalı prim sistemi (performans genelde "yeterli" bulunmaz)',
-      'Hedef üstü başarıda ek ödül — hedef de bir sonraki çeyrekte üstüne çıkar',
-      '"Şeffaf" değerlendirme süreci (şeffaflık tek taraflı işler)',
-      'Yükselme fırsatı — bir sonraki çeyrekte, söz veriyoruz',
+      'Performansa dayalı prim sistemi (hedef gerçekleşmesine göre)',
+      'Hedef üstü başarıda ek ödül; hedefler her çeyrek güncellenir',
+      'Şeffaf değerlendirme süreci (sonuçlar yönetimle paylaşılır)',
+      'Hızlı yükselme fırsatı (performans koşuluyla)',
     ],
   },
 ];

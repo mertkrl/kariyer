@@ -50,13 +50,13 @@
 .title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: calc(18px * var(--ts, 1));
   font-weight: 600;
 }
 
 .paused {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: calc(10px * var(--ts, 1));
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -78,7 +78,7 @@
   align-items: center;
   gap: 8px;
   min-height: 34px;
-  font-size: 13px;
+  font-size: calc(13px * var(--ts, 1));
 }
 
 .switchRow {
@@ -146,7 +146,7 @@
 }
 
 .rowValue {
-  font-size: 11px;
+  font-size: calc(11px * var(--ts, 1));
   text-align: right;
   color: var(--text-muted);
 }
@@ -199,7 +199,7 @@
   border-radius: 4px;
   background: transparent;
   font: inherit;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   color: var(--text-dim);
   cursor: pointer;
 }
@@ -221,7 +221,7 @@
 }
 
 .shortcutWhere {
-  font-size: 10px;
+  font-size: calc(10px * var(--ts, 1));
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -240,7 +240,7 @@
   grid-template-columns: 74px 1fr;
   gap: 8px;
   align-items: baseline;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
 }
 
 .shortcutRow dt {
@@ -259,7 +259,7 @@
   border-radius: 3px;
   border: 1px solid var(--border-muted);
   background: var(--paper);
-  font-size: 10px;
+  font-size: calc(10px * var(--ts, 1));
   text-align: center;
 }
 
@@ -276,7 +276,7 @@
   border-radius: 6px;
   background: transparent;
   font: inherit;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   font-weight: 500;
   color: var(--text-dim);
   cursor: pointer;
@@ -318,7 +318,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 12px;
+  font-size: calc(12px * var(--ts, 1));
   color: var(--text-dim);
 }
 

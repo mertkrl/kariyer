@@ -3,6 +3,7 @@
  * geçiş. Yeni bir günün kuralları çoğunlukla veride yaşar (data/days.ts, data/dayPlans.ts,
  * weekdays.ts); burada değişen, bir sabahın nasıl kurulduğudur.
  */
+import { THURSDAY } from '../lib/weekdays';
 import type { DayStats } from '../types';
 import type { GetState, SetState } from '../store/storeApi';
 import type { Finalist, GameState, StoryState, WeekLog, DayActions } from '../store/storeTypes';
@@ -17,11 +18,10 @@ import { buildManagerScript, evaluateRequests, managerTone, reprimandText, type 
 import { BREAK_END_MIN } from '../lib/time';
 import { leventMail, type WeekEntry } from '../day/echoes';
 import { rngFor } from '../lib/rng';
-import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan, testPool } from '../store/storeDefaults';
+import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../store/storeDefaults';
 import { dispatchRejections, isOnBreak } from '../day/clock';
 import { NEIGHBOUR_DAY } from '../lib/weekdays';
 import { tick } from '../day/tick';
-import { APTITUDE_CUTOFF, candidateAptitude } from '../events/aptitude';
 
 /** Okuyarak çağrılan ve gerçekten güçlü çıkan aday başına: ekip liderinin olumlu notu. */
 export const SPOTTED_PERFORMANS = 1;
@@ -59,12 +59,8 @@ function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
   return [...state.extraMails.filter((m) => m.id !== `levent-${state.currentDayIndex}`), ...reprimand, ...(levent ? [levent] : [])];
 }
 
-/** Bugünün dosyaları: seçim günü teste geçenlerdir; CV'sini ilettiysen komşunun oğlu kendi gününe katılır. */
+/** Bugünün dosyaları: CV'sini ilettiysen komşunun oğlu kendi gününe katılır. */
 function todaysLineups(state: GameState): string[][] {
-  if (days[state.currentDayIndex].selection) {
-    const pool = testPool(state);
-    return state.lineups.map((l, i) => (i === state.currentDayIndex ? pool : l));
-  }
   return state.currentDayIndex === NEIGHBOUR_DAY && state.story.neighbourCv && !lineupFor(state).includes(NEIGHBOUR_ID)
     ? state.lineups.map((l, i) => (i === NEIGHBOUR_DAY ? [...l, NEIGHBOUR_ID] : l))
     : state.lineups;
@@ -175,24 +171,19 @@ export const createDaySlice = (set: SetState, get: GetState): DayActions => ({
       verdict.lines.push(`${emptySlots} mülakat hakkın boş kaldı; o sırada işaretli ${strongRejected} güçlü adayı eledin.`);
     }
 
-    // Perşembe: eşiğin altından çağırdıkların Hakan Bey'in gözünden kaçmaz
-    if (day.selection) {
-      const below = lineup.filter((id) => state.decisions[id] === 'approve' && candidateAptitude(id, state.seed).score < APTITUDE_CUTOFF).length;
-      if (below > 0) verdict.lines.push(`Hakan Bey: "Test puanı ${APTITUDE_CUTOFF}'in altında ${below} kişiyi mülakata çağırmışsınız. Sayıların neden orada olduğunu hatırlatırım."`);
-    }
-
     // ekip liderinin sesi: okuyarak mülakata çağırdığın ve gerçekten güçlü çıkan her aday deneme değerlendirmene yazılır
-    const spotted = lineup.filter((id) => day.selection && state.decisions[id] === 'approve' && isStrong(id) && wasConsidered(readingOf(state, id))).length;
+    // yalnızca haftanın son CV gününde: ekip o günün davetlerine bakar
+    const spotted = lineup.filter((id) => state.currentDayIndex === THURSDAY && state.decisions[id] === 'approve' && isStrong(id) && wasConsidered(readingOf(state, id))).length;
     if (spotted > 0) {
       verdict.performans += spotted * SPOTTED_PERFORMANS;
       verdict.lines.push(`Ümit Bey'in ekibi bugün çağırdığın ${spotted} adayın dosyasını beğendi; deneme değerlendirmene not düştü.`);
     }
 
     const dayStats: DayStats = { ...state.dayStats, autoRejected, undecided };
-    // mülakata yalnızca seçim gününün davetlileri gider; CV günlerinin onayı teste geçirmektir
+    // her CV gününün onayı Cuma mülakatına davettir
     const advanced = state.decisionLog
       // Perşembe karında yolu kapanan aday çağrılmış olsa da gelemez
-      .filter((e) => day.selection && e.decision === 'approve' && state.decisions[e.id] === 'approve' && !state.story.stranded?.includes(e.id))
+      .filter((e) => e.decision === 'approve' && state.decisions[e.id] === 'approve' && !state.story.stranded?.includes(e.id))
       .map((e) => ({ id: e.id, day: day.day }) as Finalist);
     // çağırmanı istediği kişiler mülakatlara yine de gelir
     for (const r of state.managerRequests)
@@ -252,7 +243,7 @@ export const createDaySlice = (set: SetState, get: GetState): DayActions => ({
     set({
       weekLog: [...state.weekLog.filter((e) => e.day !== state.currentDayIndex), ...logged],
       // Seçim günü ve son gün yeni başvuru yok: doğrudan memoya.
-      phase: days[nextIndex].final || days[nextIndex].selection ? 'briefing' : 'applicationFlood',
+      phase: days[nextIndex].final ? 'briefing' : 'applicationFlood',
       currentDayIndex: nextIndex,
       workdayMinutes: 0,
       breakOver: false,

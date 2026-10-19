@@ -1,0 +1,184 @@
+/* Güler Hırdavat: bilerek eski usul. Gri başlık, mavi bağlantılar, düz tablo; ama okunaklı ve hızlı. */
+
+.site {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #222;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: calc(14px * var(--ts, 1));
+  line-height: 1.5;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px 20px;
+  padding: 14px 24px;
+  background: #e9e9e9;
+  border-bottom: 3px solid #b8860b;
+}
+
+.head div {
+  display: grid;
+}
+
+.head b {
+  color: #8a1c1c;
+  font-family: Georgia, serif;
+  font-size: calc(24px * var(--ts, 1));
+  letter-spacing: 0.04em;
+}
+
+.head span {
+  color: #555;
+}
+
+.contact {
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.nav {
+  padding: 8px 24px;
+  background: #f6f6f6;
+  border-bottom: 1px solid #ddd;
+  color: #888;
+}
+
+.nav a {
+  color: #0645ad;
+}
+
+.main {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px 24px 18px;
+  box-sizing: border-box;
+}
+
+.main h1 {
+  margin: 0 0 12px;
+  font-size: calc(20px * var(--ts, 1));
+}
+
+.note {
+  margin: 0 0 12px;
+  padding: 6px 10px;
+  border: 1px solid #e6d9a8;
+  background: #fffbe6;
+  font-size: calc(13px * var(--ts, 1));
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.search input {
+  width: 260px;
+  padding: 5px 7px;
+  border: 1px solid #999;
+  font: inherit;
+}
+
+.search small {
+  color: #777;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table th {
+  background: #f0f0f0;
+  font-weight: bold;
+}
+
+.table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.num {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: 'Courier New', monospace;
+}
+
+.none td {
+  color: #999;
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline input {
+  width: 62px;
+  padding: 3px 5px;
+  border: 1px solid #999;
+  font: inherit;
+}
+
+.inline input[aria-label='Telefon'] {
+  width: 110px;
+}
+
+.inline button,
+.btn {
+  padding: 4px 10px;
+  border: 1px solid #888;
+  border-radius: 2px;
+  background: linear-gradient(#fdfdfd, #e3e3e3);
+  color: #222;
+  font: inherit;
+  cursor: pointer;
+}
+
+.inline small {
+  color: #8a5a00;
+}
+
+.ok {
+  color: #1e6b1e !important;
+}
+
+.totalRow td {
+  font-weight: bold;
+  background: #f0f0f0;
+}
+
+.msg {
+  padding: 10px 12px;
+  border: 1px solid #b7dfb7;
+  background: #f0fbf0;
+  font-family: Arial, sans-serif;
+  white-space: pre-wrap;
+}
+
+.foot {
+  margin-top: auto;
+  padding: 10px 24px;
+  border-top: 1px solid #ddd;
+  color: #888;
+  font-size: calc(12px * var(--ts, 1));
+}

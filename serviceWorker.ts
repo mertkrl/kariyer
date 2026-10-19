@@ -13,7 +13,8 @@ export function cacheableFiles(all: string[]): string[] {
 
 export function serviceWorkerSource(bundleFiles: string[]): string {
   const all = cacheableFiles(bundleFiles)
-  const files = all.filter((f) => !f.startsWith('audio/'))
+  // müzik ve adayların sitelerindeki fotoğraflar ilk açılışta inmez: ilk kullanıldıklarında saklanır
+  const files = all.filter((f) => !f.startsWith('audio/') && !f.startsWith('sites/'))
   const version = createHash('sha256').update(all.join('|')).digest('hex').slice(0, 12)
   return `const CACHE = 'sen-iksin-${version}';
 const FILES = ${JSON.stringify(['./', ...files.map((f) => './' + f)])};
