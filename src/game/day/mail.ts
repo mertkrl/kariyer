@@ -81,7 +81,7 @@ Bilgi İşlem`,
     subject: 'Haftalık hedefler',
     body: `Sayın ${PLAYER.first} Hanım,
 
-Bu hafta hedefimiz, ön elemeyi eksiksiz tamamlamak ve uygun adayları Genel Yetenek ve Uyum Değerlendirmesi'ne geçirmektir. Perşembe test puanlarına göre en fazla 3 adayı mülakata çağıracak, cuma günü mülakat aşamasına geçeceğiz.
+Bu hafta hedefimiz, ön elemeyi eksiksiz tamamlamak ve her gün en uygun adayları (günde en fazla 2) Cuma mülakatlarına çağırmaktır. Davetleri Pazartesi'den Perşembe'ye her gün yapacak, cuma günü mülakat aşamasına geçeceğiz.
 
 Günlük dosyaların mesai bitimine kadar sonuçlandırılmasını ve yapay zekâ modülünün önerilerinin dikkate alınmasını rica ederim.
 
@@ -209,7 +209,7 @@ Yazılım Ekip Lideri`,
     important: true,
     body: `Merhaba ${PLAYER.first},
 
-Lisans sunucusundaki bir arıza nedeniyle yapay zekâ modülü bugün kullanılamayacaktır. Değerlendirme platformu (Assessa) ayrı bir sunucuda çalıştığından test sonuçlarına erişim etkilenmemiştir.
+Lisans sunucusundaki bir arıza nedeniyle yapay zekâ modülü bugün kullanılamayacaktır. Mülakata çağırdığınız adaylar Genel Yetenek ve Uyum Testi'ne (Assessa) otomatik olarak davet edilir; Assessa ayrı bir sunucuda çalıştığı için bu süreç etkilenmemiştir. Test puanları Cuma günü mülakat dosyalarında yer alacaktır.
 
 Bilgi İşlem`,
   },
@@ -222,7 +222,7 @@ Bilgi İşlem`,
     subject: 'Re: Sistem',
     body: `Sistemin çöktüğünü duydum. Açıkçası bizim ekip için kötü haber sayılmaz.
 
-Kısa listeye kimi koyduysanız yarın göreceğim. Tek isteğim: listeye "test puanı yüksek" diye değil, "işi yapabilir" diye girsinler. O testin sorularına bir bakın bence.
+Kısa listeye kimi koyduysanız yarın göreceğim. Tek isteğim: listeye "skoru yüksek" diye değil, "işi yapabilir" diye girsinler. Cuma dosyada bir test puanı göreceksiniz; o testin sorularına da bir bakın bence.
 
 Ümit`,
   },
@@ -251,7 +251,7 @@ Hakan Kaya`,
     attachment: { name: 'Mulakat_Soru_Listesi.pdf', kind: 'questions' },
     body: `Sayın ${PLAYER.first} Hanım,
 
-Yarın mülakatlar sonrası akşam 20:00'ye kadar kalınması beklenmektedir. Ekip ruhu gereği bu çalışma fazla mesai kapsamında değerlendirilmeyecektir.
+Sistem arızası nedeniyle bugün tüm ekibin 19:00'a kadar kalması beklenmektedir. Ekip ruhu gereği bu çalışma fazla mesai kapsamında değerlendirilmeyecektir.
 
 Ekte standart soru listemiz yer almaktadır. "Uzun vadeli uyumun" değerlendirilebilmesi için adayların önümüzdeki dönem planları (aile, askerlik vb.) hakkında da bilgi alınmasını rica ederim.
 

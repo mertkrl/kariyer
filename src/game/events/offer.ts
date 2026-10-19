@@ -101,7 +101,7 @@ export function offerOpening(c: OfferContext): OfferBeat {
   return {
     lines: [
       door,
-      '"Deneme süren bitti. Kadro tek kişilik, biliyorsun. Pazartesi ya sen ya Ayşe."',
+      '"İki aylık deneme sürenin sonunu beklemeyeceğim. Kadro tek kişilik, biliyorsun. Pazartesi ya sen ya Ayşe."',
       tone,
       ...(c.hiredNephew ? ['"Okan\'ın konusunu açmayalım. Gereğini yaptın, unutmam."'] : []),
       '"Kadroyu sana teklif ediyorum. Düşünme lüksün yok; holding ismi bu akşam istiyor."',

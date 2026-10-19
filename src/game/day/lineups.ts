@@ -1,5 +1,6 @@
 import { days } from '../data/days';
 import { shuffle } from '../lib/rng';
+import { hasSite } from '../data/portfolios';
 
 /*
  * Rastgele aday havuzu.
@@ -14,9 +15,12 @@ const HOME_DAY: Record<string, number> = {};
 days.forEach((day, index) => day.candidateIds.forEach((id) => (HOME_DAY[id] = index)));
 
 /** CV cevapları, şimdi göründükleri günden başka bir günün soruları için yazılmış adaylar. */
-const QUESTION_DAY: Record<string, number> = { gokce: 3, kerem: 3, seda: 3, kaan: 1, tolga: 0, ece: 2 };
+const QUESTION_DAY: Record<string, number> = { gokce: 3, kerem: 3, seda: 3, kaan: 1, tolga: 0, ece: 2, tuncay: 3, asli: 3 };
 const CUSTOM_QUESTIONS: Record<string, string[]> = {
   okan: ['Neden bu şirkette çalışmak istiyorsunuz?', 'Sizi neden seçmeliyiz?'],
+  baris: ['Neden bu şirkette çalışmak istiyorsunuz?', 'Sizi neden seçmeliyiz?'],
+  pinar: ['Neden yazılıma geçtiniz?', 'Sizi neden seçmeliyiz?'],
+  ugur: ['Bu pozisyonda sizi motive eden nedir?', 'Sizi neden seçmeliyiz?'],
   onur: ['Uzun vadede bu şirkette kalmayı düşünüyor musunuz?', 'Kişisel hayatınız iş temponuzu etkiler mi?'],
 };
 
@@ -51,7 +55,24 @@ export function makeLineups(rand: () => number): string[][] {
     if (FIXED.includes(lineups[a][ia]) || FIXED.includes(lineups[b][ib])) continue;
     [lineups[a][ia], lineups[b][ib]] = [lineups[b][ib], lineups[a][ia]];
   }
+  spreadSites(lineups, workdays);
   return lineups.map((l) => frontLoad(shuffle(l, rand), rand));
+}
+
+/**
+ * Her CV gününe en az bir site düşer: oyuncu siteye bakmayı bir gün öğrenip ertesi gün unutmasın.
+ * Sitesiz kalan güne, iki ya da daha fazla sitesi olan bir günden (hikâyeye bağlı olmayan) biri gelir.
+ */
+function spreadSites(lineups: string[][], workdays: number[]) {
+  for (const day of workdays) {
+    if (lineups[day].some(hasSite)) continue;
+    const from = workdays.find((d) => lineups[d].filter((id) => hasSite(id) && !FIXED.includes(id)).length >= 2);
+    if (from === undefined) continue;
+    const give = lineups[from].findIndex((id) => hasSite(id) && !FIXED.includes(id));
+    const take = lineups[day].findIndex((id) => !hasSite(id) && !FIXED.includes(id));
+    if (take < 0) continue;
+    [lineups[from][give], lineups[day][take]] = [lineups[day][take], lineups[from][give]];
+  }
 }
 
 /**

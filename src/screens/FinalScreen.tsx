@@ -82,7 +82,7 @@ export function FinalScreen() {
     events: week.events,
     dmHonest: Object.values(dmHandled).filter((k) => k === 'honest').length,
     tested: testPool({ weekLog }).length,
-    invitedBelowStrong: weekLog.filter((e) => days[e.day]?.selection && e.decision === 'approve' && isStrong(e.id) && candidateAptitude(e.id, seed).score < APTITUDE_CUTOFF).length,
+    invitedBelowStrong: weekLog.filter((e) => e.decision === 'approve' && isStrong(e.id) && candidateAptitude(e.id, seed).score < APTITUDE_CUTOFF).length,
     selfScore: story.aptitude?.score ?? null,
     cutoff: APTITUDE_CUTOFF,
   };
@@ -232,7 +232,7 @@ export function FinalScreen() {
                   ? 'Kadroyu sen ona bıraktın. İlk maaşıyla sana bir kahve makinesi yolladı, notuyla: "Ofisinki hâlâ bozuk. Dosyaları okuyorum, söz."'
                   : ending.left
                   ? 'Kadro Ayşe\'ye verildi; senin masana geçti. Bir kez yazdı: "Senin masanda oturuyorum. Dosyaları okuyorum, söz."'
-                  : 'Ayşe\'nin deneme süresi uzatılmadı. Başka bir şirkette İK uzmanı oldu. Geçen ay yazdı: "Burada da bir tablo var. Bu sefer ilk günden soruyorum."'}
+                  : 'Ayşe\'nin işine deneme süresinde son verildi. Başka bir şirkette İK uzmanı oldu. Geçen ay yazdı: "Burada da bir tablo var. Bu sefer ilk günden soruyorum."'}
               </span>
             </span>
           </div>
@@ -386,6 +386,7 @@ export function FinalScreen() {
               complies: managerStance.complies,
               refusals,
               selfScore: story.aptitude?.score ?? null,
+              interviewScores: story.interviewScores,
             })}
           />
         )}

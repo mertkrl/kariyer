@@ -256,11 +256,75 @@ const BACK_SPECIAL: Record<string, BackQuestion> = {
     afterPolished: 'Bunu duymak çok iyi geldi, teşekkürler.',
   },
   seda: {
-    question: 'Esnek çalışma saati mümkün mü? Kızımı okuldan almam gerekiyor.',
+    question: 'Esnek çalışma saati mümkün mü? Kızımı kreşten almam gerekiyor.',
     honest: 'Resmî bir esnek çalışma politikamız yok; yöneticiyle konuşularak çözülüyor.',
     polished: 'Tabii, esnek bir şirketiz, sorun olmaz.',
     afterHonest: 'Bilmem iyi oldu. Teşekkür ederim.',
     afterPolished: 'Çok sevindim, bu benim için çok önemliydi.',
+  },
+  // ── sorusu kim olduğunu ele verenler: güçlüler işin kendisini, zayıflar unvanı ve yan hakları sorar ──
+  ferhat: {
+    question: 'Sahada çalışan ekipler için yazılım var mı, yoksa her şey ofisten mi yürüyor? İnternetin olmadığı yerde ne oluyor?',
+    honest: 'Şu an her şey ofisten; sahadaki ekip kâğıtla çalışıyor ve bu bir sorun.',
+    polished: 'Tüm süreçlerimiz dijital ve bulut tabanlı.',
+    afterHonest: 'O zaman ilk aylarda ne yapacağımı biliyorum.',
+    afterPolished: 'Anladım. Yine de sahaya bir gün gitmek isterim, görmeden bilinmiyor.',
+  },
+  mert: {
+    question: 'Tasarımcıyla geliştirici burada ayrı ekipler mi? Kararlar kimde kalıyor?',
+    honest: 'Ayrılar ve açıkçası arada çok gidip geliyor; kararı çoğu zaman ürün yöneticisi veriyor.',
+    polished: 'Tamamen entegre, çevik bir yapımız var.',
+    afterHonest: 'İyi, o arayı kapatmak tam benim yaptığım iş.',
+    afterPolished: 'Güzel. Bir örnek görmek isterim, nasıl işlediğini.',
+  },
+  deniz: {
+    question: 'Ekipte kod incelemesi yapılıyor mu? Yeni gelen biri ilk ay kimden öğreniyor?',
+    honest: 'Kod incelemesi var ama yoğun dönemlerde atlanıyor; resmî bir mentor programı yok.',
+    polished: 'Güçlü bir mentorluk kültürümüz var.',
+    afterHonest: 'Teşekkürler. Atlanmasın diye ben de sorarım o zaman.',
+    afterPolished: 'Harika. Benim için en önemli şey buydu.',
+  },
+  zeynep: {
+    question: 'Kampanya günlerinde sistem çöktüğünde gece kim kalkıyor? Nöbet nasıl dönüyor?',
+    honest: 'Bir nöbet listemiz yok; genelde en deneyimli kişi kalkıyor, bu da hep aynı iki kişi oluyor.',
+    polished: 'Sistemlerimiz çok kararlı, böyle bir sorun yaşamıyoruz.',
+    afterHonest: 'Dürüst cevap için sağ olun; o listeyi kurmaya yardım edebilirim.',
+    afterPolished: 'Her sistem bir gün çöker. Ama tamam.',
+  },
+  selin: {
+    question: 'Junior olarak ilk üç ayda benden ne bekliyorsunuz? Neye göre "iyi gidiyor" diyeceksiniz?',
+    honest: 'Açıkçası yazılı bir hedef yok; ekip liderinle ilk hafta birlikte belirlersiniz.',
+    polished: 'Net hedefleri olan bir uyum programımız var.',
+    afterHonest: 'O zaman ilk hafta o listeyi ben getiririm.',
+    afterPolished: 'Çok iyi, o programı merak ediyorum.',
+  },
+  irem: {
+    question: 'Modellerin gerçek kararlara etkisini ölçüyor musunuz, yoksa doğruluk oranı mı raporlanıyor?',
+    honest: 'Çoğunlukla doğruluk oranı; işe etkisini ölçen pek yok.',
+    polished: 'Tüm modellerimizin iş etkisini düzenli ölçüyoruz.',
+    afterHonest: 'Anladım; ölçmeye oradan başlamak isterim.',
+    afterPolished: 'Bir raporu görmek isterim, nasıl ölçtüğünüzü.',
+  },
+  volkan: {
+    question: 'Bu pozisyonun unvanı tam olarak ne olacak? İki yıl içinde yöneticiliğe geçiş mümkün mü?',
+    honest: 'Unvan "Yazılım Geliştirici"; yöneticilik için belirli bir süre yok, ihtiyaca göre.',
+    polished: 'Hızlı büyüyen bir şirketiz, kariyer yolu çok açık.',
+    afterHonest: 'Hmm. Unvanı biraz daha konuşabilir miyiz ileride?',
+    afterPolished: 'Süper, benim için en önemli kriter buydu.',
+  },
+  serkan: {
+    question: 'Yan haklar neler? Yemek kartı ve özel sağlık sigortası var mı, şirket arabası verilir mi?',
+    honest: 'Yemek kartı ve sağlık sigortası var; araç bu pozisyonda yok.',
+    polished: 'Sektörün en rekabetçi yan hak paketlerinden biri.',
+    afterHonest: 'Anladım. Araç olmaması biraz sıkıntı.',
+    afterPolished: 'Çok iyi, sinerjimiz tutacak gibi.',
+  },
+  okan: {
+    question: 'Ne zaman başlayabilirim? Dayım ilk ayın daha çok tanışma olacağını söylemişti.',
+    honest: 'Kurul kararını bekliyoruz; ilk ay da diğer herkes gibi tam mesai iş.',
+    polished: 'En kısa sürede size döneceğiz.',
+    afterHonest: 'Ah… tamam, öyle olsun.',
+    afterPolished: 'Tamamdır, teşekkürler.',
   },
 };
 
@@ -287,7 +351,7 @@ export function backQuestionCount(id: string, years: number): number {
   if (BACK_SPECIAL[id]) return level === 'senior' ? 2 : 1;
   // haftanın kilit adayları (Kerem, Derya, Seda, Tolga) söyleyecek bir şeyi olan insanlardır: hep sorar
   const story = KEY_CAST.includes(id) && id !== NEPHEW_ID;
-  if (level === 'junior') return roll < 5 && !story ? 0 : 1;
+  if (level === 'junior') return roll < 7 && !story ? 0 : 1;
   if (level === 'mid') return roll < 2 && !story ? 0 : 1;
   return roll < 2 && !story ? 0 : roll < 4 ? 1 : 2;
 }

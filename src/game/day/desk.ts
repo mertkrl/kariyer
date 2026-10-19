@@ -202,7 +202,7 @@ export const IDLE_THOUGHTS = ['Kahve iyi geldi.', 'Bir yudum daha. Ekrana dönme
 export const COFFEE_THOUGHTS: string[][] = [
   ['Filtre kahve. On bir ay işsizlikten sonra ilk sabah kahvesi.', 'Ofisin kahvesi berbat ama sıcak.', 'İki ay deneme süresi. İki ay boyunca hiçbir şeyi yanlış yapmamalısın.', 'Kira %60 zamlanmış, KYK borcu duruyor. Kahve bile acı geliyor.', 'Son yudum soğumuş.'],
   ['Dün kaç kişiyi elediğimi saymamaya çalışıyorum.', 'Masadaki telefona bakmamaya çalışıyorum.', 'Kahve dünkünden daha sert. Ya da ben daha yorgunum.', 'Annemin kart borcu… Asgariyi bu hafta yatırmam lazım.', 'Kupanın dibinde telve kalmış. Fal bakacak vakit yok.'],
-  ['Yağmur camı dövüyor. Kahve sıcak, iyi ki.', 'Dosyalar bitmiyor. Önce kahve.', 'Yarın mülakat günü. Kahve boğazımda düğümlendi.', 'Bu sistemi kim yazdı acaba?', 'Soğudu. Her şey gibi.'],
+  ['Yağmur camı dövüyor. Kahve sıcak, iyi ki.', 'Dosyalar bitmiyor. Önce kahve.', 'Toplantı 11:00\'de. Kahve boğazımda düğümlendi.', 'Bu sistemi kim yazdı acaba?', 'Soğudu. Her şey gibi.'],
   ['Kar yağıyor. Pencereden bakınca her şey sessiz.', 'Ekran boş. Yapay zekâ yok. Sadece ben ve dosyalar.', 'Bugün sistem yok. Kararlar gerçekten benim.', 'Kardeşimin yurt taksiti… Yine hesap yapıyorum.', 'Son yudum. Yarın cuma.'],
 ];
 

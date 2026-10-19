@@ -43,9 +43,9 @@ function offerNews(o: OfferOutcome): CallStep[] {
     case 'stay':
       return [
         me('Kadro bende anne. Pazartesi kalıcıyım.'),
-        mom('Oh çok şükür! Deneme süresi bitti yani, değil mi? …Ayşe dediğin kız ne oldu peki?'),
+        mom('Oh çok şükür! Kadro senin yani, değil mi? …Ayşe dediğin kız ne oldu peki?'),
         choose(
-          { label: 'Onun süresi uzatılmadı', reply: 'Vah… Ama sen ne yapacaktın, kendi işini mi bırakacaktın?' },
+          { label: 'Onunkine deneme süresinde son verdiler', reply: 'Vah… Ama sen ne yapacaktın, kendi işini mi bırakacaktın?' },
           { label: 'Bilmiyorum anne, sormaya yüzüm olmadı', reply: 'Pazartesi bir çay ısmarla ona. Bir çay çok şey söyler.' },
         ),
       ];
@@ -96,7 +96,7 @@ function offerNews(o: OfferOutcome): CallStep[] {
       ];
     case 'notOffered':
       return [
-        me('Deneme süremi uzatmadılar anne.'),
+        me('Deneme süremde işime son verdiler anne.'),
         mom('Ah yavrum… Ne dediler peki?'),
         choose(
           { label: '"Uyum sorunu" dediler', reply: 'Kime uyacaktın? Neye uyacaktın? Boş ver onları.' },

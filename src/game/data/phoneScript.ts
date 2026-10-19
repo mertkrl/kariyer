@@ -191,9 +191,9 @@ export const AMBIENT: Ambient[][] = [
   ],
   [
     {
-      at: 90, thread: 'ayse', text: 'Gruba yazmak istemedim. Nurten Hanım söyledi: deneme süresi bitince ikimizden sadece biri kalıyormuş. Kadro bir kişilik 😬',
+      at: 90, thread: 'ayse', text: 'Gruba yazmak istemedim. Nurten Hanım söyledi: deneme süresinin sonu beklenmeyecekmiş, cuma karar verilecek; ikimizden sadece biri kalıyormuş. Kadro bir kişilik 😬',
       replies: [
-        { text: 'Ciddi misin? Bunu… kimse söylemedi bana.', reaction: 'Keşke olmasa. Hakan Bey cuma akşamı söyleyecekmiş. Haftanın daha ilk günü bitti, düşünsene 😩' },
+        { text: 'Ciddi misin? Bunu… kimse söylemedi bana.', reaction: 'Keşke olmasa. Hakan Bey cuma akşamı söyleyecekmiş. Daha salı, düşünsene 😩' },
         { text: 'Bilmiyordum… Ama kim kalırsa kalsın, birbirimizi ezmeyelim, olur mu?', reaction: 'Anlaştık. Ama sayılarımı tutturmam lazım, bilmiş ol 😅' },
       ],
     },
@@ -254,12 +254,11 @@ export const AMBIENT: Ambient[][] = [
     {
       at: 80, thread: 'office', sender: 'Emre', text: 'Yapay zekâ sistemi tamamen çöktü 😱 IT\'de herkes panikte',
       replies: [
-        { text: 'Neyse ki test puanları elimizde. Gerçi testi gördükten sonra "neyse ki" demek zor 🙃', reaction: 'Puanlar var da… soruları gördün mü? 🙃', reactionSender: 'Ayşe' },
+        { text: 'Bugün dosyaları gerçekten okumak zorundayız. Belki iyi bir şeydir 🙃', reaction: 'Okuyalım bakalım. Test puanları da ancak Cuma dosyaya düşüyor zaten 🙃', reactionSender: 'Ayşe' },
         { text: 'Bugün iş uzun sürecek. Kahveyi şimdiden ikiliyorum ☕☕', reaction: 'Kesin. Akşam fazla mesai var gibi 😩', reactionSender: 'Emre' },
       ],
       followUps: [
-        { after: 4, sender: 'Selin (İK)', text: 'Hakan Bey\'den not: "70 altı listeye girmez. Sayılar ortada." Bilginize.' },
-        { after: 10, sender: 'Emre', text: 'Sistem gitti ama test duruyor. Bence test puanı daha bile nesnel. Sayı sayıdır.' },
+        { after: 10, sender: 'Emre', text: 'Sistem gitti ama Cuma test puanları gelecek. Bence test daha bile nesnel. Sayı sayıdır.' },
         { after: 25, sender: 'Ayşe', text: 'IT "öğleden sonra belki" diyor. Belki 🙃' },
       ],
     },
@@ -351,10 +350,10 @@ export const MOM_POOL: { text: string; replies: QuickReply[] }[] = [
     ],
   },
   {
-    text: 'Baban selam söylüyor. Hafta sonu gelir misin?',
+    text: 'Hafta sonu teyzene gidiyorum. Sen de gelir misin?',
     replies: [
-      { text: 'Gelirim anne, sarma yap', reaction: 'Yaparım tabii! Baban çok sevindi' },
-      { text: 'Bu hafta zor anne, yoruldum.', reaction: 'Olsun yavrum, dinlen. Seni seviyoruz' },
+      { text: 'Gelirim anne, sarma yap', reaction: 'Teyzen yapar, onun sarması meşhur! Çok sevinecek' },
+      { text: 'Bu hafta zor anne, yoruldum.', reaction: 'Olsun yavrum, evde dinlen. Teyzen selam söyledi' },
     ],
   },
   {
@@ -367,9 +366,9 @@ export const MOM_POOL: { text: string; replies: QuickReply[] }[] = [
   {
     text: 'Kargon geldi, kapıcı aldı',
     replies: [
-      { text: 'Sağ ol anne', reaction: 'Rica ederim, akşam uğra al.' },
+      { text: 'Sağ ol anne', reaction: 'Rica ederim, odana koydum.' },
       { text: 'Ne kargosu?', reaction: 'Bilmiyorum, kutu kocaman. Yine ne aldın?', followUp: [
-        { text: 'Kitap sipariş etmiştim, unutmuşum.', reaction: 'Kitapsa iyi. Akşam gel al' },
+        { text: 'Kitap sipariş etmiştim, unutmuşum.', reaction: 'Kitapsa iyi. Odanda duruyor' },
         { text: 'Hiçbir şey almadım, açma sakın.', reaction: 'Tamam açmam. Kapıcıya da sordururum' },
       ] },
     ],
@@ -496,7 +495,7 @@ export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] 
     },
     {
       after: 95,
-      text: 'Hâlâ ofiste misin? Baban soruyor: "Bu kadar geç kalınca parasını veriyorlar mı?"',
+      text: 'Hâlâ ofiste misin? Bu kadar geç kalınca parasını veriyorlar mı bari?',
       replies: [
         { text: 'Vermiyorlar anne. Dosyaları bitirmem lazım.', reaction: 'Olmaz ki böyle… Neyse, dikkatli gel. Kapıyı kilitlemiyorum.' },
         { text: 'Veriyorlar anne, merak etmeyin.', reaction: 'İyi bari. Yine de çok geç kalma.' },
@@ -537,7 +536,7 @@ export const OVERTIME_MOM: { after: number; text: string; replies: QuickReply[] 
       after: 105,
       text: 'Kardeşin de sordu, "hâlâ işte mi?" diye. Ne diyeyim?',
       replies: [
-        { text: 'Birazdan çıkıyorum de.', reaction: 'Tamam. O da seni bekliyor, konuşacakmış.' },
+        { text: 'Birazdan çıkıyorum de.', reaction: 'Tamam. Akşam seni arayacakmış, konuşacakmış.' },
         { text: 'İşteyim de, merak etmesin.', reaction: 'Peki. Sen de kendini bu kadar yorma.' },
       ],
     },

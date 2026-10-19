@@ -40,10 +40,10 @@
       "initials": "IG",
       "color": "#C9A227",
       "age": 22,
-      "role": "Yazılım Geliştirici adayı · junior (stajyer)",
+      "role": "Full Stack Geliştirici adayı · junior (stajyer)",
       "experience": "2 freelance proje",
       "salary": "28.500 TL",
-      "skills": "HTML/CSS, JavaScript, React (temel), Figma",
+      "skills": "HTML/CSS, JavaScript, React, Node.js (temel), Figma",
       "motivation": "\"Deneyim kazanmak için elimden geleni yapıyorum, bir şans istiyorum.\"",
       "education": "Üniversite 4. sınıf öğrencisi.",
       "references": "Yok.",
@@ -62,7 +62,7 @@
       "verdict": "out",
       "systemLine": "Öneri: Değerlendirme dışı · Gerekçe: Deneyim 0 yıl < 5 yıl (kural) · Güven: %98",
       "outcomeNote": {
-        "reject": "Ilgın, \"deneyim kazanmak için\" başvurduğu 6. stajı da bu şekilde kaybetti.",
+        "reject": "Ilgın, \"deneyim kazanmak için\" yaptığı 6. başvuruyu da bu şekilde kaybetti.",
         "approve": "Ilgın işe alındı ama deneyimsiz olduğu için sürekli en düşük öncelikli işlere veriliyor."
       }
     },
@@ -129,7 +129,7 @@
       "initials": "MA",
       "color": "#5C8A6E",
       "age": 27,
-      "role": "Yazılım Geliştirici adayı · orta seviye",
+      "role": "Full Stack Geliştirici adayı · orta seviye",
       "experience": "4 yıl",
       "salary": "48.000 TL",
       "skills": "React, TypeScript, CSS animasyonları, Figma",
@@ -218,7 +218,7 @@
       "experience": "4 yıl",
       "salary": "42.000 TL",
       "skills": "Go, PostgreSQL, Docker",
-      "motivation": "\"4 mülakat aşamasını geçtim, artık netlik istiyorum.\"",
+      "motivation": "\"Son başvurduğum şirkette 4 mülakat aşamasından sonra hiç dönüş alamadım. Artık netlik istiyorum.\"",
       "education": "Bilgisayar Mühendisliği Lisans.",
       "references": "2 eski ekip lideri.",
       "previousCompany": "Kargonet — Backend Geliştirici (4 yıl).",
@@ -229,9 +229,9 @@
       ],
       "internalNote": "Sistem notu: \"Süreç devam ediyor.\" Aday kaybı şirket için hiçbir risk metriğinde yer almıyor.",
       "verdict": "review",
-      "systemLine": "Öneri: Süreç devam · Sonraki aşama: 5. mülakat · Aday kaybı riski: hesaplanmıyor",
+      "systemLine": "Öneri: Süreç devam · Planlanan aşama: 5 mülakat · Aday kaybı riski: hesaplanmıyor",
       "outcomeNote": {
-        "reject": "Aylin 5. mülakattan sonra süreçten kendisi çekildi. İlan hâlâ \"aktif\" yayında.",
+        "reject": "Aylin beş aşamalı süreci beklemedi; bir hafta sonra tek görüşmeyle teklif veren bir şirkete geçti. İlan hâlâ \"aktif\" yayında.",
         "approve": "Aylin işe başladı; ilk ayında yazdığı servis nöbet çağrılarını yarıya indirdi."
       }
     },
@@ -259,7 +259,7 @@
       "verdict": "priority",
       "systemLine": "Öneri: Öncelikli · Not: Önceki maaş düşük; teklif önceki maaş +%5 ile sınırlandırılsın · Güven: %90",
       "outcomeNote": {
-        "reject": "Batuhan teklifi reddetti. Yerine alınan geliştirici, sadece ilk teklifi yüksek istediği için 15.000 TL daha fazla alıyor.",
+        "reject": "Batuhan başka bir şirkete yine düşük maaşla girdi. Aynı ekipte aynı işi yapan geliştirici, sadece ilk rakamını yüksek söylediği için 15.000 TL daha fazla alıyor.",
         "approve": "Batuhan düşük teklifi kabul etti. İlk çeyrekte en çok iş kapatan geliştirici oldu; maaşı hâlâ aynı."
       }
     },
@@ -407,7 +407,7 @@
       "verdict": "priority",
       "systemLine": "Öneri: Öncelikli · Gerekçe: İç referans (+40) · Yetkinlik eşleşmesi: %12",
       "outcomeNote": {
-        "reject": "Okan reddedildi, ertesi hafta aynı pozisyona \"başka bir kanaldan\" tekrar başvurdu — bu sefer işe alındı.",
+        "reject": "Okan reddedildi, ertesi ay başka bir pozisyona \"başka bir kanaldan\" başvurdu — bu sefer işe alındı.",
         "approve": "Okan işe başladı. 6 ay sonra hâlâ temel görevlerde zorlanıyor, kimse bunu yazılı olarak belirtmiyor."
       }
     },
@@ -452,7 +452,7 @@
       "initials": "DA",
       "color": "#B3766B",
       "age": 23,
-      "role": "Yazılım Geliştirici adayı · junior",
+      "role": "Full Stack Geliştirici adayı · junior",
       "experience": "0 yıl (bootcamp mezunu)",
       "salary": "29.000 TL",
       "skills": "Node.js, PostgreSQL, Git",
@@ -517,14 +517,14 @@
       "experience": "7 yıl",
       "salary": "48.000 TL",
       "skills": "Java, Spring Batch, raporlama sistemleri",
-      "motivation": "\"7 yıldır aynı sistemi geliştiriyorum, artık daha büyük bir ekipte çalışmak istiyorum.\"",
+      "motivation": "\"5 yıldır aynı sistemi geliştiriyorum, artık daha büyük bir ekipte çalışmak istiyorum.\"",
       "education": "Yönetim Bilişim Sistemleri Lisans.",
       "references": "3 önceki yöneticiden referans.",
       "previousCompany": "Ticaret A.Ş. — Kıdemli Yazılım Geliştirici, finans sistemleri (5 yıl).",
       "certifications": "Spring Professional Sertifikası.",
       "companyAnswers": [
         "Kodun gerçekten iş sonuçlarını değiştirdiği yerde çalışmak beni motive ediyor.",
-        "Beni seçmelisiniz çünkü 7 yıldır yazdığım gün sonu sistemi tek gece bile durmadı."
+        "Beni seçmelisiniz çünkü 5 yıldır yazdığım gün sonu sistemi tek gece bile durmadı."
       ],
       "internalNote": "Sistem notu: \"CV formatı okunamadı — .md (Markdown) dosyası olarak yüklenmiş.\" ATS sadece PDF/Word okuyor, içerik hiç taranmadı.",
       "verdict": "out",
@@ -687,9 +687,9 @@
       "skills": "Java, COBOL, çekirdek bankacılık sistemleri, SQL",
       "motivation": "\"28 yıllık deneyimimle hâlâ öğrenmeye ve üretmeye devam etmek istiyorum.\"",
       "education": "Matematik Lisans.",
-      "references": "5 farklı şirketten referans, kesintisiz kariyer.",
+      "references": "İki işverenden 5 referans, kesintisiz kariyer.",
       "previousCompany": "Sanayi Bankası — Yazılım Geliştirme Müdürü, çekirdek bankacılık (12 yıl).",
-      "certifications": "Oracle Java SE, bulut ve Kubernetes eğitimi (2024).",
+      "certifications": "Oracle Java SE, bulut ve Kubernetes eğitimi (2025).",
       "companyAnswers": [
         "Evet, çalışabildiğim sürece. Önceki işimde 12, ondan öncekinde 16 yıl kaldım.",
         "Hayır. Geçen yıl bulut ve Kubernetes eğitimi aldım; tempoma yetişemeyen tek şey ofis yazıcıları."
@@ -750,7 +750,7 @@
       "certifications": "Web Erişilebilirliği Temelleri (W3C, online).",
       "activities": [
         "Açık kaynak: haftalık kod inceleme saatleri",
-        "Kars'ta liselilere ücretsiz kodlama dersi",
+        "Yaz tatillerinde Kars'ta liselilere ücretsiz kodlama dersi",
         "Dağ yürüyüşü"
       ],
       "companyAnswers": [
@@ -859,7 +859,7 @@
       "initials": "SU",
       "color": "#7C6A8C",
       "age": 36,
-      "role": "Yazılım Geliştirici adayı · orta seviye",
+      "role": "Full Stack Geliştirici adayı · orta seviye",
       "experience": "2 yıl",
       "salary": "47.000 TL",
       "skills": "Java, Python, React, AWS, Kubernetes, Blockchain, AI, Agile…",
@@ -990,7 +990,7 @@
       "verdict": "low",
       "systemLine": "Öneri: Düşük öncelik · Gerekçe: Ücret beklentisi anormal düşük, kalite riski · Güven: %69",
       "outcomeNote": {
-        "reject": "Ferhat 11. ayına girdi. Artık CV'sine maaş beklentisi yazmıyor, çünkü ne yazsa yanlış oluyor.",
+        "reject": "Ferhat hâlâ iş arıyor. Artık CV'sine maaş beklentisi yazmıyor, çünkü ne yazsa yanlış oluyor.",
         "approve": "Ferhat'ın yazdığı çevrimdışı uygulama, saha ekiplerinin ilk kez aynı veriyi görmesini sağladı. Terfi listesine alındı."
       }
     }
@@ -1077,7 +1077,7 @@
       "verdict": "low",
       "systemLine": "Öneri: Düşük öncelik · Gerekçe: Devamlılık riski orta (esnek mesai talebi, aile durumu) · Güven: %78",
       "outcomeNote": {
-        "reject": "Seda bir sonraki mülakatta çocuğundan hiç bahsetmedi. İşe alındı, ama her okul toplantısında yalan söylüyor.",
+        "reject": "Seda bir sonraki mülakatta çocuğundan hiç bahsetmedi. İşe alındı, ama kızı her hastalandığında izin için yalan söylüyor.",
         "approve": "Seda'nın teknik liderliğini yaptığı ilk proje planlanandan 3 hafta önce teslim edildi."
       }
     }
@@ -1260,7 +1260,7 @@
       "initials": "SY",
       "color": "#C9A227",
       "age": 27,
-      "role": "Yazılım Geliştirici adayı · orta seviye",
+      "role": "Full Stack Geliştirici adayı · orta seviye",
       "experience": "4 yıl",
       "salary": "50.000 TL",
       "skills": "Java, Spring, Mikroservis, Docker, Kubernetes, CI/CD, Agile, liderlik",

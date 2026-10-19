@@ -114,6 +114,8 @@ export interface PanelInput {
   convinced?: boolean;
   /** Kurulun puan toplamıyla verdiği ortak karar (bkz. panel.ts); varsa işe alınan odur. */
   decided?: string;
+  /** Mülakatlarda puan kartına verdiğin puanlar: hafta sonu raporu okur. */
+  scores?: Record<string, Partial<Record<string, number>>>;
 }
 
 export function panelDecision(recommended: string, finalists: Finalist[], requests: { candidateId: string; want: Decision }[], input: PanelInput = {}) {
@@ -146,8 +148,8 @@ export function revokeInvites(state: GameState, honest: boolean | null): Partial
     subject: 'Re: Mülakat davetiniz hk.',
     important: true,
     body: honest
-      ? `Merhaba,\n\nDavetin geri alındığını ve nedenini açıkça yazdığınız için teşekkür ederim. Üzüldüm, saklamayacağım; iki gündür hazırlanıyordum. Ama en azından ne olduğunu biliyorum.\n\nİyi çalışmalar,\n${first.name}`
-      : `Merhaba,\n\n"Sehven" mi? İki gündür mülakata hazırlanıyordum, izin bile ayarlamıştım. Bir hata olduysa bunu kimin yaptığını bilmek isterim.\n\n${first.name}`,
+      ? `Merhaba,\n\nDavetin geri alındığını ve nedenini açıkça yazdığınız için teşekkür ederim. Üzüldüm, saklamayacağım; davet geldiğinden beri hazırlanıyordum. Ama en azından ne olduğunu biliyorum.\n\nİyi çalışmalar,\n${first.name}`
+      : `Merhaba,\n\n"Sehven" mi? Davet geldiğinden beri mülakata hazırlanıyordum, izin bile ayarlamıştım. Bir hata olduysa bunu kimin yaptığını bilmek isterim.\n\n${first.name}`,
   };
   return {
     finalists: state.finalists.filter((f) => !ids.includes(f.id)),
@@ -182,7 +184,7 @@ export function revokeCall(finalists: Finalist[], rapport: number, day: number):
     line: 'İK Müdürü · dahili 210',
     lines: [
       managerTone(rapport) >= 2 ? 'Hakan Kaya. Kısa bir talimat.' : 'Merhaba, Hakan ben. Kısa bir konu.',
-      `Dün davet gönderdiğiniz ${names}. Holding kadro planını revize etti; ikisinin daveti geri alınacak.`,
+      `Bu hafta davet gönderdiğiniz ${names}. Holding kadro planını revize etti; ikisinin daveti geri alınacak.`,
       'Bugün bir e-posta atın: "Davetiniz sehven gönderilmiştir." Gerekçe yazmayın, uzatmayın.',
     ],
     choices: [
@@ -217,7 +219,7 @@ export function tolgaSnowCall(day: number): DeskCall {
     stakes: 'Yarınki mülakat',
     lines: [
       'İyi günler, ben Tolga Şen. Kusura bakmayın, santrale üç kez anlatmam gerekti.',
-      'Yarınki mülakat için akşam uçağına biletim vardı. Kar yüzünden Kars\'ta bütün seferler iptal; Sarıkamış yolu da kapandı, otobüs de kalkmıyor.',
+      'Babam rahatsızlandı, hafta başı Kars\'a gelmiştim. Yarınki mülakat için akşam uçağına biletim vardı. Kar yüzünden Kars\'ta bütün seferler iptal; Sarıkamış yolu da kapandı, otobüs de kalkmıyor.',
       'Yarın sabah orada olamayacağım. Görüşmeyi ekrandan yapabilir miyiz? Kameram var, internet… köy kahvesinden de bağlanırım gerekirse.',
     ],
     choices: [

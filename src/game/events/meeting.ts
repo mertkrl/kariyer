@@ -59,22 +59,22 @@ export interface Board {
   proposal?: boolean;
 }
 
-/** Pazartesi'den Çarşamba sabahına günlük başvurular (toplam 1.840). */
+/** Pazartesi'den Çarşamba sabahına günlük başvurular (toplam 890). */
 export const DAILY_APPLICATIONS: [string, number][] = [
-  ['Pzt', 684],
-  ['Sal', 719],
-  ['Çar', 437],
+  ['Pzt', 340],
+  ['Sal', 270],
+  ['Çar', 280],
 ];
-export const TOTAL_APPLICATIONS = 1840;
+export const TOTAL_APPLICATIONS = 890;
 /** ATS eşiğini (%60) geçip bir insanın kuyruğuna ulaşanlar. */
 export const ATS_PASSED = 212;
 
 /** Holding'in bu çeyrek için koyduğu hedefler ve bu haftaki gerçekleşen (Yönetici Özeti sayfası). */
 export const HOLDING_TARGETS: { id: string; label: string; target: number; actual: number; unit: string; better: 'lower' | 'higher' }[] = [
   { id: 'cost', label: 'İşe alım başına maliyet', target: 16000, actual: 18400, unit: ' TL', better: 'lower' },
-  { id: 'time', label: 'İlan → teklif süresi', target: 14, actual: 19, unit: ' gün', better: 'lower' },
+  { id: 'time', label: 'İlan → teklif süresi', target: 14, actual: 16, unit: ' gün', better: 'lower' },
   { id: 'auto', label: 'Otomatik ön eleme oranı', target: 90, actual: 88, unit: '%', better: 'higher' },
-  { id: 'headcount', label: 'Kadro küçülmesi (çeyrek)', target: 15, actual: 6, unit: '%', better: 'higher' },
+  { id: 'fill', label: 'Açık pozisyon doldurma oranı', target: 80, actual: 70, unit: '%', better: 'higher' },
 ];
 
 /** Panonun gösterdiği hâliyle Cuma'nın kısa listesi: tartışmanın konusu olan rakamlar. */
@@ -98,7 +98,7 @@ export interface TeamStats {
 }
 
 export const COLLEAGUE_STATS: Record<'ayse' | 'emre', TeamStats> = {
-  ayse: { files: 26, avg: 71, invites: 5, ai: 0.15 },
+  ayse: { files: 26, avg: 71, invites: 4, ai: 0.15 },
   emre: { files: 41, avg: 8, invites: 4, ai: 1 },
 };
 
@@ -113,7 +113,7 @@ function yourSummaries(you: TeamStats): string[] {
       'Dosya kapatmadım çünkü acele edip yanlış karar vermek istemedim.',
     ];
   const tool = you.ai >= 0.7 ? 'Çoğunu yapay zekâ analiziyle değerlendirdim' : you.ai <= 0.2 ? 'Yapay zekâ analizini pek kullanmadım, kendim okudum' : 'Bazılarında yapay zekâ analizine de baktım';
-  const passed = you.invites === 0 ? 'henüz kimseyi teste geçirmedim' : `${you.invites} kişiyi teste geçirdim`;
+  const passed = you.invites === 0 ? 'henüz kimseyi mülakata çağırmadım' : `${you.invites} kişiyi mülakata çağırdım`;
   // üç farklı tavır: çekingen, rakamlarla, ilkesiyle; rakamlar zaten panoda
   return [
     'Ben… şey, epey dosyaya baktım. Hızımı henüz tam oturtamadım ama her gün biraz daha iyi gidiyor.',
@@ -145,8 +145,8 @@ export function buildOpening(you: TeamStats): Line[] {
     },
     { who: 'hakan', text: 'Merhaba. Hepimiz buradaysak başlayalım. Selin, raporu açar mısın?', board: { page: 'off' } },
     { who: 'selin', text: 'Tabii, ekranımı paylaşıyorum: Haftalık İşe Alım Performans Raporu.', board: { page: 'summary' }, chat: [{ who: 'selin', text: 'Ekranım görünüyor mu?' }, { who: 'emre', text: 'Görünüyor 👍' }] },
-    { who: 'hakan', text: 'Kısa keseceğim. Holding dün akşam rakamları istedi: bu çeyrek kadro yüzde on beş küçülüyor, işe alım başına maliyet yüzde yirmi düşecek. Bu toplantıda kimse bana "ama" demeyecek.', board: { page: 'summary', focus: ['cost', 'headcount'] } },
-    { who: 'hakan', text: `Bu hafta 1.840 başvuru geldi; ekip olarak ${total} dosyaya baktık. Gerisini sistem eledi. Verimlilik bu, maliyet de bu.`, board: { page: 'overview', focus: ['human'] } },
+    { who: 'hakan', text: 'Kısa keseceğim. Holding dün akşam rakamları istedi: işe alım başına maliyet yüzde yirmi düşecek, gerisini şimdilik konuşmayacağız. Bu toplantıda kimse bana "ama" demeyecek.', board: { page: 'summary', focus: ['cost'] } },
+    { who: 'hakan', text: `Bu hafta 890 başvuru geldi; ekip olarak ${total} dosyaya baktık. Gerisini sistem eledi. Verimlilik bu, maliyet de bu.`, board: { page: 'overview', focus: ['human'] } },
     { who: 'hakan', text: 'Rakamlara geçmeden herkes kendi haftasını kısaca özetlesin. Emre, sen başla.', board: { page: 'people', metric: 'files' } },
     { who: 'emre', text: `${emre.files} dosya kapattım, dosya başına ortalama ${emre.avg} saniye. Hepsini önce yapay zekâ analizinden geçirdim; ${emre.invites} kişiyi çağırdım, Cuma'ya Çağan ve Sarp'ı getiriyorum.`, board: { page: 'people', metric: 'files', focus: ['emre'] }, chat: [{ who: 'emre', text: '8 saniye 💪' }] },
     { who: 'ayse', text: `Ben ${ayse.files} dosyaya baktım, her birini baştan sona okudum; dosya başına ${ayse.avg} saniye. ${ayse.invites} kişiyi çağırdım, kısa listemde Nehir ve Berk var.`, board: { page: 'people', metric: 'avg', focus: ['ayse'] } },
@@ -157,7 +157,7 @@ export function buildOpening(you: TeamStats): Line[] {
       : skimming
       ? {
           who: 'hakan',
-          text: `Dosya başına ${you.avg} saniye mi? Defne, bu okumak değil, tıklamak. 1.840 başvurunun çoğunu sistem zaten eledi; sana yalnızca elemeden geçen bir avuç dosya kaldı. Onlara da bakmıyorsan seni bu masaya neden oturttuk? Bu, deneme süresi dosyana not olarak geçiyor.`,
+          text: `Dosya başına ${you.avg} saniye mi? Defne, bu okumak değil, tıklamak. 890 başvurunun çoğunu sistem zaten eledi; sana yalnızca elemeden geçen bir avuç dosya kaldı. Onlara da bakmıyorsan seni bu masaya neden oturttuk? Bu, deneme süresi dosyana not olarak geçiyor.`,
           board: { page: 'people', metric: 'avg', focus: ['you'] },
           chat: [{ who: 'ayse', text: `${you.avg} saniye mi? 😳`, private: true }],
         }
@@ -180,13 +180,13 @@ export function buildOpening(you: TeamStats): Line[] {
   if (you.ai >= 0.7) lines.push({ who: 'selin', text: `Defne'nin yapay zekâ analizi kullanımı ${pct(you.ai)}. Emre'yle aynı yöntem.`, board: { page: 'people', metric: 'ai', focus: ['you', 'emre'] } });
   else if (you.ai <= 0.2) lines.push({ who: 'emre', text: `Sen sistemi neredeyse hiç kullanmıyorsun (${pct(you.ai)}). Şirket o lisansa para ödüyor; boşuna mı alındı?`, board: { page: 'people', metric: 'ai', focus: ['you'] } });
   lines.push(
-    { who: 'selin', text: `Cuma herkesin kısa listesi mülakata giriyor: Ayşe'den Nehir ve Berk, Emre'den Çağan ve Sarp. Defne'nin kısa listesi Perşembe test sonuçlarıyla netleşecek.`, board: { page: 'shortlist' }, chat: [{ who: 'selin', text: 'Kısa liste panoda, üçüncü sekme.' }] },
+    { who: 'selin', text: `Cuma herkesin kısa listesi mülakata giriyor: Ayşe'den Nehir ve Berk, Emre'den Çağan ve Sarp. Defne'nin kısa listesi her gün çağırdıklarıyla Perşembe akşamı netleşecek.`, board: { page: 'shortlist' }, chat: [{ who: 'selin', text: 'Kısa liste panoda, üçüncü sekme.' }] },
     { who: 'levent', text: 'Sarp\'ın CV\'si kusursuz ama GitHub\'ı boş. Nehir\'in iki yıl arası var ama yazdığı kod ortada.', board: { page: 'shortlist', focus: ['sarp', 'nehir'] } },
     { who: 'emre', text: 'Sarp\'ın ATS skoru 97. Sistem bunu boşuna vermiyor. Nehir iki yıl çalışmamış; ben sadece veriyi söylüyorum.', board: { page: 'shortlist', focus: ['sarp'] }, chat: [{ who: 'emre', text: 'ATS 97 👀' }] },
     { who: 'ayse', text: 'Hangi veri Emre? Çocuğuna baktığı iki yıl mı? Bunu CV\'sine dürüstçe yazdı diye mi eleyeceğiz?', board: { page: 'shortlist', focus: ['nehir'] }, chat: [{ who: 'levent', text: '+1 Ayşe' }] },
     { who: 'emre', text: 'Kişisel algılama Ayşe. Ben işimi yapıyorum; sen de kendi listeni savunuyorsun, o kadar.', typing: 'ayse' },
     { who: 'selin', text: 'Arkadaşlar, lütfen. Konuya dönelim.' },
-    { who: 'levent', text: 'Konu tam olarak bu. Elenen 1.800 kişinin içinde kaç iyi yazılımcı var, bilen var mı? Ben söyleyeyim: geçen ay elediğimiz birini rakip firma aldı, şimdi bizim müşterimize kod yazıyor.', board: { page: 'funnel', focus: ['eliminated'] }, chat: [{ who: 'system', text: 'Ümit Arslan el kaldırdı ✋' }] },
+    { who: 'levent', text: 'Konu tam olarak bu. Elenen 850 kişinin içinde kaç iyi yazılımcı var, bilen var mı? Ben söyleyeyim: geçen ay elediğimiz birini rakip firma aldı, şimdi bizim müşterimize kod yazıyor.', board: { page: 'funnel', focus: ['eliminated'] }, chat: [{ who: 'system', text: 'Ümit Arslan el kaldırdı ✋' }] },
     { who: 'hakan', text: 'Ümit, senin işin kod. İşe alım benim işim. Sistem eledi; sistemin işi bu.', board: { page: 'funnel', focus: ['threshold'] } },
     { who: 'levent', text: 'Sistem sizin imzanızla eliyor ama Hakan Bey. O ağırlık tablosunu kim onayladı, hepimiz biliyoruz.' },
     { who: 'hakan', text: 'Bu toplantıda bunu konuşmayacağız.', chat: [{ who: 'system', text: 'Toplantı sahibi Hakan Kaya, Ümit Arslan\'ın mikrofonunu kapattı' }] },

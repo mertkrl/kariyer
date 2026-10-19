@@ -63,7 +63,7 @@ function jobEnding(p: number, v: number, ctx: EndingContext, offer: OfferResult)
         return {
           title: 'Müdürle yolların ayrıldı.',
           left: true,
-          body: 'Deneme süren uzatılmadı. Raporda "uyum sorunu" yazıyordu. Kapıdan çıkarken içinde garip bir hafiflik vardı: hiçbir talimat için kendini eğmemiştin.',
+          body: 'Deneme süren sonlandırıldı. Raporda "uyum sorunu" yazıyordu. Kapıdan çıkarken içinde garip bir hafiflik vardı: hiçbir talimat için kendini eğmemiştin.',
         };
       }
       return {
