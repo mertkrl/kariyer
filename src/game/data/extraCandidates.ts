@@ -43,8 +43,8 @@ export const EXTRA_CANDIDATES: Record<string, Candidate> = {
   busra: {
     id: 'busra',
     flaggedField: 'motivation',
-    name: 'Büşra Kaplan',
-    initials: 'BK',
+    name: 'Büşra Akgül',
+    initials: 'BA',
     color: '#B06A7E',
     age: 27,
     role: 'Yazılım Geliştirici adayı · orta seviye',
@@ -127,7 +127,7 @@ export const EXTRA_CANDIDATES: Record<string, Candidate> = {
   oguzhan: {
     id: 'oguzhan',
     flaggedField: 'salary',
-    name: 'Oğuzhan Er',
+    name: 'Oğuzhan Eren',
     initials: 'OE',
     color: '#4F6FA0',
     age: 32,

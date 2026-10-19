@@ -17,7 +17,7 @@ export const days: DayConfig[] = [
       'Uygun gördüklerini mülakata çağır (günde en fazla 2), gerisini ele.',
       'Dosya başına süreyi kısa tut; kuyruk bekletilmez.',
     ],
-    candidateIds: ['ahmet', 'selin', 'caner', 'gokce', 'tolga', 'deniz', 'melis', 'hakan', 'tuncay'],
+    candidateIds: ['ahmet', 'ilgin', 'caner', 'gokce', 'tolga', 'deniz', 'melis', 'cihan', 'tuncay'],
     companyQuestions: [
       'Bu pozisyonda sizi motive eden nedir?',
       'Kendinizi 5 yıl sonra nerede görüyorsunuz?',
@@ -59,7 +59,7 @@ export const days: DayConfig[] = [
       'Uygun gördüklerini mülakata çağır (günde en fazla 2), gerisini ele.',
       'Maaş beklentisini bütçeyle birlikte değerlendir.',
     ],
-    candidateIds: ['ozan', 'cem', 'aylin', 'nihan', 'burak', 'duygu', 'murat', 'ferhat', 'seda', 'asli'],
+    candidateIds: ['ozan', 'cem', 'aylin', 'nihan', 'batuhan', 'duygu', 'murat', 'ferhat', 'seda', 'asli'],
     companyQuestions: [
       'Maaş beklentinizin gerekçesi nedir?',
       'Bu teklifi neden kabul etmelisiniz, biz neden sizi seçmeliyiz?',

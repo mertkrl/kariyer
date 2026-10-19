@@ -16,7 +16,7 @@ import { COFFEE_SIPS } from '../day/desk';
 import { NEIGHBOUR_ID, candidateOf } from '../data/candidates';
 import { buildManagerScript, evaluateRequests, managerTone, reprimandText, type PhoneMessage } from '../day/manager';
 import { BREAK_END_MIN } from '../lib/time';
-import { leventMail, type WeekEntry } from '../day/echoes';
+import { umitMail, type WeekEntry } from '../day/echoes';
 import { rngFor } from '../lib/rng';
 import { SLEEPLESS_BELOW, approvalQuota, clampScore, emptyStats, lineupFor, noUnread, planEvents, readingOf, addVicdan } from '../store/storeDefaults';
 import { dispatchRejections, isOnBreak } from '../day/clock';
@@ -36,7 +36,7 @@ function defiedYesterday(state: GameState) {
 function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
   const tone = managerTone(state.hakanRapport);
   const defied = defiedYesterday(state);
-  const levent = leventMail(state.currentDayIndex, state.weekLog, state.meeting.choice);
+  const umit = umitMail(state.currentDayIndex, state.weekLog, state.meeting.choice);
   // ona karşı çıktıktan sonra Hakan Bey: alıntılanacak hiçbir şey söylemeyen bir e-posta, "kısa" bir görüşme
   const reprimand: Mail[] =
     state.managerGrievances.length > 0 || defied
@@ -56,7 +56,7 @@ function morningMail(state: GameState, justifyRejects: boolean): Mail[] {
             ) },
         ]
       : [];
-  return [...state.extraMails.filter((m) => m.id !== `levent-${state.currentDayIndex}`), ...reprimand, ...(levent ? [levent] : [])];
+  return [...state.extraMails.filter((m) => m.id !== `umit-${state.currentDayIndex}`), ...reprimand, ...(umit ? [umit] : [])];
 }
 
 /** Bugünün dosyaları: CV'sini ilettiysen komşunun oğlu kendi gününe katılır. */

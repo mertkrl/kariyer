@@ -101,8 +101,8 @@ export const KEY_CHARACTERS: KeyCharacter[] = [
 
 export const keyCharacter = (id: string) => KEY_CHARACTERS.find((k) => k.id === id);
 
-/** Cuma'nın "aile planı" sorusunun hedef aldığı adaylar; geri kalanlar "askerlik" sorusunu alır. */
-export const FEMALE = new Set([...EXTRA_FEMALE, 'selin', 'zeynep', 'derya', 'aylin', 'elif', 'nihan', 'pinar', 'sibel', 'ece', 'gokce', 'handan', 'asli', 'irem', 'nazli', 'duygu', 'gizem', 'seda', 'ceren', 'nehir']);
+/** Cuma'nın "aile planı" sorusunun hedef aldığı adaylar; 40 yaş üstü emekliliği, geri kalanlar memleket ve aileyi. */
+export const FEMALE = new Set([...EXTRA_FEMALE, 'ilgin', 'zeynep', 'derya', 'aylin', 'elif', 'nihan', 'pinar', 'sibel', 'ece', 'gokce', 'handan', 'asli', 'irem', 'nazli', 'duygu', 'gizem', 'seda', 'ceren', 'nehir']);
 
 /* ── Cuma: Hakan Bey'in listesindeki sorular ── */
 

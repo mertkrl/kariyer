@@ -164,7 +164,7 @@ Anlayışınız için teşekkür ederiz.
 İdari İşler`,
   },
   {
-    id: 'levent-intro',
+    id: 'umit-intro',
     day: 1,
     at: 60,
     from: 'Ümit Arslan',
@@ -180,8 +180,8 @@ Kolay gelsin,
 Ümit`,
   },
   {
-    // Ümit'in yanıldığı tek dosya: Perşembe e-postasında bunu kendisi söyler (echoes.leventMail)
-    id: 'levent-ozan',
+    // Ümit'in yanıldığı tek dosya: Perşembe e-postasında bunu kendisi söyler (echoes.umitMail)
+    id: 'umit-ozan',
     day: 1,
     at: 510,
     from: 'Ümit Arslan',
@@ -214,7 +214,7 @@ Lisans sunucusundaki bir arıza nedeniyle yapay zekâ modülü bugün kullanıla
 Bilgi İşlem`,
   },
   {
-    id: 'levent-crash',
+    id: 'umit-crash',
     day: 3,
     at: 160,
     from: 'Ümit Arslan',
@@ -253,7 +253,7 @@ Hakan Kaya`,
 
 Sistem arızası nedeniyle bugün tüm ekibin 19:00'a kadar kalması beklenmektedir. Ekip ruhu gereği bu çalışma fazla mesai kapsamında değerlendirilmeyecektir.
 
-Ekte standart soru listemiz yer almaktadır. "Uzun vadeli uyumun" değerlendirilebilmesi için adayların önümüzdeki dönem planları (aile, askerlik vb.) hakkında da bilgi alınmasını rica ederim.
+Ekte standart soru listemiz yer almaktadır. "Uzun vadeli uyumun" değerlendirilebilmesi için adayların önümüzdeki dönem planları (aile, memleket, emeklilik vb.) hakkında da bilgi alınmasını rica ederim.
 
 Bu bilgilerin forma değil, notlarınıza işlenmesi yeterlidir.
 

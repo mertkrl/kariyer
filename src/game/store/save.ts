@@ -7,7 +7,7 @@ import type { GameState } from './storeTypes';
 
 const SAVE_KEY = 'kariyerweb-save';
 /** Kaydedilen biçim değişince artır; eski kayıtlar taşınabiliyorsa MIGRATIONS'a bir adım ekle. */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 /** Tercihlerin kendi depoları var, kaydın parçası değiller. */
 const NOT_SAVED = ['muted', 'musicVolume', 'sfxVolume'];
 
@@ -37,7 +37,20 @@ const MIGRATIONS: Record<number, (data: SaveData) => SaveData> = {
   // 3 → 4: Ozan Tan'ın aday kimliği "emre"ydi (ofisteki Emre'yle karışıyordu); artık "ozan".
   // Kısa listedeki `by: 'emre'` ofisteki Emre'dir, ona dokunulmaz.
   3: (data) => renameOzan(data) as SaveData,
+  // 4 → 5: üç adayın kimliği, ofisteki kişilerle karışan eski adlarından kendi adlarına geçti
+  // (Ilgın "selin", Cihan "hakan", Batuhan "burak"). Kayıtta konuşmacı tutulmaz; her yerde değişir.
+  // Ümit'in e-postaları da "levent-…" kimliklerinden "umit-…"ya geçti.
+  4: (data) => renameIds(data, RENAMED_5) as SaveData,
 };
+
+const RENAMED_5: Record<string, string> = { selin: 'ilgin', hakan: 'cihan', burak: 'batuhan' };
+
+function renameIds(value: unknown, map: Record<string, string>): unknown {
+  if (typeof value === 'string') return map[value] ?? (value.startsWith('levent-') ? `umit-${value.slice(7)}` : value);
+  if (Array.isArray(value)) return value.map((v) => renameIds(v, map));
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(Object.entries(value).map(([k, v]) => [map[k] ?? k, renameIds(v, map)]));
+}
 
 function renameOzan(value: unknown, key?: string): unknown {
   if (value === 'emre') return key === 'by' ? value : 'ozan';

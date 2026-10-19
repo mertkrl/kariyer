@@ -28,7 +28,7 @@ const REPLY_BACK = ['Teşekkürler 🙏', 'Aynen öyle 😄', '❤️', 'Sağ ol
 
 interface SocialProps {
   rejected: SocialAuthor[];
-  /** Haftanın başında geri çevirdiğin güçlü insanlar, şimdi yeni işlerini paylaşıyor. */
+  /** Haftanın başında geri çevirdiğin güçlü insanlar, şimdi başka yerlerden gelen davetleri paylaşıyor. */
   echoes?: Echo[];
   dayIndex?: number;
   /** Şimdiye kadar sana yazmış reddedilen adaylar. */

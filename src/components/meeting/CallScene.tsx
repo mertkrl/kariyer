@@ -16,11 +16,11 @@ const PLACES: Record<Person, string> = {
   selin: 'Ofis · 4. kat',
   ayse: 'Ofis · İK',
   emre: 'Ofis · İK',
-  levent: 'Evden',
+  umit: 'Evden',
   you: 'Ofis · İK',
 };
 
-const ORDER: Person[] = ['hakan', 'selin', 'ayse', 'emre', 'levent', 'you'];
+const ORDER: Person[] = ['hakan', 'selin', 'ayse', 'emre', 'umit', 'you'];
 
 function Tile({ who, talking, sharing }: { who: Person; talking: boolean; sharing: boolean }) {
   const s = SPEAKERS[who];

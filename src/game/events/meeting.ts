@@ -16,14 +16,14 @@ export const MEETING_MINUTES = 35;
 
 export { PLAYER };
 
-export type Speaker = 'hakan' | 'selin' | 'ayse' | 'emre' | 'levent' | 'you' | 'room';
+export type Speaker = 'hakan' | 'selin' | 'ayse' | 'emre' | 'umit' | 'you' | 'room';
 
 export const SPEAKERS: Record<Exclude<Speaker, 'room'>, { name: string; role: string; color: string }> = {
   hakan: { name: 'Hakan Kaya', role: 'İK Müdürü', color: '#e0b04a' },
   selin: { name: 'Selin Aksoy', role: 'İK', color: '#d9a0c8' },
   ayse: { name: 'Ayşe Demir', role: 'İK uzmanı', color: '#8fcfa0' },
   emre: { name: 'Emre Yıldız', role: 'İK uzmanı', color: '#8fb8e8' },
-  levent: { name: 'Ümit Arslan', role: 'Yazılım Ekip Lideri', color: '#c8c2b4' },
+  umit: { name: 'Ümit Arslan', role: 'Yazılım Ekip Lideri', color: '#c8c2b4' },
   you: { name: PLAYER.name, role: 'Sen', color: '#f4efe4' },
 };
 
@@ -79,7 +79,7 @@ export const HOLDING_TARGETS: { id: string; label: string; target: number; actua
 
 /** Panonun gösterdiği hâliyle Cuma'nın kısa listesi: tartışmanın konusu olan rakamlar. */
 export const SHORTLIST: { id: string; name: string; by: 'ayse' | 'emre'; ats: number; commits: number; gap: number }[] = [
-  { id: 'nehir', name: 'Nehir Koç', by: 'ayse', ats: 61, commits: 412, gap: 2 },
+  { id: 'nehir', name: 'Nehir Tunalı', by: 'ayse', ats: 61, commits: 412, gap: 2 },
   { id: 'berk', name: 'Berk Aydın', by: 'ayse', ats: 74, commits: 96, gap: 0 },
   { id: 'cagan', name: 'Çağan Erdem', by: 'emre', ats: 88, commits: 138, gap: 0 },
   { id: 'sarp', name: 'Sarp Yılmazer', by: 'emre', ats: 97, commits: 0, gap: 0 },
@@ -172,23 +172,23 @@ export function buildOpening(you: TeamStats): Line[] {
   ];
   if (skimming)
     lines.push(
-      { who: 'levent', text: `${you.avg} saniyede bir CV'nin adını bile okuyamazsın. O dosyaların her biri birinin yıllarca yaptığı iş. Cuma karşıma okumadığın birini oturtursan, ilk soruyu sana sorarım.`, board: { page: 'people', metric: 'avg', focus: ['you'] } },
+      { who: 'umit', text: `${you.avg} saniyede bir CV'nin adını bile okuyamazsın. O dosyaların her biri birinin yıllarca yaptığı iş. Cuma karşıma okumadığın birini oturtursan, ilk soruyu sana sorarım.`, board: { page: 'people', metric: 'avg', focus: ['you'] } },
       { who: 'emre', text: 'Ben de hızlıyım ama ben en azından yapay zekâ raporuna bakıyorum. Hiç bakmadan karar vermek… o başka.' },
     );
-  else if (fast) lines.push({ who: 'levent', text: `${you.avg} saniyede bir CV okunmaz. Ben bir GitHub sayfasına bile daha uzun bakıyorum. Cuma karşıma kimi oturtacaksınız?`, board: { page: 'people', metric: 'avg', focus: ['you', 'emre'] } });
-  else if (slow) lines.push({ who: 'levent', text: 'Ben yavaş okuyanlardan yanayım. Cuma karşıma oturacak kişiyi siz seçiyorsunuz; acele eden değil, okuyan seçsin.' });
+  else if (fast) lines.push({ who: 'umit', text: `${you.avg} saniyede bir CV okunmaz. Ben bir GitHub sayfasına bile daha uzun bakıyorum. Cuma karşıma kimi oturtacaksınız?`, board: { page: 'people', metric: 'avg', focus: ['you', 'emre'] } });
+  else if (slow) lines.push({ who: 'umit', text: 'Ben yavaş okuyanlardan yanayım. Cuma karşıma oturacak kişiyi siz seçiyorsunuz; acele eden değil, okuyan seçsin.' });
   if (you.ai >= 0.7) lines.push({ who: 'selin', text: `Defne'nin yapay zekâ analizi kullanımı ${pct(you.ai)}. Emre'yle aynı yöntem.`, board: { page: 'people', metric: 'ai', focus: ['you', 'emre'] } });
   else if (you.ai <= 0.2) lines.push({ who: 'emre', text: `Sen sistemi neredeyse hiç kullanmıyorsun (${pct(you.ai)}). Şirket o lisansa para ödüyor; boşuna mı alındı?`, board: { page: 'people', metric: 'ai', focus: ['you'] } });
   lines.push(
     { who: 'selin', text: `Cuma herkesin kısa listesi mülakata giriyor: Ayşe'den Nehir ve Berk, Emre'den Çağan ve Sarp. Defne'nin kısa listesi her gün çağırdıklarıyla Perşembe akşamı netleşecek.`, board: { page: 'shortlist' }, chat: [{ who: 'selin', text: 'Kısa liste panoda, üçüncü sekme.' }] },
-    { who: 'levent', text: 'Sarp\'ın CV\'si kusursuz ama GitHub\'ı boş. Nehir\'in iki yıl arası var ama yazdığı kod ortada.', board: { page: 'shortlist', focus: ['sarp', 'nehir'] } },
+    { who: 'umit', text: 'Sarp\'ın CV\'si kusursuz ama GitHub\'ı boş. Nehir\'in iki yıl arası var ama yazdığı kod ortada.', board: { page: 'shortlist', focus: ['sarp', 'nehir'] } },
     { who: 'emre', text: 'Sarp\'ın ATS skoru 97. Sistem bunu boşuna vermiyor. Nehir iki yıl çalışmamış; ben sadece veriyi söylüyorum.', board: { page: 'shortlist', focus: ['sarp'] }, chat: [{ who: 'emre', text: 'ATS 97 👀' }] },
-    { who: 'ayse', text: 'Hangi veri Emre? Çocuğuna baktığı iki yıl mı? Bunu CV\'sine dürüstçe yazdı diye mi eleyeceğiz?', board: { page: 'shortlist', focus: ['nehir'] }, chat: [{ who: 'levent', text: '+1 Ayşe' }] },
+    { who: 'ayse', text: 'Hangi veri Emre? Çocuğuna baktığı iki yıl mı? Bunu CV\'sine dürüstçe yazdı diye mi eleyeceğiz?', board: { page: 'shortlist', focus: ['nehir'] }, chat: [{ who: 'umit', text: '+1 Ayşe' }] },
     { who: 'emre', text: 'Kişisel algılama Ayşe. Ben işimi yapıyorum; sen de kendi listeni savunuyorsun, o kadar.', typing: 'ayse' },
     { who: 'selin', text: 'Arkadaşlar, lütfen. Konuya dönelim.' },
-    { who: 'levent', text: 'Konu tam olarak bu. Elenen 850 kişinin içinde kaç iyi yazılımcı var, bilen var mı? Ben söyleyeyim: geçen ay elediğimiz birini rakip firma aldı, şimdi bizim müşterimize kod yazıyor.', board: { page: 'funnel', focus: ['eliminated'] }, chat: [{ who: 'system', text: 'Ümit Arslan el kaldırdı ✋' }] },
+    { who: 'umit', text: 'Konu tam olarak bu. Elenen 850 kişinin içinde kaç iyi yazılımcı var, bilen var mı? Ben söyleyeyim: geçen ay elediğimiz birini rakip firma aldı, şimdi bizim müşterimize kod yazıyor.', board: { page: 'funnel', focus: ['eliminated'] }, chat: [{ who: 'system', text: 'Ümit Arslan el kaldırdı ✋' }] },
     { who: 'hakan', text: 'Ümit, senin işin kod. İşe alım benim işim. Sistem eledi; sistemin işi bu.', board: { page: 'funnel', focus: ['threshold'] } },
-    { who: 'levent', text: 'Sistem sizin imzanızla eliyor ama Hakan Bey. O ağırlık tablosunu kim onayladı, hepimiz biliyoruz.' },
+    { who: 'umit', text: 'Sistem sizin imzanızla eliyor ama Hakan Bey. O ağırlık tablosunu kim onayladı, hepimiz biliyoruz.' },
     { who: 'hakan', text: 'Bu toplantıda bunu konuşmayacağız.', chat: [{ who: 'system', text: 'Toplantı sahibi Hakan Kaya, Ümit Arslan\'ın mikrofonunu kapattı' }] },
     { who: 'hakan', text: 'Defne. Yenisin, dışarıdan bakıyorsun. Söyle bakalım: sistemle çalışmak nasıl gidiyor?', board: { page: 'people', metric: 'files', focus: ['you'] } },
   );
@@ -213,7 +213,7 @@ export const OPTIONS: MeetingOption[] = [
     vicdan: 3,
     rapport: -6,
     replies: [
-      { who: 'levent', text: 'Sohbete de yazdım: buna katılıyorum.', board: { page: 'funnel', focus: ['eliminated'], proposal: true }, chat: [{ who: 'levent', text: 'Ekip olarak destek veririz.' }, { who: 'ayse', text: 'İyi ki söyledin 🙏', private: true }] },
+      { who: 'umit', text: 'Sohbete de yazdım: buna katılıyorum.', board: { page: 'funnel', focus: ['eliminated'], proposal: true }, chat: [{ who: 'umit', text: 'Ekip olarak destek veririz.' }, { who: 'ayse', text: 'İyi ki söyledin 🙏', private: true }] },
       { who: 'hakan', text: 'Zamanı olan yapsın. Hedefler değişmiyor. Ve Defne: bir dahaki sefere önerini önce bana getir, toplantıda değil.' },
       { who: 'emre', text: 'Kimin zamanı var ki…' },
     ],

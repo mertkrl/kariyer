@@ -141,7 +141,7 @@ export const SALARY_LABEL: Record<SalaryMove, string> = {
  */
 export type Entry =
   | { kind: 'warm'; warm: boolean }
-  | { kind: 'q'; q: number; by?: 'hakan' | 'levent' | 'ayse' | 'emre'; about?: string }
+  | { kind: 'q'; q: number; by?: 'hakan' | 'umit' | 'ayse' | 'emre'; about?: string }
   | { kind: 'handoff' }
   | { kind: 'salary'; move: SalaryMove | null }
   | { kind: 'note'; text: string }

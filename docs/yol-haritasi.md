@@ -34,7 +34,7 @@
 | İlan seçiminde "Standart" ilan baskın strateji: hiçbir bedeli yok. Diğer ikisini seçmek için sebep yok | 💭 Standart ilana küçük bir bedel (ör. ilk gün +%30 başvuru, kuyruk uzar) ya da diğerlerine bir kazanç (Hakan Bey'le ilişki +) |
 | İlan metinleri kendi kendini alaya alıyordu ("kullanacak vakti bulursan"); şirket bunu yazmaz, seçim de kolaylaşıyordu | ✅ kurumsal ama ele veren dil |
 | Perşembe kuralı ("70 altı listeye girmez") ve `day.selection` ölü kod olarak duruyor | ✅ temizlendi (Assessa puanı yalnızca Cuma dosyasında) |
-| Perşembe kuyruğu artık 10 kişi ve aynı gün 19:00'a kadar mesai var: en ağır gün. Rahat modda bile sıkışabilir | ⏳ oynanış testi; gerekirse 1 aday Salı'ya |
+| Perşembe kuyruğu artık 10 kişi ve aynı gün 19:00'a kadar mesai var: en ağır gün. Rahat modda bile sıkışabilir | ✅ ölçüldü: Perşembe 19:05 civarında bitiyor. Normal modda dosya başına 45 sn okuyan oyuncu Pazartesi–Çarşamba da 20:00'ye kalıyor ama dosyaları kapatabiliyor (haftada 1 açık dosya); bu tasarımın parçası |
 | Tekrar oynanabilirlik: kuyruklar karışıyor ama hikâye anları sabit. İkinci oyunda sürpriz az | 💭 haftaya göre değişen 1–2 yan olay havuzu |
 
 ## 3. İK ve iş hukuku danışmanı
@@ -67,8 +67,8 @@
 | Bulgu | Durum |
 |---|---|
 | Oyun çekirdeği 86,1 KB / bütçe 95 KB (gzip; ölü kod temizliğinden önce 91,3): yeni içerik için pay az | ⏳ `candidates.json` ve `candidateDetails.json`'u gün bazlı tembel yüklemek |
-| Eski adlar kodda duruyor (`levent` = Ümit, `selin` = Ilgın, `hakan` = Cihan, `burak` = Batuhan); yeni katkıcı için tuzak, kayıt uyumluluğu yüzünden değiştirilmesi zor | 💭 kayıt sürümü yükseltilirken eşleme tablosuyla |
-| Senaryo belgesi koddan elle türetiliyor ve eskiyor | 💭 kadroları ve saatleri `days.ts`'den üreten küçük bir betik |
+| Eski adlar kodda duruyor (`levent` = Ümit, `selin` = Ilgın, `hakan` = Cihan, `burak` = Batuhan); yeni katkıcı için tuzak, kayıt uyumluluğu yüzünden değiştirilmesi zor | ✅ `ilgin`, `cihan`, `batuhan`, `umit`; kayıt 5. sürüme taşınıyor |
+| Senaryo belgesi koddan elle türetiliyor ve eskiyor | ✅ `npm run docs:kadro` → docs/kadrolar.md; bir test eskiyince uyarıyor |
 
 ## 7. Pazarlama / yayın
 
@@ -77,17 +77,23 @@
 | Yalnızca Türkçe; itch.io'da kitle dar. Metinler veri dosyalarında, çeviriye hazır değil | 💭 İngilizce sürüm için metinleri tek kaynağa toplamak (büyük iş) |
 | Paylaşım kartı var; mağaza sayfası için ekran görüntüsü ve fragman yok | ⏳ |
 
-## 8. Veri ve iddia doğruluğu
+## 8. Lisans ve telif
 
 | Bulgu | Durum |
 |---|---|
-| Final ekranındaki "Gerçek Dünya" notu, oyuncu herkese kişisel geri bildirim gönderse bile "bunu X kişiye yaşattın" diyor; sayıya mülakata çağrılanlar da giriyor | ⏳ sayıyı yalnızca bildirimsiz kalanlar ve sistemin elediklerinden kurmak |
+| `public/sites/` altındaki 12 fotoğrafın 11'inin kaynağı belirsiz; biri Janko Ferlić'e ait | ⏳ [gorsel-kaynaklari.md](gorsel-kaynaklari.md) dolduruluyor; doğrulanamayan değiştirilecek |
+| Portfolyo siteleri gerçekçi alan adları kullanıyor (`isikdernegi.org.tr` gibi); gerçek bir kurumla karışabilir. E-postalar ise `.test` kullanıyor | 💭 sitelerde de kurgusal alan adı |
+
+## 9. Veri ve iddia doğruluğu
+
+| Bulgu | Durum |
+|---|---|
+| Final ekranındaki "Gerçek Dünya" notu, oyuncu herkese kişisel geri bildirim gönderse bile "bunu X kişiye yaşattın" diyor; sayıya mülakata çağrılanlar da giriyor | ✅ sayı sistemin elediklerinden ve cevapsız bırakılanlardan kuruluyor; kaynak ABD verisi olarak işaretlendi |
 
 ---
 
 ## Sıradaki adımlar (öneri sırası)
 
-1. Perşembe yükünü (10 dosya + 19:00 mesaisi) Rahat ve Normal modda oynayarak ölçmek.
-2. "Gerçek Dünya" notundaki sayıyı doğru kurmak.
-3. Çekirdek paketi küçültmek: aday verisini tembel yüklemek.
-4. Karar gerektirenler (💭): ilan seçimine bedel, oyun içi hukuk notları, saat hızı ayarı, çeviri.
+1. Görsellerin kaynağını doğrulamak ya da ücretsiz lisanslı görsellerle değiştirmek.
+2. Çekirdek paketi küçültmek: aday verisini tembel yüklemek.
+3. Karar gerektirenler (💭): ilan seçimine bedel, oyun içi hukuk notları, saat hızı ayarı, sitelerde kurgusal alan adı, çeviri.

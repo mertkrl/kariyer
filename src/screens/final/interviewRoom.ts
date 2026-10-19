@@ -78,7 +78,7 @@ export function handOffQuestions(structured: boolean, owner: 'you' | 'ayse' | 'e
   const left = [0, 1, 2].find((q) => !mine.includes(q)) ?? 2;
   const ownerQ: Question[] = owner === 'you' ? [] : [{ kind: 'q', q: OWNER + left, by: owner }];
   const hakan: Question[] = structured || owner === 'hakan' ? [] : [{ kind: 'q', q: FORBIDDEN, by: 'hakan' }];
-  return [...ownerQ, { kind: 'q', q: CASE, by: 'levent' }, ...hakan];
+  return [...ownerQ, { kind: 'q', q: CASE, by: 'umit' }, ...hakan];
 }
 
 /** Maaş konuşması sonuçlanır; adayın sorusu varsa ilki sıraya girer. */

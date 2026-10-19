@@ -1,6 +1,6 @@
 # Sen İK'sin — Mevcut Senaryo
 
-> Bu belge oyunun **şu an kodda olan** hikâyesini anlatır. Saatler oyun içi saattir; "koşullu" diye işaretli sahneler oyuncunun seçimlerine bağlıdır.
+> Bu belge oyunun **şu an kodda olan** hikâyesini anlatır. Günlerin güncel kadroları ve adayların sistem önerileri koddan üretilen [kadrolar.md](kadrolar.md)'dedir; ikisi çelişirse kadrolar.md doğrudur. Saatler oyun içi saattir; "koşullu" diye işaretli sahneler oyuncunun seçimlerine bağlıdır.
 
 ## Künye
 
@@ -100,7 +100,7 @@ Diğer ~30 aday, her biri tek bir önyargı temasını taşır: formatı okunama
 - **17:00.** Açık dosya yoksa eve gidersin. Varsa en geç 20:00'ye kadar kalırsın (fazla mesai ücreti yok); annen "çıktın mı?" diye yazar. 20:00'de hâlâ açık olan her dosya Performans'tan düşer.
 - **Akşam — Günün Özeti.** Tek cümlelik anlatı ("5 dosyada durdun, 3 dosyaya göz atıp geçtin"), başvuru hunisi (başvuru → masana gelen → mülakata çağrılan; *"X başvuru sen görmeden sistem tarafından elendi"*), Performans/Vicdan'ın o günkü değişimi, kısa liste doluluğu. Sağda günün kararları ve Hakan Bey'in okuması.
 - **Gün sonu.** Başlık cümlesinin altında 2×2 eşit kart: başvurudan mülakata huni (başvuru, masana gelen, okuyarak karar, mülakat), günün kararları, senin puanların ve gönderilen ret e-postaları, Hakan Bey'in yorumu.
-- **Kararların yankısı.** Salı–Perşembe saat 10:30'da Ümit Arslan dünkü davetler hakkında e-posta yazar (güçlü aday: "iyi yakalamışsın", zayıf: "neden çağrıldığını anlamadım"). Dün elenenler arasında güçlü biri varsa "profilini tesadüfen gördüm, aradığımız tam oydu" diye ekler. Önceki günlerde reddettiğin güçlü adaylar Kariyergram akışının en üstünde yeni işlerini paylaşır.
+- **Kararların yankısı.** Salı–Perşembe saat 10:30'da Ümit Arslan dünkü davetler hakkında e-posta yazar (güçlü aday: "iyi yakalamışsın", zayıf: "neden çağrıldığını anlamadım"). Dün elenenler arasında güçlü biri varsa "profilini tesadüfen gördüm, aradığımız tam oydu" diye ekler. Önceki günlerde reddettiğin güçlü adaylar Kariyergram akışının en üstünde başka şirketlerden aldıkları mülakat davetlerini paylaşır.
 - **ATS raporu.** Yapay zekâ notu bir ATS ayrıştırma raporu içerir: ayrıştırılan alan sayısı (iki sütunlu şablonlar okunamaz), unvanın ilanla eşleşip eşleşmediği, ilandaki 9 anahtar kelimeden hangilerinin CV'de birebir geçtiği ve adayın yığındaki sırası. Sistem notundaki eşleşme yüzdesi bu sayımdan hesaplanır.
 - **Telefon geçmişi.** Mesajlar günler arasında silinmez; sohbetlerde gün ayıracı (Pazartesi, Salı…) görünür. Ofis grubunda yalnızca grup üyeleri yazar; herkes adayların tarafında değildir (Emre kurallardan ve Hakan Bey'den yana konuşur).
 - **E-posta ekleri.** Kısa liste e-postasında *Mulakat_Listesi.xlsx* (güncel finalistler), fazla mesai e-postasında *Mulakat_Soru_Listesi.pdf* (yasak sorular kırmızı) açılabilir.
@@ -226,7 +226,7 @@ Toplantı 35 dakika sürer.
 
 **Hava:** Parçalı bulutlu, kar dindi. **Memo:** Holding bütçeyi revize etti, tek kadro; skor yok, sıralama yok; görüşmelerde Hakan Bey ve Ümit Arslan da var; öneriyi sen sunacaksın, karar üçünüzün; deneme süren de bugün değerlendirilecek.
 
-**Mülakatlar: herkes kendi adayıyla.** Defne kendi çağırdığı adaylarla, Ayşe kendi kısa listesiyle (**Nehir Koç**, 8 yıl, 2 yıl ara, güçlü; **Berk Aydın**, muhasebeden yazılıma, sağlam), Emre kendi listesiyle (**Çağan Erdem**, 9/9 anahtar kelime, vasat; **Sarp Yılmazer**, ATS 97, parlak ama içi boş), Hakan Bey kendi önerdikleriyle (Okan, Barış) görüşür. Defne diğer odalarda değildir; onların görüşme notunu okur. Hiç kimseyi çağırmadıysan Defne'nin odası boştur, yönetim listeyi Okan'la doldurur.
+**Mülakatlar: herkes kendi adayıyla.** Defne kendi çağırdığı adaylarla, Ayşe kendi kısa listesiyle (**Nehir Tunalı**, 8 yıl, 2 yıl ara, güçlü; **Berk Aydın**, muhasebeden yazılıma, sağlam), Emre kendi listesiyle (**Çağan Erdem**, 9/9 anahtar kelime, vasat; **Sarp Yılmazer**, ATS 97, parlak ama içi boş), Hakan Bey kendi önerdikleriyle (Okan, Barış) görüşür. Defne diğer odalarda değildir; onların görüşme notunu okur. Hiç kimseyi çağırmadıysan Defne'nin odası boştur, yönetim listeyi Okan'la doldurur.
 
 **Defne'nin odasında sıra:**
 1. **Defne'nin klasik soruları** (en fazla 2): somut bir başarı · bir hata ve ondan öğrenilen · ilk 90 günde neyi değiştirirdiniz. Cevaplardaki altı noktalı bir ifadeye tıklayarak bir **takip sorusu** sorulabilir (*"Bunda sizin payınız tam olarak neydi, sonucu kim ölçtü?"* vb.); ezber cevaplar burada çözülür.

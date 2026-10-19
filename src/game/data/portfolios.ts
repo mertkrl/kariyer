@@ -24,7 +24,7 @@ export interface Project {
 
 const PORTFOLIOS: Record<string, Portfolio> = {
   // emek verilmiş küçük bir iş: gerçek bir kafenin baştan sona çalışan sipariş sitesi
-  selin: { link: 'durakkahve.com.tr', site: 'cafe', name: 'Durak Kahve sipariş sitesi', desc: 'Üç şubeli bir kafe için telefondan sipariş ve sıra takibi (freelance, 2025).' },
+  ilgin: { link: 'durakkahve.com.tr', site: 'cafe', name: 'Durak Kahve sipariş sitesi', desc: 'Üç şubeli bir kafe için telefondan sipariş ve sıra takibi (freelance, 2025).' },
   // cilalı boş: site üreticisinin şablonu, içi doldurulmamış
   serkan: { link: 'serkanucar.sitegenie.app', site: 'genie', name: 'NexaFlow', desc: 'Innovative full-stack digital solutions platform.' },
   // güçlü: gerçek müşteriler, her projede kendi payı ayrı yazılmış

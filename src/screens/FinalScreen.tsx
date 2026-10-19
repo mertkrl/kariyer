@@ -8,7 +8,6 @@ import { KEY_CHARACTERS } from '../game/day/story';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../game/engine/achievements';
 import { Button } from '../components/ui/Button';
 import { GAME_NAME, shareCardImage } from '../game/engine/shareCard';
-import { days } from '../game/data/days';
 import { NEPHEW_ID, candidateOf, candidates } from '../game/data/candidates';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { AD_EFFECT } from '../game/data/jobs';
@@ -349,11 +348,15 @@ export function FinalScreen() {
           <div className={styles.realNoteLabel}>Gerçek Dünya</div>
           <div className={styles.realNoteText}>
             İşverenlere yapılan başvuruların büyük çoğunluğunda adaylar hiçbir zaman geri bildirim
-            almıyor — bir CareerBuilder anketine göre başvuru yapanların %75'i işverenden hiç haber
-            alamıyor. Sen az önce bunu {(totalProcessed + totalStats.autoRejected).toLocaleString('tr-TR')} kişiye yaşattın —
-            sadece {days.length} günde.
+            almıyor: bir CareerBuilder anketine göre başvuru yapanların %75'i işverenden hiç haber
+            alamıyor. Bu hafta {totalStats.autoRejected.toLocaleString('tr-TR')} başvuru bir insan görmeden elendi.{' '}
+            {rejections.none > 0
+              ? <>Senin reddettiklerinden {rejections.none} kişi hiçbir cevap almadı.</>
+              : totalStats.rejected > 0
+                ? <>Senin reddettiklerinin hepsine bir cevap gitti{rejections.personal > 0 ? <>; {rejections.personal} kişi gerçek sebebi öğrendi</> : null}.</>
+                : null}
           </div>
-          <div className={styles.realNoteSource}>Kaynak: CareerBuilder anketi (3.900 katılımcı)</div>
+          <div className={styles.realNoteSource}>Kaynak: CareerBuilder aday deneyimi anketi (ABD, 3.900 katılımcı). Türkiye için doğrudan bir ölçüm değildir.</div>
         </div>
 
         <canvas ref={canvasRef} width={1080} height={1080} className={styles.hiddenCanvas} />

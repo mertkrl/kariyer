@@ -22,7 +22,7 @@ export interface EvidenceCard {
 }
 
 const SITE_TALK: Record<string, { question: string; answer: string }> = {
-  selin: {
+  ilgin: {
     question: 'Durak Kahve\'nin sitesini inceledim, sipariş bile verdim. Bu işi nasıl aldınız, müşteriyle nasıl çalıştınız?',
     answer: 'Kafe sahibi üniversiteden bir arkadaşımın annesiydi; sabah sıralarından şikâyet ediyordu. İki hafta her sabah kafeye gidip kasada bekleyen insanları izledim, sonra ne yapacağımı yazıp onaylattım. Bir kere renkleri ona sormadan değiştirdim, geri döndük; o günden beri her şeyi yazılı onaylatıyorum.',
   },

@@ -10,7 +10,7 @@ export const AD_EFFECT: Record<string, { skip: (c: { id: string; age: number }) 
     note: 'İlandaki "genç, dinamik ekip" ve "esnek (uzun) çalışma saatleri" vurgusu yüzünden 40 yaş üstü, yarı zamanlı ya da uzaktan çalışmak isteyen adayların çoğu hiç başvurmadı.',
   },
   sonuc: {
-    skip: (c) => ['selin', 'deniz', 'pinar', 'hakan', 'ceren', 'melis'].includes(c.id),
+    skip: (c) => ['ilgin', 'deniz', 'pinar', 'cihan', 'ceren', 'melis'].includes(c.id),
     note: 'İlandaki "kanıtlanmış performans geçmişi" ve "performansa bağlı maaş" vurgusu yüzünden yeni mezunların, kariyer değiştirenlerin ve yarı zamanlı deneyimi olanların çoğu hiç başvurmadı.',
   },
 };

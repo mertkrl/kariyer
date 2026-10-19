@@ -219,7 +219,7 @@ const BACK_SENIOR: BackQuestion[] = [
   },
   {
     question: 'Şirket son bir yılda işten çıkarma yaptı mı?',
-    honest: 'Geçen bahar küçük bir daralma oldu, bazı ekipler birleştirildi.',
+    honest: 'Geçen bahar bazı ekipler birleştirildi; bu çeyrek de holding kadro kesintisi istiyor.',
     polished: 'Hayır, istikrarlı şekilde büyüyoruz.',
     afterHonest: 'Açık olduğunuz için teşekkürler. Bilerek karar vermek isterim.',
     afterPolished: 'Bu güven verici, teşekkür ederim.',
@@ -291,7 +291,7 @@ const BACK_SPECIAL: Record<string, BackQuestion> = {
     afterHonest: 'Dürüst cevap için sağ olun; o listeyi kurmaya yardım edebilirim.',
     afterPolished: 'Her sistem bir gün çöker. Ama tamam.',
   },
-  selin: {
+  ilgin: {
     question: 'Junior olarak ilk üç ayda benden ne bekliyorsunuz? Neye göre "iyi gidiyor" diyeceksiniz?',
     honest: 'Açıkçası yazılı bir hedef yok; ekip liderinle ilk hafta birlikte belirlersiniz.',
     polished: 'Net hedefleri olan bir uyum programımız var.',

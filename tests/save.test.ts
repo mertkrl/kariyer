@@ -105,3 +105,16 @@ test('3. sürüm kayıt taşınır: Ozan\'ın eski "emre" kimliği "ozan" olur, 
   assert.deepEqual(save.data.lineups, [['ozan', 'cem']]);
   localStorage.removeItem(KEY);
 });
+
+test('4. sürüm kayıt taşınır: Ilgın, Cihan ve Batuhan eski kimliklerinden kendi adlarına geçer', () => {
+  localStorage.setItem(KEY, JSON.stringify({ version: 4, savedAt: 1, data: { phase: 'briefing', currentDayIndex: 1, decisions: { selin: 'approve', hakan: 'reject', burak: 'reject' }, finalists: [{ id: 'selin', day: 0 }], lineups: [['selin', 'hakan', 'ahmet']], managerRequests: [{ candidateId: 'burak', want: 'approve' }], extraMails: [{ id: 'levent-2' }] } }));
+  const save = readSave();
+  assert.ok(save);
+  assert.equal(save.version, SAVE_VERSION);
+  assert.deepEqual(save.data.decisions, { ilgin: 'approve', cihan: 'reject', batuhan: 'reject' });
+  assert.deepEqual(save.data.finalists, [{ id: 'ilgin', day: 0 }]);
+  assert.deepEqual(save.data.lineups, [['ilgin', 'cihan', 'ahmet']]);
+  assert.deepEqual(save.data.managerRequests, [{ candidateId: 'batuhan', want: 'approve' }]);
+  assert.deepEqual(save.data.extraMails, [{ id: 'umit-2' }]);
+  localStorage.removeItem(KEY);
+});

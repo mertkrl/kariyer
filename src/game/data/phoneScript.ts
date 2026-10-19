@@ -21,7 +21,7 @@ export const REQUESTS: RequestTemplate[] = [
     text: (n) => `${accusative(n)} mülakat listesine eklemenizi rica ederim. Kendisi değerli bir iş ortağımızın tavsiyesidir; ayrıca ATS skoru %98'dir.`,
   },
   {
-    ids: ['kerem', 'handan', 'asli', 'hakan'],
+    ids: ['kerem', 'handan', 'asli', 'cihan'],
     want: 'reject',
     text: (n) => `${genitive(n)} başvurusunun değerlendirme dışı bırakılmasını uygun görüyorum. Ekibin yaş profiliyle uyumlu olmadığı kanaatindeyim.`,
   },
@@ -56,12 +56,12 @@ export const REQUESTS: RequestTemplate[] = [
     text: (n) => `${n} için örgün eğitim ve kurumsal deneyim bulunmamaktadır. Zaman kaybetmeden süreci sonlandırınız.`,
   },
   {
-    ids: ['melis', 'selin'],
+    ids: ['melis', 'ilgin'],
     want: 'reject',
     text: (n) => `${n} yeterli deneyime sahip değildir. İlk günden sorumluluk alabilecek profillere odaklanmanızı rica ederim.`,
   },
   {
-    ids: ['ferhat', 'murat', 'burak'],
+    ids: ['ferhat', 'murat', 'batuhan'],
     want: 'approve',
     text: (n) => `${accusative(n)} mülakata davet etmenizi rica ederim. Ücret beklentisi düşük; müzakerede avantajlı konumdayız.`,
   },
@@ -245,7 +245,7 @@ export const AMBIENT: Ambient[][] = [
       ],
       replies: [
         { text: 'Belki haddim değil ama… bence ikiniz de aynı şeyden korkuyorsunuz: yanlış kişiye haksızlık etmekten.', reaction: 'Hiç böyle düşünmemiştim. Haklısın galiba.', reactionSender: 'Emre' },
-        { text: 'Ben de 11 ay iş aradım Ayşe. 214 başvuru. Ondan her CV\'yi okumaya çalışıyorum.', reaction: 'Biliyordum 🙂 Cuma mülakatta aynı tarafta olacağız.', reactionSender: 'Ayşe' },
+        { text: 'Ben de 11 ay iş aradım Ayşe. 214 başvuru. Ondan her CV\'yi okumaya çalışıyorum.', reaction: 'Biliyordum 🙂 Kadro meselesi ne olursa olsun, bu konuda aynı taraftayız.', reactionSender: 'Ayşe' },
         { text: 'Kurallar olmasa 600 dosyayı nasıl bitirirdik, Emre haklı.', reaction: 'Sağ ol. Bunu söyleyen ilk kişi sensin.', reactionSender: 'Emre' },
       ],
     },

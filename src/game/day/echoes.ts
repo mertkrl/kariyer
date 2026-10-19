@@ -25,33 +25,33 @@ export type MeetingChoice = 'sample' | 'praise' | 'observe' | null;
 const fitOf = (id: string) => candidateDetails[id]?.hireFit ?? 3;
 const first = (id: string) => candidateOf(id).name.split(' ')[0];
 
-const LEVENT_SPECIAL: Record<string, string> = {
+const UMIT_SPECIAL: Record<string, string> = {
   okan: 'bu dosyayı sen mi seçtin? Neyse, Cuma görürüz.',
   ozan: 'aşağıda yazdım.',
   volkan: 'CV\'si parlak ama somut hiçbir şey yok. Referansını aradın mı?',
 };
 
-function leventOn(id: string) {
-  if (LEVENT_SPECIAL[id]) return LEVENT_SPECIAL[id];
+function umitOn(id: string) {
+  if (UMIT_SPECIAL[id]) return UMIT_SPECIAL[id];
   const fit = fitOf(id);
-  if (fit >= 5) return 'GitHub\'ına baktım, gerçekten güçlü. İyi yakalamışsın.';
+  if (fit >= 5) return 'dosyasını baştan sona okudum, gerçekten güçlü. İyi yakalamışsın.';
   if (fit === 4) return 'sağlam görünüyor, ekibe uyar.';
   if (fit === 3) return 'potansiyeli var ama biraz zayıf. Cuma dinleriz.';
   return 'açıkçası neden çağrıldığını anlamadım.';
 }
 
 /** Ekip liderinin dünkü dosyalar hakkındaki öğleden önceki e-postası. */
-export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingChoice): Mail | null {
+export function umitMail(dayIndex: number, log: WeekEntry[], meeting: MeetingChoice): Mail | null {
   if (dayIndex < TUESDAY || dayIndex > THURSDAY) return null;
   const yesterday = log.filter((e) => e.day === dayIndex - 1);
   const invited = yesterday.filter((e) => e.decision === 'approve').map((e) => e.id);
   // kaçan: geri çevrilen güçlü bir dosya, tesadüfen gördüğü
-  const missed = yesterday.find((e) => e.decision === 'reject' && fitOf(e.id) >= 5 && !LEVENT_SPECIAL[e.id]);
+  const missed = yesterday.find((e) => e.decision === 'reject' && fitOf(e.id) >= 5 && !UMIT_SPECIAL[e.id]);
   const lines = invited.length
     ? [
         'Dün mülakata çağırdığın adayların CV\'lerine ekip olarak baktık:',
         '',
-        ...invited.slice(0, 4).map((id) => `• ${first(id)}: ${leventOn(id)}`),
+        ...invited.slice(0, 4).map((id) => `• ${first(id)}: ${umitOn(id)}`),
         ...(invited.length > 4 ? [`• …ve ${invited.length - 4} kişi daha. Hepsine bakmaya vaktimiz olmadı.`] : []),
       ]
     : ['Dün kimseyi mülakata çağırmamışsın. Ekip Cuma\'yı bekliyor; boş gelmeyelim.'];
@@ -72,7 +72,7 @@ export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingC
     lines.push('', 'Toplantıdaki rastgele kontrol fikrin iyiydi. Hakan Bey bir şey demedi ama ben not aldım.');
   }
   return {
-    id: `levent-${dayIndex}`,
+    id: `umit-${dayIndex}`,
     day: dayIndex,
     at: 150,
     from: 'Ümit Arslan',
@@ -84,12 +84,12 @@ export function leventMail(dayIndex: number, log: WeekEntry[], meeting: MeetingC
 
 const NEW_JOBS = ['Nexa Yazılım', 'Kuzey Teknoloji', 'Bulut Finans', 'Deniz Lojistik'];
 const FOUND_WORK = [
-  (co: string) => `Yeni işime başladım 🎉 ${co} backend ekibindeyim. Birkaç gün önce bir yerden "değerlendirme dışı" demişlerdi; burada ilk gün kodumu okudular.`,
-  (co: string) => `Bugün ${co}'da ilk günüm. Mülakatta CV'mi baştan sona okuyan biri vardı; bunu bile özlemişim.`,
-  (co: string) => `Uzun bir hafta bitti: ${co} ile anlaştık 🙏 Reddedildiğim her yere bir teşekkür borçluyum sanırım. Belki de değil.`,
+  (co: string) => `${co}'dan mülakat daveti geldi 🎉 Birkaç gün önce bir yerden "değerlendirme dışı" demişlerdi; burada ilk görüşmede kodumu sordular.`,
+  (co: string) => `Bugün ${co} ile ilk görüşmemi yaptım. Karşımda CV'mi baştan sona okumuş biri vardı; bunu bile özlemişim.`,
+  (co: string) => `${co} ikinci görüşmeye çağırdı 🙏 Reddedildiğim her yere bir teşekkür borçluyum sanırım. Belki de değil.`,
 ];
 
-/** Önceki günlerde geri çevirdiğin güçlü insanlar, iş bulduklarını paylaşıyor. */
+/** Önceki günlerde geri çevirdiğin güçlü insanlar, başka yerlerden gelen davetleri paylaşıyor. */
 export function rejectedEchoes(log: WeekEntry[], dayIndex: number) {
   return log
     .filter((e) => e.decision === 'reject' && e.day < dayIndex && fitOf(e.id) >= 5)

@@ -33,8 +33,8 @@
         "approve": "Ahmet işe başladı, ama \"junior\" unvanıyla kıdemli işler yapması bekleniyor."
       }
     },
-    "selin": {
-      "id": "selin",
+    "ilgin": {
+      "id": "ilgin",
       "flaggedField": "experience",
       "name": "Ilgın Güneş",
       "initials": "IG",
@@ -235,8 +235,8 @@
         "approve": "Aylin işe başladı; ilk ayında yazdığı servis nöbet çağrılarını yarıya indirdi."
       }
     },
-    "burak": {
-      "id": "burak",
+    "batuhan": {
+      "id": "batuhan",
       "flaggedField": "salary",
       "name": "Batuhan Kılıç",
       "initials": "BK",
@@ -272,7 +272,7 @@
       "age": 45,
       "role": "Yazılım Geliştirici adayı · kıdemli",
       "experience": "18 yıl",
-      "salary": "52.000 TL",
+      "salary": "46.000 TL",
       "skills": "Java, Sistem Mimarisi, Ekip Liderliği, Mentorluk",
       "motivation": "\"Artık yönetim yükü değil, sadece iyi kod yazmak ve ekibe destek olmak istiyorum.\"",
       "education": "Bilgisayar Mühendisliği Lisans.",
@@ -705,7 +705,7 @@
     "asli": {
       "id": "asli",
       "flaggedField": "experience",
-      "name": "Aslı Er",
+      "name": "Aslı Ertan",
       "initials": "AE",
       "color": "#8C8465",
       "age": 52,
@@ -793,8 +793,8 @@
         "approve": "Melis'in hazırladığı ilk dashboard, satış ekibinin haftalık toplantısını 2 saatten 30 dakikaya indirdi."
       }
     },
-    "hakan": {
-      "id": "hakan",
+    "cihan": {
+      "id": "cihan",
       "flaggedField": "questions",
       "name": "Cihan Yavuz",
       "initials": "CY",
@@ -1062,7 +1062,7 @@
       "age": 35,
       "role": "Yazılım Geliştirici adayı · kıdemli",
       "experience": "11 yıl",
-      "salary": "72.000 TL",
+      "salary": "48.000 TL",
       "skills": "Java, ödeme sistemleri, teknik liderlik, planlama",
       "motivation": "\"Hem 11 yıldır yazılım geliştiriyorum hem de tek başıma bir çocuk büyütüyorum. İkisinde de öncelik belirlemeyi iyi bilirim.\"",
       "education": "Bilgisayar Mühendisliği.",
@@ -1114,7 +1114,7 @@
     "murat": {
       "id": "murat",
       "flaggedField": "salary",
-      "name": "Murat Kaplan",
+      "name": "Murat Karaca",
       "initials": "MK",
       "color": "#8C8465",
       "age": 44,
@@ -1172,8 +1172,8 @@
     "nehir": {
       "id": "nehir",
       "flaggedField": "experience",
-      "name": "Nehir Koç",
-      "initials": "NK",
+      "name": "Nehir Tunalı",
+      "initials": "NT",
       "color": "#7C6A8C",
       "age": 34,
       "role": "Yazılım Geliştirici adayı · kıdemli",

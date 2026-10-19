@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { CASE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, type Entry } from '../src/screens/final/interviewModel';
 import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from '../src/screens/final/interviewRoom';
 
-const q = (n: number, by?: 'hakan' | 'levent'): Entry => ({ kind: 'q', q: n, ...(by ? { by } : {}) });
+const q = (n: number, by?: 'hakan' | 'umit'): Entry => ({ kind: 'q', q: n, ...(by ? { by } : {}) });
 
 test('klasik soru hakkı dolunca yeni soru sorulamaz, aynı soru iki kez sorulamaz', () => {
   const opened: Entry = { kind: 'warm', warm: true };
@@ -31,13 +31,13 @@ test('takip sorusu tek seferlik; biri yazarken ya da söz geçtikten sonra soru 
 });
 
 test('söz Ümit\'e geçince: teknik soru, sonra (yapılandırılmış değilse) Hakan Bey', () => {
-  assert.deepEqual(handOffQuestions(false).map((e) => e.kind === 'q' && [e.q, e.by]), [[CASE, 'levent'], [FORBIDDEN, 'hakan']]);
-  assert.deepEqual(handOffQuestions(true).map((e) => e.kind === 'q' && [e.q, e.by]), [[CASE, 'levent']]);
+  assert.deepEqual(handOffQuestions(false).map((e) => e.kind === 'q' && [e.q, e.by]), [[CASE, 'umit'], [FORBIDDEN, 'hakan']]);
+  assert.deepEqual(handOffQuestions(true).map((e) => e.kind === 'q' && [e.q, e.by]), [[CASE, 'umit']]);
   // Ümit'in ve Hakan Bey'in soruları senin hakkından düşmez
   assert.deepEqual(roomState([q(0), { kind: 'handoff' }, ...handOffQuestions(false)], 0).mine, [0]);
   // adayı ekipten biri getirdiyse önce o, senin sormadığın klasik soruyu sorar; Hakan Bey kendi adayına uyum sorusu sormaz
-  assert.deepEqual(handOffQuestions(false, 'ayse', [0, 2]).map((e) => e.kind === 'q' && [e.q, e.by]), [[OWNER + 1, 'ayse'], [CASE, 'levent'], [FORBIDDEN, 'hakan']]);
-  assert.deepEqual(handOffQuestions(false, 'hakan', [0, 1]).map((e) => e.kind === 'q' && e.by), ['hakan', 'levent']);
+  assert.deepEqual(handOffQuestions(false, 'ayse', [0, 2]).map((e) => e.kind === 'q' && [e.q, e.by]), [[OWNER + 1, 'ayse'], [CASE, 'umit'], [FORBIDDEN, 'hakan']]);
+  assert.deepEqual(handOffQuestions(false, 'hakan', [0, 1]).map((e) => e.kind === 'q' && e.by), ['hakan', 'umit']);
 });
 
 test('maaştan sonra adayın soruları sırayla gelir; hepsi cevaplanınca görüşme kapatılabilir', () => {

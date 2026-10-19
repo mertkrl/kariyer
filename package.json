@@ -14,6 +14,7 @@
     "ci": "npm run typecheck && npm run lint && npm run test:coverage && npm run build && npm run size && npm audit --audit-level=high",
     "preview": "vite preview",
     "size": "node scripts/check-size.mjs",
+    "docs:kadro": "node --import ./tests/setup/register.mjs scripts/kadro.ts",
     "package": "npm run build && node scripts/package.mjs"
   },
   "dependencies": {

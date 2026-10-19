@@ -144,7 +144,7 @@ export function Conversation({ entries, selectedId, candidate, poolIds, typing, 
           const answer = answerFor(selectedId, e.q);
           return (
             <div key={index} className={styles.exchange}>
-              {e.by === 'levent' ? (
+              {e.by === 'umit' ? (
                 <Turn who={LEAD} role="Yazılım Ekip Lideri · durum sorusu" tone="lead">
                   {questionText(e.q, e.about, e.by)}
                 </Turn>
