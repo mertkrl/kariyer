@@ -81,8 +81,8 @@
 
 | Bulgu | Durum |
 |---|---|
-| `public/sites/` altındaki 12 fotoğrafın 11'inin kaynağı belirsiz; biri Janko Ferlić'e ait | ⏳ [gorsel-kaynaklari.md](gorsel-kaynaklari.md) dolduruluyor; doğrulanamayan değiştirilecek |
-| Portfolyo siteleri gerçekçi alan adları kullanıyor (`isikdernegi.org.tr` gibi); gerçek bir kurumla karışabilir. E-postalar ise `.test` kullanıyor | 💭 sitelerde de kurgusal alan adı |
+| `public/sites/` altındaki 12 fotoğrafın kaynağı belgelenmemişti | ✅ hepsi Wikimedia Commons'tan, CC0 ya da kamu malı, atıf zorunlu değil; 20 Ekim 2026'da yeniden doğrulandı ([gorsel-kaynaklari.md](gorsel-kaynaklari.md)) |
+| Oyundaki alan adlarından `posta.com`, `email.com` ve `sitegenie.app` gerçekte kullanımda; `narlokanta.com` ve `egesepeti.com` başkası adına kayıtlı. Şirket e-postaları ise `.test` kullanıyor | ✅ sitelerin ve e-postaların hepsi ayrılmış `.test` uzantısında (RFC 2606); gerçek bir alan adına yönlenme yok |
 
 ## 9. Veri ve iddia doğruluğu
 
@@ -94,6 +94,5 @@
 
 ## Sıradaki adımlar (öneri sırası)
 
-1. Görsellerin kaynağını doğrulamak ya da ücretsiz lisanslı görsellerle değiştirmek.
-2. Çekirdek paketi küçültmek: aday verisini tembel yüklemek.
-3. Karar gerektirenler (💭): ilan seçimine bedel, oyun içi hukuk notları, saat hızı ayarı, sitelerde kurgusal alan adı, çeviri.
+1. Çekirdek paketi küçültmek: aday verisini tembel yüklemek.
+2. Karar gerektirenler (💭): ilan seçimine bedel, oyun içi hukuk notları, saat hızı ayarı, çeviri.

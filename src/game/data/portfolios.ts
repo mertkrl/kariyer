@@ -24,21 +24,21 @@ export interface Project {
 
 const PORTFOLIOS: Record<string, Portfolio> = {
   // emek verilmiş küçük bir iş: gerçek bir kafenin baştan sona çalışan sipariş sitesi
-  ilgin: { link: 'durakkahve.com.tr', site: 'cafe', name: 'Durak Kahve sipariş sitesi', desc: 'Üç şubeli bir kafe için telefondan sipariş ve sıra takibi (freelance, 2025).' },
+  ilgin: { link: 'durakkahve.test', site: 'cafe', name: 'Durak Kahve sipariş sitesi', desc: 'Üç şubeli bir kafe için telefondan sipariş ve sıra takibi (freelance, 2025).' },
   // cilalı boş: site üreticisinin şablonu, içi doldurulmamış
-  serkan: { link: 'serkanucar.sitegenie.app', site: 'genie', name: 'NexaFlow', desc: 'Innovative full-stack digital solutions platform.' },
+  serkan: { link: 'serkanucar.sitegenie.test', site: 'genie', name: 'NexaFlow', desc: 'Innovative full-stack digital solutions platform.' },
   // güçlü: gerçek müşteriler, her projede kendi payı ayrı yazılmış
-  mert: { link: 'mertaydin.studio', site: 'mert', name: 'Stüdyo portfolyosu', desc: 'Dört yılda yaptığım 23 müşteri işi; her birinde kendi payım ayrı yazılı.' },
+  mert: { link: 'mertaydin.test', site: 'mert', name: 'Stüdyo portfolyosu', desc: 'Dört yılda yaptığım 23 müşteri işi; her birinde kendi payım ayrı yazılı.' },
   // yapay zekâyla yapmış ama işini anlıyor: çalışan bir demo
-  deniz: { link: 'kargotakip.denizarslan.dev', site: 'deniz', name: 'Hızlı Kargo takip', desc: 'Bir kargo firmasının Ankara bölgesinde denediği takip ve fiyat hesaplama sitesi.' },
+  deniz: { link: 'kargotakip.denizarslan.test', site: 'deniz', name: 'Hızlı Kargo takip', desc: 'Bir kargo firmasının Ankara bölgesinde denediği takip ve fiyat hesaplama sitesi.' },
   // "maaşlı deneyim 0": gönüllü yaptığı, herkesin kullanabildiği bir dernek sitesi
-  tolga: { link: 'isikdernegi.org.tr', site: 'tolga', name: 'Işık Derneği sitesi', desc: 'Görme engelliler derneği için ekran okuyucuyla kullanılabilen site (gönüllü).' },
+  tolga: { link: 'isikdernegi.test', site: 'tolga', name: 'Işık Derneği sitesi', desc: 'Görme engelliler derneği için ekran okuyucuyla kullanılabilen site (gönüllü).' },
   // "Java bulunamadı": stoku, indirimi, kargosu düzgün çalışan küçük bir market
-  zeynep: { link: 'egesepeti.com', site: 'zeynep', name: 'Ege Sepeti', desc: 'Ege üreticilerinin ürünlerini satan küçük bir online market (hafta sonu projesi).' },
+  zeynep: { link: 'egesepeti.test', site: 'zeynep', name: 'Ege Sepeti', desc: 'Ege üreticilerinin ürünlerini satan küçük bir online market (hafta sonu projesi).' },
   // sıradan görünen ama güçlü: eski usul ama her şeyi doğru çalışan bir hırdavatçı sitesi
-  ferhat: { link: 'gulerhirdavat.com', site: 'ferhat', name: 'Güler Hırdavat', desc: 'Mahalle hırdavatçısı için stoklu ürün listesi ve WhatsApp siparişi.' },
+  ferhat: { link: 'gulerhirdavat.test', site: 'ferhat', name: 'Güler Hırdavat', desc: 'Mahalle hırdavatçısı için stoklu ürün listesi ve WhatsApp siparişi.' },
   // güzel ama payı belirsiz: altında bir ajansın ve 6 kişilik ekibin adı yazan restoran sitesi
-  volkan: { link: 'narlokanta.com', site: 'volkan', name: 'Nar Lokanta', desc: 'Restoran sitesi ve online rezervasyon sistemi.' },
+  volkan: { link: 'narlokanta.test', site: 'volkan', name: 'Nar Lokanta', desc: 'Restoran sitesi ve online rezervasyon sistemi.' },
 };
 
 /** Adayın CV'deki sitesi; yoksa undefined. */

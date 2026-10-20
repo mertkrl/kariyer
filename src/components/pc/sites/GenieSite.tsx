@@ -198,7 +198,7 @@ export function GenieSite({ page, go }: SiteProps) {
           }}
         >
           <input placeholder="Your Name" aria-label="Your Name" />
-          <input placeholder="your@email.com" aria-label="Email" />
+          <input placeholder="siz@eposta.test" aria-label="Email" />
           <textarea placeholder="Your message" aria-label="Message" />
           <button className={s.cta} disabled={sending}>
             {sending ? 'Sending…' : 'Send Message'}

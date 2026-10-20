@@ -98,7 +98,7 @@ Hakan Kaya
     day: 0,
     at: 150,
     from: 'Kariyer Platformu',
-    address: 'bildirim@kariyer-platform.com',
+    address: 'bildirim@kariyerplatformu.test',
     subject: 'İlanınıza 270 yeni başvuru!',
     body: `Tebrikler! İlanınız son 24 saatte 270 yeni başvuru aldı.
 

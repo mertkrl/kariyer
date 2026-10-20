@@ -144,7 +144,7 @@ export function revokeInvites(state: GameState, honest: boolean | null): Partial
     day: state.currentDayIndex + 1,
     at: 0,
     from: first.name,
-    address: `${first.name.split(' ')[0].toLocaleLowerCase('tr-TR')}@posta.com`,
+    address: `${first.name.split(' ')[0].toLocaleLowerCase('tr-TR')}@eposta.test`,
     subject: 'Re: Mülakat davetiniz hk.',
     important: true,
     body: honest

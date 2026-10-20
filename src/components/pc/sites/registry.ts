@@ -31,12 +31,12 @@ interface SiteDef {
 }
 
 export const SITES: Record<SiteId, SiteDef> = {
-  cafe: { url: 'durakkahve.com.tr', pages: ['menu', 'subeler', 'kampanyalar', 'siparis'], Component: CafeSite },
-  genie: { url: 'serkanucar.sitegenie.app', pages: ['home', '404'], Component: GenieSite },
-  mert: { url: 'mertaydin.studio', pages: ['home', 'lavanta', 'kitap', 'seramik', 'tasima', 'lab', 'iletisim'], Component: MertSite },
-  tolga: { url: 'isikdernegi.org.tr', pages: ['home', 'etkinlikler', 'gonullu'], Component: TolgaSite },
-  zeynep: { url: 'egesepeti.com', pages: ['home', 'sepet'], Component: ZeynepSite },
-  ferhat: { url: 'gulerhirdavat.com', pages: ['home', 'liste', 'adres'], Component: FerhatSite },
-  volkan: { url: 'narlokanta.com', pages: ['home', 'menu', 'rezervasyon'], Component: VolkanSite },
-  deniz: { url: 'kargotakip.denizarslan.dev', pages: ['home', 'fiyat'], Component: DenizSite },
+  cafe: { url: 'durakkahve.test', pages: ['menu', 'subeler', 'kampanyalar', 'siparis'], Component: CafeSite },
+  genie: { url: 'serkanucar.sitegenie.test', pages: ['home', '404'], Component: GenieSite },
+  mert: { url: 'mertaydin.test', pages: ['home', 'lavanta', 'kitap', 'seramik', 'tasima', 'lab', 'iletisim'], Component: MertSite },
+  tolga: { url: 'isikdernegi.test', pages: ['home', 'etkinlikler', 'gonullu'], Component: TolgaSite },
+  zeynep: { url: 'egesepeti.test', pages: ['home', 'sepet'], Component: ZeynepSite },
+  ferhat: { url: 'gulerhirdavat.test', pages: ['home', 'liste', 'adres'], Component: FerhatSite },
+  volkan: { url: 'narlokanta.test', pages: ['home', 'menu', 'rezervasyon'], Component: VolkanSite },
+  deniz: { url: 'kargotakip.denizarslan.test', pages: ['home', 'fiyat'], Component: DenizSite },
 };

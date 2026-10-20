@@ -167,7 +167,7 @@ export function MertSite({ page, go }: SiteProps) {
     <div className={s.site}>
       <header className={s.head}>
         <button className={s.logo} onClick={() => go('home')}>
-          mert<span>aydın</span>.studio
+          mert<span>aydın</span> stüdyo
         </button>
         <nav>
           <button onClick={() => go('home')}>İşler</button>
@@ -306,7 +306,7 @@ export function MertSite({ page, go }: SiteProps) {
               </button>
             </form>
           )}
-          <p className={s.kind}>ya da doğrudan: mert@mertaydin.studio</p>
+          <p className={s.kind}>ya da doğrudan: mert@mertaydin.test</p>
         </main>
       )}
 

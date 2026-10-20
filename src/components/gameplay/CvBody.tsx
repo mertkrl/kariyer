@@ -83,7 +83,7 @@ const emailOf = (name: string) =>
     .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c')
     .split(' ')
     .join('.')
-    .replace(/[^a-z.]/g, '')}@posta.com`;
+    .replace(/[^a-z.]/g, '')}@eposta.test`;
 
 export function CvBody({ candidate, details, scanning, verdicts, onReadThrough, onBreak = false }: { candidate: Candidate; details?: Details; scanning: boolean; verdicts: boolean; onReadThrough: () => void; onBreak?: boolean }) {
   const { ref, more } = useMoreBelow();
