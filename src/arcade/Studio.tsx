@@ -55,17 +55,23 @@ export function KasmLogo({ className, small = false }: { className?: string; sma
 
 /**
  * Oyunların giriş ekranında ve salonda sağ altta duran stüdyo imzası. `tone`: zemin koyuysa
- * "dark". Üstüne gelince logo yeniden çizilir ve bir kez zıplar.
+ * "dark". KASM ve LABS tek bir blok: LABS logonun altında, logonun genişliğine yayılır; aralarında
+ * logonun renk geçişiyle bir çizgi. Üstüne gelince logo yeniden çizilir ve blok bir kez zıplar.
  */
 export function StudioMark({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   const [play, setPlay] = useState(0);
   return (
     <span className={`${styles.mark} ${tone === 'dark' ? styles.onDark : ''}`} onPointerEnter={() => setPlay((n) => n + 1)}>
-      <span key={play} className={play ? styles.hop : undefined}>
+      <span key={play} className={`${styles.lockup} ${play ? styles.hop : ''}`}>
         <KasmLogo small />
+        <span className={styles.rule} aria-hidden="true" />
+        {/* büyük harfle yazılır: Türkçe sayfada otomatik büyütme "İ" yapabilir */}
+        <svg viewBox="0 0 360 44" aria-label="LABS">
+          <text className={styles.studio} x="8" y="41" textLength="344" lengthAdjust="spacing">
+            LABS
+          </text>
+        </svg>
       </span>
-      {/* büyük harfle yazılır: Türkçe sayfada otomatik büyütme "İ" yapabilir */}
-      <span className={styles.studio}>LABS</span>
     </span>
   );
 }

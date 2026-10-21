@@ -101,15 +101,20 @@ export function LunchWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
 export function RaiseWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'raise' }>>) {
   const [value, setValue] = useState('');
   const [locked, setLocked] = useState(selected !== null);
+  // kilitlenince yazılan öneri; hücre MİN(öneri; %3) olur: az isteyen azını alır
+  const [proposed, setProposed] = useState<number | null>(null);
   const typed = Number(value.replace(',', '.'));
   const valid = value.trim() !== '' && Number.isFinite(typed) && typed >= 0;
-  const rate = locked ? w.locked : valid ? typed : 0;
+  const cap = proposed === null ? w.locked : Math.min(proposed, w.locked);
+  const rate = locked ? cap : valid ? typed : 0;
   const commit = () => {
     if (!valid) return;
     click();
     setLocked(true);
+    setProposed(typed);
     onAnswer(sliderOption(typed, w.thresholds));
   };
+  const pct = (n: number) => `%${n.toLocaleString('tr-TR')}`;
   return (
     <div className={styles.sheet}>
       <div className={styles.sheetTop}>
@@ -134,9 +139,9 @@ export function RaiseWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
             <th>2</th>
             <td>Siz</td>
             <td className="mono">{tl(w.salary)}</td>
-            <td className={`${styles.cell} ${locked ? styles.cellLocked : ''}`}>
+            <td className={`${styles.cell} ${locked ? (proposed !== null && proposed <= w.locked ? styles.cellOk : styles.cellLocked) : ''}`}>
               {locked ? (
-                <span className="mono">🔒 %{w.locked}</span>
+                <span className="mono">🔒 {pct(cap)}</span>
               ) : (
                 <span className={styles.inputWrap}>
                   %
@@ -173,14 +178,25 @@ export function RaiseWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
       <div className={styles.sheetBar}>
         {locked ? (
           <>
-            <span className={styles.lockNote} role="status">
-              ⚠ Bu hücre İK tarafından kilitlenmiştir. Değeriniz "öneri" olarak kaydedildi.
-            </span>
+            {proposed !== null && proposed < w.locked ? (
+              <span className={styles.okNote} role="status">
+                ✓ Biz {pct(w.locked)} düşünmüştük ama {pct(proposed)} daha iyiymiş. Fedakârlığınız sicilinize işlendi.
+              </span>
+            ) : proposed === w.locked ? (
+              <span className={styles.okNote} role="status">
+                ✓ Doğru düşündünüz. {pct(w.locked)} kurum vizyonumuzla birebir örtüşüyor.
+              </span>
+            ) : (
+              <span className={styles.lockNote} role="status">
+                ⚠ Bu hücre İK tarafından kilitlenmiştir. Değeriniz "öneri" olarak kaydedildi.
+              </span>
+            )}
             <button
               className={styles.ghost}
               onClick={() => {
                 click();
                 setValue('');
+                setProposed(null);
                 setLocked(false);
               }}
             >

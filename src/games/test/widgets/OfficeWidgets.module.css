@@ -217,6 +217,13 @@
   animation: shake 360ms ease-in-out;
 }
 
+/* şirketin istediği ya da daha azı: kilit yine iner ama yeşil ve sarsıntısız */
+.cellOk {
+  outline-color: var(--a-ok);
+  background: var(--a-ok-soft) !important;
+  color: var(--a-ok);
+}
+
 @keyframes shake {
   25%,
   75% {
@@ -264,6 +271,12 @@
 
 .lockNote {
   color: var(--a-bad);
+  font-weight: 600;
+}
+
+/* şirketin istediği ya da daha azı önerilince: övgü */
+.okNote {
+  color: var(--a-ok);
   font-weight: 600;
 }
 

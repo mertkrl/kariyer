@@ -97,10 +97,10 @@ export const GENERAL_QUESTIONS: ExamQuestion[] = [
     kind: 'genel kültür',
     prompt: "Türkiye'nin en uzun nehri hangisidir?",
     hint: 'Uzunluk, kurumsal ölçeğe göre değerlendirilir.',
-    options: ['Kızılırmak', 'Fırat', 'Cuma toplantıları', 'Genel Müdürün yılbaşı konuşması'],
+    options: ['Kızılırmak', 'Fırat', 'Cuma toplantıları', 'İki maaş günü arası'],
     answer: 3,
     sensible: 0,
-    why: 'Kızılırmak. Toplantılar uzun ama nehir değil.',
+    why: 'Kızılırmak. Ay sonu uzun ama nehir değil.',
   },
   {
     id: 'highest-mountain',

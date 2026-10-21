@@ -240,23 +240,6 @@
   background: #fff;
 }
 
-.proctor {
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: #fbf3f1;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--a-muted);
-  min-height: 52px;
-}
-
-.live {
-  color: var(--a-bad);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
 .finish {
   padding: 10px;
   border: 1.5px solid var(--a-bad);
@@ -420,13 +403,6 @@
   position: static;
 }
 
-/* gözetmen yazısı satır sayısı değişse de panel boyu değişmesin */
-.proctor {
-  /* en uzun uyarı üç satır */
-  min-height: 76px;
-  box-sizing: border-box;
-}
-
 .main .question {
   flex: 1 1 0;
   min-height: 0;
@@ -536,10 +512,6 @@
   font-size: 8px;
 }
 
-.proctor {
-  min-height: 64px;
-}
-
 .exam {
   padding-top: 20px;
   padding-bottom: 24px;
@@ -585,6 +557,134 @@
   font-size: clamp(22px, 3vh, 30px);
 }
 
-.proctor {
-  min-height: 58px;
+/*
+ * Üç sütun: solda kısa bir panel (saat, harita, bitir), ortada soru, sağda gözetmen. Sol panel
+ * içeriği kadar uzar; harita bölüm başına tek satır 10 kutu. Gözetmenin canlı kutusu ve notları
+ * kendi sütununda durur.
+ */
+.exam {
+  max-width: 1360px;
+  grid-template-columns: 236px minmax(0, 1fr) 236px;
+}
+
+.side,
+.watch {
+  align-self: start;
+}
+
+.side {
+  gap: 14px;
+  padding: 16px;
+}
+
+.clock {
+  width: 92px;
+  height: 92px;
+}
+
+.clock b {
+  font-size: 21px;
+}
+
+.clock small {
+  font-size: 9.5px;
+}
+
+.map {
+  flex: none;
+  gap: 10px;
+}
+
+.grid {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.cell {
+  height: 26px;
+  font-size: 12px;
+}
+
+/* dar pencere: yan sütunlar incelir, soru yerini korur */
+@media (max-width: 1100px) {
+  .exam {
+    grid-template-columns: 210px minmax(0, 1fr) 200px;
+    gap: 16px;
+  }
+}
+
+/*
+ * Harita: yalnızca içinde bulunulan bölümün kutuları görünür (5×2, iri); diğer bölümler tek
+ * satır, bitti ya da sırada.
+ */
+.map {
+  gap: 6px;
+}
+
+.mapSection {
+  border-radius: 10px;
+  transition: background var(--motion-enter);
+}
+
+.mapOpen {
+  padding-bottom: 10px;
+  background: var(--a-line-soft);
+}
+
+.mapTitle {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: 700 12.5px var(--font-body);
+  color: var(--a-muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapTitle:hover {
+  background: var(--a-line-soft);
+}
+
+.mapOpen .grid {
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.mapOpen .cell {
+  height: 36px;
+  font-size: 13.5px;
+}
+
+/* bölüm bölüm akış: bitmiş ve sıradaki bölümler tek satır, tıklanmaz */
+.mapLocked .mapTitle {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.mapLocked .mapTitle:hover {
+  background: none;
+}
+
+.mapLocked em {
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+/* henüz açılmamış sorular: numarası görünür, tıklanmaz */
+.cellAhead {
+  border-style: dashed;
+  background: var(--a-line-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cellAhead:hover {
+  border-color: #c9d3e0;
+  transform: none;
 }

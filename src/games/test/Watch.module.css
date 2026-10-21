@@ -1,0 +1,110 @@
+/* Sınavın sağ sütunu: gözetmenin sahte kamerası ve uyarı kaydı. Kamera gerçekte hiç açılmaz. */
+
+.watch {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid var(--a-line);
+  border-radius: 16px;
+  box-shadow: var(--a-shadow);
+}
+
+.cam {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #1d2733;
+}
+
+.camArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: #3a4a5c;
+}
+
+/* yüz tanıma çerçevesi: arada bir kayar */
+.camFace {
+  fill: none;
+  stroke: #6fe39a;
+  stroke-width: 1.5;
+  stroke-dasharray: 8 4;
+  animation: faceScan 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes faceScan {
+  to {
+    transform: translate(6px, 3px);
+  }
+}
+
+.rec {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  color: #ff6b5b;
+  font: 700 10.5px var(--font-body);
+  letter-spacing: 0.06em;
+  animation: recBlink 1.4s steps(2, jump-none) infinite;
+}
+
+@keyframes recBlink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.camTime {
+  position: absolute;
+  right: 10px;
+  bottom: 7px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 10.5px;
+}
+
+.watchTitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log li {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--a-line-soft);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--a-muted);
+  opacity: 0.6;
+}
+
+.log .logNew {
+  background: #fbf3f1;
+  color: var(--a-text);
+  opacity: 1;
+  animation: logIn 240ms ease-out;
+}
+
+@keyframes logIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

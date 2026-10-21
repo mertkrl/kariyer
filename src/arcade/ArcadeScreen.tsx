@@ -34,11 +34,11 @@ function PunchClock() {
   );
 }
 
-function GameCard({ game, featured, preload, resume }: { game: ArcadeGame; featured?: boolean; preload: (route: string) => void; resume: boolean }) {
+function GameCard({ game, isNew, preload, resume }: { game: ArcadeGame; isNew?: boolean; preload: (route: string) => void; resume: boolean }) {
   const Art = CARD_ART[game.route];
   return (
     <a
-      className={`${styles.card} ${featured ? styles.featured : ''}`}
+      className={styles.card}
       style={{ ['--card' as string]: game.color }}
       href={hrefOf(game.route)}
       onPointerEnter={() => preload(game.route)}
@@ -53,7 +53,7 @@ function GameCard({ game, featured, preload, resume }: { game: ArcadeGame; featu
         </span>
         <span className={styles.text}>
           <span className={`${styles.meta} mono`}>
-            {featured && <span className={styles.badge}>Yeni</span>}
+            {isNew && <span className={styles.badge}>Yeni</span>}
             {game.kind} · ~{game.minutes} dk
           </span>
           <span className={styles.cardTitle}>{game.title}</span>
@@ -65,7 +65,7 @@ function GameCard({ game, featured, preload, resume }: { game: ArcadeGame; featu
   );
 }
 
-/** Oyun salonu: en yeni oyun öne çıkar, kalanlar dosya dolabında durur. */
+/** Oyun salonu: üstte ince bir çubuk, altında eşit dosyalardan bir ızgara; en yenisi başta ve rozetli. */
 export function ArcadeScreen({ preload }: { preload: (route: string) => void }) {
   // bir oyundan geri dönülünce onun müziği susar
   useEffect(() => {
@@ -76,66 +76,58 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
   const [saved] = useState(hasSave);
   const kinds = [...new Set(GAMES.map((g) => g.kind))];
   const showFilter = GAMES.length >= FILTER_FROM && kinds.length > 1;
-  const [first, ...rest] = GAMES;
-  const shelf = kind ? GAMES.filter((g) => g.kind === kind) : rest;
+  const shelf = kind ? GAMES.filter((g) => g.kind === kind) : GAMES;
 
   return (
     <div className={styles.screen}>
       <header className={styles.header}>
+        <div className={styles.brand}>
+          <h1 className={styles.title}>{SITE_NAME}</h1>
+          <p className={styles.lead}>Kısa, tuhaf oyunlar.</p>
+        </div>
         <PunchClock />
-        <h1 className={styles.title}>{SITE_NAME}</h1>
-        <p className={styles.lead}>İşe alım sürecine dair kısa, tuhaf ve biraz da can sıkıcı oyunlar.</p>
-        <p className={`${styles.count} mono`}>
-          {GAMES.length} dosya açık · her biri tek oturumluk · kayıt bu tarayıcıda kalır
-        </p>
       </header>
 
-      <main className={styles.main}>
-        {!kind && (
-          <section aria-label="En yeni oyun">
-            <GameCard game={first} featured preload={preload} resume={first.route === 'iseAlim' && saved} />
-          </section>
-        )}
-
-        <section aria-labelledby="dolap" className={styles.cabinet}>
-          <div className={styles.shelfHead}>
-            <h2 id="dolap" className={`${styles.shelfTitle} mono`}>
-              Dosya dolabı
-            </h2>
-            {showFilter && (
-              <div className={styles.filters} role="group" aria-label="Türe göre süz">
-                {[null, ...kinds].map((k) => (
-                  <button key={k ?? 'hepsi'} type="button" className={styles.chip} aria-pressed={kind === k} onClick={() => setKind(k)}>
-                    {k ?? 'Hepsi'}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <ul className={styles.grid}>
-            {shelf.map((g) => (
+      <main className={styles.main} aria-labelledby="dolap">
+        <div className={styles.shelfHead}>
+          <h2 id="dolap" className={`${styles.shelfTitle} mono`}>
+            Dosya dolabı
+          </h2>
+          {showFilter && (
+            <div className={styles.filters} role="group" aria-label="Türe göre süz">
+              {[null, ...kinds].map((k) => (
+                <button key={k ?? 'hepsi'} type="button" className={styles.chip} aria-pressed={kind === k} onClick={() => setKind(k)}>
+                  {k ?? 'Hepsi'}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <ul className={styles.grid}>
+          {shelf.map((g, i) => {
+            const isNew = !kind && i === 0;
+            return (
               <li key={g.route}>
-                <GameCard game={g} preload={preload} resume={g.route === 'iseAlim' && saved} />
+                <GameCard game={g} isNew={isNew} preload={preload} resume={g.route === 'iseAlim' && saved} />
               </li>
-            ))}
-            {!kind && (
-              <li>
-                <div className={styles.soon}>
-                  <span className={`${styles.tab} mono`} aria-hidden="true">
-                    {fileNo(GAMES.length + 1)}
-                  </span>
-                  <span className={styles.soonBody}>
-                    <span className={`${styles.stamp} mono`}>İŞLEMDE</span>
-                    <span className={styles.soonTitle}>Sıradaki dosya hazırlanıyor</span>
-                    <span className={styles.blurb}>Başvurunuz alınmıştır. Uygun görülmesi hâlinde sizinle iletişime geçilecektir.</span>
-                  </span>
-                </div>
-              </li>
-            )}
-          </ul>
-        </section>
+            );
+          })}
+          {!kind && (
+            <li>
+              <div className={styles.soon}>
+                <span className={`${styles.tab} mono`} aria-hidden="true">
+                  {fileNo(GAMES.length + 1)}
+                </span>
+                <span className={styles.soonBody}>
+                  <span className={`${styles.stamp} mono`}>İŞLEMDE</span>
+                  <span className={styles.soonTitle}>Sıradaki dosya hazırlanıyor</span>
+                  <span className={styles.blurb}>Başvurunuz alınmıştır. Uygun görülmesi hâlinde sizinle iletişime geçilecektir.</span>
+                </span>
+              </div>
+            </li>
+          )}
+        </ul>
       </main>
-
       <StudioMark />
     </div>
   );

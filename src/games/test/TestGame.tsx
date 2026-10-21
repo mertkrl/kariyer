@@ -8,10 +8,13 @@ import { pickExam, QUESTIONS_PER_SECTION, secondsOf, totalSeconds, type ExamAnsw
 import { Result } from './Result';
 import { SystemCheck } from './SystemCheck';
 import { RobotCheck } from './RobotCheck';
+import { SectionIntro } from './SectionIntro';
+import { BRIEFINGS } from './data/briefings';
 import { FAST_MS, FAST_STREAK, MAX_ROBOT_CHECKS } from './data/robot';
 import { QuestionWidget } from './widgets/QuestionWidgets';
 import styles from './TestGame.module.css';
 import ex from './Exam.module.css';
+import wt from './Watch.module.css';
 
 /*
  * Genel Yetenek ve Uyum Testi: uydurma "UyumMetre" platformunda çözülen kısa bir sınav. Giriş →
@@ -85,10 +88,10 @@ function Intro({ onStart }: { onStart: () => void }) {
           <p className={styles.lead}>Değerli adayımız, bu bilimsel olarak geliştirilmiş* değerlendirme bilişsel yeteneklerinizi, iş hayatına hazırlığınızı ve kurum kültürümüzle uyumunuzu ölçer.</p>
           <ul className={styles.rules}>
             <li>
-              <i aria-hidden="true">⏱</i> Tek bir toplam süre var. Süre bitince test kendiliğinden kapanır.
+              <i aria-hidden="true">⏱</i> Test bölüm bölüm ilerler; her bölümün kendi süresi var. Süre bitince bölüm kendiliğinden kapanır.
             </li>
             <li>
-              <i aria-hidden="true">↔</i> Sorular arasında gidip gelebilirsiniz. Her gidip geliş tereddüt olarak puanlanır.
+              <i aria-hidden="true">↔</i> İlerideki sorulara atlanamaz; geçtiğiniz sorulara geri dönebilirsiniz.
             </li>
             <li>
               <i aria-hidden="true">◉</i> Sekme değiştirmek "bağlılık eksikliği" olarak raporlanır.
@@ -155,46 +158,85 @@ const SECTION_NOTES: Record<string, string> = {
 const clockText = (sec: number) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 
 /*
- * Sınav: solda süre, soru haritası ve gözetmen; sağda soru ve Önceki/Sonraki. Tek ortak süre akar;
- * sorular arasında gidip gelinir, cevap değiştirilebilir. Süre bitince test kendiliğinden kapanır.
+ * Sınav bölüm bölüm ilerler: her bölümün önce tanıtımı ve puanlanmayan ciddi bir örnek sorusu
+ * gelir (SectionIntro), sonra bölümün kendi süresi akar. Bölüm içinde sorular arasında gidip
+ * gelinir; bölüm bitince (elle ya da süre dolunca) sonrakine geçilir, geri dönülmez.
+ * Ekran: solda süre ve bölümün soru haritası, ortada soru, sağda gözetmen.
  */
 function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAnswer[], robots: number) => void }) {
   const flat = useMemo(() => exam.flatMap((s, si) => s.questions.map((q) => ({ q, si }))), [exam]);
-  const total = useMemo(() => totalSeconds(flat.map((f) => f.q)), [flat]);
+  // her bölümün ilk sorusunun sırası ve süresi
+  const starts = useMemo(() => exam.map((_, i) => exam.slice(0, i).reduce((n, s) => n + s.questions.length, 0)), [exam]);
+  const durations = useMemo(() => exam.map((s) => totalSeconds(s.questions)), [exam]);
+  const [sec, setSec] = useState(0);
+  const [phase, setPhase] = useState<'intro' | 'run'>('intro');
   const [index, setIndex] = useState(0);
+  // bölümde ulaşılan en ileri soru: ilerisine atlanmaz, gerisindeki her soruya dönülür
+  const [reach, setReach] = useState(0);
   const [answers, setAnswers] = useState<ExamAnswer[]>(() => flat.map(() => null));
-  const [left, setLeft] = useState(total);
+  const [left, setLeft] = useState(durations[0]);
   const [confirm, setConfirm] = useState(false);
   const finished = useRef(false);
+  const total = durations[sec];
+  const from = starts[sec];
+  const to = from + exam[sec].questions.length;
+  const lastSection = sec === exam.length - 1;
 
   const finish = () => {
     if (finished.current) return;
     finished.current = true;
     onDone(answers, robots);
   };
-  // robot penceresi açıkken süre durur
+  const endSection = () => {
+    if (lastSection) return finish();
+    setConfirm(false);
+    setSec(sec + 1);
+    setPhase('intro');
+    setIndex(starts[sec + 1]);
+    setReach(starts[sec + 1]);
+    setLeft(durations[sec + 1]);
+  };
+  // robot penceresi açıkken ve bölüm tanıtımındayken süre durur
   const [robot, setRobot] = useState(false);
   const [robots, setRobots] = useState(0);
+  // süre dolunca bölüm kapanır; aralık her saniye en güncel süreye ve kapanışa refs üzerinden bakar
+  const leftRef = useRef(left);
+  const endRef = useRef(endSection);
   useEffect(() => {
-    if (robot) return;
-    const id = window.setInterval(() => setLeft((n) => n - 1), 1000);
+    leftRef.current = left;
+    endRef.current = endSection;
+  });
+  useEffect(() => {
+    if (robot || phase !== 'run') return;
+    const id = window.setInterval(() => (leftRef.current <= 1 ? endRef.current() : setLeft((n) => n - 1)), 1000);
     return () => window.clearInterval(id);
-  }, [robot]);
+  }, [robot, phase]);
 
   // her soru açıldığında saat tutulur; üst üste çok hızlı cevaplar robot testini açar
   const shownAt = useRef(0);
   const streak = useRef(0);
   useEffect(() => {
     shownAt.current = Date.now();
-  }, [index]);
-  useEffect(() => {
-    if (left <= 0) finish();
-  });
+  }, [index, phase]);
 
+  const open = (i: number) => i >= from && i < to && i <= reach;
   const go = (i: number) => {
+    if (!open(i)) return;
     setConfirm(false);
-    setIndex(Math.max(0, Math.min(flat.length - 1, i)));
+    setIndex(i);
   };
+  // Sonraki: en ileri sorudaysa yeni bir soru açılır; geride ise bir sonraki soruya
+  const next = () => {
+    if (index === reach) {
+      if (reach + 1 >= to) return;
+      setConfirm(false);
+      setReach(reach + 1);
+      setIndex(reach + 1);
+      return;
+    }
+    for (let i = index + 1; i <= reach; i++) if (open(i)) return go(i);
+  };
+  const prev = index > from ? index - 1 : null;
   const answer = (a: number) => {
     setAnswers((xs) => xs.map((x, i) => (i === index ? a : x)));
     streak.current = Date.now() - shownAt.current < FAST_MS ? streak.current + 1 : 0;
@@ -204,12 +246,21 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
       setRobot(true);
     }
   };
-  const blank = answers.filter((a) => a === null).length;
-  const { q, si } = flat[index];
-  const last = index === flat.length - 1;
+
+  if (phase === 'intro') {
+    const brief = BRIEFINGS.find((b) => b.id === EXAM_SECTIONS[sec].id) ?? BRIEFINGS[sec];
+    return <SectionIntro key={sec} no={sec + 1} of={exam.length} title={exam[sec].title} questions={to - from} seconds={total} brief={brief} onStart={() => setPhase('run')} />;
+  }
+
+  const sectionAnswers = answers.slice(from, to);
+  const blank = sectionAnswers.filter((a) => a === null).length;
+  const { q } = flat[index];
+  const last = index === to - 1;
   const hurry = left <= 60;
-  const proctor = PROCTOR_LINES[Math.floor((total - left) / 8) % PROCTOR_LINES.length];
-  let n = 0;
+  const endLabel = lastSection ? 'Testi bitir' : 'Bölümü bitir';
+  // gözetmen her 8 saniyede yeni bir uyarı yazar; kayıtta son üçü görünür, en yenisi üstte
+  const beat = Math.floor((total - left) / 8) + sec * 3;
+  const proctorLog = [0, 1, 2].filter((k) => beat - k >= sec * 3).map((k) => ({ id: beat - k, text: PROCTOR_LINES[(beat - k) % PROCTOR_LINES.length] }));
 
   return (
     <main className={ex.exam}>
@@ -226,78 +277,83 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
       {/* robot penceresi açıkken arkadaki sınava klavyeyle de geçilemez */}
       <aside className={ex.side} inert={robot}>
         <div className={`${ex.clock} ${hurry ? ex.clockHurry : ''}`} style={{ ['--p' as string]: (left / total) * 100 }}>
-          <b className="mono" role="timer" aria-label={`Testin kalan süresi ${Math.max(0, left)} saniye`}>
+          <b className="mono" role="timer" aria-label={`Bölümün kalan süresi ${Math.max(0, left)} saniye`}>
             {clockText(Math.max(0, left))}
           </b>
           <small>kalan süre</small>
         </div>
 
+        {/* yalnızca içinde bulunulan bölümün kutuları; diğer bölümler bitti ya da kilitli */}
         <nav aria-label="Soru haritası" className={ex.map}>
-          {exam.map((s, sIndex) => (
-            <div key={s.title} className={ex.mapSection}>
-              <span className={`${ex.mapTitle} ${sIndex === si ? ex.mapTitleOn : ''}`}>
-                {sIndex + 1}. {s.title}
-                <em>
-                  {answers.slice(n, n + s.questions.length).filter((a) => a !== null).length}/{s.questions.length}
-                </em>
-              </span>
-              <ol className={ex.grid}>
-                {s.questions.map((sq) => {
-                  const i = n++;
-                  const done = answers[i] !== null;
-                  return (
-                    <li key={sq.id}>
-                      <button
-                        className={`${ex.cell} ${done ? ex.cellDone : ''} ${i === index ? ex.cellNow : ''}`}
-                        aria-current={i === index ? 'step' : undefined}
-                        aria-label={`Soru ${i + 1}, ${done ? 'cevaplandı' : 'boş'}`}
-                        onClick={() => go(i)}
-                      >
-                        {i + 1}
-                        {done && <i aria-hidden="true">✓</i>}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          ))}
+          {exam.map((s, sIndex) => {
+            const now = sIndex === sec;
+            const state = sIndex < sec ? 'bitti' : sIndex > sec ? 'sırada' : null;
+            return (
+              <div key={s.title} className={`${ex.mapSection} ${now ? ex.mapOpen : ex.mapLocked}`}>
+                <span className={`${ex.mapTitle} ${now ? ex.mapTitleOn : ''}`}>
+                  <span>
+                    {sIndex + 1}. {s.title}
+                  </span>
+                  <em>{state ?? `${s.questions.length - blank}/${s.questions.length}`}</em>
+                </span>
+                {now && (
+                  <ol className={ex.grid}>
+                    {s.questions.map((sq, k) => {
+                      const i = from + k;
+                      const isDone = answers[i] !== null;
+                      const ahead = i > reach;
+                      return (
+                        <li key={sq.id}>
+                          <button
+                            className={`${ex.cell} ${isDone ? ex.cellDone : ''} ${i === index ? ex.cellNow : ''} ${ahead ? ex.cellAhead : ''}`}
+                            aria-current={i === index ? 'step' : undefined}
+                            aria-label={`Soru ${k + 1}, ${isDone ? 'cevaplandı' : ahead ? 'henüz açılmadı' : 'boş'}`}
+                            disabled={!open(i)}
+                            onClick={() => go(i)}
+                          >
+                            {k + 1}
+                            {isDone && <i aria-hidden="true">✓</i>}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         <div className={ex.legend} aria-hidden="true">
           <span>
-            <i className={ex.lgDone} /> Cevaplandı ({flat.length - blank})
+            <i className={ex.lgDone} /> Cevaplandı ({sectionAnswers.length - blank})
           </span>
           <span>
             <i className={ex.lgBlank} /> Boş ({blank})
           </span>
         </div>
 
-        <p className={ex.proctor}>
-          <span className={ex.live}>● CANLI</span> {proctor}
-        </p>
-
-        <button className={ex.finish} onClick={() => (blank ? setConfirm(true) : finish())}>
-          Testi bitir
+        <button className={ex.finish} onClick={() => (blank ? setConfirm(true) : endSection())}>
+          {endLabel}
         </button>
       </aside>
 
       <div className={ex.main} inert={robot}>
         <div className={ex.progress} aria-hidden="true">
-          <i style={{ width: `${((flat.length - blank) / flat.length) * 100}%` }} />
+          <i style={{ width: `${((sectionAnswers.length - blank) / sectionAnswers.length) * 100}%` }} />
         </div>
-        <Question key={q.id} q={q} section={exam[si].title} number={index + 1} total={flat.length} selected={answers[index]} onAnswer={answer} />
+        <Question key={q.id} q={q} section={exam[sec].title} number={index - from + 1} total={to - from} selected={answers[index]} onAnswer={answer} />
 
         {confirm && (
           <div className={ex.confirm} role="alertdialog" aria-labelledby="confirm-text">
             <p id="confirm-text">
-              <b>{blank} soru boş.</b> Boş sorular "kararsızlık" olarak raporlanır. Yine de bitirilsin mi?
+              <b>Bu bölümde {blank} soru boş.</b> Boş sorular "kararsızlık" olarak raporlanır{lastSection ? '' : ' ve bölüme geri dönülemez'}. Yine de bitirilsin mi?
             </p>
             <div className={ex.navRow}>
-              <button className={ex.ghost} onClick={() => go(answers.findIndex((a) => a === null))}>
-                İlk boş soruya git
+              <button className={ex.ghost} onClick={() => setConfirm(false)}>
+                Vazgeç
               </button>
-              <button className={styles.primary} onClick={finish}>
+              <button className={styles.primary} onClick={endSection}>
                 Evet, bitir
               </button>
             </div>
@@ -305,23 +361,44 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
         )}
 
         <div className={ex.navRow}>
-          <button className={ex.ghost} disabled={index === 0} onClick={() => go(index - 1)}>
+          <button className={ex.ghost} disabled={prev === null} onClick={() => prev !== null && go(prev)}>
             ← Önceki
           </button>
           <span className={ex.navCount}>
-            {index + 1} / {flat.length}
+            {index - from + 1} / {to - from}
           </span>
           {last ? (
-            <button className={styles.primary} onClick={() => (blank ? setConfirm(true) : finish())}>
-              Testi bitir
+            <button className={styles.primary} onClick={() => (blank ? setConfirm(true) : endSection())}>
+              {endLabel}
             </button>
           ) : (
-            <button className={styles.primary} onClick={() => go(index + 1)}>
-              Sonraki →
+            <button className={styles.primary} onClick={next}>
+              {index === reach && answers[index] === null ? 'Boş geç →' : 'Sonraki →'}
             </button>
           )}
         </div>
       </div>
+
+      {/* gözetmen: sahte kamera ve uyarı kaydı. Kamera gerçekte hiç açılmaz */}
+      <aside className={wt.watch} inert={robot} aria-label="Gözetmen">
+        <div className={wt.cam} aria-hidden="true">
+          <svg viewBox="0 0 160 100" className={wt.camArt}>
+            <circle cx="80" cy="44" r="18" />
+            <path d="M44 100 Q44 68 80 68 Q116 68 116 100Z" />
+            <rect x="52" y="22" width="56" height="48" rx="6" className={wt.camFace} />
+          </svg>
+          <span className={wt.rec}>● CANLI</span>
+          <span className={`${wt.camTime} mono`}>{clockText(Math.max(0, total - left))}</span>
+        </div>
+        <h3 className={wt.watchTitle}>Gözetmen notları</h3>
+        <ol className={wt.log} aria-live="polite">
+          {proctorLog.map((l, k) => (
+            <li key={l.id} className={k === 0 ? wt.logNew : undefined}>
+              {l.text}
+            </li>
+          ))}
+        </ol>
+      </aside>
     </main>
   );
 }

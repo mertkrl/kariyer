@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EXAM_QUESTIONS, EXAM_SECTIONS, screenshareOption, sectionOf, sliderOption, stampOption } from '../src/games/test/data/questions';
+import { BRIEFINGS } from '../src/games/test/data/briefings';
 import { ROBOT_CHALLENGES, robotPassed } from '../src/games/test/data/robot';
 import { pickExam, QUESTIONS_PER_SECTION, reportNo, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
 
@@ -112,4 +113,15 @@ test('evrak damgalama: hakkına göre damgalayan sağduyu, haklı talepleri redd
   assert.equal(stampOption(docs, fair), q.sensible);
   assert.equal(stampOption(docs, unfair), q.answer);
   assert.equal(stampOption(docs, new Set()), q.answer);
+});
+
+test('her bölümün tanıtımı ve geçerli bir örnek sorusu var', () => {
+  assert.deepEqual(
+    BRIEFINGS.map((b) => b.id),
+    EXAM_SECTIONS.map((s) => s.id),
+  );
+  for (const b of BRIEFINGS) {
+    assert.ok(b.rules.length > 0 && b.practice.explain, b.id);
+    assert.ok(b.practice.answer === null || b.practice.answer < b.practice.options.length, b.id);
+  }
 });

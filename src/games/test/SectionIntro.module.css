@@ -1,0 +1,129 @@
+/* bölüm adımları: bitenler tikli, şimdiki vurgulu */
+.steps {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  gap: 28px;
+}
+
+.steps li {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--a-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.steps li + li::before {
+  content: '';
+  position: absolute;
+  right: calc(100% + 2px);
+  width: 24px;
+  height: 1.5px;
+  background: var(--a-line);
+}
+
+.steps .stepDone {
+  border-color: var(--a-ok);
+  background: var(--a-ok);
+  color: #fff;
+}
+
+.steps .stepNow {
+  border-color: var(--a-blue);
+  background: var(--a-blue);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--a-blue-soft);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0 0;
+}
+
+.facts span {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--a-blue-soft);
+  color: var(--a-blue-dark);
+  font-size: 14px;
+}
+
+.rules {
+  margin: 22px 0 26px;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  color: var(--a-text);
+  font-size: 15px;
+}
+
+.note {
+  margin: 0 0 18px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--a-line-soft);
+  color: var(--a-muted);
+  font-size: 13.5px;
+}
+
+.prompt {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.figure {
+  margin: 0 0 16px;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  color: var(--a-blue-dark);
+}
+
+.feedback {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.ok {
+  background: var(--a-ok-soft);
+  color: var(--a-ok);
+}
+
+.bad {
+  background: var(--a-bad-soft);
+  color: var(--a-bad);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.hint {
+  color: var(--a-muted);
+  font-size: 13.5px;
+}
+
+/* ileri düğmesi sağda: bir sonraki adım hep aynı köşede */
+.end {
+  display: flex;
+  justify-content: flex-end;
+}

@@ -114,16 +114,33 @@
   right: 18px;
   bottom: 14px;
   z-index: 40;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 30px;
   color: #1d2733;
   cursor: default;
 }
 
-.mark > span:first-child {
-  height: 100%;
+/* KASM üstte, LABS altta logonun tam genişliğinde: tek bir imza bloğu */
+.lockup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 116px;
+}
+
+.lockup > svg {
+  width: 100%;
+  height: auto;
+}
+
+.rule {
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #1f6fe5, #2bb35f 50%, #ffc928);
+}
+
+/* LABS logonun genişliğine yayılır (textLength), harf aralığı yazı tipinden bağımsız tutar */
+.studio {
+  fill: currentColor;
+  font: 900 42px 'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* üstüne gelince bir kez zıplar */
@@ -135,11 +152,6 @@
   30% {
     transform: translateY(-5px) scale(1.04);
   }
-}
-
-.studio {
-  font: 700 13px var(--font-body);
-  letter-spacing: 0.34em;
 }
 
 .onDark {
