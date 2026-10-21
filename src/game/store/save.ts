@@ -100,6 +100,15 @@ export function checkSave(data: unknown, fresh: object): Partial<GameState> | nu
 let lost = false;
 export const saveWasLost = () => lost;
 
+/** Salon için: taşımadan ve yan etkisiz, yalnızca bir kayıt var mı. */
+export function hasSave(): boolean {
+  try {
+    return localStorage.getItem(SAVE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function readSave(): SaveFile | null {
   let raw: string | null = null;
   try {
