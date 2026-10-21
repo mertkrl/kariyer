@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import * as sfx from './sfx';
 import styles from './Register.module.css';
 
@@ -10,13 +10,38 @@ import styles from './Register.module.css';
 
 const typing = (e: KeyboardEvent) => e.target instanceof HTMLElement && /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
 
-export function RegisterPad({ value, onChange, onSubmit, label }: { value: string; onChange: Dispatch<SetStateAction<string>>; onSubmit: (price: number) => void; label: string }) {
+/**
+ * Tezgâhın üstündeki yazar kasa: tuşlarına basılarak fiyat girilir, kırmızı ONAY tuşu fiyatı
+ * müşteriye söyler. Ekran girileni (ya da son satışı) gösterir; satışta çekmece açılır ve fiş
+ * kasanın tepesindeki ağızdan yukarı doğru çıkar. Fiyat beklenmiyorken tuşlar kilitlidir.
+ */
+export function CashRegister({
+  value,
+  onChange,
+  onSubmit,
+  active,
+  label,
+  shown,
+  open,
+  receipt,
+}: {
+  value: string;
+  onChange: Dispatch<SetStateAction<string>>;
+  onSubmit: (price: number) => void;
+  active: boolean;
+  label: string;
+  /** Fiyat beklenmiyorken ekranda yazan tutar. */
+  shown: number | null;
+  open: boolean;
+  receipt?: ReactNode;
+}) {
   // hızlı basılan tuşlar kaybolmasın: değer her zaman en güncel hâlinden güncellenir
   const latest = useRef(value);
   useEffect(() => {
     latest.current = value;
   }, [value]);
   const press = (k: string) => {
+    if (!active) return;
     sfx.key();
     if (k === 'C') return onChange('');
     if (k === '⌫') return onChange((v) => v.slice(0, -1));
@@ -26,6 +51,7 @@ export function RegisterPad({ value, onChange, onSubmit, label }: { value: strin
 
   // fiziksel klavye: rakamlar, silme, Enter; defter ya da başka bir alana yazılırken karışmaz
   useEffect(() => {
+    if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (typing(e) || e.metaKey || e.ctrlKey) return;
       if (/^[0-9]$/.test(e.key)) press(e.key);
@@ -41,21 +67,33 @@ export function RegisterPad({ value, onChange, onSubmit, label }: { value: strin
   });
 
   const keys = ['7', '8', '9', 'C', '4', '5', '6', '⌫', '1', '2', '3', '00', '0'];
+  const screen = active ? `${value || '0'},00` : shown === null ? '0,00' : `${shown},00`;
   return (
-    <div className={styles.register} role="group" aria-label="Yazar kasa">
-      <div className={styles.lcd} aria-live="polite">
-        <small>{label}</small>
-        <span>{value || '0'} ₺</span>
+    <div className={`${styles.cash} ${active ? styles.live : ''}`} role="group" aria-label="Yazar kasa">
+      <div className={styles.printer}>
+        <span className={styles.slot} />
+        {receipt}
       </div>
-      <div className={styles.keys}>
-        {keys.map((k) => (
-          <button key={k} type="button" className={`${styles.key} ${k === 'C' ? styles.clear : ''} ${k === '0' ? styles.wide : ''}`} onClick={() => press(k)} aria-label={k === '⌫' ? 'Sil' : k === 'C' ? 'Temizle' : k}>
-            {k}
+      <div className={styles.tower}>
+        <div className={styles.lcd} aria-live="polite">
+          <small>{active ? label : 'KASA'}</small>
+          <span>{screen} ₺</span>
+        </div>
+      </div>
+      <div className={styles.deck}>
+        <div className={styles.keys}>
+          {keys.map((k) => (
+            <button key={k} type="button" disabled={!active} className={`${styles.key} ${k === 'C' ? styles.clear : ''} ${k === '0' ? styles.wide : ''}`} onClick={() => press(k)} aria-label={k === '⌫' ? 'Sil' : k === 'C' ? 'Temizle' : k}>
+              {k}
+            </button>
+          ))}
+          <button type="button" className={`${styles.key} ${styles.enter}`} onClick={() => press('=')} disabled={!active || !value} aria-label="Fiyatı onayla ve söyle">
+            ONAY
           </button>
-        ))}
-        <button type="button" className={`${styles.key} ${styles.enter}`} onClick={() => press('=')} disabled={!value} aria-label="Fiyatı söyle">
-          SÖYLE
-        </button>
+        </div>
+      </div>
+      <div className={`${styles.drawer} ${open ? styles.drawerOpen : ''}`}>
+        <span />
       </div>
     </div>
   );

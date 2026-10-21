@@ -221,7 +221,7 @@
   display: grid;
   justify-items: center;
   gap: 8px;
-  padding: 0 16px 16px;
+  padding: 0 16px 16px 268px;
   pointer-events: none;
 }
 
@@ -235,7 +235,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px 24px;
-  width: min(720px, 100%);
+  width: min(520px, 100%);
   padding: 10px 16px;
   font-size: 13px;
   background: linear-gradient(rgba(74, 47, 27, 0.92), rgba(48, 29, 15, 0.95));
@@ -356,6 +356,12 @@
 @keyframes pop {
   from {
     transform: scale(0.7);
+  }
+}
+
+@media (max-width: 760px) {
+  .shop {
+    padding-left: 196px;
   }
 }
 

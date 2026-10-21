@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Weather } from './data';
-import { CounterBody, CounterTop, type Till } from './Counter';
+import { CounterBody, CounterTop } from './Counter';
 import { Fridge, Shelves } from './Goods';
 import { darknessAt, skyAt } from './sky';
 import { COUNTER_Y, Extras } from './ShopDecor';
@@ -129,7 +129,7 @@ function Door({ hour, weather }: { hour: number; weather: Weather }) {
   );
 }
 
-export function ShopScene({ children, hour = 12, weather = 'sunny', till = { amount: null, open: false }, catAwake = false, onPet, onCalc }: { children?: ReactNode; hour?: number; weather?: Weather; till?: Till; catAwake?: boolean; onPet?: () => void; onCalc?: () => void }) {
+export function ShopScene({ children, hour = 12, weather = 'sunny', catAwake = false, onPet, onCalc }: { children?: ReactNode; hour?: number; weather?: Weather; catAwake?: boolean; onPet?: () => void; onCalc?: () => void }) {
   const sky = skyAt(hour, weather);
   const dark = darknessAt(hour, weather);
   return (
@@ -288,7 +288,7 @@ export function ShopScene({ children, hour = 12, weather = 'sunny', till = { amo
       <svg className={`${styles.layer} ${styles.front}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
         <CounterBody y={fitY(COUNTER_Y)} width={W} height={H} />
         <g transform={FIT}>
-          <CounterTop till={till} catAwake={catAwake} onPet={onPet} onCalc={onCalc} />
+          <CounterTop catAwake={catAwake} onPet={onPet} onCalc={onCalc} />
         </g>
         {/* akşam ve kötü havada oda kararır; ampulün çevresi aydınlık kalır */}
         <rect width={W} height={H} fill="#1a1530" opacity={dark} pointerEvents="none" />

@@ -3,16 +3,9 @@ import styles from './ShopScene.module.css';
 
 /*
  * Tezgâh ve üstündekiler. Gövde tam genişlikte (CounterBody), eşyalar sahnenin ortalanmış
- * koordinatlarında (CounterTop): eski tip metal yazar kasa (rakamlı tuşlar, fiş rulosu, satışta
- * öne kayan çekmece), cam şeker kavanozları, gazete, hasır ekmek sepeti, uyuyan kedi ve ibreli
- * pirinç terazi.
+ * koordinatlarında (CounterTop): hesap makinesi, cam şeker kavanozları, gazete, hasır ekmek sepeti, uyuyan kedi ve ibreli
+ * pirinç terazi. Yazar kasa tezgâhın sol önünde, tıklanabilir ayrı bir bileşendir (Register.tsx).
  */
-
-/** Yazar kasanın ekranı ve çekmecesi: satış olunca tutar yazar, çekmece açılır. */
-export interface Till {
-  amount: number | null;
-  open: boolean;
-}
 
 export function CounterBody({ y, width, height }: { y: number; width: number; height: number }) {
   return (
@@ -34,52 +27,6 @@ export function CounterBody({ y, width, height }: { y: number; width: number; he
           </g>
         );
       })}
-    </g>
-  );
-}
-
-function Register({ till }: { till: Till }) {
-  return (
-    <g transform={`translate(70 ${COUNTER_Y})`}>
-      <ellipse cx="110" cy="2" rx="125" ry="9" fill="rgba(0,0,0,.35)" />
-      {/* çekmece: kasanın altından öne kayar, içinde banknot ve bozuk para */}
-      <g className={`${styles.drawer} ${till.open ? styles.drawerOpen : ''}`}>
-        <rect x="8" y="-28" width="204" height="28" rx="3" fill="#3a444d" />
-        <rect x="22" y="-24" width="176" height="13" rx="2" fill="#20262c" />
-        {['#8db86a', '#c9a75a', '#7aa0c9', '#c97a6a'].map((c, i) => (
-          <rect key={i} x={28 + i * 40} y="-23" width="34" height="10" rx="1.5" fill={c} />
-        ))}
-        <rect x="88" y="-8" width="44" height="5" rx="2.5" fill="url(#metal)" />
-      </g>
-      {/* gövde */}
-      <path d="M0 0 L18 -92 H202 L220 0 Z" fill="url(#registerBody)" />
-      <path d="M18 -92 H202 L196 -72 H24 Z" fill="#8797a6" />
-      <rect x="0" y="-6" width="220" height="6" fill="rgba(0,0,0,.25)" />
-      {/* tuşlar: rakamlı, yuvarlak, gölgeli */}
-      {Array.from({ length: 15 }, (_, i) => {
-        const cx = 54 + (i % 5) * 28;
-        const cy = -58 + Math.floor(i / 5) * 18;
-        const label = ['7', '8', '9', 'C', '+', '4', '5', '6', '0', '×', '1', '2', '3', '00', '='][i];
-        const special = i % 5 >= 3;
-        return (
-          <g key={i}>
-            <ellipse cx={cx} cy={cy + 2} rx="11" ry="7" fill="rgba(0,0,0,.35)" />
-            <ellipse cx={cx} cy={cy} rx="11" ry="7" fill={special ? (label === '=' ? '#c0392b' : '#e6c46a') : '#f1f2f0'} />
-            <text x={cx} y={cy + 3} textAnchor="middle" fontSize="8" fontWeight="700" fill="#333" fontFamily="Arial, sans-serif">
-              {label}
-            </text>
-          </g>
-        );
-      })}
-      {/* ekran ve fiş rulosu */}
-      <rect x="56" y="-146" width="108" height="56" rx="5" fill="url(#registerBody)" />
-      <rect x="66" y="-138" width="88" height="28" rx="3" fill="#0f1a12" />
-      <text x="110" y="-118" textAnchor="middle" fontSize="18" fill="#7CFC9A" fontFamily="var(--font-mono)">
-        {till.amount === null ? '0,00' : `${till.amount},00`}
-      </text>
-      <rect x="170" y="-120" width="34" height="26" rx="4" fill="#4a5866" />
-      <ellipse cx="187" cy="-120" rx="15" ry="7" fill="#f4f1e8" />
-      <path d="M180 -120 Q186 -140 196 -150" stroke="#f4f1e8" strokeWidth="9" fill="none" />
     </g>
   );
 }
@@ -188,10 +135,9 @@ function Newspaper() {
   );
 }
 
-export function CounterTop({ till, catAwake, onPet, onCalc }: { till: Till; catAwake: boolean; onPet?: () => void; onCalc?: () => void }) {
+export function CounterTop({ catAwake, onPet, onCalc }: { catAwake: boolean; onPet?: () => void; onCalc?: () => void }) {
   return (
     <g>
-      <Register till={till} />
       <DeskCalculator onOpen={onCalc} />
       <Jar x={420} c="#e74c3c" />
       <Jar x={490} c="#f39c12" />

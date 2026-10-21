@@ -32,7 +32,7 @@ import {
 } from './data';
 import { Customer } from './Customer';
 import { Ledger } from './Ledger';
-import { Calculator, Receipt, RegisterPad } from './Register';
+import { Calculator, CashRegister, Receipt } from './Register';
 import { EMPTY_PAGES, type Pages } from './pages';
 import { ShopScene } from './ShopScene';
 import * as sfx from './sfx';
@@ -270,7 +270,7 @@ export function BakkalGame() {
 
   return (
     <div className={styles.app}>
-      <ShopScene hour={hour} weather={weather} till={step === 'ask' || step === 'counter' ? { amount: price ? Number(price) : null, open: false } : till} catAwake={catAwake} onPet={pet} onCalc={() => setCalc((c) => !c)}>
+      <ShopScene hour={hour} weather={weather} catAwake={catAwake} onPet={pet} onCalc={() => setCalc((c) => !c)}>
         {visit && (
           <Customer
             key={`${day}-${idx}`}
@@ -350,15 +350,14 @@ export function BakkalGame() {
               </div>
             </div>
 
-            {step === 'ask' && <RegisterPad value={price} onChange={setPrice} onSubmit={(v) => sell(false, v)} label={visit.items.length > 1 ? 'TOPLAM' : 'FİYAT'} />}
+            {step === 'ask' && <p className={styles.or}>Fiyatı soldaki kasaya gir, ONAY'a bas.</p>}
 
             {step === 'counter' && reaction?.offer !== undefined && (
               <div className={styles.counterOffer}>
                 <button type="button" className={styles.primary} onClick={() => sell(true, reaction.offer)}>
                   {tl(reaction.offer)} kabul
                 </button>
-                <span className={styles.or}>ya da son fiyatını gir</span>
-                <RegisterPad value={price} onChange={setPrice} onSubmit={(v) => sell(true, v)} label="SON SÖZ" />
+                <span className={styles.or}>ya da son fiyatını kasaya gir</span>
               </div>
             )}
 
@@ -465,8 +464,21 @@ export function BakkalGame() {
         </main>
       )}
 
-      {phase === 'shop' && visit && step === 'result' && reaction?.sold !== undefined && (
-        <Receipt key={receipts} no={receipts} items={visit.items.map((i) => i.name)} total={reaction.sold} day={day} time={clockText(hour)} credit={!!credited} />
+      {phase === 'shop' && visit && (
+        <CashRegister
+          value={price}
+          onChange={setPrice}
+          onSubmit={(v) => sell(step === 'counter', v)}
+          active={step === 'ask' || step === 'counter'}
+          label={step === 'counter' ? 'SON SÖZ' : visit.items.length > 1 ? 'TOPLAM' : 'FİYAT'}
+          shown={till.amount}
+          open={till.open}
+          receipt={
+            step === 'result' && reaction?.sold !== undefined ? (
+              <Receipt key={receipts} no={receipts} items={visit.items.map((i) => i.name)} total={reaction.sold} day={day} time={clockText(hour)} credit={!!credited} />
+            ) : undefined
+          }
+        />
       )}
       {calc && <Calculator onClose={() => setCalc(false)} />}
       {phase !== 'intro' && (
