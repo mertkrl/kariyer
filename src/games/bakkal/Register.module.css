@@ -3,11 +3,11 @@
 .cash {
   position: fixed;
   left: max(12px, calc(50% - 560px));
-  bottom: 14px;
   z-index: 4;
   display: grid;
   justify-items: center;
   width: 230px;
+  transform-origin: bottom left;
   filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.45));
 }
 
@@ -50,6 +50,7 @@
 }
 
 .drawer {
+  position: relative;
   width: 96%;
   height: 26px;
   background: linear-gradient(#4a5662, #2f3942);
@@ -310,9 +311,15 @@
   }
 }
 
-@media (max-width: 760px) {
-  .cash {
-    transform: scale(0.75);
-    transform-origin: bottom left;
-  }
+
+/* kasanın tezgâha düşen gölgesi */
+.cash::after {
+  content: '';
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  bottom: -6px;
+  height: 12px;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.45), transparent);
+  z-index: -1;
 }

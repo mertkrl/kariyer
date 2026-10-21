@@ -67,9 +67,10 @@ export function CashRegister({
   });
 
   const keys = ['7', '8', '9', 'C', '4', '5', '6', '⌫', '1', '2', '3', '00', '0'];
+  const seat = useCounterSeat();
   const screen = active ? `${value || '0'},00` : shown === null ? '0,00' : `${shown},00`;
   return (
-    <div className={`${styles.cash} ${active ? styles.live : ''}`} role="group" aria-label="Yazar kasa">
+    <div className={`${styles.cash} ${active ? styles.live : ''}`} style={{ bottom: seat.bottom, transform: `scale(${seat.scale})` }} role="group" aria-label="Yazar kasa">
       <div className={styles.printer}>
         <span className={styles.slot} />
         {receipt}
@@ -97,6 +98,25 @@ export function CashRegister({
       </div>
     </div>
   );
+}
+
+/**
+ * Kasanın tezgâhın üst yüzeyine oturması için tezgâh çizgisinin ekrandaki yeri. Sahne 1600×900
+ * birimlik, alttan hizalı ve ekranı dolduracak kadar büyütülür (slice); tezgâhın üstü alttan 168
+ * birim yukarıdadır. Kasa da sahneyle birlikte büyüyüp küçülür.
+ */
+function useCounterSeat() {
+  const read = () => {
+    const s = Math.max(window.innerWidth / 1600, window.innerHeight / 900);
+    return { bottom: Math.round(168 * s) - 4, scale: Math.min(1.15, Math.max(0.6, s * 1.05)) };
+  };
+  const [seat, setSeat] = useState(read);
+  useEffect(() => {
+    const on = () => setSeat(read());
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  return seat;
 }
 
 /** Kasadan çıkan fiş: yazıcı sesiyle aşağı doğru uzar. */
