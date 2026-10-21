@@ -24,6 +24,15 @@ export interface ArcadeGame {
 
 export const GAMES: ArcadeGame[] = [
   {
+    route: 'bakkal',
+    title: 'Köy Bakkalı',
+    blurb: 'Etiket yok, fiyatı sen söylersin. Müşterinin yüzünü oku, defterini tut, köyü küstürmeden kasayı doldur.',
+    color: 'var(--gold)',
+    kind: 'Mini oyun',
+    minutes: 10,
+    file: 4,
+  },
+  {
     route: 'insaat',
     title: 'İnşaat İzleme',
     blurb: 'Bir apartman, temelden çatıya. Ellerini arkana koy, izle. Yorum yapmak serbest, karışmak yasak.',

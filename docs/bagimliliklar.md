@@ -10,6 +10,11 @@ Yalnızca react, react-dom ve zustand. Animasyonların tamamı CSS ile yapılıy
 - `npm audit`: 0 açık.
 - Yalnızca Latin ve Latin Extended alt kümeleri `src/styles/fonts.css` ile kullanılıyor; bu sayede Google Fonts isteği kalktı ve oyun çevrimdışı çalışabiliyor.
 
+## Yazı tipi: @fontsource-variable/caveat 5.3.0 (geliştirme bağımlılığı)
+- Köy Bakkalı'nın el yazısı defteri için. Kaynak ve lisans yukarıdakilerle aynı (Fontsource, SIL OFL 1.1).
+- Sürüm: 2026-07-19 yayını; `--save-exact` ile sabit. Kurulum betiği yok, alt bağımlılık yok, JavaScript yok.
+- Yalnızca Latin ve Latin Extended alt kümeleri `src/styles/fonts.css` ile kullanılıyor.
+
 ## Kaldırılanlar
 - three.js ve 3D model/doku dosyaları: toplantı sahnesi 2D çizime döndüğü için tamamen kaldırıldı. (Toplantı görüntülü görüşmeye çevrilirken 3D arka planlar için kısa süreliğine yeniden eklendi; o kurulumda aşağıdaki adımlar uygulanmadı. Arka planlar kaldırılınca paket de silindi.)
 - framer-motion 13.2.0 ve `overrides` ile sabitlenen alt bağımlılıkları (motion-dom, motion-utils, tslib): yalnızca eski toplantı odası sahnesinde kullanılıyordu; sahne görüntülü görüşmeye dönünce kullanan kod kalmadı.
