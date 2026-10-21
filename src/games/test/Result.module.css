@@ -1,0 +1,530 @@
+/*
+ * Aday Profil Raporu: ekranı yatay kullanan, kaydırmadan sığan pano. Solda profil kartı, sağda
+ * cevap kâğıdı. Renkler TestGame'in .app değişkenlerinden.
+ */
+.board {
+  flex: 1;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.profile,
+.sheet {
+  min-width: 0;
+  background: #fff;
+  border: 1px solid var(--a-line);
+  border-radius: 16px;
+  box-shadow: var(--a-shadow);
+  animation: rise 360ms ease-out both;
+}
+
+.sheet {
+  animation-delay: 80ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* ── profil ── */
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px;
+  border-top: 5px solid var(--a-blue);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.head .eyebrow,
+.head p {
+  margin-bottom: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+
+/* mühür: hafif eğik, çift çerçeve, belgeye "basılmış" gibi iner */
+.stamp {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 10px;
+  border: 3px double var(--a-bad);
+  border-radius: 6px;
+  color: var(--a-bad);
+  font: 800 14px var(--font-mono);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  transform: rotate(-8deg);
+  opacity: 0.88;
+  animation: stamp 500ms 350ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.stamp small {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.stampPass {
+  border-color: var(--a-blue);
+  color: var(--a-blue);
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(2.2);
+  }
+}
+
+.meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--a-line);
+  border-bottom: 1px dashed var(--a-line);
+  font-size: 11px;
+}
+
+.meta dt {
+  color: var(--a-muted);
+}
+
+.meta dd {
+  margin: 0;
+}
+
+.rings {
+  display: flex;
+  justify-content: space-around;
+}
+
+.ringBox {
+  --tone: var(--a-blue);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.sense {
+  --tone: var(--a-ok);
+}
+
+.ring {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(closest-side, #fff 80%, transparent 81%),
+    conic-gradient(var(--tone) calc(var(--p) * 1%), var(--a-line-soft) 0);
+}
+
+.ring b {
+  font-size: 32px;
+  color: var(--tone);
+}
+
+.ringLabel {
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.ringBox small {
+  color: var(--a-muted);
+  font-size: 11px;
+}
+
+.verdict {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--a-line-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.facts div {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--a-line);
+  background: #fafbfd;
+}
+
+.facts dt {
+  font-size: 11px;
+  color: var(--a-muted);
+}
+
+.facts dd {
+  margin: 2px 0 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sign {
+  margin: 0;
+  font-size: 11px;
+  color: var(--a-muted);
+}
+
+.sign i {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--a-text);
+}
+
+/* ── cevap kâğıdı ── */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 24px;
+}
+
+.sheetHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.legend {
+  margin: 0;
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+
+.legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  border-radius: 3px;
+  vertical-align: -2px;
+}
+
+.mKey {
+  background: var(--a-blue);
+}
+
+.mSense {
+  background: var(--a-ok);
+}
+
+.mOther {
+  background: #c7cfdb;
+}
+
+.mBlank {
+  border: 1.5px dashed #b4bdca;
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+/* bölüm satırı: solda başlık ve iki çubuk, sağda soru kutucukları */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f8fafd;
+}
+
+.rowInfo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'title nums' 'bar1 bar1' 'bar2 bar2';
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.rowTitle {
+  grid-area: title;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.rowNums {
+  grid-area: nums;
+  justify-self: end;
+  font-size: 11px;
+  color: var(--a-muted);
+}
+
+.bar {
+  grid-area: bar1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--a-line);
+  overflow: hidden;
+}
+
+.barSense {
+  grid-area: bar2;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--a-blue);
+  transform-origin: left;
+  animation: grow 700ms 200ms ease-out both;
+}
+
+.barSense i {
+  background: var(--a-ok);
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  font: 700 14px var(--font-body);
+  cursor: pointer;
+  transition: transform var(--motion-enter), box-shadow var(--motion-enter);
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+}
+
+.chip:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.key {
+  background: var(--a-blue);
+}
+
+.sense.chip {
+  background: var(--a-ok);
+}
+
+.other {
+  background: #c7cfdb;
+  color: var(--a-text);
+}
+
+.blank {
+  background: #fff;
+  border: 1.5px dashed #b4bdca;
+  color: var(--a-muted);
+}
+
+.chipOn {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--a-text);
+  transform: translateY(-2px);
+}
+
+/* seçili sorunun ayrıntısı */
+.detail {
+  flex: 1;
+  padding: 16px 18px;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+}
+
+.detailMeta {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+
+.tkey {
+  color: var(--a-blue);
+}
+
+.tsense {
+  color: var(--a-ok);
+}
+
+.tother,
+.tblank {
+  color: var(--a-muted);
+}
+
+.detailQ {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.compare div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--a-line-soft);
+}
+
+.compare small {
+  font-size: 11px;
+  color: var(--a-muted);
+}
+
+.compare b {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.cKey {
+  background: var(--a-blue-soft) !important;
+}
+
+.cSense {
+  background: var(--a-ok-soft) !important;
+}
+
+.why {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--a-muted);
+}
+
+.real {
+  margin: 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--a-ok);
+  border-radius: 0 10px 10px 0;
+  background: #f6fbf8;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--a-muted);
+}
+
+.real b {
+  color: var(--a-text);
+}
+
+/* 40 soru: bölüm bilgisi sabit genişlikte tek satır, kutucuklar küçük ve sıkı */
+.row {
+  grid-template-columns: 190px auto;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 12px;
+}
+
+.rowTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+
+.rowNums {
+  white-space: nowrap;
+}
+
+.chips {
+  gap: 5px;
+}
+
+.chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.rows {
+  gap: 6px;
+}
+
+.sheet {
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.detail {
+  padding: 12px 16px;
+}
+
+.detailQ {
+  font-size: 16px;
+  margin-bottom: 10px;
+}

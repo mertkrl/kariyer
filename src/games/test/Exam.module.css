@@ -1,0 +1,590 @@
+/* Sınav ekranı: kontrol paneli, soru kartı ve gezinme; iki deneme tasarımının kuralları da burada. */
+
+/* Ucuz bir online sınav platformu: steril beyaz ve kurumsal mavi. Renkler soru bileşenleriyle ortak. */
+
+.progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--a-line);
+  overflow: hidden;
+}
+
+.progress i {
+  display: block;
+  height: 100%;
+  background: var(--a-blue);
+  transition: width var(--motion-enter) ease;
+}
+
+.question {
+  background: #fff;
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  padding: 24px 28px 28px;
+}
+
+.qHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.qMeta {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+
+.prompt {
+  margin: 0 0 12px;
+  font-size: 20px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.figure {
+  margin: 0 0 12px;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+}
+
+.hint {
+  margin: 0 0 18px;
+  color: var(--a-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.widget {
+  margin-top: 8px;
+}
+
+/* ── sınav: solda kontrol paneli, sağda soru ── */
+.exam {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.side {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgba(29, 39, 51, 0.04),
+    0 8px 24px rgba(29, 39, 51, 0.06);
+}
+
+/* ── sınav: solda kontrol paneli, sağda soru ── */
+.exam {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* süre halkası: kalan oran conic-gradient ile; son dakikada kırmızı */
+.clock {
+  --ring: var(--a-blue);
+  align-self: center;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background:
+    radial-gradient(closest-side, #fff 84%, transparent 85%),
+    conic-gradient(var(--ring) calc(var(--p) * 1%), var(--a-line-soft) 0);
+  transition: --p 1s linear;
+}
+
+.clock b {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--a-text);
+}
+
+.clock small {
+  color: var(--a-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clockHurry {
+  --ring: var(--a-bad);
+}
+
+.clockHurry b {
+  color: var(--a-bad);
+}
+
+.map {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mapTitle {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--a-muted);
+}
+
+.mapTitleOn {
+  color: var(--a-blue);
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.cell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1.5px solid #c9d3e0;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-muted);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+  transition:
+    background var(--motion-enter),
+    border-color var(--motion-enter),
+    transform var(--motion-enter);
+}
+
+.cell:hover {
+  border-color: var(--a-blue);
+  transform: translateY(-1px);
+}
+
+.cell i {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 9px;
+  font-style: normal;
+}
+
+.cellDone {
+  border-color: var(--a-blue);
+  background: var(--a-blue);
+  color: #fff;
+}
+
+.cellNow {
+  box-shadow:
+    0 0 0 3px var(--a-blue-soft),
+    0 0 0 5px var(--a-blue-dark);
+}
+
+.cell:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+
+.legend i {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 4px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.lgDone {
+  background: var(--a-blue);
+}
+
+.lgBlank {
+  border: 1.5px solid #c9d3e0;
+  background: #fff;
+}
+
+.proctor {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fbf3f1;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--a-muted);
+  min-height: 52px;
+}
+
+.live {
+  color: var(--a-bad);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.finish {
+  padding: 10px;
+  border: 1.5px solid var(--a-bad);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-bad);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.finish:hover {
+  background: var(--a-bad-soft);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.question {
+  box-shadow:
+    0 1px 2px rgba(29, 39, 51, 0.04),
+    0 8px 24px rgba(29, 39, 51, 0.06);
+  border-radius: 12px;
+  padding: 28px 32px 32px;
+  min-height: 360px;
+}
+
+.qKind {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--a-blue-soft);
+  color: var(--a-blue-dark);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.marked {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--a-blue-soft);
+  font-size: 14px;
+}
+
+.marked span {
+  color: var(--a-muted);
+  font-size: 12px;
+}
+
+.navRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.navCount {
+  color: var(--a-muted);
+  font-size: 14px;
+}
+
+.ghost {
+  padding: 11px 20px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--a-text);
+  font: 600 15px var(--font-body);
+  cursor: pointer;
+}
+
+.ghost:hover:not(:disabled) {
+  border-color: var(--a-blue);
+  color: var(--a-blue);
+}
+
+.ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ghost:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.confirm {
+  padding: 16px 18px;
+  border: 1px solid var(--a-bad);
+  border-radius: 10px;
+  background: var(--a-bad-soft);
+}
+
+.confirm p {
+  margin: 0 0 12px;
+}
+
+/* ── cila ── */
+.side,
+.question {
+  border-radius: 16px;
+  box-shadow: var(--a-shadow);
+}
+
+/* soru değişince kart hafifçe yerine oturur */
+.question {
+  animation: qIn 240ms ease-out;
+}
+
+@keyframes qIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.prompt {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mapTitle {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mapTitle em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--a-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cell {
+  border-radius: 10px;
+}
+
+.navRow .primary,
+.navRow .ghost {
+  min-width: 132px;
+}
+
+.ghost {
+  border-radius: 10px;
+}
+
+/*
+ * Sabit yükseklik: soru sütunu sol panelle aynı boyda. Satırın boyunu sol panel belirler; soru
+ * kartı kalan yeri doldurur ve içerik uzunsa kendi içinde kayar. Böylece gezinme düğmeleri
+ * "Testi bitir" ile aynı hizada durur, sorudan soruya hiçbir şey zıplamaz.
+ */
+.exam {
+  align-items: stretch;
+}
+
+.side {
+  position: static;
+}
+
+/* gözetmen yazısı satır sayısı değişse de panel boyu değişmesin */
+.proctor {
+  /* en uzun uyarı üç satır */
+  min-height: 76px;
+  box-sizing: border-box;
+}
+
+.main .question {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+/* soru ve cevap birlikte kartın ortasında durur; başlık satırı üstte kalır, uzun içerik üstten başlar ve kayar */
+.main .question {
+  display: flex;
+  flex-direction: column;
+}
+
+.qBody {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  padding-bottom: 0;
+}
+
+.qTop {
+  margin-bottom: 12px;
+}
+
+/*
+ * Düz şıklı sorular kartın yarısını kullanıyordu: yazı ve aralıklar büyür, blok tam ortada değil
+ * biraz yukarıda durur (alt boşluk üsttekinden büyük, optik merkez). Etkileşimli sorular sıkı kalır.
+ */
+.qPlain {
+  padding: 4px 0 28px;
+}
+
+.qPlain .qTop {
+  margin-bottom: 26px;
+}
+
+.qPlain .prompt {
+  font-size: 27px;
+  line-height: 1.3;
+}
+
+.qPlain .hint {
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+/* süreye göre ortam rengi: sayfanın arkasında, tıklamaları engellemez */
+.ambient {
+  --heat: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 80% 110%, hsl(calc(215 - var(--heat) * 205) 85% 58% / calc(0.06 + var(--heat) * 0.16)), transparent 70%),
+    radial-gradient(700px 420px at 10% -10%, hsl(calc(215 - var(--heat) * 205) 85% 58% / calc(0.05 + var(--heat) * 0.12)), transparent 70%);
+  transition: background 1s linear;
+}
+
+.side,
+.main {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * 40 soruluk harita: her bölüm 5×2 kutu. Panel ekrana sığsın diye saat, kutular ve aralıklar
+ * küçüldü; kutular kare değil, sabit yükseklikte.
+ */
+.side {
+  gap: 12px;
+  padding: 18px;
+}
+
+.clock {
+  width: 116px;
+  height: 116px;
+}
+
+.clock b {
+  font-size: 26px;
+}
+
+.map {
+  gap: 10px;
+}
+
+.mapTitle {
+  margin-bottom: 5px;
+}
+
+.grid {
+  gap: 4px;
+}
+
+.cell {
+  aspect-ratio: auto;
+  height: 28px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.cell i {
+  top: 0;
+  right: 2px;
+  font-size: 8px;
+}
+
+.proctor {
+  min-height: 64px;
+}
+
+.exam {
+  padding-top: 20px;
+  padding-bottom: 24px;
+}
+
+/*
+ * Sınav ekranın kalan yüksekliğini doldurur: satır pencereye yayılır, sol panel o boyda olur ve
+ * harita aradaki yeri eşit dağıtır. Saat ve kutular pencere yüksekliğine göre büyüyüp küçülür;
+ * kısa ekranda sıkışır, uzun ekranda ferahlar.
+ */
+.exam {
+  grid-template-rows: minmax(0, 1fr);
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.side {
+  gap: clamp(8px, 1.4vh, 16px);
+  padding: 16px 18px;
+}
+
+.map {
+  flex: 1;
+  justify-content: space-evenly;
+  gap: clamp(6px, 1vh, 12px);
+}
+
+.grid {
+  gap: 5px;
+}
+
+.cell {
+  height: clamp(26px, 3.5vh, 40px);
+  font-size: 13px;
+}
+
+.clock {
+  width: clamp(96px, 13vh, 148px);
+  height: clamp(96px, 13vh, 148px);
+}
+
+.clock b {
+  font-size: clamp(22px, 3vh, 30px);
+}
+
+.proctor {
+  min-height: 58px;
+}

@@ -1,0 +1,436 @@
+/* Ofis uygulamalarından sahneler. Renkler TestGame'in .app değişkenlerinden. */
+
+/* ── görüntülü görüşme ── */
+.call {
+  display: grid;
+  gap: 12px;
+}
+
+.preview {
+  position: relative;
+  height: 210px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1b222c;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: block;
+}
+
+.backdrop svg {
+  display: block;
+}
+
+
+.bgBlur {
+  filter: blur(7px) saturate(0.8);
+  transform: scale(1.1);
+}
+
+
+
+
+
+
+
+
+.nameTag,
+.callTime,
+
+.nameTag {
+  left: 10px;
+  bottom: 10px;
+}
+
+.callTime {
+  top: 10px;
+  left: 10px;
+}
+
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+.bgPick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 4px 6px;
+  border: 2px solid var(--a-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--a-text);
+  font: 600 12px var(--font-body);
+  cursor: pointer;
+}
+
+.thumbArt {
+  position: relative;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+
+
+
+.thumbOn {
+  border-color: var(--a-blue);
+  box-shadow: 0 0 0 3px var(--a-blue-soft);
+}
+
+.callBar,
+.chatBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--a-line-soft);
+  font-size: 14px;
+}
+
+.join {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--a-ok);
+  color: #fff;
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+/* ── e-posta daveti ── */
+.mail {
+  border: 1px solid #c9d2df;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.mailHead {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--a-line);
+}
+
+.mailHead div {
+  display: flex;
+  flex-direction: column;
+}
+
+.mailHead small {
+  color: var(--a-muted);
+  font-size: 12px;
+}
+
+.sender,
+.avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1f3b63;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.invite {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin: 14px 16px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--a-blue);
+  border-radius: 8px;
+  background: #f4f8fe;
+}
+
+.invite div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.invite small {
+  color: var(--a-muted);
+}
+
+.inviteTitle {
+  font-size: 15px;
+}
+
+.dateTile {
+  flex-shrink: 0;
+  width: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--a-line);
+}
+
+.dateTile small {
+  color: var(--a-bad);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rsvp {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+
+.rsvpBtn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--a-text);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.rsvpBtn:hover {
+  border-color: var(--a-blue);
+}
+
+.rsvpOn {
+  border-color: var(--a-blue);
+  background: var(--a-blue);
+  color: #fff;
+}
+
+.decline {
+  display: grid;
+  gap: 8px;
+  padding: 0 16px 14px;
+  font-size: 13px;
+  animation: pop 200ms ease-out;
+}
+
+.decline label {
+  font-weight: 600;
+}
+
+.decline textarea {
+  resize: none;
+  padding: 10px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 8px;
+  font: 13px/1.5 var(--font-body);
+  color: var(--a-text);
+}
+
+.declineBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.count {
+  margin-right: auto;
+  color: var(--a-bad);
+  font-size: 12px;
+}
+
+.countOk {
+  margin-right: auto;
+  color: var(--a-ok);
+  font-size: 12px;
+}
+
+.ghost {
+  padding: 8px 12px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-text);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+.ghost:hover {
+  border-color: var(--a-blue);
+}
+
+.ghostOn {
+  border-color: var(--a-ok);
+  background: var(--a-ok-soft);
+}
+
+.danger {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--a-bad);
+  color: #fff;
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+.danger:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.status {
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--a-blue-soft);
+  font-size: 13px;
+}
+
+/* ── sohbet ve emoji tepkisi ── */
+.chat {
+  display: grid;
+  gap: 12px;
+}
+
+.msg {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #c9d2df;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.avatar {
+  background: #8a3b5c;
+}
+
+.msgBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.msgHead {
+  margin: 0;
+  font-size: 14px;
+}
+
+.msgHead small {
+  color: var(--a-muted);
+}
+
+.pin {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--a-muted);
+}
+
+.msgText {
+  margin: 4px 0 10px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.reactions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.react,
+.addReact {
+  padding: 3px 9px;
+  border: 1px solid var(--a-line);
+  border-radius: 999px;
+  background: #f4f6fa;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.react span {
+  font-size: 12px;
+  color: var(--a-muted);
+}
+
+.reactOn {
+  border-color: var(--a-blue);
+  background: var(--a-blue-soft);
+  animation: pop 260ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.reactOn span {
+  color: var(--a-blue-dark);
+  font-weight: 700;
+}
+
+.addReact {
+  color: var(--a-muted);
+}
+
+.picker {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 2;
+  display: flex;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(23, 43, 77, 0.18);
+  animation: pop 160ms ease-out;
+}
+
+.picker button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 100ms;
+}
+
+.picker button:hover {
+  background: #f1f4f9;
+  transform: scale(1.2);
+}
+
+.toastOk,
+.toastBad {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.toastOk {
+  color: var(--a-ok);
+}
+
+.toastBad {
+  color: var(--a-bad);
+}

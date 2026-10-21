@@ -1,0 +1,294 @@
+/* Öğle siparişi ve zam tablosu. Renkler TestGame'in .app değişkenlerinden. */
+
+/* ── yemek uygulaması ── */
+.app {
+  border: 1px solid #c9d2df;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.appHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #e8533f;
+  color: #fff;
+  font-size: 12px;
+}
+
+.appHead b {
+  font-size: 15px;
+}
+
+.clock {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+}
+
+.ping {
+  margin: 0;
+  padding: 8px 14px;
+  background: #fff6e5;
+  border-bottom: 1px solid #f3e2c0;
+  font-size: 13px;
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.dish {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--a-text);
+  font: 13px var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--motion-enter), border-color var(--motion-enter);
+}
+
+.dish:hover {
+  border-color: #e8533f;
+  transform: translateY(-2px);
+}
+
+.dish small {
+  color: var(--a-muted);
+  font-size: 11px;
+}
+
+.dishIcon {
+  font-size: 30px;
+}
+
+.price {
+  margin-top: 4px;
+  font-weight: 700;
+  color: #c43a28;
+}
+
+.dishOn,
+.dishOn:hover {
+  border-color: #e8533f;
+  background: #fff1ee;
+  box-shadow: 0 0 0 3px #ffd9d2;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 14px 12px;
+}
+
+.action {
+  padding: 9px 6px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--a-text);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+.action:hover:not(:disabled) {
+  border-color: var(--a-blue);
+}
+
+.action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.actionOut {
+  border-color: #bfe0cb;
+}
+
+.actionOn,
+.actionOn:hover:not(:disabled) {
+  border-color: var(--a-blue);
+  background: var(--a-blue);
+  color: #fff;
+}
+
+.status {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--a-blue-soft);
+  font-size: 13px;
+}
+
+/* ── zam tablosu ── */
+.sheet {
+  border: 1px solid #c9d2df;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  font-size: 13px;
+}
+
+.sheetTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  background: #188038;
+  color: #fff;
+}
+
+.file {
+  font-weight: 700;
+}
+
+.share {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.formula {
+  padding: 6px 14px;
+  border-bottom: 1px solid #e1e5ea;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #444;
+}
+
+.formula b {
+  margin-right: 8px;
+  color: #188038;
+  font-style: italic;
+}
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grid th,
+.grid td {
+  padding: 8px 10px;
+  border: 1px solid #e1e5ea;
+  text-align: left;
+}
+
+.grid thead th,
+.grid tbody th {
+  background: #f1f3f4;
+  color: #5f6368;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.grid tbody th {
+  width: 26px;
+  text-align: center;
+}
+
+.me td {
+  background: #fffbe6;
+  font-weight: 600;
+}
+
+.cell {
+  width: 110px;
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+}
+
+.cellLocked {
+  outline-color: var(--a-bad);
+  background: #fdecea !important;
+  color: var(--a-bad);
+  animation: shake 360ms ease-in-out;
+}
+
+@keyframes shake {
+  25%,
+  75% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+}
+
+.inputWrap input {
+  width: 64px;
+  border: 0;
+  background: transparent;
+  font: 600 14px var(--font-mono);
+  color: var(--a-text);
+  outline: none;
+}
+
+.boss td {
+  color: var(--a-muted);
+}
+
+/* genel müdürün maaşı "gizli": bulanık ama oran görünür */
+.blur {
+  filter: blur(4px);
+  user-select: none;
+}
+
+.sheetBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--a-line-soft);
+}
+
+.lockNote {
+  color: var(--a-bad);
+  font-weight: 600;
+}
+
+.enter,
+.ghost {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+.enter {
+  border: 0;
+  background: #188038;
+  color: #fff;
+}
+
+.enter:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ghost {
+  border: 1.5px solid var(--a-line);
+  background: #fff;
+  color: var(--a-text);
+}

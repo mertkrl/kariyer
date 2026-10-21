@@ -1,0 +1,356 @@
+/* Ekran paylaşımındaki sahte sayfalar. Hepsi aynı yükseklikte bir alana çizilir. */
+
+/* tablo */
+.sheet {
+  font-size: 12px;
+}
+
+.sheetBar {
+  padding: 5px 10px;
+  border-bottom: 1px solid #e1e5ea;
+  color: #444;
+  font-family: var(--font-mono);
+}
+
+.sheetBar b {
+  margin-right: 8px;
+  color: #188038;
+  font-style: italic;
+}
+
+.sheet table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sheet th,
+.sheet td {
+  padding: 5px 8px;
+  border: 1px solid #e1e5ea;
+  text-align: left;
+}
+
+.sheet thead th,
+.sheet tbody th {
+  background: #f1f3f4;
+  color: #5f6368;
+  font-weight: 500;
+  text-align: center;
+}
+
+.sheet tbody th {
+  width: 24px;
+}
+
+.headRow td {
+  font-weight: 700;
+  background: #e6f4ea;
+}
+
+.totalRow td {
+  font-weight: 700;
+  border-top: 2px solid #188038;
+}
+
+/* müzik çalar */
+.music {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  height: 100%;
+  padding: 18px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #1e2a3a, #121820);
+  color: #fff;
+}
+
+.cover {
+  flex-shrink: 0;
+  width: 110px;
+  height: 110px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  background: linear-gradient(160deg, #4b6d8f, #22364d);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.track {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.track small {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.track b {
+  font-size: 17px;
+}
+
+.artist {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.progress {
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.progress i {
+  display: block;
+  width: 28%;
+  height: 100%;
+  border-radius: 2px;
+  background: #1ed760;
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  font-size: 16px;
+}
+
+.controls span {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  color: #121820;
+  font-size: 13px;
+}
+
+/* belge (dilekçe, gündem) */
+.docWrap {
+  height: 100%;
+  padding: 14px 0 0;
+  box-sizing: border-box;
+  background: #eef1f4;
+  overflow: hidden;
+}
+
+.paper {
+  width: 82%;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 18px 24px;
+  box-sizing: border-box;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #222;
+}
+
+.paper p {
+  margin: 0 0 8px;
+}
+
+.docTitle {
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.paper mark {
+  background: #fff3b0;
+}
+
+.sig {
+  text-align: right;
+  font-style: italic;
+}
+
+.dl {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #1a73e8;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 11px;
+}
+
+.agenda {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* hava durumu */
+.weather {
+  height: 100%;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #5fa8e8, #a8d4f5);
+  color: #fff;
+}
+
+.now {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sun {
+  font-size: 44px;
+}
+
+.now b {
+  display: block;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.now span {
+  font-size: 13px;
+}
+
+.days {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.days li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+}
+
+/* forum */
+.forum {
+  height: 100%;
+  padding: 12px 18px;
+  box-sizing: border-box;
+  background: #f6f7f8;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.crumb {
+  margin: 0;
+  color: #7c7c7c;
+  font-size: 11px;
+}
+
+.thread {
+  margin: 2px 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1b;
+}
+
+.post {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  border: 1px solid #e3e5e8;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.post p {
+  margin: 2px 0 0;
+  color: #333;
+}
+
+.votes {
+  flex-shrink: 0;
+  color: #ff4500;
+  font-weight: 700;
+}
+
+/* tatil ilanı */
+.travel {
+  display: flex;
+  height: 100%;
+  background: #fff;
+}
+
+.photo {
+  position: relative;
+  flex: 0 0 44%;
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  background: linear-gradient(180deg, #7fd3f7 0 55%, #f3d9a4 55%);
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #e0245e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.offer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  font-size: 12px;
+}
+
+.offer b {
+  font-size: 15px;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0b7a3e;
+}
+
+.price s {
+  font-size: 12px;
+  font-weight: 400;
+  color: #999;
+}
+
+.book {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #ff7a00;
+  color: #fff;
+  font-weight: 700;
+}
+
+.offer small {
+  margin-top: auto;
+  color: #c0392b;
+  font-size: 10px;
+}

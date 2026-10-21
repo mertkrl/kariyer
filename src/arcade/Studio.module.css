@@ -1,0 +1,147 @@
+.logo {
+  display: block;
+  height: 100%;
+  width: auto;
+  overflow: visible;
+}
+
+/* ── açılış: önce dış çizgi çizilir ── */
+.outline text {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  /* desen her harfe ayrı uygulanır; bir harfin çevresi ~450 birim, çizim tüm süreye yayılsın */
+  stroke-dasharray: 480;
+  animation: draw 0.9s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+
+/* küçük imzada çizgi kalın: 30 piksellik logoda ince çizgi kaybolur */
+.small .outline text {
+  stroke-width: 6;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 480;
+  }
+}
+
+/* ── iki yandan sıvı akar, ortada çarpışır, sonra geçişe oturur ── */
+.liquidL,
+.liquidR {
+  animation: 2s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+
+.liquidL {
+  animation-name: fromLeft;
+}
+
+.liquidR {
+  animation-name: fromRight;
+}
+
+@keyframes fromLeft {
+  0%,
+  25% {
+    transform: translateX(-200px);
+  }
+  70% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes fromRight {
+  0%,
+  25% {
+    transform: translateX(200px);
+  }
+  70% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+
+/* çarpışma anı: ortadan yeşil bir halka yayılır */
+.splash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: splash 2s ease-out both;
+}
+
+@keyframes splash {
+  0%,
+  62% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(9);
+    opacity: 0;
+  }
+}
+
+.settled {
+  animation: settle 2s ease-in both;
+}
+
+@keyframes settle {
+  0%,
+  72% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ── sağ alt köşedeki imza ── */
+.mark {
+  position: fixed;
+  right: 18px;
+  bottom: 14px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 30px;
+  color: #1d2733;
+  cursor: default;
+}
+
+.mark > span:first-child {
+  height: 100%;
+}
+
+/* üstüne gelince bir kez zıplar */
+.hop {
+  animation: hop 520ms cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+@keyframes hop {
+  30% {
+    transform: translateY(-5px) scale(1.04);
+  }
+}
+
+.studio {
+  font: 700 13px var(--font-body);
+  letter-spacing: 0.34em;
+}
+
+.onDark {
+  color: rgba(255, 255, 255, 0.92);
+}

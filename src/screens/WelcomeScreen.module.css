@@ -67,40 +67,10 @@
   }
 }
 
-.corner {
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  z-index: 2;
-}
 
-.cornerTL {
-  top: 28px;
-  left: 28px;
-  border-top: 2px solid #5c5646;
-  border-left: 2px solid #5c5646;
-}
 
-.cornerTR {
-  top: 28px;
-  right: 28px;
-  border-top: 2px solid #5c5646;
-  border-right: 2px solid #5c5646;
-}
 
-.cornerBL {
-  bottom: 28px;
-  left: 28px;
-  border-bottom: 2px solid #5c5646;
-  border-left: 2px solid #5c5646;
-}
 
-.cornerBR {
-  bottom: 28px;
-  right: 28px;
-  border-bottom: 2px solid #5c5646;
-  border-right: 2px solid #5c5646;
-}
 
 .statusLeft {
   position: absolute;
@@ -396,7 +366,7 @@
   }
 }
 
-/* dar ekran: içerik akışa girer ve sayfa kayar; süs yazıları ve köşeler metnin üstüne binmesin */
+/* dar ekran: içerik akışa girer ve sayfa kayar; süs yazıları metnin üstüne binmesin */
 @media (max-width: 760px) {
   .screen {
     height: auto;

@@ -1,0 +1,138 @@
+.screen {
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 64px 24px 80px;
+  box-sizing: border-box;
+}
+
+.header {
+  max-width: 960px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
+  justify-content: center;
+  gap: 24px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 320px;
+  padding: 0 24px 24px;
+  overflow: hidden;
+  border-radius: 14px;
+  color: var(--paper-light);
+  text-decoration: none;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+  transition: transform var(--motion-enter) ease, box-shadow var(--motion-enter) ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.blurb {
+  line-height: 1.45;
+  opacity: 0.92;
+}
+
+.play {
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background var(--motion-enter) ease, transform var(--motion-enter) ease;
+}
+
+.card:hover .play,
+.card:focus-visible .play {
+  background: rgba(255, 255, 255, 0.32);
+  transform: translateX(4px);
+}
+
+/* çizim: kartın üst bandı, biraz daha koyu zemin üstünde */
+.art {
+  display: block;
+  margin: 0 -24px 8px;
+  width: calc(100% + 48px);
+  height: 150px;
+  padding: 18px 0 6px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.float1,
+.float2,
+.stampArt,
+.runaway {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 400ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.card:hover .float1,
+.card:focus-visible .float1 {
+  transform: translateY(-6px) rotate(-3deg);
+}
+
+.card:hover .float2,
+.card:focus-visible .float2 {
+  transform: translateY(-4px) rotate(2deg);
+}
+
+.card:hover .stampArt,
+.card:focus-visible .stampArt {
+  transform: scale(1.15) rotate(-6deg);
+}
+
+/* düğme, imleç karta girince kaçar */
+.card:hover .runaway,
+.card:focus-visible .runaway {
+  transform: translate(-60px, -4px) rotate(-8deg);
+}

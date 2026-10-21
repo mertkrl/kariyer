@@ -1,0 +1,56 @@
+import type { ExamQuestion } from './questions';
+
+/** Kültür Uyumu bölümünün üçüncü dalgası: bölüm başına 10 soru çıkabilsin diye havuz büyüdü. */
+export const CULTURE_QUESTIONS: ExamQuestion[] = [
+  {
+    id: 'team-dinner',
+    kind: 'kişilik',
+    prompt: 'Ekip yemeğinde hesap geldi. Müdürünüz "Bugün cüzdanımı unuttum" dedi. Ne yaparsınız?',
+    hint: 'Ekip yemekleri gönüllüdür. Katılım takip edilmektedir.',
+    options: ['Kendi payımı öderim', 'Hesabı ekipçe eşit bölelim derim', 'Müdürün payını da ben öderim', "Hesabı fotoğraflayıp İK'ya iletirim"],
+    answer: 2,
+    sensible: 0,
+    why: 'Herkes kendi payını öder. Müdürün yemeğini ödemek iş tanımımda yok.',
+  },
+  {
+    id: 'feedback-360',
+    kind: 'kişilik',
+    prompt: '360 derece değerlendirmede yöneticiniz için ne yazarsınız?',
+    hint: 'Değerlendirmeler anonimdir. Yazım üslubunuz analiz edilmektedir.',
+    options: ['Toplantıları zamanında başlatabilir.', 'Her şey mükemmel, değiştirecek bir şey yok.', 'Kendisi hepimiz için bir ilham kaynağı.', 'Bu formun anonim olduğuna yürekten inanıyorum.'],
+    answer: 1,
+    sensible: 0,
+    why: 'Somut ve yapıcı bir öneri yazarım. "Her şey mükemmel" bir geri bildirim değil.',
+  },
+  {
+    id: 'colleague-resigns',
+    kind: 'kişilik',
+    prompt: 'Çalışma arkadaşınız size başka bir şirkete geçeceğini söyledi. İlk tepkiniz?',
+    hint: 'Sadakat, yetkinlik matrisimizin 1. maddesidir.',
+    options: ['Tebrik eder, nereye gittiğini sorarım', 'Hemen yöneticime haber veririm', 'Projelerini devralmaya gönüllü olurum', '"Biz bir aileydik" der, darılırım'],
+    answer: 1,
+    sensible: 0,
+    why: 'Tebrik ederim; bu onun kariyer kararı. Yöneticiye haber vermek benim işim değil.',
+  },
+  {
+    id: 'monday-face',
+    kind: 'kişilik',
+    prompt: 'Pazartesi sabahı, saat 08:59. Yüz ifadenizi ayarlayın.',
+    hint: 'Ofis girişindeki kamera "enerji seviyesi" ölçmektedir.',
+    options: ['😐 Pazartesi işte', '🙂 Hazırım', '😄 Pazartesileri severim', '🤩 "Hafta sonu çok uzundu, işimi özledim!"'],
+    answer: 3,
+    sensible: 0,
+    why: 'Pazartesi sabahı normal bir yüzle gelirim. Hafta sonunu işi özleyerek geçirmem.',
+    widget: { type: 'slider', min: 0, max: 100, step: 1, unit: '', thresholds: [25, 50, 80], faces: true },
+  },
+  {
+    id: 'core-value',
+    kind: 'kişilik',
+    prompt: 'Şirket değerlerimizden hangisi sizin için en önemlisidir?',
+    hint: 'Değerlerimiz her çeyrek yenilenir.',
+    options: ['Dürüstlük', 'Şeffaflık', 'Hepsi eşit derecede önemlidir', 'Genel Müdürün o günkü ruh hâli'],
+    answer: 3,
+    sensible: 0,
+    why: 'Dürüstlük. O olmadan diğer değerlerin bir anlamı kalmaz.',
+  },
+];

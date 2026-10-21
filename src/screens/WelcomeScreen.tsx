@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { readSave, saveWasLost } from '../game/store/save';
 import { loadStore, useLoadedStore, withStore } from '../game/store/storeLoader';
 import { Button } from '../components/ui/Button';
@@ -53,42 +53,14 @@ export function WelcomeScreen() {
   // oyun yüklenince oyuna göre kontrol edilir (bu derlemenin sürdüremeyeceği bir kayıt kaybolur)
   const save = useMemo(() => (store ? store.loadSave() : readSave()), [store]);
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmNew, setConfirmNew] = useState(false);
 
-  function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMouse({ x, y });
-  }
-
-  const cornerX = Math.round(mouse.x * 8);
-  const cornerY = Math.round(mouse.y * 6);
-
   return (
-    <div className={styles.screen} onMouseMove={handleMouseMove}>
+    <div className={styles.screen}>
       <div className={styles.grid} />
       <div className={styles.glow} />
       <div className={styles.scanline} />
-
-      <div
-        className={`${styles.corner} ${styles.cornerTL}`}
-        style={{ transform: `translate(${cornerX}px, ${cornerY}px)` }}
-      />
-      <div
-        className={`${styles.corner} ${styles.cornerTR}`}
-        style={{ transform: `translate(${-cornerX}px, ${cornerY}px)` }}
-      />
-      <div
-        className={`${styles.corner} ${styles.cornerBL}`}
-        style={{ transform: `translate(${cornerX}px, ${-cornerY}px)` }}
-      />
-      <div
-        className={`${styles.corner} ${styles.cornerBR}`}
-        style={{ transform: `translate(${-cornerX}px, ${-cornerY}px)` }}
-      />
 
       <div className={styles.statusLeft}>
         <span className={styles.dot} />

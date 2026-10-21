@@ -1,0 +1,423 @@
+/* Ekran içinde ekran: küçük tarayıcı penceresi. Renkler TestGame'in .app değişkenlerinden. */
+.browser {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #c9d2df;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(23, 43, 77, 0.08);
+}
+
+.share {
+  display: grid;
+  gap: 12px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* paylaşım başlayınca pencere kırmızı çerçeve alır */
+.live {
+  box-shadow: 0 0 0 3px var(--a-bad), 0 6px 20px rgba(23, 43, 77, 0.08);
+}
+
+.liveBar {
+  padding: 8px 14px;
+  background: var(--a-bad);
+  color: #fff;
+  font-size: 13px;
+}
+
+.shareBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--a-line-soft);
+  font-size: 14px;
+}
+
+.join {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--a-blue);
+  color: #fff;
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.join:hover {
+  background: var(--a-blue-dark);
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: var(--a-bad);
+  color: #fff;
+  font-size: 16px;
+  animation: tick 1s ease-out infinite;
+}
+
+@keyframes tick {
+  from {
+    transform: scale(1.2);
+  }
+}
+
+/* arama geçmişi */
+.address {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: #e7ecf3;
+  font: 500 13px var(--font-mono);
+}
+
+.address small {
+  margin-left: auto;
+  color: var(--a-bad);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+
+.day {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--a-muted);
+}
+
+.entry {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--a-text);
+  font: 15px var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.entry:hover,
+.entry:focus-visible {
+  background: #f2f6fc;
+}
+
+.time {
+  color: var(--a-muted);
+  font-size: 12px;
+}
+
+.query {
+  flex: 1;
+}
+
+.flag {
+  color: transparent;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.entry:hover .flag {
+  color: var(--a-muted);
+}
+
+.entryOn,
+.entryOn:hover {
+  background: var(--a-bad-soft);
+}
+
+.entryOn .flag,
+.entryOn:hover .flag {
+  color: var(--a-bad);
+}
+
+.noneBtn {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 4px 12px 12px;
+  padding: 11px;
+  border: 1.5px dashed var(--a-ok);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--a-ok);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.noneBtn:hover {
+  background: var(--a-ok-soft);
+}
+
+.noneOn {
+  border-style: solid;
+  background: var(--a-ok);
+  color: #fff;
+}
+
+.noneOn:hover {
+  background: var(--a-ok);
+}
+
+/* ── ekran paylaşımı: gerçekçi tarayıcı penceresi ── */
+.window {
+  border-color: #b9c3d1;
+  background: #dee3ea;
+}
+
+.strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 8px 8px 0 12px;
+  background: #dee3ea;
+}
+
+.lights {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 11px;
+}
+
+.lights i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.lights i:nth-child(2) {
+  background: #febc2e;
+}
+
+.lights i:nth-child(3) {
+  background: #28c840;
+}
+
+.tabs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* sekme: dar ekranda küçülür, başlık üç noktayla kesilir; aralarında ince ayraç */
+.tab {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 180px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  border-radius: 9px 9px 0 0;
+  animation: tabIn 160ms ease-out;
+}
+
+.tab + .tab::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 1px;
+  background: #b4bdca;
+}
+
+.tabOn,
+.tabOn + .tab::before {
+  background: #fff;
+}
+
+.tabOn::before {
+  display: none;
+}
+
+.tabOn + .tab::before {
+  background: transparent;
+}
+
+.tab:not(.tabOn):hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes tabIn {
+  from {
+    opacity: 0;
+    max-width: 0;
+  }
+}
+
+.tabTitle {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px 0 10px;
+  border: 0;
+  background: transparent;
+  color: #3c4043;
+  font: 500 12px var(--font-body);
+  cursor: pointer;
+}
+
+.tabTitle:disabled {
+  cursor: default;
+}
+
+.favicon {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.tabText {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tabClose {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #5f6368;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* geri sayım sırasında × kırmızıya döner ve kapatılabilir */
+.tabCloseOn {
+  color: var(--a-bad);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabCloseOn:hover {
+  background: var(--a-bad);
+  color: #fff;
+}
+
+.tabClose:focus-visible,
+.tabTitle:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.newTab {
+  flex-shrink: 0;
+  padding: 0 10px 8px;
+  color: #5f6368;
+  font-size: 18px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: #fff;
+  border-bottom: 1px solid #e3e6ea;
+}
+
+.navBtns {
+  color: #80868b;
+  font-size: 14px;
+  letter-spacing: 6px;
+}
+
+.url {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f1f3f4;
+  color: #3c4043;
+  font: 12px var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #7b61ff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* sayfa alanı: hep aynı yükseklik, sekme değişince sayfa zıplamaz */
+.viewport {
+  height: 190px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.empty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0 24px;
+  background: linear-gradient(135deg, #2b62c0, #3f8fd8);
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* yer darsa: açık sekme başlığını tam gösterir, diğerleri simgeye ve × düğmesine küçülür */
+.tab {
+  min-width: 48px;
+}
+
+.tabOn {
+  flex: 0 0 auto;
+  max-width: 210px;
+}
+
+.tab:not(.tabOn) .tabText {
+  flex: 1;
+}
+
+.tab:not(.tabOn) .tabTitle {
+  padding-left: 9px;
+  gap: 4px;
+}

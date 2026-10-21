@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles/fonts.css'
 import './styles/global.css'
-import App from './App.tsx'
+import { Root } from './Root'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 import { applyTextScale, loadTextScale } from './game/lib/textScale'
 import { applyMotionReduced, loadMotionReduced } from './components/ui/motion'
@@ -23,7 +23,7 @@ connectSound(audioEngine)
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <Root />
     </ErrorBoundary>
   </StrictMode>,
 )

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="240" viewBox="0 0 420 240">
+  <!-- sınav kitapçıklarındaki güvenlik zemini: dalgalı giyoş çizgileri ve çapraz tekrar eden yazı -->
+  <g fill="none" stroke="#2b62c0" stroke-opacity="0.07" stroke-width="1">
+    <path d="M0 40 C 52 10, 105 70, 157 40 S 262 10, 315 40 S 420 70, 420 40"/>
+    <path d="M0 46 C 52 16, 105 76, 157 46 S 262 16, 315 46 S 420 76, 420 46"/>
+    <path d="M0 52 C 52 22, 105 82, 157 52 S 262 22, 315 52 S 420 82, 420 52"/>
+    <path d="M0 160 C 52 190, 105 130, 157 160 S 262 190, 315 160 S 420 130, 420 160"/>
+    <path d="M0 166 C 52 196, 105 136, 157 166 S 262 196, 315 166 S 420 136, 420 166"/>
+    <path d="M0 172 C 52 202, 105 142, 157 172 S 262 202, 315 172 S 420 142, 420 172"/>
+  </g>
+  <g fill="#17305e" fill-opacity="0.055" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2">
+    <text transform="translate(10 118) rotate(-18)">ADAY #4471 · GİZLİ · UYUMMETRE · KOPYALANAMAZ</text>
+    <text transform="translate(-200 238) rotate(-18)">ADAY #4471 · GİZLİ · UYUMMETRE · KOPYALANAMAZ</text>
+    <text transform="translate(220 0) rotate(-18)">ADAY #4471 · GİZLİ · UYUMMETRE · KOPYALANAMAZ</text>
+  </g>
+</svg>
