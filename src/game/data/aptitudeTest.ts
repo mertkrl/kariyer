@@ -175,7 +175,7 @@ export const APTITUDE_QUESTIONS: AptitudeQuestion[] = [
     kind: 'simülasyon',
     prompt: 'Saat 23:47. Telefonunuz titriyor. Cevabınızı seçin.',
     hint: 'Okundu bilgisi kapatılamaz.',
-    options: ["Yarın sabah 09:00'da dönüyorum.", 'Hemen bakıyorum! 🙏', '👍', 'Görüldü (cevap yok)'],
+    options: ["Yarın sabah 09:00'da dönüyorum.", 'Hemen bakıyorum!', '👍', 'Görüldü (cevap yok)'],
     answer: 1,
     sensible: 0,
     why: 'Gece yarısı "acil değil" diye başlayan bir mesaja sabah dönerim. Gerçekten acilse arar.',

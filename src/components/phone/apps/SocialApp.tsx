@@ -24,7 +24,7 @@ import styles from './SocialApp.module.css';
 
 export type { SocialAuthor };
 
-const REPLY_BACK = ['Teşekkürler 🙏', 'Aynen öyle 😄', '❤️', 'Sağ ol, moral oldu!'];
+const REPLY_BACK = ['Teşekkürler', 'Aynen öyle 😄', '❤️', 'Sağ ol, moral oldu!'];
 
 interface SocialProps {
   rejected: SocialAuthor[];
@@ -101,7 +101,7 @@ export function SocialApp({ rejected, echoes = [], dayIndex = 0, dms = [], dmHan
     audioEngine.playUi(on ? 'confirm' : 'click');
     if (on && post.candidate) {
       window.setTimeout(() => {
-        notify({ who: h, color: post.author.color, text: 'seni geri takip etti. "Fark ettiğiniz için teşekkürler 🙏"' });
+        notify({ who: h, color: post.author.color, text: 'seni geri takip etti. "Fark ettiğiniz için teşekkürler"' });
         setFollowers((f) => f + 1);
       }, 1800);
     }

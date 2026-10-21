@@ -50,7 +50,7 @@ export function LunchWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
         <span className={`${styles.clock} mono`}>{w.clock}</span>
       </div>
       <p className={styles.ping}>
-        <b>Yönetici:</b> Öğlen hızlıca bir şey yiyip 12:30'da toplanalım mı? 🙏
+        <b>Yönetici:</b> Öğlen hızlıca bir şey yiyip 12:30'da toplanalım mı?
       </p>
       <div className={styles.menu}>
         {DISHES.map((d, i) => (

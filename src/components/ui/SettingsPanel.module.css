@@ -325,3 +325,17 @@
 .confirmHome .actions {
   justify-content: flex-end;
 }
+
+/* "Mesaiyi bitir": salona dönüşün her oyundaki ortak monogramı (ClockOut ile aynı) */
+.md {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border-radius: 5px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 800 9px/1 var(--font-display);
+  vertical-align: -5px;
+}

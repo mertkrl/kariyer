@@ -1,0 +1,230 @@
+/*
+ * İnşaat İzleme'nin takvimi. İki saat vardır:
+ *  - gerçek saat `t`: sahnenin geçen saniyesi; gün döngüsü, hava ve trafik ona bağlıdır;
+ *  - iş saati `w`: yalnızca çalışılan anlarda ilerler. Gece, yağmur ve kar günlerinde şantiye
+ *    durur, bina da bekler. Aşamalar iş saatine göre dizilir.
+ * Oyuncu hiçbir şey yapmaz; sahne bu takvime göre kendiliğinden ilerler. Süreler saniyedir.
+ */
+
+export interface Stage {
+  id: string;
+  title: string;
+  /** Aşamanın başladığı an (iş saati). */
+  at: number;
+  /** Bu aşamada izleyenlerin söyledikleri; sırayla gelir. */
+  lines: string[];
+}
+
+/** Apartmanın kat sayısı ve kaba inşaatta bir katın süresi (iş saati). */
+export const FLOORS = 6;
+export const FLOOR_SECONDS = 16;
+
+export const STAGES: Stage[] = [
+  {
+    id: 'arsa',
+    title: 'Boş arsa',
+    at: 0,
+    lines: ['Burası eskiden bostandı.', 'Duydun mu, buraya altı kat dikeceklermiş.'],
+  },
+  {
+    id: 'hafriyat',
+    title: 'Hafriyat',
+    at: 8,
+    lines: ['Kepçeci iyi ama sağa fazla yükleniyor.', 'Bu toprak killi, söyleyeyim de.', 'Kamyon kaçıncı sefer, saydın mı?', 'Çukur derin oldu, otopark yapacaklar.'],
+  },
+  {
+    id: 'temel',
+    title: 'Radye temel',
+    at: 30,
+    lines: ['Demir az, ben görüyorum.', 'Pompa geldi, bugün döküm var.', 'Betonu sulamaları lazım, yazın çatlar.', 'Usta! O tarafa bir kova daha!'],
+  },
+  {
+    id: 'karkas',
+    title: 'Kaba inşaat',
+    at: 54,
+    lines: [
+      'Kolon ince olmuş bu.',
+      'Kalıbı erken söktüler, yazık.',
+      'Kat kat çıkıyor maşallah.',
+      'Kat irtifakı var mı acaba?',
+      'Dördüncü katı benim damada versinler.',
+      'Vinççi çay molasında, ben de çay alayım.',
+      'Pompacı benim köylü, iyi çocuktur.',
+      'Bizim apartman da böyleydi, 99’da çatladı.',
+    ],
+  },
+  {
+    id: 'duvar',
+    title: 'Duvar örme',
+    at: 150,
+    lines: ['Tuğla değil bu, gazbeton.', 'Harç az, bunu not edin.', 'Ses yalıtımı yok, komşuyu duyarsın.', 'Usta iyi örüyor, Sivaslı herhalde.'],
+  },
+  {
+    id: 'cati',
+    title: 'Çatı',
+    at: 180,
+    lines: ['Kiremit Marsilya mı, değil mi?', 'Çatı katı dubleks olacak, en pahalısı orası.'],
+  },
+  {
+    id: 'pencere',
+    title: 'Doğrama ve balkon',
+    at: 196,
+    lines: ['PVC iyi, alüminyum terletir.', 'Balkonu kapatırlar sonra, görürsün.', 'Güney cephe mi bu? Değil.'],
+  },
+  {
+    id: 'siva',
+    title: 'Mantolama ve boya',
+    at: 214,
+    lines: ['Mantolama yaptılar, iyi.', 'Rengi güzel ama bir ton açık olmalıydı.', 'Somon renk her yerde artık.'],
+  },
+  {
+    id: 'teslim',
+    title: 'Teslim',
+    at: 240,
+    lines: ['Hayırlı olsun.', 'Klimaları da taktılar bak.', 'Ben yine de bir bakardım temeline.', 'Karşıya da inşaat başlıyormuş, yarın oraya gideriz.'],
+  },
+];
+
+/** İşin bittiği an (iş saati): teslimden sonra kısa bir duruş, sonra son ekran. */
+export const WORK_TOTAL = 254;
+
+/** Kaba inşaatta bir katın alt adımları: katın kendi süresi içindeki başlangıç oranları. */
+export const FLOOR_STEPS = [
+  { at: 0, title: 'Kolon demiri' },
+  { at: 0.18, title: 'Kalıp ve dikme' },
+  { at: 0.34, title: 'Döşeme demiri' },
+  { at: 0.46, title: 'Beton döküm' },
+  { at: 0.62, title: 'Priz bekleniyor' },
+  { at: 0.86, title: 'Kalıp sökümü' },
+] as const;
+
+/** Alt adımların sırası (FLOOR_STEPS içindeki yer): Building, Site ve konuşmalar bunları okur. */
+export const FLOOR_STEP = { rebar: 0, form: 1, mesh: 2, pour: 3, cure: 4, strip: 5 } as const;
+
+/** Tabeladaki teslim tarihi: inşaat ilerledikçe ertelenir. */
+export const DUE_YEARS = [2019, 2021, 2023, 2025, 2026];
+
+/** Gerçek saatte şantiye takvimi: saniye başına gün. */
+export const DAYS_PER_SECOND = 6;
+
+/* ── gün ve hava ── */
+
+/** Görsel bir günün uzunluğu (saniye). Bir günün sonunda gece olur, iş durur. */
+export const DAY_LENGTH = 32;
+const NIGHT = [0.72, 0.94] as const;
+
+/** Günün evresi (0 sabah, ~0.4 öğle, 0.72 akşam, 0.94'e kadar gece). Sahne sabah açılır. */
+export const dayPhase = (t: number) => ((t + 2) % DAY_LENGTH) / DAY_LENGTH;
+export const isNight = (t: number) => {
+  const p = dayPhase(t);
+  return p >= NIGHT[0] && p < NIGHT[1];
+};
+
+export type Weather = 'clear' | 'rain' | 'snow';
+/** Kötü hava günleri (gerçek saat): yağmurda beton dökülmez, karda şantiye kapanır. */
+export const WEATHER: { from: number; to: number; kind: Exclude<Weather, 'clear'> }[] = [
+  { from: 104, to: 116, kind: 'rain' },
+  { from: 196, to: 205, kind: 'snow' },
+  { from: 268, to: 275, kind: 'rain' },
+];
+export const weatherAt = (t: number): Weather => WEATHER.find((x) => t >= x.from && t < x.to)?.kind ?? 'clear';
+
+export type Idle = 'night' | 'rain' | 'snow' | null;
+/** Şantiyenin neden durduğu (ya da çalışıyorsa null). */
+export const idleAt = (t: number): Idle => {
+  const w = weatherAt(t);
+  if (w !== 'clear') return w;
+  return isNight(t) ? 'night' : null;
+};
+
+/* ── iş saati tablosu: gerçek saatten iş saatine ── */
+
+const STEP = 0.1;
+const WORK: number[] = [0];
+for (let i = 1; WORK[i - 1] < WORK_TOTAL; i++) WORK.push(WORK[i - 1] + (idleAt((i - 1) * STEP) ? 0 : STEP));
+
+/** Sahnenin sonu (gerçek saat): iş bitince. */
+export const TOTAL = (WORK.length - 1) * STEP;
+
+/** Gerçek saatte o ana kadar çalışılan süre. */
+export const workAt = (t: number) => {
+  const i = Math.min(WORK.length - 1, Math.max(0, Math.floor(t / STEP)));
+  const next = WORK[Math.min(WORK.length - 1, i + 1)];
+  return Math.min(WORK_TOTAL, WORK[i] + (next - WORK[i]) * ((t - i * STEP) / STEP));
+};
+
+/* ── aşamalar ── */
+
+export const stageAt = (w: number) => {
+  let i = 0;
+  while (i + 1 < STAGES.length && STAGES[i + 1].at <= w) i++;
+  return i;
+};
+
+/** Bir aşamanın içindeki ilerleme (0–1). */
+export const stageProgress = (w: number, i: number) => {
+  const start = STAGES[i].at;
+  const end = i + 1 < STAGES.length ? STAGES[i + 1].at : WORK_TOTAL;
+  return Math.min(1, Math.max(0, (w - start) / (end - start)));
+};
+
+/** Bir aşamanın bitmişlik oranı: başlamadıysa 0, bittiyse 1. */
+export const doneOf = (w: number, id: string) => {
+  const i = STAGES.findIndex((st) => st.id === id);
+  const now = stageAt(w);
+  return i < now ? 1 : i > now ? 0 : stageProgress(w, i);
+};
+
+/** Kaba inşaatta şu an hangi kat ve hangi alt adım (kaba inşaat dışında null). */
+export const floorStepAt = (w: number) => {
+  if (STAGES[stageAt(w)].id !== 'karkas') return null;
+  const f = (w - STAGES.find((s) => s.id === 'karkas')!.at) / FLOOR_SECONDS;
+  const floor = Math.min(FLOORS - 1, Math.floor(f));
+  const p = f - floor;
+  let step = 0;
+  while (step + 1 < FLOOR_STEPS.length && FLOOR_STEPS[step + 1].at <= p) step++;
+  return { floor, step, title: FLOOR_STEPS[step].title };
+};
+
+/* ── izleyenler ── */
+
+/** İzleyen amca sayısı: ilk gün iki kişi, kaba inşaatın ortasında yedi; gece bir kişi kalır. */
+export const watchersAt = (t: number) => (isNight(t) ? 1 : Math.min(7, 2 + Math.floor(t / 40)));
+
+/** Şantiye dururken söylenenler. */
+const IDLE_LINES: Record<Exclude<Idle, null> | 'priz', string[]> = {
+  night: ['Gece de çalışsalar biterdi.', 'Bekçi uyuyor, ben görüyorum.', 'Yarın sabah yine gelirim.'],
+  rain: ['Yağmurda beton dökülmez, doğru yapıyorlar.', 'Bugün de iş yok.', 'Şemsiyeyi unuttum, olsun.'],
+  snow: ['Kar yağdı, şantiye tatil.', 'Bizim zamanımızda karda da çalışırdık.'],
+  priz: ['Beton prizini bekliyorlar, acele etme.', 'Üç gündür kimse yok.', 'Beton kendi kendine kurur, izle.'],
+};
+
+/** Şu anda konuşan amca ve söylediği. Şantiye duruyorsa durma sebebine dair konuşulur. */
+export function speechAt(t: number) {
+  const idle = idleAt(t);
+  const w = workAt(t);
+  const fs = floorStepAt(w);
+  const why = idle ?? (fs?.step === FLOOR_STEP.cure ? 'priz' : null);
+  if (why) {
+    const lines = IDLE_LINES[why];
+    const k = Math.floor(t / 5) % lines.length;
+    return { id: `${why}-${Math.floor(t / 5)}`, text: lines[k], who: Math.floor(t / 5) % watchersAt(t) };
+  }
+  const i = stageAt(w);
+  const st = STAGES[i];
+  const k = Math.min(st.lines.length - 1, Math.floor(stageProgress(w, i) * st.lines.length));
+  const before = STAGES.slice(0, i).reduce((n, x) => n + x.lines.length, 0);
+  return { id: `l-${before + k}`, text: st.lines[k], who: (before + k) % watchersAt(t) };
+}
+
+/** Yerdeki kar örtüsü (0–1): kar yağarken birikir, sonra yavaşça erir. */
+export function snowCoverAt(t: number) {
+  let cover = 0;
+  for (const x of WEATHER) {
+    if (x.kind !== 'snow' || t < x.from) continue;
+    const built = Math.min(1, (Math.min(t, x.to) - x.from) / 5);
+    const melt = t > x.to ? Math.max(0, 1 - (t - x.to) / 25) : 1;
+    cover = Math.max(cover, built * melt);
+  }
+  return cover;
+}

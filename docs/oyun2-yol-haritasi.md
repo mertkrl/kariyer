@@ -162,7 +162,7 @@ iri ve basılabilir şıklar (seçilen dolar, ✓ çıkar), bölüm başına ile
 - [x] Soru ve şıklar birlikte kartın ortasında (istatistik paneli denendi, kaldırıldı); hiçbir soru kartı taşırmaz
 
 ### Ofis günü soruları ✅
-- [x] **Öğle siparişi** (`lunch`): "Lokma" uygulaması, saat 12:04, yöneticiden "12:30'da toplanalım mı? 🙏". Yemek seçilir, sonra masaya / toplantı odasına / dışarı / atla. Anahtar: masada; sağduyu: dışarı çıkmak
+- [x] **Öğle siparişi** (`lunch`): "Lokma" uygulaması, saat 12:04, yöneticiden "12:30'da toplanalım mı?". Yemek seçilir, sonra masaya / toplantı odasına / dışarı / atla. Anahtar: masada; sağduyu: dışarı çıkmak
 - [x] **Zam tablosu** (`raise`): oyuncu kendi zam oranını yazar, Enter'da hücre 🔒 %3'e kilitlenir ("=MİN(C2_ÖNERİNİZ; %3)"); genel müdürün satırında maaş bulanık, zam %60. Cevap yazılan orandan çıkar: %0–3 anahtar, enflasyon kadarı (%26–50) sağduyu
 
 ### Küçük düzeltmeler ✅

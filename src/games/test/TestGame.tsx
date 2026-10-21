@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SITE_NAME } from '../../arcade/games';
 import { StudioMark } from '../../arcade/Studio';
-import { hrefOf } from '../../arcade/route';
+import { ClockOut } from '../../arcade/ClockOut';
 import { audioEngine } from '../../audio/audioEngine';
 import { EXAM_QUESTIONS, EXAM_SECTIONS, type ExamQuestion } from './data/questions';
 import { pickExam, QUESTIONS_PER_SECTION, secondsOf, totalSeconds, type ExamAnswer, type ExamSection } from './logic';
@@ -52,9 +51,9 @@ export function TestGame() {
     <div className={styles.app}>
       {/* solda site (ana sayfaya döner), ortada oyunun adı, sağda gözetim göstergesi */}
       <header className={styles.brand}>
-        <a className={styles.site} href={hrefOf('arcade')}>
-          <span aria-hidden="true">←</span> {SITE_NAME}
-        </a>
+        <span className={styles.site}>
+          <ClockOut risk={stage.at === 'exam' ? 'Test yarıda kalır; cevaplarınız kaydedilmez ve süre sıfırlanır.' : undefined} />
+        </span>
         <span className={styles.center}>
           <span className={styles.logo}>
             <i aria-hidden="true">◎</i> {BRAND}
@@ -64,7 +63,7 @@ export function TestGame() {
         <span className={styles.right}>{(stage.at === 'exam' || stage.at === 'check') && <span className={styles.camera}>● Kamera gözetimi aktif</span>}</span>
       </header>
       {stage.at === 'intro' && <Intro onStart={check} />}
-      {stage.at === 'intro' && <StudioMark />}
+      {stage.at === 'intro' && <StudioMark minimal />}
       {stage.at === 'check' && <SystemCheck onReady={start} />}
       {stage.at === 'exam' && <Exam exam={stage.exam} onDone={(answers, robots) => setStage({ at: 'result', exam: stage.exam, answers, robots })} />}
       {stage.at === 'result' && <Result exam={stage.exam} answers={stage.answers} robots={stage.robots} onAgain={start} />}

@@ -2,7 +2,7 @@ import type { Post } from './socialTypes';
 import styles from '../SocialApp.module.css';
 import own from './CommentSheet.module.css';
 
-const COMMENT_CHOICES = ['Çok haklısın 👏', 'Geçmiş olsun 🙏', 'Hahaha 😂', 'Pes etme 💪', 'Harika kare 😍'];
+const COMMENT_CHOICES = ['Çok haklısın 👏', 'Geçmiş olsun', 'Hahaha 😂', 'Pes etme 💪', 'Harika kare 😍'];
 
 interface CommentSheetProps {
   post: Post;

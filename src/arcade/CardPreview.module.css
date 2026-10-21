@@ -1,0 +1,266 @@
+/*
+ * Kart ön izlemesi: kartın üstüne gelince (ya da odaklanınca) çizim, oyunun kendisinden kısa bir
+ * sahneyi döngüde oynar. Durgunken her parça sakin bir karede durur. Hareket azaltılınca global
+ * CSS animasyonları anında bitirir; çizim yine okunur.
+ */
+.scene * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ── Sen İK'sin: CV gelir, damga iner, reddedilenlere uçar ── */
+.mark,
+.stamp {
+  opacity: 0;
+}
+
+.idleStamp {
+  transition: opacity 200ms ease;
+}
+
+a:is(:hover, :focus-visible) .idleStamp {
+  opacity: 0;
+}
+
+a:is(:hover, :focus-visible) .cv {
+  animation: cvCycle 2.6s cubic-bezier(0.3, 0.7, 0.3, 1) infinite;
+}
+
+a:is(:hover, :focus-visible) .mark {
+  animation: markIn 2.6s ease-out infinite;
+}
+
+a:is(:hover, :focus-visible) .stamp {
+  animation: stampDrop 2.6s ease-in infinite;
+}
+
+a:is(:hover, :focus-visible) .pile {
+  animation: pileBump 2.6s ease-out infinite;
+}
+
+@keyframes cvCycle {
+  0% {
+    transform: translateX(110px);
+    opacity: 0;
+  }
+  18%,
+  62% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  85%,
+  100% {
+    transform: translate(-72px, 14px) rotate(-14deg) scale(0.55);
+    opacity: 0;
+  }
+}
+
+@keyframes stampDrop {
+  0%,
+  30% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  38% {
+    transform: translateY(-30px);
+    opacity: 1;
+  }
+  45%,
+  51% {
+    transform: translateY(30px);
+    opacity: 1;
+  }
+  62% {
+    transform: translateY(-30px);
+    opacity: 1;
+  }
+  70%,
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes markIn {
+  0%,
+  44% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+  47%,
+  80% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  86%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pileBump {
+  0%,
+  82% {
+    transform: none;
+  }
+  88% {
+    transform: translateY(2px) scale(1.06);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ── UyumMetre: kutular dolar, süre erir, imleç gelir, düğme kaçar ── */
+.tickOff {
+  opacity: 0;
+}
+
+.ring {
+  stroke-dashoffset: 51;
+}
+
+.cursor {
+  opacity: 0;
+  transform: translate(120px, 112px);
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+a:is(:hover, :focus-visible) .tick {
+  animation: tick 3s ease-out infinite;
+}
+
+a:is(:hover, :focus-visible) .ring {
+  animation: drain 3s linear infinite;
+}
+
+a:is(:hover, :focus-visible) .cursor {
+  animation: cursorRun 3s ease-in-out infinite;
+}
+
+a:is(:hover, :focus-visible) .runaway {
+  animation: runaway 3s cubic-bezier(0.3, 1.5, 0.5, 1) infinite;
+}
+
+@keyframes tick {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  10%,
+  85% {
+    transform: none;
+    opacity: 1;
+  }
+  95%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes drain {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 151;
+  }
+}
+
+@keyframes cursorRun {
+  0% {
+    transform: translate(110px, 116px);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  44%,
+  50% {
+    transform: translate(190px, 92px);
+    opacity: 1;
+  }
+  72% {
+    transform: translate(140px, 94px);
+    opacity: 1;
+  }
+  90%,
+  100% {
+    transform: translate(140px, 94px);
+    opacity: 0;
+  }
+}
+
+@keyframes runaway {
+  0%,
+  42% {
+    transform: none;
+  }
+  52%,
+  70% {
+    transform: translate(16px, -10px) rotate(8deg);
+  }
+  80% {
+    transform: translate(-74px, -4px) rotate(6deg);
+  }
+  95%,
+  100% {
+    transform: none;
+  }
+}
+
+/* ── İnşaat İzleme: katlar çıkar, yük iner kalkar, amca yorum yapar ── */
+.floorOff,
+.say {
+  opacity: 0;
+}
+
+a:is(:hover, :focus-visible) .floor {
+  animation: floorUp 2.4s ease-out infinite;
+}
+
+a:is(:hover, :focus-visible) .load {
+  animation: haul 1.2s ease-in-out infinite alternate;
+}
+
+a:is(:hover, :focus-visible) .say {
+  animation: say 2.4s ease-out infinite;
+}
+
+@keyframes floorUp {
+  0% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  14%,
+  88% {
+    transform: none;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes haul {
+  to {
+    transform: translateY(22px);
+  }
+}
+
+@keyframes say {
+  0%,
+  40% {
+    transform: translateY(4px) scale(0.9);
+    opacity: 0;
+  }
+  50%,
+  90% {
+    transform: none;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

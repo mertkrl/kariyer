@@ -24,6 +24,15 @@ export interface ArcadeGame {
 
 export const GAMES: ArcadeGame[] = [
   {
+    route: 'insaat',
+    title: 'İnşaat İzleme',
+    blurb: 'Bir apartman, temelden çatıya. Ellerini arkana koy, izle. Yorum yapmak serbest, karışmak yasak.',
+    color: 'var(--clay)',
+    kind: 'Mini oyun',
+    minutes: 6,
+    file: 3,
+  },
+  {
     route: 'test',
     title: 'Genel Yetenek ve Uyum Testi',
     blurb: 'Bilimsel olarak geliştirilmiş, tamamen objektif bir değerlendirme. Lütfen sekmeyi değiştirmeyiniz.',

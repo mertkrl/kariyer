@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { audioEngine } from '../audio/audioEngine';
 import { hasSave } from '../game/store/save';
-import { DeskArt, ExamArt } from './CardArt';
+import { CraneArt, DeskArt, ExamArt } from './CardArt';
 import { FILTER_FROM, GAMES, isWorkHours, SITE_NAME, type ArcadeGame, type GameKind } from './games';
 import { hrefOf } from './route';
 import { StudioMark } from './Studio';
 import styles from './ArcadeScreen.module.css';
 
-const CARD_ART = { iseAlim: DeskArt, test: ExamArt } as const;
+const CARD_ART = { iseAlim: DeskArt, test: ExamArt, insaat: CraneArt } as const;
 
 const fileNo = (n: number) => `DOSYA ${String(n).padStart(3, '0')}`;
 

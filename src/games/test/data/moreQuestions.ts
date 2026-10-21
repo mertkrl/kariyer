@@ -126,7 +126,7 @@ export const MORE_QUESTIONS: ExamQuestion[] = [
       type: 'chat',
       from: 'Yönetici',
       at: '07:12',
-      messages: ['Geçmiş olsun 🙏', 'Bu arada 10:00 toplantısına kameran kapalı katılabilirsin.'],
+      messages: ['Geçmiş olsun', 'Bu arada 10:00 toplantısına kameran kapalı katılabilirsin.'],
     },
     seconds: 25,
   },

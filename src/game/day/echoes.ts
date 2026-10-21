@@ -86,7 +86,7 @@ const NEW_JOBS = ['Nexa Yazılım', 'Kuzey Teknoloji', 'Bulut Finans', 'Deniz Lo
 const FOUND_WORK = [
   (co: string) => `${co}'dan mülakat daveti geldi 🎉 Birkaç gün önce bir yerden "değerlendirme dışı" demişlerdi; burada ilk görüşmede kodumu sordular.`,
   (co: string) => `Bugün ${co} ile ilk görüşmemi yaptım. Karşımda CV'mi baştan sona okumuş biri vardı; bunu bile özlemişim.`,
-  (co: string) => `${co} ikinci görüşmeye çağırdı 🙏 Reddedildiğim her yere bir teşekkür borçluyum sanırım. Belki de değil.`,
+  (co: string) => `${co} ikinci görüşmeye çağırdı Reddedildiğim her yere bir teşekkür borçluyum sanırım. Belki de değil.`,
 ];
 
 /** Önceki günlerde geri çevirdiğin güçlü insanlar, başka yerlerden gelen davetleri paylaşıyor. */

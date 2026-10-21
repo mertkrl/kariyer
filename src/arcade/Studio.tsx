@@ -56,14 +56,23 @@ export function KasmLogo({ className, small = false }: { className?: string; sma
 /**
  * Oyunların giriş ekranında ve salonda sağ altta duran stüdyo imzası. `tone`: zemin koyuysa
  * "dark". KASM ve LABS tek bir blok: LABS logonun altında, logonun genişliğine yayılır; aralarında
- * logonun renk geçişiyle bir çizgi. Üstüne gelince logo yeniden çizilir ve blok bir kez zıplar.
+ * bir çizgi. Salonda renkli ve animasyonlu; oyunlarda `minimal`: tek renk, soluk, animasyonsuz,
+ * oyunun zeminine karışır. Üstüne gelince blok bir kez zıplar.
  */
-export function StudioMark({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
+export function StudioMark({ tone = 'light', minimal = false }: { tone?: 'light' | 'dark'; minimal?: boolean }) {
   const [play, setPlay] = useState(0);
   return (
-    <span className={`${styles.mark} ${tone === 'dark' ? styles.onDark : ''}`} onPointerEnter={() => setPlay((n) => n + 1)}>
+    <span className={`${styles.mark} ${tone === 'dark' ? styles.onDark : ''} ${minimal ? styles.minimal : ''}`} onPointerEnter={() => setPlay((n) => n + 1)}>
       <span key={play} className={`${styles.lockup} ${play ? styles.hop : ''}`}>
-        <KasmLogo small />
+        {minimal ? (
+          <svg viewBox="0 0 360 90" role="img" aria-label="KASM">
+            <text x="180" y="74" textAnchor="middle" textLength="344" lengthAdjust="spacingAndGlyphs" fontSize="84" fontWeight="900" fontFamily="'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif" fill="currentColor">
+              KASM
+            </text>
+          </svg>
+        ) : (
+          <KasmLogo small />
+        )}
         <span className={styles.rule} aria-hidden="true" />
         {/* büyük harfle yazılır: Türkçe sayfada otomatik büyütme "İ" yapabilir */}
         <svg viewBox="0 0 360 44" aria-label="LABS">

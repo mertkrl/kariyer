@@ -157,3 +157,27 @@
 .onDark {
   color: rgba(255, 255, 255, 0.92);
 }
+
+/* oyunlarda: tek renk, soluk, zemine karışır; üstüne gelince belirginleşir */
+.minimal {
+  opacity: 0.4;
+  transition: opacity var(--motion-enter) ease;
+}
+
+.minimal:hover {
+  opacity: 0.85;
+}
+
+.minimal .lockup {
+  width: 84px;
+}
+
+.minimal .rule {
+  height: 1px;
+  background: currentColor;
+}
+
+/* koyu oyunlarda saf beyaz değil, başlıkların krem kâğıt rengi */
+.onDark.minimal {
+  color: var(--paper);
+}

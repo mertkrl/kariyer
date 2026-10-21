@@ -448,23 +448,6 @@ summary.h2 {
 
 .site {
   justify-self: start;
-  padding: 6px 10px;
-  border-radius: 8px;
-  color: var(--a-text);
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.site:hover {
-  background: var(--a-line-soft);
-  color: var(--a-blue);
-}
-
-.site:focus-visible {
-  outline: 3px solid var(--gold);
-  outline-offset: 2px;
 }
 
 .center {

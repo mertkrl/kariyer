@@ -7,7 +7,7 @@ import { UpdateNotice } from './components/ui/UpdateNotice';
 import { MobileBlock } from './components/ui/MobileBlock';
 import { useScreenFocus } from './components/ui/useScreenFocus';
 import { useModalTrap } from './components/ui/useModalTrap';
-import { BackToArcade } from './arcade/BackToArcade';
+import { ClockOut } from './arcade/ClockOut';
 import { StudioMark } from './arcade/Studio';
 
 // İlk pakete yalnızca karşılama ekranı girer; diğer her ekran kendi parçasıdır.
@@ -95,8 +95,8 @@ function App() {
         {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
       </Suspense>
       {phase === 'welcome' && <UpdateNotice />}
-      {phase === 'welcome' && <BackToArcade centered />}
-      {phase === 'welcome' && <StudioMark tone="dark" />}
+      {phase === 'welcome' && <ClockOut tone="dark" fixed centered />}
+      {phase === 'welcome' && <StudioMark tone="dark" minimal />}
       {/* telefonda oyun başlamaz: açılış sayfası okunur, gerisi geniş ekran ister */}
       {phase !== 'welcome' && <MobileBlock />}
     </>

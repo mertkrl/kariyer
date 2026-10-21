@@ -1,0 +1,358 @@
+.scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* bulutlar kendi hızlarında sürüklenir (süre satır içinde), yıldızlar göz kırpar */
+.cloudDrift {
+  animation: drift 80s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  to {
+    transform: translateX(90px);
+  }
+}
+
+.star {
+  animation: twinkle 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  to {
+    opacity: 0.3;
+  }
+}
+
+/* vinç arabası bom boyunca gider, kanca iner kalkar */
+.trolley {
+  animation: trolley 9s ease-in-out infinite alternate;
+}
+
+@keyframes trolley {
+  from {
+    transform: translateX(640px);
+  }
+  to {
+    transform: translateX(790px);
+  }
+}
+
+.hook {
+  animation: hoist 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes hoist {
+  to {
+    transform: translateY(70px);
+  }
+}
+
+/* kepçe kolu kazar, toz kalkar */
+.arm {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: dig 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes dig {
+  to {
+    transform: rotate(-7deg);
+  }
+}
+
+.dust {
+  fill: rgba(190, 160, 120, 0.55);
+  animation: dust 2.2s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+@keyframes dust {
+  from {
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(1.4);
+  }
+}
+
+/* damperli kamyon gelir, yükünü alır, gider */
+.dumpTruck {
+  animation: haul 10s ease-in-out infinite;
+}
+
+@keyframes haul {
+  0%,
+  100% {
+    transform: translateX(-260px);
+  }
+  30%,
+  65% {
+    transform: none;
+  }
+}
+
+.drip {
+  animation: drip 0.8s ease-in infinite;
+}
+
+@keyframes drip {
+  to {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+/* teslim: çamaşırlar uçuşur */
+@keyframes sway {
+  to {
+    transform: rotate(2deg);
+  }
+}
+
+.laundry {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: sway 1.4s ease-in-out infinite alternate;
+}
+
+.bubble {
+  animation: pop 260ms cubic-bezier(0.3, 1.5, 0.5, 1);
+  transform-box: fill-box;
+  transform-origin: bottom left;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+}
+
+.banner {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 400ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+
+/* yağmur: uzak katman ince ve hızlı, yakın katman uzun; yerde damlalar sıçrar */
+.rainFar {
+  animation: rainFall 0.55s linear infinite;
+}
+
+.rainNear {
+  animation: rainFall 0.4s linear infinite;
+}
+
+@keyframes rainFall {
+  to {
+    transform: translate(-14px, 640px);
+  }
+}
+
+.splash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: splash 0.7s ease-out infinite;
+}
+
+@keyframes splash {
+  from {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* kar: uzak taneler yavaş, yakınlar biraz daha hızlı; ikisi de yana savrulur */
+.snowFar {
+  animation: snowFall 16s linear infinite;
+}
+
+.snowNear {
+  animation: snowFall 10s linear infinite;
+}
+
+@keyframes snowFall {
+  25% {
+    transform: translate(18px, 160px);
+  }
+  50% {
+    transform: translate(-6px, 320px);
+  }
+  75% {
+    transform: translate(22px, 480px);
+  }
+  to {
+    transform: translate(4px, 640px);
+  }
+}
+
+/* boşta vinç: halat kancayla birlikte uzar kısalır */
+.rope {
+  transform-box: fill-box;
+  transform-origin: top;
+  animation: hoistRope 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes hoistRope {
+  to {
+    transform: scaleY(1.84);
+  }
+}
+
+/*
+ * Çalışan vinç, 8 saniyelik döngü: kanca yerde yükü alır (0–12%), kalkar (22%), araba binaya
+ * gider (45%), kanca kata iner (58%), yük bırakılır (66%), kanca kalkar, araba geri döner.
+ * Mesafeler satır içi değişkenlerden gelir: --pick, --put (arabanın x'i), --ground, --drop.
+ */
+.trolleyWork {
+  animation: trolleyWork 8s ease-in-out infinite;
+}
+
+@keyframes trolleyWork {
+  0%,
+  22% {
+    transform: translateX(calc(var(--pick) * 1px));
+  }
+  45%,
+  74% {
+    transform: translateX(calc(var(--put) * 1px));
+  }
+  96%,
+  100% {
+    transform: translateX(calc(var(--pick) * 1px));
+  }
+}
+
+.hookWork {
+  animation: hookWork 8s ease-in-out infinite;
+}
+
+@keyframes hookWork {
+  0%,
+  12% {
+    transform: translateY(calc(var(--ground) * 1px));
+  }
+  22%,
+  45% {
+    transform: translateY(0);
+  }
+  58%,
+  66% {
+    transform: translateY(calc(var(--drop) * 1px));
+  }
+  76%,
+  88% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(calc(var(--ground) * 1px));
+  }
+}
+
+.ropeWork {
+  transform-box: fill-box;
+  transform-origin: top;
+  animation: ropeWork 8s ease-in-out infinite;
+}
+
+@keyframes ropeWork {
+  0%,
+  12% {
+    transform: scaleY(calc((83 + var(--ground)) / 83));
+  }
+  22%,
+  45% {
+    transform: scaleY(1);
+  }
+  58%,
+  66% {
+    transform: scaleY(calc((83 + var(--drop)) / 83));
+  }
+  76%,
+  88% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(calc((83 + var(--ground)) / 83));
+  }
+}
+
+/* yük bırakılınca kaybolur, kanca yere inince yenisi takılır */
+.loadWork {
+  animation: loadWork 8s step-end infinite;
+}
+
+@keyframes loadWork {
+  0% {
+    opacity: 1;
+  }
+  67% {
+    opacity: 0;
+  }
+  97% {
+    opacity: 1;
+  }
+}
+
+/* pompa kolu kamyonun üstünden açılır; mikser yoldan gelip yanaşır */
+.boomIn {
+  transform-box: view-box;
+  transform-origin: 840px 484px;
+  animation: boomIn 1.8s ease-out;
+}
+
+@keyframes boomIn {
+  from {
+    transform: rotate(-70deg) scale(0.35);
+    opacity: 0.4;
+  }
+}
+
+.driveInRight {
+  animation: driveInRight 2.4s ease-out;
+}
+
+@keyframes driveInRight {
+  from {
+    transform: translateX(340px);
+  }
+}
+
+/* döküm cephesinde vibratör dalgaları */
+.ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple 0.6s ease-out infinite;
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* mikser tamburunun sarmal çizgileri akar: tambur dönüyor gibi */
+.drumSpin {
+  animation: drumSpin 0.9s linear infinite;
+}
+
+@keyframes drumSpin {
+  to {
+    transform: translateX(30px);
+  }
+}

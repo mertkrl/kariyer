@@ -213,7 +213,7 @@ export const OPTIONS: MeetingOption[] = [
     vicdan: 3,
     rapport: -6,
     replies: [
-      { who: 'umit', text: 'Sohbete de yazdım: buna katılıyorum.', board: { page: 'funnel', focus: ['eliminated'], proposal: true }, chat: [{ who: 'umit', text: 'Ekip olarak destek veririz.' }, { who: 'ayse', text: 'İyi ki söyledin 🙏', private: true }] },
+      { who: 'umit', text: 'Sohbete de yazdım: buna katılıyorum.', board: { page: 'funnel', focus: ['eliminated'], proposal: true }, chat: [{ who: 'umit', text: 'Ekip olarak destek veririz.' }, { who: 'ayse', text: 'İyi ki söyledin', private: true }] },
       { who: 'hakan', text: 'Zamanı olan yapsın. Hedefler değişmiyor. Ve Defne: bir dahaki sefere önerini önce bana getir, toplantıda değil.' },
       { who: 'emre', text: 'Kimin zamanı var ki…' },
     ],

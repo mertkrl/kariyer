@@ -3,6 +3,8 @@ import { useGameStore } from '../../game/store/store';
 import { audioEngine } from '../../audio/audioEngine';
 import { TEXT_SCALES, applyTextScale, loadTextScale } from '../../game/lib/textScale';
 import { applyMotionReduced, loadMotionReduced } from './motion';
+import { navigate } from '../../arcade/route';
+import { SITE_NAME } from '../../arcade/games';
 import styles from './SettingsPanel.module.css';
 
 function MusicGlyph() {
@@ -233,20 +235,32 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
 
         {confirmHome ? (
           <div className={styles.confirmHome}>
-            <span>Bugünkü ilerlemen kaybolacak; ana sayfadaki “Devam et” seni bu günün başına götürür. Emin misin?</span>
+            <span>
+              Çıkış kartını basıp {SITE_NAME}’na dönüyorsun. Bugünkü ilerlemen kaybolacak; oyuna yeniden girince “Devam et” seni bu günün başına götürür. Emin misin?
+            </span>
             <div className={styles.actions}>
               <button className={styles.btn} onClick={() => setConfirmHome(false)}>
                 Vazgeç
               </button>
-              <button className={`${styles.btn} ${styles.btnDanger}`} onClick={restart}>
-                Ana sayfa
+              <button
+                className={`${styles.btn} ${styles.btnDanger}`}
+                onClick={() => {
+                  // oyun açılış ekranına döner (ses ve sahne kapanır), site salona geçer
+                  restart();
+                  navigate('arcade');
+                }}
+              >
+                Evet, çık
               </button>
             </div>
           </div>
         ) : (
           <div className={styles.actions}>
             <button className={styles.btn} onClick={() => setConfirmHome(true)}>
-              Ana sayfaya dön
+              <span className={styles.md} aria-hidden="true">
+                MD
+              </span>
+              Mesaiyi bitir
             </button>
             <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onResume}>
               Devam et
