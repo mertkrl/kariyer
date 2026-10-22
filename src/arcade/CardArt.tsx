@@ -141,3 +141,28 @@ export function ShopArt() {
     </svg>
   );
 }
+
+/** Ekran İhalesi: duvarda eski sıra ekranı; numara değişir, yanında yeni tasarımın fırçası belirir. */
+export function ScreenArt() {
+  return (
+    <svg viewBox="0 0 240 120" className={`${styles.art} ${p.scene}`} aria-hidden="true">
+      <rect x="56" y="14" width="128" height="86" rx="5" fill="rgba(0,0,0,.28)" />
+      <rect x="62" y="20" width="116" height="70" rx="2" fill="rgba(255,255,255,.92)" />
+      <rect x="62" y="20" width="116" height="12" fill="rgba(0,0,0,.12)" />
+      <rect x="62" y="38" width="116" height="20" fill="rgba(111,163,122,.55)" />
+      <text x="72" y="53" fontSize="13" fontWeight="800" fill="rgba(0,0,0,.6)" fontFamily="monospace">
+        701
+      </text>
+      <rect x="104" y="44" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
+      <rect x="66" y="63" width="108" height="9" fill="rgba(0,0,0,.08)" />
+      <rect x="66" y="75" width="108" height="9" fill="rgba(0,0,0,.08)" />
+      <rect x="112" y="100" width="16" height="10" fill="rgba(0,0,0,.2)" />
+      <g className={p.floor} style={{ animationDelay: '0.2s' }}>
+        <rect x="178" y="6" width="46" height="22" rx="11" fill="rgba(255,255,255,.95)" />
+        <text x="201" y="21" textAnchor="middle" fontSize="10" fontWeight="800" fill="rgba(0,0,0,.6)" fontFamily="monospace">
+          702
+        </text>
+      </g>
+    </svg>
+  );
+}

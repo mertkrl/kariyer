@@ -1,19 +1,20 @@
 import { useSyncExternalStore } from 'react';
 
 /*
- * Oyun salonunun adresleri: `#/` salon, `#/ise-alim`, `#/test`, `#/insaat` ve `#/bakkal` oyunlar. Adres `#` ile tutulur;
+ * Oyun salonunun adresleri: `#/` salon, `#/ise-alim`, `#/test`, `#/insaat`, `#/bakkal` ve `#/ekran` oyunlar (`#/ekran?t=…` paylaşılan bir ekran tasarımını taşır). Adres `#` ile tutulur;
  * böylece derleme herhangi bir statik sunucunun herhangi bir klasöründen, çevrimdışı da çalışır.
  */
-export type Route = 'arcade' | 'iseAlim' | 'test' | 'insaat' | 'bakkal';
+export type Route = 'arcade' | 'iseAlim' | 'test' | 'insaat' | 'bakkal' | 'ekran';
 
-const PATHS: Record<Route, string> = { arcade: '#/', iseAlim: '#/ise-alim', test: '#/test', insaat: '#/insaat', bakkal: '#/bakkal' };
+const PATHS: Record<Route, string> = { arcade: '#/', iseAlim: '#/ise-alim', test: '#/test', insaat: '#/insaat', bakkal: '#/bakkal', ekran: '#/ekran' };
 
 export function routeOf(hash: string): Route {
-  const path = hash.replace(/^#/, '').replace(/\/+$/, '');
+  const path = hash.replace(/^#/, '').split('?')[0].replace(/\/+$/, '');
   if (path === '/ise-alim') return 'iseAlim';
   if (path === '/test') return 'test';
   if (path === '/insaat') return 'insaat';
   if (path === '/bakkal') return 'bakkal';
+  if (path === '/ekran') return 'ekran';
   return 'arcade';
 }
 
