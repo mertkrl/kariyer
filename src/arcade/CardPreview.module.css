@@ -264,3 +264,65 @@ a:is(:hover, :focus-visible) .say {
     opacity: 0;
   }
 }
+
+/* ── Yama Ekibi: asfalt akar, çukur dolar, silindir geçer ── */
+.patch {
+  transform-origin: center bottom;
+  transform: scaleY(0.35);
+}
+
+.stream {
+  opacity: 0;
+  transform-origin: center top;
+}
+
+a:is(:hover, :focus-visible) .patch {
+  animation: patchFill 3s ease-out infinite;
+}
+
+a:is(:hover, :focus-visible) .stream {
+  animation: patchStream 3s ease-in-out infinite;
+}
+
+a:is(:hover, :focus-visible) .roller {
+  animation: patchRoll 3s ease-in-out infinite;
+}
+
+@keyframes patchFill {
+  0%,
+  8% {
+    transform: scaleY(0.2);
+  }
+  50%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes patchStream {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  10%,
+  45% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  55%,
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes patchRoll {
+  0%,
+  50% {
+    transform: translateX(0);
+  }
+  90%,
+  100% {
+    transform: translateX(160px);
+  }
+}

@@ -10,16 +10,18 @@ const LOADERS: Record<string, () => Promise<unknown>> = {
   insaat: () => import('./games/insaat/InsaatGame'),
   bakkal: () => import('./games/bakkal/BakkalGame'),
   ekran: () => import('./games/ekran/EkranGame'),
+  asfalt: () => import('./games/asfalt/AsfaltGame'),
 };
 const IseAlim = lazy(() => import('./App'));
 const TestGame = lazy(() => import('./games/test/TestGame').then((m) => ({ default: m.TestGame })));
 const InsaatGame = lazy(() => import('./games/insaat/InsaatGame').then((m) => ({ default: m.InsaatGame })));
+const AsfaltGame = lazy(() => import('./games/asfalt/AsfaltGame').then((m) => ({ default: m.AsfaltGame })));
 const EkranGame = lazy(() => import('./games/ekran/EkranGame').then((m) => ({ default: m.EkranGame })));
 const BakkalGame = lazy(() => import('./games/bakkal/BakkalGame').then((m) => ({ default: m.BakkalGame })));
 
 const preload = (route: string) => void LOADERS[route]?.();
 
-const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe alım simülasyonu", test: 'Genel Yetenek ve Uyum Testi', insaat: 'İnşaat İzleme', bakkal: 'Köy Bakkalı', ekran: 'Ekran İhalesi' };
+const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe alım simülasyonu", test: 'Genel Yetenek ve Uyum Testi', insaat: 'İnşaat İzleme', bakkal: 'Köy Bakkalı', ekran: 'Ekran İhalesi', asfalt: 'Yama Ekibi' };
 
 export function Root() {
   const route = useRoute();
@@ -33,6 +35,13 @@ export function Root() {
     return (
       <Suspense fallback={null}>
         <IseAlim />
+      </Suspense>
+    );
+  // şantiyenin açık zemini: yüklenirken aynı renk görünsün
+  if (route === 'asfalt')
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100%', background: '#e9e4d8' }} />}>
+        <AsfaltGame />
       </Suspense>
     );
   // atölyenin koyu zemini: yüklenirken aynı renk görünsün

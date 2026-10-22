@@ -166,3 +166,30 @@ export function ScreenArt() {
     </svg>
   );
 }
+
+/** Yama Ekibi: yolun kesitinde bir çukur; asfalt dökülür, çukur dolar, silindir üstünden geçer. */
+export function PatchArt() {
+  return (
+    <svg viewBox="0 0 240 120" className={`${styles.art} ${p.scene}`} aria-hidden="true">
+      <path d="M16 74 H92 L98 86 L104 98 H140 L148 86 L152 74 H224 V108 H16 Z" fill="rgba(0,0,0,.28)" />
+      <path d="M16 74 H92 L96 80 H150 L152 74 H224 V68 H16 Z" fill="rgba(255,255,255,.18)" />
+      <path d="M16 68 H224 V74 H152 L148 86 L140 98 H104 L98 86 L92 74 H16 Z" fill="rgba(255,255,255,.55)" />
+      {[24, 50, 172, 198].map((x) => (
+        <rect key={x} x={x} y="69.5" width="12" height="2" fill="rgba(255,255,255,.95)" />
+      ))}
+      {/* çukuru dolduran yeni asfalt */}
+      <path className={p.patch} d="M92 74 L98 86 L104 98 H140 L148 86 L152 74 Z" fill="rgba(30,30,34,.85)" />
+      {/* kamyon kasasından akan asfalt */}
+      <rect className={p.stream} x="119" y="24" width="6" height="56" rx="3" fill="rgba(30,30,34,.7)" />
+      <rect x="104" y="12" width="36" height="14" rx="3" fill="rgba(255,255,255,.85)" />
+      {/* silindir */}
+      <g className={p.roller}>
+        <rect x="26" y="40" width="22" height="9" rx="2" fill="rgba(255,255,255,.9)" />
+        <rect x="30" y="30" width="2" height="10" fill="rgba(255,255,255,.9)" />
+        <rect x="42" y="30" width="2" height="10" fill="rgba(255,255,255,.9)" />
+        <rect x="28" y="28" width="18" height="3" rx="1.5" fill="rgba(255,255,255,.9)" />
+        <rect x="22" y="50" width="30" height="18" rx="9" fill="rgba(0,0,0,.4)" />
+      </g>
+    </svg>
+  );
+}

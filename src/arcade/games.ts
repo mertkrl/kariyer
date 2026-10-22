@@ -24,6 +24,15 @@ export interface ArcadeGame {
 
 export const GAMES: ArcadeGame[] = [
   {
+    route: 'asfalt',
+    title: 'Yama Ekibi',
+    blurb: 'Üç aydır kapanmayan çukur, yağmur ve kurdele kesmeye gelen başkan. Toprağı dök, mıcırı yay, asfalt soğumadan silindiri geçir.',
+    color: 'var(--red)',
+    kind: 'Mini oyun',
+    minutes: 8,
+    file: 7,
+  },
+  {
     route: 'ekran',
     title: 'Ekran İhalesi',
     blurb: 'Hastane sıra ekranı, metrobüs, Marmaray… Yıllardır aynı duran ekranları baştan tasarla, canlı çalıştır, paylaş.',
