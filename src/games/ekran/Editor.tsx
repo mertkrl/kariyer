@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { loadProgress, markPlayed } from '../../arcade/progress';
 import { STOP_SECONDS } from './lines';
 import { CALL_SECONDS } from './live';
 import { FONTS, GRID, PRESET_ACCENT, SCENES, H, KINDS, MAX_WIDGETS, W, blankDesign, currentDesign, makeWidget, sampleDesign, scopeOf, snap, draftKey, type Align, type Design, type FontId, type Kind, type SceneId, type Widget } from './model';
 import { screenPng } from './png';
 import { Screen } from './Screen';
 import { shareUrl } from './share';
+import { evaluate, saveStars, type Report, type Task } from './spec';
+import { Checklist, ReportCard } from './Dossier';
 import { ding } from './sfx';
 import { useClock } from './useClock';
 import styles from './EkranGame.module.css';
@@ -35,7 +38,18 @@ const ALIGNS: { id: Align; label: string }[] = [
   { id: 'end', label: 'Sağa' },
 ];
 
-export function Editor({ initial }: { initial: Design }) {
+interface EditorProps {
+  initial: Design;
+  /** Zor modda üzerinde çalışılan dosya; yoksa serbest atölye. */
+  task?: Task;
+  /** Taslağın saklandığı anahtar: ekran başına ya da dosya başına. */
+  storeKey?: string;
+  onFiles?: () => void;
+  onNext?: () => void;
+}
+
+export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps) {
+  const [report, setReport] = useState<Report | null>(null);
   const [hist, setHist] = useState<History>({ past: [], present: initial, future: [] });
   const [selected, setSelected] = useState<string | null>(null);
   const [live, setLive] = useState(true);
@@ -92,11 +106,11 @@ export function Editor({ initial }: { initial: Design }) {
   // taslak her değişiklikte saklanır; gizli pencerede depolama yoksa sessizce geçilir
   useEffect(() => {
     try {
-      localStorage.setItem(draftKey(design.preset), JSON.stringify(design));
+      localStorage.setItem(storeKey ?? draftKey(design.preset), JSON.stringify(design));
     } catch {
       /* depolama yok */
     }
-  }, [design]);
+  }, [design, storeKey]);
 
   // yeni hasta çağrılınca ya da durak değişince zil (açıksa)
   const hospital = design.preset === 'hastane';
@@ -109,7 +123,7 @@ export function Editor({ initial }: { initial: Design }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (t.closest('input, textarea, select')) return;
+      if (report || t.closest('input, textarea, select')) return;
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 'z') {
         e.preventDefault();
@@ -168,6 +182,7 @@ export function Editor({ initial }: { initial: Design }) {
   };
 
   const share = async () => {
+    if (!loadProgress().played.ekran) markPlayed('ekran', 'Ekran tasarlandı');
     const url = await shareUrl(design);
     setLink(url);
     try {
@@ -176,6 +191,14 @@ export function Editor({ initial }: { initial: Design }) {
     } catch {
       flash('Bağlantıyı aşağıdan kopyalayabilirsin.');
     }
+  };
+  const submit = () => {
+    if (!task) return;
+    const rep = evaluate(design, task);
+    saveStars(task.id, rep.stars);
+    // kurul kararı: salonun defterine tik ve yıldızlar
+    markPlayed('ekran', `${'★'.repeat(rep.stars)}${'☆'.repeat(3 - rep.stars)} kurul kararı`);
+    setReport(rep);
   };
   const png = async () => {
     if (!svg.current) return;
@@ -241,6 +264,7 @@ export function Editor({ initial }: { initial: Design }) {
           </button>
         </div>
 
+        {task && <Checklist task={task} design={design} onSubmit={submit} />}
         <div className={styles.stageWrap}>
           <div ref={stage} className={styles.stage} onPointerDown={() => setSelected(null)}>
             <Screen ref={svg} design={design} seconds={seconds} now={now} className={styles.screen} />
@@ -280,6 +304,8 @@ export function Editor({ initial }: { initial: Design }) {
           </div>
         )}
       </section>
+
+      {task && report && <ReportCard task={task} report={report} onClose={() => setReport(null)} onFiles={() => onFiles?.()} onNext={onNext} />}
 
       <aside className={styles.inspector} aria-label="Ayarlar">
         {sel ? <WidgetPanel wd={sel} patch={(p, c) => patch(sel.id, p, c)} onDelete={() => remove(sel.id)} onCopy={() => duplicate(sel)} onLayer={(dir) => layer(sel.id, dir)} /> : <ScreenPanel design={design} set={set} />}

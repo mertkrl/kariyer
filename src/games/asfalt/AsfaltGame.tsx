@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
 import { hrefOf } from '../../arcade/route';
+import { markPlayed } from '../../arcade/progress';
+import { ShareButton } from '../../arcade/ShareButton';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
-import { LEVELS, TOOL_LABEL } from './levels';
+import { crewTitle, LEVELS, TOOL_LABEL } from './levels';
 import { Work } from './Work';
 import styles from './AsfaltGame.module.css';
 
@@ -75,7 +77,13 @@ export function AsfaltGame() {
           last={phase.n === LEVELS.length - 1}
           onRetry={() => setPhase({ ...phase, key: Date.now() })}
           onNext={(score) => {
-            setScores((s) => [...s.slice(0, phase.n), score]);
+            const next = [...scores.slice(0, phase.n), score];
+            setScores(next);
+            if (phase.n + 1 >= LEVELS.length) {
+              // mesai bitti: salonun defterine tik ve unvan
+              const t = crewTitle(next);
+              markPlayed('asfalt', t.title);
+            }
             setPhase(phase.n + 1 < LEVELS.length ? { at: 'order', n: phase.n + 1 } : { at: 'done' });
           }}
         />
@@ -98,6 +106,21 @@ export function AsfaltGame() {
             </dl>
             <p>Yarın sabah aynı çukurlar seni bekliyor. Kazan da İSKİ, kapatan da sen.</p>
             <div className={styles.actions}>
+              <ShareButton
+                className={styles.primary}
+                make={() => {
+                  const t = crewTitle(scores);
+                  return {
+                    route: 'asfalt',
+                    kicker: 'Fen İşleri Müdürlüğü · Mesai sonu',
+                    title: t.title,
+                    note: t.note,
+                    stats: [...LEVELS.map((l, i) => ({ label: l.title, value: `${scores[i] ?? 0}` })), { label: 'Ortalama', value: `${t.avg}`, tone: '#a8402f' }].slice(-3),
+                    question: 'Senin yaman kaç gün dayanır?',
+                    text: `Yama Ekibi'nde mesaiyi "${t.title}" olarak bitirdim, ortalamam ${t.avg}/100. Asfalt soğumadan silindiri geçirebilir misin?`,
+                  };
+                }}
+              />
               <button
                 type="button"
                 className={styles.ghost}
@@ -108,7 +131,7 @@ export function AsfaltGame() {
               >
                 Baştan başla
               </button>
-              <a className={styles.primary} href={hrefOf('arcade')}>
+              <a className={styles.ghost} href={hrefOf('arcade')}>
                 Salona dön
               </a>
             </div>

@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { sliderOption, type ExamQuestion, type ExamWidget } from '../data/questions';
 import { audioEngine } from '../../../audio/audioEngine';
+import * as sfx from '../sfx';
 import { prefersReducedMotion } from '../../../components/ui/motion';
 import styles from './QuestionWidgets.module.css';
 import { HistoryWidget, ScreenshareWidget } from './ScreenWidgets';
 import { BackgroundWidget, InviteWidget, ReactionWidget } from './AppWidgets';
 import { LunchWidget, RaiseWidget } from './OfficeWidgets';
 import { StampWidget, ThermostatWidget, TurnstileWidget } from './FloorWidgets';
+import { BudgetWidget, ContractWidget, ElevatorWidget, PasswordWidget, ShutdownWidget, SwipeWidget } from './DeskWidgets';
 
 /*
  * Değerlendirmenin soru türleri. Her biri sonunda bir şık sırası verir (`onAnswer`), böylece
@@ -40,6 +42,12 @@ export function QuestionWidget({ q, onAnswer, selected = null }: WidgetProps & {
   if (w?.type === 'stamp') return <StampWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'thermostat') return <ThermostatWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'turnstile') return <TurnstileWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'contract') return <ContractWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'swipe') return <SwipeWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'password') return <PasswordWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'shutdown') return <ShutdownWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'elevator') return <ElevatorWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'budget') return <BudgetWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   return (
     <div className={styles.options}>
       {q.options.map((o, i) => (
@@ -48,7 +56,7 @@ export function QuestionWidget({ q, onAnswer, selected = null }: WidgetProps & {
           className={`${styles.option} ${selected === i ? styles.optionOn : ''}`}
           aria-pressed={selected === i}
           onClick={() => {
-            click();
+            sfx.select(i);
             onAnswer(i);
           }}
         >
@@ -302,6 +310,7 @@ function RunawayWidget({ q, onAnswer }: WidgetProps) {
       setSwapped(true);
       return;
     }
+    sfx.flee();
     setRuns((n) => n + 1);
     setPos({ x: 2 + Math.random() * 60, y: 6 + Math.random() * 60 });
   };

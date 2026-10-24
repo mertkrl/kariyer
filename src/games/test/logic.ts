@@ -2,7 +2,7 @@ import { EXAM_QUESTIONS, EXAM_SECONDS, EXAM_SECTIONS, sectionOf, type ExamQuesti
 
 /*
  * Testin kuralları, ekrandan ayrı ve test edilebilir. Her oyunda her bölümden en fazla
- * QUESTIONS_PER_SECTION soru rastgele seçilir; bölümler sırayla gelir. Sonda iki puan vardır:
+ * QUESTIONS_PER_SECTION soru rastgele seçilir ve şıkları karıştırılır; bölümler sırayla gelir. Sonda iki puan vardır:
  * şirket puanı cevap anahtarına, sağduyu puanı aklı başında cevaba göre. Boş bırakılan soru ikisinde de
  * puan getirmez.
  */
@@ -17,15 +17,39 @@ export interface ExamSection {
   questions: ExamQuestion[];
 }
 
-/** Bölüm bölüm bir test: her bölümün soruları havuzdan karışık seçilir. `random` testler için verilir. */
+function shuffled<T>(xs: readonly T[], random: () => number): T[] {
+  const out = [...xs];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/**
+ * Şıkları karıştırılabilen türler: düz çoktan seçmeli ve şıkları yalnızca bir liste olan bileşenler.
+ * Kaydırıcı, takvim, kaçan düğme gibi türlerde şıkkın sırası bir eşiğe, hücreye ya da role bağlıdır;
+ * onlar olduğu gibi kalır.
+ */
+const SHUFFLES = new Set<string>(['order', 'tap', 'chat']);
+export const canShuffle = (q: ExamQuestion) => !q.widget || SHUFFLES.has(q.widget.type);
+
+/** Şıkları yeniden dizer; anahtar ve sağduyu cevabı şıklarıyla birlikte taşınır. */
+export function shuffleOptions(q: ExamQuestion, random: () => number = Math.random): ExamQuestion {
+  if (!canShuffle(q)) return q;
+  // order[yeni sıra] = eski sıra
+  const order = shuffled(q.options.map((_, i) => i), random);
+  return { ...q, options: order.map((i) => q.options[i]), answer: order.indexOf(q.answer), sensible: order.indexOf(q.sensible) };
+}
+
+/** Bölüm bölüm bir test: her bölümün soruları havuzdan, şıkları da kendi içinde karışık gelir. `random` testler için verilir. */
 export function pickExam(random: () => number = Math.random): ExamSection[] {
   return EXAM_SECTIONS.map((s, si) => {
-    const pool = EXAM_QUESTIONS.filter((q) => sectionOf(q.kind) === si);
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    return { title: s.title, questions: pool.slice(0, QUESTIONS_PER_SECTION) };
+    const pool = shuffled(
+      EXAM_QUESTIONS.filter((q) => sectionOf(q.kind) === si),
+      random,
+    );
+    return { title: s.title, questions: pool.slice(0, QUESTIONS_PER_SECTION).map((q) => shuffleOptions(q, random)) };
   });
 }
 

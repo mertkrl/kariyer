@@ -117,7 +117,8 @@ export function makeWidget(kind: Kind, props: Partial<Widget> = {}): Widget {
 }
 
 /** Tarayıcıda saklanan taslağın anahtarı, ekran başına bir tane. */
-export const draftKey = (preset: string) => `ekran:taslak:${preset}`;
+const DRAFT_KEY = 'kariyerweb-ekran-taslak';
+export const draftKey = (id: string) => `${DRAFT_KEY}-${id}`;
 
 export const snap = (n: number) => Math.round(n / GRID) * GRID;
 

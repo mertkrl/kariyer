@@ -1,7 +1,5 @@
 /* Sınav ekranı: kontrol paneli, soru kartı ve gezinme; iki deneme tasarımının kuralları da burada. */
-
 /* Ucuz bir online sınav platformu: steril beyaz ve kurumsal mavi. Renkler soru bileşenleriyle ortak. */
-
 .progress {
   height: 6px;
   border-radius: 3px;
@@ -76,21 +74,6 @@
   align-items: start;
 }
 
-.side {
-  position: sticky;
-  top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 22px;
-  background: #fff;
-  border: 1px solid var(--a-line);
-  border-radius: 12px;
-  box-shadow:
-    0 1px 2px rgba(29, 39, 51, 0.04),
-    0 8px 24px rgba(29, 39, 51, 0.06);
-}
-
 /* ── sınav: solda kontrol paneli, sağda soru ── */
 .exam {
   flex: 1;
@@ -103,155 +86,6 @@
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
-}
-
-/* süre halkası: kalan oran conic-gradient ile; son dakikada kırmızı */
-.clock {
-  --ring: var(--a-blue);
-  align-self: center;
-  width: 148px;
-  height: 148px;
-  border-radius: 50%;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  background:
-    radial-gradient(closest-side, #fff 84%, transparent 85%),
-    conic-gradient(var(--ring) calc(var(--p) * 1%), var(--a-line-soft) 0);
-  transition: --p 1s linear;
-}
-
-.clock b {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--a-text);
-}
-
-.clock small {
-  color: var(--a-muted);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.clockHurry {
-  --ring: var(--a-bad);
-}
-
-.clockHurry b {
-  color: var(--a-bad);
-}
-
-.map {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.mapTitle {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--a-muted);
-}
-
-.mapTitleOn {
-  color: var(--a-blue);
-}
-
-.grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
-}
-
-.cell {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-  border: 1.5px solid #c9d3e0;
-  border-radius: 8px;
-  background: #fff;
-  color: var(--a-muted);
-  font: 600 14px var(--font-body);
-  cursor: pointer;
-  transition:
-    background var(--motion-enter),
-    border-color var(--motion-enter),
-    transform var(--motion-enter);
-}
-
-.cell:hover {
-  border-color: var(--a-blue);
-  transform: translateY(-1px);
-}
-
-.cell i {
-  position: absolute;
-  top: 1px;
-  right: 3px;
-  font-size: 9px;
-  font-style: normal;
-}
-
-.cellDone {
-  border-color: var(--a-blue);
-  background: var(--a-blue);
-  color: #fff;
-}
-
-.cellNow {
-  box-shadow:
-    0 0 0 3px var(--a-blue-soft),
-    0 0 0 5px var(--a-blue-dark);
-}
-
-.cell:focus-visible {
-  outline: 3px solid var(--gold);
-  outline-offset: 2px;
-}
-
-.legend {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--a-muted);
-}
-
-.legend i {
-  display: inline-block;
-  width: 11px;
-  height: 11px;
-  margin-right: 4px;
-  border-radius: 3px;
-  vertical-align: -1px;
-}
-
-.lgDone {
-  background: var(--a-blue);
-}
-
-.lgBlank {
-  border: 1.5px solid #c9d3e0;
-  background: #fff;
-}
-
-.finish {
-  padding: 10px;
-  border: 1.5px solid var(--a-bad);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--a-bad);
-  font: 600 14px var(--font-body);
-  cursor: pointer;
-}
-
-.finish:hover {
-  background: var(--a-bad-soft);
 }
 
 .main {
@@ -341,7 +175,6 @@
 }
 
 /* ── cila ── */
-.side,
 .question {
   border-radius: 16px;
   box-shadow: var(--a-shadow);
@@ -365,22 +198,6 @@
   letter-spacing: -0.01em;
 }
 
-.mapTitle {
-  display: flex;
-  justify-content: space-between;
-}
-
-.mapTitle em {
-  font-style: normal;
-  font-weight: 600;
-  color: var(--a-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.cell {
-  border-radius: 10px;
-}
-
 .navRow .primary,
 .navRow .ghost {
   min-width: 132px;
@@ -397,10 +214,6 @@
  */
 .exam {
   align-items: stretch;
-}
-
-.side {
-  position: static;
 }
 
 .main .question {
@@ -463,53 +276,9 @@
   transition: background 1s linear;
 }
 
-.side,
 .main {
   position: relative;
   z-index: 1;
-}
-
-/*
- * 40 soruluk harita: her bölüm 5×2 kutu. Panel ekrana sığsın diye saat, kutular ve aralıklar
- * küçüldü; kutular kare değil, sabit yükseklikte.
- */
-.side {
-  gap: 12px;
-  padding: 18px;
-}
-
-.clock {
-  width: 116px;
-  height: 116px;
-}
-
-.clock b {
-  font-size: 26px;
-}
-
-.map {
-  gap: 10px;
-}
-
-.mapTitle {
-  margin-bottom: 5px;
-}
-
-.grid {
-  gap: 4px;
-}
-
-.cell {
-  aspect-ratio: auto;
-  height: 28px;
-  border-radius: 7px;
-  font-size: 12px;
-}
-
-.cell i {
-  top: 0;
-  right: 2px;
-  font-size: 8px;
 }
 
 .exam {
@@ -528,35 +297,6 @@
   padding-bottom: 16px;
 }
 
-.side {
-  gap: clamp(8px, 1.4vh, 16px);
-  padding: 16px 18px;
-}
-
-.map {
-  flex: 1;
-  justify-content: space-evenly;
-  gap: clamp(6px, 1vh, 12px);
-}
-
-.grid {
-  gap: 5px;
-}
-
-.cell {
-  height: clamp(26px, 3.5vh, 40px);
-  font-size: 13px;
-}
-
-.clock {
-  width: clamp(96px, 13vh, 148px);
-  height: clamp(96px, 13vh, 148px);
-}
-
-.clock b {
-  font-size: clamp(22px, 3vh, 30px);
-}
-
 /*
  * Üç sütun: solda kısa bir panel (saat, harita, bitir), ortada soru, sağda gözetmen. Sol panel
  * içeriği kadar uzar; harita bölüm başına tek satır 10 kutu. Gözetmenin canlı kutusu ve notları
@@ -567,42 +307,8 @@
   grid-template-columns: 236px minmax(0, 1fr) 236px;
 }
 
-.side,
 .watch {
   align-self: start;
-}
-
-.side {
-  gap: 14px;
-  padding: 16px;
-}
-
-.clock {
-  width: 92px;
-  height: 92px;
-}
-
-.clock b {
-  font-size: 21px;
-}
-
-.clock small {
-  font-size: 9.5px;
-}
-
-.map {
-  flex: none;
-  gap: 10px;
-}
-
-.grid {
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-}
-
-.cell {
-  height: 26px;
-  font-size: 12px;
 }
 
 /* dar pencere: yan sütunlar incelir, soru yerini korur */
@@ -614,77 +320,86 @@
 }
 
 /*
- * Harita: yalnızca içinde bulunulan bölümün kutuları görünür (5×2, iri); diğer bölümler tek
- * satır, bitti ya da sırada.
+ * Tablet ve telefon. ≤960: gözetmen sütunu üstte tek satırlık bir şeride iner, panel ve soru yan
+ * yana kalır. ≤760: tek sütun; üstte saat, bölümün kutuları ve "bitir" ince bir şerit olur, soru
+ * kartı ekranı doldurur, gezinme düğmeleri başparmağın altında ekrana yapışık durur.
  */
-.map {
-  gap: 6px;
+@media (max-width: 960px) {
+  .exam {
+    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 12px 16px 16px;
+    gap: 12px;
+  }
 }
 
-.mapSection {
-  border-radius: 10px;
-  transition: background var(--motion-enter);
-}
+@media (max-width: 760px) {
+  .exam {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    padding: 8px 10px 0;
+    gap: 8px;
+  }
 
-.mapOpen {
-  padding-bottom: 10px;
-  background: var(--a-line-soft);
-}
+  .main {
+    order: 3;
+    gap: 10px;
+  }
 
-.mapTitle {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  row-gap: 6px;
-  width: 100%;
-  margin: 0;
-  padding: 9px 10px;
-  border: 0;
-  border-radius: 10px;
-  background: none;
-  font: 700 12.5px var(--font-body);
-  color: var(--a-muted);
-  text-align: left;
-  cursor: pointer;
-}
+  .main .question {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+    padding: 16px 16px 20px;
+    border-radius: 14px;
+  }
 
-.mapTitle:hover {
-  background: var(--a-line-soft);
-}
+  .qHead {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 
-.mapOpen .grid {
-  padding: 0 10px;
-  gap: 6px;
-}
+  .prompt,
+  .qPlain .prompt {
+    font-size: 19px;
+    line-height: 1.35;
+  }
 
-.mapOpen .cell {
-  height: 36px;
-  font-size: 13.5px;
-}
+  .qPlain {
+    padding: 0 0 6px;
+  }
 
-/* bölüm bölüm akış: bitmiş ve sıradaki bölümler tek satır, tıklanmaz */
-.mapLocked .mapTitle {
-  cursor: default;
-  opacity: 0.6;
-}
+  .qPlain .qTop {
+    margin-bottom: 16px;
+  }
 
-.mapLocked .mapTitle:hover {
-  background: none;
-}
+  .figure {
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+  }
 
-.mapLocked em {
-  font-weight: 600;
-  text-transform: lowercase;
-}
+  /* gezinme ekranın altına yapışır: soru uzun olsa da düğmeler hep elde */
+  .main > .navRow {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 0 -10px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(243, 246, 251, 0.94);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--a-line);
+  }
 
-/* henüz açılmamış sorular: numarası görünür, tıklanmaz */
-.cellAhead {
-  border-style: dashed;
-  background: var(--a-line-soft);
-  cursor: not-allowed;
-  opacity: 0.55;
-}
+  /* düğmelerin bir kısmı TestGame.module.css'ten gelir: sınıfa değil konuma bakılır */
+  .navRow > button {
+    min-width: 0;
+    flex: 1;
+    padding: 12px 10px;
+  }
 
-.cellAhead:hover {
-  border-color: #c9d3e0;
-  transform: none;
+  .navCount {
+    flex: none;
+    font-size: 13px;
+  }
 }

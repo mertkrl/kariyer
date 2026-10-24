@@ -170,6 +170,11 @@
   gap: 12px;
 }
 
+/* sahnenin çerçevesi: dik telefonda sahne yanlardan taşar, çerçeve kırpar */
+.frame {
+  position: relative;
+}
+
 .stage {
   position: relative;
   aspect-ratio: 240 / 135;
@@ -455,6 +460,187 @@
 .after {
   color: var(--muted);
   font-style: italic;
+}
+
+/* dik telefonda: yan çevirme önerisi (yalnızca dik ve dar ekranda görünür) */
+.rotate {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px dashed var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rotate span {
+  font-size: 16px;
+}
+
+@keyframes fadeAway {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ── Telefon, dik: sahne kenardan kenara, araçlar başparmağın altında üçlü ızgara ── */
+@media (max-width: 760px) and (orientation: portrait) {
+  .rotate {
+    display: flex;
+    margin: 0 8px;
+  }
+
+  .work {
+    padding: 8px 0 24px;
+    gap: 10px;
+  }
+
+  /* yolun iki ucu kırpılır, çukur büyür; dokunuşlar yine sahnenin kendi ölçüsünden okunur */
+  .frame {
+    overflow: hidden;
+  }
+
+  .stage {
+    width: 130%;
+    margin-left: -15%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .receiptWrap {
+    position: fixed;
+    z-index: 20;
+  }
+
+  /* muhtar konuşur, sonra çekilir: küçük sahnede çukurun üstünde durmasın */
+  .bubble {
+    top: 4%;
+    left: 14%;
+    max-width: 44%;
+    padding: 5px 8px;
+    font-size: 11px;
+    animation:
+      pop 240ms var(--ease-enter),
+      fadeAway 400ms ease 5s forwards;
+  }
+
+  .bar {
+    flex-direction: column;
+    padding: 0 8px;
+  }
+
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .tool {
+    min-height: 48px;
+    padding: 6px 8px;
+  }
+
+  .status {
+    justify-content: space-between;
+  }
+
+  .meter {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .status .primary {
+    min-height: 44px;
+  }
+
+  .help {
+    display: none;
+  }
+}
+
+/* ── Telefon, yan: sahne ekranın yüksekliğini doldurur, araçlar sağda dikey şerit ── */
+@media (max-height: 520px) and (orientation: landscape) {
+  .app:has(.work) {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .top {
+    padding: 4px 12px;
+  }
+
+  .title p {
+    display: none;
+  }
+
+  /* sahnenin ölçüsü bu kutudan okunur: yükseklik doluyken sağdaki şeride yer kalsın */
+  .work {
+    container-type: size;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    min-height: 0;
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .frame {
+    flex: none;
+    width: min(100cqw - 176px, 100cqh * 240 / 135);
+  }
+
+  .stage {
+    border-radius: 6px;
+  }
+
+  .bubble {
+    padding: 5px 8px;
+    font-size: 11px;
+    animation:
+      pop 240ms var(--ease-enter),
+      fadeAway 400ms ease 5s forwards;
+  }
+
+  .bar {
+    flex: 1;
+    align-self: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    min-width: 0;
+    overflow-y: auto;
+    gap: 8px;
+  }
+
+  .tools {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .tool {
+    padding: 5px 8px;
+  }
+
+  .tool small,
+  .tool kbd,
+  .help {
+    display: none;
+  }
+
+  .status {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .meter {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 560px) {

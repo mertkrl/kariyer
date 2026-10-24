@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { ShareButton } from '../../arcade/ShareButton';
+import * as sfx from './sfx';
+import { markPlayed } from '../../arcade/progress';
 import { PASS_MARK, reportNo, scoreExam, sectionScores, verdictOf, type ExamAnswer, type ExamSection } from './logic';
 import base from './TestGame.module.css';
 import styles from './Result.module.css';
@@ -34,6 +37,16 @@ export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSecti
   const [open, setOpen] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
+  // rapor açılırken kısa bir trampet, ardından mühür masaya iner
+  useEffect(() => {
+    // salonun defterine: tik ve sonuç
+    markPlayed('test', `${v.title} · ${r.company}`);
+    sfx.drumroll(0.9);
+    const id = window.setTimeout(() => sfx.stamp(passed), 950);
+    return () => window.clearTimeout(id);
+    // yalnızca rapor ilk açıldığında
+    // oxlint-disable-next-line react/exhaustive-deps
+  }, []);
   const date = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const markOf = (i: number): Mark => {
@@ -107,9 +120,27 @@ export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSecti
         </dl>
 
         <footer className={styles.foot}>
-          <button className={base.primary} onClick={onAgain}>
-            Testi yeniden çöz
-          </button>
+          <div className={styles.footButtons}>
+            <ShareButton
+              className={base.primary}
+              make={() => ({
+                route: 'test',
+                kicker: `Aday Profil Raporu · ${passed ? 'Uygun' : 'Uygun değil'}`,
+                title: v.title,
+                note: v.line,
+                stats: [
+                  { label: 'Şirket puanı', value: String(r.company), tone: '#2b62c0' },
+                  { label: 'Sağduyu puanı', value: String(r.sense), tone: '#2f7a4e' },
+                  { label: 'Mühür', value: passed ? 'UYGUN' : 'RED', tone: passed ? '#2f7a4e' : '#a8402f' },
+                ],
+                question: 'Sen kaç alırsın?',
+                text: `UyumMetre'ye göre "${v.title}" çıktım: şirket puanım ${r.company}, sağduyu puanım ${r.sense}. Sen kaç alırsın?`,
+              })}
+            />
+            <button className={styles.again} onClick={onAgain}>
+              Testi yeniden çöz
+            </button>
+          </div>
           <p className={styles.sign}>
             <i>Otomatik onaylanmıştır.</i> İnsan incelemesi: planlanmadı · İtiraz süresi: geçti
           </p>

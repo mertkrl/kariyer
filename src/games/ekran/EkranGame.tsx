@@ -3,6 +3,9 @@ import { ClockOut } from '../../arcade/ClockOut';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import { Editor } from './Editor';
+import { Home, Monitor, Pick } from './Lobby';
+import { loadProgress, TASKS, type Task } from './spec';
+import { HardPick } from './Dossier';
 import { PRESETS, currentDesign, draftKey, sanitize, type Design, type PresetId } from './model';
 import { Screen } from './Screen';
 import { decodeDesign, sharedCodeOf } from './share';
@@ -15,11 +18,11 @@ import styles from './EkranGame.module.css';
  * paylaşım kodu varsa (`#/ekran?t=…`) oyun doğrudan o ekranı canlı gösterir.
  */
 
-type Phase = { at: 'loading' } | { at: 'home' } | { at: 'pick' } | { at: 'edit'; design: Design; key: number } | { at: 'view'; design: Design } | { at: 'broken' };
+type Phase = { at: 'loading' } | { at: 'home' } | { at: 'pick' } | { at: 'hard' } | { at: 'edit'; design: Design; key: number; task?: Task } | { at: 'view'; design: Design } | { at: 'broken' };
 
-function loadDraft(preset: PresetId): Design {
+function loadDraft(preset: PresetId, key = draftKey(preset)): Design {
   try {
-    const raw = localStorage.getItem(draftKey(preset));
+    const raw = localStorage.getItem(key);
     const d = raw ? sanitize(JSON.parse(raw)) : null;
     if (d) return d;
   } catch {
@@ -34,6 +37,11 @@ export function EkranGame() {
   useEffect(() => {
     audioEngine.setMusicMood('off');
   }, []);
+
+  // her adım sayfanın başından açılır
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [phase.at]);
 
   // paylaşılan bağlantı: ilk açılışta ve adres değişince çözülür
   useEffect(() => {
@@ -53,7 +61,15 @@ export function EkranGame() {
 
   // paylaşılan ekrandan çıkınca kod adresten silinir; geri dönüldüğünde yeniden açılmasın
   const leaveShared = () => window.history.replaceState(null, '', '#/ekran');
-  const edit = (design: Design) => setPhase({ at: 'edit', design, key: Date.now() });
+  const edit = (design: Design, task?: Task) => setPhase({ at: 'edit', design, key: Date.now(), task });
+  // zor modda her dosya kendi taslağıyla, ekranın bugünkü hâlinden başlar
+  const openTask = (t: Task) => edit(loadDraft(t.preset, draftKey(t.id)), t);
+  const nextTask = (t: Task) => {
+    const list = TASKS.filter((x) => x.preset === t.preset);
+    const next = list[list.indexOf(t) + 1];
+    if (next) openTask(next);
+    else setPhase({ at: 'hard' });
+  };
 
   return (
     <div className={styles.app}>
@@ -61,20 +77,30 @@ export function EkranGame() {
         <ClockOut tone="dark" />
         <div className={styles.title}>
           <h1>Ekran İhalesi</h1>
-          <p>{phase.at === 'edit' ? `Normal mod · ${PRESETS.find((p) => p.id === phase.design.preset)?.title}` : 'Kamu ekranları yenileme atölyesi'}</p>
+          <p>{phase.at === 'edit' ? `${phase.task ? `Zor mod · ${phase.task.title}` : 'Normal mod'} · ${PRESETS.find((p) => p.id === phase.design.preset)?.title}` : phase.at === 'hard' ? 'Zor mod · İhale şartnamesi' : 'Kamu ekranları yenileme atölyesi'}</p>
         </div>
         <div className={styles.topRight}>
-          {(phase.at === 'edit' || phase.at === 'pick') && (
-            <button type="button" className={styles.ghost} onClick={() => setPhase(phase.at === 'edit' ? { at: 'pick' } : { at: 'home' })}>
-              ← {phase.at === 'edit' ? 'Ekranlar' : 'Modlar'}
+          {(phase.at === 'edit' || phase.at === 'pick' || phase.at === 'hard') && (
+            <button type="button" className={styles.ghost} onClick={() => setPhase(phase.at === 'edit' ? (phase.task ? { at: 'hard' } : { at: 'pick' }) : { at: 'home' })}>
+              ← {phase.at === 'edit' ? (phase.task ? 'Dosyalar' : 'Ekranlar') : 'Modlar'}
             </button>
           )}
         </div>
       </header>
 
-      {phase.at === 'home' && <Home onNormal={() => setPhase({ at: 'pick' })} />}
+      {phase.at === 'home' && <Home onNormal={() => setPhase({ at: 'pick' })} onHard={() => setPhase({ at: 'hard' })} />}
+      {phase.at === 'hard' && <HardPick progress={loadProgress()} onPick={openTask} />}
       {phase.at === 'pick' && <Pick onPick={(id) => edit(loadDraft(id))} />}
-      {phase.at === 'edit' && <Editor key={phase.key} initial={phase.design} />}
+      {phase.at === 'edit' && (
+        <Editor
+          key={phase.key}
+          initial={phase.design}
+          task={phase.task}
+          storeKey={phase.task ? draftKey(phase.task.id) : undefined}
+          onFiles={() => setPhase({ at: 'hard' })}
+          onNext={phase.task ? () => nextTask(phase.task!) : undefined}
+        />
+      )}
       {phase.at === 'view' && (
         <Viewer
           design={phase.design}
@@ -110,57 +136,14 @@ export function EkranGame() {
   );
 }
 
-function Home({ onNormal }: { onNormal: () => void }) {
-  return (
-    <main className={styles.center}>
-      <p className={styles.lead}>Hastanede, metrobüste, otobüste, Marmaray'da… Yıllardır aynı duran ekranlar. Sıra sende.</p>
-      <div className={styles.modes}>
-        <button type="button" className={styles.mode} onClick={onNormal}>
-          <span className={styles.badge}>Normal mod</span>
-          <b>Serbest atölye</b>
-          <span>Kural yok, kurul yok. Ekranı istediğin gibi baştan tasarla, canlı çalıştır, bağlantıyla paylaş.</span>
-        </button>
-        <div className={`${styles.mode} ${styles.locked}`} aria-disabled="true">
-          <span className={styles.badge}>Zor mod</span>
-          <b>İhale şartnamesi</b>
-          <span>Müdürlüğün logosu büyük olacak, reklam alanı kalkmayacak, KVKK'ya uyulacak. Kurul değerlendirir, puan verir.</span>
-          <em>Kurul toplanıyor · yakında</em>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function Pick({ onPick }: { onPick: (id: PresetId) => void }) {
-  return (
-    <main className={styles.center}>
-      <h2>Hangi ekranı yenileyeceksin?</h2>
-      <div className={styles.presets}>
-        {PRESETS.map((p) =>
-          p.ready ? (
-            <button key={p.id} type="button" className={styles.preset} onClick={() => onPick(p.id)}>
-              <b>{p.title}</b>
-              <span>{p.place}</span>
-            </button>
-          ) : (
-            <div key={p.id} className={`${styles.preset} ${styles.locked}`} aria-disabled="true">
-              <b>{p.title}</b>
-              <span>{p.place}</span>
-              <em>Yakında</em>
-            </div>
-          ),
-        )}
-      </div>
-    </main>
-  );
-}
-
 function Viewer({ design, onEdit, onOwn }: { design: Design; onEdit: () => void; onOwn: () => void }) {
   const { seconds, now } = useClock(true);
   return (
     <main className={styles.viewer}>
-      <div className={styles.monitor}>
-        <Screen design={design} seconds={seconds} now={now} className={styles.screen} />
+      <div className={styles.monitorWrap}>
+        <Monitor live label="Paylaşılan ekran">
+          <Screen design={design} seconds={seconds} now={now} className={styles.screen} />
+        </Monitor>
       </div>
       <p className={styles.lead}>Biri bu ekranı yeniden tasarladı. Sen olsan nasıl yapardın?</p>
       <div className={styles.row}>

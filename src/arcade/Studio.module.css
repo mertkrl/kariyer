@@ -177,6 +177,13 @@
   background: currentColor;
 }
 
+/* telefonda (dik ya da yan) oyunun her pikseli lazım: imza oyunların içinde çekilir */
+@media (max-width: 760px), (max-height: 520px) {
+  .minimal {
+    display: none;
+  }
+}
+
 /* koyu oyunlarda saf beyaz değil, başlıkların krem kâğıt rengi */
 .onDark.minimal {
   color: var(--paper);

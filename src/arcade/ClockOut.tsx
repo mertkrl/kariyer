@@ -4,8 +4,8 @@ import { hrefOf, navigate } from './route';
 import styles from './ClockOut.module.css';
 
 /*
- * Oyundan salona dönüş: "Mesaiyi bitir". Solda Mesai Dışı monogramı (MD), yanında yazı; dar
- * ekranda yalnızca monogram kalır. Oyunda kaybolacak bir ilerleme varsa (`risk`) önce bir onay
+ * Oyundan salona dönüş: "Mesaiyi bitir". Solda geri oku, yanında yazı; dar ekranda yalnızca ok
+ * kalır. Oyunda kaybolacak bir ilerleme varsa (`risk`) önce bir onay
  * balonu açılır, yoksa doğrudan salona gider. Her oyun aynı bileşeni kullanır; `tone` oyunun
  * zeminine uyar, `fixed` oyunun kendi üst çubuğu yoksa sol üst köşeye sabitler.
  */
@@ -35,9 +35,9 @@ export function ClockOut({ tone = 'light', fixed = false, centered = false, risk
           setAsking((a) => !a);
         }}
       >
-        <span className={styles.badge} aria-hidden="true">
-          MD
-        </span>
+        <svg className={styles.arrow} viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M16 10H4M9 4.5 3.5 10 9 15.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
         <span className={styles.label}>Mesaiyi bitir</span>
       </a>
       {asking && (

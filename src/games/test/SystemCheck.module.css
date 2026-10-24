@@ -130,3 +130,16 @@
 .pending {
   visibility: hidden;
 }
+
+/* telefon: kamera önizlemesi üstte küçük bir kutu, kontroller altında */
+@media (max-width: 760px) {
+  .check {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .cam {
+    width: min(160px, 50%);
+    margin: 0 auto;
+  }
+}

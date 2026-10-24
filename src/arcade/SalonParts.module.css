@@ -1,31 +1,4 @@
-.screen {
-  min-height: 100%;
-  background:
-    radial-gradient(circle at 1px 1px, rgba(34, 31, 27, 0.08) 1px, transparent 0) 0 0 / 22px 22px,
-    var(--paper);
-  color: var(--ink);
-  padding: 20px 24px 72px;
-  display: flex;
-  flex-direction: column;
-}
-
-.main {
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-
-.header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 16px;
-  margin: -6px -8px 22px;
-}
-
-.brand {
-  min-width: 0;
-}
+/* Salonun parçaları: kart basma saati, oyun dosyası kartı ve sıradaki dosya (SalonParts.tsx). */
 
 /* kart basma saati */
 .clock {
@@ -61,39 +34,6 @@
   }
 }
 
-.title {
-  font-family: var(--font-display);
-  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  margin: 0 0 4px;
-}
-
-.lead {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--fs-small);
-}
-
-.main {
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-
-.header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 16px;
-  margin: -6px -8px 22px;
-}
-
-.brand {
-  min-width: 0;
-}
-
 /* kart basma saati */
 .clock {
   display: inline-flex;
@@ -126,27 +66,6 @@
   50% {
     opacity: 0.35;
   }
-}
-
-.title {
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  margin: 0 0 8px;
-}
-
-.lead {
-  margin: 0 auto;
-  color: var(--text-muted);
-  font-size: 1.05rem;
-  line-height: 1.45;
-}
-
-.main {
-  display: flex;
-  flex-direction: column;
 }
 
 /* ── kart: sekmeli bir personel dosyası ── */
@@ -266,57 +185,6 @@
   transform: translateX(4px);
 }
 
-/* ── dosya dolabı ── */
-.shelfHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--ink);
-}
-
-.shelfTitle {
-  margin: 0;
-  font-size: var(--fs-small);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chip {
-  padding: 5px 12px;
-  border: 1px solid var(--border-muted);
-  border-radius: 999px;
-  background: var(--paper-light);
-  color: var(--ink);
-  font-size: var(--fs-small);
-  cursor: pointer;
-}
-
-.chip[aria-pressed='true'] {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper-light);
-}
-
-.grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  grid-auto-flow: dense;
-  gap: 20px 18px;
-}
-
 /* sıradaki oyunun boş yuvası */
 .soon .tab {
   background: var(--paper-dim);
@@ -361,14 +229,6 @@
 }
 
 @media (max-width: 760px) {
-  .screen {
-    padding: 14px 16px 32px;
-  }
-
-  .header {
-    grid-template-columns: 1fr auto;
-  }
-
   .clock > span:last-child {
     display: none;
   }

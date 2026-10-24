@@ -1,0 +1,15 @@
+.wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.note {
+  font-size: var(--fs-small);
+  opacity: 0.8;
+}
+
+.note:empty {
+  display: none;
+}

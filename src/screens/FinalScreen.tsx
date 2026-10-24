@@ -8,6 +8,8 @@ import { KEY_CHARACTERS } from '../game/day/story';
 import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../game/engine/achievements';
 import { Button } from '../components/ui/Button';
 import { GAME_NAME, shareCardImage } from '../game/engine/shareCard';
+import { shareLink } from '../arcade/share';
+import { markPlayed } from '../arcade/progress';
 import { NEPHEW_ID, candidateOf, candidates } from '../game/data/candidates';
 import { candidateDetails } from '../game/data/candidateDetails';
 import { AD_EFFECT } from '../game/data/jobs';
@@ -95,13 +97,15 @@ export function FinalScreen() {
   const [reportOpen, setReportOpen] = useState(false);
   useEffect(() => {
     setCollected(unlockAchievements(input).all);
+    // salonun defterine: tik ve son
+    markPlayed('iseAlim', ending.title);
     // once per final screen
     // oxlint-disable-next-line react/exhaustive-deps
   }, []);
   const totalProcessed = totalStats.approved + totalStats.rejected;
 
-  // oyunun tohumsuz adresi: paylaşılan kart, insanları kendi haftalarına davet eder
-  const gameUrl = `${window.location.origin}${window.location.pathname}`;
+  // oyunun tohumsuz paylaşım sayfası: bağlantı önizlemesi oyunun görselini gösterir, kart insanları kendi haftalarına davet eder
+  const gameUrl = shareLink('iseAlim');
   const canShareFiles = typeof navigator.canShare === 'function';
 
   /** Telefonda: kart ekli sistem paylaşım menüsü. Başka yerde: kartı indir. */

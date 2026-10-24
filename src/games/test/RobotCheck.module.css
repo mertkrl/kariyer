@@ -307,3 +307,13 @@
   font-weight: 800;
   animation: rise 300ms cubic-bezier(0.3, 1.6, 0.5, 1);
 }
+
+@media (max-width: 760px) {
+  .overlay {
+    padding: 10px;
+  }
+
+  .window {
+    padding: 16px;
+  }
+}

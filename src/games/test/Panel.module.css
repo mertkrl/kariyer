@@ -1,0 +1,443 @@
+/* Sınavın kontrol paneli: süre halkası, bölüm bölüm soru haritası ve "bitir". Exam.module.css'ten ayrıldı. */
+
+.side {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgba(29, 39, 51, 0.04),
+    0 8px 24px rgba(29, 39, 51, 0.06);
+}
+
+/* süre halkası: kalan oran conic-gradient ile; son dakikada kırmızı */
+.clock {
+  --ring: var(--a-blue);
+  align-self: center;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background:
+    radial-gradient(closest-side, #fff 84%, transparent 85%),
+    conic-gradient(var(--ring) calc(var(--p) * 1%), var(--a-line-soft) 0);
+  transition: --p 1s linear;
+}
+
+.clock b {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--a-text);
+}
+
+.clock small {
+  color: var(--a-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clockHurry {
+  --ring: var(--a-bad);
+}
+
+.clockHurry b {
+  color: var(--a-bad);
+}
+
+.map {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mapTitle {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--a-muted);
+}
+
+.mapTitleOn {
+  color: var(--a-blue);
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.cell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1.5px solid #c9d3e0;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-muted);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+  transition:
+    background var(--motion-enter),
+    border-color var(--motion-enter),
+    transform var(--motion-enter);
+}
+
+.cell:hover {
+  border-color: var(--a-blue);
+  transform: translateY(-1px);
+}
+
+.cell i {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 9px;
+  font-style: normal;
+}
+
+.cellDone {
+  border-color: var(--a-blue);
+  background: var(--a-blue);
+  color: #fff;
+}
+
+.cellNow {
+  box-shadow:
+    0 0 0 3px var(--a-blue-soft),
+    0 0 0 5px var(--a-blue-dark);
+}
+
+.cell:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+
+.legend i {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 4px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.lgDone {
+  background: var(--a-blue);
+}
+
+.lgBlank {
+  border: 1.5px solid #c9d3e0;
+  background: #fff;
+}
+
+.finish {
+  padding: 10px;
+  border: 1.5px solid var(--a-bad);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-bad);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.finish:hover {
+  background: var(--a-bad-soft);
+}
+
+.side {
+  border-radius: 16px;
+  box-shadow: var(--a-shadow);
+}
+
+.mapTitle {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mapTitle em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--a-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cell {
+  border-radius: 10px;
+}
+
+.side {
+  position: static;
+}
+
+.side {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * 40 soruluk harita: her bölüm 5×2 kutu. Panel ekrana sığsın diye saat, kutular ve aralıklar
+ * küçüldü; kutular kare değil, sabit yükseklikte.
+ */
+.side {
+  gap: 12px;
+  padding: 18px;
+}
+
+.clock {
+  width: 116px;
+  height: 116px;
+}
+
+.clock b {
+  font-size: 26px;
+}
+
+.map {
+  gap: 10px;
+}
+
+.mapTitle {
+  margin-bottom: 5px;
+}
+
+.grid {
+  gap: 4px;
+}
+
+.cell {
+  aspect-ratio: auto;
+  height: 28px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.cell i {
+  top: 0;
+  right: 2px;
+  font-size: 8px;
+}
+
+.side {
+  gap: clamp(8px, 1.4vh, 16px);
+  padding: 16px 18px;
+}
+
+.map {
+  flex: 1;
+  justify-content: space-evenly;
+  gap: clamp(6px, 1vh, 12px);
+}
+
+.grid {
+  gap: 5px;
+}
+
+.cell {
+  height: clamp(26px, 3.5vh, 40px);
+  font-size: 13px;
+}
+
+.clock {
+  width: clamp(96px, 13vh, 148px);
+  height: clamp(96px, 13vh, 148px);
+}
+
+.clock b {
+  font-size: clamp(22px, 3vh, 30px);
+}
+
+.side {
+  align-self: start;
+}
+
+.side {
+  gap: 14px;
+  padding: 16px;
+}
+
+.clock {
+  width: 92px;
+  height: 92px;
+}
+
+.clock b {
+  font-size: 21px;
+}
+
+.clock small {
+  font-size: 9.5px;
+}
+
+.map {
+  flex: none;
+  gap: 10px;
+}
+
+.grid {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.cell {
+  height: 26px;
+  font-size: 12px;
+}
+
+/*
+ * Harita: yalnızca içinde bulunulan bölümün kutuları görünür (5×2, iri); diğer bölümler tek
+ * satır, bitti ya da sırada.
+ */
+.map {
+  gap: 6px;
+}
+
+.mapSection {
+  border-radius: 10px;
+  transition: background var(--motion-enter);
+}
+
+.mapOpen {
+  padding-bottom: 10px;
+  background: var(--a-line-soft);
+}
+
+.mapTitle {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: 700 12.5px var(--font-body);
+  color: var(--a-muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapTitle:hover {
+  background: var(--a-line-soft);
+}
+
+.mapOpen .grid {
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.mapOpen .cell {
+  height: 36px;
+  font-size: 13.5px;
+}
+
+/* bölüm bölüm akış: bitmiş ve sıradaki bölümler tek satır, tıklanmaz */
+.mapLocked .mapTitle {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.mapLocked .mapTitle:hover {
+  background: none;
+}
+
+.mapLocked em {
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+/* henüz açılmamış sorular: numarası görünür, tıklanmaz */
+.cellAhead {
+  border-style: dashed;
+  background: var(--a-line-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cellAhead:hover {
+  border-color: #c9d3e0;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .side {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .clock {
+    width: 50px;
+    height: 50px;
+    flex: none;
+  }
+
+  .clock b {
+    font-size: 13px;
+  }
+
+  .clock small,
+  .legend,
+  .mapLocked {
+    display: none;
+  }
+
+  .map {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mapOpen {
+    padding: 0;
+    background: none;
+  }
+
+  .mapTitle {
+    padding: 0 0 4px;
+    font-size: 11.5px;
+  }
+
+  .mapOpen .grid {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    padding: 0;
+    gap: 3px;
+  }
+
+  .mapOpen .cell {
+    height: 24px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  .finish {
+    flex: none;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

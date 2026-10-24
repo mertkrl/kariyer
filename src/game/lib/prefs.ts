@@ -16,6 +16,14 @@ export function readStoredMuted(): boolean {
   }
 }
 
+export function storeMuted(muted: boolean) {
+  try {
+    localStorage.setItem(MUTED_STORAGE_KEY, String(muted));
+  } catch {
+    // Storage unavailable (private mode etc.) — the setting just won't persist.
+  }
+}
+
 export function readStoredVolume(key: string): number {
   try {
     const raw = localStorage.getItem(key);

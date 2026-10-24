@@ -434,3 +434,10 @@
 .toastBad {
   color: var(--a-bad);
 }
+
+/* telefon: dört arka plan iki sıraya iner */
+@media (max-width: 560px) {
+  .bgPick {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

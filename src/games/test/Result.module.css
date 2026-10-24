@@ -81,7 +81,8 @@
   white-space: nowrap;
   transform: rotate(-8deg);
   opacity: 0.88;
-  animation: stamp 500ms 350ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  /* trampetten sonra iner; ses (Result.tsx) yaklaşık 950 ms'de vurur */
+  animation: stamp 500ms 650ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
 }
 
 .stamp small {
@@ -204,6 +205,32 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.footButtons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.again {
+  padding: 11px 18px;
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: 600 15px var(--font-body);
+  cursor: pointer;
+}
+
+.again:hover {
+  background: rgba(43, 98, 192, 0.06);
+}
+
+.again:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .sign {
@@ -527,4 +554,33 @@
 .detailQ {
   font-size: 16px;
   margin-bottom: 10px;
+}
+
+/* tablet ve telefon: profil üstte, cevap kâğıdı altında; sayfa aşağı kayar */
+@media (max-width: 960px) {
+  .board {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px 10px 20px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .chips {
+    flex-wrap: wrap;
+  }
+
+  .compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .meta {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: start;
+  }
 }

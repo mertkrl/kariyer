@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
+import { markPlayed } from '../../arcade/progress';
+import { ShareButton } from '../../arcade/ShareButton';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import {
@@ -251,6 +253,14 @@ export function BakkalGame() {
   const unpaid = openDebts.reduce((s, d) => s + d.amount, 0);
   // hafta bitince ödenmemiş veresiyenin malı zarardır
   const finalProfit = profit - openDebts.reduce((s, d) => s + d.cost, 0);
+  // hafta bitti: salonun defterine tik ve karne
+  useEffect(() => {
+    if (phase !== 'final') return;
+    const t = titleFor(finalProfit, rep);
+    markPlayed('bakkal', t.title);
+    // yalnızca final ekranı açıldığında
+    // oxlint-disable-next-line react/exhaustive-deps
+  }, [phase]);
 
   const say = () => {
     if (!visit) return null;
@@ -458,9 +468,30 @@ export function BakkalGame() {
               Müşterilerin tavanları: {CUSTOMERS.map((c) => `${c.emoji} ${c.name} ×${c.ceiling}`).join(' · ')}
             </p>
           </details>
-          <button className={styles.primary} onClick={restart}>
-            Yeni hafta
-          </button>
+          <div className={styles.finalActions}>
+            <ShareButton
+              className={styles.primary}
+              make={() => {
+                const t = titleFor(finalProfit, rep);
+                return {
+                  route: 'bakkal',
+                  kicker: 'Hacı Emmi döndü · Hafta sonu karnesi',
+                  title: t.title,
+                  note: t.note,
+                  stats: [
+                    { label: 'Toplam kâr', value: tl(finalProfit), tone: finalProfit < 0 ? '#a8402f' : '#2f7a4e' },
+                    { label: 'İtibar', value: `${rep}/100` },
+                    { label: 'Batan veresiye', value: tl(unpaid), tone: unpaid ? '#a8402f' : undefined },
+                  ],
+                  question: 'Sen olsan kaça satardın?',
+                  text: `Köy Bakkalı'nda bir hafta: "${t.title}" oldum. Kâr ${tl(finalProfit)}, itibar ${rep}/100. Etiket yok, fiyatı sen söylüyorsun.`,
+                };
+              }}
+            />
+            <button className={styles.ghost} onClick={restart}>
+              Yeni hafta
+            </button>
+          </div>
         </main>
       )}
 

@@ -265,6 +265,49 @@ a:is(:hover, :focus-visible) .say {
   }
 }
 
+/* ── Meydan Islahı: tabela yığını sökülür, yerine sade şerit gelir ── */
+.clean {
+  opacity: 0;
+}
+
+a:is(:hover, :focus-visible) .junk {
+  animation: unhang 2.8s ease-in infinite;
+}
+
+a:is(:hover, :focus-visible) .clean {
+  animation: rehang 2.8s ease-out infinite;
+}
+
+@keyframes unhang {
+  0%,
+  25% {
+    transform: none;
+    opacity: 1;
+  }
+  50%,
+  90% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes rehang {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  62%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* ── Yama Ekibi: asfalt akar, çukur dolar, silindir geçer ── */
 .patch {
   transform-origin: center bottom;

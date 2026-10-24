@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { EXAM_QUESTIONS, EXAM_SECTIONS, screenshareOption, sectionOf, sliderOption, stampOption } from '../src/games/test/data/questions';
+import { budgetOption, contractOption, EXAM_QUESTIONS, EXAM_SECTIONS, passwordOption, passwordRuleOk, screenshareOption, sectionOf, shutdownOption, sliderOption, stampOption, swipeOption } from '../src/games/test/data/questions';
 import { BRIEFINGS } from '../src/games/test/data/briefings';
 import { ROBOT_CHALLENGES, robotPassed } from '../src/games/test/data/robot';
-import { pickExam, QUESTIONS_PER_SECTION, reportNo, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
+import { canShuffle, pickExam, QUESTIONS_PER_SECTION, reportNo, shuffleOptions, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
 
 test('her soru bir bölüme düşer, anahtar ve sağduyu farklı geçerli şıklardır', () => {
   for (const q of EXAM_QUESTIONS) {
@@ -32,6 +32,31 @@ test('aynı rastgelelik aynı testi verir', () => {
   };
   const ids = (r: () => number) => pickExam(r).flatMap((s) => s.questions.map((q) => q.id));
   assert.deepEqual(ids(seq()), ids(seq()));
+});
+
+test('şıklar karışır ama anahtar ve sağduyu cevabı kendi metniyle gider', () => {
+  let x = 0.71;
+  const random = () => (x = (x * 9301 + 0.49297) % 1);
+  const moved = new Set<string>();
+  for (let round = 0; round < 6; round++)
+    for (const q of EXAM_QUESTIONS) {
+      const s = shuffleOptions(q, random);
+      assert.deepEqual([...s.options].sort(), [...q.options].sort(), q.id);
+      assert.equal(s.options[s.answer], q.options[q.answer], q.id);
+      assert.equal(s.options[s.sensible], q.options[q.sensible], q.id);
+      if (s.options.join() !== q.options.join()) moved.add(q.id);
+      // sırası anlam taşıyan türler olduğu gibi kalır
+      if (!canShuffle(q)) assert.equal(s, q, q.id);
+    }
+  assert.ok(EXAM_QUESTIONS.filter(canShuffle).every((q) => moved.has(q.id)), 'karıştırılabilen her soru en az bir kez yer değiştirmeli');
+  // kaydırıcının eşikleri şık sırasına bağlıdır: asla karışmaz
+  assert.ok(EXAM_QUESTIONS.filter((q) => q.widget?.type === 'slider').every((q) => !canShuffle(q)));
+});
+
+test('aklı başında cevap artık hep aynı yerde değil', () => {
+  const exam = pickExam();
+  const spots = new Set(exam.flatMap((s) => s.questions.filter(canShuffle).map((q) => q.sensible)));
+  assert.ok(spots.size >= 3);
 });
 
 test('anahtarı tutturan şirket puanını, aklı başında olan sağduyu puanını alır', () => {
@@ -124,4 +149,74 @@ test('her bölümün tanıtımı ve geçerli bir örnek sorusu var', () => {
     assert.ok(b.rules.length > 0 && b.practice.explain, b.id);
     assert.ok(b.practice.answer === null || b.practice.answer < b.practice.options.length, b.id);
   }
+});
+
+test('havuz büyük: 120 soru, her bölüm iki tur boyunca tekrarsız, soruların en az %40\'ı etkileşimli', () => {
+  assert.ok(EXAM_QUESTIONS.length >= 120, `${EXAM_QUESTIONS.length} soru`);
+  EXAM_SECTIONS.forEach((s, si) => assert.ok(EXAM_QUESTIONS.filter((q) => sectionOf(q.kind) === si).length >= 2 * QUESTIONS_PER_SECTION, s.title));
+  assert.ok(EXAM_QUESTIONS.filter((q) => q.widget).length / EXAM_QUESTIONS.length >= 0.4);
+});
+
+const widgetsOf = <T extends string>(type: T) => EXAM_QUESTIONS.filter((q) => q.widget?.type === type);
+
+test('sözleşme: okumadan imza anahtar, tuzağa şerh sağduyu; tuzak gerçek bir madde', () => {
+  assert.equal(contractOption(false, false, true), 0);
+  assert.equal(contractOption(true, false, true), 1);
+  assert.equal(contractOption(true, true, true), 2);
+  assert.equal(contractOption(true, true, false), 3);
+  const qs = widgetsOf('contract');
+  assert.ok(qs.length >= 3);
+  for (const q of qs) {
+    if (q.widget?.type !== 'contract') continue;
+    assert.ok(q.widget.trap < q.widget.clauses.length, q.id);
+    assert.equal(q.answer, 0, q.id);
+    assert.equal(q.sensible, 2, q.id);
+  }
+});
+
+test('kart kaydırma: gerçek hakları seçen sağduyuya, süsleri seçen anahtara yakın', () => {
+  for (const q of widgetsOf('swipe')) {
+    if (q.widget?.type !== 'swipe') continue;
+    const cards = q.widget.cards;
+    const real = new Set(cards.flatMap((c, i) => (c.real ? [i] : [])));
+    const fake = new Set(cards.flatMap((c, i) => (c.real ? [] : [i])));
+    assert.ok(real.size > 0 && fake.size > 0, q.id);
+    assert.equal(swipeOption(cards, real), q.sensible, q.id);
+    assert.equal(swipeOption(cards, new Set()), 3);
+    assert.equal(swipeOption(cards, new Set(cards.map((_, i) => i))), 1);
+    assert.equal(swipeOption(cards, fake), 2);
+  }
+});
+
+test('şifre: kurallar sırayla tutar, örnek bir şifre hepsini geçer', () => {
+  const q = widgetsOf('password')[0];
+  if (q?.widget?.type !== 'password') return assert.fail('şifre sorusu yok');
+  const rules = q.widget.rules;
+  assert.ok(!passwordRuleOk(rules[0], 'kısa'));
+  const good = 'SinerjiPazartesi1967';
+  assert.ok(rules.every((r) => passwordRuleOk(r, good)));
+  // Türkçe büyük harf de sayılır: "İ" ve "Ş"
+  assert.ok(passwordRuleOk({ text: '', upper: true }, 'şİfre'));
+  assert.equal(passwordOption('submit', rules, good), q.answer);
+  assert.equal(passwordOption('submit', rules, 'abc'), 2);
+  assert.equal(passwordOption('ticket', rules, ''), q.sensible);
+  assert.equal(passwordOption('postit', rules, good), 3);
+});
+
+test('bilgisayarı kapatmak: sonuna kadar giden sağduyu, ilk uyarıda dönen anahtar', () => {
+  const q = widgetsOf('shutdown')[0];
+  if (q?.widget?.type !== 'shutdown') return assert.fail('kapatma sorusu yok');
+  const n = q.widget.dialogs.length;
+  assert.equal(shutdownOption(n, n), q.sensible);
+  assert.equal(shutdownOption(0, n), q.answer);
+  assert.equal(shutdownOption(2, n), 2);
+  assert.equal(shutdownOption(0, n, true), 3);
+});
+
+test('asansör ve bütçe: sessizlik geçerli bir şık, bütçede en büyük pay kalemin sırası, eşitlik son şık', () => {
+  for (const q of widgetsOf('elevator')) if (q.widget?.type === 'elevator') assert.ok(q.widget.silent < q.options.length && q.widget.floors > 2, q.id);
+  assert.equal(budgetOption([60, 30, 10]), 0);
+  assert.equal(budgetOption([10, 20, 70]), 2);
+  assert.equal(budgetOption([40, 40, 20]), 3);
+  for (const q of widgetsOf('budget')) if (q.widget?.type === 'budget') assert.equal(q.options.length, q.widget.lines.length + 1, q.id);
 });

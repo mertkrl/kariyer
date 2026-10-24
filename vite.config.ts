@@ -3,6 +3,7 @@ import { join, relative } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 import { CSP } from './csp.ts'
+import { gamePages } from './gamePages.ts'
 import { serviceWorkerSource } from './serviceWorker.ts'
 
 /** `dir` altındaki her dosya, ona göreli yollar olarak. */
@@ -61,6 +62,29 @@ function publishedPage(): Plugin {
   }
 }
 
+/*
+ * Oyunların paylaşım sayfaları (gamePages.ts): derlemede `oyun/<ad>/index.html` olarak yazılır,
+ * geliştirme sunucusunda da aynı adreslerden sunulur ki paylaşım bağlantıları orada da çalışsın.
+ */
+function sharePages(): Plugin {
+  const site = () => process.env.SITE_URL?.replace(/\/+$/, '')
+  return {
+    name: 'share-pages',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const path = req.url?.split('?')[0].replace(/^\//, '')
+        const page = path && gamePages()[path.endsWith('/') ? `${path}index.html` : path]
+        if (!page) return next()
+        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        res.end(page)
+      })
+    },
+    generateBundle() {
+      for (const [fileName, source] of Object.entries(gamePages(site()))) this.emitFile({ type: 'asset', fileName, source })
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   // göreli yollar, böylece derleme herhangi bir statik sunucunun herhangi bir klasöründen çalışır
@@ -68,5 +92,5 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify((JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version),
   },
-  plugins: [react(), offlineCache(), publishedPage()],
+  plugins: [react(), sharePages(), offlineCache(), publishedPage()],
 })

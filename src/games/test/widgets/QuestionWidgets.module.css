@@ -528,3 +528,19 @@
 .reply {
   padding: 6px 10px;
 }
+
+/* telefon: takvim sıkışmasın; hücreler okunur genişlikte kalır, tablo yatayda kayar */
+@media (max-width: 760px) {
+  .calendar {
+    grid-template-columns: 44px repeat(6, minmax(76px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 6px;
+    overscroll-behavior-x: contain;
+  }
+
+  .calBusy,
+  .calOff,
+  .calFree {
+    min-height: 64px;
+  }
+}

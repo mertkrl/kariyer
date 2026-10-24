@@ -185,8 +185,25 @@
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: flex-start;
+  gap: 10px;
   margin-top: 16px;
+}
+
+.ghost {
+  padding: 9px 17px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: 700 14px var(--font-body);
+  cursor: pointer;
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(34, 31, 27, 0.06);
 }
 
 .primary {

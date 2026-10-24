@@ -115,3 +115,55 @@ test('hastanede her çağrının başında kart iner ve çıkar', () => {
   assert.equal(callOverlayAt(CALL_SECONDS + 1)?.patient.no, queueAt(CALL_SECONDS).current.no);
   assert.ok(callOverlayAt(3.5)!.shown < 0.2);
 });
+
+test('kontrast oranı WCAG ile aynı hesaplanır', async () => {
+  const { contrast } = await import('../src/games/ekran/spec');
+  assert.equal(Math.round(contrast('#000000', '#ffffff')), 21);
+  assert.equal(contrast('#777777', '#777777'), 1);
+});
+
+test('her dosyada en az üç kural var ve bugünkü ekran şartnameyi karşılamaz', async () => {
+  const { TASKS, evaluate } = await import('../src/games/ekran/spec');
+  assert.equal(TASKS.length, 12);
+  assert.equal(new Set(TASKS.map((t) => t.id)).size, TASKS.length);
+  for (const t of TASKS) {
+    assert.ok(t.rules.length >= 3, t.id);
+    const rep = evaluate(currentDesign(t.preset), t);
+    assert.ok(rep.passed.includes(false), `${t.id}: mevcut hâl zaten geçiyor`);
+    assert.equal(rep.verdict, 'ret', t.id);
+    assert.equal(rep.stars, 0, t.id);
+    assert.ok(rep.scores.every((s) => s.value >= 0 && s.value <= 100), t.id);
+    assert.ok(rep.notes.length > 0, t.id);
+  }
+});
+
+test('şartnameye uyan okunur bir tasarım kabul alır', async () => {
+  const { evaluate, taskById } = await import('../src/games/ekran/spec');
+  const task = taskById('hastane-1')!;
+  const d = sampleDesign('hastane');
+  const rep = evaluate(d, task);
+  assert.ok(rep.passed.every(Boolean), JSON.stringify(rep.passed));
+  assert.ok(rep.stars >= 2);
+  assert.equal(rep.verdict, 'kabul');
+});
+
+test('dosyalar sırayla açılır', async () => {
+  const { TASKS, unlocked } = await import('../src/games/ekran/spec');
+  const [a, b, c] = TASKS.filter((t) => t.preset === 'otobus');
+  assert.ok(unlocked(a, {}));
+  assert.ok(!unlocked(b, {}));
+  assert.ok(unlocked(b, { [a.id]: 1 }));
+  assert.ok(!unlocked(c, { [a.id]: 3 }));
+});
+
+test('kutusundan taşan yazı düzen puanını düşürür', async () => {
+  const { evaluate, overflowing, taskById } = await import('../src/games/ekran/spec');
+  const d = currentDesign('hastane');
+  assert.equal(overflowing(d), 0);
+  const big = { ...d, widgets: d.widgets.map((wd) => (wd.kind === 'number' ? { ...wd, size: 130 } : wd)) };
+  assert.equal(overflowing(big), 1);
+  const rep = evaluate(big, taskById('hastane-1')!);
+  assert.ok(rep.passed.every(Boolean));
+  assert.ok(rep.scores.find((s) => s.label === 'Düzen')!.value < 80);
+  assert.ok(rep.stars < 3);
+});

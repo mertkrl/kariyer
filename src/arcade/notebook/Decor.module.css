@@ -1,0 +1,57 @@
+/* Örgü kenarlık: siyah keçeli kalemle kenarlar, sonra çaprazlar, en son renkli kalemle boya. */
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.braid {
+  position: absolute;
+  overflow: visible;
+}
+
+.cap,
+.seg {
+  fill: none;
+  stroke: #17171a;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.cap {
+  animation: pen 70ms var(--d) linear forwards;
+}
+
+/* parça: önce kâğıt rengiyle alttakini örter ve konturu çizilir, sonra kendi rengine boyanır */
+.seg {
+  fill: #fdfcf6;
+  fill-opacity: 0;
+  animation:
+    cover 1ms var(--d) forwards,
+    pen 110ms var(--d) linear forwards,
+    paint 220ms var(--paint) ease-out forwards;
+}
+
+@keyframes pen {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes cover {
+  to {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes paint {
+  from {
+    fill: #fdfcf6;
+  }
+  to {
+    fill: var(--ink);
+  }
+}

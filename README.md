@@ -22,6 +22,7 @@ Diğer komutlar:
 | `npm test` | Testler: Node'un kendi test aracıyla, ek paket kurmadan |
 | `npm run check` | Tip kontrolü + lint + testler |
 | `npm run size` | Derlemeden sonra ilk açılış paketinin boyut bütçesini denetler |
+| `npm run og` | Çalışan geliştirme sunucusundan bağlantı önizlemesi görsellerini (`public/og.png`, `public/og/<oyun>.png`) Chrome ile yeniden üretir |
 | `npm run package` | Derleyip `release/` altına itch.io'ya (HTML projesi) yüklenmeye hazır bir zip üretir |
 | `npm run ci` | CI'ın çalıştırdığının aynısı: check + derleme + boyut bütçesi + `npm audit` |
 

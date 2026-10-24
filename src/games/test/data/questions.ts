@@ -11,6 +11,7 @@
 import { GENERAL_QUESTIONS } from './generalQuestions';
 import { MORE_QUESTIONS } from './moreQuestions';
 import { CULTURE_QUESTIONS } from './cultureQuestions';
+import { FOURTH_WAVE } from './fourthWave';
 
 export type ExamKind = 'sayısal' | 'şekil' | 'sözel' | 'dikkat' | 'simülasyon' | 'kişilik' | 'genel kültür';
 
@@ -61,7 +62,22 @@ export type ExamWidget =
   /** Gece mesajı: yönetici yazar, "yazıyor…" görünür; seçilen cevap şıktır. */
   | { type: 'chat'; from: string; at: string; messages: string[] }
   /** Kaçan düğme: 0. şık imleçten kaçar, bir süre sonra yorulur; 1. şık hep yerinde durur. */
-  | { type: 'runaway' };
+  | { type: 'runaway' }
+  /**
+   * Sözleşme: maddeler kaydırılarak okunur, tuzak madde işaretlenebilir; sonunda imzalanır ya da
+   * imzalanmaz. Sonuç contractOption ile şıkka düşer.
+   */
+  | { type: 'contract'; title: string; clauses: string[]; trap: number }
+  /** Kart kaydırma: her kart sağa (istiyorum) ya da sola; sonuç swipeOption ile şıkka düşer. */
+  | { type: 'swipe'; deck: string; cards: SwipeCard[] }
+  /** Şifre: kurallar birer birer açılır; gönder, BT'ye yaz ya da post-it'e yaz (passwordOption). */
+  | { type: 'password'; rules: PasswordRule[] }
+  /** Bilgisayarı kapat: art arda uyarılar gelir; nerede vazgeçildiği şıktır (shutdownOption). */
+  | { type: 'shutdown'; clock: string; dialogs: { title: string; body: string }[] }
+  /** Asansör: kat sayacı akar, kapı açılmadan bir şık seçilir; süre biterse `silent` şık sayılır. */
+  | { type: 'elevator'; who: string; floors: number; seconds: number; silent: number }
+  /** Bütçe: `total` birim kalemlere onar onar dağıtılır; en çok pay alan kalem şıktır, eşitlik son şık (budgetOption). */
+  | { type: 'budget'; total: number; lines: string[] };
 
 export interface ExamQuestion {
   id: string;
@@ -362,6 +378,7 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
   ...MORE_QUESTIONS,
   ...CULTURE_QUESTIONS,
   ...GENERAL_QUESTIONS,
+  ...FOURTH_WAVE,
 ];
 
 /** Damgalanacak evrak: `fair` haklı bir çalışan talebi mi (onaylanması gereken) yoksa değil mi. */
@@ -407,6 +424,75 @@ export function screenshareOption(tabs: readonly ScreenTab[], closed: ReadonlySe
   if (open.some((t) => t.kind === 'risky')) return 1;
   if (open.some((t) => t.kind === 'personal')) return 2;
   return 3;
+}
+
+/**
+ * Sözleşmenin sonucu: imzalanmadıysa 3; tuzak madde işaretlenip imzalandıysa 2; sonuna kadar
+ * okunup imzalandıysa 1; okunmadan imzalandıysa 0.
+ */
+export function contractOption(read: boolean, flagged: boolean, signed: boolean): number {
+  if (!signed) return 3;
+  if (flagged) return 2;
+  return read ? 1 : 0;
+}
+
+/** Kaydırılan bir kart: gerçek bir hak ya da sağlıklı bir tutum mu (`real`), yoksa bedava bir süs mü. */
+export interface SwipeCard {
+  icon: string;
+  title: string;
+  detail: string;
+  real: boolean;
+}
+
+/**
+ * Kart kaydırmanın sonucu: hiçbiri istenmediyse 3; hepsi istendiyse 1; istenen gerçek haklar
+ * istenen süslerden az değilse 0; yoksa 2.
+ */
+export function swipeOption(cards: readonly SwipeCard[], wanted: ReadonlySet<number>): number {
+  if (wanted.size === 0) return 3;
+  if (wanted.size === cards.length) return 1;
+  const real = cards.filter((c, i) => c.real && wanted.has(i)).length;
+  return real >= wanted.size - real ? 0 : 2;
+}
+
+/** Şifre kuralı: en az uzunluk, rakam, büyük harf ya da içinde geçmesi gereken kelimelerden biri. */
+export interface PasswordRule {
+  text: string;
+  min?: number;
+  digit?: boolean;
+  upper?: boolean;
+  /** Bunlardan biri (Türkçe küçük harfe çevrilerek) geçmeli. */
+  anyOf?: string[];
+}
+
+export function passwordRuleOk(rule: PasswordRule, pw: string): boolean {
+  const low = pw.toLocaleLowerCase('tr-TR');
+  if (rule.min !== undefined && [...pw].length < rule.min) return false;
+  if (rule.digit && !/\d/.test(pw)) return false;
+  if (rule.upper && pw === low) return false;
+  if (rule.anyOf && !rule.anyOf.some((w) => low.includes(w.toLocaleLowerCase('tr-TR')))) return false;
+  return true;
+}
+
+/** Şifrenin sonucu: 0 BT'ye yazdı, 3 post-it'e yazdı; gönderildiyse bütün kurallar tuttuysa 1, yoksa 2. */
+export function passwordOption(exit: 'submit' | 'ticket' | 'postit', rules: readonly PasswordRule[], pw: string): number {
+  if (exit === 'ticket') return 0;
+  if (exit === 'postit') return 3;
+  return rules.every((r) => passwordRuleOk(r, pw)) ? 1 : 2;
+}
+
+/** Kapatmanın sonucu: bütün uyarılar geçildiyse 0; ilk uyarıda vazgeçildiyse 1; sonrakilerde 2. "Açık bırak, çık" 3'tür. */
+export function shutdownOption(passed: number, total: number, leftOn = false): number {
+  if (leftOn) return 3;
+  if (passed >= total) return 0;
+  return passed === 0 ? 1 : 2;
+}
+
+/** Bütçenin sonucu: en çok pay alan kalemin sırası; en büyük pay birden çok kalemdeyse son şık (eşit böldüm). */
+export function budgetOption(alloc: readonly number[]): number {
+  const top = Math.max(...alloc);
+  const leaders = alloc.flatMap((v, i) => (v === top ? [i] : []));
+  return leaders.length === 1 ? leaders[0] : alloc.length;
 }
 
 /** Kaydırıcının değeri hangi şıkka düşer. */

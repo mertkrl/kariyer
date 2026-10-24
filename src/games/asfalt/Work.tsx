@@ -169,39 +169,44 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
 
   return (
     <div className={styles.work}>
-      <div
-        ref={stageEl}
-        className={`${styles.stage} ${hud.rain && stage === 'work' ? styles.raining : ''}`}
-        onPointerDown={(e) => {
-          if (stage !== 'work') return;
-          e.currentTarget.setPointerCapture(e.pointerId);
-          toCell(e);
-          pointer.current.down = true;
-        }}
-        onPointerMove={(e) => {
-          toCell(e);
-          pointer.current.over = true;
-        }}
-        onPointerUp={() => (pointer.current.down = false)}
-        onPointerCancel={() => (pointer.current.down = false)}
-        onPointerLeave={() => (pointer.current.over = false)}
-      >
-        <Backdrop rain={hud.rain && stage === 'work'} />
-        <canvas ref={canvas} width={W} height={H} className={styles.canvas} aria-label="Yolun kesiti ve çukur" />
-        <svg className={styles.overlay} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-          {overlay.rollerX >= 0 && <RollerSprite x={overlay.rollerX} />}
-          {stage === 'work' && overlay.over && tool !== 'roller' && (
-            <g>
-              {isMaterial && overlay.down && <rect x={overlay.px - 2} y="0" width="4" height={Math.max(0, overlay.py - 3)} fill={SWATCH[tool]} opacity="0.35" />}
-              <circle cx={overlay.px} cy={overlay.py} r={tool === 'pump' ? 6 : tool === 'shovel' ? 4 : 3} fill="none" stroke={tool === 'asphalt' ? '#f0e6cf' : '#fff'} strokeWidth="0.5" strokeDasharray={tool === 'shovel' || tool === 'pump' ? '1.5 1' : undefined} />
-            </g>
-          )}
-          {stage !== 'work' && report && <CarSprite x={car.x} profile={report.profile} shake={car.shake} />}
-        </svg>
-        <p key={remark.id} className={styles.bubble}>
-          <b>Muhtar:</b> {remark.text}
-        </p>
-        {stage === 'receipt' && report && <Receipt level={level} world={w} report={report} last={last} onNext={() => onNext(report.score)} onRetry={onRetry} />}
+      <p className={styles.rotate} aria-hidden="true">
+        <span>📱↻</span> Telefonu yan çevir: çukur büyür.
+      </p>
+      <div className={styles.frame}>
+        <div
+          ref={stageEl}
+          className={`${styles.stage} ${hud.rain && stage === 'work' ? styles.raining : ''}`}
+          onPointerDown={(e) => {
+            if (stage !== 'work') return;
+            e.currentTarget.setPointerCapture(e.pointerId);
+            toCell(e);
+            pointer.current.down = true;
+          }}
+          onPointerMove={(e) => {
+            toCell(e);
+            pointer.current.over = true;
+          }}
+          onPointerUp={() => (pointer.current.down = false)}
+          onPointerCancel={() => (pointer.current.down = false)}
+          onPointerLeave={() => (pointer.current.over = false)}
+        >
+          <Backdrop rain={hud.rain && stage === 'work'} />
+          <canvas ref={canvas} width={W} height={H} className={styles.canvas} aria-label="Yolun kesiti ve çukur" />
+          <svg className={styles.overlay} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+            {overlay.rollerX >= 0 && <RollerSprite x={overlay.rollerX} />}
+            {stage === 'work' && overlay.over && tool !== 'roller' && (
+              <g>
+                {isMaterial && overlay.down && <rect x={overlay.px - 2} y="0" width="4" height={Math.max(0, overlay.py - 3)} fill={SWATCH[tool]} opacity="0.35" />}
+                <circle cx={overlay.px} cy={overlay.py} r={tool === 'pump' ? 6 : tool === 'shovel' ? 4 : 3} fill="none" stroke={tool === 'asphalt' ? '#f0e6cf' : '#fff'} strokeWidth="0.5" strokeDasharray={tool === 'shovel' || tool === 'pump' ? '1.5 1' : undefined} />
+              </g>
+            )}
+            {stage !== 'work' && report && <CarSprite x={car.x} profile={report.profile} shake={car.shake} />}
+          </svg>
+          <p key={remark.id} className={styles.bubble}>
+            <b>Muhtar:</b> {remark.text}
+          </p>
+          {stage === 'receipt' && report && <Receipt level={level} world={w} report={report} last={last} onNext={() => onNext(report.score)} onRetry={onRetry} />}
+        </div>
       </div>
 
       <div className={styles.bar}>

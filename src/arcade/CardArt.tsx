@@ -1,4 +1,4 @@
-import styles from './ArcadeScreen.module.css';
+import styles from './SalonParts.module.css';
 import p from './CardPreview.module.css';
 
 /*
@@ -162,6 +162,41 @@ export function ScreenArt() {
         <text x="201" y="21" textAnchor="middle" fontSize="10" fontWeight="800" fill="rgba(0,0,0,.6)" fontFamily="monospace">
           702
         </text>
+      </g>
+    </svg>
+  );
+}
+
+/** Meydan Islahı: cephelerde üst üste tabelalar; sökülür, yerine sade bir tabela şeridi gelir. */
+export function FacadeArt() {
+  return (
+    <svg viewBox="0 0 240 120" className={`${styles.art} ${p.scene}`} aria-hidden="true">
+      <rect x="20" y="104" width="200" height="4" rx="2" fill="rgba(255,255,255,.35)" />
+      {[
+        [30, 30, 56],
+        [90, 14, 64],
+        [158, 38, 52],
+      ].map(([x, top, w]) => (
+        <g key={x}>
+          <rect x={x} y={top} width={w} height={104 - top} fill="rgba(255,255,255,.55)" />
+          {Array.from({ length: Math.floor((70 - top) / 16) + 1 }, (_, i) => (
+            <rect key={i} x={x + 8} y={top + 8 + i * 16} width={w - 16} height="7" fill="rgba(0,0,0,.12)" />
+          ))}
+          <rect x={x + 4} y="88" width={w - 8} height="16" fill="rgba(0,0,0,.18)" />
+        </g>
+      ))}
+      <g className={p.junk}>
+        <rect x="26" y="76" width="48" height="12" fill="rgba(255,235,59,.9)" />
+        <rect x="58" y="44" width="34" height="22" fill="rgba(255,255,255,.95)" transform="rotate(-4 75 55)" />
+        <rect x="96" y="70" width="58" height="14" fill="rgba(229,57,53,.85)" />
+        <rect x="140" y="34" width="10" height="40" fill="rgba(0,51,153,.75)" />
+        <rect x="166" y="60" width="36" height="22" fill="rgba(0,162,232,.8)" />
+        <path d="M24 56 Q110 82 216 50" fill="none" stroke="rgba(0,0,0,.45)" strokeWidth="1.5" />
+      </g>
+      <g className={p.clean}>
+        {[30, 90, 158].map((x, i) => (
+          <rect key={x} x={x + 4} y="80" width={[56, 64, 52][i] - 8} height="7" fill="rgba(0,0,0,.4)" />
+        ))}
       </g>
     </svg>
   );

@@ -54,23 +54,17 @@
   outline-offset: 2px;
 }
 
-/* monogram: kart basma makinesine giren bir kart gibi üstüne gelince aşağı iner */
-.badge {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  background: var(--co-badge);
-  color: var(--co-badge-ink);
-  font: 800 11px/1 var(--font-display);
-  letter-spacing: 0.02em;
+/* geri oku: üstüne gelince sola doğru kayar */
+.arrow {
+  width: 20px;
+  height: 20px;
+  flex: none;
   transition: transform 220ms cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 
-.out:hover .badge,
-.out:focus-visible .badge {
-  transform: translateY(2px) rotate(-6deg);
+.out:hover .arrow,
+.out:focus-visible .arrow {
+  transform: translateX(-3px);
 }
 
 /* onay balonu */
@@ -145,7 +139,7 @@
   outline-offset: 2px;
 }
 
-/* küçük telefon: yalnızca monogram */
+/* küçük telefon: yalnızca ok */
 @media (max-width: 560px) {
   .label {
     display: none;

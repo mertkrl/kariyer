@@ -127,3 +127,13 @@
   display: flex;
   justify-content: flex-end;
 }
+
+@media (max-width: 760px) {
+  .steps {
+    gap: 18px;
+  }
+
+  .steps li + li::before {
+    width: 14px;
+  }
+}

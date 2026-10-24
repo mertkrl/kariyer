@@ -4,6 +4,32 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 
 ## [Yayımlanmadı]
 
+### Salon
+- Gerçekçi kareli defter: kâğıt dokusu ve lifleri, sıcak beyaz kâğıt, basılı mavi kareler, sol kenarda delikler ve metal spiral tel, kenarlarda hafif gölge.
+- Örgü kenarlık: sayfa açıldıktan birkaç saniye sonra spiral telin yanındaki boşluğa, kareli defter süsleme videolarındaki gibi elle bir örgü çizilir: önce siyah keçeli kalemle iki kenara satır atlayarak kısa çizgiler, sonra çaprazlarla birbirinin üstünden ve altından geçen iki şerit, en son şeritler renkli kalemle (pembe ve mavi; her gün başka bir kalem takımı) teker teker boyanır. Karelere oturur; telefonda dolabın altına yatay çizilir.
+- Patron tuşu: üst köşede gerçek bir klavye tuşu ("esc") ve el yazısıyla "patron geliyor!". Basınca tuş çöker; mesai saatinde kırmızı yanıp söner. Esc ya da tuş defteri bir hesap tablosuna çevirir, sekmenin adı "Q3_rapor_v14_SON_son.xlsx" olur; bir daha Esc ya da tıklama geri getirir.
+- Defter seni hatırlar: bitirdiğin oyunun kartına kalemle tik atılır ve sonucu el yazısıyla altına yazılır; dolap başlığında "yapılacaklar: 3/7", hepsi bitince "MESAİ DIŞI USTASI" damgası. Kayıt yalnızca bu tarayıcıda (`kariyerweb-defter`).
+- Defter konuşur: günün notu, kırmızı kalemle halkaya alınan günün dosyası ve saate göre ton (mesai, akşam, gece, hafta sonu).
+- Bant hareketi ve ses: kartın üstüne gelince bantlar kalkar ve kâğıt hışırdar; tıklayınca bant kopar, sonra oyun açılır.
+- "Hepsi / Mini oyun / Test / Simülasyon" süzgeci ve kartlardaki tür etiketleri kalktı.
+- Kod: salonun parçaları `SalonParts.tsx`'te, defter işleri `arcade/notebook/` altında; süsleme, tablo ve günün notu ilk açılıştan sonra iner.
+
+### UyumMetre (Genel Yetenek ve Uyum Testi)
+- Telefonda oynanır: üstte saat, bölümün soru kutuları ve "bitir" ince bir şerit; gözetmen tek satırlık bir not şeridi; soru kartı ekranı doldurur, gezinme düğmeleri ekranın altına yapışık. Giriş, sistem kontrolü, bölüm tanıtımı, sonuç ve robot penceresi tek sütuna iner; takvim ve zam tablosu kendi içinde yatay kayar. Tablette gözetmen üstte şerit, panel ve soru yan yana.
+- Şıklar her oyunda karışır; anahtar ve "aklı başında" cevap şıklarıyla birlikte taşınır. Sırası anlam taşıyan türler (kaydırıcı, takvim, kaçan düğme, damga…) olduğu gibi kalır. Önceden aklı başında cevap 68 sorunun 43'ünde A şıkkıydı.
+- Altı yeni etkileşimli tür: sözleşme (kaydırarak oku, sorunlu maddeye şerh düş, imzala), kart kaydırma (yan haklar, çalışma tarzı), kurallı şifre (kurallar birer birer açılır), 18:00'de bilgisayarı kapatmak (art arda uyarılar), asansörde Genel Müdür ve bütçe dağıtmak.
+- Havuz 68'den 120 soruya çıktı (etkileşimli soru 31'den 52'ye); her bölüm iki tur boyunca tekrar etmez.
+- Ses: lobide bekleme müziği, sınavda açık ofis uğultusu (süre azaldıkça duvar saati öne çıkar), bölüm çanı, son 10 saniyede saat tıkırtısı, gözetmen bildirimleri, robot hatası, kaçan düğme, kart kaydırma, asansör, sonuçta trampet ve mühür. Üst çubukta sitenin ortak sessiz tercihine bağlı ses düğmesi.
+- Geliştirme aracı: `scripts/test-gallery/index.html` (geliştirme sunucusunda) bütün soruları sınav kartıyla alt alta çizer, `?t=swipe` gibi türe süzer.
+- Kod: sınav stilleri ikiye bölündü (`Exam.module.css` soru kartı, `Panel.module.css` saat ve harita).
+
+### Paylaşım ve mobil
+- Site artık "Mesai Dışı" adıyla açılıyor: sayfa başlığı, açıklama, manifest ve genel önizleme görseli (`og.png`) salonun kendisi.
+- Her oyunun `oyun/<ad>/` altında kendi paylaşım sayfası var: bağlantı önizlemesinde oyunun adı, açıklaması ve kartı (`og/<ad>.png`) görünür, açılınca oyuna geçer. Görseller `npm run og` ile salondaki çizimlerden üretilir.
+- Ortak sonuç kartı (1080×1350): Test, Köy Bakkalı, Yama Ekibi, İnşaat İzleme ve Meydan Islahı'nın sonunda "Sonucu paylaş". Telefonda paylaşım menüsü açılır; bilgisayarda kart iner, metin ve bağlantı panoya kopyalanır. Meydan kartı önce/sonra hâlini tek karede gösterir. Sen İK'sin kartı da oyunun paylaşım sayfasına bağlanır.
+- Yama Ekibi telefonda: dik tutulunca sahne kenardan kenara ve yakın, araçlar üçlü ızgarada, muhtarın balonu birkaç saniye sonra çekiliyor; yan çevrilince sahne ekranın yüksekliğini dolduruyor, araçlar sağda dikey şerit.
+- Meydan Islahı telefonda: "Yakınlaş" ile meydan iki kat büyür ve sürgüyle yana kaydırılır; seçilen bina ya da yeni tabela görünür alana gelir. Yan çevrilince sahne ekrana sığar.
+
 ### Arayüz
 - Başvuru akışındaki ilan notu ("📢 İlandaki 'genç, dinamik ekip'…") kaldırıldı; bu bilgi yalnızca sondaki oturum raporunda kalıyor.
 - Portaldaki "İK Müdüründen Not" kaldırıldı; aday listesi kenar sütununun tamamını kaplıyor ve satırlar büyüdü.

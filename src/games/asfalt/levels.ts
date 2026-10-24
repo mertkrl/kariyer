@@ -71,3 +71,12 @@ export function verdict(r: Report): string {
   if (r.score >= 70) return 'Fena değil. Dolmuş yavaşlamadan geçti; şoför sadece bir kere söylendi.';
   return 'Araba geçti, ama nasıl geçti… Şikâyet hattı şimdiden çalıyor.';
 }
+
+/** Mesai sonu unvanı: işlerin ortalamasına göre; paylaşılan kartın başlığı. */
+export function crewTitle(scores: number[]): { title: string; note: string; avg: number } {
+  const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  if (avg >= 90) return { avg, title: 'Asfaltın Ustası', note: 'Yamanın nerede olduğunu kimse bulamadı. Belediye seni başka ilçeye kaptırmamak için zam düşünüyor.' };
+  if (avg >= 75) return { avg, title: 'Kıdemli Silindirci', note: 'Dolmuşlar yavaşlamadan geçiyor. Muhtar seni kahvede adınla anıyor.' };
+  if (avg >= 55) return { avg, title: 'Mesai Kurtaran', note: 'Çukur kapandı sayılır. Bir sonraki yağmura kadar sorun yok.' };
+  return { avg, title: 'Kasis Mimarı', note: 'Yaptığın her yama trafiği yavaşlatıyor. Belediye buna yol güvenliği diyor.' };
+}

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
+import { markPlayed } from '../../arcade/progress';
+import { ShareButton } from '../../arcade/ShareButton';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import { DAYS_PER_SECOND, STAGES, TOTAL, floorStepAt, idleAt, stageAt, watchersAt, workAt } from './data';
@@ -43,6 +45,11 @@ export function InsaatGame() {
   const idle = idleAt(t);
   const day = Math.floor(t * DAYS_PER_SECOND) + 1;
   const over = t >= TOTAL;
+  // bina teslim edildi: salonun defterine tik
+  useEffect(() => {
+    if (!over) return;
+    markPlayed('insaat', 'Örnek Vatandaş');
+  }, [over]);
   const again = () => {
     setT(0);
     setRun((n) => n + 1);
@@ -116,6 +123,23 @@ export function InsaatGame() {
           </p>
           <p className={styles.muted}>Karşı parselde yeni inşaat başlıyormuş.</p>
           <div className={styles.actions}>
+            <ShareButton
+              className={styles.ghost}
+              label="Tutanağı paylaş"
+              make={() => ({
+                route: 'insaat',
+                kicker: 'Teslim tutanağı · Huzur Evleri',
+                title: 'Örnek Vatandaş',
+                note: 'Bir apartmanı temelden çatıya izledi. Hiçbir şeye karışmadı. Kolonun ince olduğunu yalnızca söyledi.',
+                stats: [
+                  { label: 'Şantiye günü', value: day.toLocaleString('tr-TR') },
+                  { label: 'Ertelenme', value: '4' },
+                  { label: 'İzleyen amca', value: String(watchersAt(t)) },
+                ],
+                question: 'Sen kaç gün dayanırsın?',
+                text: `İnşaat İzleme: bir apartmanı ${day.toLocaleString('tr-TR')} gün boyunca ellerim arkamda izledim, hiçbir şeye karışmadım.`,
+              })}
+            />
             <button type="button" className={styles.primary} onClick={again}>
               Karşıdakini izle →
             </button>

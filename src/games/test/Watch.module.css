@@ -108,3 +108,54 @@
     transform: translateY(-4px);
   }
 }
+
+/* tablet ve telefon: gözetmen tek satırlık bir şerit; yalnızca en yeni not görünür */
+@media (max-width: 960px) {
+  .watch {
+    grid-column: 1 / -1;
+    order: -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 6px;
+    border-radius: 12px;
+  }
+
+  .cam {
+    flex: none;
+    width: 64px;
+    border-radius: 8px;
+  }
+
+  .rec,
+  .camTime,
+  .watchTitle {
+    display: none;
+  }
+
+  .log {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .log li:not(.logNew) {
+    display: none;
+  }
+
+  .log .logNew {
+    padding: 4px 0;
+    background: none;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 760px) {
+  .watch {
+    order: 2;
+  }
+
+  .cam {
+    width: 46px;
+  }
+}

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EMPTY, GRAVEL, H, HOT, PACKED, ROAD, ROLLER_W, SET, SOIL, W, WATER, WET, createWorld, driveRoller, holeVolume, idx, openToTraffic, pour, step, surfaceAt, type LevelSpec, type World } from '../src/games/asfalt/model';
-import { LEVELS } from '../src/games/asfalt/levels';
+import { crewTitle, LEVELS } from '../src/games/asfalt/levels';
 
 const SPEC: LevelSpec = { id: 'deneme', seed: 7, center: 120, half: 24, depth: 22 };
 const run = (w: World, n: number) => {
@@ -119,4 +119,13 @@ test('suyun içine dökülen yama trafiğe açılınca çöker', () => {
   const r = openToTraffic(w);
   assert.ok(r.wet > 0);
   assert.ok(r.dips > 0);
+});
+
+test('mesai sonu unvanı işlerin ortalamasına göre yükselir', () => {
+  assert.equal(crewTitle([]).avg, 0);
+  assert.equal(crewTitle([95, 92]).title, 'Asfaltın Ustası');
+  assert.equal(crewTitle([80, 71]).avg, 76);
+  assert.equal(crewTitle([80, 71]).title, 'Kıdemli Silindirci');
+  assert.equal(crewTitle([60, 50]).title, 'Mesai Kurtaran');
+  assert.equal(crewTitle([20, 40]).title, 'Kasis Mimarı');
 });

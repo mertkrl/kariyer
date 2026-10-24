@@ -15,6 +15,7 @@
     "preview": "vite preview",
     "size": "node scripts/check-size.mjs",
     "docs:kadro": "node --import ./tests/setup/register.mjs scripts/kadro.ts",
+    "og": "node scripts/og-images.mjs",
     "package": "npm run build && node scripts/package.mjs"
   },
   "dependencies": {

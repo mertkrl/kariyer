@@ -1,15 +1,15 @@
 {
   "id": "./",
-  "name": "Sen İK'sin",
-  "short_name": "Sen İK'sin",
-  "description": "5 günlük bir işe alım simülasyonu.",
+  "name": "Mesai Dışı",
+  "short_name": "Mesai Dışı",
+  "description": "İş hayatının ve şehrin tuhaflıkları üzerine kısa oyunlar.",
   "lang": "tr",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
-  "orientation": "landscape",
-  "background_color": "#141210",
-  "theme_color": "#141210",
+  "orientation": "any",
+  "background_color": "#efe9d8",
+  "theme_color": "#efe9d8",
   "icons": [
     {
       "src": "icon-192.png",

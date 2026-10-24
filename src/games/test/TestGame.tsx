@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { StudioMark } from '../../arcade/Studio';
 import { ClockOut } from '../../arcade/ClockOut';
 import { audioEngine } from '../../audio/audioEngine';
+import { storeMuted } from '../../game/lib/prefs';
+import * as sfx from './sfx';
 import { EXAM_QUESTIONS, EXAM_SECTIONS, type ExamQuestion } from './data/questions';
 import { pickExam, QUESTIONS_PER_SECTION, secondsOf, totalSeconds, type ExamAnswer, type ExamSection } from './logic';
 import { Result } from './Result';
@@ -13,12 +15,14 @@ import { FAST_MS, FAST_STREAK, MAX_ROBOT_CHECKS } from './data/robot';
 import { QuestionWidget } from './widgets/QuestionWidgets';
 import styles from './TestGame.module.css';
 import ex from './Exam.module.css';
+import pn from './Panel.module.css';
 import wt from './Watch.module.css';
 
 /*
  * Genel Yetenek ve Uyum Testi: uydurma "UyumMetre" platformunda çözülen kısa bir sınav. Giriş →
  * bölüm bölüm sorular (her birinin kendi süresi) → iki puanlı sonuç. Kendi durumu bu ekrandadır;
- * İşe Alım Haftası'nın deposuna, kaydına ya da verisine dokunmaz.
+ * İşe Alım Haftası'nın deposuna, kaydına ya da verisine dokunmaz. Sesler sfx.ts'te: lobide bekleme
+ * müziği, sınavda açık ofis, sonda mühür.
  */
 
 const BRAND = 'UyumMetre';
@@ -43,6 +47,7 @@ export function TestGame() {
   const [stage, setStage] = useState<Stage>({ at: 'intro' });
   useEffect(() => {
     audioEngine.setMusicMood('off');
+    return sfx.stopHold;
   }, []);
   const start = () => setStage({ at: 'exam', exam: pickExam() });
   const check = () => setStage({ at: 'check' });
@@ -60,7 +65,10 @@ export function TestGame() {
           </span>
           <span className={styles.brandSub}>Yetenek Ölçüm ve Kültür Uyum Platformu</span>
         </span>
-        <span className={styles.right}>{(stage.at === 'exam' || stage.at === 'check') && <span className={styles.camera}>● Kamera gözetimi aktif</span>}</span>
+        <span className={styles.right}>
+          {(stage.at === 'exam' || stage.at === 'check') && <span className={styles.camera}>● Kamera gözetimi aktif</span>}
+          <SoundToggle />
+        </span>
       </header>
       {stage.at === 'intro' && <Intro onStart={check} />}
       {stage.at === 'intro' && <StudioMark minimal />}
@@ -72,9 +80,34 @@ export function TestGame() {
   );
 }
 
-/** Giriş: solda karşılama ve kurallar, sağda testin künyesi ve bölümleri. */
+/** Üst çubuktaki ses düğmesi: sitenin ortak sessiz tercihini değiştirir. */
+function SoundToggle() {
+  const [muted, setMuted] = useState(() => audioEngine.isMuted());
+  return (
+    <button
+      type="button"
+      className={styles.sound}
+      aria-pressed={!muted}
+      aria-label={muted ? 'Sesi aç' : 'Sesi kapat'}
+      onClick={() => {
+        audioEngine.init();
+        audioEngine.setMuted(!muted);
+        storeMuted(!muted);
+        setMuted(!muted);
+      }}
+    >
+      {muted ? '🔇' : '🔊'}
+    </button>
+  );
+}
+
+/** Giriş: solda karşılama ve kurallar, sağda testin künyesi ve bölümleri. İlk dokunuşta bekleme müziği başlar. */
 function Intro({ onStart }: { onStart: () => void }) {
   const [consent, setConsent] = useState(false);
+  const wake = () => {
+    audioEngine.init();
+    sfx.startHold();
+  };
   const total = EXAM_SECTIONS.length * QUESTIONS_PER_SECTION;
   // tahmini süre: havuzdaki soruların ortalama süresinden
   const minutes = Math.round(((EXAM_QUESTIONS.reduce((n, q) => n + secondsOf(q), 0) / EXAM_QUESTIONS.length) * total) / 60);
@@ -100,11 +133,27 @@ function Intro({ onStart }: { onStart: () => void }) {
             </li>
           </ul>
           <label className={`${styles.consent} ${consent ? styles.consentOn : ''}`}>
-            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => {
+                wake();
+                sfx.click();
+                setConsent(e.target.checked);
+              }}
+            />
             <span>Aydınlatma metnini okudum, anlamadım ve kabul etmiyorum.</span>
           </label>
           <div className={styles.startRow}>
-            <button className={`${styles.primary} ${styles.big}`} disabled={!consent} onClick={onStart}>
+            <button
+              className={`${styles.primary} ${styles.big}`}
+              disabled={!consent}
+              onClick={() => {
+                wake();
+                audioEngine.playUi('start');
+                onStart();
+              }}
+            >
               Teste başla →
             </button>
             <p className={styles.fine}>*Kendi içimizde.</p>
@@ -184,6 +233,7 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
   const finish = () => {
     if (finished.current) return;
     finished.current = true;
+    sfx.stopHold();
     onDone(answers, robots);
   };
   const endSection = () => {
@@ -195,6 +245,28 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
     setReach(starts[sec + 1]);
     setLeft(durations[sec + 1]);
   };
+  // bölüm tanıtımında bekleme müziği; bölüm başlayınca çan ve açık ofis, süre azaldıkça saat öne çıkar
+  const office = useRef<ReturnType<typeof sfx.startOffice> | null>(null);
+  useEffect(() => {
+    if (phase !== 'run') {
+      sfx.startHold();
+      return;
+    }
+    sfx.stopHold();
+    sfx.chime();
+    office.current = sfx.startOffice();
+    return () => {
+      office.current?.stop();
+      office.current = null;
+    };
+  }, [phase, sec]);
+  useEffect(() => {
+    if (phase !== 'run') return;
+    office.current?.setUrgency(Math.min(1, Math.max(0, 1 - left / total)) ** 2);
+    if (left <= 10 && left > 0) sfx.tick(left <= 5);
+    // gözetmen her 8 saniyede yeni bir not yazar (aşağıdaki kayıt); yazarken bir bildirim sesi
+    else if (left < total && (total - left) % 8 === 0) sfx.warn();
+  }, [left, phase, total]);
   // robot penceresi açıkken ve bölüm tanıtımındayken süre durur
   const [robot, setRobot] = useState(false);
   const [robots, setRobots] = useState(0);
@@ -226,6 +298,7 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
   };
   // Sonraki: en ileri sorudaysa yeni bir soru açılır; geride ise bir sonraki soruya
   const next = () => {
+    sfx.page();
     if (index === reach) {
       if (reach + 1 >= to) return;
       setConfirm(false);
@@ -243,6 +316,7 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
       streak.current = 0;
       setRobots((n) => n + 1);
       setRobot(true);
+      sfx.error();
     }
   };
 
@@ -274,8 +348,8 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
         />
       )}
       {/* robot penceresi açıkken arkadaki sınava klavyeyle de geçilemez */}
-      <aside className={ex.side} inert={robot}>
-        <div className={`${ex.clock} ${hurry ? ex.clockHurry : ''}`} style={{ ['--p' as string]: (left / total) * 100 }}>
+      <aside className={pn.side} inert={robot}>
+        <div className={`${pn.clock} ${hurry ? pn.clockHurry : ''}`} style={{ ['--p' as string]: (left / total) * 100 }}>
           <b className="mono" role="timer" aria-label={`Bölümün kalan süresi ${Math.max(0, left)} saniye`}>
             {clockText(Math.max(0, left))}
           </b>
@@ -283,20 +357,20 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
         </div>
 
         {/* yalnızca içinde bulunulan bölümün kutuları; diğer bölümler bitti ya da kilitli */}
-        <nav aria-label="Soru haritası" className={ex.map}>
+        <nav aria-label="Soru haritası" className={pn.map}>
           {exam.map((s, sIndex) => {
             const now = sIndex === sec;
             const state = sIndex < sec ? 'bitti' : sIndex > sec ? 'sırada' : null;
             return (
-              <div key={s.title} className={`${ex.mapSection} ${now ? ex.mapOpen : ex.mapLocked}`}>
-                <span className={`${ex.mapTitle} ${now ? ex.mapTitleOn : ''}`}>
+              <div key={s.title} className={`${pn.mapSection} ${now ? pn.mapOpen : pn.mapLocked}`}>
+                <span className={`${pn.mapTitle} ${now ? pn.mapTitleOn : ''}`}>
                   <span>
                     {sIndex + 1}. {s.title}
                   </span>
                   <em>{state ?? `${s.questions.length - blank}/${s.questions.length}`}</em>
                 </span>
                 {now && (
-                  <ol className={ex.grid}>
+                  <ol className={pn.grid}>
                     {s.questions.map((sq, k) => {
                       const i = from + k;
                       const isDone = answers[i] !== null;
@@ -304,7 +378,7 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
                       return (
                         <li key={sq.id}>
                           <button
-                            className={`${ex.cell} ${isDone ? ex.cellDone : ''} ${i === index ? ex.cellNow : ''} ${ahead ? ex.cellAhead : ''}`}
+                            className={`${pn.cell} ${isDone ? pn.cellDone : ''} ${i === index ? pn.cellNow : ''} ${ahead ? pn.cellAhead : ''}`}
                             aria-current={i === index ? 'step' : undefined}
                             aria-label={`Soru ${k + 1}, ${isDone ? 'cevaplandı' : ahead ? 'henüz açılmadı' : 'boş'}`}
                             disabled={!open(i)}
@@ -323,16 +397,16 @@ function Exam({ exam, onDone }: { exam: ExamSection[]; onDone: (answers: ExamAns
           })}
         </nav>
 
-        <div className={ex.legend} aria-hidden="true">
+        <div className={pn.legend} aria-hidden="true">
           <span>
-            <i className={ex.lgDone} /> Cevaplandı ({sectionAnswers.length - blank})
+            <i className={pn.lgDone} /> Cevaplandı ({sectionAnswers.length - blank})
           </span>
           <span>
-            <i className={ex.lgBlank} /> Boş ({blank})
+            <i className={pn.lgBlank} /> Boş ({blank})
           </span>
         </div>
 
-        <button className={ex.finish} onClick={() => (blank ? setConfirm(true) : endSection())}>
+        <button className={pn.finish} onClick={() => (blank ? setConfirm(true) : endSection())}>
           {endLabel}
         </button>
       </aside>

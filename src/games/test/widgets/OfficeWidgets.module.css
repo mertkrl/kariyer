@@ -305,3 +305,10 @@
   background: #fff;
   color: var(--a-text);
 }
+
+/* telefon: zam tablosu kendi içinde yatay kayar */
+@media (max-width: 760px) {
+  .sheet {
+    overflow-x: auto;
+  }
+}

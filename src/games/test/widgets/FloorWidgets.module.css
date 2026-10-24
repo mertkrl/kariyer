@@ -491,3 +491,12 @@
   background: var(--a-blue-soft);
   font-size: 13px;
 }
+
+/* telefon: termostat kadranı üstte, yorumlar altında */
+@media (max-width: 560px) {
+  .thermo {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 14px;
+  }
+}
