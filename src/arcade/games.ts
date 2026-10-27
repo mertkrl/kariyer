@@ -23,6 +23,14 @@ export interface ArcadeGame {
 
 export const GAMES: ArcadeGame[] = [
   {
+    route: 'trafik',
+    title: 'Kavşak Amiri',
+    blurb: 'Kadıköy, Ataşehir, Şişli, Mecidiyeköy, Beşiktaş. Evreleri kur, ışık sürelerini ayarla; sola dönenler, okul çıkışı, ambulans ve vapur dalgası varken kavşağı kilitletme.',
+    color: 'var(--blue-ink)',
+    minutes: 10,
+    file: 8,
+  },
+  {
     route: 'asfalt',
     title: 'Yama Ekibi',
     blurb: 'Üç aydır kapanmayan çukur, yağmur ve kurdele kesmeye gelen başkan. Toprağı dök, mıcırı yay, asfalt soğumadan silindiri geçir.',

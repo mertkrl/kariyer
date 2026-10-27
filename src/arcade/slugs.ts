@@ -10,6 +10,7 @@ export const SLUGS = {
   ekran: 'ekran',
   meydan: 'meydan',
   asfalt: 'asfalt',
+  trafik: 'trafik',
 } as const;
 
 /** Salon dışındaki her adres: bir oyun. */

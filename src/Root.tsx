@@ -12,6 +12,7 @@ const LOADERS: Record<string, () => Promise<unknown>> = {
   ekran: () => import('./games/ekran/EkranGame'),
   meydan: () => import('./games/meydan/MeydanGame'),
   asfalt: () => import('./games/asfalt/AsfaltGame'),
+  trafik: () => import('./games/trafik/TrafikGame'),
 };
 const IseAlim = lazy(() => import('./App'));
 const TestGame = lazy(() => import('./games/test/TestGame').then((m) => ({ default: m.TestGame })));
@@ -19,11 +20,12 @@ const InsaatGame = lazy(() => import('./games/insaat/InsaatGame').then((m) => ({
 const EkranGame = lazy(() => import('./games/ekran/EkranGame').then((m) => ({ default: m.EkranGame })));
 const MeydanGame = lazy(() => import('./games/meydan/MeydanGame').then((m) => ({ default: m.MeydanGame })));
 const AsfaltGame = lazy(() => import('./games/asfalt/AsfaltGame').then((m) => ({ default: m.AsfaltGame })));
+const TrafikGame = lazy(() => import('./games/trafik/TrafikGame').then((m) => ({ default: m.TrafikGame })));
 const BakkalGame = lazy(() => import('./games/bakkal/BakkalGame').then((m) => ({ default: m.BakkalGame })));
 
 const preload = (route: string) => void LOADERS[route]?.();
 
-const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe alım simülasyonu", test: 'Genel Yetenek ve Uyum Testi', insaat: 'İnşaat İzleme', bakkal: 'Köy Bakkalı', ekran: 'Ekran İhalesi', meydan: 'Meydan Islahı', asfalt: 'Yama Ekibi' };
+const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe alım simülasyonu", test: 'Genel Yetenek ve Uyum Testi', insaat: 'İnşaat İzleme', bakkal: 'Köy Bakkalı', ekran: 'Ekran İhalesi', meydan: 'Meydan Islahı', asfalt: 'Yama Ekibi', trafik: 'Kavşak Amiri' };
 
 export function Root() {
   const route = useRoute();
@@ -44,6 +46,13 @@ export function Root() {
     return (
       <Suspense fallback={<div style={{ minHeight: '100%', background: '#23262d' }} />}>
         <EkranGame />
+      </Suspense>
+    );
+  // kontrol merkezinin koyu zemini: yüklenirken aynı renk görünsün
+  if (route === 'trafik')
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100%', background: '#1d2128' }} />}>
+        <TrafikGame />
       </Suspense>
     );
   // şantiyenin açık zemini: yüklenirken aynı renk görünsün

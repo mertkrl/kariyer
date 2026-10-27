@@ -228,3 +228,29 @@ export function PatchArt() {
     </svg>
   );
 }
+
+/** Kavşak Amiri: kuşbakışı bir kavşak; ışık yeşile döner, bekleyen araçlar karşıya geçer. */
+export function JunctionArt() {
+  return (
+    <svg viewBox="0 0 240 120" className={`${styles.art} ${p.scene}`} aria-hidden="true">
+      <rect x="16" y="46" width="208" height="28" fill="rgba(0,0,0,.28)" />
+      <rect x="106" y="6" width="28" height="108" fill="rgba(0,0,0,.28)" />
+      {[24, 44, 64, 84, 144, 164, 184, 204].map((x) => (
+        <rect key={x} x={x} y="59.5" width="10" height="1.5" fill="rgba(255,255,255,.6)" />
+      ))}
+      {/* bekleyen kuyruk: ışık yanınca karşıya kayar */}
+      <g className={p.queue}>
+        {[30, 46, 62, 78].map((x) => (
+          <rect key={x} x={x} y="63" width="12" height="8" rx="2" fill="rgba(255,255,255,.9)" />
+        ))}
+      </g>
+      {/* yan yolda bekleyen tek araç */}
+      <rect x="110" y="16" width="8" height="12" rx="2" fill="rgba(255,255,255,.55)" />
+      <rect x="110" y="32" width="8" height="12" rx="2" fill="rgba(255,255,255,.55)" />
+      {/* ışık */}
+      <rect x="90" y="78" width="10" height="24" rx="3" fill="rgba(0,0,0,.45)" />
+      <circle className={p.red} cx="95" cy="84" r="3.2" fill="rgba(255,120,100,.95)" />
+      <circle className={p.green} cx="95" cy="96" r="3.2" fill="rgba(140,240,160,.95)" />
+    </svg>
+  );
+}

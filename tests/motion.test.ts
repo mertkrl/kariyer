@@ -13,8 +13,9 @@ const sources = readdirSync(root, { recursive: true, encoding: 'utf8' })
   .filter((f) => /\.tsx?$/.test(f))
   .map((f) => ({ f, code: readFileSync(join(root, f), 'utf8') }));
 
-// hareket değil: odağı ekran açılınca bir kez yerleştirmek için kare beklenir
-const NOT_MOTION = new Set(['components/ui/useScreenFocus.ts']);
+// hareket değil: odağı ekran açılınca bir kez yerleştirmek için kare beklenir; Kavşak Amiri'nin
+// simülasyon saati oyunun kendisidir (çizimi Scene yapar, o tercihi sorar)
+const NOT_MOTION = new Set(['components/ui/useScreenFocus.ts', 'games/trafik/Play.tsx']);
 
 test('her animasyon döngüsü hareket azaltma tercihini sorar', () => {
   const missing = sources

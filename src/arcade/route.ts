@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { SLUGS, type GameRoute } from './slugs';
 
 /*
- * Oyun salonunun adresleri: `#/` salon, `#/ise-alim`, `#/test`, `#/insaat`, `#/bakkal`, `#/ekran`, `#/meydan` ve `#/asfalt` oyunlar (`#/ekran?t=…` paylaşılan bir ekran tasarımını taşır). Adres `#` ile tutulur;
+ * Oyun salonunun adresleri: `#/` salon, `#/ise-alim`, `#/test`, `#/insaat`, `#/bakkal`, `#/ekran`, `#/meydan`, `#/asfalt` ve `#/trafik` oyunlar (`#/ekran?t=…` paylaşılan bir ekran tasarımını taşır). Adres `#` ile tutulur;
  * böylece derleme herhangi bir statik sunucunun herhangi bir klasöründen, çevrimdışı da çalışır.
  */
 export type Route = 'arcade' | GameRoute;
