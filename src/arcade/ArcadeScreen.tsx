@@ -31,7 +31,7 @@ const BOSS_TITLE = 'Q3_rapor_v14_SON_son.xlsx · Tablolar';
 
 /** Kartların üstündeki sabit el yazısı notlar (günün dosyasının notu bunların önüne geçer). */
 const NOTES: Partial<Record<GameRoute, string>> = {
-  asfalt: 'yeni çıktı! ★',
+  cuzdan: 'yeni çıktı! ★',
   test: 'buradan başla',
   iseAlim: 'en uzunu, 45 dk',
   bakkal: 'fiyatı sen söylüyorsun',

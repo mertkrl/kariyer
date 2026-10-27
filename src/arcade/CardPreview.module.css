@@ -369,3 +369,37 @@ a:is(:hover, :focus-visible) .roller {
     transform: translateX(160px);
   }
 }
+
+/* Cüzdan Zamanı: sıfırlar düşüp kaybolur, fiş aşağı doğru basılır. */
+a:is(:hover, :focus-visible) .zeros {
+  animation: zerosFall 2.4s ease-in infinite;
+}
+
+a:is(:hover, :focus-visible) .receipt {
+  transform-origin: 50% 22px;
+  animation: receiptPrint 2.4s ease-out infinite;
+}
+
+@keyframes zerosFall {
+  0%,
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes receiptPrint {
+  0%,
+  30% {
+    transform: scaleY(0.15);
+  }
+  70%,
+  100% {
+    transform: scaleY(1);
+  }
+}

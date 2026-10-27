@@ -1,0 +1,226 @@
+/* Cüzdan TL açılışı: BIOS, logo ve kullanıcı seçimi (Boot.tsx). */
+.bios {
+  position: absolute;
+  inset: 0;
+  padding: 26px 30px;
+  background: #000;
+  color: #c8c8c8;
+  font: 15px/1.35 ui-monospace, 'Courier New', monospace;
+  white-space: pre;
+}
+
+.skip {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  padding: 5px 12px;
+  border: 1px solid #555;
+  background: none;
+  color: #aaa !important;
+  font: 12px Tahoma, sans-serif !important;
+}
+
+.splash {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+  color: #fff;
+  text-align: center;
+}
+
+.word {
+  font: italic bold 46px 'Trebuchet MS', sans-serif;
+  letter-spacing: -1px;
+}
+
+.word sup {
+  font-size: 22px;
+  font-style: normal;
+  color: #ff8c1a;
+}
+
+.splashSub {
+  margin-top: 4px;
+  font: 12px Tahoma, sans-serif;
+  color: #9a9a9a;
+}
+
+.loader {
+  width: 140px;
+  height: 14px;
+  margin: 40px auto 0;
+  padding: 2px;
+  border: 1px solid #b2b2b2;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loader i {
+  display: block;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg, #1a4fbf 0 8px, transparent 8px 11px, #2a6af0 11px 19px, transparent 19px 22px, #4c8dff 22px 30px);
+  animation: load 1.3s linear infinite;
+}
+
+@keyframes load {
+  from {
+    transform: translateX(-34px);
+  }
+  to {
+    transform: translateX(140px);
+  }
+}
+
+.login {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 64px 1fr 64px;
+  background: #5a7edc;
+  color: #fff;
+  font-family: Tahoma, sans-serif;
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  background: #00309c;
+  border-bottom: 2px solid #f9a64a;
+}
+
+.bandBottom {
+  border-top: 2px solid #f9a64a;
+  border-bottom: 0;
+  font-size: 13px;
+}
+
+.loginMid {
+  display: grid;
+  grid-template-columns: 1fr 2px 1fr;
+  align-items: center;
+  background: radial-gradient(80% 100% at 20% 30%, #7a9eee, #5a7edc);
+}
+
+.welcome {
+  padding-right: 30px;
+  text-align: right;
+}
+
+.welcome b {
+  display: block;
+  font: italic bold 38px 'Trebuchet MS', sans-serif;
+}
+
+.welcome span {
+  font-size: 14px;
+}
+
+.loginSep {
+  height: 70%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+}
+
+.users {
+  display: grid;
+  gap: 12px;
+  padding: 0 24px 0 30px;
+}
+
+.userList {
+  display: grid;
+  gap: 12px;
+}
+
+.yearBadge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(0, 48, 156, 0.35);
+}
+
+.yearBadge b {
+  display: block;
+  font-size: 18px;
+}
+
+.yearBadge small {
+  display: block;
+  font-size: 12px;
+  color: #dce6ff;
+}
+
+.calendar {
+  flex: none;
+  width: 64px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.calendar i {
+  display: block;
+  padding: 2px 0;
+  font: bold 10px Tahoma, sans-serif;
+  font-style: normal;
+  letter-spacing: 1px;
+  color: #fff;
+  background: #d9443a;
+}
+
+.calendar b {
+  display: block;
+  padding: 4px 0;
+  font: bold 18px 'Trebuchet MS', sans-serif;
+  color: #1b2a4a;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  color: #fff !important;
+}
+
+.user:hover,
+.user:focus-visible {
+  outline: none;
+  background: linear-gradient(90deg, #00309c, transparent);
+}
+
+.user b {
+  display: block;
+  font-size: 17px;
+}
+
+.user small {
+  font-size: 12px;
+  color: #dce6ff;
+}
+
+@media (max-width: 760px) {
+  .loginMid {
+    grid-template-columns: 1fr;
+  }
+  .welcome,
+  .loginSep {
+    display: none;
+  }
+  .users {
+    padding: 0 16px;
+  }
+}

@@ -1,4 +1,4 @@
-import { CraneArt, DeskArt, ExamArt, FacadeArt, JunctionArt, PatchArt, ScreenArt, ShopArt } from '../arcade/CardArt';
+import { CraneArt, DeskArt, ExamArt, FacadeArt, JunctionArt, PatchArt, ScreenArt, ShopArt, WalletArt } from '../arcade/CardArt';
 import { GAMES, SITE_NAME, SITE_TAGLINE, type ArcadeGame } from '../arcade/games';
 import styles from './OgCard.module.css';
 
@@ -9,7 +9,7 @@ import styles from './OgCard.module.css';
  * aynıdır, böylece paylaşılan bağlantı salondaki dosyanın kendisi gibi görünür.
  */
 
-const ART = { iseAlim: DeskArt, test: ExamArt, insaat: CraneArt, bakkal: ShopArt, ekran: ScreenArt, meydan: FacadeArt, asfalt: PatchArt, trafik: JunctionArt } as const;
+const ART = { iseAlim: DeskArt, test: ExamArt, insaat: CraneArt, bakkal: ShopArt, ekran: ScreenArt, meydan: FacadeArt, asfalt: PatchArt, trafik: JunctionArt, cuzdan: WalletArt } as const;
 
 const fileNo = (n: number) => `DOSYA ${String(n).padStart(3, '0')}`;
 

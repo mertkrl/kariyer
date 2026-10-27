@@ -1,0 +1,425 @@
+/*
+ * Başlat menüsü (StartMenu.tsx). Ortak iskelet: baş (kullanıcı), gövde (sol: masalar, sağ:
+ * araçlar), ayak (kullanıcı değiştir, mesaiyi bitir). Her dönem kendi düzenini ve dokusunu
+ * kurar; tema `data-theme` ile Shell.module.css'teki .app'ten gelir.
+ */
+
+.menu {
+  position: absolute;
+  left: 0;
+  bottom: var(--task-h);
+  z-index: 2100;
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  max-width: calc(100vw - 12px);
+  overflow: hidden;
+  font-family: var(--font), Tahoma, sans-serif;
+  animation: rise 0.18s ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.menu button,
+.menu a {
+  font: inherit;
+  cursor: pointer;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  font-size: 26px;
+  border-radius: 5px;
+  background: #f2c86a;
+}
+
+.who b {
+  display: block;
+  font-size: 15px;
+}
+
+.who small {
+  white-space: nowrap;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+}
+
+.games {
+  display: grid;
+  gap: 2px;
+}
+
+.game {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.game b {
+  display: block;
+  font-size: 12.5px;
+}
+
+.game small {
+  display: block;
+  font-size: 10.5px;
+  opacity: 0.7;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 6px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  text-align: left;
+  font-weight: bold;
+  font-size: 12px;
+  color: inherit;
+}
+
+.sep {
+  height: 1px;
+  margin: 6px 4px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.hint {
+  margin: 0;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 6px 8px;
+}
+
+.footBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  text-decoration: none;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.footIcon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #fff;
+}
+
+.user {
+  background: linear-gradient(180deg, #f9c96b, #e1871f);
+}
+
+.power {
+  background: linear-gradient(180deg, #f38b6f, #c4361b);
+}
+
+/* ── 2002–2005: iki sütun, mavi baş ve ayak ── */
+:global([data-theme='luna']) .menu {
+  border: 1px solid #0b3aa8;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 3px -2px 14px rgba(0, 0, 0, 0.45);
+}
+
+:global([data-theme='luna']) .head {
+  color: #fff;
+  background: linear-gradient(180deg, #1868ce, #0f4eb5 85%);
+  border-bottom: 2px solid #f39a2c;
+  text-shadow: 1px 1px #0b2a7a;
+}
+
+:global([data-theme='luna']) .avatar {
+  border: 2px solid #fff;
+}
+
+:global([data-theme='luna']) .left {
+  background: #fff;
+}
+
+:global([data-theme='luna']) .right {
+  color: #0a246a;
+  background: #d3e5fa;
+  border-left: 1px solid #95bdee;
+}
+
+:global([data-theme='luna']) .game:hover,
+:global([data-theme='luna']) .game:focus-visible,
+:global([data-theme='luna']) .link:hover,
+:global([data-theme='luna']) .link:focus-visible {
+  outline: none;
+  background: #316ac5;
+  color: #fff;
+}
+
+:global([data-theme='luna']) .foot {
+  color: #fff;
+  background: linear-gradient(180deg, #4282d6, #1c5bc4);
+}
+
+:global([data-theme='luna']) .footBtn:hover,
+:global([data-theme='luna']) .footBtn:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ── 2008–2012: koyu cam, beyaz liste, sağda cam sütun ── */
+:global([data-theme='glass']) .menu {
+  display: grid;
+  grid-template: 'body head' auto 'body right' 1fr 'body foot' auto / 1fr 150px;
+  width: 440px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(40, 60, 85, 0.85), rgba(10, 18, 30, 0.92));
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='glass']) .head {
+  grid-area: head;
+  flex-direction: column;
+  padding: 4px 6px 8px;
+  text-align: center;
+}
+
+:global([data-theme='glass']) .avatar {
+  width: 54px;
+  height: 54px;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(120, 200, 255, 0.6);
+}
+
+:global([data-theme='glass']) .body {
+  display: contents;
+}
+
+:global([data-theme='glass']) .left {
+  grid-area: body;
+  color: #111;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+
+:global([data-theme='glass']) .right {
+  grid-area: right;
+  padding: 0 4px;
+}
+
+:global([data-theme='glass']) .game:hover,
+:global([data-theme='glass']) .game:focus-visible {
+  outline: none;
+  background: linear-gradient(180deg, #e7f2fd, #c9e2fb);
+  box-shadow: inset 0 0 0 1px #7db3e8;
+}
+
+:global([data-theme='glass']) .link:hover,
+:global([data-theme='glass']) .link:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+:global([data-theme='glass']) .sep {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:global([data-theme='glass']) .foot {
+  grid-area: foot;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 6px 4px 2px;
+}
+
+:global([data-theme='glass']) .footBtn {
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+}
+
+:global([data-theme='glass']) .footBtn:hover,
+:global([data-theme='glass']) .footBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 10px rgba(120, 200, 255, 0.6);
+}
+
+/* ── 2016–2020: ortada kart, simge ızgarası ── */
+:global([data-theme='flat']) .menu {
+  display: grid;
+  grid-template: 'body body' auto 'head foot' auto / 1fr auto;
+  left: 50%;
+  bottom: calc(var(--task-h) + 10px);
+  translate: -50% 0;
+  width: 460px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  color: #1b1b1b;
+  background: rgba(248, 249, 252, 0.94);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+:global([data-theme='flat']) .head {
+  grid-area: head;
+  padding: 12px 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(0, 0, 0, 0.025);
+}
+
+:global([data-theme='flat']) .avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+  border-radius: 50%;
+}
+
+:global([data-theme='flat']) .body {
+  grid-area: body;
+  display: block;
+  padding: 16px 20px 18px;
+}
+
+:global([data-theme='flat']) .section {
+  margin: 0 0 10px 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+:global([data-theme='flat']) .games {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+:global([data-theme='flat']) .game {
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 4px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+:global([data-theme='flat']) .game small {
+  display: none;
+}
+
+:global([data-theme='flat']) .game:hover,
+:global([data-theme='flat']) .game:focus-visible {
+  outline: none;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='flat']) .foot {
+  grid-area: foot;
+  align-items: center;
+  padding: 0 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(0, 0, 0, 0.025);
+}
+
+:global([data-theme='flat']) .footBtn {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+:global([data-theme='flat']) .footBtn:hover,
+:global([data-theme='flat']) .footBtn:focus-visible {
+  outline: none;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme='flat']) .footIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #1b1b1b;
+  background: none;
+  font-size: 15px;
+}
+
+@media (max-width: 560px) {
+  .menu,
+  :global([data-theme='glass']) .menu,
+  :global([data-theme='flat']) .menu {
+    left: 6px;
+    right: 6px;
+    width: auto;
+    translate: none;
+  }
+  .body {
+    grid-template-columns: 1fr;
+  }
+  :global([data-theme='glass']) .menu {
+    grid-template: 'head' auto 'body' auto 'right' auto 'foot' auto / 1fr;
+  }
+  :global([data-theme='flat']) .menu {
+    grid-template: 'body' auto 'head' auto 'foot' auto / 1fr;
+  }
+  :global([data-theme='flat']) .foot {
+    justify-content: flex-end;
+    padding: 6px 12px;
+  }
+}

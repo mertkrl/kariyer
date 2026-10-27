@@ -254,3 +254,28 @@ export function JunctionArt() {
     </svg>
   );
 }
+
+/** Cüzdan Zamanı: eski banknottan sıfırlar düşer, yanında bugünün fişi uzar. */
+export function WalletArt() {
+  return (
+    <svg viewBox="0 0 240 120" className={`${styles.art} ${p.scene}`} aria-hidden="true">
+      <rect x="28" y="34" width="110" height="56" rx="5" fill="rgba(255,255,255,.88)" />
+      <rect x="34" y="40" width="98" height="44" rx="3" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
+      <circle cx="56" cy="62" r="11" fill="rgba(0,0,0,.12)" />
+      <text x="74" y="67" fontFamily="monospace" fontSize="13" fontWeight="700" fill="rgba(0,0,0,.55)">
+        1<tspan className={p.zeros}>.000.000</tspan>
+      </text>
+      <g className={p.zeros}>
+        <circle cx="100" cy="100" r="3" fill="rgba(255,255,255,.7)" />
+        <circle cx="112" cy="106" r="3" fill="rgba(255,255,255,.55)" />
+      </g>
+      <g className={p.receipt}>
+        <rect x="162" y="22" width="48" height="78" rx="2" fill="rgba(255,255,255,.92)" />
+        {[34, 44, 54, 64, 74].map((y) => (
+          <rect key={y} x="168" y={y} width={y === 74 ? 36 : 28} height="3" rx="1.5" fill="rgba(0,0,0,.2)" />
+        ))}
+        <rect x="168" y="86" width="36" height="5" rx="1.5" fill="rgba(168,64,47,.75)" />
+      </g>
+    </svg>
+  );
+}

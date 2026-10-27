@@ -1,0 +1,230 @@
+/* Medya Çalar (apps/MusicApp.tsx): koyu mavi gövde, yeşil yazılı ekran, ekolayzer, çalma listesi. */
+.player {
+  background: linear-gradient(180deg, #2b3a55, #18233a);
+  color: #cfe3ff;
+}
+
+.screenLcd {
+  margin: 8px;
+  padding: 8px;
+  border: 1px solid #000;
+  border-radius: 3px;
+  background: #000;
+  color: #3df58c;
+  font: 12px ui-monospace, 'Courier New', monospace;
+}
+
+.scroll {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 40px;
+  margin-top: 8px;
+}
+
+.eq i {
+  flex: 1;
+  height: 12%;
+  background: linear-gradient(0deg, #3df58c, #f4ff3a 70%, #ff4d4d);
+}
+
+.eqOn i {
+  animation: eq 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes eq {
+  from {
+    height: 12%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 8px;
+}
+
+.transport > button {
+  width: 34px;
+  height: 28px;
+  border: 1px solid #0b1424;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #c8d6ea, #7f93b3);
+  color: #0b1424 !important;
+}
+
+.transport .playBtn {
+  width: 42px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #b8f7c9, #2fa45a);
+}
+
+.autoBox {
+  margin-left: auto;
+  font-size: 11.5px;
+}
+
+.playlist {
+  margin: 0 8px;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #0b1424;
+  background: #0f1828;
+}
+
+.playlist button {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  background: none;
+  color: #9fb6d6 !important;
+  font: 12px ui-monospace, 'Courier New', monospace !important;
+  text-align: left;
+}
+
+.playlist .playingRow {
+  background: #2a4a7a;
+  color: #fff !important;
+}
+
+.note {
+  margin: 6px 10px 10px;
+  font-size: 11.5px;
+}
+
+.player .note {
+  color: #8ea2c0;
+}
+
+.between {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ── 2009–2012: siyah cam medya oynatıcı ── */
+:global([data-theme='glass']) .player {
+  color: #dfeaf7;
+  background: linear-gradient(180deg, #2a2f38, #0c0e12);
+}
+
+:global([data-theme='glass']) .screenLcd {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #bfe3ff;
+  background: linear-gradient(180deg, rgba(60, 120, 200, 0.35), rgba(10, 20, 40, 0.8));
+}
+
+:global([data-theme='glass']) .eq i {
+  background: linear-gradient(0deg, #1f7ae0, #7fd0ff);
+  border-radius: 2px 2px 0 0;
+}
+
+:global([data-theme='glass']) .transport > button {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: radial-gradient(circle at 50% 30%, #6a7686, #1b2028);
+  color: #fff !important;
+}
+
+:global([data-theme='glass']) .transport .playBtn {
+  background: radial-gradient(circle at 50% 30%, #7fd0ff, #1f6fd0 60%, #0c3c78);
+  box-shadow: 0 0 12px rgba(80, 170, 255, 0.6);
+}
+
+:global([data-theme='glass']) .playlist {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+:global([data-theme='glass']) .playlist .playingRow {
+  background: linear-gradient(90deg, rgba(31, 122, 224, 0.6), transparent);
+}
+
+/* ── 2016 sonrası: beyaz müzik uygulaması, büyük kapak ── */
+:global([data-theme='flat']) .player {
+  color: #1b1b1b;
+  background: #fff;
+}
+
+:global([data-theme='flat']) .screenLcd {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 150px;
+  margin: 12px;
+  padding: 14px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #ff6a88, #7b4bff 60%, #2bc0e4);
+  font: 600 14px system-ui, sans-serif;
+}
+
+:global([data-theme='flat']) .eq {
+  height: 26px;
+}
+
+:global([data-theme='flat']) .eq i {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 2px;
+}
+
+:global([data-theme='flat']) .transport {
+  justify-content: center;
+  gap: 18px;
+}
+
+:global([data-theme='flat']) .transport > button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: #f2f2f5;
+  color: #1b1b1b !important;
+}
+
+:global([data-theme='flat']) .transport .playBtn {
+  width: 52px;
+  height: 52px;
+  background: #1b1b1b;
+  color: #fff !important;
+}
+
+:global([data-theme='flat']) .autoBox {
+  margin-left: 0;
+}
+
+:global([data-theme='flat']) .playlist {
+  margin: 4px 12px;
+  border: 0;
+  background: none;
+}
+
+:global([data-theme='flat']) .playlist button {
+  padding: 10px 6px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333 !important;
+  font: 13px system-ui, sans-serif !important;
+}
+
+:global([data-theme='flat']) .playlist .playingRow {
+  background: none;
+  color: #7b4bff !important;
+  font-weight: 700 !important;
+}
+
+:global([data-theme='flat']) .player .note {
+  color: #888;
+}

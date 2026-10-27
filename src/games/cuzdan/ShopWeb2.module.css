@@ -1,0 +1,384 @@
+/*
+ * Zaman Bakkalı 2009–2012: sekmeli gezgin ve Web 2.0 e-ticaret sitesi. Parlak degradeler, yuvarlak
+ * köşeler, yansımalı logo, turuncu "Sepete At" düğmeleri, yıldız puanları, kenarda sepet kutusu.
+ */
+
+.browser {
+  display: flex;
+  flex-direction: column;
+  background: #dfe7f1;
+}
+
+.tabStrip {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 6px 8px 0;
+  background: linear-gradient(180deg, #b9cde4, #a3bad6);
+}
+
+.tab {
+  max-width: 280px;
+  padding: 6px 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border: 1px solid #7f98b8;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #fff, #eef3f9);
+  font-size: 11.5px;
+}
+
+.newTab {
+  padding: 3px 9px;
+  border-radius: 6px 6px 0 0;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.navBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, #eef3f9, #dce5ef);
+  border-bottom: 1px solid #a9bbd2;
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #6f8db3;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, #fff, #b8cde6);
+  font-size: 11px !important;
+  color: #1f3f66 !important;
+}
+
+.urlBox {
+  flex: 1;
+  padding: 4px 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border: 1px solid #9fb3cc;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.viewport {
+  position: relative;
+  height: min(360px, 52vh);
+  overflow: auto;
+  background: #fff;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font: 13px 'Segoe UI', Tahoma, sans-serif;
+  color: #345;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 4px solid #cfe0f3;
+  border-top-color: #2a83d6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.site {
+  font: 13px 'Segoe UI', Tahoma, Arial, sans-serif;
+  color: #333;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #5fb3f0, #2a83d6 55%, #1e6fbd);
+  color: #fff;
+}
+
+.logo {
+  position: relative;
+  font: bold 24px 'Trebuchet MS', sans-serif;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.logo em {
+  font-style: normal;
+  color: #ffd75e;
+}
+
+.logo sup {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #ff6a00;
+  font-size: 10px;
+  vertical-align: top;
+}
+
+.welcome {
+  font-size: 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 10px;
+  background: #1e6fbd;
+}
+
+.tabs span {
+  padding: 6px 12px;
+  border-radius: 6px 6px 0 0;
+  color: #dbeaff;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.tabs .tabOn {
+  background: #fff;
+  color: #1e6fbd;
+}
+
+.promo {
+  margin: 10px 12px 0;
+  padding: 8px 12px;
+  border: 1px solid #f3c35b;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff8dc, #ffe9a6);
+  font-size: 12px;
+}
+
+.promo b {
+  color: #d9480f;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 130px 1fr 170px;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.side b {
+  margin-bottom: 4px;
+  color: #1e6fbd;
+}
+
+.side button {
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  text-align: left;
+  font-size: 12px !important;
+  color: #2a5d8f !important;
+}
+
+.side button:hover,
+.side .sideOn {
+  background: #e3f0fc;
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border: 1px solid #d5e2ef;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, #f3f8fd);
+  box-shadow: 0 2px 4px rgba(0, 40, 80, 0.08);
+  text-align: center;
+}
+
+.pic {
+  font-size: 30px;
+  -webkit-box-reflect: below 0 linear-gradient(transparent 60%, rgba(255, 255, 255, 0.35));
+}
+
+.stars {
+  font-size: 11px;
+  color: #f5a623;
+}
+
+.price {
+  font: bold 16px 'Trebuchet MS', sans-serif;
+  color: #e35d00;
+}
+
+.add,
+.order {
+  padding: 5px 10px;
+  border: 1px solid #c75100;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffb35c, #ff7a00 55%, #e86a00);
+  color: #fff !important;
+  font-weight: bold;
+  font-size: 11.5px !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.add:disabled,
+.order:disabled {
+  opacity: 0.5;
+}
+
+.cart {
+  align-self: start;
+  padding: 10px;
+  border: 1px solid #c9dbee;
+  border-radius: 8px;
+  background: #f5f9fd;
+}
+
+.cart > b {
+  display: block;
+  margin-bottom: 6px;
+  color: #1e6fbd;
+}
+
+.empty {
+  margin: 0;
+  color: #889;
+  font-size: 12px;
+}
+
+.cartRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.cartRow button {
+  border: 0;
+  background: none;
+  color: #b33 !important;
+}
+
+.total {
+  margin: 8px 0;
+  padding-top: 6px;
+  border-top: 1px dashed #b9cce0;
+}
+
+.warn {
+  margin: 4px 0;
+  color: #c00;
+  font-size: 11.5px;
+}
+
+.order {
+  width: 100%;
+  padding: 7px;
+}
+
+.plain {
+  padding: 6px 12px;
+  border: 1px solid #9fb3cc;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.receipt {
+  margin: 0 12px 12px;
+  padding: 12px 14px;
+  border: 1px solid #9fd3a4;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f2fff3, #e2f7e4);
+}
+
+.receipt p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.big {
+  font: bold 20px 'Trebuchet MS', sans-serif;
+  color: #e35d00;
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  border-top: 1px solid #dde7f1;
+  background: #f0f5fa;
+  font-size: 11px;
+  color: #678;
+}
+
+@media (max-width: 760px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .side b {
+    width: 100%;
+  }
+  .viewport {
+    height: auto;
+  }
+}
+
+:global(.cz-sized) .browser {
+  height: 100%;
+}
+
+:global(.cz-sized) .viewport {
+  flex: 1;
+  height: auto;
+}

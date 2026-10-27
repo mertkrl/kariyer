@@ -1,0 +1,475 @@
+/*
+ * Cüzdan TL'nin kabuğu: üç dönemin teması (değişkenler), açılış, masaüstü, görev
+ * çubuğu, başlat menüsü, Haberci balonu ve ekran koruyucu. Pencere ve uygulama görünüşü
+ * Window.module.css ve Apps.module.css'te, aynı değişkenlerle.
+ */
+
+/* ── temalar: aynı bilgisayar üç dönemde ── */
+.app {
+  --lcd: #9ab27a;
+  --lcd-ink: #263318;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  font: 12px var(--font), Tahoma, Verdana, sans-serif;
+  color: #000;
+}
+
+.app[data-theme='luna'] {
+  --font: Tahoma;
+  --title-font: bold 13px 'Trebuchet MS', Tahoma, sans-serif;
+  --bar: linear-gradient(180deg, #3d8bff 0%, #0a5ce0 12%, #0058e6 50%, #0a5ce0 88%, #0831a8 100%);
+  --bar-ink: #fff;
+  --bar-h: 30px;
+  --frame: #0a5ce0;
+  --frame-pad: 0 3px 3px;
+  --radius: 8px 8px 0 0;
+  --face: #ece9d8;
+  --line: #d4d0c8;
+  --accent: #316ac5;
+  --legend: #0046d5;
+  --btn: linear-gradient(180deg, #fff, #ece9d8 85%, #d6d0c5);
+  --btn-line: #003c74;
+  --btn-r: 3px;
+  --task: linear-gradient(180deg, #3f8cf3 0%, #245edb 10%, #1f53c8 90%, #1941a5 100%);
+  --task-h: 34px;
+  --task-ink: #fff;
+  --taskitem: #3c81f3;
+  --taskitem-on: #1e4bb8;
+  --start: linear-gradient(180deg, #5cc84a, #3c9a2a 40%, #2f8a20);
+  --start-r: 0 12px 12px 0;
+  --tray: linear-gradient(180deg, #19a0f7, #0f8ff3);
+  --menu: #fff;
+  --wall:
+    radial-gradient(60% 30% at 20% 22%, rgba(255, 255, 255, 0.75), transparent 70%), radial-gradient(40% 18% at 70% 15%, rgba(255, 255, 255, 0.6), transparent 70%),
+    radial-gradient(160% 60% at 30% 118%, #4f9a2b 52%, transparent 52.5%), radial-gradient(120% 55% at 95% 112%, #3f8a20 50%, transparent 50.5%),
+    linear-gradient(180deg, #2c6be0 0%, #6aa6f2 55%, #b8d8f7 75%);
+}
+
+.app[data-theme='glass'] {
+  --font: 'Segoe UI', Tahoma;
+  --title-font: 12.5px 'Segoe UI', Tahoma, sans-serif;
+  --bar: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.05));
+  --bar-ink: #0c1a2a;
+  --bar-h: 28px;
+  --frame: rgba(120, 170, 210, 0.45);
+  --frame-pad: 0 7px 7px;
+  --radius: 8px;
+  --face: #f3f5f8;
+  --line: #d7dde5;
+  --accent: #2a83d6;
+  --legend: #1e5d9c;
+  --btn: linear-gradient(180deg, #f6f8fb, #dfe5ec 50%, #cfd8e2 51%, #e3e9ef);
+  --btn-line: #7d8ea3;
+  --btn-r: 3px;
+  --task: linear-gradient(180deg, rgba(40, 60, 80, 0.7), rgba(10, 15, 25, 0.88));
+  --task-h: 40px;
+  --task-ink: #fff;
+  --taskitem: rgba(255, 255, 255, 0.08);
+  --taskitem-on: rgba(140, 200, 255, 0.3);
+  --start: radial-gradient(circle at 50% 35%, #8be0ff, #1a7fc4 55%, #0b3f74);
+  --start-r: 50%;
+  --tray: transparent;
+  --menu: rgba(240, 246, 252, 0.95);
+  --wall:
+    radial-gradient(70% 40% at 30% 40%, rgba(80, 255, 200, 0.35), transparent 70%), radial-gradient(60% 40% at 75% 35%, rgba(60, 140, 255, 0.45), transparent 70%),
+    conic-gradient(from 200deg at 60% 120%, #021a2b, #0a4a6a, #0b2a50, #021a2b);
+}
+
+.app[data-theme='flat'] {
+  --font: system-ui, 'Segoe UI';
+  --title-font: 12.5px system-ui, sans-serif;
+  --bar: #fff;
+  --bar-ink: #1b1b1b;
+  --bar-h: 34px;
+  --frame: #fff;
+  --frame-pad: 0;
+  --radius: 10px;
+  --face: #fbfbfb;
+  --line: #e6e6e6;
+  --accent: #0067c0;
+  --legend: #0067c0;
+  --btn: #fff;
+  --btn-line: #d1d1d1;
+  --btn-r: 6px;
+  --task: rgba(240, 242, 247, 0.86);
+  --task-h: 46px;
+  --task-ink: #1b1b1b;
+  --taskitem: transparent;
+  --taskitem-on: rgba(0, 0, 0, 0.07);
+  --start: linear-gradient(135deg, #3aa0ff, #0067c0);
+  --start-r: 6px;
+  --tray: transparent;
+  --menu: rgba(250, 250, 252, 0.97);
+  --wall: radial-gradient(60% 70% at 70% 60%, #8fb8ff 0%, transparent 60%), radial-gradient(50% 60% at 30% 40%, #c7b6ff 0%, transparent 60%), linear-gradient(160deg, #dfe8ff, #a9c1f5);
+}
+
+.app button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.app button:disabled {
+  cursor: default;
+}
+
+/* ── ekran: tam ekran ── */
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.degauss {
+  animation: degauss 0.9s ease-out;
+}
+
+@keyframes degauss {
+  15% {
+    filter: hue-rotate(90deg) saturate(3) blur(1px);
+    transform: scale(1.02) skewX(2deg);
+  }
+  35% {
+    filter: hue-rotate(-60deg) saturate(2);
+    transform: scale(0.99) skewX(-1.5deg);
+  }
+  60% {
+    filter: hue-rotate(20deg);
+    transform: skewX(0.5deg);
+  }
+}
+
+.avatar {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  border: 3px solid #fff;
+  border-radius: 6px;
+  background: #f2c86a;
+  box-shadow: 0 0 0 1px #00309c;
+}
+
+/* ── masaüstü ── */
+.desk {
+  position: absolute;
+  inset: 0 0 var(--task-h);
+  overflow: hidden;
+  background: var(--wall);
+}
+
+.icons {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.icon {
+  width: 86px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  text-align: center;
+  color: #fff !important;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.icon:focus-visible {
+  outline: 1px dotted #fff;
+}
+
+.iconGlyph {
+  display: block;
+  font-size: 32px;
+  line-height: 38px;
+  filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.4));
+}
+
+.iconLabel {
+  display: inline-block;
+  padding: 0 2px;
+  line-height: 1.25;
+}
+
+.iconSel .iconLabel {
+  background: var(--accent);
+}
+
+.app:not([data-theme='luna']) .iconSel {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.app:not([data-theme='luna']) .iconSel .iconLabel {
+  background: none;
+}
+
+.ver {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  text-align: right;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.errorWin {
+  box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.55) !important;
+}
+
+.errorBody {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 14px 6px;
+  font-size: 12.5px;
+}
+
+.errorBody > span:first-child {
+  font-size: 28px;
+}
+
+.errorBtn {
+  padding: 8px 14px 12px;
+  text-align: center;
+}
+
+.errorBtn button {
+  min-width: 75px;
+  padding: 4px 10px;
+  border: 1px solid var(--btn-line);
+  border-radius: var(--btn-r);
+  background: var(--btn);
+}
+
+/* Haberci */
+.toast {
+  position: absolute;
+  right: 10px;
+  bottom: calc(var(--task-h) + 10px);
+  z-index: 1900;
+  width: 230px;
+  border: 1px solid #6f8db9;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #fff, #dbe7fb);
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.35);
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(150%);
+  }
+}
+
+.toastHead {
+  padding: 3px 6px;
+  font: bold 11px Tahoma, sans-serif;
+  color: #fff;
+  background: linear-gradient(180deg, #7aa6e9, #3a6fc8);
+}
+
+.app[data-theme='flat'] .toast {
+  border-color: #ddd;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.app[data-theme='flat'] .toastHead {
+  color: #555;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.toastBody {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+}
+
+.toastIcon {
+  font-size: 28px;
+}
+
+/* ── görev çubuğu ve başlat menüsü ── */
+.taskbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  height: var(--task-h);
+  display: flex;
+  align-items: center;
+  background: var(--task);
+  color: var(--task-ink);
+}
+
+.app[data-theme='glass'] .taskbar {
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.app[data-theme='flat'] .taskbar {
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.start {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 22px 0 10px;
+  border: 0;
+  border-radius: var(--start-r);
+  background: var(--start);
+  color: #fff !important;
+  font: italic bold 17px 'Trebuchet MS', sans-serif !important;
+  text-shadow: 1px 1px #104a10;
+}
+
+.startFlag {
+  font-style: normal;
+}
+
+.app[data-theme='glass'] .start {
+  width: 38px;
+  height: 38px;
+  margin: 0 8px;
+  padding: 0;
+  justify-content: center;
+  box-shadow:
+    0 0 10px rgba(120, 220, 255, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.app[data-theme='flat'] .start {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  justify-content: center;
+  text-shadow: none;
+}
+
+.app:not([data-theme='luna']) .startLabel {
+  display: none;
+}
+
+.tasks {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+  padding: 0 8px;
+  overflow: hidden;
+}
+
+.app[data-theme='flat'] .tasks {
+  flex: 0 1 auto;
+}
+
+.task {
+  width: 150px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--taskitem);
+  color: var(--task-ink) !important;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.taskOn {
+  background: var(--taskitem-on);
+}
+
+.app[data-theme='flat'] .task {
+  width: 40px;
+  text-align: center;
+  box-shadow: none;
+}
+
+.app[data-theme='flat'] .taskLabel {
+  display: none;
+}
+
+.tray {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  background: var(--tray);
+}
+
+.app[data-theme='flat'] .tray {
+  position: absolute;
+  right: 0;
+}
+
+.tray button {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font-size: 14px;
+  color: var(--task-ink) !important;
+}
+
+.clock {
+  line-height: 1.15;
+  text-align: center;
+  font-size: 12px !important;
+}
+
+.clock small {
+  display: block;
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+.tray button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ── ekran koruyucu ── */
+.saver {
+  position: fixed;
+  inset: 0;
+  z-index: 2600;
+  background: #000;
+  cursor: none;
+}
+
+.saverCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── telefon: masaüstü yerine Mobile.tsx açılır; Haberci alt çubuğun üstünde ── */
+@media (max-width: 760px) {
+  .toast {
+    left: 10px;
+    right: 10px;
+    bottom: 70px;
+    width: auto;
+  }
+}

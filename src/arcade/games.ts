@@ -23,6 +23,14 @@ export interface ArcadeGame {
 
 export const GAMES: ArcadeGame[] = [
   {
+    route: 'cuzdan',
+    title: 'Cüzdan Zamanı',
+    blurb: 'Cüzdan TL açılıyor. Saati 2002\'ye al: simit 250 bin, ekran mavi pencereli. Eski fiyatı bil, ucuzu seç, çevirmeli bağlanıp eski bakkaldan alışveriş yap; her şeyi enflasyonla karşılaştır.',
+    color: 'var(--teal)',
+    minutes: 8,
+    file: 9,
+  },
+  {
     route: 'trafik',
     title: 'Kavşak Amiri',
     blurb: 'Kadıköy, Ataşehir, Şişli, Mecidiyeköy, Beşiktaş. Evreleri kur, ışık sürelerini ayarla; sola dönenler, okul çıkışı, ambulans ve vapur dalgası varken kavşağı kilitletme.',

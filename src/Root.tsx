@@ -13,6 +13,7 @@ const LOADERS: Record<string, () => Promise<unknown>> = {
   meydan: () => import('./games/meydan/MeydanGame'),
   asfalt: () => import('./games/asfalt/AsfaltGame'),
   trafik: () => import('./games/trafik/TrafikGame'),
+  cuzdan: () => import('./games/cuzdan/CuzdanGame'),
 };
 const IseAlim = lazy(() => import('./App'));
 const TestGame = lazy(() => import('./games/test/TestGame').then((m) => ({ default: m.TestGame })));
@@ -21,11 +22,12 @@ const EkranGame = lazy(() => import('./games/ekran/EkranGame').then((m) => ({ de
 const MeydanGame = lazy(() => import('./games/meydan/MeydanGame').then((m) => ({ default: m.MeydanGame })));
 const AsfaltGame = lazy(() => import('./games/asfalt/AsfaltGame').then((m) => ({ default: m.AsfaltGame })));
 const TrafikGame = lazy(() => import('./games/trafik/TrafikGame').then((m) => ({ default: m.TrafikGame })));
+const CuzdanGame = lazy(() => import('./games/cuzdan/CuzdanGame').then((m) => ({ default: m.CuzdanGame })));
 const BakkalGame = lazy(() => import('./games/bakkal/BakkalGame').then((m) => ({ default: m.BakkalGame })));
 
 const preload = (route: string) => void LOADERS[route]?.();
 
-const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe alım simülasyonu", test: 'Genel Yetenek ve Uyum Testi', insaat: 'İnşaat İzleme', bakkal: 'Köy Bakkalı', ekran: 'Ekran İhalesi', meydan: 'Meydan Islahı', asfalt: 'Yama Ekibi', trafik: 'Kavşak Amiri' };
+const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe alım simülasyonu", test: 'Genel Yetenek ve Uyum Testi', insaat: 'İnşaat İzleme', bakkal: 'Köy Bakkalı', ekran: 'Ekran İhalesi', meydan: 'Meydan Islahı', asfalt: 'Yama Ekibi', trafik: 'Kavşak Amiri', cuzdan: 'Cüzdan Zamanı' };
 
 export function Root() {
   const route = useRoute();
@@ -46,6 +48,13 @@ export function Root() {
     return (
       <Suspense fallback={<div style={{ minHeight: '100%', background: '#23262d' }} />}>
         <EkranGame />
+      </Suspense>
+    );
+  // krem banknot kâğıdı: yüklenirken aynı renk görünsün
+  if (route === 'cuzdan')
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100%', background: '#efe9da' }} />}>
+        <CuzdanGame />
       </Suspense>
     );
   // kontrol merkezinin koyu zemini: yüklenirken aynı renk görünsün

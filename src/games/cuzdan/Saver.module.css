@@ -1,0 +1,207 @@
+/* 2016–2020 ekran koruyucusu (SaverFlat.tsx): düz kilit ekranı, yumuşak lekeler, fiyat kartı. */
+
+.flat {
+  position: fixed;
+  inset: 0;
+  z-index: 2600;
+  overflow: hidden;
+  cursor: none;
+  background: linear-gradient(160deg, #1b2a4a, #3a2d6b 55%, #0f5a7a);
+  color: #fff;
+  font-family: system-ui, 'Segoe UI', sans-serif;
+}
+
+.blobA,
+.blobB {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+.blobA {
+  left: -15vmax;
+  top: -20vmax;
+  background: #ff7eb6;
+}
+
+.blobB {
+  right: -20vmax;
+  bottom: -25vmax;
+  background: #3aa0ff;
+  animation-duration: 32s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes drift {
+  to {
+    transform: translate(18vmax, 12vmax) scale(1.15);
+  }
+}
+
+.lock {
+  position: absolute;
+  inset: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.time {
+  font-size: clamp(64px, 14vw, 150px);
+  font-weight: 200;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.date {
+  font-size: clamp(16px, 2.4vw, 24px);
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding: 16px 22px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(16px);
+  animation: card 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes card {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.cardEmoji {
+  font-size: 40px;
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.cardText b {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.cardText span {
+  opacity: 0.85;
+}
+
+.cardX {
+  margin-left: 8px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffd27a;
+}
+
+.city {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 56px;
+  height: 38%;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2%;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.tower {
+  position: relative;
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 10px, rgba(255, 236, 160, 0.55) 10px 14px) 50% 0 / 40% 100% no-repeat,
+    linear-gradient(180deg, hsl(var(--hue) 55% 62% / 0.9), hsl(var(--hue) 45% 38% / 0.9));
+  transform-origin: bottom;
+  animation: rise 1.4s cubic-bezier(0.2, 0.8, 0.3, 1) both, lights 4s ease-in-out infinite alternate;
+}
+
+/* bazı binaların tepesinde anten */
+.spire::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 3px;
+  height: 18px;
+  translate: -50% 0;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.spire .roof {
+  translate: -50% -22px;
+}
+
+@keyframes rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes lights {
+  to {
+    filter: brightness(1.25);
+  }
+}
+
+.roof {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  translate: -50% -4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(14px, 2.4vw, 24px);
+  line-height: 1;
+}
+
+.roof small {
+  margin-top: 2px;
+  font-size: clamp(9px, 1.2vw, 12px);
+  font-weight: 700;
+  color: #ffd27a;
+}
+
+.brand {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  translate: -50% 0;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+@media (max-width: 560px) {
+  .roof small {
+    display: none;
+  }
+  .card {
+    margin: 30px 16px 0;
+    padding: 12px 14px;
+  }
+  .cardX {
+    font-size: 20px;
+  }
+}
