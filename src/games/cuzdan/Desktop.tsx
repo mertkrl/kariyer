@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { markPlayed } from '../../arcade/progress';
-import { YEAR_NOTE, type Year } from './data';
+import { EVENTS, YEAR_NOTE, type Year } from './data';
 import { CheaperApp } from './apps/CheaperApp';
 import { GuessApp } from './apps/GuessApp';
 import { DailyApp } from './apps/DailyApp';
@@ -233,7 +233,7 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
             close('saat');
             if (y === year) return;
             onYear(y);
-            say('🕰️', <>Saat <b>{y}</b> olarak ayarlandı. Ekran da o yıla döndü.</>);
+            say('📰', <><b>{y}</b>: {EVENTS[y].headline}</>);
           }}
         />
       ),

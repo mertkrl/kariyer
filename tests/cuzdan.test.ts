@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DAILY_ROUNDS, dailyShare, dayNumber, makeDaily, nextStreak } from '../src/games/cuzdan/daily';
-import { ALL_YEARS, ITEMS, NOW, YEARS } from '../src/games/cuzdan/data';
+import { ALL_YEARS, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, YEARS } from '../src/games/cuzdan/data';
 import {
   GUESS_ROUNDS,
   QUICK_ROUNDS,
@@ -21,6 +21,7 @@ import {
   quickMax,
   quickPoints,
   sameMoneyToday,
+  priceIn,
   sliderValue,
   successOf,
   realChange,
@@ -171,4 +172,16 @@ test('Günün Sepeti: seri dün oynandıysa artar, ara verilince 1\'e döner; pa
   const rounds = makeDaily(3);
   const right = rounds.map((r) => r.options.indexOf(r.answer));
   assert.match(dailyShare(3, rounds, right), /#3 · 5\/5\n🟩🟩🟩🟩🟩/);
+});
+
+test('dönemin rafı: her yılın manşeti var; bugün satılmayanlar bugünkü tutara girmez', () => {
+  for (const y of YEARS) assert.ok(EVENTS[y].headline && EVENTS[y].news.length >= 2, String(y));
+  assert.equal(priceIn('maske', 2020), 12);
+  assert.equal(priceIn('maske', 2005), null);
+  assert.equal(priceIn('telkart', NOW), null);
+  assert.equal(basketCost({ telkart: 1, ekmek: 2 }, 2002), 3.5);
+  assert.equal(basketCost({ telkart: 1, ekmek: 2 }, NOW), 35);
+  const ids = new Set([...ITEMS, ...ERA_ITEMS].map((i) => i.id));
+  for (const l of Object.values(LIMITS)) for (const id of Object.keys(l ?? {})) assert.ok(ids.has(id), id);
+  assert.ok(ERA_ITEMS.some((e) => e.prices[2020] !== undefined && e.tag === 'Salgın'), '2020 rafında salgın ürünleri');
 });

@@ -1,0 +1,49 @@
+/* Günün Sepeti (apps/DailyApp.tsx): başlık, dört fiyat şıkkı, sonuç kareleri. */
+.dailyHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dailyHead b {
+  font-size: 14px;
+  color: var(--legend);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.options b {
+  font-size: 15px;
+}
+
+.optionNo {
+  box-shadow: inset 0 0 0 3px #d9534f !important;
+}
+
+.grid {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+
+.grid span {
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+}
+
+.cellOk {
+  background: #2ccf2c;
+}
+
+.cellNo {
+  background: #d9534f;
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CATEGORY_LABEL, ITEMS, YEAR_NOTE, type Category } from '../data';
+import { CATEGORY_LABEL, type Category } from '../data';
 import { money } from '../model';
 import { ShopReceipt } from './ShopReceipt';
 import type { Shop } from './shopState';
@@ -13,13 +13,15 @@ import p from '../ShopApp.module.css';
  * arama, kategori çipleri, artı-eksi düğmeleri, altta sabit sepet çubuğu). Sepet hesabı ortak.
  */
 
-const CATS = Object.keys(CATEGORY_LABEL) as Category[];
+type Cat = Category | 'donem';
+const label = (c: Cat | 'hepsi', year: number) => (c === 'hepsi' ? 'Tümü' : c === 'donem' ? `${year}'e özel` : CATEGORY_LABEL[c]);
+const catsOf = (shop: Shop): Cat[] => [...new Set(shop.goods.map((g) => g.cat))];
 const stars = (id: string) => 3 + (id.length % 3);
 
 export function Web2Shop({ shop }: { shop: Shop }) {
-  const [cat, setCat] = useState<Category | 'hepsi'>('hepsi');
+  const [cat, setCat] = useState<Cat | 'hepsi'>('hepsi');
   const { year } = shop;
-  const shown = ITEMS.filter((it) => cat === 'hepsi' || it.cat === cat);
+  const shown = shop.goods.filter((g) => cat === 'hepsi' || g.cat === cat);
   return (
     <div className={w.site}>
       <header className={w.head}>
@@ -38,31 +40,34 @@ export function Web2Shop({ shop }: { shop: Shop }) {
         <span>Yardım</span>
       </nav>
       <div className={w.promo}>
-        <b>Yeni!</b> {year}'in fiyatlarıyla online alışveriş · {YEAR_NOTE[year]}
+        <b>Gündem:</b> {shop.headline}
+        <span className={w.news}>{shop.news.join(' · ')}</span>
       </div>
       <div className={w.body}>
         <aside className={w.side} aria-label="Kategoriler">
           <b>Kategoriler</b>
-          {(['hepsi', ...CATS] as const).map((c) => (
-            <button key={c} type="button" className={c === cat ? w.sideOn : ''} onClick={() => setCat(c)}>
-              {c === 'hepsi' ? 'Tüm ürünler' : CATEGORY_LABEL[c]}
+          {(['hepsi', ...catsOf(shop)] as const).map((c) => (
+            <button key={c} type="button" className={`${c === cat ? w.sideOn : ''} ${c === 'donem' ? w.sideHot : ''}`} onClick={() => setCat(c)}>
+              {c === 'hepsi' ? 'Tüm ürünler' : label(c, year)}
             </button>
           ))}
         </aside>
         <div className={w.grid}>
-          {shown.map((it) => (
-            <div key={it.id} className={w.card}>
+          {shown.map((g) => (
+            <div key={g.id} className={w.card}>
+              {g.tag && <span className={w.ribbon}>{g.tag}</span>}
               <span className={w.pic} aria-hidden="true">
-                {it.emoji}
+                {g.emoji}
               </span>
-              <b>{it.name}</b>
-              <span className={w.stars} aria-label={`${stars(it.id)} yıldız`}>
-                {'★'.repeat(stars(it.id))}
-                {'☆'.repeat(5 - stars(it.id))}
+              <b>{g.name}</b>
+              <span className={w.stars} aria-label={`${stars(g.id)} yıldız`}>
+                {'★'.repeat(stars(g.id))}
+                {'☆'.repeat(5 - stars(g.id))}
               </span>
-              <span className={w.price}>{money(it.prices[year], year)}</span>
-              <button type="button" className={w.add} disabled={shop.paid} onClick={() => shop.add(it)} aria-label={`${it.unit} sepete at`}>
-                Sepete At{shop.basket[it.id] ? ` (${shop.basket[it.id]})` : ''}
+              <span className={w.price}>{money(g.price, year)}</span>
+              {g.limit && <small className={w.limit}>Kişi başı {g.limit} adet</small>}
+              <button type="button" className={w.add} disabled={shop.paid || g.soldOut} onClick={() => shop.add(g)} aria-label={`${g.unit} sepete at`}>
+                {g.soldOut ? 'Stokta yok' : `Sepete At${shop.basket[g.id] ? ` (${shop.basket[g.id]})` : ''}`}
               </button>
             </div>
           ))}
@@ -70,12 +75,12 @@ export function Web2Shop({ shop }: { shop: Shop }) {
         <aside className={w.cart} aria-live="polite">
           <b>🛒 Sepetim</b>
           {shop.lines.length === 0 && <p className={w.empty}>Sepetiniz boş.</p>}
-          {shop.lines.map((it) => (
-            <div key={it.id} className={w.cartRow}>
+          {shop.lines.map((l) => (
+            <div key={l.id} className={w.cartRow}>
               <span>
-                {shop.basket[it.id]}× {it.name}
+                {l.n}× {l.name}
               </span>
-              <button type="button" onClick={() => shop.remove(it)} aria-label={`${it.name} çıkar`} disabled={shop.paid}>
+              <button type="button" onClick={() => shop.remove(shop.goods.find((g) => g.id === l.id)!)} aria-label={`${l.name} çıkar`} disabled={shop.paid}>
                 ✕
               </button>
             </div>
@@ -101,10 +106,10 @@ export function Web2Shop({ shop }: { shop: Shop }) {
 }
 
 export function AppShop({ shop }: { shop: Shop }) {
-  const [cat, setCat] = useState<Category | 'hepsi'>('hepsi');
+  const [cat, setCat] = useState<Cat | 'hepsi'>('hepsi');
   const [q, setQ] = useState('');
   const { year } = shop;
-  const shown = ITEMS.filter((it) => (cat === 'hepsi' || it.cat === cat) && it.name.toLocaleLowerCase('tr-TR').includes(q.toLocaleLowerCase('tr-TR')));
+  const shown = shop.goods.filter((g) => (cat === 'hepsi' || g.cat === cat) && g.name.toLocaleLowerCase('tr-TR').includes(q.toLocaleLowerCase('tr-TR')));
   const eta = 10 + (year % 7);
   return (
     <div className={p.app}>
@@ -122,41 +127,47 @@ export function AppShop({ shop }: { shop: Shop }) {
         </label>
       </header>
       <div className={p.chips} role="tablist" aria-label="Kategoriler">
-        {(['hepsi', ...CATS] as const).map((c) => (
+        {(['hepsi', ...catsOf(shop)] as const).map((c) => (
           <button key={c} type="button" role="tab" aria-selected={c === cat} className={c === cat ? p.chipOn : p.chip} onClick={() => setCat(c)}>
-            {c === 'hepsi' ? 'Tümü' : CATEGORY_LABEL[c]}
+            {c === 'donem' ? '🔥 ' : ''}
+            {label(c, year)}
           </button>
         ))}
       </div>
       <div className={p.banner}>
-        <b>{year}</b> fiyatlarıyla sipariş · {YEAR_NOTE[year]}
+        <b>{shop.headline}</b>
+        <span className={p.news}>{shop.news.join(' · ')}</span>
       </div>
       <div className={p.grid}>
-        {shown.map((it) => {
-          const n = shop.basket[it.id] ?? 0;
+        {shown.map((g) => {
+          const n = shop.basket[g.id] ?? 0;
           return (
-            <div key={it.id} className={p.card}>
+            <div key={g.id} className={`${p.card} ${g.soldOut ? p.out : ''}`}>
               <span className={p.pic} aria-hidden="true">
-                {it.emoji}
+                {g.emoji}
+                {g.tag && <span className={p.tag}>{g.tag}</span>}
               </span>
               {n > 0 ? (
                 <span className={p.stepper}>
-                  <button type="button" onClick={() => shop.remove(it)} aria-label={`${it.name} azalt`} disabled={shop.paid}>
+                  <button type="button" onClick={() => shop.remove(g)} aria-label={`${g.name} azalt`} disabled={shop.paid}>
                     −
                   </button>
                   <b>{n}</b>
-                  <button type="button" onClick={() => shop.add(it)} aria-label={`${it.name} artır`} disabled={shop.paid}>
+                  <button type="button" onClick={() => shop.add(g)} aria-label={`${g.name} artır`} disabled={shop.paid}>
                     +
                   </button>
                 </span>
               ) : (
-                <button type="button" className={p.plus} onClick={() => shop.add(it)} aria-label={`${it.unit} ekle`} disabled={shop.paid}>
+                <button type="button" className={p.plus} onClick={() => shop.add(g)} aria-label={`${g.unit} ekle`} disabled={shop.paid || g.soldOut}>
                   +
                 </button>
               )}
-              <b className={p.price}>{money(it.prices[year], year)}</b>
-              <span className={p.name}>{it.name}</span>
-              <small className={p.unit}>{it.unit}</small>
+              <b className={p.price}>{g.soldOut ? 'Tükendi' : money(g.price, year)}</b>
+              <span className={p.name}>{g.name}</span>
+              <small className={p.unit}>
+                {g.unit}
+                {g.limit ? ` · kişi başı ${g.limit}` : ''}
+              </small>
             </div>
           );
         })}

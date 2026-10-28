@@ -6,6 +6,7 @@ import { DAILY_ROUNDS, dailyShare, dayNumber, loadDaily, makeDaily, nextStreak, 
 import { money, times } from '../model';
 import { sfx } from '../sfx';
 import a from '../Apps.module.css';
+import d from '../Daily.module.css';
 
 /*
  * Günün Sepeti penceresi: beş soru, dört şık. Bugün zaten oynandıysa doğrudan sonuç kartı açılır
@@ -28,15 +29,15 @@ export function DailyApp({ onDone }: { onDone: (hits: number) => void }) {
   if (done) {
     return (
       <div className={a.pad}>
-        <div className={a.dailyHead}>
+        <div className={d.dailyHead}>
           <b>Günün Sepeti #{day}</b>
           <span>
             {hits}/{DAILY_ROUNDS} · seri {done.streak} gün
           </span>
         </div>
-        <div className={a.grid} aria-label={`${hits} doğru, ${DAILY_ROUNDS - hits} yanlış`}>
+        <div className={d.grid} aria-label={`${hits} doğru, ${DAILY_ROUNDS - hits} yanlış`}>
           {rounds.map((r, i) => (
-            <span key={i} className={r.options[done.picks[i]] === r.answer ? a.cellOk : a.cellNo} />
+            <span key={i} className={r.options[done.picks[i]] === r.answer ? d.cellOk : d.cellNo} />
           ))}
         </div>
         <ol className={a.recap}>
@@ -97,7 +98,7 @@ export function DailyApp({ onDone }: { onDone: (hits: number) => void }) {
 
   return (
     <div className={a.pad}>
-      <div className={a.dailyHead}>
+      <div className={d.dailyHead}>
         <b>Günün Sepeti #{day}</b>
         <span>
           Soru {n + 1} / {DAILY_ROUNDS}
@@ -115,9 +116,9 @@ export function DailyApp({ onDone }: { onDone: (hits: number) => void }) {
           <div className={a.dim}>{YEAR_NOTE[r.year]}</div>
         </div>
       </div>
-      <div className={a.options} role="group" aria-label="Fiyat şıkları">
+      <div className={d.options} role="group" aria-label="Fiyat şıkları">
         {r.options.map((o, i) => {
-          const state = !answered ? '' : o === r.answer ? a.choiceOk : i === picked ? a.optionNo : '';
+          const state = !answered ? '' : o === r.answer ? a.choiceOk : i === picked ? d.optionNo : '';
           return (
             <button key={i} type="button" className={`${a.choice} ${state}`} disabled={answered} onClick={() => pick(i)}>
               <b>{money(o, r.year)}</b>

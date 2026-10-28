@@ -127,6 +127,29 @@
   color: #4a3d6b;
 }
 
+.news {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.out {
+  opacity: 0.55;
+  filter: grayscale(0.7);
+}
+
+.tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ff3d71;
+  color: #fff;
+  font: 700 9.5px system-ui, sans-serif;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
@@ -146,6 +169,7 @@
 }
 
 .pic {
+  position: relative;
   display: grid;
   place-items: center;
   height: 74px;

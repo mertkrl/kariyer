@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { markPlayed } from '../../../arcade/progress';
-import { CATEGORY_LABEL, ITEMS, NOW, YEAR_NOTE, type Category, type Item, type Year } from '../data';
-import { basketCost, basketCount, money, themeOf, times, walletFor, type Basket, type Persona } from '../model';
+import { CATEGORY_LABEL, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, type Category, type Year } from '../data';
+import { basketCost, basketCount, money, priceIn, themeOf, times, walletFor, type Basket, type Persona } from '../model';
 import { sfx } from '../sfx';
 import { AppShop, Web2Shop } from './ShopModern';
 import { ShopReceipt } from './ShopReceipt';
-import type { Shop } from './shopState';
+import type { Goods, Line, Shop } from './shopState';
 import a from '../Apps.module.css';
 import w from '../ShopWeb2.module.css';
 import p from '../ShopApp.module.css';
@@ -42,36 +42,61 @@ export function ShopApp({ year, persona, onPaid }: { year: Year; persona: Person
     return () => window.clearTimeout(t);
   }, [step, era, steps.length]);
 
+  // o yılın rafı: her zamanki ürünler ve o yıla özgü dönem ürünleri
+  const limits = LIMITS[year] ?? {};
+  const goods: Goods[] = [
+    ...ERA_ITEMS.filter((e) => e.prices[year] !== undefined).map((e) => ({ id: e.id, name: e.name, unit: e.unit, emoji: e.emoji, cat: 'donem' as const, price: e.prices[year]!, tag: e.tag, soldOut: e.soldOut?.includes(year), limit: limits[e.id] })),
+    ...ITEMS.map((it) => ({ id: it.id, name: it.name, unit: it.unit, emoji: it.emoji, cat: it.cat, price: it.prices[year], limit: limits[it.id] })),
+  ];
+  const lines: Line[] = goods
+    .filter((g) => basket[g.id])
+    .map((g) => ({ id: g.id, name: g.name, n: basket[g.id], then: basket[g.id] * g.price, now: priceIn(g.id, NOW) === null ? null : basket[g.id] * priceIn(g.id, NOW)!, nowNote: ERA_ITEMS.find((e) => e.id === g.id)?.nowNote }));
+  // kaç kat: yalnızca bugün de satılanlar kıyaslanır
+  const then = lines.filter((l) => l.now !== null).reduce((x, l) => x + l.then, 0);
   const now = basketCost(basket, NOW);
-  const k = spent ? now / spent : 0;
+  const k = then ? now / then : 0;
   const shop: Shop = {
     year,
     persona,
+    goods,
+    headline: EVENTS[year].headline,
+    news: EVENTS[year].news,
     wallet,
     left,
     basket,
     count: basketCount(basket),
     spent,
+    then,
     now,
     k,
-    lines: ITEMS.filter((it) => basket[it.id]),
+    lines,
     paid,
     warn,
-    add: (it: Item) => {
-      if (it.prices[year] > left + 1e-9) {
+    add: (g: Goods) => {
+      if (g.soldOut) {
+        sfx.error();
+        setWarn(`${g.name} tükendi! Herkes aynı şeyi almış.`);
+        return;
+      }
+      if (g.limit && (basket[g.id] ?? 0) >= g.limit) {
+        sfx.error();
+        setWarn(`${g.name}: kişi başı en fazla ${g.limit} adet.`);
+        return;
+      }
+      if (g.price > left + 1e-9) {
         sfx.error();
         setWarn(`Yetersiz bakiye! Cebinizde ${money(left, year)} kaldı.`);
         return;
       }
       sfx.click();
       setWarn('');
-      setBasket({ ...basket, [it.id]: (basket[it.id] ?? 0) + 1 });
+      setBasket({ ...basket, [g.id]: (basket[g.id] ?? 0) + 1 });
     },
-    remove: (it: Item) => {
-      const n = (basket[it.id] ?? 0) - 1;
+    remove: (g: Goods) => {
+      const n = (basket[g.id] ?? 0) - 1;
       const next = { ...basket };
-      if (n > 0) next[it.id] = n;
-      else delete next[it.id];
+      if (n > 0) next[g.id] = n;
+      else delete next[g.id];
       setBasket(next);
       setWarn('');
     },
@@ -172,32 +197,38 @@ export function ShopApp({ year, persona, onPaid }: { year: Year; persona: Person
             <h1 className={a.siteTitle}>★ ZAMAN BAKKALI ★</h1>
             <div className={a.marquee} aria-hidden="true">
               <span>
-                HOŞGELDİNİZ {persona.name.toLocaleUpperCase('tr-TR')}!!! {year} FİYATLARIYLA ALIŞVERİŞ · CEBİNİZDE {money(wallet, year)} VAR · {YEAR_NOTE[year].toLocaleUpperCase('tr-TR')} · KREDİ KARTI KABUL EDİLMEZ ·
+                HOŞGELDİNİZ {persona.name.toLocaleUpperCase('tr-TR')}!!! CEBİNİZDE {money(wallet, year)} VAR · {[shop.headline, ...shop.news].map((x) => x.toLocaleUpperCase('tr-TR')).join(' · ')} · KREDİ KARTI KABUL EDİLMEZ ·
               </span>
             </div>
             <div className={a.cartBar} aria-live="polite">
               🛒 Sepet: {shop.count} ürün · Kalan: {money(Math.max(0, left), year)} <span className={a.blink}>YENİ!</span>
               {warn && <div className={a.warn}>{warn}</div>}
             </div>
-            {(Object.keys(CATEGORY_LABEL) as Category[]).map((cat) => (
-              <section key={cat}>
-                <h2 className={a.shelfTitle}>{CATEGORY_LABEL[cat]}</h2>
-                <div className={a.goods}>
-                  {ITEMS.filter((it) => it.cat === cat).map((it) => (
-                    <div key={it.id} className={a.good}>
-                      <span className={a.goodEmoji} aria-hidden="true">
-                        {it.emoji}
-                      </span>
-                      <u>{it.name}</u>
-                      <span className={a.goodPrice}>{money(it.prices[year], year)}</span>
-                      <button type="button" disabled={paid} aria-label={`${it.unit} sepete ekle, ${money(it.prices[year], year)}`} onClick={() => shop.add(it)}>
-                        Sepete Ekle{basket[it.id] ? ` (${basket[it.id]})` : ''}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
+            {(['donem', ...Object.keys(CATEGORY_LABEL)] as (Category | 'donem')[]).map((cat) => {
+              const shelf = shop.goods.filter((g) => g.cat === cat);
+              if (!shelf.length) return null;
+              return (
+                <section key={cat}>
+                  <h2 className={`${a.shelfTitle} ${cat === 'donem' ? a.shelfHot : ''}`}>{cat === 'donem' ? `${year}'E ÖZEL!!! DÖNEMİN RAFI` : CATEGORY_LABEL[cat]}</h2>
+                  <div className={a.goods}>
+                    {shelf.map((g) => (
+                      <div key={g.id} className={a.good}>
+                        <span className={a.goodEmoji} aria-hidden="true">
+                          {g.emoji}
+                        </span>
+                        <u>{g.name}</u>
+                        {g.tag && <small className={a.goodTag}>{g.tag}</small>}
+                        <span className={a.goodPrice}>{money(g.price, year)}</span>
+                        {g.limit && <small className={a.goodTag}>kişi başı {g.limit}</small>}
+                        <button type="button" disabled={paid || g.soldOut} aria-label={`${g.unit} sepete ekle, ${money(g.price, year)}`} onClick={() => shop.add(g)}>
+                          {g.soldOut ? 'TÜKENDİ' : `Sepete Ekle${basket[g.id] ? ` (${basket[g.id]})` : ''}`}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
             <div className={a.checkout}>
               {!paid ? (
                 <button type="button" disabled={!shop.count} onClick={shop.pay}>

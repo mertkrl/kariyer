@@ -106,3 +106,55 @@ export const YEAR_COLOR: Record<AnyYear, string> = {
   2022: '#8a4b1f',
   2026: '#1d4636',
 };
+
+/*
+ * Dönemin rafı: yalnızca belli yıllarda anlamı olan ürünler. Zaman Bakkalı'nda o yılın rafında
+ * çıkar, oyunun öbür masalarına girmez. `now` null ise ürün bugün yok (fişte "artık yok" yazar).
+ * Fiyatlar yaklaşık; `soldOut` yıllarında rafta "Tükendi" yazar.
+ */
+export interface EraItem {
+  id: string;
+  name: string;
+  unit: string;
+  emoji: string;
+  /** Rafın üstündeki küçük dönem etiketi: "Salgın", "Yeni teknoloji"… */
+  tag: string;
+  prices: Partial<Record<Year, number>>;
+  now: number | null;
+  /** Bugün yerine ne var: "artık herkesin cebinde" gibi. */
+  nowNote?: string;
+  soldOut?: Year[];
+}
+
+export const ERA_ITEMS: EraItem[] = [
+  { id: 'telkart', name: 'Telefon kartı', unit: '100 kontörlük telefon kartı', emoji: '☎️', tag: 'Ankesörlü telefon', prices: { 2002: 3, 2005: 5, 2009: 6 }, now: null, nowNote: 'ankesörlü telefonlar kalktı' },
+  { id: 'netkafe', name: 'İnternet kafe', unit: '1 saat internet kafe', emoji: '🖥️', tag: 'Çevirmeli günler', prices: { 2002: 1, 2005: 1.25, 2009: 1.5, 2012: 2 }, now: null, nowNote: 'internet artık herkesin cebinde' },
+  { id: 'cd', name: 'Müzik CD\'si', unit: '1 albüm CD\'si', emoji: '💿', tag: 'Kaset → CD', prices: { 2002: 8, 2005: 12, 2009: 15 }, now: null, nowNote: 'yerini müzik uygulamaları aldı' },
+  { id: 'dvd', name: 'Film DVD\'si', unit: '1 orijinal film DVD\'si', emoji: '📀', tag: 'Video kulübü', prices: { 2005: 15, 2009: 20, 2012: 25 }, now: null, nowNote: 'yerini dizi-film platformları aldı' },
+  { id: 'mp3', name: 'MP3 çalar', unit: '1 GB MP3 çalar', emoji: '🎧', tag: 'Yeni teknoloji', prices: { 2005: 90, 2009: 60 }, now: null, nowNote: 'telefonun içine girdi' },
+  { id: 'akilli', name: 'Akıllı telefon', unit: '1 akıllı telefon (orta seviye)', emoji: '📱', tag: 'Yeni teknoloji', prices: { 2012: 700, 2016: 1500, 2018: 2500, 2020: 4500, 2022: 9000 }, now: 25000 },
+  { id: 'selfie', name: 'Selfie çubuğu', unit: '1 selfie çubuğu', emoji: '🤳', tag: 'Moda', prices: { 2016: 15, 2018: 18 }, now: 150 },
+  { id: 'dolar', name: 'Dolar', unit: '1 Amerikan doları (döviz bürosu)', emoji: '💵', tag: 'Kur krizi', prices: { 2018: 4.83, 2022: 16.5 }, now: 46 },
+  { id: 'maske', name: 'Maske', unit: '10\'lu cerrahi maske', emoji: '😷', tag: 'Salgın', prices: { 2020: 12, 2022: 10 }, now: 40 },
+  { id: 'kolonya', name: 'Kolonya', unit: '400 ml limon kolonyası', emoji: '🍋', tag: 'Salgın', prices: { 2020: 25, 2022: 45 }, now: 150 },
+  { id: 'dezenfektan', name: 'Dezenfektan', unit: '500 ml el dezenfektanı', emoji: '🧴', tag: 'Salgın', prices: { 2020: 30, 2022: 40 }, now: 120 },
+  { id: 'maya', name: 'Kuru maya', unit: '1 paket kuru maya', emoji: '🍞', tag: 'Evde ekmek', prices: { 2020: 1 }, now: 15, soldOut: [2020] },
+];
+
+/** Satış sınırı: o yıl bir üründen sepete en çok kaç tane konur (2022'de ayçiçek yağı kuyrukları). */
+export const LIMITS: Partial<Record<Year, Record<string, number>>> = {
+  2022: { yag: 2 },
+  2020: { kolonya: 1, dezenfektan: 1 },
+};
+
+/** Yılın manşeti ve haberleri: Zaman Bakkalı'nın bandında ve saat değişince Haberci'de. */
+export const EVENTS: Record<Year, { headline: string; news: string[] }> = {
+  2002: { headline: '2001 krizinin ertesi: maaşlar eridi, cüzdanlar milyonlarla dolu.', news: ['Kriz indirimi: her şey 1 milyondan başlıyor', 'Telefon kartı bitti mi? Bakkalda var', 'İnternet kafede saati 1 milyon'] },
+  2005: { headline: 'Altı sıfır atıldı: 1.000.000 TL artık 1 YTL.', news: ['Eski paralar bankalarda YTL\'ye çevriliyor', 'Kuruş geri döndü: 5, 10, 25, 50 Ykr', 'Fiyat etiketlerinde iki para birimi birden'] },
+  2009: { headline: 'YTL\'nin "Y"si düştü; küresel kriz kapıda.', news: ['Para yine TL oldu, YTL banknotlar tedavülde', 'Otomobilde ÖTV indirimi: kampanya fiyatları', 'İşsizlik artıyor, kredi kartı borçları da'] },
+  2012: { headline: 'Akıllı telefon çağı: herkes ekranına eğildi.', news: ['Kartla ödeme her yerde, bozuk para azalıyor', 'Dolar 1,80: ithal ürünler hâlâ uygun', 'Online alışveriş patlıyor: kapıda ödeme var'] },
+  2016: { headline: 'Dolar ilk kez 3 lirayı geçti.', news: ['Selfie çubuğu kapış kapış', 'Döviz bürolarında yoğunluk', 'Mobil uygulamadan market siparişi yaygınlaşıyor'] },
+  2018: { headline: 'Kur krizi: dolar bir yaz günü 7 lirayı gördü.', news: ['Etiketler dolara endeksli güncelleniyor', 'Döviz bürolarında kuyruk', 'İthal ürünlerde fiyatlar bir gecede değişti'] },
+  2020: { headline: 'Salgın yılı: maske, kolonya, evden çalışma.', news: ['Maske takmak zorunlu', 'Kolonya ve dezenfektan kişi başı 1 adet', 'Herkes evde ekmek yapıyor: maya tükendi', 'Market saatleri 10.00–20.00'] },
+  2022: { headline: 'Enflasyon %85\'i gördü; etiketler her hafta değişti.', news: ['Ayçiçek yağına sınır: kişi başı 2 şişe', 'Ekmeğe zam, simite zam, çaya zam', 'Halk ekmek kuyrukları uzuyor'] },
+};

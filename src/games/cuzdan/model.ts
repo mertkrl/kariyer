@@ -1,4 +1,4 @@
-import { ALL_YEARS, CPI, ITEMS, MIN_WAGE, NOW, USD, YEARS, isOldLira, type AnyYear, type Item, type Year } from './data';
+import { ALL_YEARS, CPI, ERA_ITEMS, ITEMS, MIN_WAGE, NOW, USD, YEARS, isOldLira, type AnyYear, type Item, type Year } from './data';
 
 /*
  * Cüzdan Zamanı'nın saf hesapları: para biçimi, çalışma dakikası, puanlar ve dört masanın turları.
@@ -206,7 +206,17 @@ export function walletFor(year: Year, share = 10): number {
   return Math.max(step, Math.round(raw / step) * step);
 }
 
-export const basketCost = (b: Basket, year: AnyYear) => ITEMS.reduce((s, it) => s + (b[it.id] ?? 0) * it.prices[year], 0);
+/** Bir ürünün o yılki fiyatı; dönem ürünlerinde o yıl yoksa (ya da bugün yoksa) null. */
+export function priceIn(id: string, year: AnyYear): number | null {
+  const it = ITEMS.find((i) => i.id === id);
+  if (it) return it.prices[year];
+  const e = ERA_ITEMS.find((i) => i.id === id);
+  if (!e) return null;
+  return year === NOW ? e.now : (e.prices[year as Year] ?? null);
+}
+
+/** Sepetin tutarı; o yıl bulunmayan (bugün satılmayan) ürünler hesaba girmez. */
+export const basketCost = (b: Basket, year: AnyYear) => Object.entries(b).reduce((s, [id, n]) => s + n * (priceIn(id, year) ?? 0), 0);
 
 export const basketCount = (b: Basket) => Object.values(b).reduce((s, n) => s + n, 0);
 
