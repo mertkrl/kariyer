@@ -15,11 +15,12 @@ export interface Stage {
   lines: string[];
 }
 
-/** Apartmanın kat sayısı ve kaba inşaatta bir katın süresi (iş saati). */
-export const FLOORS = 6;
+/** Kaba inşaatta bir katın süresi (iş saati). */
 export const FLOOR_SECONDS = 16;
 
-export const STAGES: Stage[] = [
+/** Altı katlı apartmanın takvimi; başka kat sayısında kaba inşaattan sonrası kayar. */
+const BASE_FLOORS = 6;
+const BASE_STAGES: Stage[] = [
   {
     id: 'arsa',
     title: 'Boş arsa',
@@ -85,8 +86,84 @@ export const STAGES: Stage[] = [
   },
 ];
 
-/** İşin bittiği an (iş saati): teslimden sonra kısa bir duruş, sonra son ekran. */
-export const WORK_TOTAL = 254;
+/** Altı katta işin bittiği an (iş saati): teslimden sonra kısa bir duruş, sonra son ekran. */
+const BASE_TOTAL = 254;
+
+/*
+ * Şantiyeler: aynı takvim, başka bina. Kat sayısı, cephe rengi, tabela ve amcaların lafları
+ * şantiyeye göre değişir. Seçili şantiyenin değerleri aşağıdaki `export let`lerdedir; ekranlar
+ * ve saf hesaplar onları okur, `selectProject` hepsini yeniden kurar.
+ */
+export interface Project {
+  id: string;
+  name: string;
+  parcel: string;
+  /** Tabeladaki ikinci satır. */
+  sign: string;
+  floors: number;
+  paint: string;
+  paintSide: string;
+  /** Tabeladaki teslim yılları: inşaat ilerledikçe ertelenir. */
+  due: number[];
+  /** Aşamaya özel laflar: verilen aşamada varsayılanın yerine geçer. */
+  lines?: Partial<Record<string, string[]>>;
+  /** Teslim tutanağındaki cümle. */
+  ending: string;
+}
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'huzur',
+    name: 'Huzur Evleri',
+    parcel: 'Ada 412, Parsel 7',
+    sign: 'HUZUR EVLERİ · 6 KAT',
+    floors: 6,
+    paint: '#e7a98e',
+    paintSide: '#c78a70',
+    due: [2019, 2021, 2023, 2025, 2026],
+    ending: 'Bir apartmanı temelden çatıya izledi. Hiçbir şeye karışmadı. Kolonun ince olduğunu yalnızca söyledi.',
+  },
+  {
+    id: 'kule',
+    name: 'Mavi Kule Rezidans',
+    parcel: 'Ada 88, Parsel 3',
+    sign: 'MAVİ KULE REZİDANS · 8 KAT',
+    floors: 8,
+    paint: '#9fb8cc',
+    paintSide: '#7f98ad',
+    due: [2024, 2026, 2028, 2030, 2031],
+    lines: {
+      arsa: ['Burası eskiden çocuk parkıydı.', 'Rezidans yapacaklarmış, havuzlu, concierge’li.'],
+      hafriyat: ['Üç kat otopark kazıyorlar, metro geçse durur.', 'Kamyonlar gece de çalışıyor, ruhsatı var mı?'],
+      siva: ['Cam giydirme olacaktı, boyayla geçiştirdiler.', 'Bu mavi denize benzemiyor ama.'],
+      teslim: ['Dairelerin hepsi satılmış, kimse oturmuyor.', 'Havuz çatıdaymış, kimse görmedi.', 'Bizim mahalleye gölge düştü, öğleden sonra güneş yok.'],
+    },
+    ending: 'Sekiz katlı bir rezidansı izledi. Havuzu hiç görmedi. Gölgesinde oturdu.',
+  },
+  {
+    id: 'okul',
+    name: 'Gül Sokak İlkokulu',
+    parcel: 'Ada 15, Parsel 1',
+    sign: 'GÜL SOKAK İLKOKULU · 3 KAT',
+    floors: 3,
+    paint: '#f0c75e',
+    paintSide: '#c9a440',
+    due: [2022, 2023, 2024, 2025, 2026],
+    lines: {
+      arsa: ['Eski okulu yıktılar, depreme dayanıksızmış.', 'Çocuklar bu yıl konteynerde okuyacak.'],
+      karkas: ['Okulda kolon kalın olur, öyle olmalı.', 'Üç kat yeter, merdiveni çocuklar çıkacak.', 'Müteahhit belediye başkanının kuzeni.'],
+      cati: ['Çatıya güneş paneli koyacaklardı. Koymadılar.'],
+      teslim: ['Seçimden bir hafta önce açıldı.', 'Torunum buraya gidecek, inşallah sağlamdır.', 'Bahçesi küçük ama boyası güzel.'],
+    },
+    ending: 'Bir okulu temelden çatıya izledi. Kurdeleyi başkan kesti, alkışı amcalar tuttu.',
+  },
+];
+
+export let PROJECT: Project = PROJECTS[0];
+export let FLOORS = BASE_FLOORS;
+export let STAGES: Stage[] = BASE_STAGES;
+/** İşin bittiği an (iş saati). */
+export let WORK_TOTAL = BASE_TOTAL;
 
 /** Kaba inşaatta bir katın alt adımları: katın kendi süresi içindeki başlangıç oranları. */
 export const FLOOR_STEPS = [
@@ -102,7 +179,7 @@ export const FLOOR_STEPS = [
 export const FLOOR_STEP = { rebar: 0, form: 1, mesh: 2, pour: 3, cure: 4, strip: 5 } as const;
 
 /** Tabeladaki teslim tarihi: inşaat ilerledikçe ertelenir. */
-export const DUE_YEARS = [2019, 2021, 2023, 2025, 2026];
+export let DUE_YEARS = PROJECT.due;
 
 /** Gerçek saatte şantiye takvimi: saniye başına gün. */
 export const DAYS_PER_SECOND = 6;
@@ -140,11 +217,29 @@ export const idleAt = (t: number): Idle => {
 /* ── iş saati tablosu: gerçek saatten iş saatine ── */
 
 const STEP = 0.1;
-const WORK: number[] = [0];
-for (let i = 1; WORK[i - 1] < WORK_TOTAL; i++) WORK.push(WORK[i - 1] + (idleAt((i - 1) * STEP) ? 0 : STEP));
+let WORK: number[] = [0];
+const workTable = () => {
+  const out = [0];
+  for (let i = 1; out[i - 1] < WORK_TOTAL; i++) out.push(out[i - 1] + (idleAt((i - 1) * STEP) ? 0 : STEP));
+  return out;
+};
+WORK = workTable();
 
 /** Sahnenin sonu (gerçek saat): iş bitince. */
-export const TOTAL = (WORK.length - 1) * STEP;
+export let TOTAL = (WORK.length - 1) * STEP;
+
+/** Şantiyeyi seçer: kat sayısına göre takvimi kaydırır, lafları ve tabelayı değiştirir. */
+export function selectProject(id: string) {
+  PROJECT = PROJECTS.find((p) => p.id === id) ?? PROJECTS[0];
+  FLOORS = PROJECT.floors;
+  const shift = (FLOORS - BASE_FLOORS) * FLOOR_SECONDS;
+  const karkas = BASE_STAGES.findIndex((st) => st.id === 'karkas');
+  STAGES = BASE_STAGES.map((st, i) => ({ ...st, at: i > karkas ? st.at + shift : st.at, lines: PROJECT.lines?.[st.id] ?? st.lines }));
+  WORK_TOTAL = BASE_TOTAL + shift;
+  DUE_YEARS = PROJECT.due;
+  WORK = workTable();
+  TOTAL = (WORK.length - 1) * STEP;
+}
 
 /** Gerçek saatte o ana kadar çalışılan süre. */
 export const workAt = (t: number) => {

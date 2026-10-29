@@ -4,7 +4,7 @@ import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import { Editor } from './Editor';
 import { draftKey, sanitize, type Design, type Place } from './model';
-import { COMING, PLACES } from './places';
+import { PLACES } from './places';
 import { Scene } from './Scene';
 import styles from './MeydanGame.module.css';
 
@@ -67,15 +67,6 @@ export function MeydanGame() {
                 </b>
                 <span>{p.blurb}</span>
               </button>
-            ))}
-            {COMING.map((c) => (
-              <div key={c.title} className={`${styles.place} ${styles.locked}`} aria-disabled="true">
-                <div className={styles.thumbEmpty}>Yakında</div>
-                <b>
-                  {c.district} · {c.title}
-                </b>
-                <span>Bu meydanın çizimi hazırlanıyor.</span>
-              </div>
             ))}
           </div>
         </main>

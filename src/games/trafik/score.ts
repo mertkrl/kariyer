@@ -57,7 +57,15 @@ export function delays(s: Sim) {
       worstMv = k as MoveId;
     }
   }
-  return { avg: n ? sum / n : 0, worst, worstMv };
+  // kol kol ortalama gecikme: tutanaktaki korna haritası
+  const legs: Partial<Record<Dir, { n: number; sum: number }>> = {};
+  for (const [k, v] of Object.entries(by)) {
+    const l = (legs[legOf(k as MoveId)] ??= { n: 0, sum: 0 });
+    l.n += v.n;
+    l.sum += v.sum;
+  }
+  const byLeg = Object.fromEntries(Object.entries(legs).map(([d, v]) => [d, v.n ? v.sum / v.n : 0])) as Partial<Record<Dir, number>>;
+  return { avg: n ? sum / n : 0, worst, worstMv, byLeg };
 }
 
 export const avgDelay = (s: Sim) => delays(s).avg;
@@ -86,13 +94,16 @@ export interface Report {
   pedHits: number;
   ambulanceLate: number;
   jammed: Dir | null;
+  /** Kol kol ortalama gecikme (sn): korna haritası. */
+  legs: { dir: Dir; name: string; delay: number }[];
   parts: { label: string; got: number; max: number }[];
 }
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 export function report(s: Sim): Report {
-  const { avg, worst, worstMv } = delays(s);
+  const { avg, worst, worstMv, byLeg } = delays(s);
+  const legs = (Object.keys(s.spec.legs) as Dir[]).map((d) => ({ dir: d, name: s.spec.legs[d]?.name ?? d, delay: byLeg[d] ?? 0 }));
   const pedWait = avgPedWait(s);
   const pedHits = s.crashes.filter((c) => c.ped).length;
   const crashes = s.crashes.length - pedHits;
@@ -111,5 +122,5 @@ export function report(s: Sim): Report {
   let score = parts.reduce((m, p) => m + p.got, 0);
   if (s.jammed) score = Math.min(score, 25);
   if (pedHits) score = Math.min(score, 35);
-  return { score, delay: avg, worst, worstMv, los: los(avg), delivered: s.delivered, pedWait, jay: s.jay, crashes, pedHits, ambulanceLate: late, jammed: s.jammed, parts };
+  return { score, delay: avg, worst, worstMv, los: los(avg), delivered: s.delivered, pedWait, jay: s.jay, crashes, pedHits, ambulanceLate: late, jammed: s.jammed, legs, parts };
 }

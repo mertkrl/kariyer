@@ -341,7 +341,9 @@ function Street() {
 
 /** Meydanın simgesi: tıklanmaz, tabelaların ve yolun önünde durur. */
 function Landmark({ place }: { place: PlaceId }) {
-  if (place !== 'bakirkoy') return null;
+  if (place === 'besiktas') return <Eagle />;
+  if (place === 'eminonu') return <SimitCart />;
+  if (place === 'mecidiyekoy') return <MetroTotem />;
   // Cumhuriyet Meydanı'nın yüksek bayrak direği ve dalgalanan dev bayrak
   const px = 612;
   const base = H - 24;
@@ -373,6 +375,68 @@ function Landmark({ place }: { place: PlaceId }) {
         }).join(' ')}
         fill="#fff"
       />
+    </g>
+  );
+}
+
+/** Beşiktaş: meydanın ortasındaki kaidede kanatlarını açmış kartal. */
+function Eagle() {
+  const x = 600;
+  const base = H - 24;
+  return (
+    <g pointerEvents="none">
+      <ellipse cx={x} cy={base + 6} rx="60" ry="10" fill="#000" opacity="0.2" />
+      <rect x={x - 46} y={base - 120} width="92" height="124" rx="4" fill="#d6d2c9" />
+      <rect x={x - 54} y={base - 128} width="108" height="12" rx="3" fill="#efece5" />
+      <rect x={x - 46} y={base - 10} width="92" height="14" fill="#bdb8ae" />
+      {/* kartal: gövde, açık kanatlar, baş */}
+      <path
+        d={`M ${x} ${base - 200} C ${x - 20} ${base - 230}, ${x - 80} ${base - 250}, ${x - 130} ${base - 230} C ${x - 90} ${base - 220}, ${x - 60} ${base - 200}, ${x - 26} ${base - 170} L ${x - 14} ${base - 128} L ${x + 14} ${base - 128} L ${x + 26} ${base - 170} C ${x + 60} ${base - 200}, ${x + 90} ${base - 220}, ${x + 130} ${base - 230} C ${x + 80} ${base - 250}, ${x + 20} ${base - 230}, ${x} ${base - 200} Z`}
+        fill="#2c2a27"
+      />
+      <circle cx={x} cy={base - 206} r="11" fill="#2c2a27" />
+      <path d={`M ${x + 8} ${base - 208} l 12 4 l -12 3 Z`} fill="#c9a43a" />
+    </g>
+  );
+}
+
+/** Eminönü: kaldırımda camlı kırmızı simit arabası. */
+function SimitCart() {
+  const x = 560;
+  const y = H - 110;
+  return (
+    <g pointerEvents="none">
+      <ellipse cx={x + 60} cy={H - 16} rx="80" ry="8" fill="#000" opacity="0.2" />
+      <rect x={x} y={y + 40} width="120" height="46" rx="4" fill="#c8102e" />
+      <rect x={x + 6} y={y} width="108" height="42" rx="4" fill="#dfeef5" opacity="0.85" stroke="#8a1c1c" strokeWidth="3" />
+      {[0, 1, 2, 3].map((i) => (
+        <circle key={i} cx={x + 22 + i * 26} cy={y + 26} r="10" fill="none" stroke="#b5752f" strokeWidth="6" />
+      ))}
+      <text x={x + 60} y={y + 70} textAnchor="middle" fontSize="16" fontWeight="800" fill="#fff" fontFamily="var(--font-display, serif)">
+        SİMİT
+      </text>
+      <circle cx={x + 18} cy={H - 20} r="10" fill="#2c2a27" />
+      <circle cx={x + 102} cy={H - 20} r="10" fill="#2c2a27" />
+    </g>
+  );
+}
+
+/** Mecidiyeköy: metro girişinin "M" totemi. */
+function MetroTotem() {
+  const x = 610;
+  const base = H - 24;
+  return (
+    <g pointerEvents="none">
+      <ellipse cx={x} cy={base + 6} rx="30" ry="6" fill="#000" opacity="0.2" />
+      <rect x={x - 6} y={base - 170} width="12" height="176" fill={url('steel')} />
+      <rect x={x - 34} y={base - 236} width="68" height="68" rx="10" fill="#c8102e" />
+      <text x={x} y={base - 186} textAnchor="middle" fontSize="50" fontWeight="900" fill="#fff" fontFamily="sans-serif">
+        M
+      </text>
+      <rect x={x - 70} y={base - 150} width="140" height="26" rx="4" fill="#1d2a44" />
+      <text x={x} y={base - 132} textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff" fontFamily="sans-serif">
+        MECİDİYEKÖY
+      </text>
     </g>
   );
 }

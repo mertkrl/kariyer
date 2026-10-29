@@ -3,7 +3,7 @@ import { hrefOf } from '../../arcade/route';
 import { YEAR_NOTE, isOldLira, type Year } from './data';
 import type { AppId } from './appList';
 import { AppIcon, type IconId } from './icons';
-import { money, walletFor, type Persona, type Theme } from './model';
+import { money, walletOf, type Persona, type Theme } from './model';
 import m from './Mobile.module.css';
 
 /*
@@ -88,7 +88,7 @@ export function Mobile({
             <span>
               <b>{persona.name}</b>
               <small>
-                {persona.role} · cepte {money(walletFor(year, persona.share), year)}
+                {persona.role} · cepte {money(walletOf(year, persona), year)}
               </small>
               <small>
                 {year} · {cur} · {YEAR_NOTE[year]}

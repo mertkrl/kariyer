@@ -12,7 +12,7 @@ import sheet from './DayEnd.module.css';
  * Hacı Emmi'nin karnesi.
  */
 
-export function IntroCard({ onOpen, busy }: { onOpen: () => void; busy: boolean }) {
+export function IntroCard({ onOpen, busy, resumeDay, onResume }: { onOpen: () => void; busy: boolean; resumeDay?: number; onResume?: () => void }) {
   return (
     <main className={styles.card}>
       <div className={styles.big}>🏪</div>
@@ -25,9 +25,20 @@ export function IntroCard({ onOpen, busy }: { onOpen: () => void; busy: boolean 
         <li>💰 Elektrik her akşam, vergi ve kira haftada bir kasadan çıkar. Kasa eksiye düşerse dükkân batar.</li>
         <li>🕋 Hacı Emmi 40 gün sonra dönecek: dükkânı ona batırmadan teslim et.</li>
       </ul>
-      <button className={styles.primary} onClick={onOpen} disabled={busy}>
-        Kepengi aç
-      </button>
+      {onResume && resumeDay ? (
+        <>
+          <button className={styles.primary} onClick={onResume} disabled={busy}>
+            {resumeDay}. günün akşamından devam et
+          </button>
+          <button className={styles.ghost} onClick={onOpen} disabled={busy}>
+            Kaydı sil, baştan aç
+          </button>
+        </>
+      ) : (
+        <button className={styles.primary} onClick={onOpen} disabled={busy}>
+          Kepengi aç
+        </button>
+      )}
     </main>
   );
 }
@@ -81,6 +92,7 @@ export function DayEndCard({
   unpaid,
   paidToday,
   lostToday,
+  away = [],
   dues,
   left,
   stale,
@@ -109,6 +121,8 @@ export function DayEndCard({
   paidToday: Debt[];
   /** Bu akşam vadesi dolup batan veresiyeler. */
   lostToday: Debt[];
+  /** Bugün küsüp kasabanın marketine gidenler. */
+  away?: string[];
   /** Yarın akşam kasadan çıkacak giderler. */
   dues: { power: number; tax: number };
   /** Hacı Emmi'nin dönüşüne kalan gün. */
@@ -199,6 +213,7 @@ export function DayEndCard({
           <ul className={sheet.notes}>
             {paidToday.length > 0 && <li>📝 Borcunu getiren: {paidToday.map((d) => `${d.name} (${tl(d.amount)})`).join(', ')}</li>}
             {lostToday.length > 0 && <li>💸 Vadesi geçti, battı: {lostToday.map((d) => `${d.name} (${tl(d.amount)})`).join(', ')}</li>}
+            {away.length > 0 && <li>🛒 Bugün kasabadaki markete gittiler: {away.join(', ')}. Pahalı satılan unutulmuyor.</li>}
             {short && <li>🚚 Sabah kasadaki para yetmedi: malın bir kısmı geri gitti</li>}
             {stale > 0 && <li>🥖 {stale} ekmek bayatladı</li>}
             {rotten.length > 0 && <li>🧊 Gece bozuldu: {rotten.map((p) => `${spoiled[p.id]} ${names([p])}`).join(', ')}</li>}

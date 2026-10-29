@@ -11,8 +11,11 @@
   z-index: 2100;
   display: flex;
   flex-direction: column;
-  width: 400px;
+  width: 460px;
   max-width: calc(100vw - 12px);
+  /* menü yukarı doğru uzar: masalar ferah dursun, ekrana sığmazsa gövde kayar */
+  min-height: min(540px, calc(100% - var(--task-h) - 12px));
+  max-height: calc(100% - var(--task-h) - 8px);
   overflow: hidden;
   font-family: var(--font), Tahoma, sans-serif;
   animation: rise 0.18s ease-out;
@@ -61,9 +64,11 @@
 }
 
 .body {
+  flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   min-height: 0;
+  overflow-y: auto;
 }
 
 .left {
@@ -74,14 +79,14 @@
 
 .games {
   display: grid;
-  gap: 2px;
+  gap: 6px;
 }
 
 .game {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px;
+  gap: 10px;
+  padding: 10px 8px;
   border: 0;
   border-radius: 3px;
   background: none;
@@ -91,12 +96,13 @@
 
 .game b {
   display: block;
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .game small {
   display: block;
-  font-size: 10.5px;
+  margin-top: 2px;
+  font-size: 11px;
   opacity: 0.7;
 }
 
@@ -111,7 +117,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 6px;
+  padding: 9px 6px;
   border: 0;
   border-radius: 3px;
   background: none;
@@ -225,8 +231,8 @@
 /* ── 2008–2012: koyu cam, beyaz liste, sağda cam sütun ── */
 :global([data-theme='glass']) .menu {
   display: grid;
-  grid-template: 'body head' auto 'body right' 1fr 'body foot' auto / 1fr 150px;
-  width: 440px;
+  grid-template: 'body head' auto 'body right' 1fr 'body foot' auto / 1fr 170px;
+  width: 500px;
   padding: 6px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 8px;
@@ -310,11 +316,11 @@
 /* ── 2016–2020: ortada kart, simge ızgarası ── */
 :global([data-theme='flat']) .menu {
   display: grid;
-  grid-template: 'body body' auto 'head foot' auto / 1fr auto;
+  grid-template: 'body body' 1fr 'head foot' auto / 1fr auto;
   left: 50%;
   bottom: calc(var(--task-h) + 10px);
   translate: -50% 0;
-  width: 460px;
+  width: 520px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   color: #1b1b1b;

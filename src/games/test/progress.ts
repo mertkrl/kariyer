@@ -6,7 +6,7 @@ import type { ExamAnswer, ExamSection } from './logic';
  * kullanılamazsa (gizli pencere, engelli site verisi) oyun kayıtsız oynanır.
  */
 
-const KEY = 'uyummetre-progress-v1';
+const KEY = 'kariyerweb-uyummetre-progress-v1';
 
 export interface ExamProgress {
   exam: ExamSection[];

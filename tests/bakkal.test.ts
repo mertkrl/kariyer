@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CUSTOMERS, CLOSE_HOUR, DEBT_DAYS, forget, type Debt, EVENT_POOL, OPEN_HOUR, PRODUCTS, VILLAGERS, basketOn, ceilingOf, customersFor, dayVisits, effectiveType, eventOn, factorOn, greetingFor, hikesOn, hourOf, priceOn, react, remember, sayItems, settleDebts, titleFor, weatherOn } from '../src/games/bakkal/data';
+import { awayOf, coolOff, type Memories, CUSTOMERS, CLOSE_HOUR, DEBT_DAYS, forget, type Debt, EVENT_POOL, OPEN_HOUR, PRODUCTS, VILLAGERS, basketOn, ceilingOf, customersFor, dayVisits, effectiveType, eventOn, factorOn, greetingFor, hikesOn, hourOf, priceOn, react, remember, sayItems, settleDebts, titleFor, weatherOn } from '../src/games/bakkal/data';
 
 const DAYS = 20;
 const pazar = EVENT_POOL.find((e) => e.title === 'Pazar günü')!;
@@ -158,4 +158,13 @@ test('market fiyatına yakın söylenme itibar yakmaz, kin bırakmaz; köy gece 
   assert.equal(forget(90), 87);
   assert.equal(forget(59), 60);
   assert.equal(forget(60), 60);
+});
+
+test('kini birikenler markete gider, o gün gelmez; gece kinleri soğur ve döner', () => {
+  const who = VILLAGERS.find((v) => v.type !== 'turist')!.id;
+  let m: Memories = {};
+  for (let k = 0; k < 2; k++) m = remember(m, who, 'leave');
+  assert.deepEqual(awayOf(m), [who]);
+  for (let day = 2; day < 12; day++) assert.ok(!dayVisits(5, day, 80, 'sunny', [who]).some((v) => v.villager.id === who));
+  assert.deepEqual(awayOf(coolOff(m, [who])), []);
 });

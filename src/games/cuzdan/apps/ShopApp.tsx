@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { markPlayed } from '../../../arcade/progress';
 import { CATEGORY_LABEL, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, type Category, type Year } from '../data';
-import { basketCost, basketCount, money, priceIn, themeOf, times, walletFor, type Basket, type Persona } from '../model';
+import { basketCost, basketCount, money, priceIn, themeOf, times, walletOf, type Basket, type Persona } from '../model';
 import { sfx } from '../sfx';
 import { AppShop, Web2Shop } from './ShopModern';
 import { ShopReceipt } from './ShopReceipt';
@@ -31,7 +31,7 @@ export function ShopApp({ year, persona, onPaid }: { year: Year; persona: Person
   const [paid, setPaid] = useState(false);
   const [warn, setWarn] = useState('');
   const connected = step >= steps.length;
-  const wallet = walletFor(year, persona.share);
+  const wallet = walletOf(year, persona);
   const spent = basketCost(basket, year);
   const left = wallet - spent;
 

@@ -13,7 +13,7 @@ export const GRID = 4;
 export const MAX_ITEMS = 120;
 const MAX_TEXT = 40;
 
-export type PlaceId = 'bakirkoy';
+export type PlaceId = 'bakirkoy' | 'besiktas' | 'eminonu' | 'mecidiyekoy';
 export type SignKind = 'pano' | 'bayrak' | 'kutu' | 'tente' | 'folyo' | 'afis';
 export type JunkKind = 'klima' | 'anten' | 'kablo';
 export type ItemKind = SignKind | JunkKind;

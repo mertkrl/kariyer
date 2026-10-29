@@ -45,3 +45,16 @@ test('zamana göre aşama, kat adımı ve konuşan amca tutarlıdır', () => {
 test('teslim tarihi hep ileri ertelenir', () => {
   DUE_YEARS.forEach((y, i) => i && assert.ok(y > DUE_YEARS[i - 1]));
 });
+
+test('şantiyeler: kat sayısı takvimi kaydırır, aşamalar sıralı kalır, iş biter', async () => {
+  const data = await import('../src/games/insaat/data');
+  for (const p of data.PROJECTS) {
+    data.selectProject(p.id);
+    assert.equal(data.FLOORS, p.floors);
+    data.STAGES.forEach((st, i) => i && assert.ok(st.at > data.STAGES[i - 1].at, `${p.id} ${st.id}`));
+    assert.ok(data.STAGES[data.STAGES.length - 1].at < data.WORK_TOTAL, p.id);
+    assert.ok(Math.abs(data.workAt(data.TOTAL) - data.WORK_TOTAL) < 0.2, p.id);
+  }
+  data.selectProject('huzur');
+  assert.equal(data.WORK_TOTAL, 254);
+});

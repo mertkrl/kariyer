@@ -216,7 +216,7 @@ button.mail {
 }
 
 /* telefon: liste ile ileti üst üste değil, sırayla; açık ileti listeyi gizler */
-@media (max-width: 680px) {
+@media (max-width: 760px) {
   .desk {
     padding: 12px 10px 24px;
   }

@@ -1,8 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DAILY_ROUNDS, dailyShare, dayNumber, makeDaily, nextStreak } from '../src/games/cuzdan/daily';
-import { ALL_YEARS, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, YEARS } from '../src/games/cuzdan/data';
+import { ALL_YEARS, CPI, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, YEARS } from '../src/games/cuzdan/data';
 import {
+  salaryPersona,
+  salaryTable,
+  walletOf,
   GUESS_ROUNDS,
   QUICK_ROUNDS,
   basketCost,
@@ -184,4 +187,13 @@ test('dönemin rafı: her yılın manşeti var; bugün satılmayanlar bugünkü 
   const ids = new Set([...ITEMS, ...ERA_ITEMS].map((i) => i.id));
   for (const l of Object.values(LIMITS)) for (const id of Object.keys(l ?? {})) assert.ok(ids.has(id), id);
   assert.ok(ERA_ITEMS.some((e) => e.prices[2020] !== undefined && e.tag === 'Salgın'), '2020 rafında salgın ürünleri');
+});
+
+test('senin maaşın: her yılda aynı alım gücü, bugün aynen kendisi', () => {
+  const p = salaryPersona(45000);
+  const table = salaryTable(45000);
+  assert.equal(Math.round(table[table.length - 1].amount), 45000);
+  for (const r of table) assert.ok(Math.abs(r.amount / CPI[r.year] - 45000 / CPI[NOW]) < 1e-9, String(r.year));
+  assert.ok(walletOf(2002, p) < walletOf(2022, p));
+  assert.equal(walletOf(2005, PERSONAS[0]), walletFor(2005, PERSONAS[0].share));
 });

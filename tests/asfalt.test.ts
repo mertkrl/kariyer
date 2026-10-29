@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EMPTY, GRAVEL, H, HOT, PACKED, ROAD, ROLLER_W, SET, SOIL, W, WATER, WET, createWorld, driveRoller, holeVolume, idx, openToTraffic, pour, step, surfaceAt, type LevelSpec, type World } from '../src/games/asfalt/model';
-import { crewTitle, LEVELS } from '../src/games/asfalt/levels';
+import { crewTitle, LEVELS, PASS_SCORE } from '../src/games/asfalt/levels';
 
 const SPEC: LevelSpec = { id: 'deneme', seed: 7, center: 120, half: 24, depth: 22 };
 const run = (w: World, n: number) => {
@@ -90,14 +90,24 @@ test('silindir yol hizasının üstünü önüne katar, dolu sütunu sıkıştı
 });
 
 test('kat kat döşenip silindirlenen yama yüksek, tek seferde toprakla kapatılan düşük puan alır', () => {
+  // gerçek serim: her kat ayrı silindirlenir, asfalt sıkışma payıyla yol hizasının üstüne serilir
   const good = createWorld(SPEC);
-  layer(good, ROAD + 8, H, SOIL);
-  layer(good, ROAD + 4, ROAD + 8, GRAVEL);
-  layer(good, ROAD, ROAD + 4, HOT);
-  driveRoller(good, 0);
-  good.roller!.x = 0;
-  driveRoller(good, W - ROLLER_W);
-  run(good, 800);
+  const roll = () => {
+    // silindir serimin hemen arkasından girer: asfalt soğumadan sıkışmalı
+    driveRoller(good, 0);
+    good.roller!.x = good.hole[0] - ROLLER_W;
+    driveRoller(good, good.hole[1] + 1);
+    run(good, 400);
+  };
+  // önce dipteki gevşek moloz temizlenir
+  for (let i = 0; i < good.cells.length; i++) if (good.cells[i] === SOIL) good.cells[i] = EMPTY;
+  layer(good, ROAD + 12, H, SOIL);
+  roll();
+  layer(good, ROAD + 4, H, GRAVEL);
+  roll();
+  layer(good, ROAD - 2, H, HOT);
+  roll();
+  run(good, 2500); // asfalt soğumadan yol açılmaz
   const g = openToTraffic(good);
 
   const bad = createWorld(SPEC);
@@ -128,4 +138,56 @@ test('mesai sonu unvanı işlerin ortalamasına göre yükselir', () => {
   assert.equal(crewTitle([80, 71]).title, 'Kıdemli Silindirci');
   assert.equal(crewTitle([60, 50]).title, 'Mesai Kurtaran');
   assert.equal(crewTitle([20, 40]).title, 'Kasis Mimarı');
+});
+
+test('mühendis senaryoları: silindirsiz, soğukken silindirlenen ve asfaltsız yama teslim alınmaz', () => {
+  const roll = (w: World) => {
+    driveRoller(w, 0);
+    w.roller!.x = w.hole[0] - ROLLER_W;
+    driveRoller(w, w.hole[1] + 1);
+    run(w, 400);
+  };
+  const build = (rollEach: boolean, coldAsphalt = false, asphalt = true) => {
+    const w = createWorld(SPEC);
+    for (let i = 0; i < w.cells.length; i++) if (w.cells[i] === SOIL) w.cells[i] = EMPTY;
+    layer(w, ROAD + 12, H, SOIL);
+    run(w, 30);
+    if (rollEach) roll(w);
+    layer(w, ROAD + (asphalt ? 4 : -2), H, GRAVEL);
+    run(w, 30);
+    if (rollEach) roll(w);
+    if (asphalt) {
+      layer(w, ROAD - 2, H, HOT);
+      run(w, coldAsphalt ? 3000 : 30);
+      if (rollEach) roll(w);
+      run(w, 2500); // asfalt soğusun
+    }
+    return openToTraffic(w);
+  };
+  assert.ok(build(true).score >= PASS_SCORE);
+  assert.ok(build(false).score < PASS_SCORE, 'silindirsiz');
+  assert.ok(build(true, true).score < PASS_SCORE, 'soğuk asfalt');
+  // silindirlenip soğumadan trafiğe açılan asfalt iz yapar
+  {
+    const w = createWorld(SPEC);
+    for (let i = 0; i < w.cells.length; i++) if (w.cells[i] === SOIL) w.cells[i] = EMPTY;
+    layer(w, ROAD + 4, H, GRAVEL);
+    roll(w);
+    layer(w, ROAD - 2, H, HOT);
+    roll(w);
+    const r = openToTraffic(w);
+    assert.ok(r.hot > 10 && r.score < build(true).score, `sıcak trafik ${r.score}`);
+  }
+  assert.ok(build(true, false, false).score < PASS_SCORE, 'asfaltsız');
+  assert.ok(openToTraffic(createWorld(SPEC)).stuck >= 0, 'boş çukur');
+  // üç gün: iyi yama güneşte, yağmurda ve donda sağlam kalır; sadece toprak ilk günden çöker
+  const good = build(true);
+  assert.deepEqual(good.phases.map((p) => p.weather), ['sun', 'rain', 'snow']);
+  assert.ok(good.phases.every((p) => p.dips === 0), JSON.stringify(good.phases));
+  const soil = createWorld(SPEC);
+  layer(soil, ROAD, H, SOIL);
+  const s = openToTraffic(soil);
+  assert.ok(s.phases[0].dips > 10);
+  // çöken yamaya gelen araç gömülür: trafik durur, yol kapanır
+  assert.ok(s.stuck >= 0 && s.phases.length < 3, JSON.stringify(s.phases));
 });

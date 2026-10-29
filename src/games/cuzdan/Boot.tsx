@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
-import { money, PERSONAS, START_YEAR, walletFor, type Persona } from './model';
+import { customPersona, money, PERSONAS, salaryIn, salaryPersona, START_YEAR, walletFor, type Persona } from './model';
+import { NOW } from './data';
 import b from './Boot.module.css';
 import s from './Shell.module.css';
 
@@ -74,16 +75,15 @@ export function Boot({ onLogin }: { onLogin: (p: Persona) => void }) {
         <ClockOut tone="dark" />
       </div>
       <div className={b.loginMid}>
-        <div className={b.welcome}>
-          <b>hoş geldiniz</b>
-          <span>
-            Başlamak için kimin cebiyle
-            <br />
-            oynayacağınızı seçin
-          </span>
-        </div>
-        <div className={b.loginSep} aria-hidden="true" />
-        <div className={b.users}>
+        <div className={b.intro}>
+          <div className={b.welcome}>
+            <b>hoş geldiniz</b>
+            <span>
+              Başlamak için kimin cebiyle
+              <br />
+              oynayacağınızı seçin
+            </span>
+          </div>
           <div className={b.yearBadge} aria-label={`Yıl ${START_YEAR}, Yeni Türk Lirası`}>
             <span className={b.calendar} aria-hidden="true">
               <i>OCAK</i>
@@ -91,24 +91,29 @@ export function Boot({ onLogin }: { onLogin: (p: Persona) => void }) {
             </span>
             <span>
               <b>Yıl {START_YEAR}</b>
-              <small>Yeni Türk Lirası: 1.000.000 TL = 1 YTL</small>
-              <small>2002'nin milyonlarına saatten (yıl düğmesinden) gidebilirsin.</small>
+              <small>1.000.000 TL = 1 YTL</small>
+              <small>2002'ye saatten gidebilirsin.</small>
             </span>
           </div>
+        </div>
+        <div className={b.loginSep} aria-hidden="true" />
+        <div className={b.users}>
           <div className={b.userList} role="list" aria-label="Kullanıcılar">
-          {PERSONAS.map((p, i) => (
-            <button key={p.id} type="button" role="listitem" className={b.user} onClick={() => onLogin(p)} autoFocus={i === 0}>
-              <span className={s.avatar} aria-hidden="true">
-                {p.avatar}
-              </span>
-              <span>
-                <b>{p.name}</b>
-                <small>
-                  {p.role} · {START_YEAR}'te {p.purse}: {money(walletFor(START_YEAR, p.share), START_YEAR)}
-                </small>
-              </span>
-            </button>
-          ))}
+            {PERSONAS.map((p, i) => (
+              <button key={p.id} type="button" role="listitem" className={b.user} onClick={() => onLogin(p)} autoFocus={i === 0}>
+                <span className={s.avatar} aria-hidden="true">
+                  {p.avatar}
+                </span>
+                <span>
+                  <b>{p.name}</b>
+                  <small>
+                    {p.role} · {START_YEAR}'te {p.purse}: {money(walletFor(START_YEAR, p.share), START_YEAR)}
+                  </small>
+                </span>
+              </button>
+            ))}
+            <SalaryUser onLogin={onLogin} />
+            <CustomUser onLogin={onLogin} />
           </div>
         </div>
       </div>
@@ -116,5 +121,97 @@ export function Boot({ onLogin }: { onLogin: (p: Persona) => void }) {
         <span>Saat 2005'te, Yeni Türk Lirası ile açılır; altı sıfırlı 2002'ye saatten gidebilirsin. Fiyatlar yaklaşıktır.</span>
       </div>
     </div>
+  );
+}
+
+/** Senin maaşın: bugünkü net maaş yazılır; her yılda cüzdan onun enflasyonla karşılığıdır. */
+function SalaryUser({ onLogin }: { onLogin: (p: Persona) => void }) {
+  const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState('');
+  const n = Number(amount.replace(/\./g, '').replace(',', '.'));
+  const ok = n >= 1000 && n <= 10_000_000;
+  if (!open)
+    return (
+      <button type="button" role="listitem" className={b.user} onClick={() => setOpen(true)}>
+        <span className={s.avatar} aria-hidden="true">
+          💼
+        </span>
+        <span>
+          <b>Sen</b>
+          <small>bugünkü maaşınla geçmişe git</small>
+        </span>
+      </button>
+    );
+  return (
+    <form
+      role="listitem"
+      className={`${b.user} ${b.custom}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (ok) onLogin(salaryPersona(n));
+      }}
+    >
+      <span className={s.avatar} aria-hidden="true">
+        💼
+      </span>
+      <span>
+        <b>Senin maaşın</b>
+        <label>
+          <small>{NOW}'da net</small>
+          <input type="text" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, '').slice(0, 12))} placeholder="ör. 45000" autoFocus aria-label={`${NOW} yılında aylık net maaş, TL`} />
+          <small>₺</small>
+          <button type="submit" disabled={!ok}>
+            Gir ›
+          </button>
+        </label>
+        <small>{ok ? `${START_YEAR}'te karşılığı: ${money(salaryIn(n, START_YEAR), START_YEAR)}. Maaş bu cihazdan çıkmaz.` : 'Aynı alım gücüyle, her yılın parasına çevrilir.'}</small>
+      </span>
+    </form>
+  );
+}
+
+/** Özel: oyuncu 2005 cüzdanını kendisi yazar; öbür yıllarda asgari ücretle aynı oranda büyür ya da küçülür. */
+function CustomUser({ onLogin }: { onLogin: (p: Persona) => void }) {
+  const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState('50');
+  const n = Number(amount.replace(',', '.'));
+  const ok = n >= 1 && n <= 100_000;
+  if (!open)
+    return (
+      <button type="button" role="listitem" className={b.user} onClick={() => setOpen(true)}>
+        <span className={s.avatar} aria-hidden="true">
+          ✏️
+        </span>
+        <span>
+          <b>Özel</b>
+          <small>kendi bütçeni belirle</small>
+        </span>
+      </button>
+    );
+  return (
+    <form
+      role="listitem"
+      className={`${b.user} ${b.custom}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (ok) onLogin(customPersona(n));
+      }}
+    >
+      <span className={s.avatar} aria-hidden="true">
+        ✏️
+      </span>
+      <span>
+        <b>Özel bütçe</b>
+        <label>
+          <small>{START_YEAR}'te cebinde</small>
+          <input type="number" min={1} max={100000} step="any" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus aria-label={`${START_YEAR} yılında cüzdan, YTL`} />
+          <small>YTL</small>
+          <button type="submit" disabled={!ok}>
+            Gir ›
+          </button>
+        </label>
+        <small>Öbür yıllarda asgari ücretle aynı oranda değişir.</small>
+      </span>
+    </form>
   );
 }

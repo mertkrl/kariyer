@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion } from '../../components/ui/motion';
-import { REMARKS, TOOL_LABEL, verdict, type Level, type Tool } from './levels';
-import { H, PRICE, ROLLER_W, TICKS_PER_SEC, W, createWorld, dig, driveRoller, openToTraffic, pour, pump, raining, step, type Material, type Report, type World } from './model';
-import { draw, newImage } from './render';
-import { Backdrop, CarSprite, RollerSprite } from './Site';
+import { PASS_SCORE, REMARKS, TOOL_LABEL, verdict, type Level, type Tool } from './levels';
+import { H, PRICE, ROLLER_W, TICKS_PER_SEC, TRAFFIC, W, createWorld, dig, driveRoller, endDay, gradeTraffic, passVehicle, pour, pump, raining, startTraffic, step, surfaceAt, findPit, type Material, type Report, type VehicleKind, type Weather, type World } from './model';
+import { draw, newImage, SCALE } from './render';
+import { Backdrop, CarSprite, RollerSprite, VEHICLE } from './Site';
 import styles from './AsfaltGame.module.css';
 
 /*
  * Bir iş: çukurun başında ekip. Basılı tutunca seçili araç çalışır; dünya saniyede 60 adım
- * ilerler, tuval her karede çizilir. "Trafiğe aç" ile yama oturur, araba geçer, hakediş fişi gelir.
+ * ilerler, tuval her karede çizilir. "Trafiğe aç" ile üç gün geçer (güneş, yağmur, kar); her gün
+ * araçlar tek tek geçer ve yama gözün önünde oturur. Sonunda hakediş fişi gelir.
  */
 
 const MATERIALS: Tool[] = ['soil', 'gravel', 'asphalt'];
@@ -40,8 +41,19 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
   const [stage, setStage] = useState<Stage>('work');
   const stageRef = useRef<Stage>('work');
   const [report, setReport] = useState<Report | null>(null);
-  const [car, setCar] = useState({ x: -30, shake: 0 });
-  const [overlay, setOverlay] = useState({ rollerX: -1, px: 0, py: 0, over: false, down: false });
+  const [car, setCar] = useState<{ x: number; shake: number; kind: VehicleKind }>({ x: -30, shake: 0, kind: 'dolmus' });
+  const [profile, setProfile] = useState<number[] | null>(null);
+  const [day, setDay] = useState<{ weather: Weather; label: string } | null>(null);
+  const alive = useRef(true);
+  /** Karın kalınlığı (0–1): kar günü boyunca birikir. */
+  const snow = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const [overlay, setOverlay] = useState({ rollerX: -1, rollerY: 0, px: 0, py: 0, over: false, down: false });
 
   const pick = (t: Tool) => {
     toolRef.current = t;
@@ -94,8 +106,17 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
         if (frame++ % 6 === 0) {
           setHud({ cost: costOf(w), sec: Math.floor(w.tick / TICKS_PER_SEC), rain: r });
           const p = pointer.current;
-          setOverlay({ rollerX: w.roller ? w.roller.x : -1, px: p.x, py: p.y, over: p.over, down: p.down });
+          setOverlay({ rollerX: w.roller ? w.roller.x : -1, rollerY: w.roller ? w.roller.y : 0, px: p.x, py: p.y, over: p.over, down: p.down });
         }
+      }
+      // trafik günleri: yağmurda dünya akmaya devam eder (su birikir, süzülür); karda yüzey örtülür
+      if (stageRef.current === 'traffic') {
+        while (acc >= 1 / TICKS_PER_SEC) {
+          acc -= 1 / TICKS_PER_SEC;
+          if (w.weather === 'rain') step(w);
+          if (w.weather === 'snow') snow.current = Math.min(1, snow.current + 1 / (TICKS_PER_SEC * 6));
+        }
+        draw(ctx, img, w, w.weather === 'snow' ? snow.current : 0);
       }
       raf = requestAnimationFrame(loop);
     };
@@ -127,33 +148,88 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
     setStage('traffic');
     const w = world.current;
     w.roller = null;
-    const r = openToTraffic(w);
-    setReport(r);
     setOverlay((o) => ({ ...o, rollerX: -1, over: false }));
     const ctx = canvas.current!.getContext('2d')!;
-    draw(ctx, newImage(ctx), w);
-    // araba soldan sağa geçer; pürüz arttıkça sarsıntı büyür. Hareket azaltılınca fiş hemen gelir.
-    if (prefersReducedMotion()) {
-      setCar({ x: W + 4, shake: 0 });
+    const img = newImage(ctx);
+    const t = startTraffic(w);
+    const redraw = () => {
+      draw(ctx, img, w, w.weather === 'snow' ? snow.current : 0);
+      setProfile(Array.from({ length: W }, (_, x) => surfaceAt(w, x)));
+    };
+    redraw();
+    const done = () => {
+      setReport(gradeTraffic(w, t, level.budget));
       stageRef.current = 'receipt';
       setStage('receipt');
+    };
+    // hareket azaltılınca senaryo bir anda oynar, fiş hemen gelir
+    if (prefersReducedMotion()) {
+      if (t.stuck < 0)
+        TRAFFIC.forEach((d, i) => {
+          for (const v of d.vehicles) passVehicle(w, t, i, v);
+          endDay(w, t, i);
+        });
+      redraw();
+      done();
       return;
     }
-    const start = performance.now();
-    const dur = 4200;
-    const rough = Math.min(2.2, r.roughness / 25);
-    const tick = (now: number) => {
-      const u = Math.min(1, (now - start) / dur);
-      const x = -30 + u * (W + 34);
-      const shake = rough * Math.sin(now / 38) * (x > w.hole[0] - 26 && x < w.hole[1] + 4 ? 1 : 0.1);
-      setCar({ x, shake });
-      if (u < 1) requestAnimationFrame(tick);
-      else {
-        stageRef.current = 'receipt';
-        setStage('receipt');
+    const wait = (ms: number) => new Promise((res) => window.setTimeout(res, ms));
+    const center = (w.hole[0] + w.hole[1]) / 2;
+    // bir araç soldan sağa geçer; yamanın ortasına gelince yükünü bırakır, yol gözün önünde oturur
+    const drive = (kind: VehicleKind, d: number) =>
+      new Promise<void>((res) => {
+        const v = VEHICLE[kind];
+        const start = performance.now();
+        const dur = 1500 + v.len * 22;
+        const end = t.stuck >= 0 ? t.stuck - v.wheels[1] + 3 : Infinity;
+        let passed = false;
+        const tick = (now: number) => {
+          if (!alive.current) return;
+          const u = Math.min(1, (now - start) / dur);
+          const x = Math.min(end, -v.len - 4 + u * (W + v.len + 8));
+          if (x >= end) {
+            setCar({ x, shake: 0, kind });
+            res();
+            return;
+          }
+          if (!passed && x + v.len / 2 >= center) {
+            passed = true;
+            passVehicle(w, t, d, kind);
+            redraw();
+          }
+          const onPatch = x + v.len > w.hole[0] && x < w.hole[1];
+          setCar({ x, shake: onPatch ? 0.5 * Math.sin(now / 35) : 0, kind });
+          if (u < 1) requestAnimationFrame(tick);
+          else res();
+        };
+        requestAnimationFrame(tick);
+      });
+    (async () => {
+      for (let d = 0; d < TRAFFIC.length; d++) {
+        setDay(TRAFFIC[d]);
+        w.weather = TRAFFIC[d].weather;
+        // hava bir süre etkisini gösterir: yağmur yağar, kar birikir, sonra araçlar gelir
+        await wait(d === 0 ? 700 : 2200);
+        for (const kind of TRAFFIC[d].vehicles) {
+          if (!alive.current) return;
+          // çöken yamaya gelen araç gömülür, yol kapanır
+          if (t.stuck < 0) t.stuck = findPit(w);
+          await drive(kind, d);
+          if (t.stuck >= 0) {
+            setRemark((m) => ({ text: d === 0 && t.phases.length === 0 && kind === TRAFFIC[0].vehicles[0] ? REMARKS.stuck : REMARKS.collapse, id: m.id + 1 }));
+            endDay(w, t, d);
+            await wait(1600);
+            return done();
+          }
+        }
+        endDay(w, t, d);
+        redraw();
+        const dips = t.phases[d].dips;
+        setRemark((m) => ({ text: dips > 0 ? `${TRAFFIC[d].label}: yamada ${dips} yer çöktü.` : `${TRAFFIC[d].label}: yama sağlam.`, id: m.id + 1 }));
+        await wait(900);
       }
-    };
-    requestAnimationFrame(tick);
+      if (alive.current) done();
+    })();
   }
 
   const toCell = (e: React.PointerEvent) => {
@@ -175,7 +251,7 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
       <div className={styles.frame}>
         <div
           ref={stageEl}
-          className={`${styles.stage} ${hud.rain && stage === 'work' ? styles.raining : ''}`}
+          className={`${styles.stage} ${(hud.rain && stage === 'work') || day?.weather === 'rain' ? styles.raining : ''} ${day?.weather === 'snow' ? styles.snowing : ''}`}
           onPointerDown={(e) => {
             if (stage !== 'work') return;
             e.currentTarget.setPointerCapture(e.pointerId);
@@ -190,17 +266,17 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
           onPointerCancel={() => (pointer.current.down = false)}
           onPointerLeave={() => (pointer.current.over = false)}
         >
-          <Backdrop rain={hud.rain && stage === 'work'} />
-          <canvas ref={canvas} width={W} height={H} className={styles.canvas} aria-label="Yolun kesiti ve çukur" />
+          <Backdrop rain={hud.rain && stage === 'work'} weather={day?.weather} />
+          <canvas ref={canvas} width={W * SCALE} height={H * SCALE} className={styles.canvas} aria-label="Yolun kesiti ve çukur" />
           <svg className={styles.overlay} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-            {overlay.rollerX >= 0 && <RollerSprite x={overlay.rollerX} />}
+            {overlay.rollerX >= 0 && <RollerSprite x={overlay.rollerX} y={overlay.rollerY} />}
             {stage === 'work' && overlay.over && tool !== 'roller' && (
               <g>
                 {isMaterial && overlay.down && <rect x={overlay.px - 2} y="0" width="4" height={Math.max(0, overlay.py - 3)} fill={SWATCH[tool]} opacity="0.35" />}
                 <circle cx={overlay.px} cy={overlay.py} r={tool === 'pump' ? 6 : tool === 'shovel' ? 4 : 3} fill="none" stroke={tool === 'asphalt' ? '#f0e6cf' : '#fff'} strokeWidth="0.5" strokeDasharray={tool === 'shovel' || tool === 'pump' ? '1.5 1' : undefined} />
               </g>
             )}
-            {stage !== 'work' && report && <CarSprite x={car.x} profile={report.profile} shake={car.shake} />}
+            {stage !== 'work' && profile && <CarSprite x={car.x} kind={car.kind} profile={profile} shake={car.shake} />}
           </svg>
           <p key={remark.id} className={styles.bubble}>
             <b>Muhtar:</b> {remark.text}
@@ -234,14 +310,15 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
               <div style={{ width: `${Math.min(100, (hud.cost / level.budget) * 100)}%` }} className={over ? styles.trackBad : undefined} />
             </div>
           </div>
-          {level.spec.rainSec !== undefined && <div className={styles.chip}>{hud.rain ? '🌧 Yağmur yağıyor' : '⛅ Yağmur dindi'}</div>}
+          {day && stage !== 'work' && <div className={styles.chip}>{{ sun: '☀️', rain: '🌧', snow: '❄️' }[day.weather]} {day.label}</div>}
+          {level.spec.rainSec !== undefined && stage === 'work' && <div className={styles.chip}>{hud.rain ? '🌧 Yağmur yağıyor' : '⛅ Yağmur dindi'}</div>}
           {left !== null && <div className={`${styles.chip} ${left < 20 ? styles.bad : ''}`}>Kurdeleye {Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')}</div>}
           <button type="button" className={styles.primary} disabled={stage !== 'work'} onClick={finish}>
             Trafiğe aç
           </button>
         </div>
       </div>
-      <p className={styles.help}>Basılı tut: seçili araç çalışır. Toprakla doldur, mıcırı yay, asfaltı dök; soğumadan silindiri üstünden geçir. Silindir yol hizasının üstünde kalanı önüne katar.</p>
+      <p className={styles.help}>Basılı tut: seçili araç çalışır. Dipteki molozu kürekle al, derin kısmı toprakla doldur; üst kısma mıcır ser, asfaltı en üste dök. Her katı ayrı silindirle: silindir yalnızca üstteki katı sıkıştırır, sıkışan dolgu çöker. Asfaltı yol hizasının biraz üstüne kadar dök ve soğumadan silindirle; silindirden sonra asfaltın soğumasını bekle, sonra trafiğe aç.</p>
     </div>
   );
 }
@@ -252,11 +329,17 @@ function Receipt({ level, world, report, last, onNext, onRetry }: { level: Level
     ['Çöken yer (sütun)', report.dips],
     ['İnce asfalt', report.thin],
     ['Mıcırsız', report.noGravel],
+    ['Asfaltsız (çıplak toprak)', report.bare],
+    ['Asfalt altında toprak', report.soilBase],
+    ['Sıkışmamış dolgu', report.unpacked],
+    ['Soğumadan açılan asfalt', report.hot],
     ['Sulu asfalt', report.wet],
     ['Yola saçılan (kova)', Math.round(report.spill / 4)],
   ];
+  const passed = report.score >= PASS_SCORE;
   const ref = useRef<HTMLButtonElement>(null);
-  useEffect(() => ref.current?.focus(), []);
+  const retry = useRef<HTMLButtonElement>(null);
+  useEffect(() => (passed ? ref : retry).current?.focus(), [passed]);
   return (
     <div className={styles.receiptWrap}>
       <div className={styles.receipt} role="dialog" aria-label="Hakediş fişi">
@@ -280,6 +363,18 @@ function Receipt({ level, world, report, last, onNext, onRetry }: { level: Level
             </tr>
           </tbody>
         </table>
+        {report.phases.length > 0 && (
+          <ol className={styles.days}>
+            {report.phases.map((p) => (
+              <li key={p.weather} className={p.dips > 0 ? styles.bad : undefined}>
+                <span>
+                  {{ sun: '☀️', rain: '🌧', snow: '❄️' }[p.weather]} {p.label}
+                </span>
+                <span>{p.dips === 0 ? 'sağlam' : `${p.dips} yer çöktü`}</span>
+              </li>
+            ))}
+          </ol>
+        )}
         <ul>
           {rows.map(([k, v]) => (
             <li key={k} className={v > 0 ? styles.bad : undefined}>
@@ -293,12 +388,16 @@ function Receipt({ level, world, report, last, onNext, onRetry }: { level: Level
           <b>{report.score}</b>
         </div>
         <p className={styles.verdict}>{verdict(report)}</p>
-        <p className={styles.after}>{level.after}</p>
+        {passed ? (
+          <p className={styles.after}>{level.after}</p>
+        ) : (
+          <p className={`${styles.after} ${styles.bad}`}>Kontrol mühendisi işi teslim almadı: en az {PASS_SCORE} puan gerekir. Çukuru baştan yap.</p>
+        )}
         <div className={styles.actions}>
-          <button type="button" className={styles.ghost} onClick={onRetry}>
+          <button ref={retry} type="button" className={styles.ghost} onClick={onRetry}>
             Baştan dök
           </button>
-          <button ref={ref} type="button" className={styles.primary} onClick={onNext}>
+          <button ref={ref} type="button" className={styles.primary} onClick={onNext} disabled={!passed}>
             {last ? 'Mesai bitti →' : 'Sonraki iş →'}
           </button>
         </div>

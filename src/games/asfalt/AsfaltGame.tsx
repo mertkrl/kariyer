@@ -5,6 +5,7 @@ import { markPlayed } from '../../arcade/progress';
 import { ShareButton } from '../../arcade/ShareButton';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
+import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { crewTitle, LEVELS, TOOL_LABEL } from './levels';
 import { Work } from './Work';
 import styles from './AsfaltGame.module.css';
@@ -16,9 +17,20 @@ import styles from './AsfaltGame.module.css';
 
 type Phase = { at: 'order'; n: number } | { at: 'work'; n: number; key: number } | { at: 'done' };
 
+/** Mesai kaydı: sıradaki iş ve biten işlerin puanları. Yarım kalan yama kaydedilmez; iş baştan açılır. */
+const SAVE_KEY = 'kariyerweb-asfalt-v1';
+interface Shift {
+  n: number;
+  scores: number[];
+}
+const isShift = (v: unknown): v is Shift =>
+  isRecord(v) && isIndex(v.n, LEVELS.length + 1) && Array.isArray(v.scores) && v.scores.length === v.n && v.scores.every((s) => typeof s === 'number');
+
 export function AsfaltGame() {
-  const [phase, setPhase] = useState<Phase>({ at: 'order', n: 0 });
-  const [scores, setScores] = useState<number[]>([]);
+  const [saved] = useState(() => readSlot(SAVE_KEY, isShift));
+  const [phase, setPhase] = useState<Phase>(() => (saved && saved.n < LEVELS.length ? { at: 'order', n: saved.n } : { at: 'order', n: 0 }));
+  const [scores, setScores] = useState<number[]>(() => (saved && saved.n < LEVELS.length ? saved.scores : []));
+  const resumed = saved !== null && saved.n > 0 && saved.n < LEVELS.length;
 
   useEffect(() => {
     audioEngine.setMusicMood('off');
@@ -33,7 +45,7 @@ export function AsfaltGame() {
   return (
     <div className={styles.app}>
       <header className={styles.top}>
-        <ClockOut risk={phase.at === 'work' ? 'Yarım kalan yama kaybolur.' : undefined} />
+        <ClockOut risk={phase.at === 'work' ? 'Yarım kalan yama kaybolur; biten işler kayıtlı.' : undefined} />
         <div className={styles.title}>
           <h1>Yama Ekibi</h1>
           <p>{phase.at === 'done' ? 'Mesai bitti' : `İş ${phase.n + 1}/${LEVELS.length} · ${LEVELS[phase.n].place}`}</p>
@@ -63,6 +75,22 @@ export function AsfaltGame() {
                 </>
               )}
             </dl>
+            {resumed && phase.n === saved.n && (
+              <p className={styles.place}>
+                Kaldığın yerden devam: {phase.n} iş bitti, ortalama {Math.round(scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length))}/100.{' '}
+                <button
+                  type="button"
+                  className={styles.link}
+                  onClick={() => {
+                    clearSlot(SAVE_KEY);
+                    setScores([]);
+                    setPhase({ at: 'order', n: 0 });
+                  }}
+                >
+                  Baştan başla
+                </button>
+              </p>
+            )}
             <button type="button" className={styles.primary} onClick={() => setPhase({ at: 'work', n: phase.n, key: Date.now() })}>
               Çukurun başına geç
             </button>
@@ -79,6 +107,8 @@ export function AsfaltGame() {
           onNext={(score) => {
             const next = [...scores.slice(0, phase.n), score];
             setScores(next);
+            if (phase.n + 1 < LEVELS.length) writeSlot(SAVE_KEY, { n: phase.n + 1, scores: next });
+            else clearSlot(SAVE_KEY);
             if (phase.n + 1 >= LEVELS.length) {
               // mesai bitti: salonun defterine tik ve unvan
               const t = crewTitle(next);

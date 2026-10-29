@@ -200,7 +200,7 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
       ),
     },
     web: { title: theme === 'luna' ? `ZAMAN BAKKALI ${year} — İnternet Gezgini` : theme === 'glass' ? 'zamanbakkali.com — Gezgin' : 'zaman — Market uygulaması', short: 'Zaman Bakkalı', body: <ShopApp key={year} year={year} persona={persona} onPaid={(k) => say('🛒', <><b>Zaman Bakkalı</b>: Sepetin {Math.round(k)} kat pahalandı.</>)} /> },
-    not: { title: 'bordro.txt — Not Defteri', short: 'bordro.txt', body: <NoteApp persona={persona} /> },
+    not: { title: `bordro_${year}.txt — Not Defteri`, short: 'bordro.txt', body: <NoteApp year={year} persona={persona} /> },
     muzik: {
       title: 'Medya Çalar',
       short: 'Medya Çalar',

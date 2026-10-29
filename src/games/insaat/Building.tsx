@@ -1,4 +1,4 @@
-import { FLOOR_SECONDS, FLOORS, STAGES, doneOf } from './data';
+import { FLOOR_SECONDS, FLOORS, PROJECT, STAGES, doneOf } from './data';
 import { clamp, COLS, DX, DY, FLOOR_H, GROUND, LEFT, mix, PIT, WIDTH, WINDOWS } from './geo';
 import s from './Scene.module.css';
 
@@ -9,7 +9,8 @@ import s from './Scene.module.css';
  * Ön cephenin yanında koyu bir yan cephe derinlik verir.
  */
 
-const KARKAS_AT = STAGES.find((st) => st.id === 'karkas')!.at;
+/** Kaba inşaatın başladığı an: şantiyeye göre değişmez ama takvimle birlikte okunur. */
+const karkasAt = () => STAGES.find((st) => st.id === 'karkas')!.at;
 /** Radye temelin kalınlığı (çukurun dibinde). */
 const RAFT = 22;
 
@@ -23,14 +24,12 @@ const PALETTE = {
   brick: '#b5654a',
   brickSide: '#8d4a35',
   insulation: '#ece9df',
-  paint: '#e7a98e',
-  paintSide: '#c78a70',
   frame: '#f6f2e8',
   glass: '#a9cde0',
 };
 
 /** Bir katın kaba inşaattaki ilerlemesi (0–1). */
-const floorOf = (w: number, k: number) => clamp((w - KARKAS_AT) / FLOOR_SECONDS - k);
+const floorOf = (w: number, k: number) => clamp((w - karkasAt()) / FLOOR_SECONDS - k);
 
 /**
  * `sun`: güneşin yatay yönü (-1 solda, 1 sağda) ve gölgenin koyuluğu (0 gece, 1 öğle).
@@ -108,8 +107,8 @@ export function Building({ w, sun }: { w: number; sun: { dir: number; strength: 
         const insul = clamp(paint * 2 * FLOORS - j);
         const painted = clamp((paint - 0.5) * 2 * FLOORS - j);
         const win = clamp(windows - k);
-        const face = painted > 0.99 ? PALETTE.paint : insul > 0.99 ? PALETTE.insulation : wall > 0.99 ? PALETTE.brick : null;
-        const side = painted > 0.99 ? PALETTE.paintSide : insul > 0.99 ? '#cfcbc0' : wall > 0.99 ? PALETTE.brickSide : null;
+        const face = painted > 0.99 ? PROJECT.paint : insul > 0.99 ? PALETTE.insulation : wall > 0.99 ? PALETTE.brick : null;
+        const side = painted > 0.99 ? PROJECT.paintSide : insul > 0.99 ? '#cfcbc0' : wall > 0.99 ? PALETTE.brickSide : null;
         return (
           <g key={k}>
             {/* yan cephe */}
@@ -162,7 +161,7 @@ export function Building({ w, sun }: { w: number; sun: { dir: number; strength: 
             {face && <rect x={LEFT} y={y1 + 8} width={WIDTH} height={FLOOR_H - 8} fill={face === PALETTE.brick ? 'url(#ins-brick)' : face} />}
             {/* mantolama ve boya ilerlerken: kısmi şerit */}
             {insul > 0 && insul < 1 && <rect x={LEFT} y={y1 + 8} width={WIDTH} height={(FLOOR_H - 8) * insul} fill={PALETTE.insulation} />}
-            {painted > 0 && painted < 1 && <rect x={LEFT} y={y1 + 8} width={WIDTH} height={(FLOOR_H - 8) * painted} fill={PALETTE.paint} />}
+            {painted > 0 && painted < 1 && <rect x={LEFT} y={y1 + 8} width={WIDTH} height={(FLOOR_H - 8) * painted} fill={PROJECT.paint} />}
 
             {/* pencere boşlukları, sonra doğrama */}
             {WINDOWS.map((dx, i) =>

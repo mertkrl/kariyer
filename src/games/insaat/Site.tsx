@@ -1,4 +1,4 @@
-import { DUE_YEARS, FLOOR_STEP, FLOORS, FLOOR_SECONDS, STAGES, doneOf, floorStepAt, stageAt } from './data';
+import { DUE_YEARS, FLOOR_STEP, FLOORS, FLOOR_SECONDS, PROJECT, STAGES, doneOf, floorStepAt, stageAt } from './data';
 import { clamp, FLOOR_H, GROUND, LEFT, PIT, WIDTH } from './geo';
 import { BrickTruck, DumpTruck, Excavator, LiftTruck, MixerTruck, PumpTruck } from './Machines';
 import s from './Scene.module.css';
@@ -15,7 +15,7 @@ const PUMP_X = 880;
 const BOOM_BASE = PUMP_X - 60;
 /** Sepetli platform aracının yeri: binanın sağında. */
 const LIFT_X = 800;
-const KARKAS_AT = STAGES.find((st) => st.id === 'karkas')!.at;
+const karkasAt = () => STAGES.find((st) => st.id === 'karkas')!.at;
 
 /** Vincin taşıdığı yük: demir demeti, kalıp tahtası ya da tuğla paleti. */
 export type CraneLoad = 'rebar' | 'form' | 'brick' | null;
@@ -114,7 +114,7 @@ export function Site({ w, working, night }: { w: number; working: boolean; night
   const windows = doneOf(w, 'pencere');
   const done = doneOf(w, 'teslim');
   const fs = floorStepAt(w);
-  const height = Math.min(FLOORS, Math.ceil(clamp((w - KARKAS_AT) / FLOOR_SECONDS / FLOORS) * FLOORS));
+  const height = Math.min(FLOORS, Math.ceil(clamp((w - karkasAt()) / FLOOR_SECONDS / FLOORS) * FLOORS));
   const top = GROUND - FLOOR_H * Math.max(1, height);
   // döküm anları: temelin ikinci yarısı ve her katın döküm adımı
   const pouring = (found > 0.45 && found < 1) || fs?.step === FLOOR_STEP.pour;
@@ -299,7 +299,7 @@ export function Site({ w, working, night }: { w: number; working: boolean; night
               {stage > 0 ? 'İNŞAAT ALANI' : 'SATIŞLAR BAŞLADI'}
             </text>
             <text x="67" y="21" textAnchor="middle" fontSize="8" fontWeight="800" fill="#3a362f" fontFamily="monospace">
-              HUZUR EVLERİ · 6 KAT
+              {PROJECT.sign}
             </text>
             <text x="67" y="34" textAnchor="middle" fontSize="6.5" fill="#3a362f" fontFamily="monospace">
               TESLİM:{' '}
@@ -330,8 +330,8 @@ export function Site({ w, working, night }: { w: number; working: boolean; night
         <g>
           <path d={`M ${LEFT - 30} ${GROUND - 70} Q ${LEFT + WIDTH / 2} ${GROUND - 40} ${LEFT + WIDTH + 30} ${GROUND - 70}`} fill="none" stroke="#c43c2c" strokeWidth="5" />
           <g className={s.banner}>
-            <rect x={LEFT + WIDTH / 2 - 80} y={GROUND - FLOOR_H * FLOORS - 150} width="160" height="34" rx="6" fill="#fbf8f0" stroke="#c43c2c" strokeWidth="3" />
-            <text x={LEFT + WIDTH / 2} y={GROUND - FLOOR_H * FLOORS - 127} textAnchor="middle" fontSize="16" fontWeight="800" fill="#c43c2c" fontFamily="monospace">
+            <rect x={LEFT + WIDTH / 2 - 80} y={Math.max(12, GROUND - FLOOR_H * FLOORS - 150)} width="160" height="34" rx="6" fill="#fbf8f0" stroke="#c43c2c" strokeWidth="3" />
+            <text x={LEFT + WIDTH / 2} y={Math.max(35, GROUND - FLOOR_H * FLOORS - 127)} textAnchor="middle" fontSize="16" fontWeight="800" fill="#c43c2c" fontFamily="monospace">
               HAYIRLI OLSUN
             </text>
           </g>

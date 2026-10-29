@@ -260,6 +260,8 @@ export interface Persona {
   role: string;
   purse: string;
   share: number;
+  /** "Senin maaşın": bugünkü aylık net maaş (₺); varsa cüzdan her yıl bunun enflasyonla karşılığıdır. */
+  salary?: number;
 }
 
 export const PERSONAS: Persona[] = [
@@ -267,6 +269,38 @@ export const PERSONAS: Persona[] = [
   { id: 'can', avatar: '🎒', name: 'Can', role: 'lise öğrencisi', purse: 'haftalık harçlık', share: 40 },
   { id: 'nuri', avatar: '👴', name: 'Nuri Amca', role: 'emekli', purse: 'pazar parası', share: 6 },
 ];
+
+/** Bugünkü maaşın o yıldaki karşılığı: aynı alım gücü, TÜFE'ye göre geri çekilir. */
+export const salaryIn = (salary: number, year: AnyYear) => (salary * CPI[year]) / CPI[NOW];
+
+/** Cüzdandaki para: maaşlı kişide o yılki maaş karşılığı (yuvarlak), ötekilerde asgari ücretin bir payı. */
+export function walletOf(year: Year, p: Persona): number {
+  if (!p.salary) return walletFor(year, p.share);
+  const raw = salaryIn(p.salary, year);
+  const step = raw < 100 ? 1 : raw < 1000 ? 5 : 10;
+  return Math.max(step, Math.round(raw / step) * step);
+}
+
+/**
+ * Maaşının yıllar boyunca karşılığı: o yılki tutarı, o yılın asgari ücretinin kaç katı ettiği ve
+ * kaç ekmek aldığı. Alım gücü TÜFE'ye göre sabit tutulur; değişen, asgari ücrete ve ekmeğe göre yerin.
+ */
+export function salaryTable(salary: number) {
+  const bread = ITEMS.find((i) => i.id === 'ekmek')!;
+  return ALL_YEARS.map((year) => {
+    const amount = salaryIn(salary, year);
+    return { year, amount, wages: amount / MIN_WAGE[year], breads: Math.floor(amount / bread.prices[year]) };
+  });
+}
+
+export function salaryPersona(salary: number): Persona {
+  return { id: `maas-${salary}`, avatar: '💼', name: 'Sen', role: 'kendi maaşın', purse: 'aylık maaşının karşılığı', share: MIN_WAGE[NOW] / salary, salary };
+}
+
+/** Özel kullanıcı: 2005 cüzdanı elle yazılır, `share` o yılın asgari ücretine oranından gelir. */
+export function customPersona(budget2005: number): Persona {
+  return { id: `ozel-${budget2005}`, avatar: '✏️', name: 'Özel', role: 'kendi bütçesi', purse: 'cüzdan', share: MIN_WAGE[START_YEAR] / budget2005 };
+}
 
 /** Geçmişi Bil, saatin gösterdiği yıl için: her ürün bir kez, kaydırıcı cevabın 3–6 kat altından üstüne. */
 export function makeGuessRoundsFor(seed: number, year: Year, n = GUESS_ROUNDS): GuessRound[] {

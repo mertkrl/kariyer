@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShareButton } from '../../../arcade/ShareButton';
-import { ITEMS, MIN_WAGE, NOW, YEARS, YEAR_NOTE, type AnyYear, type Year } from '../data';
-import { cpiMultiple, duration, money, realChange, successOf, times, vsInflation, titleFor, workMinutes, type Mode, type Persona, type RoundLog } from '../model';
+import { MIN_WAGE, NOW, YEARS, YEAR_NOTE, type Year } from '../data';
+import { MONTH_HOURS, money, salaryTable, successOf, titleFor, type Mode, type Persona, type RoundLog } from '../model';
 import a from '../Apps.module.css';
 
 /*
@@ -9,28 +9,37 @@ import a from '../Apps.module.css';
  * değiştirir) ve masaların karnesi (unvan, puan, döküm, paylaşım kartı).
  */
 
-const simit = ITEMS.find((i) => i.id === 'simit')!;
-
-export function NoteApp({ persona }: { persona: Persona }) {
-  const rows = ([...YEARS, NOW] as AnyYear[]).map((y) => `${y}  ${money(MIN_WAGE[y], y).padStart(16)}   1 simit = ${duration(workMinutes(simit.prices[y], y))}`);
-  // 2002'den bugüne en hızlı ve en yavaş pahalananlar, enflasyona göre
-  const ranked = [...ITEMS].sort((x, y) => realChange(y, 2002) - realChange(x, 2002));
-  const line = (it: (typeof ITEMS)[number]) => `  ${it.name.padEnd(16)} ${times(it.prices[NOW] / it.prices[2002]).padStart(9)}  ${vsInflation(realChange(it, 2002))}`;
+/**
+ * bordro.txt: saatin gösterdiği yılın net asgari ücreti, aylık, günlük ve saatlik. Oyuncu kendi
+ * maaşıyla girdiyse altında maaşının yıl yıl karşılığı: tutar, asgari ücretin kaç katı, kaç ekmek.
+ */
+export function NoteApp({ year, persona }: { year: Year; persona?: Persona }) {
+  const wage = MIN_WAGE[year];
+  const line = (k: string, v: number) => `${k.padEnd(14)}${money(v, year).padStart(22)}`;
   const text = [
-    'ASGARİ ÜCRET BORDROSU (NET, AYLIK)',
-    `${persona.name} için hazırlandı`,
-    '='.repeat(44),
-    ...rows,
-    '='.repeat(44),
-    `2002'den bugüne TÜFE: ${times(cpiMultiple(2002))}`,
-    'En hızlı pahalananlar:',
-    ...ranked.slice(0, 4).map(line),
-    'En yavaş pahalananlar:',
-    ...ranked.slice(-4).map(line),
-    '='.repeat(44),
-    "Not: 2005'te altı sıfır atıldı.",
-    '1.000.000 TL = 1 YTL',
-    'Ayda 225 saat çalışma üzerinden.',
+    `ASGARİ ÜCRET BORDROSU · ${year}`,
+    '='.repeat(36),
+    line('Net aylık', wage),
+    line('Günlük', wage / 30),
+    line('Saatlik', wage / MONTH_HOURS),
+    '='.repeat(36),
+    `Ayda ${MONTH_HOURS} saat çalışma üzerinden.`,
+    ...(persona?.salary
+      ? [
+          '',
+          `SENİN MAAŞIN · ${NOW}: ${money(persona.salary, NOW)}`,
+          'Aynı alım gücü (TÜFE), yıl yıl:',
+          '-'.repeat(44),
+          `${'Yıl'.padEnd(6)}${'Maaşın'.padStart(18)}${'Asg. ücret'.padStart(11)}${'Ekmek'.padStart(9)}`,
+          ...salaryTable(persona.salary).map(
+            (r) =>
+              `${String(r.year).padEnd(6)}${money(r.amount, r.year).padStart(18)}${`${r.wages.toLocaleString('tr-TR', { maximumFractionDigits: 1 })}×`.padStart(11)}${r.breads.toLocaleString('tr-TR').padStart(9)}${r.year === year ? '  ◀' : ''}`,
+          ),
+          '-'.repeat(44),
+          'Asgari ücretin kaç katı: o yıl ne kadar "iyi" kazandığın.',
+          'Ekmek: aynı alım gücüyle kaç ekmek aldığın.',
+        ]
+      : []),
   ].join('\n');
   return (
     <div>

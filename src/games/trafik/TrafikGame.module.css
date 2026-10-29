@@ -642,3 +642,75 @@
     animation: none;
   }
 }
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ilk kavşağın kısa anlatımı: haritanın ortasında, kontrolörün üstünde */
+.coach {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  z-index: 6;
+  width: min(420px, calc(100% - 32px));
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #fffdf6;
+  color: #1d2733;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -50%);
+}
+
+.coach small {
+  color: #6b6455;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.coach p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.coach div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* tutanakta kol kol bekleme: kırmızıya döndükçe korna artar */
+.horns {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 12px;
+  font-size: 13px;
+}
+
+.hornRow {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 2fr minmax(90px, auto);
+  align-items: center;
+  gap: 8px;
+}
+
+.hornRow i {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.hornRow em {
+  display: block;
+  height: 100%;
+}

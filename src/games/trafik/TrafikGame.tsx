@@ -4,6 +4,7 @@ import { hrefOf } from '../../arcade/route';
 import { markPlayed } from '../../arcade/progress';
 import { ShareButton } from '../../arcade/ShareButton';
 import { audioEngine } from '../../audio/audioEngine';
+import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { LEVELS, PASS_SCORE, shiftTitle } from './levels';
 import { Play } from './Play';
 import styles from './TrafikGame.module.css';
@@ -16,13 +17,24 @@ import styles from './TrafikGame.module.css';
 
 type Phase = { at: 'order'; n: number; key: number } | { at: 'play'; n: number; key: number } | { at: 'done' };
 
+/** Vardiya kaydı: sıradaki kavşak ve bitenlerin puanları. Yarım kalan kavşak baştan açılır. */
+const SAVE_KEY = 'kariyerweb-trafik-v1';
+interface Shift {
+  n: number;
+  scores: number[];
+}
+const isShift = (v: unknown): v is Shift =>
+  isRecord(v) && isIndex(v.n, LEVELS.length) && Array.isArray(v.scores) && v.scores.length === v.n && v.scores.every((s) => typeof s === 'number');
+
 export function TrafikGame() {
   // `#/trafik?kavsak=3`: doğrudan o kavşaktan başlar (paylaşılan bağlantı ve deneme için)
+  const [saved] = useState(() => readSlot(SAVE_KEY, isShift));
   const [phase, setPhase] = useState<Phase>(() => {
     const n = Number(new URLSearchParams(window.location.hash.split('?')[1]).get('kavsak'));
-    return { at: 'order', n: n >= 1 && n <= LEVELS.length ? Math.floor(n) - 1 : 0, key: 0 };
+    if (n >= 1 && n <= LEVELS.length) return { at: 'order', n: Math.floor(n) - 1, key: 0 };
+    return { at: 'order', n: saved?.n ?? 0, key: 0 };
   });
-  const [scores, setScores] = useState<number[]>([]);
+  const [scores, setScores] = useState<number[]>(() => saved?.scores ?? []);
 
   useEffect(() => {
     audioEngine.setMusicMood('off');
@@ -42,6 +54,8 @@ export function TrafikGame() {
   const next = (n: number, score: number) => {
     const all = [...scores.slice(0, n), score];
     setScores(all);
+    if (n + 1 < LEVELS.length) writeSlot(SAVE_KEY, { n: n + 1, scores: all });
+    else clearSlot(SAVE_KEY);
     if (n + 1 >= LEVELS.length) markPlayed('trafik', shiftTitle(all).title);
     setPhase(n + 1 < LEVELS.length ? { at: 'order', n: n + 1, key: Date.now() } : { at: 'done' });
   };
@@ -49,11 +63,11 @@ export function TrafikGame() {
   return (
     <div className={styles.app}>
       {level && phase.at !== 'done' && (
-        <Play key={phase.key} level={level} briefing={phase.at === 'order'} last={phase.n === LEVELS.length - 1} onRetry={() => setPhase({ at: 'play', n: phase.n, key: Date.now() })} onNext={(score) => next(phase.n, score)} />
+        <Play key={phase.key} level={level} briefing={phase.at === 'order'} last={phase.n === LEVELS.length - 1} coach={phase.n === 0} onRetry={() => setPhase({ at: 'play', n: phase.n, key: Date.now() })} onNext={(score) => next(phase.n, score)} />
       )}
 
       <header className={styles.top}>
-        <ClockOut tone="dark" risk={phase.at === 'play' ? 'Yarım kalan vardiya kaybolur.' : undefined} />
+        <ClockOut tone="dark" risk={phase.at === 'play' ? 'Yarım kalan kavşak kaybolur; biten kavşaklar kayıtlı.' : undefined} />
         <div className={styles.title}>
           <h1>Kavşak Amiri</h1>
           <p>{phase.at === 'done' ? 'Vardiya bitti' : `Kavşak ${phase.n + 1}/${LEVELS.length} · ${LEVELS[phase.n].place}`}</p>
@@ -83,6 +97,22 @@ export function TrafikGame() {
               <dd>{PASS_SCORE} / 100</dd>
             </dl>
             <p className={styles.tipLine}>{level.tip}</p>
+            {saved && saved.n > 0 && phase.n === saved.n && (
+              <p className={styles.place}>
+                Kaldığın yerden devam: {saved.n} kavşak bitti.{' '}
+                <button
+                  type="button"
+                  className={styles.link}
+                  onClick={() => {
+                    clearSlot(SAVE_KEY);
+                    setScores([]);
+                    setPhase({ at: 'order', n: 0, key: Date.now() });
+                  }}
+                >
+                  Baştan başla
+                </button>
+              </p>
+            )}
             <button type="button" className={styles.primary} onClick={() => setPhase({ at: 'play', n: phase.n, key: phase.key })}>
               Kontrolörü aç
             </button>

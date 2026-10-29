@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { markPlayed } from '../../arcade/progress';
+import { clearSlot, readSlot, writeSlot } from '../../arcade/saveSlot';
+import { isShopSave, SAVE_KEY, type ShopSave } from './save';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import {
   START_REPUTATION,
+  VILLAGERS,
   WEATHER,
+  awayOf,
   basketOn,
+  coolOff,
   clockText,
   dayVisits,
   effectiveType,
@@ -104,6 +109,9 @@ export function BakkalGame() {
   const [pages, setPages] = useState<Pages>(EMPTY_PAGES);
   const [lineNo, setLineNo] = useState(0);
   const [memories, setMemories] = useState<Memories>({});
+  /** Sabah, kini birikip kasabanın marketine gidenler: o gün dükkâna uğramazlar. */
+  const [away, setAway] = useState<string[]>([]);
+  const [saved, setSaved] = useState(() => readSlot(SAVE_KEY, isShopSave));
   const [debts, setDebts] = useState<Debt[]>([]);
   const [paidToday, setPaidToday] = useState<Debt[]>([]);
   /** Bu akşam vadesi dolup batan veresiyeler. */
@@ -152,7 +160,7 @@ export function BakkalGame() {
 
   const weather = weatherOn(seed, day);
   const event = eventOn(seed, day);
-  const visits = useMemo(() => weekDay(dayVisits(seed, day, repAtDayStart), day), [seed, day, repAtDayStart]);
+  const visits = useMemo(() => weekDay(dayVisits(seed, day, repAtDayStart, weatherOn(seed, day), away), day), [seed, day, repAtDayStart, away]);
   const visit = phase === 'shop' ? visits[idx] : undefined;
   // istenenlerden rafta olanlar satılır; kalmayanlar için müşteri söylenir
   const shelf = visit ? split(visit.items, stock) : null;
@@ -353,6 +361,8 @@ export function BakkalGame() {
     if (back) setDeeds((v) => [...v, `Nazmiye Nine'nin oğlu ${LOAN} ₺ borcu gönderdi.`]);
     move('power', -power);
     move('tax', -tax);
+    // markete gidenlerin kini gece biraz soğur
+    setMemories((m) => coolOff(m, away));
     setStale(stock.ekmek ?? 0);
     setSpoiled(night.spoiled);
     setStock(night.stock);
@@ -410,6 +420,7 @@ export function BakkalGame() {
       setLostToday([]);
       // gece köy biraz unutur: itibar başlangıca doğru döner
       const morningRep = forget(rep);
+      setAway(awayOf(memories));
       setRep(morningRep);
       setRepAtDayStart(morningRep);
       setTill({ amount: null, open: false });
@@ -437,6 +448,7 @@ export function BakkalGame() {
       setLog([]);
       setPages(EMPTY_PAGES);
       setMemories({});
+      setAway([]);
       setDebts([]);
       setPaidToday([]);
       setLostToday([]);
@@ -467,6 +479,50 @@ export function BakkalGame() {
   const playing = phase === 'shop' || phase === 'dayEnd';
   const unpaid = debts.filter((d) => !d.paid && !d.lost).reduce((s, d) => s + d.amount, 0);
   const written = debts.filter((d) => d.lost).reduce((s, d) => s + d.amount, 0);
+  // her akşam gün sonu kartı açılınca kayıt; dükkân kapanınca kayıt silinir
+  useEffect(() => {
+    if (phase === 'final') {
+      clearSlot(SAVE_KEY);
+      return;
+    }
+    if (phase !== 'dayEnd') return;
+    const snap: ShopSave = { v: 1, seed, day, rep, repAtDayStart, money, flow, history, daySales, log, pages, memories, away, debts, paidToday, lostToday, stock, bread, order, stale, spoiled, short, coins, ethics, verdicts, deeds, lent };
+    writeSlot(SAVE_KEY, snap);
+  }, [phase, seed, day, rep, repAtDayStart, money, flow, history, daySales, log, pages, memories, away, debts, paidToday, lostToday, stock, bread, order, stale, spoiled, short, coins, ethics, verdicts, deeds, lent]);
+
+  /** Kayıttan dönüş: aynı akşamın gün sonu kartı açılır. */
+  const resume = (s: ShopSave) =>
+    raise(() => {
+      setSeed(s.seed);
+      setDay(s.day);
+      setRep(s.rep);
+      setRepAtDayStart(s.repAtDayStart);
+      setMoney(s.money);
+      setFlow(s.flow);
+      setHistory(s.history);
+      setDaySales(s.daySales);
+      setLog(s.log);
+      setPages(s.pages);
+      setMemories(s.memories);
+      setAway(s.away);
+      setDebts(s.debts);
+      setPaidToday(s.paidToday);
+      setLostToday(s.lostToday);
+      setStock(s.stock);
+      setBread(s.bread);
+      setOrder(s.order);
+      setStale(s.stale);
+      setSpoiled(s.spoiled);
+      setShort(s.short);
+      setCoins(s.coins);
+      setEthics(s.ethics);
+      setVerdicts(s.verdicts);
+      setDeeds(s.deeds);
+      setLent(s.lent);
+      setSaved(null);
+      setPhase('dayEnd');
+    });
+
   // dükkân kapandı: salonun defterine tik ve karne
   useEffect(() => {
     if (phase !== 'final') return;
@@ -493,11 +549,24 @@ export function BakkalGame() {
           />
         )}
       </ShopScene>
-      <TopBar intro={phase === 'intro'} risk={playing ? 'Kasa ve defter kaybolur; dükkân kapanır.' : undefined} day={day} clock={clockText(hour)} weather={WEATHER[weather].label} money={money} rep={rep} muted={muted} onMute={toggleMute} />
+      <TopBar intro={phase === 'intro'} risk={playing ? 'Dükkân her akşam kaydedilir; bugünün satışları kaybolur.' : undefined} day={day} clock={clockText(hour)} weather={WEATHER[weather].label} money={money} rep={rep} muted={muted} onMute={toggleMute} />
 
       <Shutter down={phase !== 'shop' && !rising} />
 
-      {phase === 'intro' && !rising && <IntroCard onOpen={() => raise(() => setPhase('shop'))} busy={rising} />}
+      {phase === 'intro' && !rising && (
+        <IntroCard
+          onOpen={() =>
+            raise(() => {
+              clearSlot(SAVE_KEY);
+              setSaved(null);
+              setPhase('shop');
+            })
+          }
+          busy={rising}
+          resumeDay={saved?.day}
+          onResume={saved ? () => resume(saved) : undefined}
+        />
+      )}
 
       {phase === 'shop' && visit && basket && shelf && (
         <Till
@@ -538,6 +607,7 @@ export function BakkalGame() {
           unpaid={unpaid}
           paidToday={paidToday}
           lostToday={lostToday}
+          away={VILLAGERS.filter((v) => away.includes(v.id)).map((v) => v.name)}
           dues={expensesOn(day + 1)}
           left={RETURN_DAY - day}
           stale={stale}

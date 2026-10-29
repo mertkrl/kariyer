@@ -271,6 +271,20 @@ export function remember(m: Memories, who: string, mood: Mood, mild = false): Me
   };
 }
 
+/** Bu kadar kin biriktiren köylü kasabadaki markete gider; her gece biraz soğur ve döner. */
+export const AWAY_GRUDGE = 4;
+
+/** Sabah dükkânı küsüp kasabanın marketine gidenler (turistler hariç). */
+export const awayOf = (m: Memories): string[] => Object.entries(m).filter(([, v]) => v.grudge >= AWAY_GRUDGE).map(([k]) => k);
+
+/** Gece: markete giden köylünün kini biraz soğur. */
+export function coolOff(m: Memories, away: readonly string[]): Memories {
+  if (!away.length) return m;
+  const out = { ...m };
+  for (const who of away) if (out[who]) out[who] = { ...out[who], grudge: Math.max(0, out[who].grudge - 1) };
+  return out;
+}
+
 /**
  * Müşterinin o günkü etkin tipi: köy olayı tavanı oynatır, kin tavanı düşürür, sadakat biraz
  * yükseltir. Tavan market fiyatının altına inmez.
@@ -321,7 +335,7 @@ export interface Visit {
  * Günün müşterileri: tohumdan; sayı itibara, havaya ve olaya göre. Her köylü günde en fazla bir
  * kez gelir: kim geleceği köy karıştırılarak seçilir, tanıdıklar başka günlerde yine uğrar.
  */
-export function dayVisits(seed: number, day: number, reputation: number, weather: Weather = weatherOn(seed, day)): Visit[] {
+export function dayVisits(seed: number, day: number, reputation: number, weather: Weather = weatherOn(seed, day), away: readonly string[] = []): Visit[] {
   const r = rng(seed * 31 + day);
   const event = eventOn(seed, day);
   const favor = event.favor;
@@ -330,7 +344,11 @@ export function dayVisits(seed: number, day: number, reputation: number, weather
     const j = Math.floor(r() * (i + 1));
     [village[i], village[j]] = [village[j], village[i]];
   }
-  return village.slice(0, customersFor(reputation, event, weather)).map((villager) => {
+  // küsüp markete gidenler bugün gelmez; sıra yine aynı karışır, yalnızca onlar düşer
+  return village
+    .filter((v) => !away.includes(v.id))
+    .slice(0, customersFor(reputation, event, weather))
+    .map((villager) => {
     const customer = typeOf(villager.type);
     let pool = customer.wants ? PRODUCTS.filter((p) => customer.wants!.includes(p.id)) : PRODUCTS;
     // olay günü istenen ürünler havuza bir kez daha girer: daha sık çıkar

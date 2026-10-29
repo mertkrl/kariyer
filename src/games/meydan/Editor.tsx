@@ -37,6 +37,12 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
   const [picked, setPicked] = useState<Pick | null>(null);
   const [compare, setCompare] = useState(false);
   const [split, setSplit] = useState(50);
+  // önce/sonra sınırı resmin üstünden de sürüklenir
+  const splitting = useRef(false);
+  const splitAt = (e: ReactPointerEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setSplit(Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100))));
+  };
   const [note, setNote] = useState<string | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const [shot, setShot] = useState(false);
@@ -305,10 +311,25 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
               className={styles.scene}
               role="img"
               aria-label={`${place.district} ${place.title}: ${compare ? 'önce ve sonra' : 'düzenleme alanı'}`}
-              onPointerMove={onMove}
-              onPointerUp={onUp}
-              onPointerCancel={onUp}
-              onPointerDown={() => !compare && setPicked(null)}
+              onPointerMove={(e) => {
+                if (compare) {
+                  if (splitting.current) splitAt(e);
+                } else onMove(e);
+              }}
+              onPointerUp={() => {
+                splitting.current = false;
+                onUp();
+              }}
+              onPointerCancel={() => {
+                splitting.current = false;
+                onUp();
+              }}
+              onPointerDown={(e) => {
+                if (!compare) return setPicked(null);
+                splitting.current = true;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                splitAt(e);
+              }}
             >
               <SceneDefs />
               {compare ? (
@@ -321,6 +342,11 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
                     <SceneLayers place={place} design={place.original} />
                   </g>
                   <rect x={(W * split) / 100 - 1.5} width="3" height={H} fill="#fff" />
+                  {/* tutamak: sürüklenebildiğini gösterir */}
+                  <g transform={`translate(${(W * split) / 100} ${H / 2})`} style={{ cursor: 'ew-resize' }}>
+                    <circle r="22" fill="#fff" stroke="#1d2733" strokeOpacity="0.25" strokeWidth="2" />
+                    <path d="M -8 -7 L -14 0 L -8 7 M 8 -7 L 14 0 L 8 7" fill="none" stroke="#1d2733" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </g>
                   <Tag x={16} text="ÖNCE" />
                   <Tag x={W - 96} text="SONRA" />
                 </>
