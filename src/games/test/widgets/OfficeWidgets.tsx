@@ -191,17 +191,6 @@ export function RaiseWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
                 ⚠ Bu hücre İK tarafından kilitlenmiştir. Değeriniz "öneri" olarak kaydedildi.
               </span>
             )}
-            <button
-              className={styles.ghost}
-              onClick={() => {
-                click();
-                setValue('');
-                setProposed(null);
-                setLocked(false);
-              }}
-            >
-              Yeniden öner
-            </button>
           </>
         ) : (
           <>

@@ -30,7 +30,7 @@ export function QuestionWidget({ q, onAnswer, selected = null }: WidgetProps & {
   if (w?.type === 'order') return <OrderWidget q={q} onAnswer={onAnswer} />;
   if (w?.type === 'tap') return <TapWidget q={q} everyMs={w.everyMs} onAnswer={onAnswer} />;
   if (w?.type === 'calendar') return <CalendarWidget q={q} onAnswer={onAnswer} />;
-  if (w?.type === 'chat') return <ChatWidget q={q} w={w} onAnswer={onAnswer} />;
+  if (w?.type === 'chat') return <ChatWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'runaway') return <RunawayWidget q={q} onAnswer={onAnswer} />;
   if (w?.type === 'screenshare') return <ScreenshareWidget q={q} w={w} onAnswer={onAnswer} />;
   if (w?.type === 'history') return <HistoryWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
@@ -81,7 +81,7 @@ function SliderWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<ExamWidget,
       ) : (
         <div className={styles.sliderValue}>
           <b className="mono">{value}</b> {w.unit}
-          {value >= w.max && <span className={styles.badgeGold}>🏆 Örnek çalışan</span>}
+          {option === q.answer && <span className={styles.badgeGold}>🏆 Örnek çalışan</span>}
         </div>
       )}
       <input
@@ -248,8 +248,9 @@ function CalendarWidget({ q, onAnswer }: WidgetProps) {
 }
 
 /** Gece mesajı: yönetici yazar, bir an "yazıyor…" görünür, ikinci mesaj gelir; sonra cevap sırası sende. */
-function ChatWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<ExamWidget, { type: 'chat' }> }) {
-  const [shown, setShown] = useState(1);
+function ChatWidget({ q, w, onAnswer, selected }: WidgetProps & { w: Extract<ExamWidget, { type: 'chat' }>; selected: number | null }) {
+  // daha önce cevaplanmışsa mesajlar yeniden yazılmaz
+  const [shown, setShown] = useState(selected === null ? 1 : w.messages.length);
   useEffect(() => {
     if (shown >= w.messages.length) return;
     const id = window.setTimeout(() => setShown((n) => n + 1), 1600);
@@ -275,7 +276,8 @@ function ChatWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<ExamWidget, {
         {q.options.map((o, i) => (
           <button
             key={i}
-            className={styles.reply}
+            className={`${styles.reply} ${selected === i ? styles.replyOn : ''}`}
+            aria-pressed={selected === i}
             disabled={typing}
             onClick={() => {
               click();

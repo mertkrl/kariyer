@@ -12,7 +12,8 @@ export function SectionIntro({ no, of, title, questions, seconds, brief, onStart
   const [step, setStep] = useState<'about' | 'practice'>('about');
   const [picked, setPicked] = useState<number | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => heading.current?.focus(), [step]);
+  const promptRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => (step === 'about' ? heading : promptRef).current?.focus(), [step]);
   const p = brief.practice;
   const right = p.answer === null || picked === p.answer;
 
@@ -29,9 +30,11 @@ export function SectionIntro({ no, of, title, questions, seconds, brief, onStart
         <p className={styles.eyebrow}>
           Bölüm {no} / {of} · {step === 'about' ? 'Tanıtım' : 'Örnek soru'}
         </p>
-        <h1 ref={heading} tabIndex={-1} className={styles.h1}>
-          {step === 'about' ? title : 'Örnek soru'}
-        </h1>
+        {step === 'about' && (
+          <h1 ref={heading} tabIndex={-1} className={styles.h1}>
+            {title}
+          </h1>
+        )}
 
         {step === 'about' ? (
           <>
@@ -51,7 +54,7 @@ export function SectionIntro({ no, of, title, questions, seconds, brief, onStart
               {brief.rules.map((r) => (
                 <li key={r}>{r}</li>
               ))}
-              <li>Süre, örnek sorudan sonra “Bölüme başla” dediğinizde başlar. İlerideki sorulara atlanamaz; bölüm içinde geçtiğiniz sorulara dönebilirsiniz, biten bölümlere dönemezsiniz.</li>
+              <li>Süre, örnek sorudan sonra “Bölüme başla” dediğinizde başlar. Sorular sırayla gelir; boş geçebilir, bölüm içinde geçtiğiniz sorulara dönebilirsiniz, biten bölümlere dönemezsiniz.</li>
             </ul>
             <div className={si.end}>
               <button className={`${styles.primary} ${styles.big}`} onClick={() => setStep('practice')}>
@@ -61,8 +64,9 @@ export function SectionIntro({ no, of, title, questions, seconds, brief, onStart
           </>
         ) : (
           <>
-            <p className={si.note}>Bu soru puanlanmaz. Soru tipini tanımanız için hazırlanmıştır.</p>
-            <h2 className={si.prompt}>{p.prompt}</h2>
+            <h2 ref={promptRef} tabIndex={-1} className={si.prompt}>
+              {p.prompt}
+            </h2>
             {p.figure && <p className={`${si.figure} mono`}>{p.figure}</p>}
             <QuestionWidget q={{ id: `practice-${brief.id}`, kind: 'sözel', prompt: p.prompt, options: p.options, answer: p.answer ?? 0, sensible: 0, why: '' }} selected={picked} onAnswer={setPicked} />
             {picked !== null && (

@@ -9,6 +9,8 @@
  */
 
 import { GENERAL_QUESTIONS } from './generalQuestions';
+import { COGNITIVE_QUESTIONS } from './cognitiveQuestions';
+import { EXTRA_QUESTIONS } from './extraQuestions';
 import { MORE_QUESTIONS } from './moreQuestions';
 import { CULTURE_QUESTIONS } from './cultureQuestions';
 import { FOURTH_WAVE } from './fourthWave';
@@ -64,7 +66,7 @@ export type ExamWidget =
   /** Kaçan düğme: 0. şık imleçten kaçar, bir süre sonra yorulur; 1. şık hep yerinde durur. */
   | { type: 'runaway' }
   /**
-   * Sözleşme: maddeler kaydırılarak okunur, tuzak madde işaretlenebilir; sonunda imzalanır ya da
+   * Sözleşme: maddeler kaydırılarak okunur (`trap`, içindeki sorunlu maddedir); sonunda imzalanır ya da
    * imzalanmaz. Sonuç contractOption ile şıkka düşer.
    */
   | { type: 'contract'; title: string; clauses: string[]; trap: number }
@@ -378,6 +380,8 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
   ...MORE_QUESTIONS,
   ...CULTURE_QUESTIONS,
   ...GENERAL_QUESTIONS,
+  ...COGNITIVE_QUESTIONS,
+  ...EXTRA_QUESTIONS,
   ...FOURTH_WAVE,
 ];
 
@@ -427,13 +431,12 @@ export function screenshareOption(tabs: readonly ScreenTab[], closed: ReadonlySe
 }
 
 /**
- * Sözleşmenin sonucu: imzalanmadıysa 3; tuzak madde işaretlenip imzalandıysa 2; sonuna kadar
- * okunup imzalandıysa 1; okunmadan imzalandıysa 0.
+ * Sözleşmenin sonucu: okunmadan imzalandıysa 0; sonuna kadar okunup imzalandıysa 1; okunup
+ * imzalanmadıysa 2; okunmadan imzalanmadıysa 3.
  */
-export function contractOption(read: boolean, flagged: boolean, signed: boolean): number {
-  if (!signed) return 3;
-  if (flagged) return 2;
-  return read ? 1 : 0;
+export function contractOption(read: boolean, signed: boolean): number {
+  if (signed) return read ? 1 : 0;
+  return read ? 2 : 3;
 }
 
 /** Kaydırılan bir kart: gerçek bir hak ya da sağlıklı bir tutum mu (`real`), yoksa bedava bir süs mü. */

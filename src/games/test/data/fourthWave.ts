@@ -356,15 +356,6 @@ export const FOURTH_WAVE: ExamQuestion[] = [
     why: 'Deniz seviyesinde 100 °C.',
   },
   {
-    id: 'planets',
-    kind: 'genel kültür',
-    prompt: 'Güneş sisteminde kaç gezegen vardır?',
-    options: ['8', '9', 'Bir tane: Genel Merkez', 'Q4 sonunda revize edilecek'],
-    answer: 3,
-    sensible: 0,
-    why: 'Sekiz. Plüton 2006\'da cüce gezegen sayıldı.',
-  },
-  {
     id: 'pasha-breed',
     kind: 'genel kültür',
     prompt: "Genel Müdürümüzün köpeği Paşa'nın cinsi nedir?",

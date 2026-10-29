@@ -6,7 +6,7 @@ import type { ExamQuestion } from './questions';
  * yazıldı.
  */
 
-const CONTRACT_OPTIONS = ['Okumadan imzaladım', 'Sonuna kadar okuyup imzaladım', 'Sorunlu maddeye şerh düşüp imzaladım', 'İmzalamadım'];
+const CONTRACT_OPTIONS = ['Okumadan imzaladım', 'Sonuna kadar okuyup imzaladım', 'Okuyup imzalamadım', 'Okumadan imzalamadım'];
 const STAMP_OPTIONS = ['Hepsini onayladım', 'Her masrafı hakkına göre damgaladım', 'Kararlarım karışık oldu', 'Bütçeyi korudum: ekibin masraflarını reddettim'];
 const INVITE_OPTIONS = ['Kabul ettim', 'Belki dedim', 'Gerekçe yazıp reddettim', 'Reddetmeye çalıştım, vazgeçtim'];
 
@@ -19,7 +19,7 @@ export const DESK_QUESTIONS: ExamQuestion[] = [
     options: CONTRACT_OPTIONS,
     answer: 0,
     sensible: 2,
-    why: 'Okumadan imza atmam. Hafta sonumu "esnek mesai havuzuna" devreden maddeye şerh düşerim; o madde zaten yasaya aykırı.',
+    why: 'Okumadan imza atmam. Hafta sonumu "esnek mesai havuzuna" devreden bir maddeyle sözleşmeyi imzalamam; o madde zaten yasaya aykırı.',
     widget: {
       type: 'contract',
       title: 'Belirsiz Süreli İş Sözleşmesi',
@@ -69,7 +69,7 @@ export const DESK_QUESTIONS: ExamQuestion[] = [
     options: CONTRACT_OPTIONS,
     answer: 0,
     sensible: 2,
-    why: 'On yıl hiçbir yerde çalışmamayı kimse kabul edemez; böyle bir rekabet yasağı zaten geçersizdir. Şerh düşerim.',
+    why: 'On yıl hiçbir yerde çalışmamayı kimse kabul edemez; böyle bir rekabet yasağı zaten geçersizdir. Okur ve imzalamam.',
     widget: {
       type: 'contract',
       title: 'Rekabet Yasağı Ek Protokolü',
@@ -156,13 +156,13 @@ export const DESK_QUESTIONS: ExamQuestion[] = [
   {
     id: 'unofficial-group',
     kind: 'simülasyon',
-    prompt: 'Saat 22:41. "Resmî olmayan" ekip grubuna mesaj düştü. Cevabınızı seçin.',
-    hint: 'Gayriresmî gruplar ekip ruhunu güçlendirir.',
+    prompt: 'Saat 22:41. "Kesinlikle İş Grubu Değildir" adlı WhatsApp grubunda, nedense yine iş konuşuluyor. Cevabınızı seçin.',
+    hint: 'Grubun adı yönetim kurulu kararıyla belirlenmiştir.',
     options: ["Yarın 09:00'da oradayım.", "Tabii ki, 07:45'te oradayım!", 'Grubu sessize alırım', '👍'],
     answer: 1,
     sensible: 0,
     why: 'Mesaim 09:00\'da başlıyor. Gece 22:41\'de "sadece bilgi" diye mesai saati değişmez.',
-    widget: { type: 'chat', from: 'Ekip 🚀 (Resmî Değil)', at: '22:41', messages: ["Arkadaşlar yarın 08:00'de herkes ofiste olsun 🙏", 'Bu grup resmî değil, sadece bilgi 😊'] },
+    widget: { type: 'chat', from: 'Kesinlikle İş Grubu Değildir 🚀', at: '22:41', messages: ["Arkadaşlar yarın 08:00'de herkes ofiste olsun 🙏", 'Bu bir iş mesajı değil tabii, sadece bilgi 😊'] },
     seconds: 25,
   },
   {
@@ -192,7 +192,7 @@ export const DESK_QUESTIONS: ExamQuestion[] = [
   {
     id: 'standup-nod',
     kind: 'simülasyon',
-    prompt: 'Günlük toplantı (5 dakika planlandı, 48. dakika). Gerçek bir iş güncellemesi ekrandayken başınızı sallayın.',
+    prompt: '5 dakika sürmesi planlanan günlük toplantının 48. dakikasındasınız. Ekrana gerçek bir iş güncellemesi geldiğinde başınızı sallayın.',
     hint: 'Günlük toplantılarımız çevik metodolojiye uygundur.',
     options: ['Dünkü hatayı düzelttim, bugün testteyim.', 'Bunu ayrı bir toplantıda konuşalım.', 'Hepimiz aynı sayfada mıyız?', 'Bunu offline konuşalım.'],
     answer: 2,

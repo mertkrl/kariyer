@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { budgetOption, contractOption, EXAM_QUESTIONS, EXAM_SECTIONS, passwordOption, passwordRuleOk, screenshareOption, sectionOf, shutdownOption, sliderOption, stampOption, swipeOption } from '../src/games/test/data/questions';
 import { BRIEFINGS } from '../src/games/test/data/briefings';
-import { ROBOT_CHALLENGES, robotPassed } from '../src/games/test/data/robot';
-import { canShuffle, pickExam, QUESTIONS_PER_SECTION, reportNo, shuffleOptions, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
+import { puzzleSolved, ROBOT_CHALLENGES, ROBOT_PUZZLES, robotPassed } from '../src/games/test/data/robot';
+import { canShuffle, highlightsOf, pickExam, QUESTIONS_PER_SECTION, reportNo, shuffleOptions, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
 
 test('her soru bir bölüme düşer, anahtar ve sağduyu farklı geçerli şıklardır', () => {
   for (const q of EXAM_QUESTIONS) {
@@ -159,11 +159,11 @@ test('havuz büyük: 120 soru, her bölüm iki tur boyunca tekrarsız, soruları
 
 const widgetsOf = <T extends string>(type: T) => EXAM_QUESTIONS.filter((q) => q.widget?.type === type);
 
-test('sözleşme: okumadan imza anahtar, tuzağa şerh sağduyu; tuzak gerçek bir madde', () => {
-  assert.equal(contractOption(false, false, true), 0);
-  assert.equal(contractOption(true, false, true), 1);
-  assert.equal(contractOption(true, true, true), 2);
-  assert.equal(contractOption(true, true, false), 3);
+test('sözleşme: okumadan imza anahtar, okuyup imzalamamak sağduyu; tuzak gerçek bir madde', () => {
+  assert.equal(contractOption(false, true), 0);
+  assert.equal(contractOption(true, true), 1);
+  assert.equal(contractOption(true, false), 2);
+  assert.equal(contractOption(false, false), 3);
   const qs = widgetsOf('contract');
   assert.ok(qs.length >= 3);
   for (const q of qs) {
@@ -219,4 +219,25 @@ test('asansör ve bütçe: sessizlik geçerli bir şık, bütçede en büyük pa
   assert.equal(budgetOption([10, 20, 70]), 2);
   assert.equal(budgetOption([40, 40, 20]), 3);
   for (const q of widgetsOf('budget')) if (q.widget?.type === 'budget') assert.equal(q.options.length, q.widget.lines.length + 1, q.id);
+});
+
+test('robot bulmacaları: doğru cevap geçer, boş ve yanlış geçmez', () => {
+  for (const p of ROBOT_PUZZLES) {
+    const right = p.kind === 'text' ? `  ${p.accept[0].toLocaleUpperCase('tr-TR')} ` : p.kind === 'slider' ? 100 : p.answer;
+    const wrong = p.kind === 'text' ? 'robot' : p.kind === 'slider' ? 10 : (p.answer + 1) % p.options.length;
+    assert.ok(puzzleSolved(p, right), p.id);
+    assert.ok(!puzzleSolved(p, wrong), p.id);
+    assert.ok(!puzzleSolved(p, null), p.id);
+  }
+});
+
+test('rapor gözlemleri: adayın kendi cevaplarından, en çok bir sağduyu satırı', () => {
+  const exam = pickExam();
+  const qs = exam.flatMap((s) => s.questions);
+  const keyOnly = highlightsOf(qs, qs.map((q) => q.answer));
+  assert.equal(keyOnly.length, 3);
+  assert.ok(keyOnly.every((h) => h.tone === 'key'));
+  const mixed = highlightsOf(qs, qs.map((q, i) => (i % 2 ? q.sensible : q.answer)));
+  assert.equal(mixed.filter((h) => h.tone === 'sense').length, 1);
+  assert.equal(highlightsOf(qs, qs.map(() => null)).length, 0);
 });

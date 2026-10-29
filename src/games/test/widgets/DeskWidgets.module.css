@@ -122,26 +122,6 @@
   display: block;
 }
 
-.flagged {
-  background: #fff1c9;
-}
-
-.flag {
-  margin-top: 4px;
-  padding: 2px 8px;
-  border: 1px dashed #c9b27a;
-  border-radius: 6px;
-  background: none;
-  color: #8a6d1f;
-  font: 600 12px var(--font-body);
-  cursor: pointer;
-}
-
-.flag[aria-pressed='true'] {
-  border-style: solid;
-  background: #ffe7a3;
-}
-
 .signLine {
   margin: 16px 0 4px;
   color: var(--a-muted);

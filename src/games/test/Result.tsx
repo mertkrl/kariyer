@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ShareButton } from '../../arcade/ShareButton';
 import * as sfx from './sfx';
 import { markPlayed } from '../../arcade/progress';
-import { PASS_MARK, reportNo, scoreExam, sectionScores, verdictOf, type ExamAnswer, type ExamSection } from './logic';
+import { highlightsOf, PASS_MARK, reportNo, scoreExam, sectionScores, verdictOf, type ExamAnswer, type ExamSection } from './logic';
 import base from './TestGame.module.css';
 import styles from './Result.module.css';
 
@@ -31,9 +31,10 @@ const MARK_TEXT: Record<Mark, string> = { key: 'anahtarla aynı', sense: 'sağdu
 export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSection[]; answers: ExamAnswer[]; robots?: number; onAgain: () => void }) {
   const questions = exam.flatMap((s) => s.questions);
   const r = scoreExam(questions, answers);
-  const v = verdictOf(r.company);
+  const v = verdictOf(r.company, r.blank / Math.max(1, questions.length));
   const sections = sectionScores(exam, answers);
   const passed = r.company >= PASS_MARK;
+  const notes = highlightsOf(questions, answers);
   const [open, setOpen] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
@@ -99,8 +100,21 @@ export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSecti
 
         <p className={styles.verdict}>
           <b>Platform yorumu:</b> {v.line}
-          {r.blank > 0 && ` ${r.blank} boş soru "kararsızlık" olarak işlendi.`}
+          {r.blank > 0 && r.blank * 2 <= questions.length && ` ${r.blank} boş soru "kararsızlık" olarak işlendi.`}
         </p>
+
+        {notes.length > 0 && (
+          <div className={styles.observe}>
+            <b>Öne çıkan gözlemler</b>
+            <ul>
+              {notes.map((h) => (
+                <li key={h.prompt} className={h.tone === 'key' ? styles.obsKey : styles.obsSense}>
+                  “{h.prompt}” sorusuna <q>{h.option}</q> dedi. <em>{h.tone === 'key' ? 'Örnek tutum.' : 'Sorgulama eğilimi; ekip ahengi için izlenmeli.'}</em>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <dl className={styles.facts}>
           <div>
@@ -113,10 +127,12 @@ export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSecti
             <dt>Anahtarla aynı</dt>
             <dd className="mono">{questions.filter((x, i) => answers[i] === x.answer).length}</dd>
           </div>
-          <div>
-            <dt>Robot testi</dt>
-            <dd className="mono">{robots}</dd>
-          </div>
+          {robots > 0 && (
+            <div>
+              <dt>Robot testi</dt>
+              <dd className="mono">{robots}</dd>
+            </div>
+          )}
         </dl>
 
         <footer className={styles.foot}>
@@ -181,7 +197,7 @@ export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSecti
                   <i style={{ width: `${sections[si].sense}%` }} />
                 </span>
                 <span className={`${styles.rowNums} mono`}>
-                  {sections[si].company} / {sections[si].sense}
+                  Şirket {sections[si].company} · Sağduyu {sections[si].sense}
                 </span>
               </div>
               <div className={styles.chips}>

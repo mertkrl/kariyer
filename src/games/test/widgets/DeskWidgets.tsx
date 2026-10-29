@@ -40,7 +40,6 @@ function Previous({ q, selected }: { q: ExamQuestion; selected: number | null })
 export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'contract' }>>) {
   const box = useRef<HTMLDivElement>(null);
   const [read, setRead] = useState(false);
-  const [flags, setFlags] = useState<Set<number>>(new Set());
   const [done, setDone] = useState<'signed' | 'refused' | null>(null);
   const check = () => {
     const el = box.current;
@@ -48,19 +47,10 @@ export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
   };
   // kaydırmaya gerek kalmadan sığıyorsa zaten okunmuştur
   useEffect(check, []);
-  const toggle = (i: number) => {
-    sfx.click();
-    setFlags((f) => {
-      const n = new Set(f);
-      if (n.has(i)) n.delete(i);
-      else n.add(i);
-      return n;
-    });
-  };
   const finish = (signed: boolean) => {
     sfx.stamp(signed);
     setDone(signed ? 'signed' : 'refused');
-    onAnswer(contractOption(read, flags.has(w.trap), signed));
+    onAnswer(contractOption(read, signed));
   };
   return (
     <div className={styles.contract}>
@@ -71,11 +61,8 @@ export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
       <div ref={box} className={styles.clauses} onScroll={check} tabIndex={0} aria-label="Sözleşme maddeleri">
         <ol>
           {w.clauses.map((c, i) => (
-            <li key={i} className={flags.has(i) ? styles.flagged : undefined}>
+            <li key={i}>
               <span>{c}</span>
-              <button type="button" className={styles.flag} aria-pressed={flags.has(i)} onClick={() => toggle(i)} disabled={done !== null}>
-                {flags.has(i) ? '✎ Şerh düşüldü' : '✎ Şerh düş'}
-              </button>
             </li>
           ))}
         </ol>
@@ -83,7 +70,7 @@ export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
       </div>
       {done ? (
         <p className={`${styles.result} ${done === 'signed' ? styles.ok : styles.no}`}>
-          {done === 'signed' ? (flags.size ? 'Şerhli olarak imzalandı. İK "şerh" kelimesini araştırıyor.' : 'İmzalandı. Aileye hoş geldiniz.') : 'İmzalanmadı. Dosyanız "uyum riski" olarak işaretlendi.'}
+          {done === 'signed' ? 'İmzalandı. Aileye hoş geldiniz.' : 'İmzalanmadı. Dosyanız "uyum riski" olarak işaretlendi.'}
         </p>
       ) : (
         <div className={styles.actions}>

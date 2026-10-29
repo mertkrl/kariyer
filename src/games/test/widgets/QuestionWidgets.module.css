@@ -290,7 +290,7 @@
 
 /* gece mesajı */
 .phone {
-  max-width: 340px;
+  max-width: 640px;
   margin: 0 auto;
   border-radius: 18px;
   background: #0f1622;
@@ -340,6 +340,7 @@
 
 .replies {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   padding: 0 12px 12px;
 }
@@ -359,9 +360,20 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.replyOn {
+  border-color: #6ea8ff;
+  background: rgba(110, 168, 255, 0.22);
+}
+
 .reply:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+@media (max-width: 520px) {
+  .replies {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* kaçan düğme */

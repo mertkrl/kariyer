@@ -310,7 +310,7 @@
 /* bölüm satırı: solda başlık ve iki çubuk, sağda soru kutucukları */
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(140px, 1fr) minmax(0, auto);
   gap: 18px;
   align-items: center;
   padding: 10px 14px;
@@ -320,8 +320,8 @@
 
 .rowInfo {
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: 'title nums' 'bar1 bar1' 'bar2 bar2';
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'title' 'nums' 'bar1' 'bar2';
   gap: 4px 10px;
   min-width: 0;
 }
@@ -334,7 +334,6 @@
 
 .rowNums {
   grid-area: nums;
-  justify-self: end;
   font-size: 11px;
   color: var(--a-muted);
 }
@@ -372,6 +371,7 @@
 
 .chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -583,4 +583,39 @@
     grid-template-columns: minmax(0, 1fr);
     justify-content: start;
   }
+}
+
+/* raporun kişisel gözlemleri: adayın kendi cevaplarından */
+.observe {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8fafd;
+  font-size: 13px;
+}
+
+.observe ul {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.observe li {
+  padding-left: 10px;
+  border-left: 3px solid var(--a-line);
+  line-height: 1.45;
+}
+
+.observe em {
+  color: var(--a-muted);
+}
+
+.observe li.obsKey {
+  border-left-color: var(--a-blue);
+}
+
+.observe li.obsSense {
+  border-left-color: var(--a-ok);
 }

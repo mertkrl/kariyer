@@ -480,15 +480,75 @@ summary.h2 {
 }
 
 .sound {
-  display: grid;
-  place-items: center;
-  width: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   height: 34px;
+  padding: 0 12px 0 9px;
   border: 1px solid var(--a-line);
-  border-radius: 50%;
+  border-radius: 999px;
   background: #fff;
-  font-size: 15px;
+  color: var(--a-blue);
+  font: 600 12.5px/1 inherit;
+  font-family: inherit;
   cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.sound svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sound .speaker {
+  fill: currentColor;
+}
+
+/* ses açıkken dalgalar sırayla yayılır */
+.wave {
+  animation: wave 1.6s ease-in-out infinite;
+}
+
+.wave2 {
+  animation-delay: 0.25s;
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.sound:hover {
+  border-color: var(--a-blue);
+  background: var(--a-blue-soft);
+}
+
+.sound[aria-pressed='false'] {
+  color: var(--a-muted);
+  background: var(--a-line-soft);
+}
+
+.sound[aria-pressed='false'] .cross {
+  stroke: var(--a-bad);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave {
+    animation: none;
+  }
 }
 
 .sound:focus-visible {
@@ -572,4 +632,36 @@ summary.h2 {
     padding: 12px 14px 20px;
     font-size: 11px;
   }
+}
+
+/* girişte yarım kalan test kartı */
+.resume {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--a-blue);
+  border-radius: 12px;
+  background: var(--a-blue-soft);
+}
+
+.resume p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.resume div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.linkBtn {
+  border: 0;
+  background: none;
+  color: var(--a-muted);
+  font: 14px var(--font-body);
+  text-decoration: underline;
+  cursor: pointer;
 }

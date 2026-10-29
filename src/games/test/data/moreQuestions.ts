@@ -267,7 +267,6 @@ export const MORE_QUESTIONS: ExamQuestion[] = [
     id: 'bridge-day',
     kind: 'simülasyon',
     prompt: 'Mesai günleri Pazartesi–Cuma. Bu hafta Çarşamba ve Perşembe resmi tatil. Sizce Cuma da resmi tatil olmalı mı?',
-    figure: 'PZT ●   SAL ●   ÇAR ✕   PER ✕   CUM ?',
     hint: 'Not: Kurumumuzda köprü günleri yıllık izinden düşülür. Pazartesi ve Salı da değerlendirmeye açıktır.',
     options: [
       'Hayır. Cuma gelirim; Çarşamba ve Perşembe de uzaktan bağlanırım',
