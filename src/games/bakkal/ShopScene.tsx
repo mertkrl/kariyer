@@ -1,15 +1,18 @@
 import type { ReactNode } from 'react';
 import type { Weather } from './data';
+import type { Stock } from './week';
 import { CounterBody, CounterTop } from './Counter';
-import { Fridge, Shelves } from './Goods';
+import { BreadCase, Fridge, Shelves } from './Goods';
 import { darknessAt, skyAt } from './sky';
 import { COUNTER_Y, Extras } from './ShopDecor';
+import { Street } from './Street';
 import styles from './ShopScene.module.css';
 
 /*
  * Dükkânın içi, tezgâhın arkasından bakış: tam ekran. Arkada sıva duvar ve lambri, solda camı
  * buğulu ahşap kapı, ortada tavana kadar ürün rafları, sağda ışıklı içecek dolabı, tavanda çıplak
- * ampul. Önde tezgâh: üstünde yazar kasa, şeker kavanozları, ekmek sepeti ve kefeli terazi.
+ * ampul; rafla dolabın arasında camlı ekmek dolabı. Önde tezgâh: ortada yazar kasa, şeker kavanozları,
+ * hesap makinesi, veresiye defteri, çay bardağı ve uyuyan kedi.
  * Ürünler emoji değil, çizimdir; renkleri tohumlu rastgeleyle seçilir, her açılışta aynıdır.
  * Müşteri (children) duvarla tezgâh arasında durur.
  */
@@ -23,8 +26,6 @@ const H = 900;
 export const FIT = 'translate(160 180) scale(0.8)';
 const fitY = (y: number) => 180 + y * 0.8;
 
-
-
 function Door({ hour, weather }: { hour: number; weather: Weather }) {
   const sunX = 140 + Math.max(0, Math.min(1, (hour - 8) / 11)) * 170;
   const sunY = 300 - Math.sin(Math.max(0, Math.min(1, (hour - 8) / 11)) * Math.PI) * 90;
@@ -33,7 +34,7 @@ function Door({ hour, weather }: { hour: number; weather: Weather }) {
     <g>
       <rect x="90" y="150" width="270" height="540" fill="#4f3220" />
       <rect x="110" y="168" width="230" height="522" fill="url(#doorWood)" />
-      {/* cam: dışarısı köy, kapı kasasına kırpılır */}
+      {/* cam: dışarısı köy sokağı (Street.tsx), kapı kasasına kırpılır */}
       <clipPath id="glass">
         <rect x="132" y="190" width="186" height="240" />
       </clipPath>
@@ -54,33 +55,7 @@ function Door({ hour, weather }: { hour: number; weather: Weather }) {
           <ellipse cx="174" cy="217" rx="14" ry="7" />
           <ellipse cx="250" cy="245" rx="18" ry="5" />
         </g>
-        {/* uzak dağlar: havadan soluklaşan üç kat */}
-        <path d="M132 300 L170 262 L196 282 L232 248 L270 280 L300 266 L318 276 V430 H132Z" fill="#a9b9c6" />
-        <path d="M132 318 L162 296 L200 314 L240 290 L282 312 L318 300 V430 H132Z" fill="#8ea38a" />
-        <path d="M132 336 Q190 318 240 330 T318 326 V430 H132Z" fill="#7c9a5e" />
-        {/* kavaklar */}
-        {[146, 158, 300].map((x, i) => (
-          <g key={x}>
-            <rect x={x - 1.5} y={318 - i * 4} width="3" height="18" fill="#5b4330" />
-            <ellipse cx={x} cy={300 - i * 4} rx="6" ry="24" fill={i % 2 ? '#56743d' : '#4a6834'} />
-          </g>
-        ))}
-        {/* köy evi: taş duvar, kiremit çatı, baca, pencere */}
-        <rect x="208" y="318" width="54" height="34" fill="#e7dcc6" />
-        <rect x="208" y="344" width="54" height="8" fill="#cbbd9f" />
-        <path d="M202 320 L235 296 L268 320 Z" fill="#b5523b" />
-        <path d="M202 320 L235 296 L268 320" fill="none" stroke="#8c3b2a" strokeWidth="2" />
-        <rect x="248" y="296" width="7" height="14" fill="#8c7b6b" />
-        <rect x="216" y="326" width="12" height="11" fill="#5e7d93" />
-        <rect x="238" y="330" width="12" height="22" fill="#6e4526" />
-        {/* toprak yol ve taş duvar */}
-        <path d="M200 430 Q214 380 232 352 L240 352 Q250 390 280 430 Z" fill="#c9a87a" />
-        <path d="M132 372 H200 V382 H132 Z" fill="#b8ad98" />
-        {[136, 150, 164, 178, 192].map((x) => (
-          <rect key={x} x={x} y="373" width="12" height="4" rx="1" fill="#d3c8b2" />
-        ))}
-        <path d="M132 400 Q160 390 200 404 V430 H132Z" fill="#6d8c4f" />
-        <path d="M280 430 Q300 396 318 400 V430Z" fill="#6d8c4f" />
+        <Street night={night} snow={weather === 'snow'} />
         {night && <rect x="132" y="190" width="186" height="240" fill="rgba(10,15,40,.45)" />}
         {weather === 'rain' && (
           <g className={styles.rain} stroke="rgba(220,235,255,.7)" strokeWidth="1.5">
@@ -96,7 +71,6 @@ function Door({ hour, weather }: { hour: number; weather: Weather }) {
             ))}
           </g>
         )}
-        {weather === 'snow' && <path d="M132 400 Q200 390 318 398 V430 H132Z" fill="#f4f7f9" />}
         {/* camın yansıması */}
         <path d="M140 190 L190 190 L140 300 Z" fill="rgba(255,255,255,.14)" />
       </g>
@@ -129,7 +103,7 @@ function Door({ hour, weather }: { hour: number; weather: Weather }) {
   );
 }
 
-export function ShopScene({ children, hour = 12, weather = 'sunny', catAwake = false, onPet, onCalc }: { children?: ReactNode; hour?: number; weather?: Weather; catAwake?: boolean; onPet?: () => void; onCalc?: () => void }) {
+export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12, weather = 'sunny', onPet, onCalc, onBook }: { children?: ReactNode; stock: Stock; gumActive?: boolean; onGum?: () => void; hour?: number; weather?: Weather; onPet?: () => void; onCalc?: () => void; onBook?: () => void }) {
   const sky = skyAt(hour, weather);
   const dark = darknessAt(hour, weather);
   return (
@@ -223,10 +197,6 @@ export function ShopScene({ children, hour = 12, weather = 'sunny', catAwake = f
             <stop offset="0" stopColor="#875a36" />
             <stop offset="1" stopColor="#5a3a20" />
           </linearGradient>
-          <pattern id="weave" width="12" height="8" patternUnits="userSpaceOnUse">
-            <path d="M0 4 q3 -4 6 0 t6 0" stroke="#8a6232" strokeWidth="2" fill="none" />
-            <path d="M0 8 q3 -4 6 0 t6 0" stroke="#d1a066" strokeWidth="1" fill="none" />
-          </pattern>
           <radialGradient id="bread" cx=".4" cy=".35" r=".7">
             <stop offset="0" stopColor="#f0c27b" />
             <stop offset="1" stopColor="#b8742f" />
@@ -256,8 +226,9 @@ export function ShopScene({ children, hour = 12, weather = 'sunny', catAwake = f
 
         <g transform={FIT}>
         <Door hour={hour} weather={weather} />
-        <Shelves />
-        <Fridge />
+        <Shelves stock={stock} />
+        <BreadCase bread={stock.ekmek ?? 0} />
+        <Fridge cheese={stock.peynir ?? 0} />
         <Extras />
 
         {/* duvar saati */}
@@ -288,7 +259,7 @@ export function ShopScene({ children, hour = 12, weather = 'sunny', catAwake = f
       <svg className={`${styles.layer} ${styles.front}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
         <CounterBody y={fitY(COUNTER_Y)} width={W} height={H} />
         <g transform={FIT}>
-          <CounterTop catAwake={catAwake} onPet={onPet} onCalc={onCalc} />
+          <CounterTop onPet={onPet} onCalc={onCalc} onBook={onBook} gum={stock.sakiz ?? 0} gumActive={gumActive} onGum={onGum} />
         </g>
         {/* akşam ve kötü havada oda kararır; ampulün çevresi aydınlık kalır */}
         <rect width={W} height={H} fill="#1a1530" opacity={dark} pointerEvents="none" />

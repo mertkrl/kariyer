@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useFloating } from './drag';
 import * as sfx from './sfx';
 import styles from './Register.module.css';
 
 /*
- * Tezgâhın önündeki yazar kasa: fiyat kasanın tuşlarına basılarak girilir (klavyenin rakam
+ * Tezgâhın ortasındaki, müşterinin önündeki yazar kasa: fiyat kasanın tuşlarına basılarak girilir (klavyenin rakam
  * tuşları da çalışır). Yeşil ekran girileni gösterir; "=" fiyatı müşteriye söyler. Satış olunca
- * kasadan fiş çıkar. Ayrıca tezgâhta oyuncunun kendi hesabı için bir hesap makinesi durur.
+ * çekmece açılır. Ayrıca tezgâhta oyuncunun kendi hesabı için bir hesap makinesi durur.
  */
 
 const typing = (e: KeyboardEvent) => e.target instanceof HTMLElement && /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
 
 /**
  * Tezgâhın üstündeki yazar kasa: tuşlarına basılarak fiyat girilir, kırmızı ONAY tuşu fiyatı
- * müşteriye söyler. Ekran girileni (ya da son satışı) gösterir; satışta çekmece açılır ve fiş
- * kasanın tepesindeki ağızdan yukarı doğru çıkar. Fiyat beklenmiyorken tuşlar kilitlidir.
+ * müşteriye söyler. Ekran girileni (ya da son satışı) gösterir; satışta çekmece açılır. Fiyat beklenmiyorken tuşlar kilitlidir.
  */
 export function CashRegister({
   value,
@@ -23,7 +23,6 @@ export function CashRegister({
   label,
   shown,
   open,
-  receipt,
 }: {
   value: string;
   onChange: Dispatch<SetStateAction<string>>;
@@ -33,7 +32,6 @@ export function CashRegister({
   /** Fiyat beklenmiyorken ekranda yazan tutar. */
   shown: number | null;
   open: boolean;
-  receipt?: ReactNode;
 }) {
   // hızlı basılan tuşlar kaybolmasın: değer her zaman en güncel hâlinden güncellenir
   const latest = useRef(value);
@@ -70,10 +68,9 @@ export function CashRegister({
   const seat = useCounterSeat();
   const screen = active ? `${value || '0'},00` : shown === null ? '0,00' : `${shown},00`;
   return (
-    <div className={`${styles.cash} ${active ? styles.live : ''}`} style={{ bottom: seat.bottom, transform: `scale(${seat.scale})` }} role="group" aria-label="Yazar kasa">
+    <div className={`${styles.cash} ${active ? styles.live : ''}`} style={{ bottom: seat.bottom, transform: `translateX(-50%) scale(${seat.scale})` }} role="group" aria-label="Yazar kasa">
       <div className={styles.printer}>
         <span className={styles.slot} />
-        {receipt}
       </div>
       <div className={styles.tower}>
         <div className={styles.lcd} aria-live="polite">
@@ -108,7 +105,8 @@ export function CashRegister({
 function useCounterSeat() {
   const read = () => {
     const s = Math.max(window.innerWidth / 1600, window.innerHeight / 900);
-    return { bottom: Math.round(168 * s) - 4, scale: Math.min(1.15, Math.max(0.6, s * 1.05)) };
+    // müşterinin yüzünü örtmesin diye küçük: sahne ölçeğinin dörtte üçü kadar
+    return { bottom: Math.round(168 * s) - 4, scale: Math.min(0.85, Math.max(0.48, s * 0.74)) };
   };
   const [seat, setSeat] = useState(read);
   useEffect(() => {
@@ -117,35 +115,6 @@ function useCounterSeat() {
     return () => window.removeEventListener('resize', on);
   }, []);
   return seat;
-}
-
-/** Kasadan çıkan fiş: yazıcı sesiyle aşağı doğru uzar. */
-export function Receipt({ items, total, day, time, no, credit }: { items: string[]; total: number; day: number; time: string; no: number; credit?: boolean }) {
-  useEffect(() => {
-    sfx.receipt();
-  }, []);
-  return (
-    <div className={styles.receipt} aria-label="Fiş">
-      <div className={styles.paper}>
-        <b>HACI EMMİ BAKKALİYE</b>
-        <small>Yukarıkavaklı · Fiş no {String(no).padStart(4, '0')}</small>
-        <small>
-          {day}. gün · {time}
-        </small>
-        <hr />
-        {items.map((i) => (
-          <p key={i}>{i}</p>
-        ))}
-        <hr />
-        <p className={styles.total}>
-          <span>TOPLAM</span>
-          <span>{total},00 ₺</span>
-        </p>
-        <small>{credit ? 'VERESİYE · deftere yazıldı' : 'NAKİT'}</small>
-        <small>Yine bekleriz</small>
-      </div>
-    </div>
-  );
 }
 
 interface CalcState {
@@ -172,9 +141,10 @@ function calcPress(x: CalcState, k: string): CalcState {
   return { shown: chained ? fmt(acc) : x.shown, acc, op: k, fresh: true };
 }
 
-/** Tezgâhtaki hesap makinesi: dört işlem; oyuncunun kendi hesabı için. */
+/** Tezgâhtaki hesap makinesi: dört işlem; oyuncunun kendi hesabı için. Üst şeridinden sürüklenir, boyu değişmez. */
 export function Calculator({ onClose }: { onClose: () => void }) {
   const [st, setSt] = useState<CalcState>(CALC0);
+  const { box, onMove } = useFloating('hesap', () => ({ x: Math.max(8, window.innerWidth / 2 - 420), y: 110, w: 196, h: 0 }));
   const press = (k: string) => {
     sfx.key();
     setSt((x) => calcPress(x, k));
@@ -183,8 +153,8 @@ export function Calculator({ onClose }: { onClose: () => void }) {
 
   const keys = ['AC', '÷', '×', '−', '7', '8', '9', '+', '4', '5', '6', '=', '1', '2', '3', '0', ','];
   return (
-    <div className={styles.calc} role="dialog" aria-label="Hesap makinesi">
-      <div className={styles.calcHead}>
+    <div className={styles.calc} style={{ left: box.x, top: box.y }} role="dialog" aria-label="Hesap makinesi">
+      <div className={styles.calcHead} onPointerDown={onMove} title="Tutup sürükle">
         <span>HESAP-8 · güneş pilli</span>
         <button onClick={onClose} aria-label="Hesap makinesini kapat">
           ×

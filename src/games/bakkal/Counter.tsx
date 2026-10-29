@@ -1,10 +1,11 @@
 import { COUNTER_Y, Cat } from './ShopDecor';
+import { GumMachine } from './GumMachine';
 import styles from './ShopScene.module.css';
 
 /*
  * Tezgâh ve üstündekiler. Gövde tam genişlikte (CounterBody), eşyalar sahnenin ortalanmış
- * koordinatlarında (CounterTop): hesap makinesi, cam şeker kavanozları, gazete, hasır ekmek sepeti, uyuyan kedi ve ibreli
- * pirinç terazi. Yazar kasa tezgâhın sol önünde, tıklanabilir ayrı bir bileşendir (Register.tsx).
+ * koordinatlarında (CounterTop): solda uyuyan kedi ve sakız makinesi; sağda yan yana
+ * veresiye defteri ve hesap makinesi. İkisi de tıklanınca açılır. Yazar kasa tezgâhın ortasında, müşterinin önündedir; tıklanabilir ayrı bir bileşendir (Register.tsx).
  */
 
 export function CounterBody({ y, width, height }: { y: number; width: number; height: number }) {
@@ -31,49 +32,30 @@ export function CounterBody({ y, width, height }: { y: number; width: number; he
   );
 }
 
-function Jar({ x, c }: { x: number; c: string }) {
-  return (
-    <g transform={`translate(${x} ${COUNTER_Y})`}>
-      <ellipse cx="0" cy="2" rx="34" ry="6" fill="rgba(0,0,0,.3)" />
-      {Array.from({ length: 16 }, (_, i) => (
-        <g key={i}>
-          <circle cx={-19 + (i % 5) * 9.5} cy={-8 - Math.floor(i / 5) * 11} r="5.5" fill={c} />
-          <circle cx={-21 + (i % 5) * 9.5} cy={-10 - Math.floor(i / 5) * 11} r="1.8" fill="rgba(255,255,255,.6)" />
-        </g>
-      ))}
-      <path d="M-28 0 V-58 Q-28 -74 -16 -76 H16 Q28 -74 28 -58 V0 Z" fill="url(#glass)" stroke="rgba(255,255,255,.55)" strokeWidth="2" />
-      <rect x="-22" y="-90" width="44" height="14" rx="4" fill="url(#metal)" />
-      <rect x="-12" y="-96" width="24" height="7" rx="3" fill="#9aa3a9" />
-      <rect x="-22" y="-68" width="5" height="62" rx="2.5" fill="rgba(255,255,255,.45)" />
-    </g>
-  );
-}
 
-/** Hasır ekmek sepeti: somunlar sepetin içinde yatar, ön kenarın arkasında kalır; uçları taşmaz. */
-function BreadBasket() {
-  const loaves = [
-    { x: -52, y: -30, r: -4 },
-    { x: 34, y: -32, r: 5 },
-    { x: -8, y: -42, r: -2 },
-  ];
+/** Tezgâhta yatan kalın, bez ciltli veresiye defteri: üstünde tükenmez, ağzından kırmızı ayraç sarkar. Tıklanınca açılır. */
+function DeskLedger({ onOpen }: { onOpen?: () => void }) {
   return (
-    <g transform={`translate(1000 ${COUNTER_Y})`}>
-      <ellipse cx="0" cy="2" rx="104" ry="9" fill="rgba(0,0,0,.3)" />
-      {/* sepetin iç arka duvarı */}
-      <path d="M-96 -34 Q0 -50 96 -34 L90 -20 H-90 Z" fill="#7d5428" />
-      {loaves.map((l, i) => (
-        <g key={i} transform={`rotate(${l.r} ${l.x} ${l.y})`}>
-          <ellipse cx={l.x} cy={l.y} rx="48" ry="17" fill="url(#bread)" />
-          {[-24, -6, 12].map((dx) => (
-            <path key={dx} d={`M${l.x + dx} ${l.y - 9} q8 6 14 0`} stroke="#8a4f17" strokeWidth="3" fill="none" strokeLinecap="round" />
-          ))}
-          <ellipse cx={l.x - 8} cy={l.y - 8} rx="22" ry="4" fill="rgba(255,240,210,.35)" />
-        </g>
+    <g transform={`translate(1010 ${COUNTER_Y})`} className={styles.desk} onClick={onOpen} role="button" aria-label="Defteri aç">
+      <ellipse cx="0" cy="2" rx="96" ry="8" fill="rgba(0,0,0,.32)" />
+      {/* sayfa destesi: önden görünen kâğıt kenarları */}
+      <path d="M-86 -4 L-80 -22 H80 L86 -4 V0 H-86 Z" fill="#efe6cc" />
+      {[-18, -14, -10, -6].map((y) => (
+        <path key={y} d={`M-84 ${y} H84`} stroke="rgba(150,120,70,.35)" strokeWidth="1" />
       ))}
-      {/* sepetin ön yüzü ekmeklerin önünde */}
-      <path d="M-100 -26 L-88 0 H88 L100 -26 Z" fill="#b8874a" />
-      <path d="M-100 -26 L-88 0 H88 L100 -26 Z" fill="url(#weave)" />
-      <rect x="-104" y="-30" width="208" height="8" rx="4" fill="#9a6a34" />
+      {/* alt ve üst cilt */}
+      <rect x="-90" y="-3" width="180" height="5" rx="2" fill="#1f3428" />
+      <path d="M-92 -22 L-74 -40 H74 L92 -22 Z" fill="#2f4a3a" />
+      <path d="M-92 -22 L-74 -40 H-60 L-76 -22 Z" fill="#1f3428" />
+      <path d="M92 -22 L74 -40 H62 L78 -22 Z" fill="#5a3a22" />
+      <path d="M-30 -27 L-24 -35 H24 L30 -27 Z" fill="#d9bf72" opacity=".85" />
+      {/* tükenmez ve ayraç */}
+      <g transform="rotate(-8 10 -34)">
+        <rect x="-26" y="-37" width="62" height="5" rx="2.5" fill="#f4f1e8" stroke="#333" strokeWidth=".8" />
+        <rect x="30" y="-37" width="9" height="5" rx="2" fill="#1f3a8a" />
+        <rect x="-34" y="-36" width="9" height="3" rx="1.5" fill="#1f3a8a" />
+      </g>
+      <path d="M54 -4 l4 22 l-4 -4 l-4 4 Z" fill="#a8231b" />
     </g>
   );
 }
@@ -81,7 +63,7 @@ function BreadBasket() {
 /** Tezgâhta duran hesap makinesi: tıklanınca büyüğü açılır. */
 function DeskCalculator({ onOpen }: { onOpen?: () => void }) {
   return (
-    <g transform={`translate(332 ${COUNTER_Y})`} className={styles.cat} onClick={onOpen} role="button" aria-label="Hesap makinesini aç">
+    <g transform={`translate(1140 ${COUNTER_Y})`} className={styles.desk} onClick={onOpen} role="button" aria-label="Hesap makinesini aç">
       <ellipse cx="0" cy="1" rx="34" ry="5" fill="rgba(0,0,0,.3)" />
       <path d="M-28 0 L-22 -58 H22 L28 0 Z" fill="#2c3035" />
       <path d="M-22 -58 H22 L21 -54 H-21 Z" fill="#4a5056" />
@@ -94,58 +76,16 @@ function DeskCalculator({ onOpen }: { onOpen?: () => void }) {
   );
 }
 
-function Scale() {
-  return (
-    <g transform={`translate(1380 ${COUNTER_Y})`}>
-      <ellipse cx="0" cy="2" rx="100" ry="9" fill="rgba(0,0,0,.3)" />
-      <path d="M-86 0 L-76 -28 H76 L86 0 Z" fill="#2f4a3f" />
-      <rect x="-86" y="-4" width="172" height="4" fill="rgba(0,0,0,.3)" />
-      {/* ibreli kadran */}
-      <circle cx="0" cy="-58" r="30" fill="#2f4a3f" />
-      <circle cx="0" cy="-58" r="24" fill="#fbf6e6" />
-      {Array.from({ length: 11 }, (_, i) => {
-        const a = (-120 + i * 24) * (Math.PI / 180);
-        return <path key={i} d={`M${Math.sin(a) * 20} ${-58 - Math.cos(a) * 20} L${Math.sin(a) * 16} ${-58 - Math.cos(a) * 16}`} stroke="#333" strokeWidth="1.5" />;
-      })}
-      <path d="M0 -58 L10 -74" stroke="#c0392b" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="0" cy="-58" r="3" fill="#333" />
-      <rect x="-90" y="-102" width="180" height="8" rx="4" fill="url(#brass)" />
-      <rect x="-6" y="-96" width="12" height="10" fill="#2f4a3f" />
-      <ellipse cx="-62" cy="-108" rx="40" ry="9" fill="url(#brass)" />
-      <ellipse cx="62" cy="-108" rx="40" ry="9" fill="url(#brass)" />
-      {/* ağırlık */}
-      <path d="M50 -110 h24 l-3 -20 h-18 z" fill="#5f686e" />
-      <rect x="57" y="-136" width="10" height="7" rx="3" fill="#5f686e" />
-    </g>
-  );
-}
 
-function Newspaper() {
-  return (
-    <g transform={`translate(760 ${COUNTER_Y})`}>
-      <ellipse cx="0" cy="1" rx="76" ry="5" fill="rgba(0,0,0,.25)" />
-      <rect x="-72" y="-12" width="144" height="12" fill="#e2dccb" />
-      <g transform="rotate(-3)">
-        <rect x="-68" y="-24" width="140" height="12" fill="#f3eee0" />
-        <rect x="-60" y="-22" width="60" height="4" fill="#333" />
-        <rect x="6" y="-22" width="58" height="3" fill="#888" />
-        <rect x="-60" y="-16" width="120" height="2" fill="#aaa" />
-      </g>
-    </g>
-  );
-}
-
-export function CounterTop({ catAwake, onPet, onCalc }: { catAwake: boolean; onPet?: () => void; onCalc?: () => void }) {
+export function CounterTop({ onPet, onCalc, onBook, gum, gumActive, onGum }: { onPet?: () => void; onCalc?: () => void; onBook?: () => void; gum: number; gumActive: boolean; onGum?: () => void }) {
   return (
     <g>
       <DeskCalculator onOpen={onCalc} />
-      <Jar x={420} c="#e74c3c" />
-      <Jar x={490} c="#f39c12" />
-      <Jar x={560} c="#27ae60" />
-      <Newspaper />
-      <BreadBasket />
-      <Cat awake={catAwake} onPet={onPet} />
-      <Scale />
+      <g transform={`translate(600 ${COUNTER_Y}) scale(1.3)`}>
+        <GumMachine count={gum} active={gumActive} onTurn={onGum} />
+      </g>
+      <DeskLedger onOpen={onBook} />
+      <Cat onPet={onPet} />
     </g>
   );
 }

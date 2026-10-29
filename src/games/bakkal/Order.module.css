@@ -1,0 +1,104 @@
+/* Akşam siparişleri: kâğıt fiş gibi liste, küçük artı eksi düğmeleri. */
+.order {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: #fffaf0;
+  border: 1px dashed #c9b88a;
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.call {
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.till {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.order ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.name small {
+  color: #a8291f;
+}
+
+/* rafın gözleri: dolu, sabah gelecek, boş */
+.shelf {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.shelf i {
+  width: 6px;
+  height: 10px;
+  border-radius: 2px;
+  background: #e6dcc0;
+}
+
+.shelf .full {
+  background: #8a5a2b;
+}
+
+.shelf .coming {
+  background: #e0a84a;
+}
+
+.out .name {
+  color: var(--red);
+}
+
+.bread {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 8px 12px;
+  background: #fff3c4;
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepper b {
+  min-width: 22px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.stepper button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #c9b88a;
+  border-radius: 50%;
+  background: #fff;
+  font: 700 15px/1 var(--font-body);
+  cursor: pointer;
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

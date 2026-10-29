@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CUSTOMERS, CLOSE_HOUR, DAYS, EVENTS, HIKE_DAY, OPEN_HOUR, PRODUCTS, VILLAGERS, basketOn, ceilingOf, customersFor, dayVisits, effectiveType, greetingFor, hourOf, knownRange, priceOn, react, remember, sayItems, settleDebts, titleFor, weatherOn } from '../src/games/bakkal/data';
+import { CUSTOMERS, CLOSE_HOUR, DEBT_DAYS, forget, type Debt, EVENT_POOL, OPEN_HOUR, PRODUCTS, VILLAGERS, basketOn, ceilingOf, customersFor, dayVisits, effectiveType, eventOn, factorOn, greetingFor, hikesOn, hourOf, priceOn, react, remember, sayItems, settleDebts, titleFor, weatherOn } from '../src/games/bakkal/data';
+
+const DAYS = 20;
+const pazar = EVENT_POOL.find((e) => e.title === 'Pazar günü')!;
 import { darknessAt, skyAt } from '../src/games/bakkal/sky';
 
 const teyze = CUSTOMERS.find((c) => c.id === 'teyze')!;
@@ -43,37 +46,44 @@ test('itibar müşteri sayısını belirler, günler tohumdan tekrarlanır', () 
     if (v.credit) assert.ok(v.villager.pays > 0);
   });
   // kötü hava kalabalığı azaltır, pazar günü artırır
-  assert.ok(customersFor(60, 1, 'rain') < customersFor(60, 1, 'sunny'));
-  assert.ok(customersFor(60, 5, 'sunny') > customersFor(60, 1, 'sunny'));
+  assert.ok(customersFor(60, undefined, 'rain') < customersFor(60, undefined, 'sunny'));
+  assert.ok(customersFor(60, pazar, 'sunny') > customersFor(60, undefined, 'sunny'));
   // aynı köylü aynı gün iki kez gelmez; en kalabalık gün bile köye sığar
   for (let seed = 0; seed < 30; seed++)
     for (let d = 1; d <= DAYS; d++) {
       const ids = dayVisits(seed, d, 100).map((v) => v.villager.id);
       assert.equal(new Set(ids).size, ids.length);
     }
-  assert.ok(VILLAGERS.length >= customersFor(100, 5, 'sunny'));
+  assert.ok(VILLAGERS.length >= customersFor(100, pazar, 'sunny'));
 });
 
-test('zamdan sonra fiyatlar artar, defter eski kayıtları saymaz', () => {
-  const p = PRODUCTS[0];
-  assert.ok(priceOn(p, HIKE_DAY).market > priceOn(p, 1).market);
-  const log = [
-    { product: p.id, day: 1, price: 14, mood: 'happy' as const, customer: 'x' },
-    { product: p.id, day: HIKE_DAY, price: 16, mood: 'happy' as const, customer: 'x' },
-    { product: p.id, day: HIKE_DAY, price: 20, mood: 'grumble' as const, customer: 'x' },
-  ];
-  assert.deepEqual(knownRange(log.slice(0, 1), p.id, 1), { atLeast: 14, below: undefined });
-  assert.deepEqual(knownRange(log, p.id, HIKE_DAY), { atLeast: 16, below: 20 });
+test('fiyatlar her gün artar, her ürünün zammı başka; maliyet hep market fiyatının altında', () => {
+  for (const p of PRODUCTS)
+    for (let d = 2; d <= 60; d++) {
+      assert.ok(factorOn(p, d) >= factorOn(p, d - 1), `${p.id} ${d}`);
+      const x = priceOn(p, d);
+      assert.ok(x.cost < x.market, `${p.id} ${d}`);
+    }
+  assert.deepEqual(priceOn(PRODUCTS[0], 1), { market: PRODUCTS[0].market, cost: PRODUCTS[0].cost });
+  // otuzuncu günde ürünlerin pahalanma oranları birbirinden farklı
+  const rates = new Set(PRODUCTS.map((p) => factorOn(p, 30).toFixed(2)));
+  assert.ok(rates.size >= 6);
+  // zam sıçraması radyoda bir gün önce duyulur
+  const cay = PRODUCTS.find((p) => p.id === 'cay')!;
+  assert.ok(hikesOn(cay.first!).includes(cay));
+  assert.ok(factorOn(cay, cay.first!) > factorOn(cay, cay.first! - 1) * 1.1);
 });
 
-test('unvanlar kâr ve itibara göre', () => {
-  assert.equal(titleFor(2000, 20).title, 'Köyün Kurdu');
-  assert.equal(titleFor(-50, 80).title, 'Hayırsever Bakkal');
-  assert.equal(titleFor(800, 80).title, 'Efsane Bakkal');
+test('unvanlar dayanılan gün ve itibara göre', () => {
+  assert.equal(titleFor(40, 20).title, 'Köyün Kurdu');
+  assert.equal(titleFor(3, 80).title, 'Çırak Bakkal');
+  assert.equal(titleFor(35, 80).title, 'Efsane Bakkal');
 });
 
 test('her günün bir olayı ve havası var; ilk gün güneşli', () => {
-  for (let d = 1; d <= DAYS; d++) assert.ok(EVENTS[d]?.title, `gün ${d}`);
+  for (let d = 1; d <= DAYS; d++) assert.ok(eventOn(3, d).title, `gün ${d}`);
+  assert.equal(eventOn(3, 1).title, 'Kepenk açılışı');
+  assert.deepEqual(eventOn(3, 9), eventOn(3, 9));
   assert.equal(weatherOn(3, 1), 'sunny');
   assert.equal(weatherOn(3, 4), weatherOn(3, 4));
 });
@@ -83,9 +93,9 @@ test('köylüler hatırlar: kazık tavanı düşürür, sevinç biraz yükseltir
   let m = remember({}, 'ayse', 'leave');
   m = remember(m, 'ayse', 'grumble');
   assert.deepEqual(m.ayse, { visits: 2, grudge: 3, happy: 0 });
-  assert.ok(effectiveType(teyze, 1, m.ayse).ceiling < teyze.ceiling);
-  assert.ok(effectiveType(teyze, 1, { visits: 3, grudge: 0, happy: 3 }).ceiling > teyze.ceiling);
-  assert.ok(effectiveType(teyze, 4, { visits: 9, grudge: 9, happy: 0 }).ceiling >= 1.02);
+  assert.ok(effectiveType(teyze, undefined, m.ayse).ceiling < teyze.ceiling);
+  assert.ok(effectiveType(teyze, undefined, { visits: 3, grudge: 0, happy: 3 }).ceiling > teyze.ceiling);
+  assert.ok(effectiveType(teyze, EVENT_POOL[3], { visits: 9, grudge: 9, happy: 0 }).ceiling >= 1.02);
   assert.deepEqual(remember({}, 'turist', 'leave'), {});
   const ayse = VILLAGERS.find((v) => v.id === 'ayse')!;
   assert.match(greetingFor(ayse, m.ayse), /kazıkladın/);
@@ -99,15 +109,29 @@ test('sepet toplamı ve konuşma', () => {
   assert.equal(sayItems([a, b, c]), 'bir ekmek, bir süt bir de yumurta');
 });
 
-test('veresiye: aynı gün ödenmez, sonra ödenebilir, ödenen değişmez', () => {
+test('veresiye: aynı gün ödenmez, vadesinde çoğu zaman ödenir, ödenmeyen batar', () => {
   const debts = [
     { who: 'ayse', name: 'Ayşe Teyze', amount: 50, cost: 35, day: 2 },
     { who: 'ali', name: 'Küçük Ali', amount: 20, cost: 13, day: 1, paid: 1 },
   ];
   assert.deepEqual(settleDebts(debts, 1, 2), debts);
+  // bir hafta boyunca her akşam zar atılır
+  const week = (who: string, seed: number) => {
+    let d = [{ who, name: who, amount: 50, cost: 35, day: 1 }] as Debt[];
+    for (let day = 2; day <= 1 + DEBT_DAYS; day++) d = settleDebts(d, seed, day);
+    return d[0];
+  };
   let paid = 0;
-  for (let seed = 0; seed < 50; seed++) if (settleDebts(debts, seed, 3)[0].paid === 3) paid++;
-  assert.ok(paid > 35, `Ayşe Teyze çoğu zaman öder (${paid}/50)`);
+  let murat = 0;
+  for (let seed = 0; seed < 100; seed++) {
+    const a = week('ayse', seed);
+    assert.ok(a.paid || a.lost, 'vade sonunda borç ya ödenmiş ya batmış olur');
+    if (a.paid) paid++;
+    if (week('murat', seed).paid) murat++;
+  }
+  assert.ok(paid > 80, `Ayşe Teyze çoğu zaman öder (${paid}/100)`);
+  assert.ok(murat < 75 && murat > 30, `Motorcu Murat'ın borcu sık batar (${murat}/100)`);
+  assert.equal(settleDebts([{ who: 'ayse', name: 'A', amount: 5, cost: 3, day: 1, lost: 8 }], 1, 9)[0].paid, undefined);
 });
 
 test('saat açılıştan kapanışa ilerler, akşam kararır', () => {
@@ -117,4 +141,21 @@ test('saat açılıştan kapanışa ilerler, akşam kararır', () => {
   assert.ok(darknessAt(13, 'rain') > darknessAt(13, 'sunny'));
   assert.notDeepEqual(skyAt(9, 'sunny'), skyAt(18, 'sunny'));
   skyAt(30, 'snow').forEach((c) => assert.match(c, /^#[0-9a-f]{6}$/));
+});
+
+test('sevinç bir kini sildirir', () => {
+  let m = remember({}, 'ayse', 'grumble');
+  m = remember(m, 'ayse', 'happy');
+  assert.equal(m.ayse.grudge, 0);
+});
+
+test('market fiyatına yakın söylenme itibar yakmaz, kin bırakmaz; köy gece biraz unutur', () => {
+  const r = react(101, 100, { ceiling: 1.5, gossip: 1 });
+  assert.equal(r.mood, 'grumble');
+  assert.equal(r.rep, 0);
+  assert.equal(remember({}, 'ayse', 'grumble', r.mild).ayse.grudge, 0);
+  assert.ok(react(148, 100, { ceiling: 1.5, gossip: 1 }).rep < 0);
+  assert.equal(forget(90), 87);
+  assert.equal(forget(59), 60);
+  assert.equal(forget(60), 60);
 });

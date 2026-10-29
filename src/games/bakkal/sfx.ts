@@ -1,6 +1,6 @@
 /*
  * Bakkalın sesleri: hepsi Web Audio ile anında üretilir, dosya yok. Kapı çıngırağı, yazar kasa
- * zili ve çekmecesi, düşen kutu, kedi mırıltısı; arkada havaya göre kuş cıvıltısı ya da yağmur.
+ * zili ve çekmecesi, metal kepenk, kedi mırıltısı; arkada havaya göre kuş cıvıltısı ya da yağmur.
  * Ses kapatılınca hepsi susar. Tarayıcı ilk dokunuştan önce ses çalmaz: bağlam ilk çağrıda kurulur.
  */
 
@@ -84,12 +84,6 @@ export function register() {
   burst(0.35, 0.25, 0.2, 500, 0.8);
 }
 
-/** Kutu düşer: boğuk bir güm. */
-export function thud() {
-  tone(90, 0, 0.25, 0.4, 'triangle');
-  burst(0, 0.12, 0.3, 300, 1);
-}
-
 /** Kedi mırıltısı: alçak, titreyen bir hırıltı. */
 export function purr() {
   const c = ac();
@@ -148,9 +142,38 @@ export function key() {
   tone(1200, 0, 0.03, 0.03, 'square');
 }
 
-/** Fiş yazıcısı: hızlı tıkırtılı vızıltı, sonunda kağıdın yırtılması. */
-export function receipt() {
-  for (let i = 0; i < 18; i++) burst(i * 0.055, 0.04, 0.12, 1800 + (i % 3) * 300, 6);
-  tone(220, 0, 1, 0.025, 'sawtooth');
-  burst(1.1, 0.18, 0.18, 4200, 0.7);
+/**
+ * Metal kepenk: lamelleri sıra sıra takırdayan, altta uğuldayan bir sarılma; sonunda kepenk
+ * yuvasına ya da yere vurur. Açılışta takırtı yavaşlayarak durur, inerken hızlanır.
+ */
+export function shutter(down = false) {
+  const c = ac();
+  if (!c || !master) return;
+  const dur = 1.45;
+  // lamel takırtısı: kısa metalik vuruşlar, aralığı yavaş yavaş değişir
+  let t = 0.02;
+  for (let i = 0; t < dur; i++) {
+    const k = t / dur;
+    burst(t, 0.045, 0.1 + Math.random() * 0.05, 1500 + Math.random() * 1800, 6);
+    tone(240 + Math.random() * 90, t, 0.05, 0.025, 'square');
+    t += down ? 0.07 - k * 0.035 : 0.035 + k * 0.035;
+  }
+  // altta sac uğultusu: alçak geçiren gürültü, yükselip söner
+  const s = c.createBufferSource();
+  s.buffer = noise(dur + 0.2);
+  const f = c.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = 380;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0, c.currentTime);
+  g.gain.linearRampToValueAtTime(0.32, c.currentTime + 0.15);
+  g.gain.setValueAtTime(0.32, c.currentTime + dur - 0.2);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur + 0.15);
+  s.connect(f).connect(g).connect(master);
+  s.start();
+  // vuruş: boğuk güm ve sacın kısa çınlaması
+  tone(down ? 62 : 85, dur, 0.35, 0.45, 'triangle');
+  burst(dur, 0.18, 0.35, down ? 220 : 320, 1);
+  tone(610, dur, 0.6, 0.05, 'triangle');
+  tone(947, dur + 0.01, 0.45, 0.03, 'triangle');
 }

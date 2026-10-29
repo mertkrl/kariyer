@@ -1,11 +1,13 @@
 import { rng } from './data';
+import type { Stock } from './week';
 import { COUNTER_Y } from './ShopDecor';
 
 /*
- * Raflar ve içecek dolabı. Ürünler gerçek bakkal mallarına benzer: ayçiçek yağı şişesi, salça
+ * Raflar, ekmek dolabı ve içecek dolabı. Satılan mallar stoktaki adet kadar çizilir: satıldıkça
+ * raf boşalır, sabah toptancı gelince dolar. En üst raf süstür (yağ, salça, reçel), satılmaz. Ürünler gerçek bakkal mallarına benzer: ayçiçek yağı şişesi, salça
  * konservesi, çay kutusu, makarna paketi, reçel ve bal kavanozu, deterjan, süt kutusu, bisküvi.
  * Yuvarlak ürünlere silindir gölgesi (#cyl), kutulara yan yüz, hepsine tabanda gölge düşer.
- * Etiketlerde küçük yazılar vardır. Renkler tohumlu rastgeleyle seçilir; her açılışta aynıdır.
+ * Etiketlerde ürünün enine sığan küçük yazılar vardır. Renkler tohumlu rastgeleyle seçilir; her açılışta aynıdır.
  */
 
 const LABELS = {
@@ -44,16 +46,23 @@ const LABELS = {
 } as const;
 
 const Shadow = ({ w }: { w: number }) => <ellipse cx="0" cy="0" rx={w} ry="3" fill="rgba(0,0,0,.35)" />;
-const Tiny = ({ y, text, fill = '#fff', size = 6.5 }: { y: number; text: string; fill?: string; size?: number }) => (
-  <text x="0" y={y} textAnchor="middle" fontSize={size} fontWeight="800" fill={fill} fontFamily="Arial, sans-serif" letterSpacing=".2">
-    {text}
-  </text>
-);
+/**
+ * Etiketteki küçük yazı: ürünün genişliğine (maxW) sığmazsa harfler sıkıştırılır, yazı etiketten
+ * taşmaz. Genişlik kalın Arial büyük harfin ortalama eninden kestirilir.
+ */
+const Tiny = ({ y, text, fill = '#fff', size = 6.5, maxW }: { y: number; text: string; fill?: string; size?: number; maxW: number }) => {
+  const fits = text.length * size * 0.7 <= maxW;
+  return (
+    <text x="0" y={y} textAnchor="middle" fontSize={size} fontWeight="800" fill={fill} fontFamily="Arial, sans-serif" letterSpacing={fits ? '.2' : undefined} textLength={fits ? undefined : maxW} lengthAdjust="spacingAndGlyphs">
+      {text}
+    </text>
+  );
+};
 
 /** Rafa dizilen tek ürün: tabanı (x, y) noktasında. `v` renk çeşidini seçer. */
-function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number }) {
-  // raf aralığını dolduracak boyda: çizimler 1,3 kat büyütülür
-  const t = `translate(${x} ${y}) scale(1.3)`;
+function Item({ kind, x, y, v, k = 1.3 }: { kind: number; x: number; y: number; v: number; k?: number }) {
+  // raf aralığını dolduracak boyda: çizimler büyütülür
+  const t = `translate(${x} ${y}) scale(${k})`;
   switch (kind) {
     case 0: {
       // ayçiçek yağı: altın sarısı yağ, omuzlu PET şişe, kırmızı kapak, ayçiçekli etiket
@@ -81,7 +90,7 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
           <rect x="-13" y="-32" width="26" height="32" rx="2" fill="#b8c0c6" />
           <rect x="-13" y="-27" width="26" height="22" fill={lab} />
           <ellipse cx="0" cy="-17" rx="7" ry="5" fill="rgba(255,255,255,.85)" />
-          <Tiny y={-8} text={name} fill={ink} size={5} />
+          <Tiny y={-8} text={name} fill={ink} size={5} maxW={22} />
           <rect x="-13" y="-32" width="26" height="32" rx="2" fill="url(#cyl)" />
           <ellipse cx="0" cy="-32" rx="13" ry="3" fill="#dfe4e8" stroke="#9aa3a9" strokeWidth="1" />
           <ellipse cx="0" cy="-32" rx="8" ry="1.5" fill="none" stroke="#a7b0b6" strokeWidth="1" />
@@ -100,7 +109,7 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
           <path d="M-14 -50 L-6 -55 H18 L10 -50 Z" fill="rgba(255,255,255,.25)" />
           <rect x="-14" y="-50" width="24" height="50" fill={lab} />
           <rect x="-14" y="-40" width="24" height="5" fill={ink} />
-          <Tiny y={-24} text={name} fill={ink} size={7} />
+          <Tiny y={-24} text={name} fill={ink} size={7} maxW={20} />
           <path d="M-8 -16 q6 -5 12 0" stroke={ink} strokeWidth="1.5" fill="none" />
           <rect x="-14" y="-50" width="4" height="50" fill="rgba(255,255,255,.18)" />
         </g>
@@ -119,7 +128,7 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
           {[-28, -24, -20].map((yy) => (
             <path key={yy} d={`M-7 ${yy} q3.5 -2 7 0 t7 0`} stroke="#d4a743" strokeWidth="1.3" fill="none" />
           ))}
-          <Tiny y={-38} text={name} fill={ink} size={5} />
+          <Tiny y={-38} text={name} fill={ink} size={5} maxW={21} />
           <path d="M-14 0 Q-15 -24 -12 -46 H12 Q15 -24 14 0 Z" fill="url(#cyl)" opacity=".6" />
           <path d="M-10 -44 Q-12 -22 -10 -4" stroke="rgba(255,255,255,.45)" strokeWidth="2" fill="none" />
         </g>
@@ -135,7 +144,7 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
           {v % 3 === 2 && [-6, 2, -2, 6].map((cx, i) => <circle key={i} cx={cx} cy={-8 - i * 6} r="3.5" fill="#3b4a1e" />)}
           <rect x="-13" y="-36" width="26" height="36" rx="6" fill="url(#cyl)" opacity=".7" />
           <rect x="-10" y="-25" width="20" height="13" fill="#f6ecd2" />
-          <Tiny y={-16.5} text={name} fill="#5a3a1a" size={5} />
+          <Tiny y={-16.5} text={name} fill="#5a3a1a" size={5} maxW={17} />
           <rect x="-14" y="-44" width="28" height="9" rx="2" fill="#c9b072" />
           {[-10, -6, -2, 2, 6, 10].map((xx) => (
             <path key={xx} d={`M${xx} -44 v9`} stroke="rgba(0,0,0,.18)" strokeWidth="1" />
@@ -169,7 +178,7 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
           <path d="M8 -40 L13 -44 L3 -58 L-2 -54 Z" fill="#b8c6d3" />
           <rect x="-12" y="-40" width="20" height="40" fill="#f7fafc" />
           <rect x="-12" y="-24" width="20" height="10" fill="#1e5aa8" />
-          <Tiny y={-17} text="SÜT" size={6} />
+          <Tiny y={-17} text="SÜT" size={6} maxW={17} />
           <path d="M-12 -6 q5 -4 10 0 t10 0" stroke="#7fb3e0" strokeWidth="1.5" fill="none" />
         </g>
       );
@@ -181,7 +190,7 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
           <Shadow w={20} />
           <rect x="-18" y="-16" width="36" height="16" rx="5" fill={lab} />
           <path d="M-18 -16 l-3 3 l3 3 l-3 3 l3 3 l-3 3 M18 -16 l3 3 l-3 3 l3 3 l-3 3 l3 3" stroke={lab} strokeWidth="2" fill="none" />
-          <Tiny y={-6} text={name} fill={ink} size={5.5} />
+          <Tiny y={-6} text={name} fill={ink} size={5.5} maxW={30} />
           <rect x="-18" y="-16" width="36" height="5" rx="3" fill="rgba(255,255,255,.25)" />
         </g>
       );
@@ -191,11 +200,122 @@ function Item({ kind, x, y, v }: { kind: number; x: number; y: number; v: number
 
 const WIDTH = [30, 30, 36, 30, 30, 32, 28, 42].map((w) => Math.round(w * 1.3));
 
-/** Ahşap raf ünitesi: koyu arka pano, damarlı raf tahtaları, tahtanın altında gölge. */
-export function Shelves() {
+/** Her malın büyütmesi: paketler bir göze (yaklaşık 40 birim) sığacak kadar büyür. */
+const SCALE: Record<string, number> = { cay: 1.1, makarna: 1.3, sut: 1.4, seker: 1.7, cikolata: 1.9, sabun: 1.6, yumurta: 1.25, meyvesuyu: 1.9, peynir: 1 };
+
+/** Satılan mal: tabanı (x, y) noktasında; eski çizimler ya da yeni paketler. */
+function Good({ id, x, y }: { id: string; x: number; y: number }) {
+  const t = `translate(${x} ${y}) scale(${SCALE[id] ?? 1.3})`;
+  switch (id) {
+    case 'cay':
+      return <Item kind={2} x={x} y={y} v={0} k={SCALE.cay} />;
+    case 'makarna':
+      return <Item kind={3} x={x} y={y} v={0} k={SCALE.makarna} />;
+    case 'sut':
+      return <Item kind={6} x={x} y={y} v={0} k={SCALE.sut} />;
+    case 'seker':
+      // kâğıt şeker paketi: beyaz, mavi bant
+      return (
+        <g transform={t}>
+          <Shadow w={12} />
+          <path d="M-11 0 V-30 L-9 -34 H9 L11 -30 V0 Z" fill="#f7f5ee" />
+          <rect x="-11" y="-22" width="22" height="9" fill="#2f5fb0" />
+          <Tiny y={-15.5} text="ŞEKER" size={5} maxW={18} />
+          <path d="M-9 -34 H9" stroke="#d9d4c4" strokeWidth="2" />
+          <path d="M-11 0 V-30 L-9 -34 H9 L11 -30 V0 Z" fill="url(#cyl)" opacity=".35" />
+        </g>
+      );
+    case 'cikolata':
+      // dik duran çikolata kutusu: mor ambalaj, yaldızlı şerit
+      return (
+        <g transform={t}>
+          <Shadow w={10} />
+          <rect x="-9" y="-30" width="18" height="30" rx="1.5" fill="#5b2a6e" />
+          <rect x="-9" y="-12" width="18" height="3" fill="#e0b84a" />
+          <Tiny y={-19} text="ÇİKOLATA" size={4} maxW={16} />
+          <rect x="-9" y="-30" width="4" height="30" fill="rgba(255,255,255,.15)" />
+        </g>
+      );
+    case 'sabun':
+      // kutu sabun: pembe kutu, beyaz çiçek
+      return (
+        <g transform={t}>
+          <Shadow w={13} />
+          <rect x="-12" y="-17" width="24" height="17" rx="1.5" fill="#e98aa8" />
+          <circle cx="-5" cy="-9" r="3.5" fill="#fff" opacity=".85" />
+          <Tiny y={-4} text="SABUN" size={4.5} maxW={20} />
+          <rect x="-12" y="-17" width="24" height="3" fill="rgba(255,255,255,.3)" />
+        </g>
+      );
+    case 'yumurta':
+      // 10'lu viyol: gri karton, kapağın altından yumurtalar görünür
+      return (
+        <g transform={t}>
+          <Shadow w={16} />
+          <path d="M-16 0 L-15 -9 H15 L16 0 Z" fill="#b9b2a2" />
+          {[-11, -5.5, 0, 5.5, 11].map((ex) => (
+            <ellipse key={ex} cx={ex} cy={-11} rx="2.8" ry="3.4" fill="#f1dcc0" />
+          ))}
+          <path d="M-16 -13 Q0 -19 16 -13 L15 -9 H-15 Z" fill="#cfc8b8" opacity=".9" />
+        </g>
+      );
+    case 'meyvesuyu':
+      // karton meyve suyu: turuncu kutu, pipet
+      return (
+        <g transform={t}>
+          <Shadow w={9} />
+          <rect x="-8" y="-28" width="16" height="28" rx="1" fill="#f08a24" />
+          <circle cx="0" cy="-15" r="5" fill="#ffc94a" />
+          <rect x="-8" y="-28" width="16" height="4" fill="#e06d12" />
+          <path d="M4 -28 L6 -38" stroke="#e8e8e8" strokeWidth="1.6" />
+        </g>
+      );
+    default:
+      // beyaz peynir tenekesi
+      return (
+        <g transform={`translate(${x} ${y})`}>
+          <Shadow w={10} />
+          <rect x="-9" y="-22" width="18" height="22" rx="1" fill="url(#tin)" />
+          <rect x="-9" y="-16" width="18" height="10" fill="#f4f6f8" />
+          <Tiny y={-9} text="PEYNİR" size={4} maxW={16} fill="#1e5aa8" />
+        </g>
+      );
+  }
+}
+
+/** Rafın satılan mal bölmeleri: her satırda iki mal, her malın önde 6, arkada 6 gözü. */
+const SECTIONS: [string, string][] = [
+  ['cay', 'seker'],
+  ['makarna', 'cikolata'],
+  ['sabun', 'sut'],
+  ['yumurta', 'meyvesuyu'],
+];
+const LABEL: Record<string, string> = { cay: 'ÇAY', seker: 'ŞEKER', makarna: 'MAKARNA', cikolata: 'ÇİKOLATA', sabun: 'SABUN', sut: 'SÜT', yumurta: 'YUMURTA', meyvesuyu: 'M. SUYU' };
+
+/** Bir malın bölmesi: önce ön sıra dolar, sonra arka sıra (biraz yukarıda, gölgede). */
+function Section({ id, n, x, y }: { id: string; n: number; x: number; y: number }) {
+  const gap = 40;
+  const front = Math.min(n, 6);
+  const back = Math.max(0, Math.min(6, n - 6));
+  return (
+    <g>
+      <g opacity=".72">
+        {Array.from({ length: back }, (_, i) => (
+          <Good key={`b${i}`} id={id} x={x + 18 + i * gap + gap / 2} y={y - 8} />
+        ))}
+      </g>
+      {Array.from({ length: front }, (_, i) => (
+        <Good key={`f${i}`} id={id} x={x + 18 + i * gap} y={y} />
+      ))}
+    </g>
+  );
+}
+
+/** Ahşap raf ünitesi: koyu arka pano, damarlı raf tahtaları; üst raf süs, alttakiler stoktan. */
+export function Shelves({ stock }: { stock: Stock }) {
   const r = rng(11);
   const x0 = 470;
-  const x1 = 1110;
+  const x1 = 1000;
   const rows = [190, 300, 410, 520, 630];
   return (
     <g>
@@ -207,33 +327,47 @@ export function Shelves() {
       ))}
       <rect x={x0 - 30} y="56" width={x1 - x0 + 60} height="16" rx="2" fill="#7a4f2c" />
       <rect x={x0 - 30} y="70" width={x1 - x0 + 60} height="6" fill="#5c3b22" />
-      {rows.map((y) => {
+      {rows.map((y, row) => {
         const items = [];
-        let x = x0 + 24;
-        while (x < x1 - 24) {
-          const kind = Math.floor(r() * 8);
-          const v = Math.floor(r() * 6);
-          // aynı üründen yan yana iki üç tane: gerçek raflardaki gibi
-          const n = 1 + Math.floor(r() * 3);
-          for (let k = 0; k < n && x < x1 - 24; k++) {
-            items.push(<Item key={x} kind={kind} x={x} y={y} v={v} />);
-            x += WIDTH[kind];
+        if (row === 0) {
+          // üst raf: Hacı Emmi'nin satmadığı yağ, salça, reçel; hep dolu
+          let x = x0 + 24;
+          while (x < x1 - 24) {
+            const kind = [0, 1, 4][Math.floor(r() * 3)];
+            const v = Math.floor(r() * 6);
+            const n = 2 + Math.floor(r() * 2);
+            for (let k = 0; k < n && x < x1 - 24; k++) {
+              items.push(<Item key={x} kind={kind} x={x} y={y} v={v} />);
+              x += WIDTH[kind];
+            }
+            x += 6;
           }
-          x += 6;
         }
+        const pair = SECTIONS[row - 1];
         return (
           <g key={y}>
             <rect x={x0} y={y - 90} width={x1 - x0} height="90" fill="url(#shelfShade)" />
             {items}
+            {pair && <Section id={pair[0]} n={stock[pair[0]] ?? 0} x={x0 + 4} y={y} />}
+            {pair && <Section id={pair[1]} n={stock[pair[1]] ?? 0} x={x0 + 268} y={y} />}
             {/* raf tahtası: üst yüz, ön kenar ve damarlar */}
             <path d={`M${x0 - 10} ${y} L${x0} ${y - 6} H${x1} L${x1 + 10} ${y} Z`} fill="#b07e50" />
             <rect x={x0 - 10} y={y} width={x1 - x0 + 20} height="12" fill="url(#plank)" />
             <path d={`M${x0} ${y + 4} q160 3 320 0 t320 1 M${x0 + 40} ${y + 8} q140 -2 280 0 t300 -1`} stroke="rgba(60,30,10,.25)" strokeWidth="1" fill="none" />
             <rect x={x0 - 10} y={y + 12} width={x1 - x0 + 20} height="10" fill="rgba(0,0,0,.35)" />
-            {/* boş fiyat etiketleri: oyunun konusu bu */}
-            {[0.15, 0.4, 0.65, 0.88].map((f) => (
-              <rect key={f} x={x0 + (x1 - x0) * f} y={y + 2} width="24" height="8" rx="1" fill="#fffdf2" opacity=".9" />
-            ))}
+            {/* rafın ön kenarındaki etiketler: malın adı var, fiyatı yok */}
+            {pair && (
+              <>
+                <rect x={x0 + 10} y={y + 2} width="46" height="8" rx="1" fill="#fffdf2" opacity=".92" />
+                <text x={x0 + 33} y={y + 8.5} textAnchor="middle" fontSize="6" fontWeight="700" fill="#3a2a1a" fontFamily="Arial, sans-serif">
+                  {LABEL[pair[0]]}
+                </text>
+                <rect x={x0 + 274} y={y + 2} width="46" height="8" rx="1" fill="#fffdf2" opacity=".92" />
+                <text x={x0 + 297} y={y + 8.5} textAnchor="middle" fontSize="6" fontWeight="700" fill="#3a2a1a" fontFamily="Arial, sans-serif">
+                  {LABEL[pair[1]]}
+                </text>
+              </>
+            )}
           </g>
         );
       })}
@@ -243,8 +377,66 @@ export function Shelves() {
   );
 }
 
-/** Işıklı içecek dolabı: metal gövde, buğulu cam kapı, cam şişeler ve kutular, altta ızgara. */
-export function Fridge() {
+/** Tek somun: fırından yeni çıkmış, üstünde üç bıçak yarığı. */
+function Loaf({ x, y, r = 0 }: { x: number; y: number; r?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) rotate(${r})`}>
+      <ellipse cx="0" cy="-11" rx="27" ry="12" fill="url(#bread)" />
+      {[-12, -2, 8].map((dx) => (
+        <path key={dx} d={`M${dx} -18 q4 4 8 1`} stroke="#8a4f17" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      ))}
+      <ellipse cx="-6" cy="-17" rx="12" ry="2.5" fill="rgba(255,240,210,.35)" />
+    </g>
+  );
+}
+
+/** Ekmek dolabındaki somunların yerleri: alttan üste, her katta beş somun (üçü yan yana, ikisi üstte). */
+const LOAVES = [620, 520, 420, 360].flatMap((y) => [
+  { x: 40, y, r: -3 },
+  { x: 96, y, r: 4 },
+  { x: 68, y: y - 15, r: 2 },
+  { x: 54, y: y - 28, r: -4 },
+  { x: 84, y: y - 28, r: 5 },
+]);
+
+/**
+ * Ekmek dolabı: rafla içecek dolabının arasında, ahşap çerçeveli camlı dolap. Üstünde boyalı
+ * EKMEK yazısı; içeride dört katta raftaki ekmek kadar somun. Fırın sabah getirir.
+ */
+export function BreadCase({ bread }: { bread: number }) {
+  const x0 = 1030;
+  const x1 = 1166;
+  const top = 290;
+  return (
+    <g>
+      <ellipse cx={(x0 + x1) / 2} cy="712" rx="78" ry="7" fill="rgba(0,0,0,.3)" />
+      <rect x={x0} y={top} width={x1 - x0} height={COUNTER_Y - top + 20} rx="4" fill="url(#post)" />
+      <rect x={x0 - 4} y={top - 34} width={x1 - x0 + 8} height="38" rx="4" fill="#7a4f2c" />
+      <rect x={x0 - 4} y={top - 2} width={x1 - x0 + 8} height="6" fill="#5c3b22" />
+      <text x={(x0 + x1) / 2} y={top - 8} textAnchor="middle" fontSize="24" fontWeight="800" fill="#f3d27a" fontFamily="Georgia, serif" letterSpacing="3">
+        EKMEK
+      </text>
+      <rect x={x0 + 10} y={top + 12} width={x1 - x0 - 20} height={COUNTER_Y - top - 2} fill="#f3e6c8" />
+      <rect x={x0 + 10} y={top + 12} width={x1 - x0 - 20} height={COUNTER_Y - top - 2} fill="url(#shelfShade)" opacity=".5" />
+      {[360, 420, 520, 620].map((y) => (
+        <rect key={y} x={x0 + 10} y={y} width={x1 - x0 - 20} height="6" fill="#a8754a" />
+      ))}
+      {LOAVES.slice(0, bread).map((l, i) => (
+        <Loaf key={i} x={x0 + l.x} y={l.y} r={l.r} />
+      ))}
+      {/* cam kapı: iki kanat, yansıma, pirinç topuz */}
+      <rect x={x0 + 10} y={top + 12} width={x1 - x0 - 20} height={COUNTER_Y - top - 2} fill="url(#glass)" />
+      <path d={`M${x0 + 18} ${top + 16} L${x0 + 50} ${top + 16} L${x0 + 22} ${COUNTER_Y - 10} L${x0 + 14} ${COUNTER_Y - 10} Z`} fill="rgba(255,255,255,.18)" />
+      <rect x={(x0 + x1) / 2 - 2} y={top + 12} width="4" height={COUNTER_Y - top - 2} fill="#4a2f1b" />
+      <rect x={x0 + 10} y={top + 12} width={x1 - x0 - 20} height={COUNTER_Y - top - 2} fill="none" stroke="#4a2f1b" strokeWidth="6" />
+      <circle cx={(x0 + x1) / 2 - 9} cy="470" r="4" fill="url(#brass)" />
+      <circle cx={(x0 + x1) / 2 + 9} cy="470" r="4" fill="url(#brass)" />
+    </g>
+  );
+}
+
+/** Işıklı içecek dolabı: metal gövde, buğulu cam kapı, cam şişeler; alt rafta peynir tenekeleri, altta ızgara. */
+export function Fridge({ cheese }: { cheese: number }) {
   const bottles = ['#7a1a12', '#e65100', '#2e7d32', '#1565c0', '#f9a825', '#6a1b9a', '#b71c1c'];
   return (
     <g>
@@ -274,18 +466,10 @@ export function Fridge() {
           <rect x="1205" y={y} width="250" height="5" fill="#b9c2c8" />
         </g>
       ))}
-      {/* alt raf: kutu içecekler */}
-      {Array.from({ length: 10 }, (_, i) => {
-        const bx = 1216 + i * 24;
-        const c = bottles[(i * 2) % bottles.length];
-        return (
-          <g key={i}>
-            <rect x={bx - 10} y="596" width="20" height="34" rx="3" fill={c} />
-            <rect x={bx - 10} y="596" width="20" height="34" rx="3" fill="url(#cyl)" />
-            <ellipse cx={bx} cy="596" rx="10" ry="2.5" fill="#d9dee2" />
-          </g>
-        );
-      })}
+      {/* alt raf: beyaz peynir tenekeleri, stoktaki kadar */}
+      {Array.from({ length: Math.min(12, cheese) }, (_, i) => (
+        <Good key={i} id="peynir" x={1218 + i * 20} y={630} />
+      ))}
       <rect x="1205" y="630" width="250" height="5" fill="#b9c2c8" />
       {/* cam kapı: buğu, yansımalar, conta ve kol */}
       <rect x="1200" y="235" width="260" height="440" rx="4" fill="rgba(220,235,245,.12)" />

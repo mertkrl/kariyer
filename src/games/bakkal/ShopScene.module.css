@@ -32,8 +32,15 @@
   cursor: pointer;
 }
 
-.catUp {
-  animation: hop 0.35s ease-out;
+/* tezgâhta tıklanınca açılan eşyalar: üstüne gelince ışıldar */
+.desk {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.desk:hover {
+  filter: brightness(1.12) drop-shadow(0 0 6px rgba(255, 228, 150, 0.85));
 }
 
 .drawer {
@@ -188,17 +195,26 @@
   }
 }
 
-@keyframes hop {
-  from {
-    transform: translateY(20px);
-  }
-}
-
 @keyframes fall {
   from {
     transform: translateY(-60px);
   }
   to {
     transform: translateY(60px);
+  }
+}
+
+/* sakız makinesi: kol döner; sakız verilecekken makine nabız gibi parlar */
+.crank {
+  transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+
+.gumLive {
+  animation: gumGlow 1.2s ease-in-out infinite;
+}
+
+@keyframes gumGlow {
+  50% {
+    filter: brightness(1.15) drop-shadow(0 0 10px rgba(255, 214, 10, 0.95));
   }
 }
