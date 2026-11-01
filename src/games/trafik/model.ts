@@ -51,7 +51,35 @@ export type Event =
   /** Kaos: motokurye; sarının sonunu da kırmızıyı da kollayan bir araç. */
   | { at: number; kind: 'courier'; mv: `${Dir}.${Turn}`; text: string }
   /** Kaos: çift sıra park eden araç; kol `sec` saniye boyunca yavaş akar. */
-  | { at: number; kind: 'parked'; leg: Dir; sec: number; text: string };
+  | { at: number; kind: 'parked'; leg: Dir; sec: number; text: string }
+  /** Olay: koldaki bir araç arızalanıp şeridinde kalır; ekip gelene ya da `sec` dolana kadar. */
+  | { at: number; kind: 'breakdown'; mv: `${Dir}.${Turn}`; sec?: number; text: string }
+  /** Olay: düğün konvoyu kolda durup halay çeker; kol iki yönde de kapanır. */
+  | { at: number; kind: 'wedding'; leg: Dir; sec: number; text: string }
+  /** Makam konvoyu: önde polis, ardında `n` siyah araç; ışığa bakmaz, yol önceden boşaltılmalı. */
+  | { at: number; kind: 'motorcade'; mv: `${Dir}.${Turn}`; n: number; text: string };
+
+/** Kolun yol düzeni: çift yön; tek yön kavşağa doğru (giriş) ya da kavşaktan dışarı (çıkış); kapalı. */
+export type LegMode = 'iki' | 'giris' | 'cikis' | 'kapali';
+export const LEG_MODE_NAME: Record<LegMode, string> = { iki: 'Çift yön', giris: 'Tek yön · giriş', cikis: 'Tek yön · çıkış', kapali: 'Kapalı' };
+
+export type IncidentKind = 'crash' | 'breakdown' | 'parked' | 'wedding';
+
+/** Yoldaki bir olay: kendiliğinden geç çözülür, trafik ekibi gelirse çabuk. */
+export interface Incident {
+  id: number;
+  kind: IncidentKind;
+  at: number;
+  x: number;
+  y: number;
+  leg?: Dir;
+  text: string;
+  cars: number[];
+  /** Ekip çağrılmazsa kendiliğinden kalkacağı an. */
+  until: number;
+  team?: { sent: number; arrive: number; fix: number; from: [number, number] };
+  cleared?: number;
+}
 
 export interface Phase {
   moves: MoveId[];
@@ -85,9 +113,15 @@ export interface LevelSpec {
   bold?: number;
   /** Plan elle değiştirilebilir mi (ilk bölümde yalnızca süreler). */
   lockMoves?: boolean;
+  /** Rehberli bölüm: süre, rehber bitmeden dolmaz. */
+  guided?: boolean;
+  /** Köşelerdeki simge yapılar: cami, düğün salonu, köşk, plaza. */
+  landmarks?: { kind: Landmark; corner: 'NE' | 'NW' | 'SE' | 'SW' }[];
 }
 
-export type Kind = 'car' | 'taxi' | 'dolmus' | 'bus' | 'truck' | 'ambulance';
+export type Landmark = 'cami' | 'dugun' | 'kosk' | 'plaza';
+
+export type Kind = 'car' | 'taxi' | 'dolmus' | 'bus' | 'truck' | 'ambulance' | 'vip' | 'police';
 
 export interface Path {
   pts: [number, number][];
@@ -128,6 +162,8 @@ export interface Car {
   /** Duruş çizgisini geçtiği andaki ışık. */
   entry?: SignalState;
   crashed?: number;
+  /** Arızalı: şeridinde durur, dörtlüleri yanar. */
+  broken?: boolean;
 }
 
 export interface Ped {
@@ -198,7 +234,13 @@ export const GAP = 2;
 export const TURN_V = 6.5;
 /** Sola dönen, karşıdan gelene bu kadar saniyelik aralık bulunca döner. */
 export const GAP_ACCEPT = 4.5;
-export const CRASH_CLEAR = 30;
+/** Kazalı araçlar: ekip çağrılmazsa bu kadar saniye sonra çekilir. */
+export const CRASH_CLEAR = 90;
+/** Yol düzeni yüzünden ara sokaklara sapan aracın gecikmesi (sn). */
+export const DETOUR = 40;
+/** Trafik ekibinin hızı (m/sn) ve yola çıkış süresi. */
+export const TEAM_V = 14;
+export const TEAM_READY = 3;
 export const CAR_COLORS = ['#ecebe6', '#b9bdc3', '#26282d', '#7d2620', '#36547a', '#59684a', '#cdb88c', '#6c7077', '#9d3a2a', '#dcd9cf', '#1f3a5c', '#eceae0'];
 export const PED_COLORS = ['#c04a3a', '#2f5d8a', '#3f6b3a', '#d6a640', '#6b4a8a', '#2b2b2b', '#e3e0d6', '#a35a2a', '#4a7f8c'];
 

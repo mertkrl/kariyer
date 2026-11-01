@@ -8,7 +8,7 @@ import type { Sim } from './sim';
 
 /** Kolun gerisinde bekleyen araç sayısı. */
 export function backlogOf(s: Sim, d: Dir) {
-  return Object.entries(s.backlog).reduce((m, [k, l]) => (k.replace(/^(amb|bus):/, '')[0] === d ? m + l.length : m), 0);
+  return Object.entries(s.backlog).reduce((m, [k, l]) => (k.replace(/^(amb|bus|vip):/, '')[0] === d ? m + l.length : m), 0);
 }
 
 /** Kolda kuyrukta duran araçlar ve en uzun bekleyenin süresi. */
@@ -21,7 +21,7 @@ export function queueOf(s: Sim, d: Dir) {
       wait = Math.max(wait, c.waited);
     }
   const back = backlogOf(s, d);
-  const oldest = Object.entries(s.backlog).reduce((m, [k, l]) => (k.replace(/^(amb|bus):/, '')[0] === d && l.length ? Math.max(m, s.t - l[0]) : m), 0);
+  const oldest = Object.entries(s.backlog).reduce((m, [k, l]) => (k.replace(/^(amb|bus|vip):/, '')[0] === d && l.length ? Math.max(m, s.t - l[0]) : m), 0);
   return { n: n + back, wait: Math.max(wait, oldest) };
 }
 
@@ -43,7 +43,7 @@ export function delays(s: Sim) {
     m.sum += d;
   };
   for (const c of s.cars) if (c.crashed === undefined && c.kind !== 'ambulance') add(c.mv, Math.max(0, s.t - c.born - (c.s / c.path.len) * c.free));
-  for (const [k, l] of Object.entries(s.backlog)) for (const b of l) add(k.replace(/^(amb|bus):/, ''), s.t - b);
+  for (const [k, l] of Object.entries(s.backlog)) for (const b of l) add(k.replace(/^(amb|bus|vip):/, ''), s.t - b);
   let n = 0;
   let sum = 0;
   let worst = 0;
@@ -110,17 +110,22 @@ export function report(s: Sim): Report {
   const late = s.ambulance.filter((a) => a.late).length + Object.entries(s.backlog).filter(([k, l]) => k.startsWith('amb:') && l.length).length + s.cars.filter((c) => c.kind === 'ambulance' && s.t - c.born > 25).length;
   const hasPeds = s.spec.peds.length > 0;
   const hasAmb = s.spec.events.some((e) => e.kind === 'ambulance');
+  const hasVip = s.spec.events.some((e) => e.kind === 'motorcade');
+  // konvoyda geçemeyen (hâlâ yolda ya da kolun gerisinde) araç durmuş sayılır
+  const vipLeft = s.vip.n - s.vip.passed;
   // gecikme puanı ortalamanın ve en kötü hareketin karışımından: unutulan kol puanı düşürür
   const felt = avg * 0.6 + worst * 0.4;
-  const dMax = hasAmb ? 60 : 70;
+  const dMax = 70 - (hasAmb ? 10 : 0) - (hasVip ? 10 : 0);
   const parts = [
     { label: 'Araç gecikmesi', got: Math.round(dMax * clamp01((60 - felt) / 42)), max: dMax },
     { label: 'Yaya bekleyişi', got: hasPeds ? Math.round(Math.max(0, 15 * clamp01((75 - avgPedWait(s)) / 45) - s.jay * 0.5)) : 15, max: 15 },
     { label: 'Güvenlik', got: Math.max(0, 15 - crashes * 8 - pedHits * 15), max: 15 },
     ...(hasAmb ? [{ label: 'Ambulans', got: Math.max(0, 10 - late * 5), max: 10 }] : []),
+    ...(hasVip ? [{ label: 'Konvoy', got: s.vip.crash ? 0 : Math.max(0, 10 - (s.vip.stopped + vipLeft) * 2), max: 10 }] : []),
   ];
   let score = parts.reduce((m, p) => m + p.got, 0);
   if (s.jammed) score = Math.min(score, 25);
   if (pedHits) score = Math.min(score, 35);
+  if (s.vip.crash) score = Math.min(score, 40);
   return { score, delay: avg, worst, worstMv, los: los(avg), delivered: s.delivered, pedWait, jay: s.jay, crashes, pedHits, ambulanceLate: late, jammed: s.jammed, legs, parts };
 }

@@ -1,12 +1,13 @@
 import { queueOf } from './score';
 import { clonePlan, signal, stepController } from './controller';
-import { buildJunction, clash, crossPoint, exitOf, pose, yields, type Junction } from './junction';
+import { buildJunction, clash, crossPoint, exitOf, inPoint, outPoint, pose, yields, type Junction } from './junction';
 import {
   ACCEL,
   AMBER,
   BRAKE,
   CAR_COLORS,
   CRASH_CLEAR,
+  DETOUR,
   DIR_NAME,
   DT,
   GAP,
@@ -18,17 +19,24 @@ import {
   PED_COLORS,
   PED_PATIENCE,
   PED_V,
+  TEAM_READY,
+  TEAM_V,
   TURN_V,
   turnOf,
   type Car,
   type Controller,
   type Crash,
   type Dir,
+  type Incident,
+  type IncidentKind,
   type Kind,
+  type LegMode,
   type LevelSpec,
   type LogLine,
+  type MoveId,
   type Ped,
   type Plan,
+  type SignalState,
   type Turn,
 } from './model';
 
@@ -73,6 +81,22 @@ export interface Sim {
   /** Kolun sürücülerinin son söylendiği an ve kaçıncı laf. */
   grumble: Partial<Record<Dir, number>>;
   grumbles: number;
+  /** Kolların yol düzeni: oyuncu tek yön yapar ya da kapatır. */
+  mode: Partial<Record<Dir, LegMode>>;
+  /** Düğün konvoyunun kapattığı kol: bu ana kadar. */
+  block: Partial<Record<Dir, number>>;
+  /** Elle kumanda: kontrolör durur, her kolun ışığı oyuncudan. */
+  manual: Partial<Record<Dir, { st: SignalState; t: number }>> | null;
+  incidents: Incident[];
+  /** Arızalanacak hareket: koldaki ilk uygun araç durur. */
+  breakNext: { mv: `${Dir}.${Turn}`; sec: number; text: string }[];
+  /** Yol düzeni yüzünden ara sokaklara sapan araç sayısı. */
+  detour: number;
+  detourSaid: number;
+  /** Makam konvoyu: kaç araç, kaçı kavşakta durdu, konvoy kaza yaptı mı. */
+  vip: { n: number; stopped: number; crash: boolean; passed: number };
+  /** Rehber sürüyorsa vardiya süre dolunca bitmez. */
+  guideOpen: boolean;
 }
 
 export function rng(seed: number) {
@@ -121,6 +145,15 @@ export function createSim(spec: LevelSpec): Sim {
     slow: {},
     grumble: {},
     grumbles: 0,
+    mode: {},
+    block: {},
+    manual: null,
+    incidents: [],
+    breakNext: [],
+    detour: 0,
+    detourSaid: -99,
+    vip: { n: 0, stopped: 0, crash: false, passed: 0 },
+    guideOpen: false,
   };
 }
 
@@ -147,9 +180,24 @@ const KINDS: { kind: Kind; p: number; len: number }[] = [
   { kind: 'truck', p: 0.07, len: 7.2 },
   { kind: 'bus', p: 0.04, len: 12 },
 ];
-const LEN: Record<Kind, number> = { car: 4.4, taxi: 4.6, dolmus: 6.6, truck: 7.2, bus: 12, ambulance: 6.2 };
+const LEN: Record<Kind, number> = { car: 4.4, taxi: 4.6, dolmus: 6.6, truck: 7.2, bus: 12, ambulance: 6.2, vip: 5.2, police: 4.8 };
 
-function pickLane(s: Sim, mv: `${Dir}.${Turn}`) {
+/** Kol yol düzenine göre bu harekete açık mı: girdiği kol giriş, çıktığı kol çıkış vermeli. */
+export function moveOpen(s: Sim, mv: `${Dir}.${Turn}`) {
+  const a = s.mode[legOf(mv)] ?? 'iki';
+  const b = s.mode[exitOf(legOf(mv), turnOf(mv) as Turn)] ?? 'iki';
+  return (a === 'iki' || a === 'giris') && (b === 'iki' || b === 'cikis');
+}
+
+/** Kolun yol düzenini değiştirir; kapanan yöndeki istek ara sokaklara sapar. */
+export function setMode(s: Sim, d: Dir, m: LegMode) {
+  if (!s.j.legs[d]) return;
+  s.mode[d] = m;
+  const name = s.spec.legs[d]!.name;
+  say(s, m === 'iki' ? `${name} kolu yeniden çift yön açıldı.` : m === 'kapali' ? `${name} kolu trafiğe kapatıldı: bariyerler kondu.` : m === 'giris' ? `${name} kolu tek yön yapıldı: yalnızca kavşağa doğru.` : `${name} kolu tek yön yapıldı: yalnızca kavşaktan dışarı.`);
+}
+
+function pickLane(s: Sim, mv: `${Dir}.${Turn}`, kind?: Kind) {
   const leg = s.j.legs[legOf(mv)]!;
   const t = turnOf(mv);
   let best = -1;
@@ -157,7 +205,7 @@ function pickLane(s: Sim, mv: `${Dir}.${Turn}`) {
   leg.spec.lanes.forEach((l, i) => {
     if (!l.includes(t)) return;
     // kuyruk kısa olan şerit; ortak şeritte biraz daha cesaretsiz
-    const q = s.cars.filter((c) => legOf(c.mv) === leg.dir && c.lane === i && c.s < c.path.stop).length + (l.length > 1 ? 0.5 : 0) + s.rand() * 0.8;
+    const q = s.cars.filter((c) => legOf(c.mv) === leg.dir && c.lane === i && c.s < c.path.stop).length + (l.length > 1 ? 0.5 : 0) + s.rand() * 0.8 + ((kind === 'vip' || kind === 'police') && l.includes('L') && t !== 'L' ? 50 : 0);
     if (q < bestQ) {
       bestQ = q;
       best = i;
@@ -167,7 +215,7 @@ function pickLane(s: Sim, mv: `${Dir}.${Turn}`) {
 }
 
 function spawn(s: Sim, mv: `${Dir}.${Turn}`, born: number, kind?: Kind): boolean {
-  const lane = pickLane(s, mv);
+  const lane = pickLane(s, mv, kind);
   const path = s.j.paths.get(`${mv}:${lane}`);
   if (!path) return true;
   // şeridin başı dolu: araç kolun gerisinde bekler
@@ -285,7 +333,14 @@ function obstacle(s: Sim, c: Car): { gap: number; v: number } {
     if (g < Infinity) ahead(g, o.crashed ? 0 : o.v);
   }
   const stopAt = (x: number) => ahead(x - c.s - 0.3, 0);
-  if (before) {
+  const vip = c.kind === 'vip' || c.kind === 'police' || c.kind === 'ambulance';
+  // düğün konvoyu kolu kapattı: gelen, halayın gerisinde; o kola dönecek olan çizgide bekler
+  if ((s.block[legOf(c.mv)] ?? 0) > s.t && c.s < p.stop - 22) stopAt(p.stop - 26);
+  if (before && !vip && (s.block[exitLeg] ?? 0) > s.t) stopAt(p.stop);
+  if (before && (c.kind === 'vip' || c.kind === 'police')) {
+    // konvoy ışığa bakmaz; yalnızca kutuda kaza varsa durur
+    if (s.cars.some((o) => o.crashed !== undefined && p.box.some(([x, y]) => Math.hypot(center(o)[0] - x, center(o)[1] - y) < 3.5))) stopAt(p.stop);
+  } else if (before) {
     const sig = signal(s, c.mv);
     const dist = p.stop - c.s;
     if (sig === 'green') c.amber = undefined;
@@ -315,11 +370,22 @@ function obstacle(s: Sim, c: Car): { gap: number; v: number } {
 }
 
 function stepCar(s: Sim, c: Car) {
-  if (c.crashed !== undefined) {
+  if (c.crashed !== undefined || c.broken) {
     c.v = 0;
     return;
   }
   const p = c.path;
+  // sıradaki arıza: kolun ortasında, duruş çizgisine varmadan
+  const bk = s.breakNext.findIndex((b) => b.mv === c.mv);
+  if (bk >= 0 && c.kind !== 'ambulance' && c.kind !== 'vip' && c.kind !== 'police' && c.s > p.stop - 70 && c.s < p.stop - 12) {
+    const b = s.breakNext.splice(bk, 1)[0];
+    c.broken = true;
+    c.v = 0;
+    const [x, y] = pose(p, c.s - c.len / 2);
+    addIncident(s, 'breakdown', x, y, b.text, b.sec, [c.id], legOf(c.mv));
+    say(s, b.text, 'bad', true);
+    return;
+  }
   const turn = turnOf(c.mv);
   let v0 = speedOf(s, legOf(c.mv)) * (c.kind === 'bus' || c.kind === 'truck' ? 0.85 : 1);
   if (turn !== 'T') {
@@ -341,7 +407,7 @@ function stepCar(s: Sim, c: Car) {
   const was = c.s;
   c.s += c.v * DT;
   if (was < p.stop && c.s >= p.stop) c.entry = signal(s, c.mv);
-  if (c.v < 1.2) c.waited += DT;
+  if (c.v < 1.2 && (c.kind !== 'vip' && c.kind !== 'police' ? true : c.s > p.stop - 40)) c.waited += DT;
 }
 
 /** Gövdenin önden arkaya birkaç noktası: uzun araçta daha çok. */
@@ -374,6 +440,13 @@ function checkCrashes(s: Sim) {
       a.crashed ??= s.t;
       b.crashed ??= s.t;
       s.crashes.push({ at: s.t, x: hit[0], y: hit[1], cars: [a.id, b.id] });
+      if ([a, b].some((c) => c.kind === 'vip' || c.kind === 'police')) {
+        s.vip.crash = true;
+        say(s, 'Konvoy aracına çarpıldı! Koruma ekibi araçtan indi, kavşak karıştı.', 'bad');
+      }
+      const near = s.incidents.find((i) => i.kind === 'crash' && i.cleared === undefined && Math.hypot(i.x - hit![0], i.y - hit![1]) < 6);
+      if (near) near.cars.push(a.id, b.id);
+      else addIncident(s, 'crash', hit[0], hit[1], `Kavşağın ortasında kaza: ${KIND_NAME[a.kind]} ile ${KIND_NAME[b.kind]}.`, CRASH_CLEAR, [a.id, b.id]);
       const late = [a, b].find((c) => c.entry && c.entry !== 'green');
       const left = [a, b].find((c) => turnOf(c.mv) === 'L');
       const stuck = [a, b].find((c) => c.entry === 'green' && signal(s, c.mv) === 'red');
@@ -394,13 +467,116 @@ function checkCrashes(s: Sim) {
       p.since = s.t;
       c.crashed = s.t;
       s.crashes.push({ at: s.t, x: px, y: py, cars: [c.id], ped: true });
+      addIncident(s, 'crash', px, py, `${DIR_NAME[p.leg]} geçidinde yayaya çarpıldı.`, CRASH_CLEAR, [c.id]);
       say(s, `${DIR_NAME[p.leg]} geçidinde yayaya çarpıldı! ${p.jay ? 'Kırmızıda geçen yaya, sabrı tükenmişti.' : 'Yaya yeşilde yoldaydı.'} Ambulans çağrıldı.`, 'bad');
       break;
     }
   }
 }
 
-const KIND_NAME: Record<Kind, string> = { car: 'otomobil', taxi: 'taksi', dolmus: 'dolmuş', truck: 'kamyonet', bus: 'otobüs', ambulance: 'ambulans' };
+const KIND_NAME: Record<Kind, string> = { car: 'otomobil', taxi: 'taksi', dolmus: 'dolmuş', truck: 'kamyonet', bus: 'otobüs', ambulance: 'ambulans', vip: 'makam aracı', police: 'polis aracı' };
+
+/* ───────────── Olaylar ve trafik ekipleri ───────────── */
+
+function addIncident(s: Sim, kind: IncidentKind, x: number, y: number, text: string, sec: number, cars: number[], leg?: Dir) {
+  s.incidents.push({ id: s.nextId++, kind, at: s.t, x, y, leg, text, cars, until: s.t + sec });
+}
+
+/** Olayın kalkması: araçlar çekilir, kol yeniden akar. */
+function clearIncident(s: Sim, i: Incident, byTeam: boolean) {
+  i.cleared = s.t;
+  const ids = new Set(i.cars);
+  s.cars = s.cars.filter((c) => !ids.has(c.id));
+  if (i.kind === 'parked' && i.leg) s.slow[i.leg] = 0;
+  if (i.kind === 'wedding' && i.leg) s.block[i.leg] = 0;
+  if (i.kind === 'crash') for (const p of s.peds) if (p.hit && Math.hypot(crossPoint(s.j.legs[p.leg]!, p.t, p.side)[0] - i.x, crossPoint(s.j.legs[p.leg]!, p.t, p.side)[1] - i.y) < 3) p.since = -999;
+  const what = i.kind === 'crash' ? 'Kaza yeri temizlendi, araçlar çekiciye yüklendi.' : i.kind === 'breakdown' ? 'Arızalı araç çekildi, şerit açıldı.' : i.kind === 'parked' ? 'Çift sıra park eden araç kaldırıldı, sürücüsüne ceza yazıldı.' : 'Düğün konvoyu ikna edildi: “Gelin hanıma sağlık, yol açılsın.” Kol açıldı.';
+  say(s, byTeam ? `Trafik ekibi: ${what}` : `${what} (Ekip çağrılmadığı için ${Math.round(s.t - i.at)} saniye sürdü.)`, byTeam ? 'good' : 'info');
+}
+
+/** Ekibin çıkacağı yer: olayın kolunun ucu ya da kavşağa en yakın kolun ucu. */
+function teamOrigin(s: Sim, i: Incident): [number, number] {
+  const legs = Object.values(s.j.legs);
+  const g = (i.leg && s.j.legs[i.leg]) || legs.reduce((m, l) => (Math.hypot(l.u[0] * 60 - i.x, l.u[1] * 60 - i.y) < Math.hypot(m.u[0] * 60 - i.x, m.u[1] * 60 - i.y) ? l : m));
+  return outPoint(g, 0, 140);
+}
+
+/** "Trafik ekiplerine bildir": ekip yola çıkar, olay yerine varınca işini yapıp olayı kaldırır. */
+export function dispatch(s: Sim, id: number) {
+  const i = s.incidents.find((x) => x.id === id);
+  if (!i || i.team || i.cleared !== undefined) return;
+  const from = teamOrigin(s, i);
+  const arrive = s.t + TEAM_READY + Math.hypot(from[0] - i.x, from[1] - i.y) / TEAM_V;
+  const work = i.kind === 'crash' ? 10 : i.kind === 'wedding' ? 9 : 6;
+  i.team = { sent: s.t, arrive, fix: arrive + work, from };
+  say(s, `Merkez: “${INCIDENT_NAME[i.kind]} için ekip yönlendirildi, ${Math.round(arrive - s.t)} saniyeye orada.”`, 'good');
+}
+
+export const INCIDENT_NAME: Record<IncidentKind, string> = { crash: 'Kaza', breakdown: 'Arızalı araç', parked: 'Çift sıra park', wedding: 'Düğün konvoyu' };
+
+function stepIncidents(s: Sim) {
+  for (const i of s.incidents) {
+    if (i.cleared !== undefined) continue;
+    if (i.team && s.t >= i.team.fix) clearIncident(s, i, true);
+    else if (!i.team && s.t >= i.until) clearIncident(s, i, false);
+  }
+  // biten olaylar bir süre sonra listeden düşer
+  s.incidents = s.incidents.filter((i) => i.cleared === undefined || s.t - i.cleared < 8);
+}
+
+/** Rehber ve deneme için: kolda hemen bir arıza çıkarır. */
+export function breakdownNow(s: Sim, mv: `${Dir}.${Turn}`, text: string, sec = 150) {
+  if (!s.breakNext.some((b) => b.mv === mv)) s.breakNext.push({ mv, sec, text });
+}
+
+/* ───────────── Elle kumanda ───────────── */
+
+/** Elle kumandaya geçiş: o an yeşil yanan kollar yeşil kalır, kontrolör durur. */
+export function setManual(s: Sim, on: boolean) {
+  if (on && !s.manual) {
+    const m: NonNullable<Sim['manual']> = {};
+    for (const d of Object.keys(s.j.legs) as Dir[]) {
+      const g = (['L', 'T', 'R'] as Turn[]).some((t) => signal(s, `${d}.${t}`) === 'green');
+      m[d] = { st: g ? 'green' : 'red', t: 0 };
+    }
+    s.manual = m;
+    say(s, 'Elle kumandaya geçildi: kontrolör durdu, ışıklar sende. Çakışan iki kolu birlikte yeşil yakma.');
+  } else if (!on && s.manual) {
+    s.manual = null;
+    // kontrolör tüm kırmızıyla yeniden başlar
+    s.ctl.stage = 'allred';
+    s.ctl.t = 0;
+    s.ctl.hold = false;
+    s.ctl.cut = false;
+    say(s, 'Kontrolör yeniden devrede: tüm kırmızıdan sonra plan kaldığı yerden sürüyor.');
+  }
+}
+
+/** Elle kumandada kolun ışığını çevirir: yeşil hemen yanar, kırmızıya önce sarıdan geçer. */
+export function toggleLeg(s: Sim, d: Dir) {
+  const m = s.manual?.[d];
+  if (!m) return;
+  if (m.st === 'green') {
+    m.st = 'amber';
+    m.t = 0;
+  } else if (m.st === 'red') {
+    m.st = 'green';
+    m.t = 0;
+    const rivals = (Object.keys(s.manual!) as Dir[]).filter((o) => o !== d && s.manual![o]!.st !== 'red' && ['L', 'T', 'R'].some((a) => ['L', 'T', 'R'].some((b) => clash(`${d}.${a}` as MoveId, `${o}.${b}` as MoveId) === 'hard')));
+    if (rivals.length) say(s, `Dikkat: ${s.spec.legs[d]!.name} ile ${rivals.map((o) => s.spec.legs[o]!.name).join(', ')} aynı anda yeşil! Kutuda çarpışma çıkabilir.`, 'bad');
+  }
+}
+
+export function stepManual(s: Sim) {
+  if (!s.manual) return;
+  for (const m of Object.values(s.manual)) {
+    m.t += DT;
+    if (m.st === 'amber' && m.t >= AMBER) {
+      m.st = 'red';
+      m.t = 0;
+    }
+  }
+}
 
 /* ───────────── Yayalar ───────────── */
 
@@ -465,7 +641,8 @@ const DRIVER_LINES = ['Yeşil ne zaman yanacak?', 'Abi bu ışık bozuk mu?', 'D
 export function step(s: Sim) {
   if (s.done) return;
   s.t += DT;
-  stepController(s);
+  if (s.manual) stepManual(s);
+  else stepController(s);
 
   for (; s.nextEvent < s.spec.events.length && s.spec.events[s.nextEvent].at <= s.t; s.nextEvent++) {
     const e = s.spec.events[s.nextEvent];
@@ -482,7 +659,22 @@ export function step(s: Sim) {
       say(s, e.text, 'bad');
     } else if (e.kind === 'parked') {
       s.slow[e.leg] = s.t + e.sec;
+      const g = s.j.legs[e.leg]!;
+      const [x, y] = inPoint(g, g.spec.lanes.length - 1, g.stop + 40);
+      addIncident(s, 'parked', x, y, e.text, e.sec, [], e.leg);
       say(s, e.text, 'bad', true);
+    } else if (e.kind === 'breakdown') {
+      s.breakNext.push({ mv: e.mv, sec: e.sec ?? 120, text: e.text });
+    } else if (e.kind === 'wedding') {
+      s.block[e.leg] = s.t + e.sec;
+      const g = s.j.legs[e.leg]!;
+      const [x, y]: [number, number] = [g.u[0] * (g.stop + 24), g.u[1] * (g.stop + 24)];
+      addIncident(s, 'wedding', x, y, e.text, e.sec, [], e.leg);
+      say(s, e.text, 'bad', true);
+    } else if (e.kind === 'motorcade') {
+      s.vip.n += e.n + 1;
+      for (let k = 0; k <= e.n; k++) (s.backlog[`vip:${e.mv}`] ??= []).push(s.t);
+      say(s, e.text, 'bad');
     } else (s.backlog[`bus:${e.mv}`] ??= []).push(s.t);
   }
 
@@ -495,18 +687,42 @@ export function step(s: Sim) {
   }
   for (const [key, list] of Object.entries(s.backlog)) {
     if (!list.length) continue;
-    const special = key.startsWith('amb:') ? 'ambulance' : key.startsWith('bus:') ? 'bus' : undefined;
+    const special = key.startsWith('amb:') ? 'ambulance' : key.startsWith('bus:') ? 'bus' : key.startsWith('vip:') ? 'vip' : undefined;
     const mv = (special ? key.slice(4) : key) as `${Dir}.${Turn}`;
-    if (spawn(s, mv, list[0], special)) list.shift();
+    // kapalı yöndeki sıradan araç ara sokaklara sapar: gecikmesi yazılır, kavşağa gelmez
+    if (!special && !moveOpen(s, mv)) {
+      for (const b of list.splice(0)) {
+        s.detour++;
+        const m = (s.byMove[mv] ??= { n: 0, sum: 0 });
+        m.n++;
+        m.sum += DETOUR + (s.t - b);
+        s.delay += DETOUR;
+      }
+      if (s.t - s.detourSaid > 25) {
+        s.detourSaid = s.t;
+        say(s, `${s.spec.legs[legOf(mv)]!.name} tarafından gelenler ara sokaklara saptı: her biri ${DETOUR} saniye kaybediyor, mahalle de doldu.`, 'bad', true);
+      }
+      continue;
+    }
+    // konvoyun ilk aracı polis
+    const kind = special === 'vip' && !s.cars.some((c) => c.kind === 'police') && s.vip.passed === 0 && list.length === s.vip.n ? 'police' : special;
+    if (spawn(s, mv, list[0], kind)) list.shift();
   }
 
   for (const c of s.cars) stepCar(s, c);
   checkCrashes(s);
+  stepIncidents(s);
   stepPeds(s);
 
   s.cars = s.cars.filter((c) => {
-    if (c.crashed !== undefined) return s.t - c.crashed < CRASH_CLEAR;
+    if (c.crashed !== undefined || c.broken) return true;
     if (c.s < c.path.len) return true;
+    if (c.kind === 'vip' || c.kind === 'police') {
+      s.vip.passed++;
+      if (c.waited > 2) s.vip.stopped++;
+      if (s.vip.passed === s.vip.n) say(s, s.vip.stopped ? `Konvoy kavşaktan geçti ama ${s.vip.stopped} araç durmak zorunda kaldı. Koruma amiri telsizden söyleniyor.` : 'Konvoy kavşaktan durmadan geçti. Telsizden “Teşekkürler merkez.”', s.vip.stopped ? 'bad' : 'good');
+      return false;
+    }
     s.delivered++;
     const d = Math.max(0, s.t - c.born - c.free);
     s.delay += d;
@@ -531,14 +747,14 @@ export function step(s: Sim) {
 
   // kuyruk kolun başına dayandıysa ve gerisi birikiyorsa kavşak kilitlenir
   for (const d of Object.keys(s.j.legs) as Dir[]) {
-    const n = Object.entries(s.backlog).reduce((m, [k, l]) => (k.replace(/^(amb|bus):/, '')[0] === d ? m + l.length : m), 0);
+    const n = Object.entries(s.backlog).reduce((m, [k, l]) => (k.replace(/^(amb|bus|vip):/, '')[0] === d ? m + l.length : m), 0);
     if (n >= 28) {
       s.jammed = d;
       s.done = true;
       say(s, `${s.spec.legs[d]!.name} kolu kilitlendi: kuyruk bir önceki kavşağa dayandı.`, 'bad');
     }
   }
-  if (s.t >= s.spec.duration) s.done = true;
+  if (s.t >= s.spec.duration && !s.guideOpen) s.done = true;
 }
 
 export function run(s: Sim, seconds = s.spec.duration) {

@@ -1,5 +1,6 @@
 import type { Junction } from './junction';
-import { SIDEWALK, type Dir } from './model';
+import { OBL_Y } from './facade';
+import { SIDEWALK, type Dir, type Landmark, type LevelSpec } from './model';
 import { rng } from './sim';
 
 /*
@@ -48,6 +49,8 @@ export interface Building {
   /** Balkon düzeni: her kaç pencerede bir balkon. */
   balcony: number;
   seed: number;
+  /** Köşedeki simge yapı: cami, köşk ya da plaza kendi çizimiyle. */
+  landmark?: Landmark;
 }
 
 export interface Lot {
@@ -79,7 +82,7 @@ function legSide(j: Junction, d: Dir, side: number) {
   return g.rin[axis] * side > 0 ? g.inW : g.outW;
 }
 
-export function makeScenery(j: Junction, seed: number): Scenery {
+export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmarks'] = []): Scenery {
   const rand = rng(seed * 7 + 3);
   const pick = <T>(a: T[]) => a[Math.floor(rand() * a.length)];
   const blocks: Block[] = [];
@@ -106,11 +109,18 @@ export function makeScenery(j: Junction, seed: number): Scenery {
     const fy = b.cy + sy * (b.hRoad ? SIDEWALK : 0);
     // bina: yerel koordinatta (yola uzaklık) verilir, dünyaya çevrilir
     const put = (u0: number, v0: number, w: number, d: number, extra: Partial<Building> = {}) => {
+      let floors = extra.floors ?? 4 + Math.floor(rand() * 5);
+      // eğik bakışta çatı kuzeye kayar: yolun güneyindeki bina yolu örtmesin. Önce kat
+      // azaltılır (en az beş), yetmezse bina yoldan geri çekilir.
+      if (sy > 0 && b.hRoad) {
+        const room = (n: number) => fy + v0 - (n * 3 + 0.8) * OBL_Y - (b.cy + 1.2);
+        while (floors > 5 && room(floors) < 0) floors--;
+        if (room(floors) < 0) v0 += -room(floors);
+      }
       const xa = fx + sx * u0;
       const xb = fx + sx * (u0 + w);
       const ya = fy + sy * v0;
       const yb = fy + sy * (v0 + d);
-      const floors = extra.floors ?? 4 + Math.floor(rand() * 5);
       const roof: Roof = rand() < 0.38 ? 'tile' : 'flat';
       const n = Math.max(1, Math.floor((w * d) / 120));
       const spots = (k: number) => Array.from({ length: k }, () => [0.15 + rand() * 0.7, 0.15 + rand() * 0.7] as [number, number]);
@@ -129,17 +139,31 @@ export function makeScenery(j: Junction, seed: number): Scenery {
         balcony: 1 + Math.floor(rand() * 3),
         seed: Math.floor(rand() * 1e6),
         ...extra,
+        floors,
       });
+      return v0;
     };
     const shop = () => (rand() < 0.75 ? { name: pick(SHOPS), awning: pick(AWNINGS) } : undefined);
     const depth = () => 12 + Math.floor(rand() * 4);
-    // köşe binası: iki yola da bakar, zemini dükkân
-    const cornerW = 16 + rand() * 5;
-    const cornerD = 15 + rand() * 4;
-    put(1, 1, cornerW, cornerD, { floors: 6 + Math.floor(rand() * 3), shop: { name: pick(SHOPS), awning: pick(AWNINGS) } });
+    // köşe binası: iki yola da bakar, zemini dükkân; bölüm isterse simge yapı
+    const corner = `${sy < 0 ? 'N' : 'S'}${sx > 0 ? 'E' : 'W'}`;
+    const mark = marks.find((m) => m.corner === corner)?.kind;
+    const cornerW = mark === 'cami' || mark === 'kosk' ? 26 : 16 + rand() * 5;
+    const cornerD = mark === 'cami' || mark === 'kosk' ? 22 : 15 + rand() * 4;
+    const markExtra: Partial<Building> =
+      mark === 'cami'
+        ? { landmark: 'cami', floors: 3, color: '#ebe4d4', roof: 'flat', tanks: [], solar: [], dishes: [] }
+        : mark === 'kosk'
+          ? { landmark: 'kosk', floors: 3, color: '#f4efe3', roof: 'tile', tanks: [], solar: [], dishes: [], balcony: 9 }
+          : mark === 'dugun'
+            ? { floors: 3, color: '#efe1c8', shop: { name: 'DÜĞÜN SALONU', awning: '#b8902a' }, tanks: [], dishes: [] }
+            : mark === 'plaza'
+              ? { landmark: 'plaza', floors: sy < 0 ? 16 : 5, color: '#8fa8b6', roof: 'flat', solar: [], dishes: [], balcony: 99 }
+              : { floors: 6 + Math.floor(rand() * 3), shop: { name: pick(SHOPS), awning: pick(AWNINGS) } };
+    const shift = put(1, 1, cornerW, cornerD, markExtra) - 1;
     // dikey yol boyunca (adanın yola bakan dik kenarı): v ekseninde dizilir
     if (b.vRoad) {
-      let v0 = 1 + cornerD + 1;
+      let v0 = 1 + cornerD + 1 + shift;
       while (v0 < WORLD - 20) {
         const r = rand();
         if (r < 0.08) {

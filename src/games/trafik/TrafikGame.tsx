@@ -19,7 +19,7 @@ import styles from './TrafikGame.module.css';
 type Phase = { at: 'order'; n: number; key: number } | { at: 'play'; n: number; key: number } | { at: 'done' };
 
 /** Vardiya kaydı: sıradaki kavşak ve bitenlerin puanları. Yarım kalan kavşak baştan açılır. */
-const SAVE_KEY = 'kariyerweb-trafik-v1';
+const SAVE_KEY = 'kariyerweb-trafik-v2';
 interface Shift {
   n: number;
   scores: number[];
@@ -64,11 +64,13 @@ export function TrafikGame() {
   return (
     <div className={styles.app}>
       {level && phase.at !== 'done' && (
-        <Play key={phase.key} level={level} briefing={phase.at === 'order'} last={phase.n === LEVELS.length - 1} coach={phase.n === 0} onRetry={() => setPhase({ at: 'play', n: phase.n, key: Date.now() })} onNext={(score) => next(phase.n, score)} />
+        <Play key={phase.key} level={level} briefing={phase.at === 'order'} last={phase.n === LEVELS.length - 1} onRetry={() => setPhase({ at: 'play', n: phase.n, key: Date.now() })} onNext={(score) => next(phase.n, score)} />
       )}
 
       <header className={styles.top}>
-        <ClockOut tone="dark" risk={phase.at === 'play' ? 'Yarım kalan kavşak kaybolur; biten kavşaklar kayıtlı.' : undefined} />
+        <span className={styles.exit}>
+          <ClockOut tone="dark" risk={phase.at === 'play' ? 'Yarım kalan kavşak kaybolur; biten kavşaklar kayıtlı.' : undefined} />
+        </span>
       </header>
 
       {phase.at === 'order' && level && (
@@ -186,7 +188,7 @@ function radioShare(scores: number[]) {
   const worst = LEVELS[i];
   return scores[i] < 60
     ? `Kavşak Amiri: vardiyamda trafik radyosu "${worst.place} kilit" diye anons etti (${scores[i]}/100). Unvanım "${t.title}". Sen bu ışıkları nasıl ayarlardın?`
-    : `Kavşak Amiri: vardiya boyunca trafik radyosu beş kavşak için de "akıcı" dedi. Unvanım "${t.title}", ortalamam ${t.avg}/100. Sen yetişebilir misin?`;
+    : `Kavşak Amiri: vardiya boyunca trafik radyosu ${LEVELS.length} kavşağın hepsi için "akıcı" dedi. Unvanım "${t.title}", ortalamam ${t.avg}/100. Sen yetişebilir misin?`;
 }
 
 /** Vardiya sonu: trafik radyosunun akşam bülteni, kavşak kavşak. */

@@ -3,7 +3,7 @@ import { prefersReducedMotion } from '../../components/ui/motion';
 import { applyView, lampHeads, paintCanopy, paintGround, type View } from './paint';
 import { makeScenery } from './scenery';
 import type { Sim } from './sim';
-import { drawAmbulanceGlow, drawCar, drawCrashes, drawNight, drawPed, drawQueueTags, drawRain, drawSignals } from './sprites';
+import { drawAmbulanceGlow, drawBarriers, drawCar, drawCrashes, drawIncidents, drawNight, drawPed, drawQueueTags, drawRain, drawSignals, drawTeams } from './sprites';
 import styles from './TrafikGame.module.css';
 
 /*
@@ -23,7 +23,7 @@ export function Scene({ sim }: { sim: Sim }) {
   useEffect(() => {
     const el = canvas.current!;
     const ctx = el.getContext('2d')!;
-    const scenery = makeScenery(sim.j, sim.spec.seed);
+    const scenery = makeScenery(sim.j, sim.spec.seed, sim.spec.landmarks);
     const lamps = lampHeads(scenery);
     const dusk = sim.spec.dusk ?? 0;
     // hareketi azaltan oyuncu: yağmur, flaşörler ve yanıp sönen ışıklar durur, trafik akar
@@ -77,9 +77,12 @@ export function Scene({ sim }: { sim: Sim }) {
       }
       applyView(ctx, view);
       drawAmbulanceGlow(ctx, sim, t);
+      drawBarriers(ctx, sim, t);
       for (const p of sim.peds) drawPed(ctx, sim, p, t);
       for (const c of sim.cars) drawCar(ctx, c, t);
+      drawIncidents(ctx, sim, t);
       drawCrashes(ctx, sim, t);
+      drawTeams(ctx, sim, t);
       drawSignals(ctx, sim, t);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       if (canopy) ctx.drawImage(canopy, 0, 0);

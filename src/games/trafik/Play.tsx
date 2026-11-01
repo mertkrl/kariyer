@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
 import { PASS_SCORE, verdict, type Level } from './levels';
-import { AMBER, DT, moveName, type Plan } from './model';
+import { AMBER, DT, moveName, type MoveId, type Plan } from './model';
 import { cycleOf } from './controller';
 import { PhaseCards, PhaseEditor } from './PhaseBar';
 import { applyPlan, createSim, delays, avgPedWait, los, planIssues, report, setHold, skipTo, step, type Report, type Sim } from './sim';
 import { Scene } from './Scene';
+import { GUIDE } from './guide';
+import { IncidentCards, RoadPanel } from './Roads';
 import styles from './TrafikGame.module.css';
 
 /*
@@ -41,18 +43,12 @@ function honk() {
   }
 }
 
-const COACH = [
-  'Alttaki ▶ trafiği başlatır (boşluk tuşu da olur). Süre durukken her şeyi rahatça ayarlayabilirsin.',
-  'Evre kartları hangi yönlerin birlikte yeşil yandığını gösterir. Bir karta dokun, − / + ile o evrenin yeşil süresini değiştir.',
-  'Kuyruğu uzayan kola daha çok yeşil ver. "Tut" o anki yeşili sabitler, "Şimdi geç" sıradaki evreye geçer.',
-];
-
 /** Kolun gecikmesinden kaç korna çalar: her 12 saniyede bir, en çok beş. */
 const horns = (delay: number) => Math.min(5, Math.floor(delay / 12));
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const LOS_TONE: Record<string, string> = { A: '#3fae63', B: '#6dbb4a', C: '#c9b437', D: '#e6a813', E: '#e2783f', F: '#e2553f' };
 
-export function Play({ level, briefing, last, coach = false, onNext, onRetry }: { level: Level; briefing: boolean; last: boolean; coach?: boolean; onNext: (score: number) => void; onRetry: () => void }) {
+export function Play({ level, briefing, last, onNext, onRetry }: { level: Level; briefing: boolean; last: boolean; onNext: (score: number) => void; onRetry: () => void }) {
   const [sim] = useState<Sim>(() => createSim(level.spec));
   const [plan, setPlanState] = useState<Plan>(() => sim.plan);
   const [, setTick] = useState(0);
@@ -60,9 +56,25 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
   const [speed, setSpeed] = useState(1);
   const [selected, setSelected] = useState<number | null>(null);
   const [result, setResult] = useState<Report | null>(null);
-  // ilk kavşakta üç adımlık kısa anlatım; trafik başlayınca ya da "Anladım" ile kapanır
-  const [lesson, setLesson] = useState(coach ? 0 : COACH.length);
+  // rehberli bölüm: adım adım; her adımın koşulu tutunca kendiliğinden ilerler
+  const [lesson, setLesson] = useState(level.spec.guided ? 0 : GUIDE.length);
+  const used = useRef(new Set<string>());
   const refresh = useCallback(() => setTick((f) => f + 1), []);
+  const guideOn = lesson < GUIDE.length;
+  const step = guideOn ? GUIDE[lesson] : null;
+  sim.guideOpen = guideOn;
+  const stepDone = !!step?.done?.({ sim, plan: sim.plan, selected, running, used: used.current });
+  useEffect(() => {
+    if (stepDone) setLesson((n) => n + 1);
+  }, [stepDone]);
+  useEffect(() => {
+    if (guideOn && !briefing) GUIDE[lesson].enter?.(sim);
+  }, [lesson, guideOn, briefing, sim]);
+  const hint = !briefing && step ? step.target : undefined;
+  const mark = (what: string) => {
+    used.current.add(what);
+    refresh();
+  };
   // kayda yeni bir sürücü sesi düştüyse korna çalar
   const heard = useRef('');
   const top = sim.log[0];
@@ -128,6 +140,8 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
   const grade = los(d.avg);
   const crashes = sim.crashes.length;
   const amb = sim.cars.find((c) => c.kind === 'ambulance');
+  const vip = sim.cars.find((c) => c.kind === 'police' || c.kind === 'vip') ?? null;
+  const vipWaiting = Object.entries(sim.backlog).find(([k, l]) => k.startsWith('vip:') && l.length);
   const cycle = cycleOf(plan);
 
   return (
@@ -162,6 +176,13 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
         </div>
       </div>
 
+      {(vip || vipWaiting) && !amb && (
+        <div className={styles.siren} role="status">
+          <i aria-hidden="true" />
+          Konvoy yolda: {moveName(vip ? vip.mv : (vipWaiting![0].slice(4) as MoveId))} · ışığa bakmaz, yolu boşalt
+        </div>
+      )}
+
       {amb && (
         <div className={styles.siren} role="status">
           <i aria-hidden="true" />
@@ -178,8 +199,12 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
         {!sim.log.length && <li className={styles.info}>{level.tip}</li>}
       </ol>
 
+      <RoadPanel sim={sim} hint={hint === 'roads' || hint === 'manual' ? hint : undefined} onChange={mark} />
+      <IncidentCards sim={sim} hint={hint === 'incidents'} onSend={() => mark('dispatch')} />
+
       <section className={styles.console} aria-label="Kavşak kontrolörü">
         <PhaseEditor
+          hint={hint === 'editor'}
           sim={sim}
           plan={plan}
           selected={selected}
@@ -192,7 +217,7 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
         />
         <div className={styles.bar}>
           <div className={styles.transport}>
-            <button type="button" className={running ? styles.pauseBtn : styles.playBtn} disabled={sim.done || briefing} onClick={() => setRunning(!running)} aria-label={running ? 'Duraklat' : 'Başlat'}>
+            <button type="button" className={`${running ? styles.pauseBtn : styles.playBtn} ${hint === 'play' ? styles.hint : ''}`} disabled={sim.done || briefing} onClick={() => setRunning(!running)} aria-label={running ? 'Duraklat' : 'Başlat'}>
               {running ? '❚❚' : '▶'}
             </button>
             <div className={styles.timeBox}>
@@ -207,7 +232,7 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
             </div>
           </div>
 
-          <PhaseCards sim={sim} plan={plan} selected={selected} onSelect={setSelected} onPlan={setPlan} />
+          <PhaseCards sim={sim} plan={plan} selected={selected} onSelect={setSelected} onPlan={setPlan} hint={hint === 'cards'} />
 
           <div className={styles.knobs}>
             <div className={styles.knob}>
@@ -228,11 +253,11 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
               <input type="checkbox" checked={!!plan.sensor} onChange={(e) => setPlan({ ...plan, sensor: e.target.checked })} />
               <span>Sensörlü</span>
             </label>
-            <div className={styles.live}>
-              <button type="button" className={sim.ctl.hold ? styles.holdOn : undefined} disabled={sim.t === 0} onClick={() => (setHold(sim, !sim.ctl.hold), refresh())} aria-pressed={sim.ctl.hold}>
+            <div className={`${styles.live} ${hint === 'live' ? styles.hint : ''}`}>
+              <button type="button" className={sim.ctl.hold ? styles.holdOn : undefined} disabled={sim.t === 0 || !!sim.manual} onClick={() => (setHold(sim, !sim.ctl.hold), mark('hold'))} aria-pressed={sim.ctl.hold}>
                 {sim.ctl.hold ? 'Bırak' : 'Tut'}
               </button>
-              <button type="button" disabled={sim.t === 0 || sim.ctl.stage !== 'green'} onClick={() => (skipTo(sim), refresh())}>
+              <button type="button" disabled={sim.t === 0 || sim.ctl.stage !== 'green' || !!sim.manual} onClick={() => (skipTo(sim), refresh())}>
                 Şimdi geç
               </button>
             </div>
@@ -248,24 +273,31 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
         )}
       </section>
 
-      {!briefing && !running && sim.t === 0 && lesson < COACH.length && (
-        <div className={styles.coach} role="dialog" aria-label="Kontrolör anlatımı">
+      {!briefing && step && !result && (
+        <div className={styles.coach} role="dialog" aria-label="Rehber">
           <small>
-            Kısa anlatım · {lesson + 1}/{COACH.length}
+            Rehber · {lesson + 1}/{GUIDE.length}
           </small>
-          <p>{COACH[lesson]}</p>
+          <b>{step.title}</b>
+          <p>{step.text}</p>
           <div>
-            <button type="button" className={styles.ghost} onClick={() => setLesson(COACH.length)}>
-              Atla
+            <button type="button" className={styles.ghost} onClick={() => setLesson(GUIDE.length)}>
+              Rehberi kapat
             </button>
-            <button type="button" className={styles.primary} onClick={() => setLesson(lesson + 1)}>
-              {lesson + 1 < COACH.length ? 'İleri' : 'Anladım'}
-            </button>
+            {step.done ? (
+              <button type="button" className={styles.ghost} onClick={() => setLesson(lesson + 1)}>
+                Bu adımı atla
+              </button>
+            ) : (
+              <button type="button" className={styles.primary} onClick={() => setLesson(lesson + 1)}>
+                {lesson + 1 < GUIDE.length ? 'İleri' : 'Başla'}
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {!briefing && !running && sim.t === 0 && lesson >= COACH.length && (
+      {!briefing && !running && sim.t === 0 && !guideOn && (
         <p className={styles.paused}>
           Süre durdu. Planı incele, evre kartına dokunup düzenle; hazır olunca <b>▶</b> ya da boşluk.
         </p>

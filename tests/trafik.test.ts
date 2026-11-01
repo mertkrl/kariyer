@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { buildJunction, clash, exitOf, hardClashes, yields } from '../src/games/trafik/junction';
 import { LEVELS, PASS_SCORE } from '../src/games/trafik/levels';
 import { DIRS, type MoveId, type Plan } from '../src/games/trafik/model';
-import { applyPlan, createSim, planIssues, report, setHold, signal, skipTo, step, type Sim } from '../src/games/trafik/sim';
+import { applyPlan, breakdownNow, createSim, dispatch, moveOpen, planIssues, report, run, setHold, setManual, setMode, signal, skipTo, step, toggleLeg, type Sim } from '../src/games/trafik/sim';
+import { makeScenery } from '../src/games/trafik/scenery';
+import { OBL_Y } from '../src/games/trafik/facade';
 
 const NS: MoveId[] = ['N.L', 'N.T', 'N.R', 'S.L', 'S.T', 'S.R'];
 const EW: MoveId[] = ['E.L', 'E.T', 'E.R', 'W.L', 'W.T', 'W.R'];
@@ -15,8 +17,22 @@ function play(id: string, plan?: Plan) {
   if (plan) applyPlan(s, plan);
   while (!s.done) {
     step(s);
+    if (!plan) continue;
+    // olay çıkınca ekibe bildirir
+    for (const i of s.incidents) if (!i.team && i.cleared === undefined) dispatch(s, i.id);
+    // konvoy haberi gelince onun evresine geçip tutar, konvoy geçince bırakır
+    const vip = s.vip.n > s.vip.passed || s.spec.events.some((e) => e.kind === 'motorcade' && e.at - s.t < 12 && e.at - s.t > 0);
+    const vmv = s.spec.events.find((e) => e.kind === 'motorcade')?.kind === 'motorcade' ? (s.spec.events.find((e) => e.kind === 'motorcade') as { mv: MoveId }).mv : null;
+    if (vmv) {
+      const k = s.plan.phases.findIndex((p) => p.moves.includes(vmv));
+      if (vip) {
+        if (s.ctl.phase === k && s.ctl.stage === 'green') {
+          if (!s.ctl.hold) setHold(s, true);
+        } else if (s.ctl.next !== k) skipTo(s, k);
+      } else if (s.ctl.hold) setHold(s, false);
+    }
     const a = s.cars.find((c) => c.kind === 'ambulance' && c.s < c.path.stop);
-    if (a && plan) {
+    if (a) {
       const k = s.plan.phases.findIndex((p) => p.moves.includes(a.mv));
       if (k >= 0 && k !== s.ctl.phase && s.ctl.next !== k) skipTo(s, k);
     }
@@ -25,6 +41,10 @@ function play(id: string, plan?: Plan) {
 }
 
 const GOOD: Record<string, Plan> = {
+  moda: { phases: [{ moves: [...NS, 'E.P', 'W.P'], green: 30 }, { moves: [...EW, 'N.P', 'S.P'], green: 14 }], allRed: 2 },
+  bagcilar: { phases: [{ moves: ['E.T', 'E.L', 'W.T', 'W.R', 'S.P'], green: 24 }, { moves: ['E.L', 'E.T', 'W.P'], green: 8 }, { moves: ['S.L', 'S.R', 'E.P', 'W.P'], green: 14 }], allRed: 2 },
+  levent: { phases: [{ moves: ['N.L', 'S.L'], green: 8 }, { moves: ['N.T', 'N.R', 'S.T', 'S.R', 'E.P', 'W.P'], green: 36 }, { moves: [...EW], green: 16 }], allRed: 3 },
+  cengelkoy: { phases: [{ moves: ['W.T', 'W.L', 'E.T', 'E.R', 'N.P', 'S.P'], green: 26 }, { moves: [...NS], green: 14 }], allRed: 3 },
   bahariye: { phases: [{ moves: [...NS, 'E.P', 'W.P'], green: 32 }, { moves: [...EW, 'N.P', 'S.P'], green: 16 }], allRed: 2 },
   atasehir: { phases: [{ moves: ['E.L', 'W.L'], green: 16 }, { moves: ['E.T', 'E.R', 'W.T', 'W.R', 'N.P', 'S.P'], green: 24 }, { moves: NS, green: 14 }], allRed: 2 },
   sisli: { phases: [{ moves: [...NS, 'E.P', 'W.P'], green: 28 }, { moves: [...EW, 'N.P', 'S.P'], green: 16 }], allRed: 2 },
@@ -131,4 +151,74 @@ test('kaos olayları sırayla gelir; bekleyen kollar söylenir, korna çalar', (
   const s = createSim(level('sisli').spec);
   while (!s.done) step(s);
   assert.ok(s.log.some((x) => x.horn));
+});
+
+test('yol düzeni: kapanan yönün isteği ara sokağa sapar ve gecikme yazılır', () => {
+  const s = createSim(level('moda').spec);
+  setMode(s, 'W', 'kapali');
+  assert.ok(!moveOpen(s, 'W.T') && !moveOpen(s, 'E.T') && !moveOpen(s, 'N.R'));
+  setMode(s, 'E', 'giris');
+  assert.ok(!moveOpen(s, 'N.L') && moveOpen(s, 'N.T'));
+  run(s, 90);
+  assert.ok(s.detour > 0);
+  assert.ok(!s.cars.some((c) => c.mv[0] === 'W' || c.mv === 'N.R' || c.mv === 'S.L'));
+  const open = createSim(level('moda').spec);
+  run(open, 90);
+  assert.ok(report(s).delay > report(open).delay);
+});
+
+test('elle kumanda: çakışan iki kola birlikte yeşil kutuda kaza çıkarır; kırmızıya önce sarıyla geçer', () => {
+  const s = createSim(level('sisli').spec);
+  run(s, 5);
+  setManual(s, true);
+  for (const d of ['N', 'S', 'E', 'W'] as const) if (s.manual![d]!.st === 'red') toggleLeg(s, d);
+  assert.equal(signal(s, 'E.T'), 'green');
+  assert.equal(signal(s, 'N.T'), 'green');
+  run(s, 90);
+  assert.ok(s.crashes.length > 0);
+  toggleLeg(s, 'N');
+  assert.equal(signal(s, 'N.T'), 'amber');
+  run(s, 3.2);
+  assert.equal(signal(s, 'N.T'), 'red');
+  setManual(s, false);
+  assert.equal(s.ctl.stage, 'allred');
+});
+
+test('olaya ekip gönderilince olay çabuk kalkar; gönderilmezse şerit uzun süre kapalı', () => {
+  const pair = [true, false].map((send) => {
+    const s = createSim(level('moda').spec);
+    breakdownNow(s, 'N.T', 'arıza', 150);
+    while (!s.incidents.length) step(s);
+    const i = s.incidents[0];
+    if (send) dispatch(s, i.id);
+    while (i.cleared === undefined && s.t < 400) step(s);
+    return i.cleared! - i.at;
+  });
+  assert.ok(pair[0] < 25, `ekiple ${pair[0]}`);
+  assert.ok(pair[1] > 140, `ekipsiz ${pair[1]}`);
+});
+
+test('düğün konvoyu kolu kapatır, makam konvoyu ışığa bakmaz', () => {
+  const w = createSim(level('bagcilar').spec);
+  run(w, 90);
+  assert.ok(w.incidents.some((i) => i.kind === 'wedding' && i.cleared === undefined));
+  assert.ok(!w.cars.some((c) => c.mv[0] === 'S' && c.s > c.path.stop && c.s < c.path.boxOut && c.born > 80));
+  const v = createSim(level('cengelkoy').spec);
+  run(v);
+  assert.equal(v.vip.n, 6);
+  assert.ok(report(v).parts.some((p) => p.label === 'Konvoy'));
+});
+
+test('eğik bakışta yolun güneyindeki binaların çatısı yola taşmaz', () => {
+  for (const l of LEVELS) {
+    const j = buildJunction(l.spec.legs);
+    const sc = makeScenery(j, l.spec.seed, l.spec.landmarks);
+    for (const b of sc.blocks) {
+      if (b.sy < 0 || !b.hRoad) continue;
+      for (const k of sc.buildings) {
+        if (k.landmark === 'cami' || k.x + k.w < b.x0 || k.x > b.x1 || k.y < b.y0) continue;
+        assert.ok(k.y - (k.floors * 3 + 0.8) * OBL_Y >= b.cy, `${l.spec.id} çatı yolda`);
+      }
+    }
+  }
 });

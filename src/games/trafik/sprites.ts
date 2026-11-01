@@ -36,7 +36,7 @@ export function drawCar(ctx: CanvasRenderingContext2D, c: Car, t: number) {
   ctx.roundRect(-L / 2 + 0.3, -W / 2 + 0.35, L, W, 0.6);
   ctx.fill();
 
-  const color = c.kind === 'taxi' ? '#f2c014' : c.kind === 'dolmus' ? '#f1e7b6' : c.kind === 'bus' ? '#eeeeea' : c.kind === 'ambulance' ? '#f6f6f2' : CAR_COLORS[c.color];
+  const color = c.kind === 'taxi' ? '#f2c014' : c.kind === 'dolmus' ? '#f1e7b6' : c.kind === 'bus' ? '#eeeeea' : c.kind === 'ambulance' || c.kind === 'police' ? '#f6f6f2' : c.kind === 'vip' ? '#15171b' : CAR_COLORS[c.color];
   const g = ctx.createLinearGradient(0, -W / 2, 0, W / 2);
   g.addColorStop(0, shade(color, 0.72));
   g.addColorStop(0.35, color);
@@ -124,6 +124,27 @@ export function drawCar(ctx: CanvasRenderingContext2D, c: Car, t: number) {
       ctx.fillRect(-L / 2 + 0.2, -W / 2, L - 1.2, 0.1);
       ctx.fillRect(-L / 2 + 0.2, W / 2 - 0.1, L - 1.2, 0.1);
     }
+    if (c.kind === 'police') {
+      ctx.fillStyle = '#1f4fa0';
+      ctx.fillRect(-L / 2 + 0.3, -W / 2, L - 0.8, 0.2);
+      ctx.fillRect(-L / 2 + 0.3, W / 2 - 0.2, L - 0.8, 0.2);
+    }
+    if (c.kind === 'police' || c.kind === 'vip') {
+      const on = blink(t, 3);
+      ctx.fillStyle = on ? '#3a7bff' : c.kind === 'police' ? '#ff3a2e' : '#0e0f12';
+      ctx.fillRect(-0.3, -W / 2 + 0.25, 0.3, W / 2 - 0.25);
+      ctx.fillStyle = on ? (c.kind === 'police' ? '#ff3a2e' : '#0e0f12') : '#3a7bff';
+      ctx.fillRect(-0.3, 0, 0.3, W / 2 - 0.25);
+      if (c.kind === 'vip') {
+        // ön çamurlukta bayrak
+        ctx.fillStyle = '#e30a17';
+        ctx.fillRect(L / 2 - 0.9, -W / 2 - 0.35, 0.6, 0.38);
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(L / 2 - 0.62, -W / 2 - 0.16, 0.09, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
     if (c.kind === 'ambulance') {
       ctx.fillStyle = '#d93a2b';
       ctx.fillRect(-L / 2 + 0.3, -W / 2, L - 1.2, 0.16);
@@ -151,7 +172,7 @@ export function drawCar(ctx: CanvasRenderingContext2D, c: Car, t: number) {
   ctx.fillRect(-L / 2, W / 2 - 0.61, 0.13, 0.45);
   const turn = turnOf(c.mv);
   const near = c.s > c.path.stop - 35 && c.s < c.path.boxOut + 2;
-  const hazard = c.crashed !== undefined;
+  const hazard = c.crashed !== undefined || !!c.broken;
   if (((turn !== 'T' && near) || hazard) && blink(t)) {
     ctx.fillStyle = '#ffae1a';
     for (const side of hazard ? [-1, 1] : [turn === 'L' ? -1 : 1]) {
@@ -300,9 +321,8 @@ export function drawSignals(ctx: CanvasRenderingContext2D, sim: Sim, t: number) 
 const LANE_HALF = 3.3 / 2;
 
 export function drawCrashes(ctx: CanvasRenderingContext2D, sim: Sim, t: number) {
-  for (const c of sim.crashes) {
-    const age = sim.t - c.at;
-    if (age > 30) continue;
+  for (const c of sim.incidents) {
+    if (c.kind !== 'crash' || c.cleared !== undefined) continue;
     ctx.fillStyle = 'rgba(220,230,235,0.75)';
     for (let k = 0; k < 9; k++) {
       const a = k * 2.4 + c.at;
@@ -382,7 +402,7 @@ export function drawNight(ctx: CanvasRenderingContext2D, sim: Sim, view: View, l
 
 export function drawAmbulanceGlow(ctx: CanvasRenderingContext2D, sim: Sim, t: number) {
   for (const c of sim.cars) {
-    if (c.kind !== 'ambulance') continue;
+    if (c.kind !== 'ambulance' && c.kind !== 'police') continue;
     const [x, y] = bodyPose(c);
     const on = blink(t, 3);
     const g = ctx.createRadialGradient(x, y, 0, x, y, 9);
@@ -450,4 +470,203 @@ export function drawQueueTags(ctx: CanvasRenderingContext2D, sim: Sim, view: Vie
     ctx.fillText(text, sx - tw / 2 + 19 * dpr, sy + dpr);
   }
   ctx.restore();
+}
+
+/** Kırmızı-beyaz bariyer: `a`dan `b`ye, üstünde yanıp sönen sarı lamba. */
+function barrier(ctx: CanvasRenderingContext2D, a: [number, number], b: [number, number], t: number) {
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  ctx.save();
+  ctx.translate(a[0], a[1]);
+  ctx.rotate(Math.atan2(b[1] - a[1], b[0] - a[0]));
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(0.2, 0.25, len, 0.55);
+  for (let u = 0, k = 0; u < len; u += 0.8, k++) {
+    ctx.fillStyle = k % 2 ? '#f4f1e8' : '#d8261c';
+    ctx.fillRect(u, -0.27, Math.min(0.8, len - u), 0.55);
+  }
+  if (blink(t, 1)) {
+    ctx.fillStyle = '#ffc21a';
+    for (const u of [0.3, len - 0.3]) {
+      ctx.beginPath();
+      ctx.arc(u, 0, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+/** Kolların yol düzeni: kapanan yönün şeritlerine bariyer, kapının önüne "girilmez" tabelası. */
+export function drawBarriers(ctx: CanvasRenderingContext2D, sim: Sim, t: number) {
+  for (const d of DIRS) {
+    const g = sim.j.legs[d];
+    const m = sim.mode[d] ?? 'iki';
+    if (!g || m === 'iki') continue;
+    const s0 = g.stop + 6;
+    const across = (lat0: number, lat1: number): [[number, number], [number, number]] => [
+      [g.u[0] * s0 + g.rin[0] * lat0, g.u[1] * s0 + g.rin[1] * lat0],
+      [g.u[0] * s0 + g.rin[0] * lat1, g.u[1] * s0 + g.rin[1] * lat1],
+    ];
+    if (m === 'cikis' || m === 'kapali') {
+      const [a, b] = across(g.half + 0.3, g.inW - 0.3);
+      barrier(ctx, a, b, t);
+    }
+    if (m === 'giris' || m === 'kapali') {
+      const [a, b] = across(-g.half - 0.3, -g.outW + 0.3);
+      barrier(ctx, a, b, t);
+      // girilmez tabelası: kırmızı daire, beyaz bant
+      const [x, y] = [g.u[0] * (g.stop + 3) + g.rout[0] * (g.outW + 1.2), g.u[1] * (g.stop + 3) + g.rout[1] * (g.outW + 1.2)];
+      ctx.fillStyle = '#d8261c';
+      ctx.beginPath();
+      ctx.arc(x, y, 0.75, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - 0.5, y - 0.14, 1, 0.28);
+    }
+  }
+}
+
+/** Düğün: süslü araçlar, halay çeken kalabalık, davulcu. Arıza ve çift sıra park: üçgen. */
+export function drawIncidents(ctx: CanvasRenderingContext2D, sim: Sim, t: number) {
+  for (const i of sim.incidents) {
+    if (i.cleared !== undefined) continue;
+    if (i.kind === 'wedding' && i.leg) {
+      const g = sim.j.legs[i.leg]!;
+      const along = (s: number, lat: number): [number, number] => [g.u[0] * s + g.rin[0] * lat, g.u[1] * s + g.rin[1] * lat];
+      // yolda çapraz duran süslü araçlar
+      for (const [s, lat, a] of [
+        [g.stop + 30, 0, 0.5],
+        [g.stop + 37, -2.4, -0.3],
+        [g.stop + 35, 2.4, 0.2],
+      ] as const) {
+        const [x, y] = along(s, lat);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.atan2(g.u[1], g.u[0]) + a);
+        ctx.fillStyle = '#f4f2ec';
+        ctx.beginPath();
+        ctx.roundRect(-2.2, -0.9, 4.4, 1.8, 0.6);
+        ctx.fill();
+        ctx.fillStyle = '#1b232d';
+        ctx.fillRect(0.6, -0.75, 0.7, 1.5);
+        // kurdeleler
+        ctx.strokeStyle = '#e8487a';
+        ctx.lineWidth = 0.14;
+        ctx.beginPath();
+        ctx.moveTo(-2.1, -0.85);
+        ctx.lineTo(2.1, 0.85);
+        ctx.moveTo(-2.1, 0.85);
+        ctx.lineTo(2.1, -0.85);
+        ctx.stroke();
+        ctx.fillStyle = '#ffd1df';
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      // halay: el ele dönen bir yay
+      const [hx, hy] = along(g.stop + 22, 0);
+      for (let k = 0; k < 12; k++) {
+        const a = Math.PI * 0.15 + (k / 11) * Math.PI * 1.3 + Math.sin(t * 2) * 0.12;
+        const bob = Math.sin(t * 6 + k) * 0.12;
+        ctx.fillStyle = PED_COLORS[k % PED_COLORS.length];
+        ctx.beginPath();
+        ctx.arc(hx + Math.cos(a) * 3.2, hy + Math.sin(a) * 3.2 + bob, 0.36, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // mendil sallayan halaybaşı ve davulcu
+      ctx.fillStyle = '#d8261c';
+      ctx.fillRect(hx + Math.cos(Math.PI * 0.15) * 3.2 + 0.3, hy + Math.sin(Math.PI * 0.15) * 3.2 - 0.6 + Math.sin(t * 8) * 0.25, 0.4, 0.4);
+      ctx.fillStyle = '#8a5a2b';
+      ctx.beginPath();
+      ctx.arc(hx, hy, 0.55, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#f2e6c8';
+      ctx.lineWidth = 0.1;
+      ctx.stroke();
+    }
+    if (i.kind === 'breakdown' || i.kind === 'parked') {
+      ctx.save();
+      ctx.translate(i.x, i.y);
+      ctx.fillStyle = '#e8362a';
+      ctx.beginPath();
+      ctx.moveTo(0, 3.4);
+      ctx.lineTo(0.6, 4.4);
+      ctx.lineTo(-0.6, 4.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      const pulse = (t * 0.9) % 1;
+      ctx.strokeStyle = `rgba(255,190,40,${(1 - pulse) * 0.8})`;
+      ctx.lineWidth = 0.3;
+      ctx.beginPath();
+      ctx.arc(i.x, i.y, 2 + pulse * 5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+}
+
+/** Trafik ekibi: tepe lambalı ekip aracı olay yerine gider, varınca dubalar dizilir, memur iner. */
+export function drawTeams(ctx: CanvasRenderingContext2D, sim: Sim, t: number) {
+  for (const i of sim.incidents) {
+    if (!i.team || i.cleared !== undefined) continue;
+    const { sent, arrive, from } = i.team;
+    const go = Math.max(0, Math.min(1, (sim.t - sent - 3) / Math.max(0.1, arrive - sent - 3)));
+    if (sim.t < sent + 3) continue;
+    // olayın biraz gerisinde durur
+    const dx = i.x - from[0];
+    const dy = i.y - from[1];
+    const dl = Math.hypot(dx, dy) || 1;
+    const tx = i.x - (dx / dl) * 5;
+    const ty = i.y - (dy / dl) * 5;
+    const x = from[0] + (tx - from[0]) * go;
+    const y = from[1] + (ty - from[1]) * go;
+    const a = Math.atan2(dy, dx);
+    const on = blink(t, 3);
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, 8);
+    glow.addColorStop(0, on ? 'rgba(60,120,255,0.4)' : 'rgba(255,60,40,0.4)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a);
+    ctx.fillStyle = 'rgba(10,10,14,0.38)';
+    ctx.fillRect(-2.1, -0.65, 4.6, 1.9);
+    ctx.fillStyle = '#f6f6f2';
+    ctx.beginPath();
+    ctx.roundRect(-2.4, -0.95, 4.8, 1.9, 0.6);
+    ctx.fill();
+    ctx.fillStyle = '#1f4fa0';
+    ctx.fillRect(-2.2, -0.95, 4.2, 0.22);
+    ctx.fillRect(-2.2, 0.73, 4.2, 0.22);
+    ctx.fillStyle = '#1b232d';
+    ctx.fillRect(0.7, -0.75, 0.7, 1.5);
+    ctx.fillStyle = on ? '#3a7bff' : '#ff3a2e';
+    ctx.fillRect(-0.4, -0.7, 0.35, 0.7);
+    ctx.fillStyle = on ? '#ff3a2e' : '#3a7bff';
+    ctx.fillRect(-0.4, 0, 0.35, 0.7);
+    ctx.restore();
+    if (go >= 1) {
+      // dubalar ve fosforlu yelekli memur
+      for (let k = -1; k <= 1; k++) {
+        const cx = tx + Math.cos(a + Math.PI / 2) * k * 1.6 + Math.cos(a) * 2.6;
+        const cy = ty + Math.sin(a + Math.PI / 2) * k * 1.6 + Math.sin(a) * 2.6;
+        ctx.fillStyle = '#ff7a1a';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 0.32, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 0.14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const wave = Math.sin(t * 5) * 0.4;
+      ctx.fillStyle = '#d8f23a';
+      ctx.beginPath();
+      ctx.arc(i.x + Math.cos(a + 1.2) * 2.4, i.y + Math.sin(a + 1.2) * 2.4 + wave * 0.2, 0.42, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 }

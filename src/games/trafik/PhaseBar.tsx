@@ -63,13 +63,15 @@ interface Props {
   onSelect: (i: number | null) => void;
   onPlan: (p: Plan) => void;
   onJump: (i: number) => void;
+  /** Rehber bu parçayı gösteriyor: parlar. */
+  hint?: boolean;
 }
 
-export function PhaseCards({ sim, plan, selected, onSelect, onPlan }: Omit<Props, 'onJump'>) {
+export function PhaseCards({ sim, plan, selected, onSelect, onPlan, hint }: Omit<Props, 'onJump'>) {
   const { ctl } = sim;
   const setGreen = (i: number, g: number) => onPlan({ ...plan, phases: plan.phases.map((p, k) => (k === i ? { ...p, green: Math.max(STEP_LIMITS.min, Math.min(STEP_LIMITS.max, g)) } : p)) });
   return (
-    <div className={ui.cards} role="list" aria-label="Evreler">
+    <div className={`${ui.cards} ${hint ? styles.hint : ''}`} role="list" aria-label="Evreler">
       {plan.phases.map((p, i) => {
         const active = ctl.phase === i;
         const stage = active ? ctl.stage : null;
@@ -121,7 +123,7 @@ export function PhaseCards({ sim, plan, selected, onSelect, onPlan }: Omit<Props
 }
 
 /** Seçili evrenin düzenleyicisi: hareket düğmeleri, çakışma notları, sil, şimdi geç. */
-export function PhaseEditor({ sim, plan, selected, onSelect, onPlan, onJump }: Props) {
+export function PhaseEditor({ sim, plan, selected, onSelect, onPlan, onJump, hint }: Props) {
   if (selected === null || !plan.phases[selected]) return null;
   const phase = plan.phases[selected];
   const locked = !!sim.spec.lockMoves;
@@ -131,7 +133,7 @@ export function PhaseEditor({ sim, plan, selected, onSelect, onPlan, onJump }: P
     onPlan({ ...plan, phases: plan.phases.map((p, k): Phase => (k === selected ? { ...p, moves } : p)) });
   };
   return (
-    <section className={ui.editor} aria-label={`${selected + 1}. evreyi düzenle`}>
+    <section className={`${ui.editor} ${hint ? styles.hint : ''}`} aria-label={`${selected + 1}. evreyi düzenle`}>
       <header>
         <b>{selected + 1}. evre</b>
         <span>{locked ? 'Bu kavşakta evreler sabit; yalnızca süreler değişir.' : 'Aynı anda yeşil yanacak hareketleri seç.'}</span>

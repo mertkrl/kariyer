@@ -18,7 +18,125 @@ export function shade(hex: string, f: number) {
   return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
 }
 
+/** Köşedeki cami: taş avlu, kubbeli harim, yarım kubbeler ve köşede şerefeli minare. */
+function mosque(ctx: CanvasRenderingContext2D, b: Building, dusk: number) {
+  const { x, y, w, d } = b;
+  // avlu: taş döşeme, çevresinde alçak duvar
+  ctx.fillStyle = '#dcd4c2';
+  ctx.fillRect(x, y, w, d);
+  ctx.strokeStyle = '#b9b09c';
+  ctx.lineWidth = 0.35;
+  ctx.strokeRect(x + 0.2, y + 0.2, w - 0.4, d - 0.4);
+  // şadırvan
+  ctx.fillStyle = '#9fb3b8';
+  ctx.beginPath();
+  ctx.arc(x + w * 0.22, y + d * 0.5, 1.4, 0, Math.PI * 2);
+  ctx.fill();
+  // harim: avlunun gerisinde bir kutu
+  const hx = x + w * 0.42;
+  const hy = y + 2;
+  const hw = w * 0.54;
+  const hd = d - 4;
+  const H = 9;
+  const ox = H * OBL_X;
+  const oy = -H * OBL_Y;
+  ctx.fillStyle = shade(b.color, 0.7);
+  ctx.beginPath();
+  ctx.moveTo(hx, hy);
+  ctx.lineTo(hx, hy + hd);
+  ctx.lineTo(hx + ox, hy + hd + oy);
+  ctx.lineTo(hx + ox, hy + oy);
+  ctx.closePath();
+  ctx.fill();
+  ctx.save();
+  ctx.transform(1, 0, ox / H, oy / H, hx, hy + hd);
+  ctx.fillStyle = b.color;
+  ctx.fillRect(0, 0, hw, H);
+  // kemerli pencereler, iki sıra
+  for (const v0 of [1.4, 5.2])
+    for (let u = 1.2; u < hw - 1.2; u += 2.2) {
+      ctx.fillStyle = dusk > 0.3 ? '#f5d58c' : '#4b5b66';
+      ctx.beginPath();
+      ctx.moveTo(u, v0);
+      ctx.lineTo(u + 1, v0);
+      ctx.lineTo(u + 1, v0 + 1.8);
+      ctx.arc(u + 0.5, v0 + 1.8, 0.5, 0, Math.PI);
+      ctx.closePath();
+      ctx.fill();
+    }
+  ctx.restore();
+  const rx = hx + ox;
+  const ry = hy + oy;
+  ctx.fillStyle = shade(b.color, 0.9);
+  ctx.fillRect(rx, ry, hw, hd);
+  // yarım kubbeler ve ana kubbe: kurşun gri
+  const cx = rx + hw / 2;
+  const cy = ry + hd / 2;
+  const R = Math.min(hw, hd) * 0.36;
+  const dome = (px: number, py: number, rr: number) => {
+    const g = ctx.createRadialGradient(px - rr * 0.35, py - rr * 0.55, rr * 0.1, px, py - rr * 0.2, rr);
+    g.addColorStop(0, '#b7c2c9');
+    g.addColorStop(1, '#56636d');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(px, py - rr * 0.25, rr, rr * 0.92, 0, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  for (const [dx, dy] of [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ])
+    dome(cx + dx * R * 1.05, cy + dy * R * 0.95, R * 0.45);
+  dome(cx, cy, R);
+  ctx.strokeStyle = '#d6b44a';
+  ctx.lineWidth = 0.18;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - R * 1.15);
+  ctx.lineTo(cx, cy - R * 1.6);
+  ctx.stroke();
+  // minare: kavşağa uzak köşede, çatı kuzeye eğik görünür
+  const mx = Math.abs(x) > Math.abs(x + w) ? x + 1.5 : x + w - 1.5;
+  const my = Math.abs(y) > Math.abs(y + d) ? y + 1.5 : y + d - 1.5;
+  const top = 30;
+  const tx = mx + top * OBL_X;
+  const ty = my - top * OBL_Y;
+  ctx.strokeStyle = 'rgba(20,20,26,0.25)';
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(mx, my);
+  ctx.lineTo(mx + top * 0.32, my + top * 0.18);
+  ctx.stroke();
+  ctx.strokeStyle = '#ece6d8';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(mx, my);
+  ctx.lineTo(tx, ty);
+  ctx.stroke();
+  ctx.strokeStyle = shade('#ece6d8', 0.7);
+  ctx.lineWidth = 0.25;
+  ctx.beginPath();
+  ctx.moveTo(mx + 0.4, my);
+  ctx.lineTo(tx + 0.4, ty);
+  ctx.stroke();
+  // şerefe ve külah
+  const sh = 22;
+  ctx.fillStyle = '#d9d2c2';
+  ctx.beginPath();
+  ctx.ellipse(mx + sh * OBL_X, my - sh * OBL_Y, 1.05, 0.55, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#5d6a74';
+  ctx.beginPath();
+  ctx.moveTo(tx - 0.55, ty);
+  ctx.lineTo(tx + 0.55, ty);
+  ctx.lineTo(tx + 0.5 * OBL_X * 8, ty - 3.2);
+  ctx.closePath();
+  ctx.fill();
+}
+
 export function building(ctx: CanvasRenderingContext2D, b: Building, dusk: number) {
+  if (b.landmark === 'cami') return mosque(ctx, b, dusk);
   const r = rng(b.seed);
   const H = b.floors * 3 + 0.8;
   const ox = H * OBL_X;
@@ -141,7 +259,7 @@ export function building(ctx: CanvasRenderingContext2D, b: Building, dusk: numbe
           [0.72, [[rx, ry + d], [rx + w, ry + d], [rx + ridge, ry + d - ridge]]],
         ];
     for (const [f, pts] of facets) {
-      ctx.fillStyle = shade('#b4563a', f);
+      ctx.fillStyle = shade(b.landmark === 'kosk' ? '#8a3f2c' : '#b4563a', f);
       ctx.beginPath();
       pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
       ctx.closePath();

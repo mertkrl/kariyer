@@ -20,6 +20,11 @@ export function walkTime(s: Sim, leg: Dir, green: number) {
 }
 
 export function signal(s: Sim, mv: MoveId): SignalState {
+  if (s.manual) {
+    // elle kumanda: araç ışığı kolun ışığı; yaya, bütün kollar kırmızıyken yürür
+    if (turnOf(mv) !== 'P') return s.manual[legOf(mv)]?.st ?? 'red';
+    return Object.values(s.manual).every((m) => m.st === 'red') ? 'green' : 'red';
+  }
   const { ctl, plan } = s;
   const cur = plan.phases[ctl.phase];
   if (!cur?.moves.includes(mv)) return 'red';
