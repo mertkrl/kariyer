@@ -30,14 +30,9 @@ function useShuffled(n: number) {
   return order;
 }
 
-function Previous({ q, selected }: { q: ExamQuestion; selected: number | null }) {
-  if (selected === null) return null;
-  return <p className={styles.prev}>Önceki cevabınız: {q.options[selected]}</p>;
-}
-
 /* ── sözleşme ── */
 
-export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'contract' }>>) {
+export function ContractWidget({ w, onAnswer }: Props<Extract<ExamWidget, { type: 'contract' }>>) {
   const box = useRef<HTMLDivElement>(null);
   const [read, setRead] = useState(false);
   const [done, setDone] = useState<'signed' | 'refused' | null>(null);
@@ -82,7 +77,6 @@ export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
           </button>
         </div>
       )}
-      <Previous q={q} selected={selected} />
     </div>
   );
 }
@@ -91,7 +85,7 @@ export function ContractWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
 
 const FLING = 90;
 
-export function SwipeWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'swipe' }>>) {
+export function SwipeWidget({ w, onAnswer }: Props<Extract<ExamWidget, { type: 'swipe' }>>) {
   const order = useShuffled(w.cards.length);
   const [n, setN] = useState(0);
   const [wanted, setWanted] = useState<Set<number>>(new Set());
@@ -190,14 +184,13 @@ export function SwipeWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidg
           ✓
         </button>
       </div>
-      <Previous q={q} selected={selected} />
     </div>
   );
 }
 
 /* ── şifre ── */
 
-export function PasswordWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'password' }>>) {
+export function PasswordWidget({ w, onAnswer }: Props<Extract<ExamWidget, { type: 'password' }>>) {
   const [pw, setPw] = useState('');
   // kurallar birer birer açılır ve açılan kural bir daha kapanmaz
   const [shown, setShown] = useState(1);
@@ -278,14 +271,13 @@ export function PasswordWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
           </button>
         </div>
       )}
-      <Previous q={q} selected={selected} />
     </div>
   );
 }
 
 /* ── bilgisayarı kapatmak ── */
 
-export function ShutdownWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'shutdown' }>>) {
+export function ShutdownWidget({ w, onAnswer }: Props<Extract<ExamWidget, { type: 'shutdown' }>>) {
   // null: masaüstü; sayı: o sıradaki uyarı açık; 'off' | 'back' | 'left': bitti
   const [at, setAt] = useState<number | 'off' | 'back' | 'left' | null>(null);
   const answer = (passed: number, leftOn = false) => onAnswer(shutdownOption(passed, w.dialogs.length, leftOn));
@@ -355,14 +347,13 @@ export function ShutdownWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
         {at === 'back' && <p className={styles.desktopNote}>Masanıza döndünüz. Saat 18:00 ve hâlâ 18:00.</p>}
         {at === 'left' && <p className={styles.desktopNote}>Ekran açık, siz yoksunuz. Yöneticiniz sizi hâlâ "müsait" görüyor.</p>}
       </div>
-      <Previous q={q} selected={selected} />
     </div>
   );
 }
 
 /* ── asansör ── */
 
-export function ElevatorWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'elevator' }>>) {
+export function ElevatorWidget({ q, w, onAnswer }: Props<Extract<ExamWidget, { type: 'elevator' }>>) {
   const order = useShuffled(q.options.length);
   const [stage, setStage] = useState<'ready' | 'ride' | 'done'>('ready');
   const [floor, setFloor] = useState(0);
@@ -433,7 +424,6 @@ export function ElevatorWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
           ))}
         </div>
       )}
-      <Previous q={q} selected={selected} />
     </div>
   );
 }
@@ -442,7 +432,7 @@ export function ElevatorWidget({ q, w, onAnswer, selected }: Props<Extract<ExamW
 
 const STEP = 10;
 
-export function BudgetWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'budget' }>>) {
+export function BudgetWidget({ w, onAnswer }: Props<Extract<ExamWidget, { type: 'budget' }>>) {
   const [alloc, setAlloc] = useState<number[]>(() => w.lines.map(() => 0));
   const [sent, setSent] = useState(false);
   const left = w.total - alloc.reduce((a, b) => a + b, 0);
@@ -490,7 +480,6 @@ export function BudgetWidget({ q, w, onAnswer, selected }: Props<Extract<ExamWid
           {left === 0 ? 'Bütçeyi onaya gönder' : `Önce ${left} birim daha dağıtın`}
         </button>
       )}
-      <Previous q={q} selected={selected} />
     </div>
   );
 }

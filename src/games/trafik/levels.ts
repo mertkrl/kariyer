@@ -55,7 +55,10 @@ export const LEVELS: Level[] = [
         { leg: 'E', rate: 5 },
         { leg: 'W', rate: 5 },
       ],
-      events: [{ at: 20, kind: 'note', text: 'Altıyol’dan gelen kuyruk Boğa heykeline uzanıyor.' }],
+      events: [
+        { at: 20, kind: 'note', text: 'Altıyol’dan gelen kuyruk Boğa heykeline uzanıyor.' },
+        { at: 95, kind: 'parked', leg: 'N', sec: 35, text: 'Altıyol’da biri çift sıra park etti: “İki dakika abi!” Kol yavaş akıyor.' },
+      ],
       plan: {
         phases: [
           { moves: [...NS, 'E.P', 'W.P'], green: 15 },
@@ -99,7 +102,10 @@ export const LEVELS: Level[] = [
         { leg: 'N', rate: 3 },
         { leg: 'S', rate: 3 },
       ],
-      events: [{ at: 40, kind: 'note', text: 'Plazaların otoparkına giren kuyruk sol şeritten taştı.' }],
+      events: [
+        { at: 40, kind: 'note', text: 'Plazaların otoparkına giren kuyruk sol şeritten taştı.' },
+        { at: 120, kind: 'courier', mv: 'E.T', text: 'Kozyatağı’ndan bir motokurye geliyor; ışığa bakan biri değil. Tüm kırmızıya güven.' },
+      ],
       plan: {
         phases: [
           { moves: [...EW, 'N.P', 'S.P'], green: 40 },
@@ -176,7 +182,10 @@ export const LEVELS: Level[] = [
           ],
         },
       ],
-      events: [{ at: 88, kind: 'note', text: 'Zil çaldı. Lisenin kapısı açıldı, metrodan da bir tren boşaldı.' }],
+      events: [
+        { at: 88, kind: 'note', text: 'Zil çaldı. Lisenin kapısı açıldı, metrodan da bir tren boşaldı.' },
+        { at: 150, kind: 'convoy', mv: 'W.T', n: 6, text: 'Kurtuluş’tan düğün konvoyu geliyor: altı araç, bayraklar ve susmayan kornalar.' },
+      ],
       plan: {
         phases: [
           { moves: NS, green: 30 },
@@ -224,6 +233,7 @@ export const LEVELS: Level[] = [
       events: [
         { at: 55, kind: 'ambulance', mv: 'W.T', text: 'Ambulans Okmeydanı’ndan geliyor, Şişli Etfal’e gidecek: Batı koluna yeşil lazım.' },
         { at: 135, kind: 'ambulance', mv: 'S.L', text: 'Ambulans Zincirlikuyu’dan geliyor, sola dönecek: Güney sola yeşil lazım.' },
+        { at: 180, kind: 'parked', leg: 'W', sec: 15, text: 'Okmeydanı tarafında bir servis minibüsü çift sıra park etti. Kol yavaşladı.' },
       ],
       plan: {
         phases: [
@@ -311,6 +321,7 @@ export const LEVELS: Level[] = [
         { leg: 'S', rate: 6 },
       ],
       events: [
+        { at: 60, kind: 'convoy', mv: 'S.T', n: 5, text: 'Çarşı’dan maç sonrası konvoy çıktı: beş araç, kornalar susmuyor.' },
         { at: 100, kind: 'note', text: 'Vapur iskeleye yanaştı. Sahilden araçlar ve yolcular geliyor.' },
         { at: 150, kind: 'ambulance', mv: 'N.T', text: 'Ambulans Zincirlikuyu’dan iniyor, çarşıya düz geçecek.' },
       ],

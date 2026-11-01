@@ -1,61 +1,190 @@
 /*
- * Gün sonu: geniş kâğıt; üstte dört gösterge kartı, solda çizgili kasa defteri ve kasa grafiği,
- * sağda radyo haberi ve yarının siparişleri. Dar ekranda tek sütuna iner.
+ * Gün sonu: kepenk inmiş dükkânın içi. Ahşap duvarda tavandaki ampulün sıcak ışığı; üstte
+ * tebeşirle yazılmış kara tahta ve fiyat etiketi gibi asılı göstergeler; altta kâğıtlar: kasanın
+ * Z raporu fişi ve kasa defteri, Kemal'in sipariş listesi, yarının hazırlığı.
+ *
+ * Yerleşim: bütün ekranı kaplayan, yatay kullanılan sayfa. Üstte başlık ve gösterge kartları yan
+ * yana; altta üç sütun: solda kasa defteri ve grafiği, ortada Kemal'in iki sütunlu listesi, sağda
+ * bayat mal kararı, siparişin hesabı ve başlat düğmesi. Geniş ekranda kaydırmadan sığar; dar
+ * ekranda alt alta iner. Defter açılırsa bunun üstünde durur.
  */
 .sheet {
-  width: min(940px, calc(100vw - 24px));
-  max-height: calc(100dvh - 76px);
-  padding: 20px 22px;
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  overflow: auto;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% -8%, rgba(255, 214, 140, 0.42), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 132px),
+    linear-gradient(#6b4527, #4a2e19);
+  font-size: 13px;
   text-align: left;
-  transform: translate(-50%, -46%);
+  animation: sheetIn 0.25s var(--ease-enter, ease-out);
+}
+
+.inner {
+  width: min(1680px, 100%);
+  margin: 0 auto;
+  padding: 14px 20px 20px;
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (max-width: 560px) {
+  .inner {
+    padding: 16px 16px 32px;
+  }
+}
+
+/* bayat mal: atılacak mı rafta mı kalacak */
+.rotten {
+  padding: 10px 12px;
+  background: #fff3e6;
+  border: 1px dashed #d9a26a;
+  border-radius: 10px;
+  font-family: var(--font-body);
+}
+
+.rotten h3 {
+  margin: 0 0 4px;
+  font: 700 15px/1.2 var(--font-display);
+  color: #7a3a14;
+}
+
+.rotten p {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: #6a4a2a;
+}
+
+.rotten ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rotten li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rotten small {
+  color: var(--text-muted);
+}
+
+.toggle {
+  display: inline-flex;
+  border: 1px solid #c9b88a;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.toggle button {
+  padding: 4px 12px;
+  border: 0;
+  background: #fff;
+  font: 600 12px/1.2 var(--font-body);
+  cursor: pointer;
+}
+
+.toggle .on {
+  background: #8a5a2b;
+  color: #fff;
 }
 
 .head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 12px;
-  border-bottom: 2px dashed #d9cba6;
+  gap: 12px 24px;
+  margin-bottom: 12px;
 }
 
+.title {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  padding: 12px 22px 14px;
+  border: 7px solid #8a5a2b;
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.07), transparent 60%),
+    #2c3b31;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.5), 0 6px 14px rgba(0, 0, 0, 0.35);
+  color: #f2efe2;
+}
+
+/* kara tahta: tebeşir yazısı */
 .head h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font: 700 2.1rem/1 'Caveat', cursive;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
 .kicker {
   margin: 0;
-  color: var(--text-muted);
+  color: #c9d6c8;
   font: 600 var(--fs-small) var(--font-mono);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .mood {
-  margin: 0;
-  padding: 5px 12px;
-  background: #fff3c4;
-  border-radius: 999px;
-  font-weight: 600;
+  margin: 4px 0 0;
+  color: #f3d27a;
+  font: 600 1.05rem/1.1 'Caveat', cursive;
 }
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  flex: 1 1 520px;
+  max-width: 980px;
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
-  margin: 14px 0;
 }
 
 .tile {
+  position: relative;
   display: grid;
-  gap: 2px;
-  padding: 10px 12px;
-  background: #fffdf6;
-  border: 1px solid #e6dcc0;
-  border-radius: 12px;
-  box-shadow: 0 2px 0 #e6dcc0;
+  gap: 1px;
+  padding: 10px 12px 9px 26px;
+  background: #fffaf0;
+  border: 0;
+  border-radius: 4px 10px 10px 4px;
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transform: rotate(-1deg);
+}
+
+/* fiyat etiketi: sivri ucunda ipin geçtiği delik, etiketler hafif yamuk asılı */
+.tile::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: #4a2e19;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.tile:nth-child(even) {
+  transform: rotate(1.2deg);
 }
 
 .tile small {
@@ -83,8 +212,6 @@
 /* kasa kartı: yeşil çuha üstünde bozuk para rengi */
 .cash {
   background: linear-gradient(160deg, #2f5a43, #1f3f2f);
-  border-color: #1b3527;
-  box-shadow: 0 2px 0 #142a1e;
   color: #f5ecd0;
 }
 
@@ -95,7 +222,6 @@
 
 .bad {
   background: linear-gradient(160deg, #7a2a20, #551a14);
-  border-color: #3f120e;
 }
 
 .up {
@@ -116,8 +242,42 @@
 
 .cols {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
+  align-items: start;
+  gap: 14px;
+}
+
+/* ana sütun: üstte Kemal'in listesi, altında yan yana Z raporu fişi ve kasa defteri */
+.main {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.left {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  align-items: start;
+  gap: 14px;
+}
+
+/* günün notları: sağ sütunun başında, iğneyle tutturulmuş küçük kâğıt */
+.news {
+  padding: 10px 12px;
+  background: #fffdf4;
+  border-radius: 10px;
+  font-family: var(--font-body);
+}
+
+.news h3 {
+  margin: 0 0 4px;
+  font: 700 15px/1.2 var(--font-display);
+  color: #5a3a1c;
+}
+
+.news .notes {
+  margin: 0;
 }
 
 /* kasa defteri: mavi çizgili kâğıt, kırmızı kenar */
@@ -125,10 +285,10 @@
   padding: 12px 14px 12px 34px;
   background:
     linear-gradient(90deg, transparent 22px, rgba(206, 80, 80, 0.5) 22px 23px, transparent 23px),
-    repeating-linear-gradient(transparent 0 25px, #cfdcea 25px 26px) 0 34px,
+    repeating-linear-gradient(transparent 0 21px, #cfdcea 21px 22px) 0 34px,
     #fffdf4;
   border-radius: 6px;
-  box-shadow: inset 0 0 0 1px #e8dfc6;
+  box-shadow: inset 0 0 0 1px #e8dfc6, 0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
 .ledger h3 {
@@ -139,13 +299,30 @@
 
 .ledger dl {
   margin: 0;
+  columns: 2;
+  column-gap: 24px;
+}
+
+.ledger dl > div {
+  break-inside: avoid;
+}
+
+/* günün farkı iki sütunun altında, tam genişlikte */
+.ledger dl > .total {
+  column-span: all;
+}
+
+@media (max-width: 1100px) {
+  .ledger dl {
+    columns: 1;
+  }
 }
 
 .ledger dl > div {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font: 500 19px/26px 'Caveat', cursive;
+  font: 500 17px/22px 'Caveat', cursive;
   color: #2c3560;
 }
 
@@ -160,13 +337,13 @@
 }
 
 .chart {
-  margin: 12px 0 6px;
+  margin: 8px 0 0;
 }
 
 .chart svg {
   display: block;
   width: 100%;
-  height: 70px;
+  height: 54px;
 }
 
 .chart figcaption {
@@ -213,29 +390,132 @@
 .plan {
   display: grid;
   align-content: start;
-  gap: 0;
+  gap: 10px;
 }
 
-/* radyo: yarının havası, köy olayı ve zam haberi */
-.radio {
+/* sipariş listesi ve yarının hazırlığı da duvardaki ışıkta kâğıt gibi durur */
+.main > :first-child,
+.plan > * {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* Z raporu: kasadan çıkan termal fiş; kenarı tırtıklı, yazısı daktilo */
+.z {
+  position: relative;
+  padding: 14px 14px 22px;
+  background: #fbf8f0;
+  color: #2b2f33;
+  font: 500 12px/1.45 var(--font-mono);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 95% 100%, 90% calc(100% - 8px), 85% 100%, 80% calc(100% - 8px), 75% 100%, 70% calc(100% - 8px), 65% 100%, 60% calc(100% - 8px), 55% 100%, 50% calc(100% - 8px), 45% 100%, 40% calc(100% - 8px), 35% 100%, 30% calc(100% - 8px), 25% 100%, 20% calc(100% - 8px), 15% 100%, 10% calc(100% - 8px), 5% 100%, 0 calc(100% - 8px));
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+  animation: print 0.6s ease-out both;
+}
+
+.z header {
   display: grid;
-  gap: 2px;
-  padding: 10px 12px;
-  background: linear-gradient(#5c3b22, #4a2f1b);
-  border-radius: 10px;
-  color: #f5ecd0;
+  justify-items: center;
+  gap: 1px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed #b9b2a2;
+  font-size: 11px;
+  color: #6a6458;
 }
 
-.radio span {
-  font-size: 12.5px;
-  opacity: 0.85;
+.z header b {
+  color: #2b2f33;
+  font-size: 13px;
+  letter-spacing: 2px;
 }
 
-.radio .hike {
-  margin-top: 4px;
-  color: #ffd27a;
-  font-weight: 700;
-  opacity: 1;
+.z h3 {
+  margin: 0 0 6px;
+  font: 700 11px var(--font-mono);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.z ol {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.z li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.zName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+/* ad ile adet arasında noktalı çizgi */
+.zDots {
+  flex: 1 1 20px;
+  border-bottom: 1px dotted #9a9384;
+  transform: translateY(-3px);
+}
+
+.zTrack {
+  flex-basis: 100%;
+}
+
+.zBar {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: #2b2f33;
+  opacity: 0.75;
+  transform-origin: left;
+  animation: grow 0.7s 0.3s ease-out both;
+}
+
+.zNote {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+}
+
+.z footer {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #8a8476;
+}
+
+/* fiş kasanın ağzından aşağı doğru çıkar */
+@keyframes print {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z,
+  .zBar {
+    animation: none;
+  }
+}
+
+.start {
+  width: 100%;
+  padding-block: 12px;
+  font-size: 15px;
 }
 
 .warn {
@@ -254,13 +534,11 @@
   gap: 12px;
 }
 
-.retire {
-  border: 0;
-  background: none;
-  color: var(--text-muted);
-  font: 600 var(--fs-small) var(--font-body);
-  text-decoration: underline;
-  cursor: pointer;
+
+@media (max-width: 1100px) {
+  .left {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -282,4 +560,9 @@
   color: var(--ink);
   font: 700 var(--fs-small) var(--font-body);
   cursor: pointer;
+}
+
+.downNote {
+  color: var(--red);
+  font-weight: 600;
 }

@@ -1,51 +1,25 @@
-/* Oyun salonu: spiralli kareli defter, fosforlu kalem, el yazısı notlar, bantlı dosyalar, patron tuşu. */
+/* Oyun salonu: kırmızı kenar çizgili kareli defter, fosforlu kalem, el yazısı notlar, bantlı dosyalar, patron tuşu. */
 
 .page {
   --mx: 50%;
   --my: 30%;
   position: relative;
   min-height: 100%;
-  /* solda spiral tel ve örgü kenarlık için boşluk (notebook/Decor) */
+  /* solda kenar çizgisi ve örgü kenarlık için boşluk (notebook/Decor) */
   padding: 30px 32px 130px 132px;
   overflow: hidden;
   isolation: isolate;
   color: var(--ink);
   /*
-   * kareli defter: kâğıt dokusu ve lifler, sıcak beyaz bir kâğıt, 22 px'lik basılı mavi kareler
-   * (karalama süsleri, notebook/Decor, bu kareye oturur). Spiral tel ve kenar gölgesi aşağıda.
+   * kareli defter: beyaz kâğıt, 22 px'lik gri kareler ve soldaki kırmızı kenar çizgisi (bir
+   * karenin çizgisine oturur). Örgü kenarlık (notebook/Decor) da bu karelere oturur.
    */
+  --margin: 66px;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .25 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .2' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .44 0 0 0 0 .3 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23f%29'/%3E%3C/svg%3E"),
-    linear-gradient(rgba(92, 138, 186, 0.32) 1px, transparent 1px) 0 0 / 22px 22px,
-    linear-gradient(90deg, rgba(92, 138, 186, 0.32) 1px, transparent 1px) 0 0 / 22px 22px,
-    linear-gradient(180deg, #fdfcf6, #faf7ec);
-}
-
-/* spiral tel: sol kenarda delikler ve içinden geçen metal halkalar */
-.page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 2;
-  width: 48px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='44'%3E%3Cdefs%3E%3ClinearGradient id='m' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f7f8fa'/%3E%3Cstop offset='.45' stop-color='%23b4bac3'/%3E%3Cstop offset='1' stop-color='%235d636c'/%3E%3C/linearGradient%3E%3CradialGradient id='h' cx='.4' cy='.35' r='.7'%3E%3Cstop offset='0' stop-color='%231a1a1a'/%3E%3Cstop offset='1' stop-color='%234a4a4a'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='23' r='5.6' fill='%23fff' fill-opacity='.6'/%3E%3Ccircle cx='32' cy='22' r='5.2' fill='url%28%23h%29'/%3E%3Cpath d='M3 31 C 4 12, 22 6, 31 19' fill='none' stroke='%23000' stroke-opacity='.18' stroke-width='6' stroke-linecap='round' transform='translate%281.5 2%29'/%3E%3Cpath d='M3 31 C 4 12, 22 6, 31 19' fill='none' stroke='url%28%23m%29' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") 0 11px / 48px 44px repeat-y;
-  pointer-events: none;
-}
-
-/* kâğıdın kenarları: hafif gölge, tel tarafında daha koyu (sayfa kıvrılır) */
-.page::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(90deg, rgba(70, 55, 25, 0.16), rgba(70, 55, 25, 0.04) 50px, transparent 110px),
-    linear-gradient(270deg, rgba(70, 55, 25, 0.1), transparent 60px);
-  box-shadow: inset 0 0 140px rgba(110, 90, 40, 0.1);
-  pointer-events: none;
+    linear-gradient(90deg, transparent calc(var(--margin) - 1px), #d8262c calc(var(--margin) - 1px) calc(var(--margin) + 1px), transparent calc(var(--margin) + 1px)),
+    linear-gradient(#b9bcc1 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, #b9bcc1 1px, transparent 1px) 0 0 / 22px 22px,
+    #ffffff;
 }
 
 /* fosforlu kalem ışığı: imlecin olduğu yer sarı */
@@ -66,7 +40,8 @@
 /* ── üst ── */
 .top {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  /* başlık solda, saat tam ortada, patron sağda: iki yan sütun eşit, orta sütun ortalanır */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 18px 28px;
   max-width: 1240px;
@@ -108,6 +83,7 @@
 
 .clockWrap {
   position: relative;
+  justify-self: center;
   padding: 10px 18px;
 }
 
@@ -147,6 +123,13 @@
   text-transform: uppercase;
 }
 
+/* saatin kutusu yok: etrafındaki kırmızı halka yeter */
+.clockWrap > p {
+  border-color: transparent;
+  /* soluk sarı zemin: yazı kareli kâğıdın çizgilerinden ayrılsın */
+  background: #fff6c4;
+}
+
 .shelf .hand {
   text-transform: none;
   letter-spacing: 0;
@@ -159,7 +142,8 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 58px 26px;
+  /* satır arası: üstteki kartın sonuç notu (alttan 30px) ile alttakinin el yazısı notu (üstten 44px) çakışmasın */
+  gap: 96px 26px;
 }
 
 .slot {
@@ -171,47 +155,6 @@
 .slot:hover,
 .slot:focus-within {
   transform: rotate(0deg) translateY(-4px);
-}
-
-/* bant: iki üst köşede yarı saydam kâğıt bant */
-.slot::before,
-.slot::after {
-  content: '';
-  position: absolute;
-  top: 16px;
-  z-index: 3;
-  width: 70px;
-  height: 22px;
-  background: rgba(240, 220, 150, 0.7);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  pointer-events: none;
-  transition:
-    transform 200ms var(--ease-enter),
-    box-shadow 200ms ease,
-    opacity 200ms ease;
-}
-
-/* sol bant kartın alt köşesinde: üstteki dosya numarası ve "Oyna" açık kalsın */
-.slot::before {
-  top: auto;
-  bottom: -6px;
-  left: -18px;
-  transform: rotate(32deg);
-}
-
-.slot::after {
-  right: -14px;
-  transform: rotate(30deg);
-}
-
-.slot:nth-child(3n + 2)::before,
-.slot:nth-child(3n + 2)::after {
-  background: rgba(150, 200, 230, 0.65);
-}
-
-.slot:nth-child(3n)::before,
-.slot:nth-child(3n)::after {
-  background: rgba(240, 170, 180, 0.6);
 }
 
 /* el yazısı not: kartın üstünde, oku karta doğru */
@@ -252,40 +195,19 @@
 
 /* ── telefon ── */
 /* ── günün notu: başlığın yanında, sarı bir yapışkan not ── */
-.daily {
-  justify-self: center;
-  display: grid;
-  gap: 2px;
-  max-width: 260px;
-  padding: 10px 14px 12px;
-  background: #fff6a8;
-  box-shadow: 2px 6px 12px rgba(60, 50, 10, 0.18);
-  transform: rotate(-2deg);
-}
-
-.daily small {
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: #7a6a1c;
-}
-
-.daily span {
-  font: 700 1.45rem/1.05 'Caveat', cursive;
-  color: #2b2620;
-}
-
 .side {
   display: grid;
+  justify-self: end;
   justify-items: end;
   gap: 12px;
 }
 
-/* ── patron tuşu: kâğıda konmuş gerçek bir klavye tuşu ve yanında el yazısı ── */
+/* ── patron: kâğıda kalemle çizilmiş, aralık kapıdan bakan bir patron ve yanında el yazısı ── */
 .bossBtn {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 6px 4px 6px 6px;
+  gap: 10px;
+  padding: 4px;
   border: 0;
   background: none;
   color: #2c4f8f;
@@ -293,71 +215,73 @@
   cursor: pointer;
 }
 
-.key {
-  position: relative;
+.doodle {
   flex: none;
-  width: 58px;
-  height: 52px;
-  border-radius: 10px;
-  background:
-    radial-gradient(120% 90% at 50% 20%, #ffffff, #eceef1 70%),
-    #e9ebee;
-  border: 1px solid #c3c7ce;
-  box-shadow:
-    inset 0 -5px 0 rgba(0, 0, 0, 0.06),
-    inset 0 2px 0 #fff,
-    0 5px 0 #a9aeb7,
-    0 6px 0 #9097a1,
-    0 10px 14px rgba(40, 40, 60, 0.28);
-  transition:
-    transform 90ms ease,
-    box-shadow 90ms ease;
+  width: 70px;
+  height: 64px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.key small {
-  position: absolute;
-  top: 7px;
-  left: 9px;
-  font: 600 13px var(--font-mono);
-  color: #4a505a;
-  letter-spacing: 0.04em;
+.door {
+  stroke: #2b2620;
 }
 
-/* üstüne gelince tuşun köşesine kalemle bir halka: "buna bas" */
-.key::after {
-  content: '';
-  position: absolute;
-  right: -10px;
-  bottom: -12px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #d65850;
-  opacity: 0;
-  transform: scale(0.6);
-  transition:
-    opacity 160ms ease,
-    transform 160ms ease;
+/* patron kapının arkasından yavaşça kafasını uzatır; üstüne gelince iyice çıkar */
+.peek {
+  transform: translateX(-6px);
+  animation: peek 4s ease-in-out infinite;
+  transition: transform 200ms ease;
 }
 
-.bossBtn:hover .key,
-.bossBtn:focus-visible .key {
-  transform: translateY(-2px);
+@keyframes peek {
+  0%,
+  60%,
+  100% {
+    transform: translateX(-8px);
+  }
+  70%,
+  90% {
+    transform: translateX(0);
+  }
 }
 
-.bossBtn:active .key {
-  transform: translateY(5px);
-  box-shadow:
-    inset 0 -2px 0 rgba(0, 0, 0, 0.06),
-    inset 0 2px 0 #fff,
-    0 0 0 #a9aeb7,
-    0 1px 0 #9097a1,
-    0 3px 6px rgba(40, 40, 60, 0.25);
+.bang {
+  stroke: #d65850;
+  stroke-width: 3.4;
+  animation: bang 4s ease-in-out infinite;
 }
 
-.bossBtn:hover .key::after {
+@keyframes bang {
+  0%,
+  65%,
+  100% {
+    opacity: 0;
+  }
+  72%,
+  90% {
+    opacity: 1;
+  }
+}
+
+.bossBtn:hover .peek,
+.bossBtn:focus-visible .peek {
+  animation: none;
+  transform: translateX(4px) rotate(-4deg);
+}
+
+.bossBtn:hover .bang,
+.bossBtn:focus-visible .bang {
+  animation: none;
   opacity: 1;
-  transform: scale(1);
+}
+
+.bossBtn:active .doodle {
+  transform: scale(0.94);
 }
 
 .bossText {
@@ -368,6 +292,7 @@
 .bossText b {
   position: relative;
   font: 700 1.6rem 'Caveat', cursive;
+  color: #c2413a;
 }
 
 /* altı kırmızı kalemle çizilmiş dalgalı bir çizgi */
@@ -393,49 +318,11 @@
   border-radius: 12px;
 }
 
-/* mesai saatinde tuş hafifçe kırmızı yanıp söner: patron her an gelebilir */
-.alert .key {
-  animation: alertKey 2.4s ease-in-out infinite;
-}
-
-.alert .bossText b {
-  color: #c2413a;
-}
-
-@keyframes alertKey {
-  50% {
-    box-shadow:
-      inset 0 -5px 0 rgba(0, 0, 0, 0.06),
-      inset 0 2px 0 #fff,
-      0 5px 0 #a9aeb7,
-      0 6px 0 #9097a1,
-      0 10px 14px rgba(40, 40, 60, 0.28),
-      0 0 0 6px rgba(214, 88, 80, 0.25);
+@media (prefers-reduced-motion: reduce) {
+  .peek,
+  .bang {
+    animation: none;
   }
-}
-
-/* ── yapılacaklar: dolabın başlığında, elle çizilmiş bir ilerleme çubuğu ── */
-.todo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.todoBar {
-  width: 120px;
-  height: 12px;
-  border: 2px solid #2c4f8f;
-  border-radius: 7px 4px 8px 3px;
-  overflow: hidden;
-}
-
-.todoBar i {
-  display: block;
-  height: 100%;
-  background: repeating-linear-gradient(-45deg, #2c4f8f 0 3px, transparent 3px 7px);
-  transition: width 600ms ease;
 }
 
 /* hepsi bitince sayfaya vurulan damga */
@@ -532,26 +419,8 @@
   color: #d65850;
 }
 
-/* ── bant hareketi: üstüne gelince bantlar kalkar, tıklayınca sağdaki kopar ── */
-.slot:hover::after,
-.slot:focus-within::after {
-  transform: rotate(38deg) translate(3px, -6px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.16);
-}
-
-.slot:hover::before,
-.slot:focus-within::before {
-  transform: rotate(24deg) translate(-3px, 4px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.16);
-}
-
 .tearing {
   transform: rotate(0deg) translateY(-10px) scale(1.02) !important;
-}
-
-.tearing::after {
-  opacity: 0;
-  transform: rotate(80deg) translate(60px, -40px) !important;
 }
 
 /* ── saate göre ton: fosforlu kalemin rengi ve kenar çizgisi ── */
@@ -567,26 +436,15 @@
   background: rgba(255, 150, 120, 0.6);
 }
 
-/* orta ekran: günün notu başlığın altına iner */
-@media (max-width: 1100px) {
-  .top {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .daily {
-    grid-row: 2;
-    justify-self: start;
-  }
-}
-
 @media (max-width: 760px) {
   .page {
+    --margin: 44px;
     padding: 18px 14px 120px 56px;
   }
 
   .grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 54px;
+    gap: 92px;
   }
 
   .hand {
@@ -597,11 +455,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .daily {
+  .side,
+  .clockWrap {
     justify-self: start;
-  }
-
-  .side {
     justify-items: start;
   }
 
@@ -609,9 +465,5 @@
   .shelf {
     flex-wrap: wrap;
     gap: 6px 12px;
-  }
-
-  .todoBar {
-    width: 80px;
   }
 }

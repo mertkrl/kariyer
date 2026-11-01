@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
 import { markPlayed } from '../../arcade/progress';
+import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
-import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import { clearSlot, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { DAYS_PER_SECOND, PROJECT, PROJECTS, STAGES, TOTAL, floorStepAt, idleAt, selectProject, stageAt, watchersAt, workAt } from './data';
@@ -95,12 +95,6 @@ export function InsaatGame() {
 
       <header className={styles.top}>
         <ClockOut />
-        <div className={styles.title}>
-          <h1>İnşaat İzleme</h1>
-          <p>
-            {PROJECT.name} · {PROJECT.parcel}
-          </p>
-        </div>
         <div className={styles.stats}>
           <span>
             <small>Şantiye günü</small>
@@ -167,6 +161,9 @@ export function InsaatGame() {
           <p>
             İnşaat <b>{day.toLocaleString('tr-TR')} gün</b> sürdü. Teslim tarihi dört kez ertelendi; şantiye gece, yağmur ve kar yüzünden sık sık durdu. Siz de baştan sona izlediniz; hiçbir şeye karışmadınız. Örnek bir vatandaşsınız.
           </p>
+          <Finale kind="news" kicker={`Mahalle Postası · ${new Date().getFullYear() + 10}`} title={PROJECT.future.title}>
+            <p>{PROJECT.future.text}</p>
+          </Finale>
           <p className={styles.muted}>Karşı parselde yeni inşaat başlıyormuş.</p>
           <div className={styles.actions}>
             <ShareButton
@@ -183,7 +180,7 @@ export function InsaatGame() {
                   { label: 'İzleyen amca', value: String(watchersAt(t)) },
                 ],
                 question: 'Sen kaç gün dayanırsın?',
-                text: `İnşaat İzleme: ${PROJECT.name} şantiyesini ${day.toLocaleString('tr-TR')} gün boyunca ellerim arkamda izledim, hiçbir şeye karışmadım.`,
+                text: `İnşaat İzleme: ${PROJECT.name} şantiyesini ${day.toLocaleString('tr-TR')} gün boyunca izledim; teslim tarihi dört kez ertelendi, ben bir kez bile karışmadım. On yıl sonra: “${PROJECT.future.title}”. Sen kaç gün dayanırsın?`,
               })}
             />
             <button type="button" className={styles.ghost} onClick={again}>
@@ -196,7 +193,6 @@ export function InsaatGame() {
         </div>
       )}
 
-      <StudioMark minimal />
     </div>
   );
 }

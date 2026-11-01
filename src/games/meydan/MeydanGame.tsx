@@ -41,10 +41,6 @@ export function MeydanGame() {
     <div className={styles.app}>
       <header className={styles.top}>
         <ClockOut />
-        <div className={styles.title}>
-          <h1>Meydan Islahı</h1>
-          <p>{phase.at === 'edit' ? `Serbest mod · ${phase.place.district}, ${phase.place.title}` : 'Cephe ve tabela düzenleme atölyesi'}</p>
-        </div>
         <div className={styles.topRight}>
           {phase.at === 'edit' && (
             <button type="button" className={styles.ghost} onClick={() => setPhase({ at: 'pick' })}>
@@ -73,7 +69,7 @@ export function MeydanGame() {
       )}
       {phase.at === 'edit' && <Editor key={phase.key} place={phase.place} initial={phase.design} />}
 
-      <StudioMark minimal />
+      {phase.at !== 'edit' && <StudioMark minimal />}
     </div>
   );
 }

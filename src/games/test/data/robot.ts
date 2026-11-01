@@ -105,7 +105,7 @@ export const ROBOT_CHALLENGES: RobotChallenge[] = [
       { icon: '🚌', label: 'Servis', pick: false },
       { icon: '🏆', label: 'Ayın çalışanı rozeti', pick: true },
       { icon: '💸', label: 'İkramiye', pick: false },
-      { icon: '🎂', label: 'Ortak doğum günü pastası', pick: true },
+      { icon: '🍰', label: 'Ortak doğum günü pastası', pick: true },
     ],
   },
 ];

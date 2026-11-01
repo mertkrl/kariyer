@@ -1,4 +1,4 @@
-import type { ExamAnswer, ExamSection } from './logic';
+import type { ExamAnswer, ExamLog, ExamSection } from './logic';
 
 /*
  * Yarıda kalan sınav: seçilen sorular (şıkları karışık hâliyle), cevaplar ve nerede kalındığı
@@ -17,6 +17,8 @@ export interface ExamProgress {
   reach: number;
   left: number;
   robots: number;
+  /** Gözetmen kaydı; eski kayıtlarda yok. */
+  log?: ExamLog;
 }
 
 export function loadProgress(): ExamProgress | null {
@@ -46,5 +48,26 @@ export function clearProgress() {
     window.localStorage.removeItem(KEY);
   } catch {
     // yok sayılır
+  }
+}
+
+/* Önceki testlerde çıkan soruların kimlikleri: yeni test önce görülmemiş sorulardan kurulur. */
+const SEEN_KEY = 'kariyerweb-uyummetre-seen-v1';
+
+export function loadSeen(): Set<string> {
+  try {
+    const raw = window.localStorage.getItem(SEEN_KEY);
+    const ids = raw ? (JSON.parse(raw) as unknown) : [];
+    return new Set(Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export function saveSeen(seen: ReadonlySet<string>) {
+  try {
+    window.localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
+  } catch {
+    // kayıt tutulamazsa sorular yine karışık gelir
   }
 }

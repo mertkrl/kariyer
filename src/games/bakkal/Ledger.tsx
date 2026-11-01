@@ -4,8 +4,7 @@ import { BOOK, addStroke, clearPage, redo, undo, type Page, type PageId, type Pa
 import styles from './Ledger.module.css';
 
 /*
- * Hacı Emmi'nin defteri: bez ciltli, köşeleri meşin, sayfaları ileri geri çevrilen kullanılmış bir
- * defter. Hacı Emmi'nin el yazısı satırları solmuş, eğri ve yer yer okunmaz; oyun bugünkü fiyatları
+ * Şükrü Amca'nın defteri: cildi görünmeyen, sayfaları ileri geri çevrilen kullanılmış bir defter. Şükrü Amca'nın el yazısı satırları solmuş, eğri ve yer yer okunmaz; oyun bugünkü fiyatları
  * yazmaz, hesabı oyuncu yapar. Oyuncu yalnızca tükenmez kalemle yazar, silgiyle siler; her sayfanın
  * geri al / ileri al geçmişi vardır, çöp kutusu sayfayı hemen temizler (o da geri alınır).
  * Defter başlığından sürüklenir, sağ alt köşesinden büyütülüp küçültülür.
@@ -126,7 +125,7 @@ function InkLayer({ page, tool, onStroke }: { page: Page; tool: Tool; onStroke: 
 /** Satıra göre hep aynı küçük sapma: el yazısı her açılışta aynı eğrilikte durur. */
 const wobble = (i: number, k: number) => ((((i + 3) * k) % 9) - 4) / 4;
 
-/** Hacı Emmi'nin satırları: kenarda tarih, ortada yazı, sağda tutar; eğri, silik, yer yer okunmaz. */
+/** Şükrü Amca'nın satırları: kenarda tarih, ortada yazı, sağda tutar; eğri, silik, yer yer okunmaz. */
 function Written({ spec }: { spec: PageSpec }) {
   if (!spec.written.length) return null;
   return (
@@ -174,8 +173,8 @@ export function Ledger({
   const [dir, setDir] = useState<1 | -1>(1);
   const [tool, setTool] = useState<Tool>('pen');
   const { box, onMove, onResize } = useFloating('defter', () => {
-    const w = Math.min(500, window.innerWidth - 24);
-    return { w, h: Math.min(640, window.innerHeight - 120), x: window.innerWidth - w - 16, y: 96 };
+    const w = Math.min(360, window.innerWidth - 24);
+    return { w, h: Math.min(470, window.innerHeight - 120), x: window.innerWidth - w - 16, y: 96 };
   });
   const spec = BOOK[at];
   const page = pages[spec.id];
@@ -200,15 +199,14 @@ export function Ledger({
   });
 
   return (
-    <aside className={styles.book} style={{ left: box.x, top: box.y, width: box.w, height: box.h }} aria-label="Defter">
+    <aside className={styles.book} data-tour="book" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} aria-label="Defter">
       <header className={styles.head} onPointerDown={onMove} title="Tutup sürükle">
-        <h3>Veresiye Defteri · No 7</h3>
+        <span className={styles.handle} aria-hidden="true" />
         <button className={styles.close} onClick={onClose} aria-label="Defteri kapat">
           ×
         </button>
       </header>
       <div className={styles.block}>
-        <span className={styles.ribbon} aria-hidden="true" />
         <div key={spec.id} className={`${styles.paper} ${spec.written.length ? styles.used : ''} ${spec.stain ? styles.stain : ''} ${dir > 0 ? styles.fwd : styles.back}`}>
           {spec.title && <p className={styles.pageTitle}>{spec.title}</p>}
           <Written spec={spec} />

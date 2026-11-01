@@ -1,9 +1,10 @@
-import { PRODUCTS, VILLAGERS, factorOn, priceOn, typeOf, type Mood, type Product, type Visit } from './data';
+import { MADE, PRODUCTS, SANDWICH, VILLAGERS, customerOf, factorOn, priceOn, rng, type Mood, type Product, type Visit } from './data';
+import { AUDITOR, auditDay } from './pressure';
 
 /*
  * Dükkânın defterle, vicdanla, rafla ve kasayla ilgili kuralları. Saf mantıktır, test edilebilir.
  *
- * Eski hesaplar: Hacı Emmi'nin defterindeki eski veresiyelerin sahipleri hafta boyunca gelir.
+ * Eski hesaplar: Şükrü Amca'nın defterindeki eski veresiyelerin sahipleri hafta boyunca gelir.
  * Kimi borcunu ödemeye gelir ve ne kadar olduğunu sorar, kimi borcu kalıp kalmadığını sorar,
  * kimi de "ben ödemiştim, çizmeyi unutmuş" der. Doğru cevap defterdedir; oyun söylemez.
  *
@@ -17,7 +18,7 @@ import { PRODUCTS, VILLAGERS, factorOn, priceOn, typeOf, type Mood, type Product
  * bir kasadan çıkar. Gün sonunda kasa eksiye düşerse dükkân batar: oyun o zaman biter.
  */
 
-// --- Hacı Emmi'nin eski veresiyeleri ---
+// --- Şükrü Amca'nın eski veresiyeleri ---
 
 export interface OldDebt {
   /** Borçlu köylü (köyde olmayan kişide yok). */
@@ -28,7 +29,7 @@ export interface OldDebt {
   amount: number;
   /** Üstü çizilip düzeltilmiş eski tutar. */
   was?: number;
-  /** Hacı Emmi ödendi diye çizmiş. */
+  /** Şükrü Amca ödendi diye çizmiş. */
   paid: boolean;
   note?: string;
   /** Okunması güç. */
@@ -54,6 +55,8 @@ export const OLD_DEBTS: OldDebt[] = [
   { name: 'Bekçi Nuri', what: '15 ekmek', date: '20 Ağu.', amount: 150, paid: true, note: 'ödendi', page: 2 },
   { who: 'hatice', name: 'Hatice Nine', what: 'sabun, deterjan', date: '9 Eyl.', amount: 120, paid: false, page: 2 },
   { who: 'kerem', name: 'Kerem (üniversiteli)', what: 'makarna', date: '22 Eyl.', amount: 60, paid: false, smudge: true, page: 2 },
+  { who: 'durmus', name: 'Çoban Durmuş', what: 'tuz, kibrit, çay', date: '26 Eyl.', amount: 135, paid: false, page: 2 },
+  { who: 'cemal', name: 'Kahveci Cemal', what: 'şeker 5 kg', date: '1 Eki.', amount: 175, paid: true, note: 'ödendi', page: 2 },
 ];
 
 /** Köylünün defterdeki açık borcu: çizilmemiş satırlarının toplamı. */
@@ -71,6 +74,8 @@ export interface Account {
   honest?: boolean;
   /** Müşterinin yanlış hatırladığı tutar. */
   remembers?: number;
+  /** Cebindeki para: fazlası istenirse en çok bu kadarını verebilir. */
+  wallet?: number;
 }
 
 /**
@@ -86,29 +91,38 @@ const SCHEDULE: Record<number, { who: string; kind: AccountKind; honest?: boolea
   3: [{ who: 'murat', kind: 'claim', honest: false }],
   4: [{ who: 'riza', kind: 'pay', remembers: 385 }],
   5: [{ who: 'kadir', kind: 'claim', honest: true }],
+  7: [{ who: 'ali', kind: 'check' }],
   9: [{ who: 'hatice', kind: 'pay' }],
   12: [{ who: 'osman', kind: 'check' }],
+  14: [{ who: 'durmus', kind: 'check' }],
   16: [{ who: 'kerem', kind: 'pay', remembers: 50 }],
+  18: [{ who: 'cemal', kind: 'check' }],
   20: [{ who: 'emine', kind: 'check' }],
   25: [{ who: 'mehmet', kind: 'check' }],
 };
 
 /** İlaç parası isteyen nine bu gün gelir. */
 export const LOAN_DAY = 4;
-export const LOAN = 100;
+export const LOAN = 150;
 /** Ninenin oğlu borcu bu gün akşamı gönderir. */
 export const LOAN_BACK = LOAN_DAY + 5;
 const LOANER = 'nazmiye';
 
+/** Hesap görmeye gelenin cebindeki para: borcunun biraz üstü; borcu yoksa yine de birkaç kuruş. */
+export const walletFor = (owed: number) => (owed > 0 ? Math.ceil((owed * 1.25) / 10) * 10 : 80);
+
 export function accountsOn(day: number): { who: string; account: Account }[] {
-  return (SCHEDULE[day] ?? []).map(({ who, kind, honest, remembers }) => ({ who, account: { kind, owed: kind === 'check' ? 0 : owedBy(who), honest, remembers } }));
+  return (SCHEDULE[day] ?? []).map(({ who, kind, honest, remembers }) => {
+    const owed = owedBy(who);
+    return { who, account: { kind, owed, honest, remembers, wallet: walletFor(owed) } };
+  });
 }
 
 export function accountAsk(a: Account): string {
-  if (a.kind === 'check') return 'Hacı Emmi\'ye borcum kalmış mıydı? Defterine bir bak hele.';
-  if (a.kind === 'claim') return `Defterde bana ${a.owed} lira borç yazılıdır ama ben onu ödedim! Hacı Emmi çizmeyi unutmuş, sen çiziver.`;
-  if (a.remembers) return `Hacı Emmi'ye borcum vardı, getirdim. Ben ${a.remembers} lira diye hatırlıyorum ama defterde ne yazıyorsa o.`;
-  return "Hacı Emmi'ye borcum vardı, getirdim. Ne kadardı? Defterde yazar.";
+  if (a.kind === 'check') return 'Şükrü Amca\'ya borcum kalmış mıydı? Defterine bir bak hele.';
+  if (a.kind === 'claim') return `Defterde bana ${a.owed} lira borç yazılıdır ama ben onu ödedim! Şükrü Amca çizmeyi unutmuş, sen çiziver.`;
+  if (a.remembers) return `Şükrü Amca'ya borcum vardı, getirdim. Ben ${a.remembers} lira diye hatırlıyorum ama defterde ne yazıyorsa o.`;
+  return "Şükrü Amca'ya borcum vardı, getirdim. Ne kadardı? Defterde yazar.";
 }
 
 /** Oyuncunun cevabı: kasaya girilen tutar, "borcu yok", ya da iddiaya inanmak / üstüne gitmek. */
@@ -133,19 +147,23 @@ export function settleAccount(a: Account, name: string, answer: Answer): Outcome
         ? { cash: 0, rep: -5, ethics: -1, mood: 'leave', line: 'Bana yalancı mı diyorsun? Bir daha bu dükkâna adım atmam!', verdict: `${name}: gerçekten ödemişti; üstüne gidip küstürdün.` }
         : { cash: owed, rep: 1, ethics: 0, mood: 'grumble', line: 'Peki peki… al şu parayı. Defteri iyi tutuyorsun bakıyorum.', verdict: `${name}: ödememişti; defter seni haklı çıkardı (+${owed} ₺).` };
     return a.honest
-      ? { cash: 0, rep: 2, ethics: 1, mood: 'happy', line: "Sağ ol, sözüme güvendin. Hacı Emmi'ye selam söyle.", verdict: `${name}: gerçekten ödemişti; inanmakla iyi ettin.` }
+      ? { cash: 0, rep: 2, ethics: 1, mood: 'happy', line: "Sağ ol, sözüme güvendin. Şükrü Amca'ya selam söyle.", verdict: `${name}: gerçekten ödemişti; inanmakla iyi ettin.` }
       : { cash: 0, rep: 0, ethics: 0, mood: 'happy', line: 'Eyvallah! Sen anlayışlı adamsın.', verdict: `${name}: ödememişti; inandın, ${owed} ₺ gitti.` };
   }
   // borç soran ziyarette inan / üstüne git cevabı olmaz; bir şey değişmez
   if (answer === 'believe' || answer === 'insist') return { cash: 0, rep: 0, ethics: 0, mood: 'grumble', line: '' };
+  // fazlası istenirse müşteri gitmez: söylenir ama cebinde ne varsa verir
+  const wallet = a.wallet ?? walletFor(owed);
+  const given = typeof answer === 'number' ? Math.min(answer, wallet) : 0;
+  const all = typeof answer === 'number' && answer > wallet ? ` Cebimde ${wallet} lira var, hepsi bu.` : '';
   if (owed === 0) {
     if (answer === 'none') return { cash: 0, rep: 2, ethics: 0, mood: 'happy', line: 'Biliyordum, ödemiştim. Sağ ol evladım, defterin temiz.', verdict: `${name}: borcu yoktu; doğru söyledin.` };
-    return { cash: 0, rep: -4, ethics: -2, mood: 'leave', line: 'Ben onu ödedim! Defterde çizili olacak, iyi bak bir daha.', verdict: `${name}: borcu yoktu; ödenmiş borcu istedin.` };
+    return { cash: given, rep: -3, ethics: -2, mood: 'grumble', line: `Ben onu ödemiştim ama… madem defterde yazıyor diyorsun, al şu ${given} lirayı.${all}`, verdict: `${name}: borcu yoktu; ödenmiş borç için ${given} ₺ aldın.` };
   }
-  if (answer === 'none') return { cash: 0, rep: 1, ethics: 0, mood: 'happy', line: 'Yok mu? Hacı Emmi unutmuş demek… Sağ ol!', verdict: `${name}: ${owed} ₺ borçluydu; "borcun yok" dedin.` };
+  if (answer === 'none') return { cash: 0, rep: 1, ethics: 0, mood: 'happy', line: 'Yok mu? Şükrü Amca unutmuş demek… Sağ ol!', verdict: `${name}: ${owed} ₺ borçluydu; "borcun yok" dedin.` };
   if (answer === owed) return { cash: owed, rep: 2, ethics: 0, mood: 'happy', line: 'Kuruşu kuruşuna. Helal olsun, al bakalım.', verdict: `${name}: borcunu tam ödedi, ${owed} ₺.` };
   if (answer < owed) return { cash: answer, rep: 1, ethics: 0, mood: 'happy', line: 'Ooo, o kadar mıydı? Al bakalım!', verdict: `${name}: ${owed} ₺ borçluydu; ${answer} ₺ aldın.` };
-  return { cash: owed, rep: -3, ethics: -2, mood: 'grumble', line: `O kadar değildi! ${owed} lira, fazlasını vermem.`, verdict: `${name}: borcundan fazlasını istedin; ${owed} ₺ verdi, söylendi.` };
+  return { cash: given, rep: -3, ethics: -2, mood: 'grumble', line: `O kadar değildi, ${owed} lira diye biliyordum… neyse, al ${given} lira.${all}`, verdict: `${name}: ${owed} ₺ borçluydu; fazlasını istedin, ${given} ₺ verdi.` };
 }
 
 // --- ikilemler ---
@@ -190,26 +208,54 @@ export function ethicsTitle(score: number): string {
 
 const special = (who: string, extra: Partial<Visit>): Visit => {
   const villager = VILLAGERS.find((v) => v.id === who)!;
-  return { villager, customer: typeOf(villager.type), items: [], credit: false, ...extra };
+  return { villager, customer: customerOf(villager), items: [], credit: false, ...extra };
 };
+
+/** Her oyunun beşte birinde bir hayırsever gelir, defterdeki bütün veresiyeyi öder. */
+export const CHARITY_CHANCE = 0.2;
+export const CHARITY = 'rustem';
+export const ZABITA = 'zabita';
+
+/** Hayırseverin geleceği gün (8 ile 27 arası) ya da bu oyunda gelmeyecekse null. */
+export function charityDay(seed: number): number | null {
+  const r = rng(seed * 97 + 5);
+  return r() < CHARITY_CHANCE ? 8 + Math.floor(r() * 20) : null;
+}
+
+/** Bayat mal satan dükkâna zabıtanın kestiği ceza: tane başına, fiyatlarla zamlanır. */
+export const fineFor = (n: number, day: number) => Math.round((300 + 150 * Math.max(1, n)) * priceIndex(day));
+
+export interface DayExtras {
+  seed?: number;
+  /** Dün kaç bayat mal satıldı: varsa zabıta gelir. */
+  staleSold?: number;
+}
 
 /**
  * Günün müşterilerine haftanın olaylarını katar: eski hesabını görmeye gelenler ve ilaç parası
  * isteyen nine araya girer (aynı köylü o gün ayrıca alışverişe gelmez). Çift günlerin ilk çocuğu
  * parası eksik çıkan çocuk, tek günlerin (ilk gün hariç) ilk turisti üstünü unutan turisttir.
  */
-export function weekDay(visits: Visit[], day: number): Visit[] {
+export function weekDay(visits: Visit[], day: number, { seed = 0, staleSold = 0 }: DayExtras = {}): Visit[] {
+  const r = rng(seed * 43 + day * 29 + 3);
   const extra = accountsOn(day).map(({ who, account }) => special(who, { account }));
   if (day === LOAN_DAY) extra.push(special(LOANER, { dilemma: 'loan' }));
+  if (charityDay(seed) === day) extra.push(special(CHARITY, { charity: true }));
+  if (staleSold > 0) extra.push(special(ZABITA, { fine: staleSold }));
+  if (auditDay(seed) === day) extra.push(special(AUDITOR, { audit: true }));
   const ids = new Set(extra.map((v) => v.villager.id));
   const rest = visits.filter((v) => !ids.has(v.villager.id));
+  // ikilem o günün rastgele bir çocuğuna ya da turistine düşer
   const tag = (type: string, dilemma: Dilemma) => {
-    const i = rest.findIndex((v) => v.customer.id === type);
-    if (i >= 0) rest[i] = { ...rest[i], dilemma, credit: false };
+    const at = rest.map((v, i) => (v.customer.id === type ? i : -1)).filter((i) => i >= 0);
+    if (!at.length) return;
+    const i = at[Math.floor(r() * at.length)];
+    rest[i] = { ...rest[i], dilemma, credit: false };
   };
   if (day % 2 === 0) tag('cocuk', 'short');
   else if (day > 1) tag('turist', 'change');
-  extra.forEach((v, i) => rest.splice(Math.min(rest.length, 1 + i * 3), 0, v));
+  // özel ziyaretler günün rastgele saatlerinde kapıdan girer
+  extra.forEach((v) => rest.splice(Math.floor(r() * (rest.length + 1)), 0, v));
   return rest;
 }
 
@@ -217,22 +263,52 @@ export function weekDay(visits: Visit[], day: number): Visit[] {
 
 export type Stock = Record<string, number>;
 
-/** Hacı Emmi'nin bıraktığı kasa ve mal: bir iki günlük mal; sonrası siparişe kalır. */
-export const START_CASH = 1000;
-export const START_STOCK: Stock = { ekmek: 8, sut: 6, yumurta: 5, meyvesuyu: 6, cay: 5, seker: 5, cikolata: 7, sabun: 5, makarna: 6, peynir: 4, sakiz: 30 };
+/**
+ * Şükrü Amca'nın bıraktığı kasa ve mal: rafta her maldan biraz var, boş göz yok. Temel gıda
+ * açılış gününe ancak yeter, öteki maldan birer tane. Dükkân gidince boşalır: oyuncu ilk akşamdan
+ * kendi parasıyla mal almak zorundadır; emanet malı satıp geçinmek yetmez.
+ */
+export const START_CASH = 750;
+const BASIC_START: Stock = { ekmek: 14, sut: 5, yumurta: 4, un: 3, seker: 4, tuz: 4, yag: 4, makarna: 5, pirinc: 4, cay: 4, salca: 5, mercimek: 3, bulgur: 4, peynir: 3, yogurt: 4, sabun: 3, deterjan: 3, kibrit: 4 };
+export const START_STOCK: Stock = {
+  ...Object.fromEntries(PRODUCTS.filter((p) => !MADE.includes(p.id)).map((p) => [p.id, 1])),
+  ...BASIC_START,
+  sakiz: 30,
+};
+/** Raftaki malın o günkü alış fiyatıyla değeri (sakız hariç). */
+export const stockValue = (stock: Stock, day: number) => PRODUCTS.reduce((s, p) => s + (stock[p.id] ?? 0) * priceOn(p, day).cost, 0);
+
+/**
+ * Şükrü Amca'nın emaneti: açılıştaki kasa ve raftaki mal. Oyun sonunda dükkânın değeri (kasa,
+ * raftaki mal, açık veresiye) bununla karşılaştırılır: malı satıp yerine koymayan kasayı doldurur
+ * ama emaneti eritir.
+ */
+export const START_WORTH = START_CASH + stockValue(START_STOCK, 1);
+
 /** Gece bozulan mallar ve bir gecede bozulan payları. */
-export const SPOIL: Stock = { sut: 0.3, yumurta: 0.12, peynir: 0.12 };
-export const SHELF_MAX = 12;
-export const BREAD_MAX = 20;
-export const BREAD_DEFAULT = 5;
+/**
+ * Bir gecede bayatlayan ya da bozulan payı (raftaki taze maldan): kalan ekmeğin üçte biri ertesi
+ * güne bayat kalır; süt on günde, yoğurt iki haftada, peynir, kaşar, tereyağı bir ayda, yumurta kırk günde
+ * bozulur. Pay, aşağı yukarı malın raf ömrünün tersidir.
+ */
+export const SPOIL: Stock = { ekmek: 0.3, sut: 0.09, yogurt: 0.07, yumurta: 0.025, peynir: 0.03, kasar: 0.03, tereyag: 0.03, sucuk: 0.02 };
+export const SHELF_MAX = 20;
+export const BREAD_MAX = 30;
+export const BREAD_DEFAULT = 12;
 export const TAX_EVERY = 7;
-/** Hacı Emmi hacdan bu günün akşamı döner: dükkânı geri alır, karne verilir. */
-export const RETURN_DAY = 40;
+/** Şükrü Amca bir ay sonra, bu günün akşamı memleketten döner: dükkânı geri alır, karne verilir. */
+export const RETURN_DAY = 30;
 
 /** Sepetin rafta olan ve kalmamış ürünleri. */
+/** Mal verilebilir mi: raftaki mal stoktaysa; tost her zaman; sandviç ekmek varsa (ekmek arası). */
+export const inStock = (id: string, stock: Stock) => (MADE.includes(id) ? !SANDWICH.includes(id) || (stock.ekmek ?? 0) > 0 : (stock[id] ?? 0) > 0);
+
 export function split(items: Product[], stock: Stock) {
-  return { have: items.filter((p) => (stock[p.id] ?? 0) > 0), missing: items.filter((p) => !((stock[p.id] ?? 0) > 0)) };
+  return { have: items.filter((p) => inStock(p.id, stock)), missing: items.filter((p) => !inStock(p.id, stock)) };
 }
+
+/** Tezgâhta hazırlanan tost ve sandviçlerin malzeme parası (o günün fiyatıyla). */
+export const madeCost = (items: Product[], day: number) => items.filter((p) => MADE.includes(p.id)).reduce((s, p) => s + priceOn(p, day).cost, 0);
 
 /** Satılan mal raftan düşer. */
 export const take = (stock: Stock, items: Product[]): Stock => {
@@ -249,6 +325,14 @@ export function morning(stock: Stock, bread: number, order: Stock = {}): Stock {
 }
 
 const cost = (id: string, day: number) => priceOn(PRODUCTS.find((p) => p.id === id)!, day).cost;
+
+/** Kemal'in toptan indirimi: büyük siparişte malın tamamına yüzde beş ya da on. */
+export const BULK: { from: number; rate: number }[] = [
+  { from: 3000, rate: 0.1 },
+  { from: 1500, rate: 0.05 },
+];
+export const bulkRate = (total: number) => BULK.find((b) => total >= b.from)?.rate ?? 0;
+export const bulkDiscount = (total: number) => Math.round(total * bulkRate(total));
 
 /** Sabah gelen malın ve ekmeğin kasadan çıkan parası, o günün maliyetiyle. */
 export const orderCost = (order: Stock, day: number) => Object.entries(order).reduce((s, [id, n]) => s + Math.max(0, n) * cost(id, day), 0);
@@ -296,6 +380,80 @@ export function spoil(stock: Stock, r: () => number = () => 0.5): { stock: Stock
   return { stock: s, spoiled };
 }
 
+/**
+ * Gece bayatlayan ve bozulan mal atılmaz, rafta bayat olarak işaretlenir: atıp atmamak oyuncunun
+ * kararıdır. Her gece taze malın bir payı (SPOIL) bayatlar ya da bozulur: ekmeğin yarısı, tost ve
+ * sandviçin üçte biri, sütün, yoğurdun, peynirin azı. `old`: raftaki bayat adet (stoğun içindedir).
+ */
+export function rot(stock: Stock, old: Stock, r: () => number = () => 0.5, only?: readonly string[]): { old: Stock; spoiled: Stock } {
+  const next: Stock = { ...old };
+  const spoiled: Stock = {};
+  // `only`: yalnızca bu mallar bozulabilir (ilk gece Şükrü Amca'nın malı tazedir, yalnız ekmek bayatlar)
+  Object.entries(SPOIL).filter(([id]) => !only || only.includes(id)).forEach(([id, rate]) => {
+    const fresh = (stock[id] ?? 0) - (old[id] ?? 0);
+    const n = Math.min(fresh, Math.floor(fresh * rate + r()));
+    if (n > 0) {
+      spoiled[id] = n;
+      next[id] = (old[id] ?? 0) + n;
+    }
+  });
+  Object.keys(next).forEach((id) => !next[id] && delete next[id]);
+  return { old: next, spoiled };
+}
+
+/** Sabah: atılmasına karar verilen bayat mal raftan iner; tutulan bayat kalır. */
+export function discard(stock: Stock, old: Stock, keep: Record<string, boolean>): { stock: Stock; old: Stock; thrown: Stock } {
+  const s = { ...stock };
+  const o: Stock = {};
+  const thrown: Stock = {};
+  Object.entries(old).forEach(([id, n]) => {
+    if (keep[id]) o[id] = n;
+    else {
+      thrown[id] = n;
+      s[id] = Math.max(0, (s[id] ?? 0) - n);
+    }
+  });
+  return { stock: s, old: o, thrown };
+}
+
+/**
+ * Satış rafta bayat varken: müşteri raftan rastgele bir tane alır; bayatın raftaki payı kadar
+ * olasılıkla eline bayatı geçer. Satılan mal stoktan, bayatsa bayat sayısından da düşer.
+ */
+export function handOver(stock: Stock, old: Stock, items: Product[], r: () => number): { stock: Stock; old: Stock; stale: Product[] } {
+  const s = { ...stock };
+  const o = { ...old };
+  const stale: Product[] = [];
+  items.forEach((p) => {
+    // tost tezgâhta yapılır, raftan bir şey eksilmez; sandviç dükkânın ekmeğinden yapılır
+    if (MADE.includes(p.id) && !SANDWICH.includes(p.id)) return;
+    const id = MADE.includes(p.id) ? 'ekmek' : p.id;
+    const have = s[id] ?? 0;
+    if (have <= 0) return;
+    if ((o[id] ?? 0) > 0 && r() < (o[id] ?? 0) / have) {
+      o[id] -= 1;
+      if (!o[id]) delete o[id];
+      stale.push(p);
+    }
+    s[id] = have - 1;
+  });
+  return { stock: s, old: o, stale };
+}
+
+/**
+ * Akşam kahvede dükkânın fiyatları konuşulur: günün satışlarında fiyatın market fiyatına oranının
+ * ortalaması. Pahalıysa itibar düşer, insaflıysa biraz artar.
+ */
+export function priceTalk(ratios: readonly number[]): { rep: number; line: string } | null {
+  if (!ratios.length) return null;
+  const avg = ratios.reduce((s, x) => s + x, 0) / ratios.length;
+  if (avg > 1.22) return { rep: -6, line: 'Kahvede "yeni bakkal kazıkçı" diyorlar: fiyatların çok pahalı bulunuyor.' };
+  if (avg > 1.14) return { rep: -4, line: 'Kahvede "yeni bakkal pahalı" diye konuşuluyor.' };
+  if (avg > 1.07) return { rep: -2, line: 'Kahvede fiyatların biraz tuzlu bulunuyor.' };
+  if (avg <= 1) return { rep: 1, line: 'Kahvede "yeni bakkal insaflı" diyorlar.' };
+  return null;
+}
+
 /** Günün kasa defteri: kasaya girenler (artı) ve çıkanlar (eksi), kalem kalem. */
 export interface Flow {
   sales: number;
@@ -308,9 +466,19 @@ export interface Flow {
   bakery: number;
   power: number;
   tax: number;
+  /** Hayırseverin ödediği veresiyeler. */
+  charity: number;
+  /** Zabıtanın bayat mal cezası. */
+  fine: number;
+  /** Tezgâhta hazırlanan tost ve sandviçin malzemesi. */
+  bufe: number;
+  /** Fişle geri alınan malın parası. */
+  refund: number;
+  /** Paketlerin içinden çıkan para hediyesi. */
+  gift: number;
 }
 
-export const EMPTY_FLOW: Flow = { sales: 0, rounding: 0, accounts: 0, collected: 0, loan: 0, wholesale: 0, bakery: 0, power: 0, tax: 0 };
+export const EMPTY_FLOW: Flow = { sales: 0, rounding: 0, accounts: 0, collected: 0, loan: 0, wholesale: 0, bakery: 0, power: 0, tax: 0, charity: 0, fine: 0, bufe: 0, refund: 0, gift: 0 };
 
 /** Köyün fiyat endeksi: ürünlerin ilk güne göre ortalama pahalanması. */
 export const priceIndex = (day: number) => PRODUCTS.reduce((s, p) => s + factorOn(p, day), 0) / PRODUCTS.length;
@@ -319,9 +487,16 @@ export const priceIndex = (day: number) => PRODUCTS.reduce((s, p) => s + factorO
  * Günün sabit giderleri: elektrik ve buzdolabı her gün, vergi ile dükkânın kirası haftada bir.
  * Giderler fiyatlarla birlikte zamlanır: geç günlerde de kasa kendiliğinden dolmaz.
  */
+/** Elektrik ve buzdolabının günlük, vergi ile kiranın haftalık tutarı (ilk günün fiyatıyla). */
+export const POWER = 175;
+export const RENT = 1150;
+/** Ayın ortasında muhtarlık aidatı: köy yolu ve çeşme için (ilk günün fiyatıyla). */
+export const AIDAT = 600;
+export const AIDAT_DAY = 15;
+
 export function expensesOn(day: number) {
   const f = priceIndex(day);
-  return { power: Math.round(35 * f), tax: day % TAX_EVERY === 0 ? Math.round(300 * f) : 0 };
+  return { power: Math.round(POWER * f), tax: (day % TAX_EVERY === 0 ? Math.round(RENT * f) : 0) + (day === AIDAT_DAY ? Math.round(AIDAT * f) : 0) };
 }
 
 // --- para üstü: bozukluk ve sakız ---
@@ -333,7 +508,7 @@ export const GUM_PACK = 10;
 export const GUM_PACK_COST = 6;
 export const GUM_MAX = 60;
 /** Her sabah bankadan bozdurulan bozukluk (₺): 5 liranın altındaki para üstü bununla verilir. */
-export const COINS_DAILY = 30;
+export const COINS_DAILY = 40;
 
 const BILLS = [5, 10, 20, 50, 100, 200, 500, 1000];
 

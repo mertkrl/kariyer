@@ -1,10 +1,11 @@
 import { isRecord } from '../../arcade/saveSlot';
 import type { Debt, LogEntry, Memories } from './data';
 import type { Pages } from './pages';
+import type { Receipt } from './returns';
 import type { Flow, Stock } from './week';
 
 /*
- * Dükkânın kaydı: her akşam kepenk inince (gün sonu kartı açıkken) yazılır, dükkân Hacı Emmi'ye
+ * Dükkânın kaydı: her akşam kepenk inince (gün sonu kartı açıkken) yazılır, dükkân Şükrü Amca'ya
  * teslim edilince ya da batınca silinir. Oyuncu döndüğünde aynı akşamın gün sonu kartından,
  * siparişini vermeden devam eder. Gün ortası kaydedilmez: müşteri sırası yarıda kalmaz.
  */
@@ -33,12 +34,22 @@ export interface ShopSave {
   order: Stock;
   stale: number;
   spoiled: Stock;
+  /** Raftaki bayat mal, rafta tutulacaklar ve bugün satılan bayat (eski kayıtlarda yok). */
+  old?: Stock;
+  keep?: Record<string, boolean>;
+  staleSold?: number;
+  /** Dükkânın tuttuğu mallar (eski kayıtlarda yok). */
+  carried?: string[];
   short: boolean;
   coins: number;
   ethics: number;
   verdicts: string[];
   deeds: string[];
   lent: boolean;
+  /** Çekmecedeki fişler (eski kayıtlarda yok). */
+  receipts?: Receipt[];
+  /** Kasaya atılıp Z raporuna girmeyen para (eski kayıtlarda yok). */
+  hidden?: number;
 }
 
 const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);

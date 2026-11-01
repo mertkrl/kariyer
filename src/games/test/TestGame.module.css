@@ -439,6 +439,25 @@ summary.h2 {
   z-index: 2;
 }
 
+/* değerlendirme raporu kaydırmadan sığar: kap ekran yüksekliğine kilitlenir, rapor kalan alanı doldurur */
+.app:has(main[data-fit]) {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app:has(main[data-fit]) .footer {
+  padding: 8px 24px;
+}
+
+@media (max-width: 960px) {
+  .app:has(main[data-fit]) {
+    height: auto;
+    overflow: visible;
+  }
+}
+
 /* üst çubuk üç sütun: site adı solda, oyunun adı tam ortada, gözetim göstergesi sağda */
 .brand {
   display: grid;
@@ -635,28 +654,6 @@ summary.h2 {
 }
 
 /* girişte yarım kalan test kartı */
-.resume {
-  display: grid;
-  gap: 10px;
-  margin: 0 0 16px;
-  padding: 14px 16px;
-  border: 1.5px solid var(--a-blue);
-  border-radius: 12px;
-  background: var(--a-blue-soft);
-}
-
-.resume p {
-  margin: 0;
-  line-height: 1.45;
-}
-
-.resume div {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px;
-}
-
 .linkBtn {
   border: 0;
   background: none;

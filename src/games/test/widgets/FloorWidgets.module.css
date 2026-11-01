@@ -500,3 +500,78 @@
     padding: 14px;
   }
 }
+
+/* personel kartı: okuyucuya sürüklenir */
+.pocket {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pocket p {
+  margin: 0;
+  color: var(--a-muted, #5d6b7c);
+  font-size: 13px;
+}
+
+.badge {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+  width: 190px;
+  padding: 10px 12px 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1d4f86, #2f6fb5);
+  color: #fff;
+  text-align: left;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: transform 220ms ease;
+}
+
+.badgeDrag {
+  cursor: grabbing;
+  transition: none;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+}
+
+.badgeChip {
+  position: absolute;
+  bottom: 9px;
+  right: 12px;
+  width: 18px;
+  height: 13px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #f6d36b, #c9971f);
+}
+
+.badgePhoto {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 40px;
+  border-radius: 4px;
+  background: #e6edf5;
+  font-size: 20px;
+}
+
+.badgeText {
+  display: grid;
+  gap: 1px;
+}
+
+.badgeText b {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.badgeText small {
+  font-size: 10px;
+  opacity: 0.85;
+}

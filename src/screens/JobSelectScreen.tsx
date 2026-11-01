@@ -26,7 +26,7 @@ export function JobSelectScreen() {
           useGameStore.setState({ phase: 'welcome' });
         }}
       >
-        ← Ana sayfaya dön
+        ← Girişe dön
       </button>
       <div className={styles.content}>
         <div className={styles.headerBlock}>

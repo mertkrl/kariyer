@@ -109,6 +109,8 @@ export interface Project {
   lines?: Partial<Record<string, string[]>>;
   /** Teslim tutanağındaki cümle. */
   ending: string;
+  /** On yıl sonrası: binanın ne hâle geldiği (haber başlığı ve metni). */
+  future: { title: string; text: string };
 }
 
 export const PROJECTS: Project[] = [
@@ -122,6 +124,10 @@ export const PROJECTS: Project[] = [
     paintSide: '#c78a70',
     due: [2019, 2021, 2023, 2025, 2026],
     ending: 'Bir apartmanı temelden çatıya izledi. Hiçbir şeye karışmadı. Kolonun ince olduğunu yalnızca söyledi.',
+    future: {
+      title: 'Huzur Evleri’nde balkonlar kapandı, klimalar çoğaldı',
+      text: 'On yıl sonra: altı balkonun beşi camla kapatılmış, cephede on dört klima var. Somon renk griye dönmüş. Apartman toplantısında “kentsel dönüşüm” kelimesi ilk kez geçti. Kolonun ince olduğunu söyleyen amca, haklı çıkmayı beklemekten yoruldu.',
+    },
   },
   {
     id: 'kule',
@@ -139,6 +145,10 @@ export const PROJECTS: Project[] = [
       teslim: ['Dairelerin hepsi satılmış, kimse oturmuyor.', 'Havuz çatıdaymış, kimse görmedi.', 'Bizim mahalleye gölge düştü, öğleden sonra güneş yok.'],
     },
     ending: 'Sekiz katlı bir rezidansı izledi. Havuzu hiç görmedi. Gölgesinde oturdu.',
+    future: {
+      title: 'Mavi Kule’nin havuzu hâlâ açılmadı',
+      text: 'On yıl sonra: dairelerin yarısı kısa süreli kiralık. Çatıdaki havuz “bakımda”. Karşı apartmanın balkonuna öğleden sonra güneş düşmüyor; komşular akşam çayını artık parkta içiyor. Parkın yarısı otopark girişi oldu.',
+    },
   },
   {
     id: 'okul',
@@ -156,6 +166,10 @@ export const PROJECTS: Project[] = [
       teslim: ['Seçimden bir hafta önce açıldı.', 'Torunum buraya gidecek, inşallah sağlamdır.', 'Bahçesi küçük ama boyası güzel.'],
     },
     ending: 'Bir okulu temelden çatıya izledi. Kurdeleyi başkan kesti, alkışı amcalar tuttu.',
+    future: {
+      title: 'Gül Sokak İlkokulu ilk mezunlarını verdi',
+      text: 'On yıl sonra: okulun ilk öğrencileri liseyi bitirdi. Bahçedeki fidanlar ağaç oldu, sarı boya biraz soldu ama binada tek çatlak yok. İnşaatı izleyen amcalardan biri bugün okulun bekçisi; “Ben bu kolonları gördüm” diye anlatıyor.',
+    },
   },
 ];
 

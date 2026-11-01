@@ -1,3 +1,4 @@
+import { queueOf } from './score';
 import { clonePlan, signal, stepController } from './controller';
 import { buildJunction, clash, crossPoint, exitOf, pose, yields, type Junction } from './junction';
 import {
@@ -67,6 +68,11 @@ export interface Sim {
   jammed: Dir | null;
   log: LogLine[];
   rand: () => number;
+  /** Çift sıra park: kol bu ana kadar yavaş akar. */
+  slow: Partial<Record<Dir, number>>;
+  /** Kolun sürücülerinin son söylendiği an ve kaçıncı laf. */
+  grumble: Partial<Record<Dir, number>>;
+  grumbles: number;
 }
 
 export function rng(seed: number) {
@@ -80,8 +86,8 @@ export function rng(seed: number) {
   };
 }
 
-export const say = (s: Sim, text: string, tone: LogLine['tone'] = 'info') => {
-  s.log.unshift({ t: s.t, text, tone });
+export const say = (s: Sim, text: string, tone: LogLine['tone'] = 'info', horn = false) => {
+  s.log.unshift({ t: s.t, text, tone, ...(horn ? { horn } : {}) });
   if (s.log.length > 12) s.log.length = 12;
 };
 
@@ -112,6 +118,9 @@ export function createSim(spec: LevelSpec): Sim {
     jammed: null,
     log: [],
     rand: rng(spec.seed),
+    slow: {},
+    grumble: {},
+    grumbles: 0,
   };
 }
 
@@ -127,7 +136,7 @@ const rateAt = (r: number | [number, number][], t: number) => {
   return r[r.length - 1][1];
 };
 
-export const speedOf = (s: Sim, d: Dir) => (s.spec.legs[d]?.v ?? 13.9) * (s.spec.rain ? 0.85 : 1);
+export const speedOf = (s: Sim, d: Dir) => (s.spec.legs[d]?.v ?? 13.9) * (s.spec.rain ? 0.85 : 1) * ((s.slow[d] ?? 0) > s.t ? 0.4 : 1);
 
 /* ───────────── Araçlar ───────────── */
 
@@ -450,6 +459,9 @@ function start(s: Sim, p: Ped) {
 
 /* ───────────── Adım ───────────── */
 
+/** Bekleyen sürücülerin lafları: sırayla döner. */
+const DRIVER_LINES = ['Yeşil ne zaman yanacak?', 'Abi bu ışık bozuk mu?', 'Düüüüüt! 📢', 'Üç dakikadır buradayım, işe geç kaldım!', 'Kim ayarladı bu ışığı ya?', 'Bir yeşil de bize!', 'Polis yok mu burada?'];
+
 export function step(s: Sim) {
   if (s.done) return;
   s.t += DT;
@@ -461,6 +473,16 @@ export function step(s: Sim) {
     else if (e.kind === 'ambulance') {
       (s.backlog[`amb:${e.mv}`] ??= []).push(s.t);
       say(s, e.text, 'bad');
+    } else if (e.kind === 'convoy') {
+      for (let k = 0; k < e.n; k++) (s.backlog[e.mv] ??= []).push(s.t);
+      say(s, e.text, 'bad', true);
+    } else if (e.kind === 'courier') {
+      // kurye kolun başında belirir: yer yoksa gelmez
+      if (spawn(s, e.mv, s.t, 'car')) s.cars[s.cars.length - 1].bold = true;
+      say(s, e.text, 'bad');
+    } else if (e.kind === 'parked') {
+      s.slow[e.leg] = s.t + e.sec;
+      say(s, e.text, 'bad', true);
     } else (s.backlog[`bus:${e.mv}`] ??= []).push(s.t);
   }
 
@@ -497,6 +519,15 @@ export function step(s: Sim) {
     }
     return false;
   });
+
+  // sürücü sesleri: bir kolda en uzun bekleyiş 45 saniyeyi aşınca söylenirler (kol başına 25 saniyede bir)
+  if (Math.floor(s.t) !== Math.floor(s.t - DT))
+    for (const d of Object.keys(s.j.legs) as Dir[]) {
+      if (s.t - (s.grumble[d] ?? -99) < 25) continue;
+      if (queueOf(s, d).wait < 45) continue;
+      s.grumble[d] = s.t;
+      say(s, `${s.spec.legs[d]!.name} kolundan: “${DRIVER_LINES[s.grumbles++ % DRIVER_LINES.length]}”`, 'bad', true);
+    }
 
   // kuyruk kolun başına dayandıysa ve gerisi birikiyorsa kavşak kilitlenir
   for (const d of Object.keys(s.j.legs) as Dir[]) {

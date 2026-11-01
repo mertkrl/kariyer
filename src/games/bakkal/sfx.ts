@@ -1,12 +1,15 @@
 /*
  * Bakkalın sesleri: hepsi Web Audio ile anında üretilir, dosya yok. Kapı çıngırağı, yazar kasa
- * zili ve çekmecesi, metal kepenk, kedi mırıltısı; arkada havaya göre kuş cıvıltısı ya da yağmur.
+ * zili ve çekmecesi, metal kepenk, kedi miyavlaması; arkada havaya göre kuş cıvıltısı ya da yağmur.
  * Ses kapatılınca hepsi susar. Tarayıcı ilk dokunuştan önce ses çalmaz: bağlam ilk çağrıda kurulur.
  */
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let muted = false;
+/** Ses düzeyi (0–1): üst çubuktaki kaydırıcıdan; tarayıcıda saklanır. */
+const VOLUME_KEY = 'kariyerweb-bakkal-ses';
+let volume = readVolume();
 let ambience: { stop: () => void } | null = null;
 
 function ac() {
@@ -15,19 +18,45 @@ function ac() {
     if (!C) return null;
     ctx = new C();
     master = ctx.createGain();
-    master.gain.value = muted ? 0 : 0.6;
+    master.gain.value = muted ? 0 : volume;
     master.connect(ctx.destination);
   }
   if (ctx.state === 'suspended') void ctx.resume();
   return ctx;
 }
 
+function readVolume(): number {
+  try {
+    const v = Number(localStorage.getItem(VOLUME_KEY));
+    return localStorage.getItem(VOLUME_KEY) !== null && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.6;
+  } catch {
+    return 0.6;
+  }
+}
+
+const apply = () => {
+  if (master && ctx) master.gain.setTargetAtTime(muted ? 0 : volume, ctx.currentTime, 0.05);
+};
+
 export function setMuted(m: boolean) {
   muted = m;
-  if (master && ctx) master.gain.setTargetAtTime(m ? 0 : 0.6, ctx.currentTime, 0.05);
+  apply();
 }
 
 export const isMuted = () => muted;
+
+/** Ses düzeyi 0–1; sıfıra çekmek susturmakla aynı değildir: düğme açıp kapatır, kaydırıcı düzeyi tutar. */
+export function setVolume(v: number) {
+  volume = Math.max(0, Math.min(1, v));
+  apply();
+  try {
+    localStorage.setItem(VOLUME_KEY, String(volume));
+  } catch {
+    // saklanamazsa düzey yalnızca bu oturumda geçerli
+  }
+}
+
+export const getVolume = () => volume;
 
 function tone(freq: number, at: number, dur: number, gain: number, type: OscillatorType = 'sine') {
   const c = ac();
@@ -84,27 +113,74 @@ export function register() {
   burst(0.35, 0.25, 0.2, 500, 0.8);
 }
 
-/** Kedi mırıltısı: alçak, titreyen bir hırıltı. */
-export function purr() {
+/**
+ * Kedi miyavlaması: "mi-yav". Testere dişi ses, ağız açılıp kapanır gibi kayan iki formant
+ * süzgecinden geçer; perde önce yükselir sonra iner, hafif titrer. Ardından kısa bir mırıltı.
+ */
+export function meow() {
   const c = ac();
   if (!c || !master) return;
-  const s = c.createBufferSource();
-  s.buffer = noise(1.6);
-  const f = c.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.value = 180;
+  const t0 = c.currentTime;
+  const dur = 0.62 + Math.random() * 0.18;
+  const base = 520 + Math.random() * 120;
+  const o = c.createOscillator();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(base * 0.85, t0);
+  o.frequency.linearRampToValueAtTime(base * 1.35, t0 + dur * 0.3);
+  o.frequency.linearRampToValueAtTime(base * 1.2, t0 + dur * 0.6);
+  o.frequency.exponentialRampToValueAtTime(base * 0.75, t0 + dur);
+  // titreme: sesin canlı durması için hafif vibrato
+  const vib = c.createOscillator();
+  const vibDepth = c.createGain();
+  vib.frequency.value = 7;
+  vibDepth.gain.value = base * 0.02;
+  vib.connect(vibDepth).connect(o.frequency);
+  // iki formant: "i"den "a"ya, sonra "u"ya kayar
+  const f1 = c.createBiquadFilter();
+  f1.type = 'bandpass';
+  f1.Q.value = 6;
+  f1.frequency.setValueAtTime(700, t0);
+  f1.frequency.linearRampToValueAtTime(1100, t0 + dur * 0.45);
+  f1.frequency.linearRampToValueAtTime(650, t0 + dur);
+  const f2 = c.createBiquadFilter();
+  f2.type = 'bandpass';
+  f2.Q.value = 8;
+  f2.frequency.setValueAtTime(2600, t0);
+  f2.frequency.linearRampToValueAtTime(1700, t0 + dur * 0.5);
+  f2.frequency.linearRampToValueAtTime(1000, t0 + dur);
   const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.5, t0 + 0.06);
+  g.gain.setValueAtTime(0.5, t0 + dur * 0.55);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  const g2 = c.createGain();
+  g2.gain.value = 0.55;
+  o.connect(f1).connect(g);
+  o.connect(f2).connect(g2).connect(g);
+  g.connect(master);
+  o.start(t0);
+  vib.start(t0);
+  o.stop(t0 + dur + 0.05);
+  vib.stop(t0 + dur + 0.05);
+  // okşanınca mırlar
+  const s = c.createBufferSource();
+  s.buffer = noise(1.2);
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 160;
+  const pg = c.createGain();
   const lfo = c.createOscillator();
   const depth = c.createGain();
   lfo.frequency.value = 24;
-  depth.gain.value = 0.25;
-  g.gain.value = 0.3;
-  lfo.connect(depth).connect(g.gain);
-  s.connect(f).connect(g).connect(master);
-  g.gain.setTargetAtTime(0, c.currentTime + 1.2, 0.15);
-  lfo.start();
-  s.start();
-  lfo.stop(c.currentTime + 1.7);
+  depth.gain.value = 0.12;
+  pg.gain.setValueAtTime(0, t0 + dur);
+  pg.gain.linearRampToValueAtTime(0.16, t0 + dur + 0.2);
+  pg.gain.setTargetAtTime(0, t0 + dur + 0.8, 0.15);
+  lfo.connect(depth).connect(pg.gain);
+  s.connect(lp).connect(pg).connect(master);
+  s.start(t0 + dur);
+  lfo.start(t0 + dur);
+  lfo.stop(t0 + dur + 1.3);
 }
 
 /** Arka plan: güneşli günde ara sıra kuş, yağmurda sürekli yağmur hışırtısı. */
@@ -115,17 +191,71 @@ export function setAmbience(kind: 'birds' | 'rain' | 'quiet') {
   const c = ac();
   if (!c || !master) return;
   if (kind === 'rain') {
+    // yağmur: üç katman. Uzakta düzgün bir hışırtı (pembe gürültü, bant geçiren), yakında
+    // camla saçağa düşen tek tek damlalar ve ara ara esen rüzgârla kabarıp sönen bir dalga.
+    const len = 4;
+    const buf = c.createBuffer(2, Math.floor(c.sampleRate * len), c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      // Paul Kellet'in pembe gürültüsü: beyaz gürültüden daha yumuşak, gerçek yağmura yakın
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < d.length; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + w * 0.0555179;
+        b1 = 0.99332 * b1 + w * 0.0750759;
+        b2 = 0.969 * b2 + w * 0.153852;
+        b3 = 0.8665 * b3 + w * 0.3104856;
+        b4 = 0.55 * b4 + w * 0.5329522;
+        b5 = -0.7616 * b5 - w * 0.016898;
+        d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
+        b6 = w * 0.115926;
+      }
+      // döngü dikişi duyulmasın: baş ve son kısa bir süre birbirine geçer
+      const fade = Math.floor(c.sampleRate * 0.05);
+      for (let i = 0; i < fade; i++) {
+        const k = i / fade;
+        d[i] = d[i] * k + d[d.length - fade + i] * (1 - k);
+      }
+    }
     const s = c.createBufferSource();
-    s.buffer = noise(2);
+    s.buffer = buf;
     s.loop = true;
-    const f = c.createBiquadFilter();
-    f.type = 'highpass';
-    f.frequency.value = 1200;
-    const g = c.createGain();
-    g.gain.value = 0.07;
-    s.connect(f).connect(g).connect(master);
+    s.loopEnd = len - 0.05;
+    const hp = c.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 350;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 6500;
+    const bed = c.createGain();
+    bed.gain.value = 0.22;
+    // rüzgâr: yavaş bir dalga hışırtıyı kabartıp söndürür
+    const gust = c.createOscillator();
+    const gustDepth = c.createGain();
+    gust.frequency.value = 0.08;
+    gustDepth.gain.value = 0.07;
+    gust.connect(gustDepth).connect(bed.gain);
+    s.connect(hp).connect(lp).connect(bed).connect(master);
     s.start();
-    ambience = { stop: () => s.stop() };
+    gust.start();
+    // camdaki damlalar: kısa, parlak tıkırtılar; ara ara saçaktan düşen iri bir damla
+    const drop = () => {
+      const at = Math.random() * 0.25;
+      if (Math.random() < 0.12) {
+        tone(900 + Math.random() * 500, at, 0.06, 0.03, 'sine');
+        burst(at, 0.04, 0.05, 1800, 3);
+      } else burst(at, 0.012 + Math.random() * 0.015, 0.04 + Math.random() * 0.05, 3000 + Math.random() * 4000, 5);
+    };
+    const id = window.setInterval(() => {
+      for (let i = 0; i < 3; i++) if (Math.random() < 0.7) drop();
+    }, 90);
+    ambience = {
+      stop: () => {
+        window.clearInterval(id);
+        s.stop();
+        gust.stop();
+      },
+    };
     return;
   }
   const chirp = () => {

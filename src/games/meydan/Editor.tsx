@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { flushSync } from 'react-dom';
 import { svgImage } from '../../arcade/share';
 import { markPlayed } from '../../arcade/progress';
+import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
 import { GRID, GROUND, H, ITEM_KINDS, MAX_ITEMS, SIGN_KINDS, SWATCHES, W, colorCount, draftKey, isJunk, itemsOn, makeItem, makeover, snap, withoutJunk, type Design, type Item, type Paint, type Place, type SignKind } from './model';
 import { SceneDefs, SceneLayers, type DragMode, type Pick } from './Scene';
@@ -224,7 +225,10 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
           { label: 'Renk', value: `${m.colorsBefore}→${m.colorsAfter}` },
         ],
         question: 'Senin meydanın nasıl olurdu?',
-        text: `${place.district} ${place.title}'nı baştan düzenledim: "${m.title}". Tabela ${m.signsBefore}→${m.signsAfter}, ${m.junkRemoved} klima ve anten söküldü.`,
+        text:
+          m.signsAfter > m.signsBefore
+            ? `${place.district} meydanına ${m.signsAfter - m.signsBefore} tabela daha astım. Belediye "Tabela Cenneti" dedi. Senin meydanın nasıl olurdu?`
+            : `${place.district} meydanında ${m.signsBefore - m.signsAfter} tabelayı ve ${m.junkRemoved} klimayı söktüm, renk sayısını ${m.colorsBefore} → ${m.colorsAfter} yaptım: "${m.title}". Senin meydanın nasıl olurdu?`,
       };
     } finally {
       setShot(false);
@@ -369,6 +373,7 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
               <span>Sonra</span>
             </label>
           )}
+          {compare && <PressRelease place={place} m={makeover(place.original, design)} />}
           <p className={styles.hint}>{compare ? 'Sürgüyü kaydırarak meydanın bugünkü hâliyle karşılaştır.' : 'Binaya tıkla: renklerini değiştir. Tabelaya tıkla: sürükle, köşesinden boyutlandır, Delete ile sök.'}</p>
           {note && (
             <p className={styles.note} role="status">
@@ -464,5 +469,23 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
         <input type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`${label}: özel renk`} />
       </div>
     </fieldset>
+  );
+}
+
+/** Önce/sonra açıkken belediyenin basın bülteni: oyuncunun yaptığı, kurumsal dille. */
+function PressRelease({ place, m }: { place: Place; m: ReturnType<typeof makeover> }) {
+  const fewer = m.signsBefore - m.signsAfter;
+  return (
+    <Finale kind="news" kicker={`${place.district} Belediyesi · Basın bülteni`} title={`${place.title} yeni yüzüne kavuştu: "${m.title}"`}>
+      <p>
+        Belediyemizin vizyon projesi kapsamında {place.title} cephelerinde kapsamlı bir düzenleme yapılmıştır.{' '}
+        {fewer > 0 ? `${fewer} tabela kaldırılmış, ` : fewer < 0 ? `esnafımızın talebiyle ${-fewer} yeni tabela eklenmiş, ` : ''}
+        {m.junkRemoved > 0 ? `${m.junkRemoved} klima, anten ve kablo cepheden sökülmüştür. ` : ''}
+        {m.colorsAfter === m.colorsBefore ? `Meydandaki renk sayısı korunmuştur (${m.colorsAfter}).` : `Meydandaki renk sayısı ${m.colorsAfter < m.colorsBefore ? 'azaltılmıştır' : 'artırılmıştır'}: önce ${m.colorsBefore}, şimdi ${m.colorsAfter}.`}
+      </p>
+      <p>
+        {m.note} Açılış töreni hafta sonu yapılacak olup kurdele kesimi sırasında meydan trafiğe kapatılacaktır.
+      </p>
+    </Finale>
   );
 }

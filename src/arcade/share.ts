@@ -23,6 +23,8 @@ export interface ResultCard {
   question: string;
   /** Paylaşım menüsüne ya da panoya giden metin; adres sona eklenir. */
   text: string;
+  /** Oyunun kendi kart çizimi: verilirse ortak tasarımın yerine 1080×1350 tuvale bu çizilir. */
+  paint?: (ctx: CanvasRenderingContext2D, link: string) => void;
 }
 
 export const CARD_W = 1080;
@@ -83,6 +85,10 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
   if (!ctx) return;
   canvas.width = CARD_W;
   canvas.height = CARD_H;
+  if (card.paint) {
+    card.paint(ctx, shareLink(card.route).replace(/^https?:\/\//, '').replace(/\/$/, ''));
+    return;
+  }
   const game = GAMES.find((g) => g.route === card.route)!;
   const color = colorOf(card.route);
   const pad = 72;
@@ -219,7 +225,7 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
 /** Oyunun yazı tipleri ilk kullanımda iner: tuval onları almadan çizmesin. */
 async function fontsReady() {
   try {
-    await Promise.all([document.fonts.load(`700 60px ${DISPLAY}`), document.fonts.load(`400 32px ${BODY}`), document.fonts.load(`600 24px ${MONO}`)]);
+    await Promise.all([document.fonts.load(`700 60px ${DISPLAY}`), document.fonts.load(`400 32px ${BODY}`), document.fonts.load(`600 24px ${MONO}`), document.fonts.load(`700 40px 'Caveat'`)]);
   } catch {
     // yedek yazı tipleri devralır
   }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { awayOf, coolOff, type Memories, CUSTOMERS, CLOSE_HOUR, DEBT_DAYS, forget, type Debt, EVENT_POOL, OPEN_HOUR, PRODUCTS, VILLAGERS, basketOn, ceilingOf, customersFor, dayVisits, effectiveType, eventOn, factorOn, greetingFor, hikesOn, hourOf, priceOn, react, remember, sayItems, settleDebts, titleFor, weatherOn } from '../src/games/bakkal/data';
+import { COST_UP, awayOf, coolOff, type Memories, CUSTOMERS, CLOSE_HOUR, DEBT_DAYS, forget, type Debt, EVENT_POOL, OPEN_HOUR, PRODUCTS, VILLAGERS, basketOn, ceilingOf, customersFor, dayVisits, effectiveType, eventOn, factorOn, greetingFor, hikesOn, hourOf, priceOn, react, remember, sayItems, settleDebts, titleFor, weatherOn } from '../src/games/bakkal/data';
 
 const DAYS = 20;
 const pazar = EVENT_POOL.find((e) => e.title === 'Pazar günü')!;
@@ -24,12 +24,15 @@ test('market fiyatına kadar sevinir, tavana kadar söylenir, sonra pazarlık ed
   assert.equal(react(80, 50, teyze, true).mood, 'leave');
   // muhtarın tavanı daha yüksek
   assert.equal(react(70, 50, muhtar).mood, 'grumble');
+  // akıl almaz fiyata pazarlık etmeden gider
+  assert.equal(react(500, 50, teyze).mood, 'leave');
+  assert.equal(react(500, 50, teyze).offer, undefined);
 });
 
 test('karşı teklif market ile tavan arasında kalır ve kabul edilince satılır', () => {
   for (const cust of CUSTOMERS)
     for (const p of PRODUCTS) {
-      const r = react(p.market * 3, p.market, cust);
+      const r = react(ceilingOf(p.market, cust) + 1, p.market, cust);
       assert.equal(r.mood, 'counter');
       assert.ok(r.offer! <= ceilingOf(p.market, cust), `${cust.id} ${p.id}`);
       assert.ok(react(r.offer!, p.market, cust, true).sold !== undefined);
@@ -64,7 +67,11 @@ test('fiyatlar her gün artar, her ürünün zammı başka; maliyet hep market f
       const x = priceOn(p, d);
       assert.ok(x.cost < x.market, `${p.id} ${d}`);
     }
-  assert.deepEqual(priceOn(PRODUCTS[0], 1), { market: PRODUCTS[0].market, cost: PRODUCTS[0].cost });
+  // toptan fiyatı listedekinden yüksek ve köydeki fiyattan hızlı zamlanır: kâr payı dar, giderek daralır
+  assert.deepEqual(priceOn(PRODUCTS[0], 1), { market: PRODUCTS[0].market, cost: Math.round(PRODUCTS[0].cost * COST_UP) });
+  const margin = (d: number) => PRODUCTS.reduce((s, p) => s + priceOn(p, d).cost / priceOn(p, d).market, 0) / PRODUCTS.length;
+  assert.ok(margin(1) > 0.72 && margin(1) < 0.84, String(margin(1)));
+  assert.ok(margin(30) > margin(1));
   // otuzuncu günde ürünlerin pahalanma oranları birbirinden farklı
   const rates = new Set(PRODUCTS.map((p) => factorOn(p, 30).toFixed(2)));
   assert.ok(rates.size >= 6);
@@ -104,7 +111,7 @@ test('köylüler hatırlar: kazık tavanı düşürür, sevinç biraz yükseltir
 
 test('sepet toplamı ve konuşma', () => {
   const [a, b, c] = PRODUCTS;
-  assert.deepEqual(basketOn([a, b], 1), { market: a.market + b.market, cost: a.cost + b.cost });
+  assert.deepEqual(basketOn([a, b], 1), { market: a.market + b.market, cost: priceOn(a, 1).cost + priceOn(b, 1).cost, fair: a.market + b.market });
   assert.equal(sayItems([a]), 'bir ekmek');
   assert.equal(sayItems([a, b, c]), 'bir ekmek, bir süt bir de yumurta');
 });
@@ -155,7 +162,7 @@ test('market fiyatına yakın söylenme itibar yakmaz, kin bırakmaz; köy gece 
   assert.equal(r.rep, 0);
   assert.equal(remember({}, 'ayse', 'grumble', r.mild).ayse.grudge, 0);
   assert.ok(react(148, 100, { ceiling: 1.5, gossip: 1 }).rep < 0);
-  assert.equal(forget(90), 87);
+  assert.equal(forget(90), 89);
   assert.equal(forget(59), 60);
   assert.equal(forget(60), 60);
 });

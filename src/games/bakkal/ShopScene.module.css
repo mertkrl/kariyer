@@ -51,8 +51,67 @@
   transform: translateY(22px);
 }
 
-.rain {
-  animation: fall 0.5s linear infinite;
+.rainFar {
+  animation: pour 0.9s linear infinite;
+}
+
+.rainNear {
+  animation: pour 0.45s linear infinite;
+}
+
+@keyframes pour {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-43px, 240px);
+  }
+}
+
+/* camdan süzülen damla: durur, hızlanarak iner, ardında ıslak iz kalır ve iz yavaşça kurur */
+.runDrop {
+  animation: runFade linear infinite;
+}
+
+.runHead {
+  animation: runHead ease-in infinite;
+}
+
+.runTrail {
+  stroke-dasharray: 1;
+  animation: runTrail ease-in infinite;
+}
+
+@keyframes runHead {
+  0%,
+  35% {
+    transform: translateY(0);
+  }
+  85%,
+  100% {
+    transform: translateY(250px);
+  }
+}
+
+@keyframes runTrail {
+  0%,
+  35% {
+    stroke-dashoffset: 1;
+  }
+  85%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes runFade {
+  0%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .snow {
@@ -67,10 +126,6 @@
 
 .zzz {
   animation: zzz 3s ease-in-out infinite;
-}
-
-.lamp {
-  animation: flicker 7s infinite;
 }
 
 /* müşteri: kapının önünden tezgâhın ortasına yürür (SVG kullanıcı biriminde) */
@@ -153,17 +208,6 @@
   }
 }
 
-@keyframes flicker {
-  0%,
-  93%,
-  100% {
-    opacity: 1;
-  }
-  95% {
-    opacity: 0.55;
-  }
-}
-
 @keyframes drift {
   to {
     transform: translateX(40px);
@@ -216,5 +260,146 @@
 @keyframes gumGlow {
   50% {
     filter: brightness(1.15) drop-shadow(0 0 10px rgba(255, 214, 10, 0.95));
+  }
+}
+
+/* rafa yeni gelen mal küçük bir sıçramayla yerine oturur */
+.stocked {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: stocked 0.45s var(--ease-enter, ease-out) both;
+}
+
+@keyframes stocked {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stocked {
+    animation: none;
+  }
+}
+
+/* yüz ifadesi değişince küçük bir tepki: şokta silkinir, ötekinde hafifçe sıçrar */
+.face {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: faceIn 0.35s ease-out;
+}
+
+@keyframes faceIn {
+  40% {
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face {
+    animation: none;
+  }
+}
+
+/* ışık yumuşak değişir: müşteri müşteri saat ilerledikçe oda yavaşça kararır, ton döner */
+.light {
+  transition:
+    opacity 2.4s ease,
+    fill 2.4s ease,
+    stop-color 2.4s ease,
+    transform 2.4s ease;
+}
+
+/* güneş huzmesi camın alt kenarından yere yayılır */
+.beam {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  mix-blend-mode: screen;
+}
+
+.tint {
+  mix-blend-mode: soft-light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light {
+    transition: none;
+  }
+}
+
+/* erişilebilirlik: konuşma balonu büyür, kontrastta siyah çerçeve */
+:global([data-text='lg']) .bubble {
+  max-width: 380px;
+  font-size: 16px;
+}
+
+:global([data-text='xl']) .bubble {
+  max-width: 440px;
+  font-size: 18.5px;
+}
+
+:global([data-contrast]) .bubble {
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+}
+
+/* kapı levhası: çevrilince ipinin etrafında döner; açılmayı beklerken hafifçe nabız atar */
+.sign {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: signFlip 0.6s ease-in-out;
+}
+
+.signReady {
+  cursor: pointer;
+  animation:
+    signFlip 0.6s ease-in-out,
+    signPulse 1.6s 0.6s ease-in-out infinite;
+}
+
+.signReady:focus-visible {
+  outline: 3px solid #f3d27a;
+}
+
+@keyframes signFlip {
+  0% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.05);
+  }
+}
+
+@keyframes signPulse {
+  50% {
+    filter: drop-shadow(0 0 6px rgba(255, 230, 140, 0.95));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sign,
+  .signReady {
+    animation: none;
+  }
+}
+
+/* tanıtım: sırası gelen nesne altın renkte parlar */
+.coach {
+  animation: coach 1.4s ease-in-out infinite;
+  cursor: pointer;
+}
+
+@keyframes coach {
+  50% {
+    filter: drop-shadow(0 0 10px rgba(255, 214, 90, 1)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach {
+    animation: none;
+    filter: drop-shadow(0 0 6px rgba(255, 214, 90, 1));
   }
 }

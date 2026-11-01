@@ -123,3 +123,12 @@ test('kontrolör: sarı ve tüm kırmızı sırayla gelir; tut yeşili sabitler,
   until(() => s.ctl.phase === 0);
   assert.equal(s.ctl.phase, 0);
 });
+
+test('kaos olayları sırayla gelir; bekleyen kollar söylenir, korna çalar', () => {
+  for (const l of LEVELS) l.spec.events.forEach((e, i) => i && assert.ok(e.at >= l.spec.events[i - 1].at, `${l.spec.id} ${e.kind}`));
+  const kinds = new Set(LEVELS.flatMap((l) => l.spec.events.map((e) => e.kind)));
+  for (const k of ['convoy', 'courier', 'parked'] as const) assert.ok(kinds.has(k), k);
+  const s = createSim(level('sisli').spec);
+  while (!s.done) step(s);
+  assert.ok(s.log.some((x) => x.horn));
+});

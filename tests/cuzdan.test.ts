@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { DAILY_ROUNDS, dailyShare, dayNumber, makeDaily, nextStreak } from '../src/games/cuzdan/daily';
 import { ALL_YEARS, CPI, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, YEARS } from '../src/games/cuzdan/data';
 import {
+  laborMinutes,
   salaryPersona,
   salaryTable,
   walletOf,
@@ -196,4 +197,11 @@ test('senin maaşın: her yılda aynı alım gücü, bugün aynen kendisi', () =
   for (const r of table) assert.ok(Math.abs(r.amount / CPI[r.year] - 45000 / CPI[NOW]) < 1e-9, String(r.year));
   assert.ok(walletOf(2002, p) < walletOf(2022, p));
   assert.equal(walletOf(2005, PERSONAS[0]), walletFor(2005, PERSONAS[0].share));
+});
+
+test('emek dakikası: maaşla giren kendi maaşıyla, öteki asgari ücretle ölçülür', () => {
+  const p = salaryPersona(28075 * 2);
+  const bread = ITEMS.find((i) => i.id === 'ekmek')!;
+  assert.ok(Math.abs(laborMinutes(bread.prices[NOW], NOW, p) * 2 - workMinutes(bread.prices[NOW], NOW)) < 1e-6);
+  assert.equal(laborMinutes(10, 2005, PERSONAS[0]), workMinutes(10, 2005));
 });

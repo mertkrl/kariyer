@@ -191,7 +191,7 @@ export function Scene({ t }: { t: number }) {
       {(() => {
         const x = AMCA_X[speech.who];
         const bw = 18 + speech.text.length * 5.3;
-        const bx = Math.max(190, Math.min(1010 - bw, x - bw / 2));
+        const bx = Math.max(240, Math.min(960 - bw, x - bw / 2));
         const by = HEAD_TOP - (rain ? 82 : 32);
         return (
           <g key={speech.id} className={s.bubble}>

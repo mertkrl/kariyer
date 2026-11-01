@@ -9,11 +9,13 @@ import { BackgroundWidget, InviteWidget, ReactionWidget } from './AppWidgets';
 import { LunchWidget, RaiseWidget } from './OfficeWidgets';
 import { StampWidget, ThermostatWidget, TurnstileWidget } from './FloorWidgets';
 import { BudgetWidget, ContractWidget, ElevatorWidget, PasswordWidget, ShutdownWidget, SwipeWidget } from './DeskWidgets';
+import { CcWidget, LeaveWidget, OvertimeWidget } from './HrWidgets';
+import { InboxWidget } from './InboxWidget';
 
 /*
  * Değerlendirmenin soru türleri. Her biri sonunda bir şık sırası verir (`onAnswer`), böylece
  * cevap kâğıdı her soru için aynı biçimde okunur: çoktan seçmeli, kaydırıcı, görev sıralama ve
- * yöneticinin sunumunda doğru anda baş sallamak.
+ * bilgisayar ekranına akan gelen kutusunda doğru e-postayı seçmek.
  */
 
 interface WidgetProps {
@@ -26,9 +28,9 @@ const click = () => audioEngine.playUi('click');
 /** `selected`: daha önce işaretlenen şık; düz çoktan seçmelide vurgulanır, diğer türlerde soru kartı gösterir. */
 export function QuestionWidget({ q, onAnswer, selected = null }: WidgetProps & { selected?: number | null }) {
   const w = q.widget;
-  if (w?.type === 'slider') return <SliderWidget q={q} w={w} onAnswer={onAnswer} />;
-  if (w?.type === 'order') return <OrderWidget q={q} onAnswer={onAnswer} />;
-  if (w?.type === 'tap') return <TapWidget q={q} everyMs={w.everyMs} onAnswer={onAnswer} />;
+  if (w?.type === 'slider') return <SliderWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'order') return <OrderWidget q={q} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'inbox') return <InboxWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'calendar') return <CalendarWidget q={q} onAnswer={onAnswer} />;
   if (w?.type === 'chat') return <ChatWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'runaway') return <RunawayWidget q={q} onAnswer={onAnswer} />;
@@ -48,6 +50,9 @@ export function QuestionWidget({ q, onAnswer, selected = null }: WidgetProps & {
   if (w?.type === 'shutdown') return <ShutdownWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'elevator') return <ElevatorWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   if (w?.type === 'budget') return <BudgetWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'leave') return <LeaveWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'cc') return <CcWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
+  if (w?.type === 'overtime') return <OvertimeWidget q={q} w={w} onAnswer={onAnswer} selected={selected} />;
   return (
     <div className={styles.options}>
       {q.options.map((o, i) => (
@@ -69,8 +74,11 @@ export function QuestionWidget({ q, onAnswer, selected = null }: WidgetProps & {
 
 const FACES = ['😐', '🙂', '😄', '🤩'];
 
-function SliderWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<ExamWidget, { type: 'slider' }> }) {
-  const [value, setValue] = useState(Math.round((w.min + w.max) / 2));
+/** Kaydırıcının son onaylanan değeri: soruya geri dönülünce kaydırıcı oradan başlar. */
+const sliderMemory = new Map<string, number>();
+
+function SliderWidget({ q, w, onAnswer, selected }: WidgetProps & { w: Extract<ExamWidget, { type: 'slider' }>; selected: number | null }) {
+  const [value, setValue] = useState(() => sliderMemory.get(q.id) ?? Math.round((w.min + w.max) / 2));
   const option = sliderOption(value, w.thresholds);
   return (
     <div className={styles.slider}>
@@ -99,18 +107,28 @@ function SliderWidget({ q, w, onAnswer }: WidgetProps & { w: Extract<ExamWidget,
         className={styles.primary}
         onClick={() => {
           click();
+          sliderMemory.set(q.id, value);
           onAnswer(option);
         }}
       >
         Onayla
       </button>
+      {selected !== null && (
+        <p className={styles.yourAnswer} role="status">
+          Cevabınız: <b>{q.options[selected]}</b>
+        </p>
+      )}
     </div>
   );
 }
 
-function OrderWidget({ q, onAnswer }: WidgetProps) {
-  const [order, setOrder] = useState<number[]>([]);
+/** Gönderilen sıralamalar: cevap kâğıdı yalnızca ilk sırayı tutar, soruya dönülünce tam sıra buradan gelir. */
+const orderMemory = new Map<string, number[]>();
+
+function OrderWidget({ q, onAnswer, selected }: WidgetProps & { selected: number | null }) {
+  const [order, setOrder] = useState<number[]>(() => (selected !== null ? (orderMemory.get(q.id) ?? []) : []));
   const done = order.length === q.options.length;
+  const sent = selected !== null && orderMemory.get(q.id)?.join() === order.join();
   return (
     <div className={styles.order}>
       <ul className={styles.orderList}>
@@ -142,58 +160,13 @@ function OrderWidget({ q, onAnswer }: WidgetProps) {
           disabled={!done}
           onClick={() => {
             click();
+            orderMemory.set(q.id, order);
             onAnswer(order[0]);
           }}
         >
-          Sıralamayı gönder
+          {sent ? 'Gönderildi ✓' : 'Sıralamayı gönder'}
         </button>
       </div>
-    </div>
-  );
-}
-
-/** Cümleler sırayla gelir; o an ekrandaki cümleye baş sallamak cevaptır. */
-const TAP_SEQUENCE = [1, 3, 0, 2];
-
-function TapWidget({ q, everyMs, onAnswer }: WidgetProps & { everyMs: number }) {
-  const [step, setStep] = useState(0);
-  const [nodded, setNodded] = useState(false);
-  useEffect(() => {
-    const id = window.setInterval(() => setStep((s) => s + 1), everyMs);
-    return () => window.clearInterval(id);
-  }, [everyMs]);
-  const current = TAP_SEQUENCE[step % TAP_SEQUENCE.length] % q.options.length;
-  return (
-    <div className={styles.meeting}>
-      <div className={styles.stage}>
-        <div className={styles.presenter} aria-hidden="true">
-          👔
-        </div>
-        <div className={styles.slide}>
-          <small>Yönetici · Çeyrek Değerlendirmesi</small>
-          <p key={step} className={styles.slideLine} aria-live="polite">
-            "{q.options[current]}"
-          </p>
-        </div>
-      </div>
-      <div className={styles.audience} aria-hidden="true">
-        {['🧑‍💼', '👩‍💼', '🧑‍💻', '👨‍💼', '🫥'].map((p, i) => (
-          <span key={i} className={step % 2 === i % 2 ? styles.nod : undefined}>
-            {p}
-          </span>
-        ))}
-      </div>
-      <button
-        className={`${styles.primary} ${styles.nodButton}`}
-        disabled={nodded}
-        onClick={() => {
-          click();
-          setNodded(true);
-          onAnswer(current);
-        }}
-      >
-        🙂 Başımı salla
-      </button>
     </div>
   );
 }

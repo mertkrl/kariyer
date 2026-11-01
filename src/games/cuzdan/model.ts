@@ -273,6 +273,12 @@ export const PERSONAS: Persona[] = [
 /** Bugünkü maaşın o yıldaki karşılığı: aynı alım gücü, TÜFE'ye göre geri çekilir. */
 export const salaryIn = (salary: number, year: AnyYear) => (salary * CPI[year]) / CPI[NOW];
 
+/** Bir fiyat, senin maaşınla o yıl kaç dakikalık emek: maaş o yıla TÜFE ile taşınır. */
+export const myMinutes = (price: number, year: AnyYear, salary: number) => (price / (salaryIn(salary, year) / MONTH_HOURS)) * 60;
+
+/** Emek dakikası: maaşlı kişide kendi maaşıyla, ötekilerde asgari ücretle. */
+export const laborMinutes = (price: number, year: AnyYear, p?: Persona) => (p?.salary ? myMinutes(price, year, p.salary) : workMinutes(price, year));
+
 /** Cüzdandaki para: maaşlı kişide o yılki maaş karşılığı (yuvarlak), ötekilerde asgari ücretin bir payı. */
 export function walletOf(year: Year, p: Persona): number {
   if (!p.salary) return walletFor(year, p.share);

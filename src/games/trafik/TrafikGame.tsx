@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
 import { hrefOf } from '../../arcade/route';
 import { markPlayed } from '../../arcade/progress';
+import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
 import { audioEngine } from '../../audio/audioEngine';
 import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
@@ -68,10 +69,6 @@ export function TrafikGame() {
 
       <header className={styles.top}>
         <ClockOut tone="dark" risk={phase.at === 'play' ? 'Yarım kalan kavşak kaybolur; biten kavşaklar kayıtlı.' : undefined} />
-        <div className={styles.title}>
-          <h1>Kavşak Amiri</h1>
-          <p>{phase.at === 'done' ? 'Vardiya bitti' : `Kavşak ${phase.n + 1}/${LEVELS.length} · ${LEVELS[phase.n].place}`}</p>
-        </div>
       </header>
 
       {phase.at === 'order' && level && (
@@ -127,6 +124,7 @@ export function TrafikGame() {
               <span>TRAFİK KONTROL MERKEZİ · VARDİYA SONU</span>
             </header>
             <h2>{shiftTitle(scores).title}</h2>
+            <ShiftRadio scores={scores} />
             <dl>
               {LEVELS.map((l, i) => (
                 <div key={l.place} className={styles.row}>
@@ -154,7 +152,7 @@ export function TrafikGame() {
                       { label: 'Ortalama', value: `${t.avg}`, tone: '#3a7d4c' },
                     ].slice(-3),
                     question: 'Sen olsan Barbaros’ta tüm kırmızıyı kaç saniye yapardın?',
-                    text: `Kavşak Amiri'nde vardiyayı "${t.title}" olarak bitirdim, ortalamam ${t.avg}/100. İstanbul kavşaklarını sen yönetebilir misin?`,
+                    text: radioShare(scores),
                   };
                 }}
               />
@@ -176,5 +174,33 @@ export function TrafikGame() {
         </main>
       )}
     </div>
+  );
+}
+
+/** Her kavşağın trafik radyosundaki hâli: puana göre akıcı, yoğun ya da kilit. */
+const flow = (score: number) => (score >= 75 ? 'akıcı' : score >= 60 ? 'yer yer yoğun' : 'kilit');
+
+function radioShare(scores: number[]) {
+  const t = shiftTitle(scores);
+  const i = scores.reduce((m, s, k) => (s < scores[m] ? k : m), 0);
+  const worst = LEVELS[i];
+  return scores[i] < 60
+    ? `Kavşak Amiri: vardiyamda trafik radyosu "${worst.place} kilit" diye anons etti (${scores[i]}/100). Unvanım "${t.title}". Sen bu ışıkları nasıl ayarlardın?`
+    : `Kavşak Amiri: vardiya boyunca trafik radyosu beş kavşak için de "akıcı" dedi. Unvanım "${t.title}", ortalamam ${t.avg}/100. Sen yetişebilir misin?`;
+}
+
+/** Vardiya sonu: trafik radyosunun akşam bülteni, kavşak kavşak. */
+function ShiftRadio({ scores }: { scores: number[] }) {
+  const t = shiftTitle(scores);
+  const jams = LEVELS.filter((_, i) => (scores[i] ?? 0) < 60);
+  return (
+    <Finale kind="radio" kicker="Trafik Radyosu · 104.6 · Akşam bülteni" title={jams.length ? `Dikkat: ${jams.map((l) => l.place.split('·')[0].trim()).join(', ')} kilit` : 'İstanbul’un ışıkları bu akşam yeşil dalgada'}>
+      {LEVELS.map((l, i) => (
+        <p key={l.place}>
+          {l.place}: <b>{flow(scores[i] ?? 0)}</b>.
+        </p>
+      ))}
+      <p>Kontrol merkezinden vardiyayı devralan ekip arkadaşımız: "{t.note}"</p>
+    </Finale>
   );
 }

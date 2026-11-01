@@ -2,40 +2,57 @@ import { useEffect, useRef, useState } from 'react';
 import { ShareButton } from '../../arcade/ShareButton';
 import * as sfx from './sfx';
 import { markPlayed } from '../../arcade/progress';
-import { highlightsOf, PASS_MARK, reportNo, scoreExam, sectionScores, verdictOf, type ExamAnswer, type ExamSection } from './logic';
+import { clockText, emptyLog, highlightsOf, PASS_MARK, proctorNote, reportNo, scoreExam, SECTION_SECONDS, sectionScores, verdictOf, type ExamAnswer, type ExamLog, type ExamSection } from './logic';
 import base from './TestGame.module.css';
 import styles from './Result.module.css';
+import pr from './Proctor.module.css';
+import { paintUyumCard } from './shareCard';
 
 /*
- * Aday Profil Raporu: kaydırmadan tek ekrana sığan bir pano. Solda profil (mühür, iki puan, yorum,
- * özet), sağda cevap kâğıdı: her bölüm bir satır, solunda bölümün iki puan çubuğu, sağında soru
- * kutucukları. Kutucuğa tıklayınca o sorunun ayrıntısı hemen altında açılır. Mühür şirket
- * puanına bakar; sağduyu puanı raporda durur ama hiçbir kararı etkilemez.
+ * Aday Profil Raporu: kaydırmadan ekrana sığan yatay bir belge. Solda karar, mühür, iki puan (şirket ve
+ * sağduyu) ve bölüm sonuçları; sağda bölüm bölüm cevap kâğıdı, yapay zekâ raporu ve paylaşım. Cevap kâğıdında bir soruya tıklayınca altında üç cevap
+ * yan yana açılır: seninki, anahtarınki, aklı başında olanınki. Mühür yalnızca şirket puanına bakar.
  */
 
-function Ring({ value, label, note, tone }: { value: number; label: string; note: string; tone: 'company' | 'sense' }) {
+function Score({ value, label, note, tone }: { value: number; label: string; note: string; tone: 'company' | 'sense' }) {
   return (
-    <div className={`${styles.ringBox} ${tone === 'sense' ? styles.sense : ''}`}>
-      <div className={styles.ring} style={{ ['--p' as string]: value }} role="img" aria-label={`${label}: 100 üzerinden ${value}`}>
-        <b className="mono">{value}</b>
+    <div className={`${styles.score} ${tone === 'sense' ? styles.scoreSense : ''}`}>
+      <div className={styles.scoreTop}>
+        <span>{label}</span>
+        <b className="mono">
+          {value}
+          <small>/100</small>
+        </b>
       </div>
-      <span className={styles.ringLabel}>{label}</span>
-      <small>{note}</small>
+      <span className={styles.meter} role="img" aria-label={`${label}: 100 üzerinden ${value}`}>
+        <i style={{ width: `${value}%` }} />
+      </span>
+      <small className={styles.scoreNote}>{note}</small>
     </div>
   );
 }
 
 type Mark = 'key' | 'sense' | 'other' | 'blank';
-const MARK_TEXT: Record<Mark, string> = { key: 'anahtarla aynı', sense: 'sağduyulu', other: 'ikisi de değil', blank: 'boş' };
+const MARK_TEXT: Record<Mark, string> = {
+  key: 'anahtarla aynı',
+  sense: 'sağduyulu',
+  other: 'ikisi de değil',
+  blank: 'boş',
+};
 
-export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSection[]; answers: ExamAnswer[]; robots?: number; onAgain: () => void }) {
+export function Result({ exam, answers, log = emptyLog(), onAgain }: { exam: ExamSection[]; answers: ExamAnswer[]; log?: ExamLog; onAgain: () => void }) {
   const questions = exam.flatMap((s) => s.questions);
   const r = scoreExam(questions, answers);
   const v = verdictOf(r.company, r.blank / Math.max(1, questions.length));
   const sections = sectionScores(exam, answers);
   const passed = r.company >= PASS_MARK;
   const notes = highlightsOf(questions, answers);
+  const limit = exam.length * SECTION_SECONDS;
+  const proctor = proctorNote(log, questions, answers, limit);
   const [open, setOpen] = useState(0);
+  const [part, setPart] = useState(0);
+  // her bölümün ilk sorusunun cevap kâğıdındaki sırası
+  const starts = exam.map((_, si) => exam.slice(0, si).reduce((t, x) => t + x.questions.length, 0));
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
   // rapor açılırken kısa bir trampet, ardından mühür masaya iner
@@ -48,206 +65,258 @@ export function Result({ exam, answers, robots = 0, onAgain }: { exam: ExamSecti
     // yalnızca rapor ilk açıldığında
     // oxlint-disable-next-line react/exhaustive-deps
   }, []);
-  const date = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const date = new Date().toLocaleDateString('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   const markOf = (i: number): Mark => {
     const a = answers[i] ?? null;
     if (a === null) return 'blank';
+    if (questions[i].fair && a === questions[i].answer) return 'sense';
     if (a === questions[i].answer) return 'key';
     if (a === questions[i].sensible) return 'sense';
     return 'other';
   };
   const q = questions[open];
   const a = answers[open] ?? null;
-  let n = 0;
 
   return (
-    <main className={styles.board}>
-      {/* ── sol: profil ── */}
-      <article className={styles.profile}>
-        <header className={styles.head}>
-          <div>
-            <p className={base.eyebrow}>Aday Profil Raporu · Gizli</p>
-            <h1 ref={heading} tabIndex={-1} className={styles.title}>
-              {v.title}
-            </h1>
-          </div>
-          <div className={`${styles.stamp} ${passed ? styles.stampPass : ''}`} aria-label={passed ? 'Mühür: uygun' : 'Mühür: uygun değil'}>
-            {passed ? 'UYGUN' : 'UYGUN DEĞİL'}
-            <small>eşik {PASS_MARK}</small>
-          </div>
-        </header>
+    <main className={styles.board} data-fit>
+      <article className={styles.doc}>
+        <div className={styles.left}>
+          {/* ── karar ── */}
+          <header className={styles.head}>
+            <div className={styles.headText}>
+              <p className={styles.kicker}>
+                Aday Profil Raporu{' '}
+                <span className="mono">
+                  {reportNo(answers)} · {date}
+                </span>
+              </p>
+              <h1 ref={heading} tabIndex={-1} className={styles.title}>
+                {v.title}
+              </h1>
+              <p className={styles.verdict}>
+                {v.line}
+                {r.blank > 0 && r.blank * 2 <= questions.length && ` ${r.blank} boş soru "kararsızlık" olarak işlendi.`}
+              </p>
+            </div>
+            <div className={`${styles.stamp} ${passed ? styles.stampPass : ''}`} aria-label={passed ? 'Mühür: uygun' : 'Mühür: uygun değil'}>
+              {passed ? 'UYGUN' : 'UYGUN DEĞİL'}
+              <small>eşik {PASS_MARK}</small>
+            </div>
+          </header>
 
-        <dl className={`${styles.meta} mono`}>
-          <div>
-            <dt>Belge</dt>
-            <dd>{reportNo(answers)}</dd>
+          {/* ── puanlar ── */}
+          <div className={styles.scores}>
+            <Score value={r.company} label="Şirket puanı" note="Cevap anahtarıyla uyum. Kararı bu verir." tone="company" />
+            <Score value={r.sense} label="Sağduyu puanı" note="Aklı başında cevaplar. Karara etkisi yok." tone="sense" />
           </div>
-          <div>
-            <dt>Tarih</dt>
-            <dd>{date}</dd>
-          </div>
-          <div>
-            <dt>Pozisyon</dt>
-            <dd>Her pozisyon</dd>
-          </div>
-        </dl>
 
-        <div className={styles.rings}>
-          <Ring value={r.company} label="Şirket puanı" note="Anahtarla uyum" tone="company" />
-          <Ring value={r.sense} label="Sağduyu puanı" note="Karara etkisi: yok" tone="sense" />
-        </div>
-
-        <p className={styles.verdict}>
-          <b>Platform yorumu:</b> {v.line}
-          {r.blank > 0 && r.blank * 2 <= questions.length && ` ${r.blank} boş soru "kararsızlık" olarak işlendi.`}
-        </p>
-
-        {notes.length > 0 && (
-          <div className={styles.observe}>
-            <b>Öne çıkan gözlemler</b>
-            <ul>
-              {notes.map((h) => (
-                <li key={h.prompt} className={h.tone === 'key' ? styles.obsKey : styles.obsSense}>
-                  “{h.prompt}” sorusuna <q>{h.option}</q> dedi. <em>{h.tone === 'key' ? 'Örnek tutum.' : 'Sorgulama eğilimi; ekip ahengi için izlenmeli.'}</em>
+          {/* ── bölümler ── */}
+          <section className={`${styles.block} ${styles.secBlock}`} aria-labelledby="sec-title">
+            <h2 id="sec-title" className={styles.h2}>
+              Bölüm sonuçları
+            </h2>
+            <ul className={styles.sections}>
+              {exam.map((s, si) => (
+                <li key={s.title}>
+                  <span className={styles.secTitle}>{s.title}</span>
+                  <span className={styles.secBars}>
+                    <span className={styles.bar} aria-label={`Şirket ${sections[si].company}`}>
+                      <i style={{ width: `${sections[si].company}%` }} />
+                    </span>
+                    <span className={`${styles.bar} ${styles.barSense}`} aria-label={`Sağduyu ${sections[si].sense}`}>
+                      <i style={{ width: `${sections[si].sense}%` }} />
+                    </span>
+                  </span>
+                  <span className={`${styles.secNums} mono`}>
+                    <b>{sections[si].company}</b>
+                    <em>{sections[si].sense}</em>
+                  </span>
                 </li>
               ))}
             </ul>
-          </div>
-        )}
-
-        <dl className={styles.facts}>
-          <div>
-            <dt>Cevaplanan</dt>
-            <dd className="mono">
-              {questions.length - r.blank}/{questions.length}
-            </dd>
-          </div>
-          <div>
-            <dt>Anahtarla aynı</dt>
-            <dd className="mono">{questions.filter((x, i) => answers[i] === x.answer).length}</dd>
-          </div>
-          {robots > 0 && (
-            <div>
-              <dt>Robot testi</dt>
-              <dd className="mono">{robots}</dd>
+          </section>
+        </div>
+        <div className={styles.right}>
+          {/* ── cevap kâğıdı ── */}
+          <section className={`${styles.block} ${styles.sheet}`} aria-labelledby="sheet-title">
+            <div className={styles.blockHead}>
+              <h2 id="sheet-title" className={styles.h2}>
+                Cevap kâğıdı
+              </h2>
+              <p className={styles.legend} aria-hidden="true">
+                <span>
+                  <i className={styles.key} /> Anahtar
+                </span>
+                <span>
+                  <i className={styles.sense} /> Sağduyu
+                </span>
+                <span>
+                  <i className={styles.other} /> Diğer
+                </span>
+                <span>
+                  <i className={styles.blank} /> Boş
+                </span>
+              </p>
             </div>
-          )}
-        </dl>
-
-        <footer className={styles.foot}>
-          <div className={styles.footButtons}>
-            <ShareButton
-              className={base.primary}
-              make={() => ({
-                route: 'test',
-                kicker: `Aday Profil Raporu · ${passed ? 'Uygun' : 'Uygun değil'}`,
-                title: v.title,
-                note: v.line,
-                stats: [
-                  { label: 'Şirket puanı', value: String(r.company), tone: '#2b62c0' },
-                  { label: 'Sağduyu puanı', value: String(r.sense), tone: '#2f7a4e' },
-                  { label: 'Mühür', value: passed ? 'UYGUN' : 'RED', tone: passed ? '#2f7a4e' : '#a8402f' },
-                ],
-                question: 'Sen kaç alırsın?',
-                text: `UyumMetre'ye göre "${v.title}" çıktım: şirket puanım ${r.company}, sağduyu puanım ${r.sense}. Sen kaç alırsın?`,
+            {/* bölüm sekmeleri: kâğıt bir seferde tek bölümü gösterir */}
+            <div className={styles.tabs} role="tablist" aria-label="Bölümler">
+              {exam.map((s, si) => (
+                <button
+                  key={s.title}
+                  role="tab"
+                  aria-selected={si === part}
+                  className={`${styles.tab} ${si === part ? styles.tabOn : ''}`}
+                  onClick={() => {
+                    setPart(si);
+                    setOpen(starts[si]);
+                  }}
+                >
+                  <span>{si + 1}</span>
+                  {s.title}
+                </button>
+              ))}
+            </div>
+            <div className={styles.chips} role="tabpanel">
+              {exam[part].questions.map((sq, k) => {
+                const i = starts[part] + k;
+                const m = markOf(i);
+                return (
+                  <button
+                    key={sq.id}
+                    className={`${styles.chip} ${styles[m]} ${i === open ? styles.chipOn : ''}`}
+                    aria-pressed={i === open}
+                    aria-label={`Soru ${k + 1}: ${MARK_TEXT[m]}`}
+                    onClick={() => setOpen(i)}
+                  >
+                    {k + 1}
+                  </button>
+                );
               })}
-            />
-            <button className={styles.again} onClick={onAgain}>
-              Testi yeniden çöz
-            </button>
-          </div>
-          <p className={styles.sign}>
-            <i>Otomatik onaylanmıştır.</i> İnsan incelemesi: planlanmadı · İtiraz süresi: geçti
-          </p>
-        </footer>
+            </div>
+
+            <div className={styles.detail} aria-live="polite">
+              <p className={styles.detailMeta}>
+                Soru {open - starts[part] + 1} · {q.kind} · <b className={styles[markOf(open)]}>{MARK_TEXT[markOf(open)]}</b>
+              </p>
+              <p className={styles.detailQ}>{q.prompt}</p>
+              <div className={styles.compare}>
+                <div>
+                  <small>Senin cevabın</small>
+                  <b>{a === null ? '—' : q.options[a]}</b>
+                </div>
+                <div className={styles.cKey}>
+                  <small>Cevap anahtarı</small>
+                  <b>{q.options[q.answer]}</b>
+                </div>
+                <div className={styles.cSense}>
+                  <small>Aklı başında cevap</small>
+                  <b>{q.options[q.sensible]}</b>
+                </div>
+              </div>
+              {q.fair && (
+                <p className={styles.fairNote}>
+                  <b>Bu sefer kurum haklıydı.</b> Anahtar ile aklı başında cevap aynı.
+                  {a === q.fair.trap ? ' Sen alaycı şıkkı seçtin: platformun önyargısını eleştirirken kendi önyargına da bak.' : ''}
+                </p>
+              )}
+              <p className={styles.why}>“{q.why}”</p>
+            </div>
+          </section>
+
+          {/* ── yapay zekâ raporu ── */}
+          <section className={`${styles.block} ${pr.proctor}`} aria-labelledby="proctor-title">
+            <h2 id="proctor-title" className={styles.h2}>
+              Yapay zekâ raporu
+            </h2>
+            <div className={pr.grid}>
+              <blockquote className={pr.memo}>
+                {proctor.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+                <footer>UyumMetre YZ · Değerlendirme modeli v3.2 · Güven skoru %97*</footer>
+              </blockquote>
+              <div className={pr.side}>
+                <dl className={pr.stats}>
+                  <div>
+                    <dt>Süre</dt>
+                    <dd className="mono">
+                      {clockText(Math.min(log.seconds, limit))}
+                      <small>/ {clockText(limit)}</small>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Cevaplanan</dt>
+                    <dd className="mono">
+                      {questions.length - r.blank}
+                      <small>/ {questions.length}</small>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Değiştirilen</dt>
+                    <dd className="mono">{log.changed}</dd>
+                  </div>
+                  <div>
+                    <dt>Robot testi</dt>
+                    <dd className="mono">{log.robots}</dd>
+                  </div>
+                </dl>
+                <div className={styles.footButtons}>
+                  <ShareButton
+                    floatNote
+                    className={base.primary}
+                    make={() => ({
+                      route: 'test',
+                      kicker: `Aday Profil Raporu · ${passed ? 'Uygun' : 'Uygun değil'}`,
+                      title: v.title,
+                      note: v.line,
+                      stats: [
+                        {
+                          label: 'Şirket puanı',
+                          value: String(r.company),
+                          tone: '#2b62c0',
+                        },
+                        {
+                          label: 'Sağduyu puanı',
+                          value: String(r.sense),
+                          tone: '#2f7a4e',
+                        },
+                        {
+                          label: 'Mühür',
+                          value: passed ? 'UYGUN' : 'RED',
+                          tone: passed ? '#2f7a4e' : '#a8402f',
+                        },
+                      ],
+                      paint: paintUyumCard({
+                        title: v.title,
+                        line: v.line,
+                        company: r.company,
+                        sense: r.sense,
+                        passed,
+                        passMark: PASS_MARK,
+                        reportNo: reportNo(answers),
+                        date,
+                        sections,
+                      }),
+                      question: 'Sen kaç alırsın?',
+                      text: notes[0]
+                        ? `UyumMetre'ye göre "${v.title}" çıktım. Raporumda: “${notes[0].prompt}” sorusuna “${notes[0].option}” dedim, ${notes[0].tone === 'key' ? 'platform bunu örnek tutum saydı' : notes[0].tone === 'trap' ? 'oysa bu sefer kurum haklıymış' : 'platform bunu risk saydı'}. Sen kaç alırsın?`
+                        : `UyumMetre'ye göre "${v.title}" çıktım: şirket puanım ${r.company}, sağduyu puanım ${r.sense}. Sen kaç alırsın?`,
+                    })}
+                  />
+                  <button className={styles.again} onClick={onAgain}>
+                    Testi yeniden çöz
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
       </article>
-
-      {/* ── sağ: cevap kâğıdı ── */}
-      <section className={styles.sheet} aria-labelledby="sheet-title">
-        <div className={styles.sheetHead}>
-          <h2 id="sheet-title" className={styles.h2}>
-            Cevap kâğıdı ve yetkinlik profili
-          </h2>
-          <p className={styles.legend} aria-hidden="true">
-            <span>
-              <i className={styles.mKey} /> Anahtar
-            </span>
-            <span>
-              <i className={styles.mSense} /> Sağduyu
-            </span>
-            <span>
-              <i className={styles.mOther} /> Diğer
-            </span>
-            <span>
-              <i className={styles.mBlank} /> Boş
-            </span>
-          </p>
-        </div>
-
-        <ol className={styles.rows}>
-          {exam.map((s, si) => (
-            <li key={s.title} className={styles.row}>
-              <div className={styles.rowInfo}>
-                <span className={styles.rowTitle}>{s.title}</span>
-                <span className={styles.bar} aria-label={`Şirket ${sections[si].company}`}>
-                  <i style={{ width: `${sections[si].company}%` }} />
-                </span>
-                <span className={`${styles.bar} ${styles.barSense}`} aria-label={`Sağduyu ${sections[si].sense}`}>
-                  <i style={{ width: `${sections[si].sense}%` }} />
-                </span>
-                <span className={`${styles.rowNums} mono`}>
-                  Şirket {sections[si].company} · Sağduyu {sections[si].sense}
-                </span>
-              </div>
-              <div className={styles.chips}>
-                {s.questions.map((sq) => {
-                  const i = n++;
-                  const m = markOf(i);
-                  return (
-                    <button
-                      key={sq.id}
-                      className={`${styles.chip} ${styles[m]} ${i === open ? styles.chipOn : ''}`}
-                      aria-pressed={i === open}
-                      aria-label={`Soru ${i + 1}: ${MARK_TEXT[m]}`}
-                      onClick={() => setOpen(i)}
-                    >
-                      {i + 1}
-                    </button>
-                  );
-                })}
-              </div>
-            </li>
-          ))}
-        </ol>
-
-        <div className={styles.detail} aria-live="polite">
-          <p className={styles.detailMeta}>
-            Soru {open + 1} · {q.kind} · <b className={styles[`t${markOf(open)}`]}>{MARK_TEXT[markOf(open)]}</b>
-          </p>
-          <p className={styles.detailQ}>{q.prompt}</p>
-          <div className={styles.compare}>
-            <div>
-              <small>Senin cevabın</small>
-              <b>{a === null ? '—' : q.options[a]}</b>
-            </div>
-            <div className={styles.cKey}>
-              <small>Cevap anahtarı</small>
-              <b>{q.options[q.answer]}</b>
-            </div>
-            <div className={styles.cSense}>
-              <small>Aklı başında cevap</small>
-              <b>{q.options[q.sensible]}</b>
-            </div>
-          </div>
-          <p className={styles.why}>“{q.why}”</p>
-        </div>
-
-        <p className={styles.real}>
-          <b>Gerçekte:</b> İşle ilgisiz genel kültür ve kişilik soruları başarıyı iyi öngörmez; süre baskısı yeteneği değil kaygıyı ölçer. Adil bir süreç işe benzeyen görevler, yapılandırılmış mülakat
-          ve baştan açıklanan ölçütler kullanır. Çalışanın ekranını ya da geçmişini izlemek ise KVKK'ya göre ancak sınırlı durumlarda ve önceden bilgilendirmeyle mümkündür.
-        </p>
-      </section>
     </main>
   );
 }

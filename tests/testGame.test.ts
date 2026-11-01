@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import { budgetOption, contractOption, EXAM_QUESTIONS, EXAM_SECTIONS, passwordOption, passwordRuleOk, screenshareOption, sectionOf, shutdownOption, sliderOption, stampOption, swipeOption } from '../src/games/test/data/questions';
 import { BRIEFINGS } from '../src/games/test/data/briefings';
 import { puzzleSolved, ROBOT_CHALLENGES, ROBOT_PUZZLES, robotPassed } from '../src/games/test/data/robot';
-import { canShuffle, highlightsOf, pickExam, QUESTIONS_PER_SECTION, reportNo, shuffleOptions, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
+import { canShuffle, emptyLog, FAIR_PER_EXAM, highlightsOf, nextSeen, pickExam, proctorNote, QUESTIONS_PER_SECTION, reportNo, shuffleOptions, scoreExam, secondsOf, sectionScores, totalSeconds, verdictOf } from '../src/games/test/logic';
 
 test('her soru bir bölüme düşer, anahtar ve sağduyu farklı geçerli şıklardır', () => {
   for (const q of EXAM_QUESTIONS) {
     assert.ok(sectionOf(q.kind) >= 0, q.id);
-    assert.notEqual(q.answer, q.sensible, q.id);
+    if (q.fair) assert.ok(q.fair.trap !== q.answer && q.fair.trap < q.options.length, q.id);
+    else assert.notEqual(q.answer, q.sensible, q.id);
     assert.ok(q.answer < q.options.length && q.sensible < q.options.length, q.id);
   }
   assert.equal(new Set(EXAM_QUESTIONS.map((q) => q.id)).size, EXAM_QUESTIONS.length);
@@ -240,4 +241,47 @@ test('rapor gözlemleri: adayın kendi cevaplarından, en çok bir sağduyu sat�
   const mixed = highlightsOf(qs, qs.map((q, i) => (i % 2 ? q.sensible : q.answer)));
   assert.equal(mixed.filter((h) => h.tone === 'sense').length, 1);
   assert.equal(highlightsOf(qs, qs.map(() => null)).length, 0);
+});
+
+test('ton değişimi: kültür bölümünde her testte iki "kurum haklı" sorusu, alaycı şık raporda ilk gözlem', () => {
+  for (let k = 0; k < 20; k++) {
+    const exam = pickExam();
+    const culture = exam[EXAM_SECTIONS.findIndex((s) => s.id === 'culture')].questions;
+    assert.equal(culture.filter((q) => q.fair).length, FAIR_PER_EXAM);
+    assert.equal(culture.length, QUESTIONS_PER_SECTION);
+    for (const q of culture.filter((x) => x.fair)) assert.equal(q.answer, q.sensible, q.id);
+  }
+  const qs = pickExam().flatMap((s) => s.questions);
+  const cynic = highlightsOf(qs, qs.map((q) => (q.fair ? q.fair.trap : q.sensible)));
+  assert.equal(cynic[0].tone, 'trap');
+  const fairOnly = qs.filter((q) => q.fair);
+  assert.deepEqual(scoreExam(fairOnly, fairOnly.map((q) => q.answer)), { company: 100, sense: 100, blank: 0 });
+});
+
+test('görülen sorular sona kalır: havuz bitene kadar yeni test öncekilerle kesişmez, bitince yeni tur başlar', () => {
+  let seen = new Set<string>();
+  const sizes = EXAM_SECTIONS.map((_, si) => EXAM_QUESTIONS.filter((q) => sectionOf(q.kind) === si).length);
+  const rounds = Math.floor(Math.min(...sizes) / QUESTIONS_PER_SECTION);
+  for (let r = 0; r < rounds; r++) {
+    const exam = pickExam(Math.random, seen);
+    for (const q of exam.flatMap((s) => s.questions)) assert.ok(!seen.has(q.id), q.id);
+    seen = nextSeen(seen, exam);
+  }
+  // havuzlar tükendikçe test yine tam dolu gelir
+  for (let r = 0; r < 6; r++) {
+    const exam = pickExam(Math.random, seen);
+    exam.forEach((s) => assert.equal(s.questions.length, QUESTIONS_PER_SECTION));
+    seen = nextSeen(seen, exam);
+  }
+});
+
+test('gözetmen notu: her zaman en az bir, en fazla iki cümle; davranışa göre değişir', () => {
+  const questions = pickExam().flatMap((s) => s.questions);
+  const blank = questions.map(() => null);
+  const calm = proctorNote(emptyLog(), questions, blank, 1440);
+  assert.ok(calm.length >= 1 && calm.length <= 2);
+  const busy = proctorNote({ ...emptyLog(), robots: 2, changed: 5, slow: 3, seconds: 100 }, questions, blank, 1440);
+  assert.ok(busy.length >= 1 && busy.length <= 2);
+  assert.ok(busy.some((l) => l.includes('robot')));
+  assert.notDeepEqual(calm, busy);
 });

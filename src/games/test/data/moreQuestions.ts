@@ -133,8 +133,8 @@ export const MORE_QUESTIONS: ExamQuestion[] = [
   {
     id: 'budget-nod',
     kind: 'simülasyon',
-    prompt: 'Bütçe toplantısı. Gerçek bir tasarruf önerisi ekrandayken başınızı sallayın.',
-    hint: 'Baş sallama hızınız "stratejik vizyon" puanınıza eklenir.',
+    prompt: 'Bütçe toplantısı. Tasarruf önerilerini sıralayın: en iyisini ilk sıraya koyun.',
+    hint: 'Sıralamanız "stratejik vizyon" puanınıza eklenir.',
     options: [
       'Kullanılmayan yazılım lisanslarını iptal edelim.',
       'Çalışanların çayını kısalım.',
@@ -144,8 +144,8 @@ export const MORE_QUESTIONS: ExamQuestion[] = [
     answer: 2,
     sensible: 0,
     why: 'Kullanılmayan lisansları iptal etmek gerçek tasarruf. Yönetici aracı tasarruf değil.',
-    widget: { type: 'tap', everyMs: 1700 },
-    seconds: 20,
+    widget: { type: 'order' },
+    seconds: 35,
   },
   {
     id: 'rate-boss',

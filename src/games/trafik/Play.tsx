@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { audioEngine } from '../../audio/audioEngine';
 import { PASS_SCORE, verdict, type Level } from './levels';
 import { AMBER, DT, moveName, type Plan } from './model';
 import { cycleOf } from './controller';
@@ -15,6 +16,30 @@ import styles from './TrafikGame.module.css';
  */
 
 const SPEEDS = [1, 2, 4];
+
+/** Kısa, iki tonlu bir araba kornası: sürücü söylendiğinde ya da konvoy geldiğinde. */
+function honk() {
+  if (audioEngine.isMuted()) return;
+  try {
+    const ctx = new AudioContext();
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.32);
+    g.connect(ctx.destination);
+    for (const f of [392, 494]) {
+      const o = ctx.createOscillator();
+      o.type = 'square';
+      o.frequency.value = f;
+      o.connect(g);
+      o.start();
+      o.stop(ctx.currentTime + 0.34);
+    }
+    window.setTimeout(() => void ctx.close(), 600);
+  } catch {
+    // ses yoksa sessiz geçer
+  }
+}
 
 const COACH = [
   'Alttaki ▶ trafiği başlatır (boşluk tuşu da olur). Süre durukken her şeyi rahatça ayarlayabilirsin.',
@@ -38,6 +63,16 @@ export function Play({ level, briefing, last, coach = false, onNext, onRetry }: 
   // ilk kavşakta üç adımlık kısa anlatım; trafik başlayınca ya da "Anladım" ile kapanır
   const [lesson, setLesson] = useState(coach ? 0 : COACH.length);
   const refresh = useCallback(() => setTick((f) => f + 1), []);
+  // kayda yeni bir sürücü sesi düştüyse korna çalar
+  const heard = useRef('');
+  const top = sim.log[0];
+  useEffect(() => {
+    if (!top?.horn) return;
+    const id = `${top.t}-${top.text}`;
+    if (heard.current === id) return;
+    heard.current = id;
+    honk();
+  }, [top]);
   const lastUi = useRef(0);
 
   useEffect(() => {

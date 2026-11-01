@@ -27,29 +27,26 @@
 }
 
 .top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
+  padding: 10px 14px;
+  pointer-events: none;
 }
 
-.title {
-  text-align: center;
+/* üst çubuk yok: yalnızca geri düğmesi ve oyunun kendi göstergeleri oyunun üstünde yüzer */
+.top > * {
+  pointer-events: auto;
 }
 
-.title h1 {
-  margin: 0;
-  font-size: 18px;
-}
 
-.title p {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: var(--muted);
-}
+
 
 .topRight {
   justify-self: end;
@@ -162,9 +159,10 @@ button.place:hover {
   min-height: 0;
 }
 
+/* üst köşelerde yüzen düğmeler (Mesaiyi bitir, Meydanlar) panel başlıklarının üstüne binmesin */
 .palette,
 .inspector {
-  padding: 14px;
+  padding: 60px 14px 14px;
   background: var(--panel);
   overflow-y: auto;
   max-height: calc(100vh - 56px);
@@ -442,6 +440,7 @@ button.place:hover {
   .palette,
   .inspector {
     max-height: none;
+    padding-top: 14px;
     border: 0;
   }
 

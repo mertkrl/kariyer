@@ -1,4 +1,4 @@
-/* Patron geliyor: tam ekran, sıkıcı bir hesap tablosu. Bilerek renksiz ve kurumsal. */
+/* Patron geliyor: tam ekran, Excel'e birebir benzeyen ama gerçekten çalışan bir hesap tablosu. */
 .sheet {
   position: fixed;
   inset: 0;
@@ -7,59 +7,222 @@
   flex-direction: column;
   background: #fff;
   color: #222;
-  font: 13px/1.3 'Segoe UI', system-ui, sans-serif;
+  font: 11pt/1.25 Calibri, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   outline: none;
   cursor: default;
+  user-select: none;
 }
 
 .titlebar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 14px;
-  background: #1f7244;
+  gap: 12px;
+  height: 36px;
+  padding-left: 10px;
+  background: #217346;
+  color: #fff;
+  font: 12px 'Segoe UI', system-ui, sans-serif;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  background: #fff;
+  color: #217346;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.quick {
+  opacity: 0.9;
+  letter-spacing: 4px;
+}
+
+.title {
+  margin-left: 12px;
+}
+
+.title i {
+  font-style: normal;
+  opacity: 0.75;
+}
+
+.search {
+  flex: 0 1 340px;
+  margin: 0 auto;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #444;
+}
+
+.user {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #c5e0b4;
+  color: #1e4d2b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.winBtn,
+.close {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 36px;
+  border: 0;
+  background: transparent;
   color: #fff;
   font-size: 13px;
 }
 
-.saved {
-  opacity: 0.8;
-  font-size: 12px;
+.close {
+  cursor: pointer;
+}
+
+.close:hover {
+  background: #c42b1c;
 }
 
 .ribbon {
   display: flex;
-  gap: 2px;
-  padding: 4px 8px 0;
-  overflow: hidden;
-  background: #f3f3f3;
-  border-bottom: 1px solid #d6d6d6;
+  align-items: center;
+  padding: 0 6px;
+  background: #217346;
+  font: 13px 'Segoe UI', system-ui, sans-serif;
 }
 
-.ribbon span {
-  padding: 6px 12px;
+.ribbon button {
+  padding: 6px 11px 7px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ribbon button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ribbon .ribbonOn,
+.ribbon .ribbonOn:hover {
+  border-radius: 3px 3px 0 0;
+  background: #f3f3f3;
+  color: #217346;
+}
+
+.ribbon .file {
+  font-weight: 600;
+}
+
+.share {
+  margin-left: auto;
+  padding: 3px 10px;
+  color: #fff;
   white-space: nowrap;
 }
 
-.ribbonOn {
-  border-bottom: 3px solid #1f7244;
-  font-weight: 600;
-  color: #1f7244;
+.shareBtn {
+  margin-left: 6px;
+  padding: 3px 12px;
+  border-radius: 3px;
+  background: #fff;
+  color: #217346;
+  white-space: nowrap;
+}
+
+.tools {
+  display: flex;
+  height: 92px;
+  padding: 4px 4px 0;
+  overflow: hidden;
+  background: #f3f3f3;
+  border-bottom: 1px solid #d4d4d4;
+  font: 12px 'Segoe UI', system-ui, sans-serif;
+  color: #333;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 0 8px;
+  border-right: 1px solid #dadada;
+}
+
+.groupItems {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 2px 4px;
+  max-width: 220px;
+  flex: 1;
+}
+
+.tool {
+  padding: 3px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.tool:hover {
+  background: #e1e1e1;
+}
+
+.groupName {
+  padding: 2px 0 4px;
+  text-align: center;
+  color: #666;
+  font-size: 11px;
 }
 
 .formula {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 5px 10px;
-  border-bottom: 1px solid #d6d6d6;
+  gap: 8px;
+  height: 28px;
+  padding: 0 8px;
+  background: #fff;
+  border-bottom: 1px solid #d4d4d4;
 }
 
-.formula b {
-  min-width: 52px;
-  padding: 2px 8px;
-  border: 1px solid #d6d6d6;
-  font-weight: 400;
+.nameBox {
+  width: 90px;
+  padding: 2px 6px;
+  border: 1px solid #c6c6c6;
+  font: 400 12px 'Segoe UI', system-ui, sans-serif;
+}
+
+.fxBtns {
+  color: #888;
+  font-size: 12px;
+  letter-spacing: 8px;
+}
+
+.fx {
+  color: #555;
+  font-style: italic;
+  font-family: Georgia, serif;
+  padding-right: 8px;
+  border-right: 1px solid #d4d4d4;
+}
+
+.formula input {
+  flex: 1;
+  height: 100%;
+  padding: 0 6px;
+  border: 0;
+  font: inherit;
+  outline: none;
 }
 
 .grid {
@@ -69,34 +232,83 @@
 
 .grid table {
   border-collapse: collapse;
-  min-width: 100%;
+  table-layout: fixed;
 }
 
 .grid th {
-  min-width: 34px;
-  padding: 3px 6px;
+  height: 20px;
+  min-width: 40px;
+  padding: 0 4px;
   background: #f3f3f3;
-  border: 1px solid #dadada;
-  color: #555;
-  font-weight: 400;
+  border: 1px solid #d4d4d4;
+  color: #444;
+  font: 400 11px 'Segoe UI', system-ui, sans-serif;
+}
+
+.grid tbody th {
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 1;
 }
 
 .grid thead th {
   position: sticky;
   top: 0;
+  z-index: 2;
+}
+
+.grid .corner {
+  z-index: 3;
+  left: 0;
+  background: linear-gradient(135deg, transparent 60%, #b7b7b7 60%) #f3f3f3;
 }
 
 .grid td {
-  min-width: 96px;
-  height: 22px;
-  padding: 2px 6px;
-  border: 1px solid #e3e3e3;
+  position: relative;
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  height: 20px;
+  padding: 0 3px;
+  border: 1px solid #e1e1e1;
+  overflow: hidden;
+  text-overflow: clip;
   white-space: nowrap;
+  cursor: cell;
+}
+
+.grid .axisOn {
+  background: #d2d2d2;
+  color: #217346;
+  border-bottom-color: #217346;
+}
+
+.grid tbody .axisOn {
+  border-bottom-color: #d4d4d4;
+  border-right: 2px solid #217346;
+}
+
+.grid thead .axisOn {
+  border-bottom: 2px solid #217346;
+}
+
+.err {
+  color: #c00000;
+}
+
+/* hücrenin içinde düzenleme kutusu */
+.edit {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
 }
 
 .headCell {
   font-weight: 700;
-  background: #e8f1ec;
 }
 
 .num {
@@ -105,23 +317,451 @@
 }
 
 .picked {
-  text-align: right;
-  outline: 2px solid #1f7244;
-  outline-offset: -2px;
+  outline: 2px solid #217346;
+  outline-offset: -1px;
+  overflow: visible !important;
+  z-index: 1;
+}
+
+/* seçili hücrenin sağ alt köşesindeki doldurma tutamacı */
+.handle {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 6px;
+  height: 6px;
+  background: #217346;
+  border: 1px solid #fff;
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  height: 26px;
+  background: #f3f3f3;
+  border-top: 1px solid #d4d4d4;
+  font: 12px 'Segoe UI', system-ui, sans-serif;
+  color: #444;
+}
+
+.tabNav {
+  display: grid;
+  place-items: center;
+  padding: 0 10px;
+  color: #999;
+  letter-spacing: 6px;
+}
+
+.tab,
+.tabOn {
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  border-right: 1px solid #d4d4d4;
+  white-space: nowrap;
+}
+
+.tabOn {
+  margin-top: -1px;
+  background: #fff;
+  color: #217346;
+  font-weight: 600;
+  border-bottom: 2px solid #217346;
+}
+
+.tabAdd {
+  display: grid;
+  place-items: center;
+  padding: 0 10px;
+  color: #666;
 }
 
 .status {
   display: flex;
   gap: 18px;
   align-items: center;
-  padding: 4px 12px;
+  height: 22px;
+  padding: 0 12px;
   background: #f3f3f3;
-  border-top: 1px solid #d6d6d6;
-  font-size: 12px;
+  border-top: 1px solid #e1e1e1;
+  font: 11px 'Segoe UI', system-ui, sans-serif;
   color: #444;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.back {
+.stats {
   margin-left: auto;
+  white-space: pre;
+}
+
+/* şaka bildirimi: sağ altta kayan kurumsal uyarı */
+.toast {
+  position: absolute;
+  right: 16px;
+  bottom: 60px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 320px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #d4d4d4;
+  border-left: 4px solid #217346;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  font: 12px/1.4 'Segoe UI', system-ui, sans-serif;
+  animation: toastIn 0.25s ease-out;
+}
+
+.toast b {
+  color: #217346;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+
+.quick button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.title {
+  max-width: 46vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabs .tab,
+.tabs .tabOn {
+  border-top: 0;
+  border-left: 0;
+  border-bottom-width: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tabs .tabOn {
+  background: #fff;
+  color: #217346;
+  border-bottom: 2px solid #217346;
+}
+
+/* yorumlu hücre: sağ üstte kırmızı üçgen, üstüne gelince sarı not */
+.noted::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-top: 7px solid #d00;
+  border-left: 7px solid transparent;
+}
+
+.grid .noteOpen {
+  overflow: visible;
+  z-index: 4;
+}
+
+.note {
+  position: absolute;
+  top: -2px;
+  left: calc(100% + 8px);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 240px;
+  padding: 6px 8px;
+  background: #ffffe1;
+  border: 1px solid #8a8a5c;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  color: #222;
+  font: 12px/1.35 'Segoe UI', system-ui, sans-serif;
+  text-align: left;
+  white-space: normal;
+}
+
+.modalBack {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.alert {
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #999;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  font: 13px 'Segoe UI', system-ui, sans-serif;
+}
+
+.alert button {
+  display: block;
+  margin-left: auto;
+}
+
+.alertSub {
+  color: #666;
+  font-size: 12px;
+}
+
+/* düz sayfalar: yazılar sütuna sığsın diye sütunlar içeriğe göre genişler */
+.plain td {
+  width: auto;
+  max-width: none;
+}
+
+/* şerit düğmeleri: hepsi bir şey yapar */
+.tools .tool {
+  border: 1px solid transparent;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tools .toolOn {
+  background: #c5dfcf;
+  border-color: #8fbfa1;
+}
+
+.shareBtn {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.flash {
+  color: #fff2a8;
+  font-weight: 600;
+}
+
+.green {
+  color: #548235 !important;
+  background: #e2efda;
+}
+
+.struck {
   color: #999;
+  text-decoration: line-through;
+}
+
+/* gezinen mesai arkadaşının adı */
+.peerTag {
+  position: absolute;
+  left: -2px;
+  top: -15px;
+  z-index: 3;
+  padding: 0 4px;
+  color: #fff;
+  font: 10px/14px 'Segoe UI', system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast.mail {
+  border-left-color: #0078d4;
+}
+
+.toast.mail b {
+  color: #0078d4;
+}
+
+/* Ekle → Grafik: her zaman yükselen grafik */
+.chart {
+  position: absolute;
+  top: 190px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(380px, calc(100vw - 32px));
+  padding: 0 14px 12px;
+  transform: translateX(-30%);
+  background: #fff;
+  border: 1px solid #c6c6c6;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  font: 12px 'Segoe UI', system-ui, sans-serif;
+}
+
+.chart small {
+  color: #666;
+}
+
+.chartBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 -14px;
+  padding: 4px 6px 4px 14px;
+  background: #f3f3f3;
+  border-bottom: 1px solid #e1e1e1;
+  font: 12px 'Segoe UI', system-ui, sans-serif;
+}
+
+.chartBar button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 2px 8px;
+}
+
+/* =OYNA(): hücrelerle mayın tarlası */
+.minesTable td.mine {
+  width: 26px;
+  min-width: 26px;
+  max-width: 26px;
+  text-align: center;
+  font-weight: 700;
+  background: #e7e7e7;
+  box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 #b3b3b3;
+  cursor: pointer;
+}
+
+.minesTable td.mineOpen {
+  background: #fff;
+  box-shadow: none;
+  cursor: default;
+}
+
+.minesTable td.mineBoom {
+  background: #f8cbad;
+}
+
+.minesTable td.gameNote {
+  overflow: visible;
+  color: #217346;
+  font-weight: 600;
+}
+
+.again {
+  padding: 1px 10px;
+  border: 1px solid #217346;
+  border-radius: 3px;
+  background: #fff;
+  color: #217346;
+  font: inherit;
+  cursor: pointer;
+}
+
+.n1 { color: #2f75b5; }
+.n2 { color: #548235; }
+.n3 { color: #c00000; }
+.n4 { color: #7030a0; }
+.n5 { color: #833c0b; }
+.n6 { color: #00808a; }
+.n7 { color: #222; }
+.n8 { color: #777; }
+
+/* Paylaş penceresi */
+.shareBox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(640px, calc(100vw - 32px));
+  padding: 0 14px 14px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.shareBox img {
+  width: 100%;
+  border: 1px solid #e1e1e1;
+}
+
+.shareBtns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  font: 13px 'Segoe UI', system-ui, sans-serif;
+}
+
+.shareBtns a,
+.shareBtns button {
+  padding: 5px 14px;
+  border: 1px solid #adadad;
+  border-radius: 3px;
+  background: #fdfdfd;
+  color: #222;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.shareBtns .primary {
+  background: #217346;
+  border-color: #217346;
+  color: #fff;
+}
+
+/* Sırlar listesi */
+.secretBtn {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.secretBtn:hover {
+  text-decoration: underline;
+}
+
+.secrets {
+  position: absolute;
+  left: 12px;
+  bottom: 52px;
+  z-index: 7;
+  width: min(300px, calc(100vw - 32px));
+  max-height: 60vh;
+  overflow: auto;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #c6c6c6;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  font: 12px/1.5 'Segoe UI', system-ui, sans-serif;
+}
+
+.secrets ul {
+  margin: 6px 0;
+  padding: 0;
+  list-style: none;
+  color: #999;
+}
+
+.secrets .got {
+  color: #217346;
+}
+
+.secrets small {
+  color: #666;
+}
+
+.logo,
+.quick {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* oyunda bütün sütunlar kare hücre olur */
+.minesTable td {
+  width: 26px;
+  min-width: 26px;
+  max-width: 26px;
 }

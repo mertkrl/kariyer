@@ -1,0 +1,129 @@
+/* yapay zekâ raporu: dört sayı ve modelin yazdığı not; sağ sütunun boş kalan yerini doldurur */
+.proctor {
+  flex: 0 0 auto;
+  border-bottom: 0;
+}
+
+/* sağ sütunda yer dar: başlık ve aralıklar daha sık */
+.proctor h2 {
+  margin-bottom: 8px;
+}
+
+.proctor {
+  padding-bottom: 12px;
+}
+
+/* solda modelin notu; sağda dört sayı 2×2 ve altında paylaş / yeniden çöz düğmeleri */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(200px, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* düğmeler yan yana, eşit genişlikte */
+.side > div:last-child {
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.side > div:last-child > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.side > div:last-child button {
+  width: 100%;
+  padding: 10px 4px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.stats > div {
+  padding: 6px 10px;
+  border: 1px solid var(--a-line-soft);
+  border-radius: 10px;
+  background: #fafbfd;
+}
+
+.stats dt {
+  color: var(--a-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.stats dd {
+  margin: 1px 0 0;
+  color: var(--a-text);
+  font-size: 17px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.stats small {
+  margin-left: 4px;
+  color: var(--a-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.memo {
+  position: relative;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #dcd6f7;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f6f4ff, #fbfaff);
+  color: var(--a-text);
+  font: 400 13px/1.45 var(--font-body);
+}
+
+.memo p {
+  margin: 0 0 4px;
+}
+
+.memo p::before {
+  content: '✦ ';
+  color: #6b55d6;
+}
+
+.memo footer {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #e6e1fa;
+  color: #6b6390;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+/* uzun ekranda not ve sayılar büyür */
+@media (min-height: 821px) {
+  .memo {
+    font-size: 15px;
+  }
+
+  .stats dd {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -74,17 +74,6 @@ export const EXTRA_QUESTIONS: ExamQuestion[] = [
     sensible: 1,
     why: 'Muhasebe Uzmanı ne iş yapıldığını söyleyen tek gerçek unvan.',
   },
-  {
-    id: 'shape-pyramid',
-    kind: 'şekil',
-    prompt: 'Şekil bir organizasyon şemasıdır. En alttaki satırda kaç kişi vardır?',
-    figure: '●   ●●   ●●●●   ●●●●●●●●',
-    hint: 'Her katman, bir üst katmanın vizyonunu taşır.',
-    options: ['8', '1', '15', 'Önemli olan en üstteki'],
-    answer: 3,
-    sensible: 0,
-    why: 'Her satır bir öncekinin iki katı: 1, 2, 4, 8. En altta 8 kişi var.',
-  },
 
   // ── iş hayatı simülasyonu ──
   {
@@ -127,7 +116,7 @@ export const EXTRA_QUESTIONS: ExamQuestion[] = [
     answer: 3,
     sensible: 0,
     why: 'Bir şey yazmak zinciri uzatır. En iyisi görmezden gelmek.',
-    widget: { type: 'chat', from: 'Tüm Şirket (412 kişi)', at: '10:02', messages: ['Herkese merhaba, bu e-posta yanlış listeye gitti.', 'Lütfen herkese yanıtlamayın 🙏'] },
+    widget: { type: 'chat', from: 'Tüm Şirket (412 kişi)', at: '10:02', messages: ['Herkese merhaba, bu e-posta yanlış listeye gitti.', 'Lütfen herkese yanıtlamayın'] },
   },
   {
     id: 'vacation-call',
@@ -161,15 +150,15 @@ export const EXTRA_QUESTIONS: ExamQuestion[] = [
     why: 'Kavga etmeden ama dürüstçe ayrılma nedenlerimi söylerim; şirket de öğrenmeli.',
   },
   {
-    id: 'birthday-cake',
+    id: 'wedding-gold',
     kind: 'simülasyon',
-    prompt: 'Ofiste bu ay 6. doğum günü pastası kesiliyor. Kutlama komitesinden mesaj geldi. Cevabınızı seçin.',
-    hint: 'Kutlamalar ekip bağını güçlendirir. Bağış zorunlu değildir; kayıt tutulur.',
-    options: ['Ayda bir ortak kutlama yapsak? 🙂', 'Tabii, 50 TL gönderiyorum', 'Pastayı bu sefer ben alayım', '(Kendi doğum günümü profilimden gizlerim)'],
+    prompt: 'Burak evleniyor. Ofis grubundan mesaj geldi: ekipçe tam altın takılacak. Cevabınızı seçin.',
+    hint: 'Ortak hediyeler ekip ruhunu güçlendirir. Katılım gönüllüdür; katılmayanlar listede ayrıca belirtilir.',
+    options: ['Herkes gücü yettiği kadar koysun, çeyrek de olur 🙂', 'Tabii, 4.000 TL gönderiyorum', 'Ben ayrıca bir takım çatal bıçak alayım', '(Düğünde görünmeden zarfı bırakırım)'],
     answer: 1,
     sensible: 0,
-    why: 'Ayda altı kez para toplamak yorucu; ortak bir aylık kutlama herkes için daha adil.',
-    widget: { type: 'chat', from: 'Kutlama Komitesi 🎂', at: '14:30', messages: ['Bugün Burak’ın doğum günü! 🎉', 'Pasta için kişi başı 50 TL topluyoruz. Bu ayın altıncısı 😊'] },
+    why: 'Kişi başı 4.000 TL herkesin bütçesine uymaz; herkes gücü kadar katılırsa hem tam altın tamamlanır hem kimse sıkılmaz.',
+    widget: { type: 'chat', from: 'Burak’ın Düğünü 💍', at: '14:30', messages: ['Arkadaşlar Burak evleniyor! 💍🎉', 'Ekipçe tam altın takacağız, kişi başı 4.000 TL. IBAN aşağıda, akşama kadar 😊'] },
   },
 
   // ── kültür uyumu ──
@@ -257,17 +246,6 @@ export const EXTRA_QUESTIONS: ExamQuestion[] = [
 
   // ── genel kültür ──
   {
-    id: 'kvkk',
-    kind: 'genel kültür',
-    prompt: 'KVKK neyin kısaltmasıdır? Doğru cevap ekrandayken tıklayın.',
-    hint: 'Verileriniz bizimle güvende.* (*Bizde.)',
-    options: ['Kişisel Verilerin Korunması Kanunu', 'Kurumsal Verimlilik Kontrol Kurulu', 'Kameralar Var, Kimse Kaçamaz', 'Kahve Var, Kahvaltı Kesildi'],
-    answer: 2,
-    sensible: 0,
-    why: 'KVKK, Kişisel Verilerin Korunması Kanunu; işverenin veri işlemesine sınır koyar.',
-    widget: { type: 'tap', everyMs: 1700 },
-  },
-  {
     id: 'mayday',
     kind: 'genel kültür',
     prompt: '1 Mayıs hangi gün olarak kutlanır?',
@@ -288,17 +266,6 @@ export const EXTRA_QUESTIONS: ExamQuestion[] = [
     why: 'Aynı işverende en az bir yıl çalışan işçi, şartlar oluşursa kıdem tazminatına hak kazanır.',
   },
   {
-    id: 'bosphorus',
-    kind: 'genel kültür',
-    prompt: 'İstanbul Boğazı hangi iki denizi birbirine bağlar? Doğru cevap ekrandayken tıklayın.',
-    hint: 'Boğaz manzaralı toplantı odası yalnızca yönetim kuruluna açıktır.',
-    options: ['Karadeniz ve Marmara', 'Ege ve Akdeniz', 'Açık ofis ve yönetici katı', 'Karadeniz ve Ege'],
-    answer: 2,
-    sensible: 0,
-    why: 'İstanbul Boğazı Karadeniz’i Marmara Denizi’ne bağlar.',
-    widget: { type: 'tap', everyMs: 1700 },
-  },
-  {
     id: 'internet-year',
     kind: 'genel kültür',
     prompt: 'Türkiye internete ilk kez hangi yıl bağlandı?',
@@ -307,38 +274,5 @@ export const EXTRA_QUESTIONS: ExamQuestion[] = [
     answer: 2,
     sensible: 0,
     why: 'Türkiye 12 Nisan 1993’te ODTÜ üzerinden internete bağlandı.',
-  },
-  {
-    id: 'cappadocia',
-    kind: 'genel kültür',
-    prompt: 'Peri bacalarıyla ünlü bölge hangisidir? Doğru cevap ekrandayken tıklayın.',
-    hint: 'Şirket gezisi bu yıl da iptal edilmiştir.',
-    options: ['Kapadokya', 'Pamukkale', 'Genel Müdürün tatil fotoğrafları', 'Toplantı odası B'],
-    answer: 2,
-    sensible: 0,
-    why: 'Peri bacaları Nevşehir çevresindeki Kapadokya bölgesindedir.',
-    widget: { type: 'tap', everyMs: 1700 },
-  },
-  {
-    id: 'months',
-    kind: 'genel kültür',
-    prompt: 'Bir yılda kaç ay vardır? Doğru cevap ekrandayken tıklayın.',
-    hint: 'Mali yılımız 14 aydır.',
-    options: ['12', '13 (ikramiye ayı)', '14', 'Hedefler tutana kadar'],
-    answer: 2,
-    sensible: 0,
-    why: 'Bir yılda 12 ay vardır; mali yıl da 12 ay sürer.',
-    widget: { type: 'tap', everyMs: 1700 },
-  },
-  {
-    id: 'tea-origin',
-    kind: 'genel kültür',
-    prompt: 'Türkiye’de çay en çok hangi ilde yetiştirilir? Doğru cevap ekrandayken tıklayın.',
-    hint: 'Ofis çayı tasarruf gereği haftada iki kez demlenir.',
-    options: ['Rize', 'Trabzon', 'Mutfak dolabı', 'Tedarikçi gizlidir'],
-    answer: 2,
-    sensible: 0,
-    why: 'Türkiye’nin çay üretiminin büyük kısmı Rize’den gelir.',
-    widget: { type: 'tap', everyMs: 1700 },
   },
 ];

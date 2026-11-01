@@ -10,25 +10,47 @@ import styles from './ShopScene.module.css';
  * kendi görünüşündendir.
  */
 
-export type Face = Mood | 'ask';
+/** Yüz: istek, tepkiler; kelepire sevinç (delight) ve akıl almaz fiyata şok (shock) tepkiden türer. */
+export type Face = Mood | 'ask' | 'delight' | 'shock';
 
 const SKIN: Record<string, string> = { teyze: '#e9bf9f', muhtar: '#ddb08d', ciftci: '#c99470', turist: '#f1d0b4', cocuk: '#f3c9a6', genc: '#e6b893', ogretmen: '#efc6a4', coban: '#b98260', gelin: '#f0c8a8', emekli: '#dcae8c' };
 const INK = '#2b211b';
 
-/** Yüz: iki nokta göz, tek çizgi ağız; kaş yalnızca duygu gerekince. */
+/** Yüz: iki nokta göz, tek çizgi ağız; kaş yalnızca duygu gerekince. Sevinçte yanaklar kızarır, şokta gözler büyür. */
 function FaceParts({ face }: { face: Face }) {
   const mouth = {
     ask: 'M-12 24 q12 6 24 0',
     happy: 'M-16 20 q16 18 32 0',
+    delight: 'M-20 16 q20 26 40 0 Z',
     grumble: 'M-12 28 h24',
     counter: 'M-12 28 q12 -2 24 -8',
     leave: 'M-14 30 q14 -12 28 0',
+    shock: '',
   }[face];
-  const brow = { grumble: 'M-30 -22 l16 4 M14 -18 l16 -4', counter: 'M-30 -22 h16 M14 -30 l16 -4', leave: 'M-30 -28 l18 8 M12 -20 l18 -8' }[face as string];
+  const brow = {
+    grumble: 'M-30 -22 l16 4 M14 -18 l16 -4',
+    counter: 'M-30 -22 h16 M14 -30 l16 -4',
+    leave: 'M-30 -28 l18 8 M12 -20 l18 -8',
+    shock: 'M-32 -30 q10 -8 20 0 M12 -30 q10 -8 20 0',
+    delight: 'M-30 -24 q8 -6 16 0 M14 -24 q8 -6 16 0',
+  }[face as string];
   return (
-    <g stroke={INK} strokeWidth="5" strokeLinecap="round" fill="none">
-      {face === 'happy' ? (
+    <g className={styles.face} key={face} stroke={INK} strokeWidth="5" strokeLinecap="round" fill="none">
+      {face === 'delight' && (
+        <g fill="#f28b82" stroke="none" opacity=".55">
+          <ellipse cx="-30" cy="12" rx="10" ry="6" />
+          <ellipse cx="30" cy="12" rx="10" ry="6" />
+        </g>
+      )}
+      {face === 'happy' || face === 'delight' ? (
         <path d="M-26 -4 q6 -7 12 0 M14 -4 q6 -7 12 0" />
+      ) : face === 'shock' ? (
+        <g fill="#fff" strokeWidth="3.5">
+          <circle cx="-20" cy="-6" r="10" />
+          <circle cx="20" cy="-6" r="10" />
+          <circle cx="-20" cy="-6" r="3.5" fill={INK} stroke="none" />
+          <circle cx="20" cy="-6" r="3.5" fill={INK} stroke="none" />
+        </g>
       ) : (
         <g fill={INK} stroke="none">
           <circle cx="-20" cy="-4" r="5" />
@@ -36,7 +58,7 @@ function FaceParts({ face }: { face: Face }) {
         </g>
       )}
       {brow && <path d={brow} />}
-      <path d={mouth} />
+      {face === 'shock' ? <ellipse cx="0" cy="28" rx="9" ry="12" fill={INK} stroke="none" /> : <path d={mouth} fill={face === 'delight' ? '#7a2e2e' : 'none'} />}
     </g>
   );
 }
@@ -184,7 +206,7 @@ export function Customer({ type, look, face, state, name, line, lineKey, reply }
       </g>
       </g>
       <foreignObject x="900" y="330" width="460" height="220">
-        <div key={lineKey} className={`${styles.bubble} ${reply ? styles.reply : ''}`} aria-live="polite">
+        <div key={lineKey} data-tour="bubble" className={`${styles.bubble} ${reply ? styles.reply : ''}`} aria-live="polite">
           {line}
         </div>
       </foreignObject>

@@ -1,0 +1,263 @@
+/*
+ * İlk gün tanıtımı: karanlık perde, hedefin çevresinde spot ışığı ve altın halka, yanında
+ * Şükrü Amca'nın kâğıt notu gibi duran kart. Perde tıklamaları engellemez: oyuncu hedefe
+ * (deftere, levhaya, kasaya) doğrudan tıklayabilir.
+ */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* spot: kendi dışındaki her yeri karartan dev bir gölge; yeri ve boyu yumuşakça kayar */
+.spot {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 3px rgba(255, 214, 90, 0.95),
+    0 0 22px 6px rgba(255, 214, 90, 0.55),
+    0 0 0 200vmax rgba(18, 10, 4, 0.62);
+  transition:
+    left 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: ring 1.8s ease-in-out infinite;
+}
+
+@keyframes ring {
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(255, 214, 90, 0.7),
+      0 0 34px 10px rgba(255, 214, 90, 0.35),
+      0 0 0 200vmax rgba(18, 10, 4, 0.62);
+  }
+}
+
+.dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 10, 4, 0.62);
+  animation: fade 0.3s ease-out;
+}
+
+/* kart: kareli defter kâğıdı, el yazısı başlık, gölge; ok kenarından hedefe döner */
+.card {
+  position: fixed;
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  background:
+    linear-gradient(90deg, transparent 22px, rgba(206, 80, 80, 0.35) 22px 23px, transparent 23px),
+    #fffaf0;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  color: #3a2614;
+  font: 500 14px/1.5 var(--font-body);
+  pointer-events: auto;
+  transition:
+    left 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: cardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card p {
+  margin: 0;
+  padding-left: 14px;
+}
+
+/* ok: kartın hedefe bakan kenarında küçük döndürülmüş kare */
+.card::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #fffaf0;
+  transform: rotate(45deg);
+}
+
+.top::before {
+  top: -7px;
+  left: calc(var(--arrow) - 7px);
+}
+
+.bottom::before {
+  bottom: -7px;
+  left: calc(var(--arrow) - 7px);
+}
+
+.left::before {
+  left: -7px;
+  top: calc(var(--arrow) - 7px);
+}
+
+.right::before {
+  right: -7px;
+  top: calc(var(--arrow) - 7px);
+}
+
+.none::before {
+  display: none;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 14px;
+}
+
+.head > span:last-child {
+  display: grid;
+}
+
+.head small {
+  color: #8a6a48;
+  font: 700 10.5px var(--font-mono);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.head b {
+  font: 700 1.55rem/1.1 'Caveat', cursive;
+  color: #7a3a14;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3d6, #e7c48f);
+  box-shadow: inset 0 0 0 2px #c79a5a;
+  font-size: 24px;
+}
+
+/* bekleme adımı: oyuncunun ne yapacağı */
+.hint {
+  padding: 8px 10px !important;
+  margin-left: 14px !important;
+  border-radius: 10px;
+  background: #fff1c4;
+  color: #6a4a10;
+  font-weight: 700;
+  animation: nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes nudge {
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-left: 14px;
+}
+
+.dots {
+  display: flex;
+  gap: 5px;
+}
+
+.dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e4d6bc;
+  transition:
+    width 0.25s,
+    background 0.25s;
+}
+
+.dots .dotDone {
+  background: #c79a5a;
+}
+
+.dots .dotOn {
+  width: 20px;
+  border-radius: 4px;
+  background: #8a5226;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.next,
+.back {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font: 700 13px var(--font-body);
+  cursor: pointer;
+}
+
+.next {
+  border: 1px solid #5c3613;
+  background: linear-gradient(#b5793f, #8a5226);
+  box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.5), 0 2px 0 #5c3613;
+  color: #fff8ec;
+}
+
+.back {
+  border: 1px solid rgba(92, 54, 19, 0.35);
+  background: transparent;
+  color: #5c3613;
+}
+
+.next:focus-visible,
+.back:focus-visible,
+.skip:focus-visible {
+  outline: 2px solid #8a5226;
+  outline-offset: 2px;
+}
+
+.skip {
+  justify-self: end;
+  margin-top: -4px;
+  padding: 2px 4px;
+  border: 0;
+  background: none;
+  color: #8a6a48;
+  font: 600 11.5px var(--font-body);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spot,
+  .card,
+  .hint,
+  .dim {
+    animation: none;
+    transition: none;
+  }
+}
+
+:global([data-calm]) .spot,
+:global([data-calm]) .card,
+:global([data-calm]) .hint {
+  animation: none;
+  transition: none;
+}

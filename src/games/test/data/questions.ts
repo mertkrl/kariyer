@@ -11,9 +11,15 @@
 import { GENERAL_QUESTIONS } from './generalQuestions';
 import { COGNITIVE_QUESTIONS } from './cognitiveQuestions';
 import { EXTRA_QUESTIONS } from './extraQuestions';
+import { FAIR_QUESTIONS } from './fairQuestions';
 import { MORE_QUESTIONS } from './moreQuestions';
 import { CULTURE_QUESTIONS } from './cultureQuestions';
 import { FOURTH_WAVE } from './fourthWave';
+import { FIFTH_WAVE } from './fifthWave';
+import { SIXTH_WAVE } from './sixthWave';
+import { SEVENTH_WAVE } from './seventhWave';
+import { EIGHTH_WAVE } from './eighthWave';
+import { NINTH_WAVE } from './ninthWave';
 
 export type ExamKind = 'sayısal' | 'şekil' | 'sözel' | 'dikkat' | 'simülasyon' | 'kişilik' | 'genel kültür';
 
@@ -57,8 +63,11 @@ export type ExamWidget =
   | { type: 'reaction'; from: string; at: string; message: string; counts: number[] }
   /** Arama geçmişi: son şık hariç her şık bir aramadır (saatleriyle); son şık "hiçbiri" düğmesidir. */
   | { type: 'history'; times: string[] }
-  /** Toplantı: şıklar sırayla söylenir; baş salladığın cümle cevap sayılır. */
-  | { type: 'tap'; everyMs: number }
+  /**
+   * Gelen kutusu: bilgisayar ekranına e-postalar birer birer düşer; şıklar e-postalardır, araya `noise`
+   * bildirimleri karışır. Tıklanan e-posta cevaptır. `from`, şık metninden göndericiyi bulur.
+   */
+  | { type: 'inbox'; everyMs: number; from: Record<string, string>; noise: { from: string; subject: string }[] }
   /** Takvim: şıklar haftanın dört boş yeridir; toplantının konduğu yer cevap sayılır. */
   | { type: 'calendar' }
   /** Gece mesajı: yönetici yazar, "yazıyor…" görünür; seçilen cevap şıktır. */
@@ -79,7 +88,32 @@ export type ExamWidget =
   /** Asansör: kat sayacı akar, kapı açılmadan bir şık seçilir; süre biterse `silent` şık sayılır. */
   | { type: 'elevator'; who: string; floors: number; seconds: number; silent: number }
   /** Bütçe: `total` birim kalemlere onar onar dağıtılır; en çok pay alan kalem şıktır, eşitlik son şık (budgetOption). */
-  | { type: 'budget'; total: number; lines: string[] };
+  | { type: 'budget'; total: number; lines: string[] }
+  /** Yıllık izin: iş günleri tıklanıp seçilir, tatiller sabittir; seçilen gün sayısı `thresholds`e göre şıkka düşer. */
+  | { type: 'leave'; days: LeaveDay[]; thresholds: [number, number, number] }
+  /** E-posta: alıcı adayları CC kutusuna eklenir; eklenen en üst sıradaki kişi şıktır, kimse yoksa son şık (ccOption). */
+  | { type: 'cc'; to: string; subject: string; body: string; people: string[] }
+  /** Fazla mesai formu: saat girilir, ücret istenir ya da istenmez; ya da form boş bırakılır (overtimeOption). */
+  | { type: 'overtime'; month: string };
+
+/** İzin takviminde bir gün: `holiday` varsa resmî tatil, seçilemez. */
+export interface LeaveDay {
+  label: string;
+  holiday?: string;
+}
+
+/** CC: eklenen en üst sıradaki kişinin sırası; kimse eklenmediyse son şık. */
+export function ccOption(chosen: ReadonlySet<number>, people: number): number {
+  for (let i = 0; i < people; i++) if (chosen.has(i)) return i;
+  return people;
+}
+
+/** Fazla mesai: 0 "yapmadım" yazdı, 1 yazdı ama ücret istemedi, 2 yazıp ücretini istedi, 3 formu boş bıraktı. */
+export function overtimeOption(hours: number, pay: boolean, skipped: boolean): number {
+  if (skipped) return 3;
+  if (hours === 0) return 0;
+  return pay ? 2 : 1;
+}
 
 export interface ExamQuestion {
   id: string;
@@ -99,6 +133,11 @@ export interface ExamQuestion {
   widget?: ExamWidget;
   /** Bu sorunun süresi (saniye); yoksa EXAM_SECONDS. */
   seconds?: number;
+  /**
+   * Ton değişimi: bu sefer kurum haklıdır; anahtar ile sağduyu aynı şıktır. `trap`, her şeye
+   * itiraz eden alaycı refleksin seçeceği şıktır: oyuncu kendi önyargısıyla yüzleşir.
+   */
+  fair?: { trap: number };
 }
 
 /** Soru başına süre (saniye). Kılavuz "ortalama aday için yeterlidir" der. */
@@ -134,17 +173,6 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
     why: "Bir CV'yi 0,0012 saniyede kimse okuyamaz. Sistem okumuyor, sıralıyor. Doğru cevap buydu bence.",
   },
   {
-    id: 'team-shape',
-    kind: 'şekil',
-    prompt: 'Aşağıdaki şekillerden hangisi bir takım oyuncusudur?',
-    figure: '■   ●   ▲   ◆',
-    hint: 'Not: Köşeli düşünen adaylar ekibe uyum sağlamakta zorlanabilir.',
-    options: ['■', '●  (köşesi yok, herkese uyar)', '▲', 'Şekillerin kişiliği olmaz'],
-    answer: 1,
-    sensible: 3,
-    why: 'Şekillerin takım oyuncusu olup olmadığını bilemem. Takım oyunculuğunu bir ekipte nasıl çalıştığıma bakarak ölçebilirsiniz.',
-  },
-  {
     id: 'family',
     kind: 'sözel',
     prompt: 'Bütün çalışanlar ailedir. Aile, fazla mesai ücreti istemez. Buna göre hangisi kesinlikle doğrudur?',
@@ -153,17 +181,6 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
     answer: 0,
     sensible: 2,
     why: 'Çalışanlar aile değil, iş sözleşmesi olan insanlar. Mantık sorusu olarak da öncülden kesin bir şey çıkmıyor; bana sorulan buydu.',
-  },
-  {
-    id: 'target',
-    kind: 'sayısal',
-    prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?',
-    figure: '2   4   8   16   ?',
-    hint: 'Hedefler her çeyrek güncellenir.',
-    options: ['32', '24', '30', '40 (hedef revize edildi)'],
-    answer: 3,
-    sensible: 0,
-    why: 'İki, dört, sekiz, on altı: sıradaki otuz iki. "Hedef revize edildi" bir sayı değil.',
   },
   {
     id: 'odd-day',
@@ -184,18 +201,6 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
     answer: 2,
     sensible: 3,
     why: 'Hızla süreden yolcuların kariyeri çıkmaz. Soruda yeterli bilgi yoktu, ben de onu işaretledim.',
-  },
-  {
-    id: 'meeting-nod',
-    kind: 'simülasyon',
-    prompt: 'Çeyrek sunumu. Yöneticiniz konuşuyor. Katıldığınız cümle ekrandayken başınızı sallayın.',
-    hint: 'Kamera gözetimi: baş sallama zamanlamanız "kültür uyumu" puanınıza eklenir.',
-    options: ['Bu çeyrek hedefi %3 aştık.', 'Sinerjiyle çarpanı büyüteceğiz.', 'Fazla mesai ücreti yerine cuma pizza var! 🍕', 'Biz bir aileyiz.'],
-    answer: 2,
-    sensible: 0,
-    why: 'Hedefi aştıysak sevindim, başımı salladım. Pizzaya baş sallamadım; ücretin yerine geçmiyor.',
-    widget: { type: 'tap', everyMs: 1700 },
-    seconds: 20,
   },
   {
     id: 'priority',
@@ -301,13 +306,28 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
   {
     id: 'inbox-urgent',
     kind: 'dikkat',
-    prompt: 'Gelen kutunuz akıyor. Gerçekten acil olan e-posta ekrandayken tıklayın.',
+    prompt: 'Gelen kutunuz akıyor. Gerçekten acil olan e-postaya tıklayın.',
     hint: 'Konu satırında "ACİL" yazan her şey aciliyet derecesine göre sıralanmıştır.',
     options: ['ACİL: Kahve makinesi yine bozuk', 'Haftalık bülten (4. sayı)', 'ACİL!!: Genel Müdürün kedisinin veteriner randevusu', 'Bordro hatası: maaşlar yatmadı (önem: düşük)'],
     answer: 2,
     sensible: 3,
     why: 'Maaşlar yatmamışsa en acili o. Konu satırında "düşük" yazması bir şeyi değiştirmiyor.',
-    widget: { type: 'tap', everyMs: 1600 },
+    widget: {
+      type: 'inbox',
+      everyMs: 1500,
+      from: {
+        'ACİL: Kahve makinesi yine bozuk': 'İdari İşler',
+        'Haftalık bülten (4. sayı)': 'Kurumsal İletişim',
+        'ACİL!!: Genel Müdürün kedisinin veteriner randevusu': 'GM Asistanı · Selin H.',
+        'Bordro hatası: maaşlar yatmadı (önem: düşük)': 'Muhasebe Otomasyonu',
+      },
+      noise: [
+        { from: 'Jira', subject: '[PRJ-4412] durumu "Bekliyor"dan "Beklemede"ye geçti' },
+        { from: 'Takvim', subject: 'Davet: Toplantı öncesi ön toplantı (zorunlu)' },
+        { from: 'Kurumsal İletişim', subject: 'Re: Re: Fwd: Ofiste mikrodalga kuyruğu hakkında' },
+        { from: 'BT Destek', subject: 'Şifreniz 3 gün içinde sona erecek (yine)' },
+      ],
+    },
     seconds: 20,
   },
   {
@@ -382,7 +402,13 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
   ...GENERAL_QUESTIONS,
   ...COGNITIVE_QUESTIONS,
   ...EXTRA_QUESTIONS,
+  ...FAIR_QUESTIONS,
   ...FOURTH_WAVE,
+  ...FIFTH_WAVE,
+  ...SIXTH_WAVE,
+  ...SEVENTH_WAVE,
+  ...EIGHTH_WAVE,
+  ...NINTH_WAVE,
 ];
 
 /** Damgalanacak evrak: `fair` haklı bir çalışan talebi mi (onaylanması gereken) yoksa değil mi. */

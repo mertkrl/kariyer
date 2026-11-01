@@ -12,6 +12,9 @@
  */
 
 import type { Account, Dilemma } from './week';
+import type { ReturnAsk } from './returns';
+import { characterOf } from './characters';
+import { LOW_REP, isBasic, touristShare } from './catalog';
 
 export interface Product {
   id: string;
@@ -27,20 +30,81 @@ export interface Product {
   step?: number;
   every?: number;
   first?: number;
+  /** Tost ve sandviçin içindekiler. */
+  detail?: string;
 }
 
 export const PRODUCTS: Product[] = [
-  { id: 'ekmek', name: 'Ekmek', emoji: '🍞', market: 15, cost: 10, drift: 0.004, step: 0.15, every: 12, first: 9 },
-  { id: 'sut', name: 'Süt (1 lt)', emoji: '🥛', market: 42, cost: 31, drift: 0.012 },
-  { id: 'yumurta', name: "Yumurta (10'lu)", emoji: '🥚', market: 87, cost: 63, drift: 0.006, step: 0.12, every: 7, first: 4 },
-  { id: 'meyvesuyu', name: 'Meyve suyu', emoji: '🧃', market: 50, cost: 35, drift: 0.005, step: 0.08, every: 10, first: 6 },
-  { id: 'cay', name: 'Çay (500 g)', emoji: '🍵', market: 123, cost: 91, drift: 0, step: 0.18, every: 8, first: 3 },
-  { id: 'seker', name: 'Toz şeker (1 kg)', emoji: '🧂', market: 46, cost: 34, drift: 0.014 },
-  { id: 'cikolata', name: 'Çikolata', emoji: '🍫', market: 27, cost: 17, drift: 0.008, step: 0.1, every: 9, first: 5 },
-  { id: 'sabun', name: 'Sabun', emoji: '🧼', market: 30, cost: 20, drift: 0.003, step: 0.1, every: 15, first: 8 },
-  { id: 'makarna', name: 'Makarna', emoji: '🍝', market: 20, cost: 13, drift: 0.007, step: 0.1, every: 11, first: 7 },
-  { id: 'peynir', name: 'Beyaz peynir (500 g)', emoji: '🧀', market: 163, cost: 121, drift: 0.016, step: 0.1, every: 14, first: 10 },
+  { id: 'ekmek', name: 'Ekmek', emoji: '🍞', market: 20, cost: 14, drift: 0.004, step: 0.15, every: 12, first: 9 },
+  { id: 'sut', name: 'Süt (1 lt)', emoji: '🥛', market: 55, cost: 40, drift: 0.012 },
+  { id: 'yumurta', name: "Yumurta (10'lu)", emoji: '🥚', market: 120, cost: 88, drift: 0.006, step: 0.12, every: 7, first: 4 },
+  { id: 'meyvesuyu', name: 'Meyve suyu (1 lt)', emoji: '🧃', market: 45, cost: 31, drift: 0.005, step: 0.08, every: 10, first: 6 },
+  { id: 'cay', name: 'Çay (500 g)', emoji: '🍵', market: 260, cost: 195, drift: 0, step: 0.18, every: 8, first: 3 },
+  { id: 'seker', name: 'Toz şeker (1 kg)', emoji: '🧊', market: 65, cost: 48, drift: 0.014 },
+  { id: 'cikolata', name: 'Çikolata', emoji: '🍫', market: 45, cost: 30, drift: 0.008, step: 0.1, every: 9, first: 5 },
+  { id: 'sabun', name: 'Sabun', emoji: '🧼', market: 45, cost: 31, drift: 0.003, step: 0.1, every: 15, first: 8 },
+  { id: 'makarna', name: 'Makarna', emoji: '🍝', market: 32, cost: 22, drift: 0.007, step: 0.1, every: 11, first: 7 },
+  { id: 'peynir', name: 'Beyaz peynir (500 g)', emoji: '🧀', market: 260, cost: 195, drift: 0.016, step: 0.1, every: 14, first: 10 },
+  { id: 'un', name: 'Un (5 kg)', emoji: '🌾', market: 260, cost: 195, drift: 0.01, step: 0.1, every: 13, first: 6 },
+  { id: 'pirinc', name: 'Pirinç (1 kg)', emoji: '🍚', market: 100, cost: 74, drift: 0.009 },
+  { id: 'yag', name: 'Ayçiçek yağı (1 lt)', emoji: '🌻', market: 130, cost: 96, drift: 0.006, step: 0.15, every: 9, first: 5 },
+  { id: 'salca', name: 'Salça (830 g)', emoji: '🥫', market: 135, cost: 100, drift: 0.008 },
+  { id: 'biskuvi', name: 'Bisküvi', emoji: '🍪', market: 30, cost: 20, drift: 0.007, step: 0.1, every: 10, first: 4 },
+  { id: 'deterjan', name: 'Bulaşık deterjanı', emoji: '🫧', market: 110, cost: 78, drift: 0.004, step: 0.12, every: 12, first: 9 },
+  { id: 'yogurt', name: 'Yoğurt (1 kg)', emoji: '🥣', market: 120, cost: 89, drift: 0.013 },
+  { id: 'gazoz', name: 'Gazoz', emoji: '🥤', market: 35, cost: 23, drift: 0.006, step: 0.1, every: 8, first: 7 },
+  { id: 'tuz', name: 'Tuz (750 g)', emoji: '🧂', market: 25, cost: 16, drift: 0.003 },
+  { id: 'kibrit', name: "Kibrit (10'lu)", emoji: '🔥', market: 25, cost: 16, drift: 0.003, step: 0.1, every: 14, first: 10 },
+  { id: 'mercimek', name: 'Kırmızı mercimek (1 kg)', emoji: '🫘', market: 95, cost: 70, drift: 0.009 },
+  { id: 'bulgur', name: 'Bulgur (1 kg)', emoji: '🍲', market: 65, cost: 48, drift: 0.008 },
+  { id: 'zeytin', name: 'Siyah zeytin (1 kg)', emoji: '🫒', market: 340, cost: 255, drift: 0.01, step: 0.08, every: 11, first: 8 },
+  { id: 'recel', name: 'Vişne reçeli', emoji: '🍓', market: 120, cost: 86, drift: 0.006 },
+  { id: 'camasir', name: 'Çamaşır suyu', emoji: '🧪', market: 70, cost: 49, drift: 0.004 },
+  { id: 'tuvalet', name: "Tuvalet kâğıdı (8'li)", emoji: '🧻', market: 190, cost: 138, drift: 0.005, step: 0.1, every: 12, first: 11 },
+  { id: 'sampuan', name: 'Şampuan', emoji: '🧴', market: 170, cost: 120, drift: 0.005 },
+  { id: 'pil', name: "Kalem pil (2'li)", emoji: '🔋', market: 90, cost: 62, drift: 0.004 },
+  { id: 'kolonya', name: 'Limon kolonyası', emoji: '🍋', market: 140, cost: 98, drift: 0.004 },
+  { id: 'maden', name: 'Maden suyu', emoji: '💧', market: 20, cost: 13, drift: 0.006 },
+  { id: 'sucuk', name: 'Sucuk (250 g)', emoji: '🌭', market: 290, cost: 215, drift: 0.015, step: 0.1, every: 10, first: 6 },
+  { id: 'tereyag', name: 'Tereyağı (250 g)', emoji: '🧈', market: 220, cost: 163, drift: 0.014 },
+  { id: 'kasar', name: 'Kaşar peyniri (250 g)', emoji: '🟨', market: 210, cost: 156, drift: 0.014 },
+  { id: 'bal', name: 'Çiçek balı (450 g)', emoji: '🍯', market: 400, cost: 300, drift: 0.008 },
+  { id: 'helva', name: 'Tahin helvası', emoji: '🟫', market: 140, cost: 100, drift: 0.007 },
+  { id: 'tahin', name: 'Tahin (300 g)', emoji: '🥜', market: 170, cost: 124, drift: 0.008 },
+  { id: 'margarin', name: 'Margarin', emoji: '🟡', market: 70, cost: 50, drift: 0.007 },
+  { id: 'nohut', name: 'Nohut (1 kg)', emoji: '🫛', market: 105, cost: 77, drift: 0.008 },
+  { id: 'fasulye', name: 'Kuru fasulye (1 kg)', emoji: '⚪', market: 140, cost: 103, drift: 0.009 },
+  { id: 'ton', name: "Ton balığı (3'lü)", emoji: '🐟', market: 250, cost: 185, drift: 0.006, step: 0.1, every: 12, first: 9 },
+  { id: 'ketcap', name: 'Ketçap', emoji: '🍅', market: 85, cost: 60, drift: 0.005 },
+  { id: 'mayonez', name: 'Mayonez', emoji: '🫙', market: 95, cost: 67, drift: 0.005 },
+  { id: 'kahve', name: 'Türk kahvesi (100 g)', emoji: '☕', market: 140, cost: 102, drift: 0.009, step: 0.12, every: 9, first: 5 },
+  { id: 'cips', name: 'Cips', emoji: '🥔', market: 55, cost: 37, drift: 0.007 },
+  { id: 'kraker', name: 'Kraker', emoji: '🥨', market: 25, cost: 16, drift: 0.006 },
+  { id: 'lokum', name: 'Lokum', emoji: '🟪', market: 110, cost: 77, drift: 0.005 },
+  { id: 'ayran', name: 'Ayran', emoji: '🫗', market: 25, cost: 16, drift: 0.008 },
+  { id: 'su', name: 'Su (1,5 lt)', emoji: '🚰', market: 15, cost: 9, drift: 0.004 },
+  { id: 'dismacunu', name: 'Diş macunu', emoji: '🪥', market: 100, cost: 70, drift: 0.004 },
+  { id: 'cakmak', name: 'Çakmak', emoji: '🪔', market: 25, cost: 16, drift: 0.003 },
+  { id: 'ampul', name: 'Ampul', emoji: '💡', market: 70, cost: 48, drift: 0.003 },
+  { id: 'irmik', name: 'İrmik (500 g)', emoji: '🌾', market: 45, cost: 32, drift: 0.008 },
+  { id: 'zeytinyagi', name: 'Zeytinyağı (1 lt)', emoji: '🫒', market: 480, cost: 360, drift: 0.009, step: 0.1, every: 13, first: 8 },
+  { id: 'sirke', name: 'Üzüm sirkesi (1 lt)', emoji: '🍇', market: 60, cost: 42, drift: 0.005 },
+  { id: 'pulbiber', name: 'Pul biber (200 g)', emoji: '🌶️', market: 120, cost: 86, drift: 0.008 },
+  { id: 'pekmez', name: 'Pekmez (800 g)', emoji: '🍯', market: 180, cost: 130, drift: 0.007 },
+  { id: 'yumusatici', name: 'Yumuşatıcı (1,5 lt)', emoji: '🧺', market: 130, cost: 92, drift: 0.005 },
+  { id: 'mendil', name: "Mendil (ıslak, 100'lü)", emoji: '🧻', market: 45, cost: 30, drift: 0.004 },
+  { id: 'kola', name: 'Kola (1 lt)', emoji: '🥤', market: 55, cost: 37, drift: 0.007, step: 0.1, every: 11, first: 6 },
+  { id: 'salam', name: 'Dana salam (200 g)', emoji: '🥓', market: 160, cost: 118, drift: 0.012 },
+  { id: 'kasarli', name: 'Kaşarlı tost', emoji: '🥪', market: 120, cost: 75, drift: 0.01, detail: 'tost ekmeği, bol kaşar, tereyağı' },
+  { id: 'sucuklu', name: 'Sucuklu tost', emoji: '🥪', market: 160, cost: 100, drift: 0.011, detail: 'tost ekmeği, kasap sucuğu, kaşar' },
+  { id: 'karisik', name: 'Karışık tost', emoji: '🥪', market: 180, cost: 115, drift: 0.011, detail: 'sucuk, kaşar, domates, köy biberi' },
+  { id: 'peynirli', name: 'Peynirli sandviç', emoji: '🥖', market: 120, cost: 75, drift: 0.01, detail: 'beyaz peynir, domates, salatalık, zeytin' },
+  { id: 'salamli', name: 'Salamlı sandviç', emoji: '🥖', market: 140, cost: 88, drift: 0.01, detail: 'dana salam, kaşar, turşu' },
+  { id: 'tonlu', name: 'Ton balıklı sandviç', emoji: '🥖', market: 170, cost: 108, drift: 0.01, detail: 'ton balığı, mısır, marul, limon' },
+  { id: 'tavuklu', name: 'Tavuklu sandviç', emoji: '🥖', market: 180, cost: 115, drift: 0.011, detail: 'ızgara tavuk, yeşillik, mayonez' },
 ];
+
+export { BASIC, CATEGORIES, DAILY, FRIDGE, LOW_REP, MADE, RACK, SANDWICH, TOURIST_REP, categoryOf, isBasic, touristShare } from './catalog';
 
 export interface CustomerType {
   id: string;
@@ -60,11 +124,11 @@ export const CUSTOMERS: CustomerType[] = [
   { id: 'teyze', name: 'Emekli teyze', emoji: '👵', color: '#8e6fa8', ceiling: 1.1, gossip: 2 },
   { id: 'muhtar', name: 'Muhtar', emoji: '👨🏻‍🦳', color: '#4f5d73', ceiling: 1.5, gossip: 1.5 },
   { id: 'ciftci', name: 'Çiftçi', emoji: '👨‍🌾', color: '#5f8a4c', ceiling: 1.25, gossip: 1 },
-  { id: 'turist', name: 'Şehirli turist', emoji: '🧑‍💼', color: '#2f6fb5', ceiling: 1.6, gossip: 0.3 },
-  { id: 'cocuk', name: 'Çocuk', emoji: '🧒', color: '#e0703a', ceiling: 1.15, gossip: 1, wants: ['cikolata', 'meyvesuyu', 'ekmek', 'makarna'] },
-  { id: 'genc', name: 'Genç', emoji: '🧑', color: '#3d7f8c', ceiling: 1.2, gossip: 0.8, wants: ['cikolata', 'meyvesuyu', 'makarna', 'ekmek', 'sut', 'sabun'] },
+  { id: 'turist', name: 'Şehirli turist', emoji: '🧑‍💼', color: '#2f6fb5', ceiling: 1.6, gossip: 0.3, wants: ['su', 'maden', 'gazoz', 'kola', 'mendil', 'ayran', 'meyvesuyu', 'cips', 'kraker', 'cikolata', 'biskuvi', 'kasarli', 'sucuklu', 'karisik', 'peynirli', 'tonlu', 'tavuklu', 'ekmek', 'pil', 'kolonya'] },
+  { id: 'cocuk', name: 'Çocuk', emoji: '🧒', color: '#e0703a', ceiling: 1.15, gossip: 1, wants: ['cikolata', 'meyvesuyu', 'ekmek', 'makarna', 'biskuvi', 'gazoz', 'kola', 'cips', 'kasarli', 'ayran'] },
+  { id: 'genc', name: 'Genç', emoji: '🧑', color: '#3d7f8c', ceiling: 1.2, gossip: 0.8, wants: ['cikolata', 'meyvesuyu', 'makarna', 'ekmek', 'sut', 'sabun', 'biskuvi', 'gazoz', 'pirinc', 'pil', 'sampuan', 'maden', 'kola', 'cips', 'sucuklu', 'karisik', 'tonlu', 'tavuklu', 'su'] },
   { id: 'ogretmen', name: 'Öğretmen', emoji: '👩‍🏫', color: '#7a5c3e', ceiling: 1.3, gossip: 1.3 },
-  { id: 'coban', name: 'Çoban', emoji: '🐑', color: '#6b5a3a', ceiling: 1.15, gossip: 0.6, wants: ['ekmek', 'peynir', 'cay', 'seker', 'makarna'] },
+  { id: 'coban', name: 'Çoban', emoji: '🐑', color: '#6b5a3a', ceiling: 1.15, gossip: 0.6, wants: ['ekmek', 'peynir', 'cay', 'seker', 'makarna', 'un', 'yogurt', 'tuz', 'kibrit', 'bulgur', 'zeytin', 'sucuk', 'peynirli', 'ayran', 'cakmak'] },
   { id: 'gelin', name: 'Genç gelin', emoji: '👰', color: '#b0567a', ceiling: 1.2, gossip: 1.6 },
   { id: 'emekli', name: 'Emekli amca', emoji: '👴', color: '#6d6a5f', ceiling: 1.1, gossip: 1.8 },
 ];
@@ -100,6 +164,10 @@ export interface Villager {
   /** Veresiye borcunu ertesi günlerde ödeme olasılığı (0: hiç veresiye istemez). */
   pays: number;
   look: Look;
+  /** Köyün olağan sırasına girmez: yalnızca kendi günü gelir (hayırsever, zabıta). */
+  guest?: boolean;
+  /** Yoldan geçen yabancı: yalnızca dükkânın itibarı düşünce, köylünün yerine gelir. */
+  passerby?: boolean;
 }
 
 export const VILLAGERS: Villager[] = [
@@ -110,7 +178,7 @@ export const VILLAGERS: Villager[] = [
   { id: 'emine', name: 'Emine Teyze', type: 'teyze', pays: 0.85, look: { outfit: '#3f6d6a', scarf: '#a77bc4' } },
   { id: 'nazmiye', name: 'Nazmiye Nine', type: 'teyze', pays: 0.8, look: { outfit: '#2f2f38', scarf: '#3b3b44', skin: '#dcb08e' } },
   { id: 'hasan', name: 'Muhtar Hasan', type: 'muhtar', pays: 0.9, look: { outfit: '#4f5d73', hair: '#d6d6d6', mustache: '#d6d6d6' } },
-  { id: 'imam', name: 'İmam Yusuf', type: 'muhtar', pays: 0.95, look: { outfit: '#5c6a5a', hat: 'takke', hatColor: '#f4f1e8', beard: '#5a4a3a' } },
+  { id: 'imam', name: 'Yusuf Amca', type: 'muhtar', pays: 0.95, look: { outfit: '#5c6a5a', hat: 'takke', hatColor: '#f4f1e8', beard: '#5a4a3a' } },
   { id: 'riza', name: 'Rıza Amca', type: 'ciftci', pays: 0.55, look: { outfit: '#5f8a4c', hat: 'kasket', hatColor: '#5a6650', mustache: '#3a2a1a' } },
   { id: 'mehmet', name: 'Mehmet Abi', type: 'ciftci', pays: 0.8, look: { outfit: '#2f6a8a', hat: 'kasket', hatColor: '#3c3c3c', mustache: '#2a1d14' } },
   { id: 'osman', name: 'Osman Emmi', type: 'ciftci', pays: 0.7, look: { outfit: '#7a6a4a', hat: 'kasket', hatColor: '#6a5a44', beard: '#bdb6a8' } },
@@ -135,11 +203,29 @@ export const VILLAGERS: Villager[] = [
   { id: 'can', name: 'Turist Can', type: 'turist', pays: 0, look: { outfit: '#e0e0d8', hat: 'sapka', hatColor: '#d9c08a', sunglasses: true } },
   { id: 'turist', name: 'Şehirli turist', type: 'turist', pays: 0, look: { outfit: '#4a4a52', hair: '#2a1d14', glasses: true } },
   { id: 'jonas', name: 'Bisikletli Jonas', type: 'turist', pays: 0, look: { outfit: '#d9a72a', hair: '#e8d08a', beard: '#c9a04a', skin: '#f3d6c2' } },
+  { id: 'sinan', name: 'Kamyoncu Sinan', type: 'turist', pays: 0, passerby: true, look: { outfit: '#4e6b8a', hat: 'kep', hatColor: '#c0392b', mustache: '#2a1d14' } },
+  { id: 'ece', name: 'Gezgin Ece', type: 'turist', pays: 0, passerby: true, look: { outfit: '#6a9a4a', hair: '#7a4a24', long: true } },
+  { id: 'anna', name: 'Hollandalı Anna', type: 'turist', pays: 0, passerby: true, look: { outfit: '#e67e22', hair: '#f0d890', long: true, skin: '#f6dccb' } },
+  { id: 'tom', name: 'Motosikletli Tom', type: 'turist', pays: 0, passerby: true, look: { outfit: '#2a2a2a', hair: '#a0703a', beard: '#a0703a', sunglasses: true, skin: '#f3d6c2' } },
+  { id: 'rustem', name: 'Gurbetçi Rüstem Bey', type: 'muhtar', pays: 0, guest: true, look: { outfit: '#2a3a5a', hair: '#bdbdbd', mustache: '#bdbdbd', glasses: true } },
+  { id: 'zabita', name: 'Zabıta Necati', type: 'muhtar', pays: 0, guest: true, look: { outfit: '#2b3f66', hat: 'kep', hatColor: '#1d2b47', mustache: '#2a1d14' } },
+  { id: 'vergi', name: 'Vergi Memuru Selim', type: 'muhtar', pays: 0, guest: true, look: { outfit: '#3a3a3a', hair: '#2a1d14', glasses: true } },
 ];
+
+/** Köyün olağan müşterileri: misafirler (hayırsever, zabıta) sıraya girmez. */
+export const REGULARS = VILLAGERS.filter((v) => !v.guest);
+
+export { CHARACTERS, characterOf, complains, haggleOffer, type Character } from './characters';
+
+/** Köylünün kendi kesesi: tipinin tavanı, huyuna göre biraz geniş ya da dar. */
+export function customerOf(v: Villager): CustomerType {
+  const c = typeOf(v.type);
+  return { ...c, ceiling: Math.round((c.ceiling + characterOf(v.id).ceil) * 100) / 100 };
+}
 
 export const START_REPUTATION = 60;
 /** Köy unutur: itibar her sabah başlangıç değerine doğru bu kadar döner. */
-export const REP_DRIFT = 3;
+export const REP_DRIFT = 1;
 export const forget = (rep: number) => rep + Math.sign(START_REPUTATION - rep) * Math.min(REP_DRIFT, Math.abs(START_REPUTATION - rep));
 /** Dükkânın açık olduğu saatler: ilk müşteri açılışta, son müşteri kapanıştan önce gelir. */
 export const OPEN_HOUR = 8;
@@ -163,28 +249,49 @@ const jumps = (p: Product, day: number) => (p.step && p.every && p.first && day 
 /** Ürünün ilk güne göre pahalanma çarpanı: günlük sessiz zam ve zam sıçramaları. */
 export const factorOn = (p: Product, day: number) => (1 + p.drift) ** (Math.max(1, day) - 1) * (1 + (p.step ?? 0)) ** jumps(p, day);
 
+/** Toptancının fiyatı listedekinden bu kadar yüksek: kâr payı dar (maliyet market fiyatının aşağı yukarı dörtte üçü). */
+export const COST_UP = 1.07;
+/** Toptan fiyatı köydeki fiyattan hızlı zamlanır: fiyatını güncellemeyenin payı her gün biraz erir. */
+export const COST_DRIFT = 0.0025;
+
 /** O günün market fiyatı ve maliyeti; maliyet market fiyatının altında kalır. */
 export function priceOn(p: Product, day: number): { market: number; cost: number } {
   const f = factorOn(p, day);
   const market = Math.round(p.market * f);
-  return { market, cost: Math.min(market - 1, Math.round(p.cost * f)) };
+  const squeeze = COST_UP * (1 + COST_DRIFT) ** (Math.max(1, day) - 1);
+  return { market, cost: Math.min(market - 1, Math.round(p.cost * f * squeeze)) };
 }
 
 /** Bu gün zam sıçraması gelen ürünler (radyo bir gün önceden haber verir). */
 export const hikesOn = (day: number) => PRODUCTS.filter((p) => jumps(p, day) > jumps(p, day - 1));
 
-/** Sepetin toplam market fiyatı ve maliyeti. */
+/**
+ * Köyde "başka yerde yok" payı: temel gıda dışındaki mala köylü market fiyatının bu kadar
+ * fazlasını olağan sayar (kasabaya inmeye değmez). Temel gıdada pay yoktur: köylü ekmeğin,
+ * yağın fiyatını bilir. Kazanmanın yolu malı ayırmaktır: temel gıda adil, gerisi primli.
+ */
+export const CONVENIENCE = 0.25;
+
+/** Köylünün o malda "olağan" saydığı fiyat: temel gıdada market fiyatı, gerisinde biraz fazlası. */
+export const fairOn = (p: Product, day: number) => {
+  const { market } = priceOn(p, day);
+  return isBasic(p.id) ? market : Math.round(market * (1 + CONVENIENCE));
+};
+
+/** Sepetin toplam market fiyatı, maliyeti ve köylünün olağan saydığı tutar. */
 export function basketOn(items: Product[], day: number) {
   return items.reduce(
     (s, p) => {
       const x = priceOn(p, day);
-      return { market: s.market + x.market, cost: s.cost + x.cost };
+      return { market: s.market + x.market, cost: s.cost + x.cost, fair: s.fair + fairOn(p, day) };
     },
-    { market: 0, cost: 0 },
+    { market: 0, cost: 0, fair: 0 },
   );
 }
 
 export const ceilingOf = (market: number, c: { ceiling: number }) => Math.round(market * c.ceiling);
+/** Bu fiyatın üstü akıl almaz: müşteri pazarlığa girmeden gider. */
+export const absurdOf = (ceiling: number) => Math.max(ceiling + 5, Math.round(ceiling * 1.5));
 
 // --- hava ve köy olayları ---
 
@@ -216,19 +323,19 @@ export interface VillageEvent {
 }
 
 /** İlk günün olayı: yeni bakkalın açılışı. */
-export const OPENING: VillageEvent = { title: 'Kepenk açılışı', text: 'Hacı Emmi hacca gitti, dükkân sana emanet. Köy yeni bakkalı merak ediyor.' };
+export const OPENING: VillageEvent = { title: 'Kepenk açılışı', text: 'Şükrü Amca memlekete gitti, dükkân sana emanet. Köy yeni bakkalı merak ediyor.' };
 
 /** Sonraki günlerin olayları tohumdan seçilir; sıradan gün daha sık çıkar. */
 export const EVENT_POOL: VillageEvent[] = [
   { title: 'Sıradan bir gün', text: 'Köyde hayat akıp gidiyor.' },
   { title: 'Sıradan bir gün', text: 'Köyde hayat akıp gidiyor.' },
-  { title: 'Düğün var!', text: 'Herkes şeker, çay ve meyve suyu peşinde; kese açık, pahalıya da alırlar.', ceiling: 0.15, favor: ['seker', 'cay', 'meyvesuyu'] },
+  { title: 'Düğün var!', text: 'Herkes şeker, çay ve meyve suyu peşinde; kese açık, pahalıya da alırlar.', ceiling: 0.15, favor: ['seker', 'cay', 'meyvesuyu', 'gazoz', 'yag'] },
   { title: 'Kasabada indirim', text: 'Zincir market kampanya yapıyor: kimse fazla para vermek istemiyor.', ceiling: -0.1 },
   { title: 'Pazar günü', text: 'Köy pazarı kuruldu, yollar kalabalık.', crowd: 2 },
   { title: 'Hasat zamanı', text: 'Tarladan para geldi, çiftçinin eli rahat.', ceiling: 0.05, crowd: 1, favor: ['ekmek', 'peynir', 'cay'] },
-  { title: 'Okullar açıldı', text: 'Çocuklar beslenme peşinde.', crowd: 1, favor: ['cikolata', 'meyvesuyu', 'makarna'] },
-  { title: 'Cenaze var', text: 'Köyde helva kavruluyor, çay demleniyor.', crowd: -1, favor: ['cay', 'seker'] },
-  { title: 'Bayram', text: 'Gurbetçiler köye döndü, kapı kapı bayram ziyareti: dükkân kalabalık, herkes çikolata, şeker peşinde.', ceiling: 0.05, crowd: 2, favor: ['cikolata', 'seker'] },
+  { title: 'Okullar açıldı', text: 'Çocuklar beslenme peşinde.', crowd: 1, favor: ['cikolata', 'meyvesuyu', 'biskuvi'] },
+  { title: 'Cenaze var', text: 'Köyde helva kavruluyor, çay demleniyor.', crowd: -1, favor: ['cay', 'seker', 'un', 'yag'] },
+  { title: 'Bayram', text: 'Gurbetçiler köye döndü, kapı kapı bayram ziyareti: dükkân kalabalık, herkes çikolata, şeker peşinde.', ceiling: 0.05, crowd: 2, favor: ['cikolata', 'seker', 'biskuvi', 'kolonya'] },
   { title: 'Yayla göçü', text: 'Köyün yarısı yaylaya çıktı.', crowd: -2 },
 ];
 
@@ -237,10 +344,28 @@ export function eventOn(seed: number, day: number): VillageEvent {
   return EVENT_POOL[Math.floor(rng(seed * 53 + day * 7)() * EVENT_POOL.length)];
 }
 
-/** İtibara, havaya ve olaya göre günün müşteri sayısı: 3 ile 12 arası. */
-export function customersFor(reputation: number, event?: VillageEvent, weather: Weather = 'sunny'): number {
-  const base = 4 + Math.round(reputation / 16) + WEATHER[weather].crowd + (event?.crowd ?? 0);
-  return Math.max(3, Math.min(12, base));
+/**
+ * İtibara, havaya ve olaya göre günün müşteri sayısı: 4 ile 18 arası. İyi itibar kalabalığı biraz
+ * artırır ama tek başına kurtarmaz; kötü itibar ise hızla boşaltır: 30 itibarla 4, 45 ile 8,
+ * 60 ile 12, 90 ile 15 müşteri gelir. Kasabaya zincir market açılınca
+ * (RIVAL_DAY) her gün biri eksik gelir, seyyar satıcının geldiği gün iki kişi.
+ */
+export function customersFor(reputation: number, event?: VillageEvent, weather: Weather = 'sunny', day = 1, peddler = false): number {
+  // itibar 55'in altına inince köylü hızla küser: kötü ad, iyi addan çok daha hızlı yayılır
+  const shunned = reputation < SHUN_REP ? Math.round((SHUN_REP - reputation) / 3) : 0;
+  const base = 7 + Math.round(reputation / 12) - shunned + WEATHER[weather].crowd + (event?.crowd ?? 0) - (day >= RIVAL_DAY ? 1 : 0) - (peddler ? 2 : 0);
+  return Math.max(4, Math.min(18, base));
+}
+
+/** Bu itibarın altında köylü dükkândan hızla uzaklaşır. */
+export const SHUN_REP = 60;
+
+/** Kasabaya zincir market bu gün açılır: temel gıdada köylünün tavanı düşer, kalabalık azalır. */
+export const RIVAL_DAY = 10;
+
+/** Köye seyyar satıcı gelen günler: 4. günden sonra aşağı yukarı altı günde bir. */
+export function peddlerOn(seed: number, day: number): boolean {
+  return day >= 4 && rng(seed * 59 + day * 23 + 1)() < 0.17;
 }
 
 // --- müşteri hafızası ---
@@ -250,6 +375,12 @@ export interface Memory {
   visits: number;
   grudge: number;
   happy: number;
+  /** Veresiyesi yazılmadı: bu güne kadar dükkâna gelmez. */
+  sulk?: number;
+  /** Veresiye borcunu kaç kez zamanında ödedi: sadık müşteri, pazarlık etmez. */
+  loyal?: number;
+  /** Kahvede dükkânın pahalı olduğunu duydu. */
+  heard?: boolean;
 }
 
 export type Memories = Record<string, Memory>;
@@ -275,7 +406,10 @@ export function remember(m: Memories, who: string, mood: Mood, mild = false): Me
 export const AWAY_GRUDGE = 4;
 
 /** Sabah dükkânı küsüp kasabanın marketine gidenler (turistler hariç). */
-export const awayOf = (m: Memories): string[] => Object.entries(m).filter(([, v]) => v.grudge >= AWAY_GRUDGE).map(([k]) => k);
+export const awayOf = (m: Memories, day = 0): string[] => Object.entries(m).filter(([, v]) => v.grudge >= AWAY_GRUDGE || (v.sulk ?? 0) > day).map(([k]) => k);
+
+/** Sadık müşteriler: veresiyesini ödemiş olanlar. */
+export const loyalOf = (m: Memories): string[] => Object.entries(m).filter(([, v]) => (v.loyal ?? 0) > 0).map(([k]) => k);
 
 /** Gece: markete giden köylünün kini biraz soğur. */
 export function coolOff(m: Memories, away: readonly string[]): Memories {
@@ -291,14 +425,14 @@ export function coolOff(m: Memories, away: readonly string[]): Memories {
  */
 export function effectiveType(c: CustomerType, event?: VillageEvent, mem?: Memory): CustomerType {
   const m = mem ?? EMPTY;
-  const ceiling = c.ceiling + (event?.ceiling ?? 0) - 0.05 * Math.min(m.grudge, 4) + 0.02 * Math.min(m.happy, 3);
+  const ceiling = c.ceiling + (event?.ceiling ?? 0) - 0.05 * Math.min(m.grudge, 4) + 0.02 * Math.min(m.happy, 3) + 0.03 * Math.min(m.loyal ?? 0, 2);
   return { ...c, ceiling: Math.max(1.02, Math.round(ceiling * 100) / 100) };
 }
 
 /** İlk gelişte söylenen söz: tipine göre; olmayan tip köylünün genel selamını verir. */
 const FIRST: Record<string, string> = {
   cocuk: 'Abi, annem gönderdi.',
-  genc: 'Selam! Hacı Emmi hacca mı gitti, doğru mu?',
+  genc: 'Selam! Şükrü Amca memlekete mi gitti, doğru mu?',
   ogretmen: 'Günaydın, okula giderken uğradım.',
   coban: 'Sürüyü yamaçta bıraktım, çabuk olalım.',
   gelin: 'Kolay gelsin, kaynanam gönderdi.',
@@ -307,13 +441,16 @@ const FIRST: Record<string, string> = {
 
 /** Kapıdan girerken söylenen söz: geçen seferi hatırlar. Çocuk annesinin ağzından konuşur. */
 export function greetingFor(v: Villager, mem?: Memory): string {
-  if (v.type === 'turist') return 'Merhaba, buralı değilim de…';
+  if (v.type === 'turist') return characterOf(v.id).hello || 'Merhaba, buralı değilim de…';
   const kid = v.type === 'cocuk';
-  if (!mem || mem.visits === 0) return FIRST[v.type] ?? 'Hayırlı işler, yeni bakkal sen misin?';
+  const ch = characterOf(v.id);
+  if (!mem || mem.visits === 0) return ch.hello || (FIRST[v.type] ?? 'Hayırlı işler, yeni bakkal sen misin?');
+  if (mem.heard && mem.grudge >= 1 && mem.happy === 0) return kid ? 'Abi, annem "kahvede pahalı diyorlar, dikkat et" dedi.' : 'Kahvede duydum, buranın fiyatları fazlaymış. Bakalım…';
+  if ((mem.loyal ?? 0) > 0) return kid ? 'Abi, annem selam söyledi, hep senden alacakmış!' : 'Hesabımızı kapattık, artık ben senin müşterinim.';
   if (mem.grudge >= 2) return kid ? 'Annem geçen sefer "çok pahalı almışsın" diye kızdı.' : 'Geçen sefer kazıkladın beni, bu sefer gözüm üstünde!';
   if (mem.grudge > mem.happy) return kid ? 'Yine ben geldim. Bu sefer ucuz olsun ama.' : 'Yine ben geldim. Bu sefer insaflı ol.';
   if (mem.happy > 0) return kid ? 'Abi, annem senin dükkânı sevdi!' : 'Senin fiyatların iyi, yine geldim!';
-  return kid ? 'Yine ben geldim abi.' : 'Ben yine geldim.';
+  return ch.habit || (kid ? 'Yine ben geldim abi.' : 'Ben yine geldim.');
 }
 
 // --- günün müşterileri ---
@@ -325,34 +462,67 @@ export interface Visit {
   items: Product[];
   /** Satış olursa veresiye yazdırmak ister mi. */
   credit: boolean;
-  /** Alışveriş değil, Hacı Emmi'nin defterindeki eski hesabı görmeye geldi (week.ts). */
+  /** Alışveriş değil, Şükrü Amca'nın defterindeki eski hesabı görmeye geldi (week.ts). */
   account?: Account;
   /** Bu ziyarette bir ikilem çıkar (week.ts). */
   dilemma?: Dilemma;
+  /** Hayırsever: defterdeki bütün veresiyeyi ödemeye geldi. */
+  charity?: boolean;
+  /** Zabıta: dün satılan bayat mal için ceza kesmeye geldi (kaç tane satıldı). */
+  fine?: number;
+  /** Aldığı malı geri getirdi (returns.ts). */
+  returning?: ReturnAsk;
+  /** Vergi memuru: Z raporlarıyla kasayı karşılaştırmaya geldi (pressure.ts). */
+  audit?: boolean;
 }
 
 /**
  * Günün müşterileri: tohumdan; sayı itibara, havaya ve olaya göre. Her köylü günde en fazla bir
  * kez gelir: kim geleceği köy karıştırılarak seçilir, tanıdıklar başka günlerde yine uğrar.
  */
-export function dayVisits(seed: number, day: number, reputation: number, weather: Weather = weatherOn(seed, day), away: readonly string[] = []): Visit[] {
+export function dayVisits(seed: number, day: number, reputation: number, weather: Weather = weatherOn(seed, day), away: readonly string[] = [], loyal: readonly string[] = []): Visit[] {
   const r = rng(seed * 31 + day);
   const event = eventOn(seed, day);
   const favor = event.favor;
-  const village = [...VILLAGERS];
+  const village = [...REGULARS];
   for (let i = village.length - 1; i > 0; i--) {
     const j = Math.floor(r() * (i + 1));
     [village[i], village[j]] = [village[j], village[i]];
   }
   // küsüp markete gidenler bugün gelmez; sıra yine aynı karışır, yalnızca onlar düşer
-  return village
-    .filter((v) => !away.includes(v.id))
-    .slice(0, customersFor(reputation, event, weather))
-    .map((villager) => {
-    const customer = typeOf(villager.type);
-    let pool = customer.wants ? PRODUCTS.filter((p) => customer.wants!.includes(p.id)) : PRODUCTS;
+  const n = customersFor(reputation, event, weather, day, peddlerOn(seed, day));
+  // borcunu ödeyip sadık müşteri olanlar her gün uğrar: sıranın başına geçer
+  village.sort((a, b) => Number(loyal.includes(b.id)) - Number(loyal.includes(a.id)));
+  const here = village.filter((v) => !away.includes(v.id));
+  let today = here.filter((v) => !v.passerby).slice(0, n);
+  // itibar düşükse köylü gelmez olur: gelenlerin bir kısmı yoldan geçen yabancıdır
+  const share = touristShare(reputation);
+  if (share > 0) {
+    const strangers = here.filter((v) => v.type === 'turist');
+    const k = Math.min(strangers.length, Math.round(n * share));
+    today = [...strangers.slice(0, k), ...here.filter((v) => v.type !== 'turist').slice(0, n - k)];
+    for (let i = today.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [today[i], today[j]] = [today[j], today[i]];
+    }
+  }
+  // açılış günü herkes raftaki temel gıdayı ister; yalnızca bir kişi dükkânda olmayan bir şey sorar:
+  // oyuncu özel malı Kemal'e söylemesi gerektiğini böyle öğrenir
+  const curious = day === 1 ? Math.min(2, today.length - 1) : -1;
+  return today
+    .map((villager, i) => {
+    const customer = customerOf(villager);
+    const wanted = customer.wants ? PRODUCTS.filter((p) => customer.wants!.includes(p.id)) : PRODUCTS;
+    if (i === curious) {
+      const special = wanted.filter((p) => !isBasic(p.id));
+      const p = special.length ? special[Math.floor(r() * special.length)] : PRODUCTS.find((x) => x.id === 'cikolata')!;
+      return { villager, customer, items: [p], credit: false };
+    }
+    const base = day === 1 ? (wanted.some((p) => isBasic(p.id)) ? wanted.filter((p) => isBasic(p.id)) : PRODUCTS.filter((p) => isBasic(p.id))) : wanted;
+    // temel gıda üç kat, ekmek altı kat daha sık istenir
+    let pool = base.flatMap((p) => Array.from({ length: p.id === 'ekmek' ? 6 : isBasic(p.id) ? 3 : 1 }, () => p));
     // olay günü istenen ürünler havuza bir kez daha girer: daha sık çıkar
-    if (favor && !customer.wants) pool = [...pool, ...PRODUCTS.filter((p) => favor.includes(p.id))];
+    if (favor && !customer.wants && day > 1) pool = [...pool, ...PRODUCTS.filter((p) => favor.includes(p.id))];
     const x = r();
     const count = customer.wants ? 1 : x < 0.6 ? 1 : x < 0.88 ? 2 : 3;
     const items: Product[] = [];
@@ -388,15 +558,26 @@ export interface Reaction {
   mild?: boolean;
 }
 
+/** Piyasanın bu oranının altı kelepirdir: köyde konuşulur, pazarlıkçı bile pazarlık etmez. */
+export const BARGAIN = 0.85;
+/** Bunun altı "uygun" sayılır, biraz itibar getirir; üstü market fiyatı gibidir. */
+export const FAIR = 0.95;
+
 /**
  * Müşterinin tepkisi. `second`: pazarlıktan sonraki son fiyat; bu kez tavanı aşarsa müşteri gider.
+ * `firm`: sepet çoğunlukla temel gıda; tavanı aşan fiyata pazarlık etmeden gider (pressure.ts).
  * Karşı teklif market ile tavan arasında, tavanın altında kalır: oyuncuya ipucu verir.
  */
-export function react(price: number, market: number, c: { ceiling: number; gossip: number }, second = false): Reaction {
+export function react(price: number, market: number, c: { ceiling: number; gossip: number }, second = false, firm = false): Reaction {
   const ceiling = ceilingOf(market, c);
+  // akıl almaz fiyata pazarlık bile etmez: hemen çıkar gider
+  if (price > absurdOf(ceiling)) return { mood: 'leave', rep: -4 };
+  // temel gıdada köylü fiyatı bilir: tavanı aşan fiyata pazarlık etmez, marketten alır
+  if (firm && price > ceiling) return { mood: 'leave', rep: -2 };
   if (price <= market) {
-    // ucuz satış köyde konuşulur; çok ucuzsa daha çok
-    const cheap = price <= market * 0.85 ? 2 : 1;
+    // ucuz satış köyde konuşulur; çok ucuzsa daha çok. Market fiyatına çok yakın satış olağandır,
+    // itibar kazandırmaz: itibar emekle yükselir
+    const cheap = price <= market * BARGAIN ? 2 : price <= market * FAIR ? 1 : 0;
     return { mood: 'happy', sold: price, rep: Math.round(cheap * c.gossip) };
   }
   if (price <= ceiling) {
@@ -413,18 +594,18 @@ export function react(price: number, market: number, c: { ceiling: number; gossi
 
 /**
  * Tepki sözleri müşteri tipine göre: teyze "evladım" der, çocuk annesinin verdiği parayı sayar,
- * turist şehirle karşılaştırır. Muhtar tipinde imam da var: sözler makama değil yaşa göredir.
+ * turist şehirle karşılaştırır. Muhtar tipinde köyün yaşlı büyükleri de var: sözler makama değil yaşa göredir.
  */
 const LINES: Record<string, Record<Mood, string[]>> = {
   teyze: {
-    happy: ['Ooo ucuzmuş, ver bakalım!', 'Allah bereket versin evladım.', 'Hacı Emmi bile bu kadar ucuz vermezdi.', 'Eline sağlık, al şu parayı.'],
-    grumble: ['Pahalı ama neyse, ver…', 'Hacı Emmi daha ucuz verirdi bunu.', 'Hmm… peki, ver bakalım.', 'Emekli maaşıyla zor ama ver.'],
+    happy: ['Ooo ucuzmuş, ver bakalım!', 'Allah bereket versin evladım.', 'Şükrü Amca bile bu kadar ucuz vermezdi.', 'Eline sağlık, al şu parayı.'],
+    grumble: ['Pahalı ama neyse, ver…', 'Şükrü Amca daha ucuz verirdi bunu.', 'Hmm… peki, ver bakalım.', 'Emekli maaşıyla zor ama ver.'],
     counter: ['Olmaz o kadar evladım! {offer} lira olur mu?', 'Yok yok, {offer} veririm, o kadar.', 'Biraz in aşağı, {offer} lira olsun.'],
-    leave: ['Kasabadan alırım ben, sağ ol!', 'Bu köyde vicdan kalmamış.', 'Hacı Emmi dönsün, ondan alırım.'],
+    leave: ['Kasabadan alırım ben, sağ ol!', 'Bu köyde vicdan kalmamış.', 'Şükrü Amca dönsün, ondan alırım.'],
   },
   muhtar: {
     happy: ['Hayırlı satışlar, bereketli olsun.', 'Güzel fiyat, kahvede söylerim.', 'Böyle esnaf az kaldı.', 'Hakkını helal et, al bakalım.'],
-    grumble: ['Biraz tuzlu ama hayırlı olsun.', 'Pahalı… neyse, ver.', 'Hacı Emmi daha insaflıydı.', 'Bu fiyatı kahvede konuşurlar, haberin olsun.'],
+    grumble: ['Biraz tuzlu ama hayırlı olsun.', 'Pahalı… neyse, ver.', 'Şükrü Amca daha insaflıydı.', 'Bu fiyatı kahvede konuşurlar, haberin olsun.'],
     counter: ['Gel şunu {offer} yapalım, ikimiz de kazanalım.', '{offer} lira, son sözüm.', 'Olmaz öyle, {offer} veririm.'],
     leave: ['Bu fiyatla olmaz, kusura bakma.', 'Esnaflık böyle olmaz evladım.', 'Bir düşün bakalım. Hayırlı işler.'],
   },
@@ -447,7 +628,7 @@ const LINES: Record<string, Record<Mood, string[]>> = {
     leave: ['Kasabaya motorla inerim, oradan alırım.', 'Bu fiyata olmaz abi, kusura bakma.', 'Pas geçiyorum, sağ ol.'],
   },
   ogretmen: {
-    happy: ['Ne güzel, teşekkür ederim.', 'Uygun fiyat, velilere de söylerim.', "Hacı Emmi'den bile ucuz!", 'Eline sağlık.'],
+    happy: ['Ne güzel, teşekkür ederim.', 'Uygun fiyat, velilere de söylerim.', "Şükrü Amca'dan bile ucuz!", 'Eline sağlık.'],
     grumble: ['Biraz yüksek ama alayım.', 'Hmm, peki.', 'Öğretmen maaşıyla zor ama olsun.', 'Geçen ay daha ucuzdu sanki.'],
     counter: ['{offer} lira olsa nasıl olur?', 'Hesapladım, {offer} lira makul.', 'Bunu {offer} liraya verebilir misiniz?'],
     leave: ['Kusura bakmayın, bu fiyata almayayım.', 'Kasabadan alırım, teşekkürler.', 'Biraz fazla oldu, başka zaman.'],
@@ -468,7 +649,7 @@ const LINES: Record<string, Record<Mood, string[]>> = {
     happy: ['Aferin evlat, kahvede söyleyeceğim.', 'Eski fiyat bu, hayırlı olsun.', 'Ooo, emekliye uygun.', 'Allah bereket versin.'],
     grumble: ['Emekli maaşı bunu kaldırmaz ama ver.', 'Kahvede konuşacağız bu fiyatı.', 'Hmm… ver bakalım.', 'Bizim zamanımızda bunun parasıyla bir çuval alınırdı.'],
     counter: ['{offer} lira, emekliye bu kadar.', 'Gel {offer} yap, dua edeyim.', '{offer} veririm, o da çok.'],
-    leave: ['Kahvede herkese anlatacağım bunu!', 'Bu fiyata almam, kusura bakma.', 'Hacı Emmi dönsün, ondan alırım.'],
+    leave: ['Kahvede herkese anlatacağım bunu!', 'Bu fiyata almam, kusura bakma.', 'Şükrü Amca dönsün, ondan alırım.'],
   },
   turist: {
     happy: ['Harika, şehirde bunun iki katı!', 'Ne kadar uygun, teşekkürler!', 'Köy fiyatları bir başka.', 'Hemen alıyorum.'],
@@ -478,6 +659,30 @@ const LINES: Record<string, Record<Mood, string[]>> = {
   },
 };
 
+/** Turistin memleketi: pahalı fiyatı oradakiyle karşılaştırır. */
+const HOME: Record<string, string> = { selin: 'İstanbul', can: 'Ankara', turist: 'İzmir', jonas: 'Almanya', sinan: 'Bursa', ece: 'Eskişehir', anna: 'Hollanda', tom: 'İngiltere' };
+
+/** Turistin alış fiyatının en çok iki katına kadar parası çıkar: tatildedir, kesesi geniştir. */
+export const TOURIST_MARKUP = 2;
+
+/**
+ * Turistin fiyatı memleketiyle karşılaştırdığı sözler: market fiyatını epey aşan fiyatta söylenir
+ * ama yine alır; tavanı aşınca pazarlık eder, akıl almaz fiyatta gider.
+ */
+const ABROAD: Record<'grumble' | 'counter' | 'leave', string[]> = {
+  grumble: ["{home}'da bile bu kadar pahalı değil! Neyse, tatildeyiz, alıyorum.", "Bu fiyat {home} fiyatı, köy fiyatı değil… Peki.", "{home}'dan pahalı burası! Olsun, ver bakalım."],
+  counter: ["{home}'da bunun yarısına alırım. {offer} lira olur mu?", "Bu {home}'dan da pahalı! {offer} diyelim.", "{offer} lira; {home}'da bile o kadar."],
+  leave: ["Bu fiyata {home}'da üç tane alırım. Hayır, teşekkürler.", "{home}'dan pahalı! Yoldaki markete bakarım.", "Turist diye kazıklamak bu. İyi günler!"],
+};
+
+/** Turist pahalı fiyata memleketini anar; olağan fiyatta ve ucuzda tipinin sözünü söyler. */
+export function touristLine(who: string, mood: Mood, i: number, offer?: number): string | null {
+  const home = HOME[who];
+  if (!home || mood === 'happy') return null;
+  const list = ABROAD[mood];
+  return list[i % list.length].replace(/\{home\}/g, home).replace('{offer}', String(offer ?? ''));
+}
+
 export function lineFor(mood: Mood, i: number, offer?: number, type = 'ciftci'): string {
   const list = (LINES[type] ?? LINES.ciftci)[mood];
   return list[i % list.length].replace('{offer}', String(offer ?? ''));
@@ -485,15 +690,15 @@ export function lineFor(mood: Mood, i: number, offer?: number, type = 'ciftci'):
 
 /** Veresiye isteği ve cevaba verilen karşılık: herkes kendi parasının geleceği yeri söyler. */
 const CREDIT: Record<string, Record<'ask' | 'yes' | 'no', string>> = {
-  teyze: { ask: 'Ama bir ricam var: deftere yazar mısın? Maaş yatınca getiririm.', yes: 'Allah razı olsun evladım, maaş yatınca getiririm!', no: 'Peki peki, al paranı… Hacı Emmi yazardı ama.' },
-  muhtar: { ask: 'Yanımda nakit kalmadı, deftere yaz, akşama gönderirim.', yes: 'Sağ ol, akşama gönderirim.', no: 'Peki, al bakalım. Hacı Emmi bana güvenirdi ama.' },
-  ciftci: { ask: 'Deftere yazar mısın? Mahsul parası gelince getiririm.', yes: 'Eksik olma, mahsulü satınca getiririm!', no: 'Peki, al… Hacı Emmi yazardı ama.' },
+  teyze: { ask: 'Ama bir ricam var: deftere yazar mısın? Maaş yatınca getiririm.', yes: 'Allah razı olsun evladım, maaş yatınca getiririm!', no: 'Peki peki, al paranı… Şükrü Amca yazardı ama.' },
+  muhtar: { ask: 'Yanımda nakit kalmadı, deftere yaz, akşama gönderirim.', yes: 'Sağ ol, akşama gönderirim.', no: 'Peki, al bakalım. Şükrü Amca bana güvenirdi ama.' },
+  ciftci: { ask: 'Deftere yazar mısın? Mahsul parası gelince getiririm.', yes: 'Eksik olma, mahsulü satınca getiririm!', no: 'Peki, al… Şükrü Amca yazardı ama.' },
   cocuk: { ask: 'Annem "deftere yazdır" dedi, babam akşam getirecekmiş.', yes: 'Tamam, babama söylerim!', no: 'Ama annem öyle dedi… Peki, cebimdeki parayla ödeyeyim.' },
   genc: { ask: 'Harçlık hafta sonu yatıyor, deftere yazar mısın?', yes: 'Sağ ol abi, hafta sonu getiririm!', no: 'Tamam tamam, nakit vereyim o zaman.' },
   ogretmen: { ask: 'Maaş on beşinde yatıyor, deftere yazabilir misiniz?', yes: 'Çok teşekkür ederim, maaş yatınca ilk iş getiririm.', no: 'Haklısınız, peşin vereyim.' },
   coban: { ask: 'Kuzular satılınca öderim, deftere yaz.', yes: 'Eyvallah, kuzu parasıyla gelirim.', no: 'Peki… al bakalım.' },
   gelin: { ask: 'Eşim akşam getirir, deftere yazar mısınız?', yes: 'Sağ olun, akşam eşim uğrar.', no: 'Peki, kaynanamın verdiğinden vereyim.' },
-  emekli: { ask: 'Maaş yatınca öderim, yaz deftere.', yes: 'Eksik olma evlat, maaş günü buradayım.', no: 'Hacı Emmi olsa yazardı… neyse, al.' },
+  emekli: { ask: 'Maaş yatınca öderim, yaz deftere.', yes: 'Eksik olma evlat, maaş günü buradayım.', no: 'Şükrü Amca olsa yazardı… neyse, al.' },
 };
 
 export function creditLine(type: string, part: 'ask' | 'yes' | 'no'): string {
@@ -534,12 +739,14 @@ const PAY_CHANCE = 0.35;
  * Gün sonunda veresiyeler: o günden önce yazılmış her açık borç, borçlunun ödeme huyuna göre bir
  * olasılıkla kapanır. Vadesi (DEBT_DAYS) dolan borç batar: huyu kötü olanın borcu çoğu zaman batar.
  */
-export function settleDebts(debts: Debt[], seed: number, day: number): Debt[] {
+export function settleDebts(debts: Debt[], seed: number, day: number, reputation = START_REPUTATION): Debt[] {
   const r = rng(seed * 17 + day * 101);
+  // itibarı düşen dükkâna kimse borcunu getirmez: vadesi dolan batar
+  const willing = reputation >= LOW_REP;
   return debts.map((d) => {
     if (d.paid || d.lost || d.day >= day) return d;
     const v = VILLAGERS.find((x) => x.id === d.who);
-    if (r() < (v?.pays ?? 0) * PAY_CHANCE) return { ...d, paid: day };
+    if (willing && r() < (v?.pays ?? 0) * PAY_CHANCE) return { ...d, paid: day };
     return day - d.day >= DEBT_DAYS ? { ...d, lost: day } : d;
   });
 }
@@ -559,12 +766,14 @@ export interface LogEntry {
 
 export const profitOf = (sold: number, cost: number) => sold - cost;
 
+
 /** Lira yazımı: "1.250 ₺". */
 export const tl = (n: number) => `${n.toLocaleString('tr-TR')} ₺`;
 
 /** Dükkân kapanınca verilen unvan: kaç gün dayandığına ve köydeki itibara göre. */
-export function titleFor(days: number, reputation: number): { title: string; note: string } {
+export function titleFor(days: number, reputation: number, gain?: number /* devralınan değere göre fark */): { title: string; note: string } {
   if (reputation < 35) return { title: 'Köyün Kurdu', note: 'Selam veren kalmadı. Muhtar seni kahvede konuşuyor.' };
+  if (days >= 30 && gain !== undefined && gain < 0) return { title: 'Emaneti Eriten', note: 'Kasa dolu görünse de raflar boşaldı: Şükrü Amca\'nın malını sattın, yerine koymadın.' };
   if (days >= 30) return reputation >= 70 ? { title: 'Efsane Bakkal', note: 'Hem kasa hem gönül dolu. Köy düğününde baş köşe senin.' } : { title: 'Kurnaz Esnaf', note: 'Fiyatların kokusunu alıyorsun. Biraz gönül de al.' };
   if (days >= 14) return reputation >= 70 ? { title: 'Gönüllerin Bakkalı', note: 'Herkes senden alıyor. Zamları biraz daha yakından izle.' } : { title: 'Usta Bakkal', note: 'İki haftayı devirdin. Defteri tutan kazanır.' };
   if (days >= 7) return { title: 'Kalfa Bakkal', note: 'Bir haftayı çıkardın. Zamlar hızlanınca fiyatları da hızlandır.' };

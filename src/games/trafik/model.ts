@@ -45,7 +45,13 @@ export interface PedDemand {
 export type Event =
   | { at: number; kind: 'ambulance'; mv: `${Dir}.${Turn}`; text: string }
   | { at: number; kind: 'bus'; mv: `${Dir}.${Turn}` }
-  | { at: number; kind: 'note'; text: string };
+  | { at: number; kind: 'note'; text: string }
+  /** Kaos: düğün konvoyu, aynı hareketten art arda `n` araç; korna eşliğinde. */
+  | { at: number; kind: 'convoy'; mv: `${Dir}.${Turn}`; n: number; text: string }
+  /** Kaos: motokurye; sarının sonunu da kırmızıyı da kollayan bir araç. */
+  | { at: number; kind: 'courier'; mv: `${Dir}.${Turn}`; text: string }
+  /** Kaos: çift sıra park eden araç; kol `sec` saniye boyunca yavaş akar. */
+  | { at: number; kind: 'parked'; leg: Dir; sec: number; text: string };
 
 export interface Phase {
   moves: MoveId[];
@@ -160,6 +166,8 @@ export interface LogLine {
   t: number;
   text: string;
   tone: 'bad' | 'good' | 'info';
+  /** Sürücü sesi: ekranda korna çalar. */
+  horn?: boolean;
 }
 
 export interface Crash {

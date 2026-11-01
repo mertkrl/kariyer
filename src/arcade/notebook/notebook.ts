@@ -23,10 +23,3 @@ export function toneOf(d: Date): Tone {
   return h >= 9 && h < 18 ? 'work' : 'evening';
 }
 
-/** Tona göre başlığın altındaki el yazısı ve dolabın yanındaki not. */
-export const TONE_LINES: Record<Tone, { sub: string; shelf: string }> = {
-  work: { sub: 'sekmeyi küçült! patron arkanda olabilir', shelf: 'Esc: patron geliyor' },
-  evening: { sub: 'mesai bitti. sayfa senin.', shelf: 'bunları oyna →' },
-  night: { sub: 'uyku nedir? bir oyun daha.', shelf: 'sessizce oyna →' },
-  weekend: { sub: 'hafta sonu! defter de tatilde.', shelf: 'tadını çıkar →' },
-};

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
 import { hrefOf } from '../../arcade/route';
 import { markPlayed } from '../../arcade/progress';
+import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
@@ -46,11 +47,6 @@ export function AsfaltGame() {
     <div className={styles.app}>
       <header className={styles.top}>
         <ClockOut risk={phase.at === 'work' ? 'Yarım kalan yama kaybolur; biten işler kayıtlı.' : undefined} />
-        <div className={styles.title}>
-          <h1>Yama Ekibi</h1>
-          <p>{phase.at === 'done' ? 'Mesai bitti' : `İş ${phase.n + 1}/${LEVELS.length} · ${LEVELS[phase.n].place}`}</p>
-        </div>
-        <div />
       </header>
 
       {phase.at === 'order' && level && (
@@ -126,6 +122,7 @@ export function AsfaltGame() {
               <span>FEN İŞLERİ MÜDÜRLÜĞÜ · MESAİ SONU</span>
             </header>
             <h2>Mesai bitti</h2>
+            <ShiftNews scores={scores} />
             <dl>
               {LEVELS.map((l, i) => (
                 <div key={l.spec.id} className={styles.row}>
@@ -147,7 +144,7 @@ export function AsfaltGame() {
                     note: t.note,
                     stats: [...LEVELS.map((l, i) => ({ label: l.title, value: `${scores[i] ?? 0}` })), { label: 'Ortalama', value: `${t.avg}`, tone: '#a8402f' }].slice(-3),
                     question: 'Senin yaman kaç gün dayanır?',
-                    text: `Yama Ekibi'nde mesaiyi "${t.title}" olarak bitirdim, ortalamam ${t.avg}/100. Asfalt soğumadan silindiri geçirebilir misin?`,
+                    text: shareLine(scores),
                   };
                 }}
               />
@@ -169,7 +166,43 @@ export function AsfaltGame() {
         </main>
       )}
 
-      <StudioMark minimal />
+      {phase.at !== 'work' && <StudioMark minimal />}
     </div>
+  );
+}
+
+/** En iyi ve en kötü iş: haber ve paylaşım cümlesi bunlardan kurulur. */
+function extremes(scores: number[]) {
+  const done = LEVELS.map((l, i) => ({ l, s: scores[i] ?? 0 }));
+  const best = done.reduce((a, b) => (b.s > a.s ? b : a));
+  const worst = done.reduce((a, b) => (b.s < a.s ? b : a));
+  return { best, worst };
+}
+
+/** Paylaşımda puan değil, oyuncunun kendi yaması konuşur. */
+function shareLine(scores: number[]) {
+  const { best, worst } = extremes(scores);
+  const t = crewTitle(scores);
+  if (worst.s < 60) return `Yama Ekibi: ${worst.l.place} çukurunu ${worst.s}/100 ile kapattım; vatandaş farkı anlamadı. Mesai unvanım "${t.title}". Senin yaman kaç gün dayanır?`;
+  return `Yama Ekibi: ${best.l.place} yamam ${best.s}/100 aldı, muhtar arabasıyla iki kez geçti. Mesai unvanım "${t.title}". Senin yaman kaç gün dayanır?`;
+}
+
+/** Mesai sonunun yerel haberi: en iyi yama manşette, en kötüsü köşede. */
+function ShiftNews({ scores }: { scores: number[] }) {
+  const { best, worst } = extremes(scores);
+  const t = crewTitle(scores);
+  const good = t.avg >= 70;
+  return (
+    <Finale kind="news" kicker="Mahalle Postası · Yerel" title={good ? `Belediye ekibi çukurları kapattı: "${best.l.title}" mahallenin dilinde` : `Çukurlar kapandı, sorular açık kaldı`}>
+      <p>
+        Fen İşleri ekibi bir mesaide {LEVELS.length} yamayı bitirdi. {best.l.place} için yapılan iş kontrol mühendisinden {best.s} puan aldı; muhtar "Haberlere çıkmayacak kadar iyi" dedi.
+      </p>
+      <p>
+        {worst.s < 60
+          ? `${worst.l.place} sakinleri ise memnun değil: yama ${worst.s} puanda kaldı, şikâyet hattı sabaha kadar çaldı.`
+          : `En zayıf iş bile ${worst.s} puan aldı; şikâyet hattı bu gece sessiz.`}{' '}
+        Ekibin unvanı: {t.title}.
+      </p>
+    </Finale>
   );
 }

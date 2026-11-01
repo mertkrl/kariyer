@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseProgress, PROGRESS_KEY, withPlayed } from '../src/arcade/progress';
-import { dayGame, toneOf, TONE_LINES } from '../src/arcade/notebook/notebook';
+import { dayGame, toneOf } from '../src/arcade/notebook/notebook';
 import { dailyNote } from '../src/arcade/notebook/daily';
 import { GAMES } from '../src/arcade/games';
 import { STORAGE_PREFIX } from '../src/game/lib/privacy';
@@ -41,5 +41,4 @@ test('saate göre ton: mesai, akşam, gece ve hafta sonu', () => {
   assert.equal(toneOf(new Date(2026, 9, 26, 19)), 'evening');
   assert.equal(toneOf(new Date(2026, 9, 26, 23)), 'night');
   assert.equal(toneOf(new Date(2026, 9, 25, 14)), 'weekend'); // Pazar
-  assert.ok(TONE_LINES.work.shelf.includes('Esc'));
 });

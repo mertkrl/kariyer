@@ -118,6 +118,16 @@
   cursor: default;
 }
 
+/* uzun sayfalarda sabit durursa kartların yazısına biner: sayfanın sonunda akışa girer */
+.inFlow {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  display: block;
+  width: fit-content;
+  margin: 40px 18px 20px auto;
+}
+
 /* KASM üstte, LABS altta logonun tam genişliğinde: tek bir imza bloğu */
 .lockup {
   display: flex;
@@ -177,8 +187,8 @@
   background: currentColor;
 }
 
-/* telefonda (dik ya da yan) oyunun her pikseli lazım: imza oyunların içinde çekilir */
-@media (max-width: 760px), (max-height: 520px) {
+/* telefonda ve alçak ekranda oyunun her pikseli lazım: imza oyunların içinde çekilir */
+@media (max-width: 760px), (max-height: 820px) {
   .minimal {
     display: none;
   }

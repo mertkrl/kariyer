@@ -1,4 +1,4 @@
-import { BASE, EMPTY, GRAVEL, GROUND, H, HOT, OLD, PACKED, ROAD, SET, SET_HEAT, SOAKED, SOIL, W, WATER, WET, type World } from './model';
+import { BASE, EMPTY, GRAVEL, GROUND, H, HOT, OLD, PACKED, ROAD, RUBBLE, SET, SET_HEAT, SOAKED, SOIL, TACK, W, WATER, WET, type World } from './model';
 
 /*
  * Dünyayı tuvale çizer: her hücre SCALE × SCALE piksel. Hücrenin içi malzemesine göre dokulanır
@@ -23,7 +23,10 @@ const BASE_RGB: Record<number, RGB> = {
   [WATER]: [66, 124, 176],
 };
 const HOT_RGB: RGB = [92, 58, 44];
+/** Moloz: kırık eski asfalt ve taş parçaları; topraktan ayırt edilsin diye gri ve köşeli. */
+const RUBBLE_RGB: RGB = [96, 92, 90];
 const MARK: RGB = [226, 218, 190];
+const RAIL: RGB = [168, 172, 178];
 
 /** Piksel başına sabit gürültü: hücre ve alt piksel konumundan, her karede aynı. */
 function hash(x: number, y: number) {
@@ -65,9 +68,12 @@ export function draw(ctx: CanvasRenderingContext2D, img: ImageData, w: World, sn
       const t = Math.max(0, Math.min(1, (heat[i] - SET_HEAT) / (255 - SET_HEAT)));
       const s = BASE_RGB[SET];
       rgb = [s[0] + (HOT_RGB[0] - s[0]) * t, s[1] + (HOT_RGB[1] - s[1]) * t, s[2] + (HOT_RGB[2] - s[2]) * t];
-    } else rgb = BASE_RGB[c];
+    } else rgb = c === SOIL && flags[i] & RUBBLE ? RUBBLE_RGB : BASE_RGB[c];
+    const rubble = c === SOIL && (flags[i] & RUBBLE) !== 0;
     // eski yolun şerit çizgisi: yalnızca yüzeyde, kesik kesik
     if (c === OLD && y === ROAD && ((x >> 3) & 3) === 0) rgb = MARK;
+    // tramvay rayı: yüzeyde iki çelik hat
+    if (c === OLD && y === ROAD && w.spec.rail && x >= w.spec.rail[0] && x <= w.spec.rail[1]) rgb = (x - w.spec.rail[0]) % 9 < 2 ? RAIL : BASE_RGB[OLD];
 
     // ışık: havaya bakan üst kenar parlar; kesit derine indikçe kararır
     const airAbove = y > 0 && isAir(cells[i - W]);
@@ -77,6 +83,9 @@ export function draw(ctx: CanvasRenderingContext2D, img: ImageData, w: World, sn
     let light = 1 - Math.min(0.32, dep * 0.012);
     if (flags[i] & PACKED) light *= 0.93;
     const cellTone = 1 + ((shade[i] - 128) / 128) * 0.06;
+
+    // yapıştırıcı: sürülen yüz parlak, koyu kahve-siyah bir film; içeride kalınca ince bir çizgi
+    const tack = (flags[i] & TACK) !== 0 && c !== HOT && c !== SET ? (airAbove || airLeft || airRight ? 0.8 : 0.45) : 0;
 
     let wetMix = 0;
     if (flags[i] & WET) wetMix = shade[i] & 1 ? 0.5 : 0.3;
@@ -100,6 +109,20 @@ export function draw(ctx: CanvasRenderingContext2D, img: ImageData, w: World, sn
             break;
           }
           case SOIL:
+            if (rubble) {
+              // iri, köşeli parçalar: 2 piksellik taşlar, arada açık renkli kırık yüzler
+              const st = stone(px, py);
+              k *= 0.7 + st * 0.6;
+              if (st > 0.85) {
+                r += 50;
+                g += 46;
+                b += 40;
+              }
+              break;
+            }
+            k *= 0.9 + n * 0.2;
+            if (n > 0.94) k *= 1.25;
+            break;
           case GROUND:
             k *= 0.9 + n * 0.2;
             if (n > 0.94) k *= 1.25; // küçük çakıl
@@ -146,6 +169,12 @@ export function draw(ctx: CanvasRenderingContext2D, img: ImageData, w: World, sn
           b += (146 - b) * wetMix;
         }
         if (damp) k *= 0.7;
+        if (tack) {
+          r += (34 - r) * tack;
+          g += (26 - g) * tack;
+          b += (22 - b) * tack;
+          if (n > 0.85) k *= 1.6; // parlama
+        }
         // havaya bakan kenarlar: üstte ışık, yanlarda hafif gölge
         if (c !== WATER) {
           if (airAbove && sy === 0) k *= 1.22;

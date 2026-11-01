@@ -1,12 +1,13 @@
 import { lazy, Suspense, useEffect, useState, type MouseEvent } from 'react';
 import { audioEngine } from '../audio/audioEngine';
 import { hasSave } from '../game/store/save';
-import { GAMES, SITE_NAME } from './games';
-import { dayGame, dayIndex, toneOf, TONE_LINES } from './notebook/notebook';
+import { GAMES, isWorkHours, SITE_NAME } from './games';
+import { dayGame, dayIndex, toneOf } from './notebook/notebook';
 import * as sfx from './notebook/sfx';
 import { loadProgress } from './progress';
 import type { GameRoute } from './slugs';
 import { GameCard, PunchClock, SoonCard } from './SalonParts';
+import { PencilFilter } from './notebook/PencilFilter';
 import { StudioMark } from './Studio';
 import { usePointerVars } from './usePointerVars';
 import s from './Salon.module.css';
@@ -19,15 +20,14 @@ import s from './Salon.module.css';
  *
  * Defter seni hatırlar: bitirdiğin oyuna kalemle tik atılır ve sonucu yazılır (progress.ts).
  * Defter konuşur: günün notu, günün dosyası ve saate göre ton (notebook/notebook.ts); bir süre
- * sonra boş yerlere keçeli kalemle kenar süsü çizilir (notebook/Decor). Esc ya da klavye tuşu
- * "patron geliyor" modunu açar; kâğıt ve bant sesleri.
+ * sonra boş yerlere keçeli kalemle kenar süsü çizilir (notebook/Decor). Mesai saatinde kapıdan
+ * bakan patron çizimi (ya da Esc) "patron geliyor" modunu açar; kâğıt ve bant sesleri.
  */
 
 const BossSheet = lazy(() => import('./notebook/BossSheet').then((m) => ({ default: m.BossSheet })));
 // süsleme bir süre sonra çizilir: ilk ekranda gerekmez, sonradan iner
-const DailyNote = lazy(() => import('./notebook/DailyNote').then((m) => ({ default: m.DailyNote })));
 const Decor = lazy(() => import('./notebook/Decor').then((m) => ({ default: m.Decor })));
-const BOSS_TITLE = 'Q3_rapor_v14_SON_son.xlsx · Tablolar';
+const Doodles = lazy(() => import('./notebook/Doodles').then((m) => ({ default: m.Doodles })));
 
 /** Kartların üstündeki sabit el yazısı notlar (günün dosyasının notu bunların önüne geçer). */
 const NOTES: Partial<Record<GameRoute, string>> = {
@@ -36,6 +36,25 @@ const NOTES: Partial<Record<GameRoute, string>> = {
   iseAlim: 'en uzunu, 45 dk',
   bakkal: 'fiyatı sen söylüyorsun',
 };
+
+/** Kalemle çizilmiş patron: aralık kapıdan kafasını uzatır, üstünde kırmızı ünlem. */
+function BossDoodle() {
+  return (
+    <svg className={s.doodle} viewBox="0 0 70 64" aria-hidden="true">
+      <path className={s.door} d="M8 60 L 9 6 L 34 4 L 35 61" />
+      <path className={s.door} d="M30 33 l 2 0" />
+      <g className={s.peek}>
+        <path d="M34 22 C 34 12, 46 10, 50 16 C 54 22, 52 32, 44 34 C 38 35, 34 30, 34 26" />
+        <path d="M38 14 C 42 9, 50 10, 52 15" />
+        <circle cx="42" cy="22" r="3.2" />
+        <circle cx="50" cy="22" r="3.2" />
+        <path d="M45 22 l 2 0 M41 29 C 43 28, 46 28, 48 29" />
+        <path d="M36 35 L 34 60 M48 34 L 56 60 M41 36 L 44 46 L 47 36" />
+      </g>
+      <path className={s.bang} d="M62 6 L 60 22 M60 28 l 0 1" />
+    </svg>
+  );
+}
 
 function Arrow() {
   return (
@@ -63,6 +82,12 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
   const [saved] = useState(hasSave);
   const [root, track] = usePointerVars<HTMLDivElement>(true);
   const [now] = useState(() => new Date());
+  // patron yalnızca mesai saatinde gelir: düğme dakikada bir yeniden bakar
+  const [work, setWork] = useState(() => isWorkHours(now));
+  useEffect(() => {
+    const t = window.setInterval(() => setWork(isWorkHours(new Date())), 30_000);
+    return () => window.clearInterval(t);
+  }, []);
   const tone = toneOf(now);
   const today = dayGame(now);
 
@@ -81,13 +106,8 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
     return () => window.removeEventListener('keydown', onKey);
   }, []);
   useEffect(() => {
-    if (!boss) return;
-    const title = document.title;
-    document.title = BOSS_TITLE;
-    sfx.boss();
-    return () => {
-      document.title = title;
-    };
+    // sekmenin başlığını tablo kendisi değiştirir: dosya adı her açılışta uzar (officeLore.ts)
+    if (boss) sfx.boss();
   }, [boss]);
 
   // bant hareketi: karta tıklayınca bant kopar, sonra oyuna geçilir
@@ -105,51 +125,37 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
   return (
     <div ref={root} className={`${s.page} ${s[tone]}`} onPointerMove={track} onPointerDown={sfx.wake}>
       <div className={s.marker} aria-hidden="true" />
+      <PencilFilter />
       <Suspense fallback={null}>
         <Decor page={root} day={dayIndex(now)} />
       </Suspense>
 
       <header className={s.top}>
-        <div className={s.brand}>
-          <h1 className={s.title}>
-            <span>{SITE_NAME}</span>
-          </h1>
-          <p className={s.hand}>{TONE_LINES[tone].sub} ✎</p>
+        <h1 className={s.title}>
+          <span>{SITE_NAME}</span>
+        </h1>
+        <div className={s.clockWrap}>
+          <PunchClock />
+          <svg className={s.circle} viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M150 6 C 260 4, 296 22, 290 40 C 282 62, 60 70, 16 52 C -6 40, 30 8, 160 5" />
+          </svg>
         </div>
-        <Suspense fallback={<span />}>
-          <DailyNote now={now} className={s.daily} />
-        </Suspense>
         <div className={s.side}>
-          <div className={s.clockWrap}>
-            <PunchClock />
-            <svg className={s.circle} viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M150 6 C 260 4, 296 22, 290 40 C 282 62, 60 70, 16 52 C -6 40, 30 8, 160 5" />
-            </svg>
-          </div>
-          <button type="button" className={`${s.bossBtn} ${tone === 'work' ? s.alert : ''}`} onClick={() => setBoss(true)} aria-keyshortcuts="Escape">
-            <span className={s.key} aria-hidden="true">
-              <small>esc</small>
-            </span>
-            <span className={s.bossText}>
-              <b>patron geliyor!</b>
-              <small>{tone === 'work' ? 'mesai saati, hazır ol' : 'gelirse bas, tablo açılır'}</small>
-            </span>
-          </button>
+          {work && (
+            <button type="button" className={s.bossBtn} onClick={() => setBoss(true)} aria-keyshortcuts="Escape">
+              <BossDoodle />
+              <span className={s.bossText}>
+                <b>patron geliyor!</b>
+                <small>gelirse bas, tablo açılır</small>
+              </span>
+            </button>
+          )}
         </div>
       </header>
 
       <main aria-labelledby="dolap">
         <h2 id="dolap" className={s.shelf}>
           <span className="mono">Dosya dolabı</span>
-          <span className={s.todo}>
-            <span className={s.hand}>
-              yapılacaklar: {done}/{GAMES.length}
-            </span>
-            <span className={s.todoBar} aria-hidden="true">
-              <i style={{ width: `${(done / GAMES.length) * 100}%` }} />
-            </span>
-          </span>
-          <span className={s.hand}>{TONE_LINES[tone].shelf}</span>
         </h2>
         {done === GAMES.length && (
           <p className={s.master} aria-label="Bütün dosyalar kapandı">
@@ -180,7 +186,7 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
                     <path d="M50 2 C 88 1, 99 22, 98 52 C 97 86, 80 99, 48 98 C 12 97, 1 80, 2 46 C 3 14, 24 3, 58 4" pathLength={1} />
                   </svg>
                 )}
-                <GameCard game={g} isNew={i === 0} preload={preload} resume={g.route === 'iseAlim' && saved} />
+                <GameCard sketch game={g} isNew={i === 0} preload={preload} resume={g.route === 'iseAlim' && saved} />
                 {played && (
                   <>
                     <Tick />
@@ -197,17 +203,20 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
             <span className={s.note} aria-hidden="true">
               yakında…
             </span>
-            <SoonCard />
+            <SoonCard sketch />
           </li>
         </ul>
       </main>
+      <Suspense fallback={null}>
+        <Doodles page={root} />
+      </Suspense>
 
       {boss && (
         <Suspense fallback={null}>
           <BossSheet onClose={() => setBoss(false)} />
         </Suspense>
       )}
-      <StudioMark />
+      <StudioMark inFlow />
     </div>
   );
 }

@@ -51,8 +51,12 @@
 
 .drawer {
   position: relative;
+  display: block;
   width: 96%;
   height: 26px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
   background: linear-gradient(#4a5662, #2f3942);
   border-radius: 0 0 6px 6px;
   transition: transform 0.25s var(--ease-enter);
@@ -71,6 +75,11 @@
   transform: translateY(14px);
 }
 
+.drawer:hover span,
+.drawer:focus-visible span {
+  background: linear-gradient(#fff, #c9d0d5);
+}
+
 /* fiyat beklenirken ekran ve onay tuşu canlanır */
 .live .lcd {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 10px rgba(124, 252, 154, 0.35);
@@ -83,10 +92,12 @@
 
 .lcd {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 5px 9px;
+  height: 32px;
+  overflow: hidden;
+  padding: 0 9px;
   background: linear-gradient(#0e1a11, #18291c);
   border-radius: 5px;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
@@ -263,4 +274,51 @@
   height: 12px;
   background: radial-gradient(closest-side, rgba(0, 0, 0, 0.45), transparent);
   z-index: -1;
+}
+
+/* ekranın tek satırı: adı solda, tutarı sağda; değişince alttan kayarak gelir */
+.frame {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  animation: lcdIn 0.32s ease-out;
+}
+
+.frame b {
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@keyframes lcdIn {
+  from {
+    opacity: 0;
+    transform: translateY(70%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame {
+    animation: none;
+  }
+}
+/* erişilebilirlik: büyük kasa tuşları; kontrastta ekran daha parlak */
+:global([data-bigkeys]) .keys {
+  gap: 8px;
+}
+
+:global([data-bigkeys]) .key {
+  height: 42px;
+  font-size: 17px;
+}
+
+:global([data-bigkeys]) .cash {
+  width: 270px;
+}
+
+:global([data-contrast]) .lcd {
+  color: #b6ffc8;
+  text-shadow: none;
 }

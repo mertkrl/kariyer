@@ -6,8 +6,8 @@ import { storeMuted } from '../../game/lib/prefs';
 import * as sfx from './sfx';
 import { EXAM_SECTIONS, type ExamQuestion } from './data/questions';
 import { MailScene } from './MailScene';
-import { clearProgress, loadProgress, saveProgress, type ExamProgress } from './progress';
-import { clockText, PASS_MARK, PROCTOR_REACTIONS, pickExam, type ProctorEvent, scoreExam, SECTION_SECONDS, verdictOf, type ExamAnswer, type ExamSection } from './logic';
+import { clearProgress, loadProgress, loadSeen, saveProgress, saveSeen, type ExamProgress } from './progress';
+import { clockText, PASS_MARK, PROCTOR_REACTIONS, nextSeen, pickExam, type ExamLog, type ProctorEvent, scoreExam, SECTION_SECONDS, verdictOf, type ExamAnswer, type ExamSection } from './logic';
 import { Result } from './Result';
 import { SystemCheck } from './SystemCheck';
 import { RobotCheck } from './RobotCheck';
@@ -44,7 +44,7 @@ const PROCTOR_LINES = [
   'Lütfen düşünürken daha az düşünün.',
 ];
 
-type Stage = { at: 'intro' } | { at: 'check' } | { at: 'exam'; exam: ExamSection[]; resume?: ExamProgress } | { at: 'result'; exam: ExamSection[]; answers: ExamAnswer[]; robots: number };
+type Stage = { at: 'intro' } | { at: 'check' } | { at: 'exam'; exam: ExamSection[]; resume?: ExamProgress } | { at: 'result'; exam: ExamSection[]; answers: ExamAnswer[]; log: ExamLog };
 
 export function TestGame() {
   const [stage, setStage] = useState<Stage>({ at: 'intro' });
@@ -54,7 +54,11 @@ export function TestGame() {
   }, []);
   const start = () => {
     clearProgress();
-    setStage({ at: 'exam', exam: pickExam() });
+    // daha önce çıkan sorular sona kalır; test başlar başlamaz bu sorular "görüldü" sayılır
+    const seen = loadSeen();
+    const exam = pickExam(Math.random, seen);
+    saveSeen(nextSeen(seen, exam));
+    setStage({ at: 'exam', exam });
   };
   const check = () => {
     clearProgress();
@@ -94,8 +98,8 @@ export function TestGame() {
       )}
       {stage.at === 'intro' && <StudioMark minimal />}
       {stage.at === 'check' && <SystemCheck onReady={start} />}
-      {stage.at === 'exam' && <Exam exam={stage.exam} resume={stage.resume} onDone={(answers, robots) => setStage({ at: 'result', exam: stage.exam, answers, robots })} />}
-      {stage.at === 'result' && <Ending key={stage.answers.join()} exam={stage.exam} answers={stage.answers} robots={stage.robots} onAgain={start} />}
+      {stage.at === 'exam' && <Exam exam={stage.exam} resume={stage.resume} onDone={(answers, log) => setStage({ at: 'result', exam: stage.exam, answers, log })} />}
+      {stage.at === 'result' && <Ending key={stage.answers.join()} exam={stage.exam} answers={stage.answers} log={stage.log} onAgain={start} />}
       <footer className={styles.footer}>Bu bir parodidir. {BRAND} ve sorular uydurmadır; kamera açılmaz, hiçbir cevap kaydedilmez ya da gönderilmez.</footer>
     </div>
   );
@@ -141,16 +145,16 @@ function SoundToggle() {
  * Ekran: solda süre ve bölümün soru haritası, ortada soru, sağda gözetmen.
  */
 /** Önce e-posta sahnesi (teklif ya da ret), sonra rapor. */
-function Ending({ exam, answers, robots, onAgain }: { exam: ExamSection[]; answers: ExamAnswer[]; robots: number; onAgain: () => void }) {
+function Ending({ exam, answers, log, onAgain }: { exam: ExamSection[]; answers: ExamAnswer[]; log: ExamLog; onAgain: () => void }) {
   const [report, setReport] = useState(false);
-  if (report) return <Result exam={exam} answers={answers} robots={robots} onAgain={onAgain} />;
+  if (report) return <Result exam={exam} answers={answers} log={log} onAgain={onAgain} />;
   const questions = exam.flatMap((s) => s.questions);
   const r = scoreExam(questions, answers);
   const v = verdictOf(r.company, r.blank / Math.max(1, questions.length));
   return <MailScene passed={r.company >= PASS_MARK} title={v.title} company={r.company} onReport={() => setReport(true)} />;
 }
 
-function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProgress; onDone: (answers: ExamAnswer[], robots: number) => void }) {
+function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProgress; onDone: (answers: ExamAnswer[], log: ExamLog) => void }) {
   const flat = useMemo(() => exam.flatMap((s, si) => s.questions.map((q) => ({ q, si }))), [exam]);
   // her bölümün ilk sorusunun sırası ve süresi
   const starts = useMemo(() => exam.map((_, i) => exam.slice(0, i).reduce((n, s) => n + s.questions.length, 0)), [exam]);
@@ -175,9 +179,11 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
     finished.current = true;
     clearProgress();
     sfx.stopHold();
-    onDone(answers, robots);
+    onDone(answers, { ...spent.current, ...counts(), robots });
   };
   const endSection = () => {
+    // süre dolmadan kapatılan bölüm gözetmen raporuna girer
+    if (leftRef.current > 1) spent.current.early += 1;
     if (lastSection) return finish();
     setConfirm(false);
     setSec(sec + 1);
@@ -211,9 +217,11 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
   // robot penceresi açıkken ve bölüm tanıtımındayken süre durur
   const [robot, setRobot] = useState(false);
   const [robots, setRobots] = useState(resume?.robots ?? 0);
+  // gözetmen kaydı: süre ve erken kapanışlar burada, davranış sayaçları aşağıdaki turns'te
+  const spent = useRef({ seconds: resume?.log?.seconds ?? 0, early: resume?.log?.early ?? 0 });
   // her değişiklikte kayıt; sınav bitince silinir
   useEffect(() => {
-    if (!finished.current) saveProgress({ exam, answers, sec, phase, index, reach, left, robots });
+    if (!finished.current) saveProgress({ exam, answers, sec, phase, index, reach, left, robots, log: { ...spent.current, ...counts(), robots } });
   }, [exam, answers, sec, phase, index, reach, left, robots]);
   // süre dolunca bölüm kapanır; aralık her saniye en güncel süreye ve kapanışa refs üzerinden bakar
   const leftRef = useRef(left);
@@ -224,7 +232,11 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
   });
   useEffect(() => {
     if (robot || phase !== 'run') return;
-    const id = window.setInterval(() => (leftRef.current <= 1 ? endRef.current() : setLeft((n) => n - 1)), 1000);
+    const id = window.setInterval(() => {
+      spent.current.seconds += 1;
+      if (leftRef.current <= 1) endRef.current();
+      else setLeft((n) => n - 1);
+    }, 1000);
     return () => window.clearInterval(id);
   }, [robot, phase]);
 
@@ -240,7 +252,8 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
   // gözetmen kaydı: 8 saniyede bir genel uyarı, araya adayın davranışına göre notlar; son üçü görünür
   const [notes, setNotes] = useState<{ id: number; text: string }[]>([]);
   const noteId = useRef(0);
-  const turns = useRef<Partial<Record<ProctorEvent, number>>>({});
+  const turns = useRef<Partial<Record<ProctorEvent, number>>>(resume?.log ? { changed: resume.log.changed, slow: resume.log.slow, fast: resume.log.fast } : {});
+  const counts = () => ({ changed: turns.current.changed ?? 0, slow: turns.current.slow ?? 0, fast: turns.current.fast ?? 0 });
   const note = (text: string) => setNotes((ns) => [{ id: ++noteId.current, text }, ...ns].slice(0, 3));
   const react = (e: ProctorEvent) => {
     const k = turns.current[e] ?? 0;
@@ -286,7 +299,8 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
     setAnswers((xs) => xs.map((x, i) => (i === index ? a : x)));
     slowNoted.current = true;
     const cq = flat[index].q;
-    const event: ProctorEvent | null = before !== null && before !== a ? 'changed' : a === cq.answer ? 'key' : a === cq.sensible ? 'sense' : fast ? 'fast' : null;
+    const event: ProctorEvent | null =
+      before !== null && before !== a ? 'changed' : cq.fair && a === cq.fair.trap ? 'cynic' : cq.fair && a === cq.answer ? 'fair' : a === cq.answer ? 'key' : a === cq.sensible ? 'sense' : fast ? 'fast' : null;
     if (event) react(event);
     streak.current = fast ? streak.current + 1 : 0;
     if (streak.current >= FAST_STREAK && robots < MAX_ROBOT_CHECKS) {
@@ -308,6 +322,8 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
   const last = index === to - 1;
   const hurry = left <= 60;
   const endLabel = lastSection ? 'Testi bitir' : 'Bölümü bitir';
+  /** Bu kadar saniyeden fazla süre kalmışken bitirmek uyarı ister. */
+  const EARLY = 15;
 
   return (
     <main className={ex.exam}>
@@ -380,7 +396,7 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
           </span>
         </div>
 
-        <button className={pn.finish} onClick={() => (blank ? setConfirm(true) : endSection())}>
+        <button className={pn.finish} onClick={() => (blank || left > EARLY ? setConfirm(true) : endSection())}>
           {endLabel}
         </button>
       </aside>
@@ -394,7 +410,14 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
         {confirm && (
           <div className={ex.confirm} role="alertdialog" aria-labelledby="confirm-text">
             <p id="confirm-text">
-              <b>Bu bölümde {blank} soru boş.</b> Boş sorular "kararsızlık" olarak raporlanır{lastSection ? '' : ' ve bölüme geri dönülemez'}. Yine de bitirilsin mi?
+              <b>{lastSection ? 'Test bitirilsin mi?' : 'Bölüm bitirilsin mi?'}</b>
+              <br />
+              {left > EARLY && (
+                <>
+                  Daha <span className={ex.confirmClock}>{clockText(left)}</span> süreniz var; erken bitirmek "acelecilik" diye not edilir.{' '}
+                </>
+              )}
+              {blank > 0 && `${blank} soru boş; sistem bunu "kararsızlık" sayar.`}
             </p>
             <div className={ex.navRow}>
               <button className={ex.ghost} onClick={() => setConfirm(false)}>
@@ -415,7 +438,7 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
             {index - from + 1} / {to - from}
           </span>
           {last ? (
-            <button className={styles.primary} onClick={() => (blank ? setConfirm(true) : endSection())}>
+            <button className={styles.primary} onClick={() => (blank || left > EARLY ? setConfirm(true) : endSection())}>
               {endLabel}
             </button>
           ) : (
@@ -455,7 +478,6 @@ function Question({ q, section, number, total, selected, onAnswer }: { q: ExamQu
   useEffect(() => heading.current?.focus(), []);
   // etkileşimli türlerde widget her açılışta baştan başlar; işaretlenen cevap kartta yazılı durur
   // bu türler seçimi kendi üstünde gösterir; altına ayrıca "işaretlenen" yazılmaz
-  const plain = !q.widget || ['history', 'background', 'invite', 'reaction', 'lunch', 'raise', 'stamp', 'thermostat', 'turnstile', 'chat'].includes(q.widget.type);
 
   return (
     <section className={ex.question}>
@@ -477,11 +499,6 @@ function Question({ q, section, number, total, selected, onAnswer }: { q: ExamQu
         <div className={ex.widget}>
           <QuestionWidget q={q} selected={selected} onAnswer={onAnswer} />
         </div>
-        {!plain && selected !== null && (
-          <p className={ex.marked} role="status">
-            ✓ İşaretlenen: <b>{q.options[selected]}</b> <span>(değiştirmek için yeniden cevaplayın)</span>
-          </p>
-        )}
       </div>
     </section>
   );

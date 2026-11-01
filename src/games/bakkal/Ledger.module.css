@@ -1,50 +1,21 @@
 /*
- * Defter: koyu yeşil bez cilt, solda dikişli sırt, sağ köşelerde meşin köşebent, kırmızı ayraç
- * kurdelesi. İçeride alt alta yığılmış sayfaların kenarları, cilde doğru gölgelenen kâğıt, mavi
- * çizgiler ve çift kırmızı kenar çizgisi. Hacı Emmi'nin sayfaları sararmış ve lekeli.
+ * Defter: yalnızca kâğıdın kendisi. Üstte kâğıdın tutulup sürüklendiği başlık şeridi, ortada mavi
+ * çizgili sayfa ve çift kırmızı kenar, altta sayfa ve kalem araçları. Şükrü Amca'nın sayfaları
+ * sararmış ve lekeli.
  */
 .book {
   position: fixed;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  padding: 0 14px 10px 30px;
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 4px),
-    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.08) 0 2px, transparent 2px 4px),
-    linear-gradient(135deg, #2f4a3a, #1f3428);
-  border-radius: 6px 10px 10px 6px;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 -3px 0 rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  background: #f4ecd4;
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(120, 90, 40, 0.25);
   color: #2b211b;
   font-size: 12px;
   touch-action: none;
   animation: open 0.22s var(--ease-enter);
-}
-
-/* dikişli sırt */
-.book::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 20px;
-  background:
-    repeating-linear-gradient(transparent 0 8px, rgba(230, 215, 170, 0.55) 8px 14px) 9px 0 / 2px 100% no-repeat,
-    linear-gradient(90deg, #15241b, #2a4334 60%, #1a2b21);
-  border-radius: 6px 0 0 6px;
-}
-
-/* meşin köşebentler */
-.book::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(225deg, #5a3a22 0 22px, transparent 22px) top right / 40px 40px no-repeat,
-    linear-gradient(315deg, #5a3a22 0 22px, transparent 22px) bottom right / 40px 40px no-repeat;
-  pointer-events: none;
 }
 
 .head {
@@ -53,7 +24,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 38px;
+  height: 32px;
+  padding: 0 8px 0 14px;
+  border-bottom: 1px dashed rgba(138, 74, 43, 0.35);
   cursor: grab;
   user-select: none;
 }
@@ -62,24 +35,22 @@
   cursor: grabbing;
 }
 
-/* cilde basılmış yaldızlı başlık */
-.head h3 {
-  margin: 0;
-  color: #d9bf72;
-  font: 700 13px/1 var(--font-display);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 230, 160, 0.15);
+/* tutup sürüklemek için küçük çentikler */
+.handle {
+  width: 36px;
+  height: 6px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(90deg, rgba(138, 74, 43, 0.35) 0 4px, transparent 4px 7px);
 }
 
 .close {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: #efe3c0;
-  font-size: 16px;
+  background: rgba(138, 74, 43, 0.12);
+  color: #6a3a1a;
+  font-size: 15px;
   cursor: pointer;
 }
 
@@ -89,29 +60,6 @@
   z-index: 1;
   flex: 1;
   min-height: 0;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  box-shadow:
-    1px 1px 0 #efe6cc,
-    2px 2px 0 #d8cdae,
-    3px 3px 0 #efe6cc,
-    4px 4px 0 #d3c8a8,
-    5px 5px 0 #e9dfc3,
-    6px 6px 4px rgba(0, 0, 0, 0.35);
-  border-radius: 2px;
-}
-
-/* ayraç kurdelesi: sayfaların arasından aşağı sarkar */
-.ribbon {
-  position: absolute;
-  bottom: -30px;
-  left: 46%;
-  z-index: 0;
-  width: 9px;
-  height: 40px;
-  background: linear-gradient(90deg, #8e1c1c, #b72a2a 50%, #7a1515);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 88%, 0 100%);
-  pointer-events: none;
 }
 
 /* sayfa: 28 piksel aralıklı mavi çizgiler, solda çift kırmızı kenar, cilde doğru gölge, kâğıt dokusu */
@@ -155,7 +103,7 @@
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='10.5' fill='rgba(255,180,190,.35)' stroke='%23444' stroke-width='1'/%3E%3C/svg%3E") 12 12, cell;
 }
 
-/* Hacı Emmi'nin solmuş mavi-siyah tükenmezi; satırlar kâğıdın çizgilerine oturur */
+/* Şükrü Amca'nın solmuş mavi-siyah tükenmezi; satırlar kâğıdın çizgilerine oturur */
 .written {
   position: absolute;
   left: 0;
@@ -304,7 +252,8 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 6px;
-  padding-top: 8px;
+  padding: 6px 8px;
+  border-top: 1px dashed rgba(138, 74, 43, 0.35);
 }
 
 .pager,
@@ -315,7 +264,7 @@
 }
 
 .pager {
-  color: #efe3c0;
+  color: #6a3a1a;
   font: 700 17px/1 'Caveat', cursive;
 }
 
@@ -330,10 +279,10 @@
   place-items: center;
   min-width: 30px;
   height: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(138, 74, 43, 0.25);
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #efe3c0;
+  background: #fffaf0;
+  color: #6a3a1a;
   font: 700 16px/1 var(--font-body);
   cursor: pointer;
 }
@@ -345,8 +294,8 @@
 }
 
 .tools .on {
-  background: #efe3c0;
-  border-color: #efe3c0;
+  background: #e8d9b0;
+  border-color: #8a4a2b;
 }
 
 /* kalem: mavi kapaklı tükenmez; silgi: pembe-mavi iki renkli silgi */
@@ -376,7 +325,7 @@
   z-index: 2;
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, transparent 0 45%, rgba(239, 227, 192, 0.7) 45% 52%, transparent 52% 64%, rgba(239, 227, 192, 0.7) 64% 71%, transparent 71%);
+  background: linear-gradient(135deg, transparent 0 45%, rgba(138, 74, 43, 0.45) 45% 52%, transparent 52% 64%, rgba(138, 74, 43, 0.45) 64% 71%, transparent 71%);
   cursor: nwse-resize;
   touch-action: none;
 }

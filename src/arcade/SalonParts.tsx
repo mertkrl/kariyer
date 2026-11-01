@@ -32,11 +32,12 @@ export function PunchClock({ className }: { className?: string }) {
   );
 }
 
-export function GameCard({ game, isNew, preload, resume, className }: { game: ArcadeGame; isNew?: boolean; preload: (route: string) => void; resume: boolean; className?: string }) {
+/** `sketch`: dosya kâğıda kalemle çizilmiş gibi görünür (kareli defter salonu). */
+export function GameCard({ game, isNew, preload, resume, sketch, className }: { game: ArcadeGame; isNew?: boolean; preload: (route: string) => void; resume: boolean; sketch?: boolean; className?: string }) {
   const Art = GAME_ART[game.route];
   return (
     <a
-      className={`${styles.card} ${className ?? ''}`}
+      className={`${styles.card} ${sketch ? styles.sketch : ''} ${className ?? ''}`}
       style={{ ['--card' as string]: game.color }}
       href={hrefOf(game.route)}
       onPointerEnter={() => preload(game.route)}
@@ -54,7 +55,9 @@ export function GameCard({ game, isNew, preload, resume, className }: { game: Ar
             {isNew && <span className={styles.badge}>Yeni</span>}
             ~{game.minutes} dk
           </span>
-          <span className={styles.cardTitle}>{game.title}</span>
+          <span className={styles.cardTitle}>
+            <span className={styles.cardTitleInk}>{game.title}</span>
+          </span>
           <span className={styles.blurb}>{game.blurb}</span>
           <span className={styles.play}>{resume ? 'Kaldığın yerden devam →' : 'Oyna →'}</span>
         </span>
@@ -64,9 +67,9 @@ export function GameCard({ game, isNew, preload, resume, className }: { game: Ar
 }
 
 /** Sıradaki, henüz açılmamış dosya: dolabın son gözü. */
-export function SoonCard({ className }: { className?: string }) {
+export function SoonCard({ sketch, className }: { sketch?: boolean; className?: string }) {
   return (
-    <div className={`${styles.soon} ${className ?? ''}`}>
+    <div className={`${styles.soon} ${sketch ? styles.sketch : ''} ${className ?? ''}`}>
       <span className={`${styles.tab} mono`} aria-hidden="true">
         {fileNo(GAMES.length + 1)}
       </span>

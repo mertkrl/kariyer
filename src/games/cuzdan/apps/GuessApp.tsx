@@ -1,6 +1,6 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { ITEMS, MIN_WAGE, NOW, USD, type Year } from '../data';
-import { GUESS_ROUNDS, cpiMultiple, duration, guessScore, makeGuessRoundsFor, money, multiple, niceRound, realChange, sliderValue, times, toneOf, vsInflation, workMinutes, type RoundLog } from '../model';
+import { GUESS_ROUNDS, cpiMultiple, duration, guessScore, makeGuessRoundsFor, money, multiple, niceRound, realChange, sliderValue, times, toneOf, vsInflation, laborMinutes, type Persona, type RoundLog } from '../model';
 import { sfx } from '../sfx';
 import a from '../Apps.module.css';
 
@@ -12,7 +12,7 @@ import a from '../Apps.module.css';
 
 const VERDICT = { good: '✔ İsabet!', mid: '⚠ Yaklaştınız', bad: '✖ Uzak' } as const;
 
-export function GuessApp({ seed, year, onDone, onScore }: { seed: number; year: Year; onDone: (log: RoundLog[]) => void; onScore: (n: number) => void }) {
+export function GuessApp({ seed, year, persona, onDone, onScore }: { seed: number; year: Year; persona?: Persona; onDone: (log: RoundLog[]) => void; onScore: (n: number) => void }) {
   const rounds = useMemo(() => makeGuessRoundsFor(seed, year), [seed, year]);
   const [n, setN] = useState(0);
   const [t, setT] = useState(0.5);
@@ -25,8 +25,9 @@ export function GuessApp({ seed, year, onDone, onScore }: { seed: number; year: 
   const revealed = log.length > n;
   const score = revealed ? log[n].score : 0;
   const total = log.reduce((s, r) => s + r.score, 0);
-  const m1 = workMinutes(actual, year);
-  const m2 = workMinutes(item.prices[NOW], NOW);
+  // maaşıyla giren oyuncuda emek kendi maaşıyla ölçülür
+  const m1 = laborMinutes(actual, year, persona);
+  const m2 = laborMinutes(item.prices[NOW], NOW, persona);
   const mx = Math.max(m1, m2);
 
   const submit = () => {
@@ -111,7 +112,7 @@ export function GuessApp({ seed, year, onDone, onScore }: { seed: number; year: 
             Doğrusu {money(actual, year)}. Etiket {times(multiple(item, year))} arttı; genel fiyatlar (TÜFE) {times(cpiMultiple(year))}. {item.name} {vsInflation(realChange(item, year))}.
           </div>
           <fieldset className={a.group}>
-            <legend>Asgari ücretle kaç dakikalık iş?</legend>
+            <legend>{persona?.salary ? 'Senin maaşınla kaç dakikalık iş?' : 'Asgari ücretle kaç dakikalık iş?'}</legend>
             <div className={a.labor}>
               <span>{year}</span>
               <span className={a.prog}>

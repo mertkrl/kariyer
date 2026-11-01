@@ -164,14 +164,43 @@
 }
 
 .confirm {
-  padding: 16px 18px;
+  /* bitirme uyarısı: ekranın ortasında, arkası karartılmış bir pencere */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 60;
+  width: min(440px, calc(100vw - 32px));
+  padding: 20px 22px;
+  box-sizing: border-box;
   border: 1px solid var(--a-bad);
-  border-radius: 10px;
-  background: var(--a-bad-soft);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow:
+    0 0 0 100vmax rgba(15, 23, 42, 0.45),
+    0 20px 50px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%);
+  animation: confirmIn 180ms ease-out;
+}
+
+@keyframes confirmIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
 }
 
 .confirm p {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+/* geri sayım akarken rakamların genişliği sabit: yazı kıpırdamaz */
+.confirmClock {
+  display: inline-block;
+  min-width: 5ch;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
 }
 
 /* ── cila ── */
@@ -279,6 +308,11 @@
 .main {
   position: relative;
   z-index: 1;
+}
+
+/* bitirme uyarısı açıkken sütun en öne çıkar: gözetmen notları ve kenar çubuğu karartmanın altında kalır */
+.main:has(> .confirm) {
+  z-index: 70;
 }
 
 .exam {

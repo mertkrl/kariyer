@@ -12,7 +12,7 @@ export function Shutter({ down }: { down: boolean }) {
       <div className={styles.curtain}>
         <div className={styles.slats}>
           <p className={styles.paint}>
-            HACI EMMİ
+            ŞÜKRÜ AMCA
             <span>BAKKALİYE</span>
           </p>
           <p className={styles.stencil}>KEPENK ÖNÜNE ARAÇ PARK ETMEYİNİZ</p>

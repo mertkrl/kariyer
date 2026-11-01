@@ -138,18 +138,6 @@ export const FOURTH_WAVE: ExamQuestion[] = [
     },
     seconds: 70,
   },
-  {
-    id: 'typo-slides',
-    kind: 'dikkat',
-    prompt: 'Yönetim kurulu sunumu. Yazım hatası olan slayt ekrandayken tıklayın.',
-    hint: 'Bu, dikkat bölümünün en zor sorusudur.',
-    options: ["Hedeflerimizi %120 aştık", 'Çalışan memnuniyeti: %98', 'Yeni stratejimiz: sinerjik dönüşüm', 'Q4 hedefi: herkez fazla mesaiye'],
-    answer: 1,
-    sensible: 3,
-    why: '"Herkez" yazım hatası. %98 memnuniyet ise yazım değil, gerçeklik hatası.',
-    widget: { type: 'tap', everyMs: 1600 },
-    seconds: 20,
-  },
 
   // ── kültür uyumu ──
   {

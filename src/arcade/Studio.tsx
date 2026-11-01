@@ -59,10 +59,10 @@ export function KasmLogo({ className, small = false }: { className?: string; sma
  * bir çizgi. Salonda renkli ve animasyonlu; oyunlarda `minimal`: tek renk, soluk, animasyonsuz,
  * oyunun zeminine karışır. Üstüne gelince blok bir kez zıplar.
  */
-export function StudioMark({ tone = 'light', minimal = false }: { tone?: 'light' | 'dark'; minimal?: boolean }) {
+export function StudioMark({ tone = 'light', minimal = false, inFlow = false }: { tone?: 'light' | 'dark'; minimal?: boolean; inFlow?: boolean }) {
   const [play, setPlay] = useState(0);
   return (
-    <span className={`${styles.mark} ${tone === 'dark' ? styles.onDark : ''} ${minimal ? styles.minimal : ''}`} onPointerEnter={() => setPlay((n) => n + 1)}>
+    <span className={`${styles.mark} ${tone === 'dark' ? styles.onDark : ''} ${minimal ? styles.minimal : ''} ${inFlow ? styles.inFlow : ''}`} onPointerEnter={() => setPlay((n) => n + 1)}>
       <span key={play} className={`${styles.lockup} ${play ? styles.hop : ''}`}>
         {minimal ? (
           <svg viewBox="0 0 360 90" role="img" aria-label="KASM">

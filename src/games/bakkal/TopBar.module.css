@@ -1,0 +1,319 @@
+/*
+ * Bakkalın üst çubuğu: göstergeler (tahta levhalar ve üstüne gelince açılan notlar), itibar çubuğu,
+ * ses ile görünüm düğmeleri ve panelleri. Çubuğun kendisi ve başlık BakkalGame.module.css'te.
+ */
+.stats {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+/* gösterge: tahta levha; üstte adı, altta değeri */
+.stat {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 11px 0 8px;
+  border: 1px solid rgba(92, 54, 19, 0.35);
+  border-radius: 10px;
+  background: linear-gradient(#fffaf0, #f1e4cc);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(60, 35, 10, 0.15);
+  color: #3a2614;
+  cursor: help;
+  outline: none;
+}
+
+.stat > i {
+  font-style: normal;
+  font-size: 17px;
+}
+
+.stat > span:first-of-type {
+  display: grid;
+  line-height: 1.05;
+}
+
+.stat small {
+  font: 700 9.5px var(--font-body);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #8a6a48;
+}
+
+.stat > span > b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 13px var(--font-mono);
+}
+
+.stat:hover,
+.stat:focus-visible {
+  border-color: rgba(92, 54, 19, 0.6);
+  background: linear-gradient(#fffdf7, #f6ead6);
+}
+
+.stat.neg > span > b {
+  color: var(--red);
+}
+
+.stat.good > span > b {
+  color: #2f7a3b;
+}
+
+.stat.warnTone > span > b {
+  color: #b5651d;
+}
+
+/* itibar çubuğu: kırmızıdan yeşile doğru dolar */
+.repBar {
+  position: relative;
+  width: 48px;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(92, 54, 19, 0.15);
+}
+
+.repBar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c0392b, #e6a23c 45%, #4caf50);
+  background-size: 48px 100%;
+}
+
+/* göstergenin üstüne gelince açılan not */
+.tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  gap: 3px;
+  width: 240px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #2b1d14;
+  color: #fbf3e4;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  font: 500 12px/1.4 var(--font-body);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 120ms, transform 120ms;
+}
+
+.tip b {
+  color: #f3d27a;
+  font-size: 12.5px;
+}
+
+.tip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.stat:hover .tip,
+.stat:focus-visible .tip {
+  opacity: 1;
+  transform: none;
+}
+
+/* ses: düğme ve altında açılan düzey paneli */
+.sound {
+  position: relative;
+}
+
+.soundPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 6;
+  display: grid;
+  gap: 10px;
+  width: 220px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fffaf0;
+  border: 1px solid rgba(92, 54, 19, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  font: 600 12px var(--font-body);
+  color: #3a2614;
+}
+
+.soundPanel label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.soundPanel input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: #8a5226;
+}
+
+.soundPanel b {
+  font-family: var(--font-mono);
+}
+
+.soundToggle {
+  height: 30px;
+  border: 1px solid rgba(92, 54, 19, 0.4);
+  border-radius: 8px;
+  background: #f1e4cc;
+  color: #3a2614;
+  font: 700 12px var(--font-body);
+  cursor: pointer;
+}
+
+.neg {
+  color: var(--red);
+}
+
+.mute {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px 0 8px;
+  border: 1px solid #5c3613;
+  border-radius: 999px;
+  background: linear-gradient(#b5793f, #8a5226);
+  box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.5), 0 2px 0 #5c3613, 0 4px 8px rgba(0, 0, 0, 0.25);
+  color: #fff8ec;
+  font: 700 11.5px var(--font-body);
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: transform 80ms, filter 120ms;
+}
+
+.mute:hover {
+  filter: brightness(1.08);
+}
+
+.mute:active {
+  transform: translateY(2px);
+}
+
+.mute:focus-visible {
+  outline: 2px solid #f3d27a;
+  outline-offset: 3px;
+}
+
+/* kapalıyken soluk, sıcak renk gider */
+.muted {
+  border-color: #4a4a4a;
+  background: linear-gradient(#8a8a86, #5f5f5b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 0 #3a3a38, 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.mute svg {
+  width: 20px;
+  height: 20px;
+}
+
+.cone {
+  fill: #fff8ec;
+}
+
+.wave,
+.cross {
+  fill: none;
+  stroke: #fff8ec;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.cross {
+  stroke: #ffb3a6;
+}
+
+/* ses dalgaları yavaşça atar */
+.wave {
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.wave2 {
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave {
+    animation: none;
+  }
+}
+
+/* görünüm paneli: yazı boyutu düğmeleri ve onay kutuları */
+.segment {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid rgba(92, 54, 19, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segment button {
+  height: 30px;
+  border: 0;
+  background: #fffaf0;
+  color: #3a2614;
+  font: 800 13px var(--font-body);
+  cursor: pointer;
+}
+
+.segment .segOn {
+  background: #8a5226;
+  color: #fff8ec;
+}
+
+.soundPanel .check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.soundPanel .check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #8a5226;
+}
+
+@media (max-width: 560px) {
+  .stats {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* erişilebilirlik: yüksek kontrastta göstergeler beyaz zeminde siyah */
+:global([data-contrast]) .stat {
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
+}
+
+:global([data-contrast]) .stat small {
+  color: #000;
+}

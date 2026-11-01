@@ -1,6 +1,6 @@
 import { ShareButton } from '../../../arcade/ShareButton';
 import { NOW } from '../data';
-import { cpiMultiple, duration, money, times, vsInflation, workMinutes } from '../model';
+import { cpiMultiple, duration, money, salaryIn, times, vsInflation, workMinutes } from '../model';
 import type { Shop } from './shopState';
 
 /*
@@ -10,7 +10,10 @@ import type { Shop } from './shopState';
  */
 
 export function ShopReceipt({ shop, c }: { shop: Shop; c: { receipt: string; row: string; big: string; btn: string; btnAlt?: string } }) {
-  const { year, lines, spent, then, now, k } = shop;
+  const { year, lines, spent, then, now, k, persona } = shop;
+  // maaşla giren oyuncu: sepet maaşının yüzde kaçı, o yıl ve bugün
+  const pct = (v: number, y: typeof year | typeof NOW) => (persona.salary ? (v / salaryIn(persona.salary, y)) * 100 : 0);
+  const pctText = (v: number) => `%${v.toLocaleString('tr-TR', { maximumFractionDigits: v < 10 ? 1 : 0 })}`;
   return (
     <div className={c.receipt} role="status">
       <b>
@@ -31,7 +34,15 @@ export function ShopReceipt({ shop, c }: { shop: Shop; c: { receipt: string; row
         Sepetin {year}'de <b>{money(spent, year)}</b>.{' '}
         {then < spent ? <>Bugün de satılanlar ({money(then, year)}) bugün <b>{money(now, NOW)}</b>.</> : <>Bugün <b>{money(now, NOW)}</b>.</>}
         <br />
-        Asgari ücretle {duration(workMinutes(then, year))} → {duration(workMinutes(now, NOW))}
+        {persona.salary ? (
+          <>
+            Senin maaşınla: o yıl maaşının <b>{pctText(pct(then, year))}</b>, bugün <b>{pctText(pct(now, NOW))}</b>
+          </>
+        ) : (
+          <>
+            Asgari ücretle {duration(workMinutes(then, year))} → {duration(workMinutes(now, NOW))}
+          </>
+        )}
         <br />
         Genel fiyatlar (TÜFE) {times(cpiMultiple(year))} arttı: sepetin {vsInflation(k / cpiMultiple(year))}.
       </p>
@@ -49,7 +60,9 @@ export function ShopReceipt({ shop, c }: { shop: Shop; c: { receipt: string; row
               { label: String(NOW), value: money(now, NOW) },
             ],
             question: 'Senin sepetin kaç kat?',
-            text: `${year}'de ${money(then, year)} tutan sepetim bugün ${money(now, NOW)}.`,
+            text: persona.salary
+              ? `Aynı alım gücündeki maaşımla bu sepet ${year}'de maaşımın ${pctText(pct(then, year))} kadarı, bugün ${pctText(pct(now, NOW))} kadarı. Senin maaşın neye yetiyor?`
+              : `${year}'de ${money(then, year)} tutan sepetim bugün ${money(now, NOW)}.`,
           })}
         />
         <button type="button" className={c.btnAlt ?? c.btn} onClick={shop.reset}>

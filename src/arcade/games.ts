@@ -25,7 +25,7 @@ export const GAMES: ArcadeGame[] = [
   {
     route: 'cuzdan',
     title: 'Cüzdan Zamanı',
-    blurb: 'Cüzdan TL açılıyor. Saati 2002\'ye al: simit 250 bin, ekran mavi pencereli. Eski fiyatı bil, ucuzu seç, çevirmeli bağlanıp eski bakkaldan alışveriş yap; her şeyi enflasyonla karşılaştır.',
+    blurb: 'Cüzdan TL 2005\'te açılıyor. Saati 2002\'ye geri al: simit 250 bin, ekran mavi pencereli. Eski fiyatı bil, ucuzu seç, çevirmeli bağlanıp eski bakkaldan alışveriş yap; her şeyi enflasyonla karşılaştır.',
     color: 'var(--teal)',
     minutes: 8,
     file: 9,
@@ -83,7 +83,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Genel Yetenek ve Uyum Testi',
     blurb: 'Bilimsel olarak geliştirilmiş, tamamen objektif bir değerlendirme. Lütfen sekmeyi değiştirmeyiniz.',
     color: 'var(--plum)',
-    minutes: 20,
+    minutes: 24,
     file: 2,
   },
   {

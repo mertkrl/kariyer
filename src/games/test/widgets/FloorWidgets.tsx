@@ -208,8 +208,57 @@ const GATE_RESULT = [
   { screen: '🚨 ALARM', note: 'Güvenlik bildirimi oluşturuldu. Görüntünüz "esneklik" eğitimine eklendi.', tone: 'bad' },
 ];
 
+/**
+ * Personel kartı: okuyucuya sürüklenir; okuyucunun üstünde bırakılınca okunur. Klavyeyle ve dokunmatik
+ * ekranda Enter ya da çift dokunuş da okutur. Okuyucunun dışında bırakılan kart cebine geri döner.
+ */
+function BadgeCard({ reader, onScan }: { reader: React.RefObject<HTMLDivElement | null>; onScan: () => void }) {
+  const [drag, setDrag] = useState<{ x: number; y: number; over: boolean } | null>(null);
+  const start = useRef({ x: 0, y: 0 });
+  const overReader = (x: number, y: number) => {
+    const r = reader.current?.getBoundingClientRect();
+    return !!r && x >= r.left - 12 && x <= r.right + 12 && y >= r.top - 12 && y <= r.bottom + 12;
+  };
+  return (
+    <button
+      type="button"
+      className={`${styles.badge} ${drag ? styles.badgeDrag : ''}`}
+      style={drag ? { transform: `translate(${drag.x}px, ${drag.y}px) rotate(-6deg)` } : undefined}
+      aria-label="Personel kartı: kart okuyucuya sürükleyin ya da Enter'a basın"
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        start.current = { x: e.clientX, y: e.clientY };
+        setDrag({ x: 0, y: 0, over: false });
+      }}
+      onPointerMove={(e) => drag && setDrag({ x: e.clientX - start.current.x, y: e.clientY - start.current.y, over: overReader(e.clientX, e.clientY) })}
+      onPointerUp={(e) => {
+        const hit = overReader(e.clientX, e.clientY);
+        setDrag(null);
+        if (hit) onScan();
+      }}
+      onPointerCancel={() => setDrag(null)}
+      onLostPointerCapture={() => setDrag(null)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onScan();
+        }
+      }}
+    >
+      <span className={styles.badgeChip} aria-hidden="true" />
+      <span className={styles.badgePhoto} aria-hidden="true">🙂</span>
+      <span className={styles.badgeText}>
+        <b>PERSONEL KARTI</b>
+        <small>Aday · Sicil 004711</small>
+        <small>Mesai: 09.00 – 18.00</small>
+      </span>
+    </button>
+  );
+}
+
 export function TurnstileWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget, { type: 'turnstile' }>>) {
   const [scanned, setScanned] = useState(selected !== null);
+  const reader = useRef<HTMLDivElement>(null);
   const r = selected !== null ? GATE_RESULT[selected] : null;
   return (
     <div className={styles.gate}>
@@ -221,22 +270,23 @@ export function TurnstileWidget({ w, onAnswer, selected }: Props<Extract<ExamWid
           <span className={styles.arm} data-open={r?.tone === 'ok' || undefined} />
           <span className={styles.post} />
         </div>
-        <div className={`${styles.reader} ${r ? TONE[r.tone] : scanned ? styles.toneBad : ''}`} role="status">
+        <div ref={reader} className={`${styles.reader} ${r ? TONE[r.tone] : scanned ? styles.toneBad : ''}`} role="status">
           <small>KART OKUYUCU</small>
           <b className="mono">{r ? r.screen : scanned ? 'ERKEN ÇIKIŞ TESPİT EDİLDİ' : 'KARTINIZI OKUTUN'}</b>
           {scanned && !r && <span>Yönetici onayı bekleniyor…</span>}
         </div>
       </div>
       {!scanned ? (
-        <button
-          className={styles.go}
-          onClick={() => {
-            click();
-            setScanned(true);
-          }}
-        >
-          💳 Kartı okut
-        </button>
+        <div className={styles.pocket}>
+          <BadgeCard
+            reader={reader}
+            onScan={() => {
+              audioEngine.playUi('click');
+              setScanned(true);
+            }}
+          />
+          <p>Kartınızı tutup okuyucunun üstüne sürükleyin.</p>
+        </div>
       ) : (
         <div className={styles.gateActions}>
           {GATE_ACTIONS.map((a, i) => (

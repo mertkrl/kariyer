@@ -83,16 +83,6 @@ export const GENERAL_QUESTIONS: ExamQuestion[] = [
     why: 'Bitkilerin ışık enerjisiyle besin üretmesine fotosentez denir.',
   },
   {
-    id: 'ataturk-birth',
-    kind: 'genel kültür',
-    prompt: 'Atatürk hangi şehirde doğmuştur?',
-    hint: 'Liderlik doğuştan gelir; terfiler de öyle.',
-    options: ['Selanik', 'İstanbul', 'Genel Merkez', 'Bilmiyorum ama çok çalışarak öğrenirim'],
-    answer: 2,
-    sensible: 0,
-    why: "Atatürk 1881'de Selanik'te doğdu.",
-  },
-  {
     id: 'seven-wonders',
     kind: 'genel kültür',
     prompt: 'Dünyanın yedi harikasından hangisi Türkiye sınırları içindedir?',

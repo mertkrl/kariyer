@@ -1,0 +1,132 @@
+/* oyun sonu belgesi: gazete, radyo ya da mektup */
+.finale {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  text-align: left;
+  animation: finaleIn 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes finaleIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(-0.6deg);
+  }
+}
+
+.kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.body p {
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.sign {
+  margin: 4px 0 0;
+  justify-self: end;
+  font-style: italic;
+}
+
+/* gazete: kirli beyaz kâğıt, serifli manşet, iki sütun */
+.news {
+  background: #f6f1e4;
+  color: #1f1b16;
+  border: 1px solid #d9d0bb;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.news .kicker {
+  padding-bottom: 6px;
+  border-bottom: 3px double #1f1b16;
+}
+
+.news .title {
+  font: 800 24px Georgia, 'Times New Roman', serif;
+}
+
+.news .body {
+  columns: 2 200px;
+  column-gap: 18px;
+  font: 14px Georgia, serif;
+}
+
+/* radyo: koyu panel, yeşil dalga */
+.radio {
+  background: #14181d;
+  color: #e9efe6;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.radio .kicker {
+  color: #7fd17f;
+}
+
+.radio .title {
+  font: 700 19px var(--font-body, sans-serif);
+}
+
+.radio .body {
+  font-size: 14px;
+  color: #c7d0c6;
+}
+
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+}
+
+.wave i {
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: #7fd17f;
+  animation: wave 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes wave {
+  from {
+    transform: scaleY(0.25);
+  }
+}
+
+/* mektup: çizgili kâğıt, el yazısına yakın italik */
+.letter {
+  background: repeating-linear-gradient(#fffdf6 0 26px, #e6ddc9 26px 27px);
+  color: #2b2620;
+  border: 1px solid #e0d6c0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.letter .title {
+  font: italic 700 20px Georgia, serif;
+}
+
+.letter .body {
+  font: italic 15px/27px Georgia, serif;
+}
+
+.letter .body p {
+  line-height: 27px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finale,
+  .wave i {
+    animation: none;
+  }
+}

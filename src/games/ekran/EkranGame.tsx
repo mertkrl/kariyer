@@ -6,7 +6,7 @@ import { Editor } from './Editor';
 import { Home, Monitor, Pick } from './Lobby';
 import { loadProgress, TASKS, type Task } from './spec';
 import { HardPick } from './Dossier';
-import { PRESETS, currentDesign, draftKey, sanitize, type Design, type PresetId } from './model';
+import { currentDesign, draftKey, sanitize, type Design, type PresetId } from './model';
 import { Screen } from './Screen';
 import { decodeDesign, sharedCodeOf } from './share';
 import { useClock } from './useClock';
@@ -75,10 +75,6 @@ export function EkranGame() {
     <div className={styles.app}>
       <header className={styles.top}>
         <ClockOut tone="dark" />
-        <div className={styles.title}>
-          <h1>Ekran İhalesi</h1>
-          <p>{phase.at === 'edit' ? `${phase.task ? `Zor mod · ${phase.task.title}` : 'Normal mod'} · ${PRESETS.find((p) => p.id === phase.design.preset)?.title}` : phase.at === 'hard' ? 'Zor mod · İhale şartnamesi' : 'Kamu ekranları yenileme atölyesi'}</p>
-        </div>
         <div className={styles.topRight}>
           {(phase.at === 'edit' || phase.at === 'pick' || phase.at === 'hard') && (
             <button type="button" className={styles.ghost} onClick={() => setPhase(phase.at === 'edit' ? (phase.task ? { at: 'hard' } : { at: 'pick' }) : { at: 'home' })}>
@@ -131,7 +127,7 @@ export function EkranGame() {
         </main>
       )}
 
-      <StudioMark minimal />
+      {phase.at === 'home' && <StudioMark minimal />}
     </div>
   );
 }

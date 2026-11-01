@@ -178,7 +178,7 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
       short: 'Günün Sepeti',
       body: <DailyApp onDone={(h) => say('🧺', <>Günün Sepeti: <b>{h}/5</b>. Yarın yeni sepet!</>)} />,
     },
-    gecmis: { title: 'Geçmişi Bil — Fiyat Sihirbazı', short: 'Geçmişi Bil', body: <GuessApp key={`${year}-${seeds.gecmis}`} seed={seeds.gecmis} year={year} onDone={finish('gecmis')} onScore={() => {}} /> },
+    gecmis: { title: 'Geçmişi Bil — Fiyat Sihirbazı', short: 'Geçmişi Bil', body: <GuessApp key={`${year}-${seeds.gecmis}`} seed={seeds.gecmis} year={year} persona={persona} onDone={finish('gecmis')} onScore={() => {}} /> },
     ucuz: {
       title: `Hangisi Ucuz? — ${year}`,
       short: 'Hangisi Ucuz?',

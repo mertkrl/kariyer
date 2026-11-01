@@ -157,73 +157,10 @@
   margin-top: 12px;
 }
 
-/* toplantı */
-.meeting {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.stage {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px;
-  border-radius: var(--radius-sm);
-  background: #1d2733;
-  color: #fff;
-}
-
-.presenter {
-  font-size: 40px;
-}
-
-.slide small {
-  font-size: var(--fs-label);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.slideLine {
-  margin: 4px 0 0;
-  font-size: 17px;
-  font-weight: 600;
-  animation: slideIn 260ms var(--ease-enter);
-}
-
 @keyframes slideIn {
   from {
     opacity: 0;
     transform: translateY(6px);
-  }
-}
-
-.audience {
-  display: flex;
-  gap: 14px;
-  font-size: 26px;
-}
-
-.nod {
-  display: inline-block;
-  animation: nod 600ms ease-in-out;
-}
-
-@keyframes nod {
-  50% {
-    transform: translateY(4px) rotate(-6deg);
-  }
-}
-
-.nodButton {
-  min-width: 200px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nod,
-  .slideLine {
-    animation: none;
   }
 }
 
@@ -555,4 +492,19 @@
   .calFree {
     min-height: 64px;
   }
+}
+
+/* kaydırıcı onaylanınca altta kalan cevap satırı */
+.yourAnswer {
+  margin: 4px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--a-ok-soft, #e2f1e7);
+  color: var(--a-text, #1d2733);
+  font-size: 14px;
+  text-align: center;
+}
+
+.yourAnswer b {
+  color: var(--a-ok, #2f7a4e);
 }

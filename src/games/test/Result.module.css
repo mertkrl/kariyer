@@ -1,393 +1,550 @@
 /*
- * Aday Profil Raporu: ekranı yatay kullanan, kaydırmadan sığan pano. Solda profil kartı, sağda
- * cevap kâğıdı. Renkler TestGame'in .app değişkenlerinden.
+ * Aday Profil Raporu: ortada tek sütunlu bir belge. Bölümler ince çizgilerle ayrılır, renk yalnızca
+ * puanlarda ve mühürde. Renkler TestGame'in .app değişkenlerinden.
  */
+
+/* geniş ekranda iki sütun, üst çubuğun altındaki alana kaydırmadan sığar */
 .board {
   flex: 1;
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 22px 24px;
+  min-height: 0;
+  padding: 16px 20px;
   box-sizing: border-box;
+  display: flex;
+}
+
+.doc {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  max-width: 1280px;
+  min-height: 0;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: stretch;
-}
-
-.profile,
-.sheet {
-  min-width: 0;
-  background: #fff;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+  grid-template-rows: minmax(0, 1fr);
   border: 1px solid var(--a-line);
-  border-radius: 16px;
+  border-radius: 18px;
+  background: #fff;
   box-shadow: var(--a-shadow);
-  animation: rise 360ms ease-out both;
+  overflow: hidden;
+  animation: rise 420ms var(--ease-enter, ease-out) both;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--a-line-soft);
+  overflow: hidden auto;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+/* solda puanlar yan yana; dar sütunda rakam etiketin altına iner */
+.left .scores {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border-bottom: 0;
+}
+
+.left .head {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.left .score {
+  gap: 6px;
+  padding: clamp(14px, calc(14px + (100vh - 768px) * 0.0513), 30px) 20px;
+}
+
+.left .scoreTop {
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-size: 13px;
+}
+
+.left .scoreTop span {
+  white-space: nowrap;
+}
+
+.left .scoreTop b {
+  font-size: 28px;
+}
+
+/* solda mühür kararın altında, belgeye basılmış gibi */
+.left .stamp {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  justify-self: start;
+  padding: 5px 12px;
+  font-size: 14px;
+  transform: rotate(-4deg);
+}
+
+.left .kicker span {
+  display: block;
+  margin-top: 2px;
+}
+
+.left .sections li {
+  grid-template-columns: 112px minmax(0, 1fr) 26px;
+  gap: 10px;
+}
+
+.left .secTitle {
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+/* aralıklar 768px yükseklikteki değerden başlar, ekran uzadıkça 1080px'e kadar büyür */
+.left .block {
+  padding: clamp(16px, calc(16px + (100vh - 768px) * 0.0641), 36px) 28px;
+}
+
+.left .h2 {
+  margin-bottom: clamp(10px, calc(10px + (100vh - 768px) * 0.0385), 22px);
+}
+
+.left .sections {
+  gap: clamp(10px, calc(10px + (100vh - 768px) * 0.0513), 26px);
+}
+
+.right .block {
+  padding: clamp(16px, calc(16px + (100vh - 768px) * 0.0577), 34px) 24px;
+}
+
+.right .h2 {
+  margin-bottom: clamp(12px, calc(12px + (100vh - 768px) * 0.0321), 22px);
+}
+
+/* bölümün soruları tek sırada, eşit genişlikte: sağda boşluk kalmaz */
+.right .chips {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.right .detail {
+  margin-top: clamp(12px, calc(12px + (100vh - 768px) * 0.0321), 22px);
+  padding: 12px 16px;
+}
+
+.right .compare > div {
+  padding: 8px 12px;
+}
+
+.right .compare b {
+  font-size: 13px;
+}
+
+.right .detailQ {
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.right .why {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+/* uzun ekranda artan yükseklik bölümlere dağılır: solda bölüm satırları aralanır, sağda soru ayrıntısı büyür */
+.secBlock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.secBlock .sections {
+  flex: 1;
+  align-content: space-evenly;
 }
 
 .sheet {
-  animation-delay: 80ms;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--a-line-soft);
+}
+
+.sheet .detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.right .footButtons {
+  justify-content: flex-end;
+}
+
+/* bölüm sekmeleri */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: clamp(14px, calc(14px + (100vh - 768px) * 0.0321), 24px);
+  padding: 4px;
+  border-radius: 12px;
+  background: #f1f4f9;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--a-muted);
+  font: 600 13px var(--font-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.tab span {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--a-line);
+  color: var(--a-text);
+  font-size: 11px;
+}
+
+.tab:hover {
+  color: var(--a-text);
+}
+
+.tabOn {
+  background: #fff;
+  color: var(--a-text);
+  box-shadow: 0 1px 3px rgba(23, 43, 77, 0.12);
+}
+
+.tabOn span {
+  background: var(--a-blue);
+  color: #fff;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
 }
 
-/* ── profil ── */
-.profile {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px 22px;
-  border-top: 5px solid var(--a-blue);
-}
-
+/* ── karar ── */
 .head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+  padding: clamp(26px, calc(26px + (100vh - 768px) * 0.0705), 48px) 28px clamp(20px, calc(20px + (100vh - 768px) * 0.0449), 34px);
+  background: linear-gradient(180deg, var(--a-blue-soft), #fff);
 }
 
-.head .eyebrow,
-.head p {
-  margin-bottom: 4px;
+/* mavi şerit belgenin bütün üst kenarı boyunca */
+.doc::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 4px;
+  background: linear-gradient(90deg, var(--a-blue), #3f8fd8);
+}
+
+.kicker {
+  margin: 0 0 clamp(8px, calc(8px + (100vh - 768px) * 0.0256), 16px);
+  color: var(--a-blue);
+  font: 700 12px var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kicker span {
+  color: var(--a-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .title {
   margin: 0;
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  color: var(--a-text);
+  font: 800 28px/1.15 var(--font-body);
+  letter-spacing: -0.01em;
   outline: none;
 }
 
-/* mühür: hafif eğik, çift çerçeve, belgeye "basılmış" gibi iner */
+.verdict {
+  max-width: 560px;
+  margin: 8px 0 0;
+  color: var(--a-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
 .stamp {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 5px 10px;
+  padding: 8px 14px;
   border: 3px double var(--a-bad);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--a-bad);
-  font: 800 14px var(--font-mono);
-  letter-spacing: 0.06em;
+  font: 800 16px var(--font-mono);
+  letter-spacing: 0.08em;
   white-space: nowrap;
   transform: rotate(-8deg);
-  opacity: 0.88;
-  /* trampetten sonra iner; ses (Result.tsx) yaklaşık 950 ms'de vurur */
-  animation: stamp 500ms 650ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  animation: stamp 380ms 900ms cubic-bezier(0.2, 1.4, 0.5, 1) both;
 }
 
 .stamp small {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.1em;
+  opacity: 0.8;
 }
 
 .stampPass {
-  border-color: var(--a-blue);
-  color: var(--a-blue);
+  border-color: var(--a-ok);
+  color: var(--a-ok);
 }
 
 @keyframes stamp {
   from {
     opacity: 0;
-    transform: rotate(-8deg) scale(2.2);
+    transform: rotate(-6deg) scale(2.2);
   }
 }
 
-.meta {
-  margin: 0;
+/* ── puanlar ── */
+.scores {
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 0;
-  border-top: 1px dashed var(--a-line);
-  border-bottom: 1px dashed var(--a-line);
-  font-size: 11px;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--a-line-soft);
+  border-bottom: 1px solid var(--a-line-soft);
 }
 
-.meta dt {
-  color: var(--a-muted);
-}
-
-.meta dd {
-  margin: 0;
-}
-
-.rings {
-  display: flex;
-  justify-content: space-around;
-}
-
-.ringBox {
+.score {
   --tone: var(--a-blue);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  display: grid;
+  gap: 8px;
+  padding: 18px 28px;
 }
 
-.sense {
+.score + .score {
+  border-left: 1px solid var(--a-line-soft);
+}
+
+.scoreSense {
   --tone: var(--a-ok);
 }
 
-.ring {
-  width: 104px;
-  height: 104px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(closest-side, #fff 80%, transparent 81%),
-    conic-gradient(var(--tone) calc(var(--p) * 1%), var(--a-line-soft) 0);
-}
-
-.ring b {
-  font-size: 32px;
-  color: var(--tone);
-}
-
-.ringLabel {
-  margin-top: 6px;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.ringBox small {
-  color: var(--a-muted);
-  font-size: 11px;
-}
-
-.verdict {
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--a-line-soft);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.facts {
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.facts div {
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--a-line);
-  background: #fafbfd;
-}
-
-.facts dt {
-  font-size: 11px;
-  color: var(--a-muted);
-}
-
-.facts dd {
-  margin: 2px 0 0;
-  font-size: 19px;
-  font-weight: 700;
-}
-
-.foot {
-  margin-top: auto;
+.scoreTop {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.footButtons {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.again {
-  padding: 11px 18px;
-  border: 1px solid var(--a-line);
-  border-radius: 10px;
-  background: transparent;
-  color: inherit;
-  font: 600 15px var(--font-body);
-  cursor: pointer;
-}
-
-.again:hover {
-  background: rgba(43, 98, 192, 0.06);
-}
-
-.again:focus-visible {
-  outline: 3px solid var(--gold);
-  outline-offset: 2px;
-}
-
-.sign {
-  margin: 0;
-  font-size: 11px;
-  color: var(--a-muted);
-}
-
-.sign i {
-  font-family: var(--font-display);
-  font-size: 13px;
-  color: var(--a-text);
-}
-
-/* ── cevap kâğıdı ── */
-.sheet {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px 24px;
-}
-
-.sheetHead {
-  display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  color: var(--a-text);
+  font-weight: 600;
 }
 
-.h2 {
-  margin: 0;
-  font-size: 18px;
+.scoreTop b {
+  color: var(--tone);
+  font-size: 32px;
+  line-height: 1;
 }
 
-.legend {
-  margin: 0;
-  display: flex;
-  gap: 14px;
-  font-size: 12px;
+.scoreTop small {
+  margin-left: 2px;
   color: var(--a-muted);
-}
-
-.legend i {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin-right: 4px;
-  border-radius: 3px;
-  vertical-align: -2px;
-}
-
-.mKey {
-  background: var(--a-blue);
-}
-
-.mSense {
-  background: var(--a-ok);
-}
-
-.mOther {
-  background: #c7cfdb;
-}
-
-.mBlank {
-  border: 1.5px dashed #b4bdca;
-}
-
-.rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-/* bölüm satırı: solda başlık ve iki çubuk, sağda soru kutucukları */
-.row {
-  display: grid;
-  grid-template-columns: minmax(140px, 1fr) minmax(0, auto);
-  gap: 18px;
-  align-items: center;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: #f8fafd;
-}
-
-.rowInfo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'title' 'nums' 'bar1' 'bar2';
-  gap: 4px 10px;
-  min-width: 0;
-}
-
-.rowTitle {
-  grid-area: title;
-  font-weight: 700;
   font-size: 14px;
+  font-weight: 500;
 }
 
-.rowNums {
-  grid-area: nums;
-  font-size: 11px;
-  color: var(--a-muted);
-}
-
-.bar {
-  grid-area: bar1;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--a-line);
+.meter {
+  display: block;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--a-line-soft);
   overflow: hidden;
 }
 
-.barSense {
-  grid-area: bar2;
+.meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tone);
+  animation: grow 900ms 300ms var(--ease-enter, ease-out) both;
+}
+
+@keyframes grow {
+  from {
+    width: 0;
+  }
+}
+
+.scoreNote {
+  color: var(--a-muted);
+  font-size: 13px;
+}
+
+/* ── bölüm ve cevap kâğıdı ── */
+.block {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--a-line-soft);
+}
+
+.blockHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.h2 {
+  margin: 0 0 16px;
+  color: var(--a-text);
+  font: 700 13px var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sections {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sections li {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 16px;
+}
+
+.secTitle {
+  color: var(--a-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.secBars {
+  display: grid;
+  gap: 5px;
+}
+
+.bar {
+  display: block;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--a-line-soft);
+  overflow: hidden;
 }
 
 .bar i {
   display: block;
   height: 100%;
-  border-radius: 3px;
+  border-radius: inherit;
   background: var(--a-blue);
-  transform-origin: left;
-  animation: grow 700ms 200ms ease-out both;
+  animation: grow 900ms 500ms var(--ease-enter, ease-out) both;
 }
 
 .barSense i {
   background: var(--a-ok);
 }
 
-@keyframes grow {
-  from {
-    transform: scaleX(0);
-  }
+.secNums {
+  display: grid;
+  justify-items: end;
+  font-size: 13px;
+  line-height: 1.25;
 }
 
-.chips {
+.secNums b {
+  color: var(--a-blue);
+}
+
+.secNums em {
+  color: var(--a-ok);
+  font-style: normal;
+}
+
+.legend {
   display: flex;
   flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 0 16px;
+  color: var(--a-muted);
+  font-size: 12px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
 }
 
+/* lejant noktası ve ayrıntıdaki etiket, soru kutusunun --mark rengini kullanır */
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--mark);
+}
+
+.chips {
+  display: grid;
+  gap: 8px;
+}
+
+/* soru kutusu: beyaz zemin, ince çerçeve; sonucu yalnızca alttaki küçük renkli çizgi söyler */
 .chip {
-  width: 40px;
-  height: 40px;
-  border: 0;
+  position: relative;
+  height: 42px;
+  border: 1px solid var(--a-line);
   border-radius: 10px;
-  color: #fff;
-  font: 700 14px var(--font-body);
+  background: #fff;
+  color: var(--a-text);
+  font: 600 14px var(--font-body);
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: transform var(--motion-enter), box-shadow var(--motion-enter);
+  transition:
+    border-color var(--motion-enter),
+    background var(--motion-enter);
+}
+
+.chip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--mark);
+  transform: translateX(-50%);
 }
 
 .chip:hover {
-  transform: translateY(-2px);
+  border-color: #b9c4d4;
+  background: #fafbfd;
 }
 
 .chip:focus-visible {
@@ -396,226 +553,246 @@
 }
 
 .key {
-  background: var(--a-blue);
+  --mark: var(--a-blue);
 }
 
-.sense.chip {
-  background: var(--a-ok);
+.sense {
+  --mark: var(--a-ok);
 }
 
 .other {
-  background: #c7cfdb;
-  color: var(--a-text);
+  --mark: #c9a227;
 }
 
 .blank {
-  background: #fff;
-  border: 1.5px dashed #b4bdca;
+  --mark: var(--a-line);
   color: var(--a-muted);
 }
 
-.chipOn {
-  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--a-text);
-  transform: translateY(-2px);
+.chipOn,
+.chipOn:hover {
+  border-color: var(--a-blue);
+  background: var(--a-blue-soft);
+  color: var(--a-blue-dark);
+  box-shadow: 0 0 0 1px var(--a-blue);
 }
 
-/* seçili sorunun ayrıntısı */
 .detail {
-  flex: 1;
-  padding: 16px 18px;
-  border: 1px solid var(--a-line);
+  margin-top: 16px;
+  padding: 18px 20px;
   border-radius: 12px;
+  background: #f7f9fc;
+}
+
+.detailMeta b:not(.blank) {
+  color: var(--mark);
 }
 
 .detailMeta {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
+  color: var(--a-muted);
   font-size: 12px;
-  color: var(--a-muted);
-}
-
-.tkey {
-  color: var(--a-blue);
-}
-
-.tsense {
-  color: var(--a-ok);
-}
-
-.tother,
-.tblank {
-  color: var(--a-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .detailQ {
-  margin: 0 0 12px;
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.35;
+  margin: 0 0 14px;
+  color: var(--a-text);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .compare {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
-.compare div {
-  display: flex;
-  flex-direction: column;
+.compare > div {
+  display: grid;
+  align-content: start;
   gap: 4px;
-  padding: 10px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--a-line);
   border-radius: 10px;
-  background: var(--a-line-soft);
+  background: #fff;
 }
 
 .compare small {
-  font-size: 11px;
   color: var(--a-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .compare b {
+  color: var(--a-text);
   font-size: 14px;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .cKey {
-  background: var(--a-blue-soft) !important;
+  border-top: 3px solid var(--a-blue) !important;
 }
 
 .cSense {
-  background: var(--a-ok-soft) !important;
+  border-top: 3px solid var(--a-ok) !important;
+}
+
+.fairNote {
+  margin: 12px 0 0;
+  color: var(--a-text);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .why {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
+  color: var(--a-muted);
   font-size: 14px;
   font-style: italic;
-  color: var(--a-muted);
+  line-height: 1.55;
 }
 
-.real {
-  margin: 0;
-  padding: 10px 14px;
-  border-left: 3px solid var(--a-ok);
-  border-radius: 0 10px 10px 0;
-  background: #f6fbf8;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--a-muted);
-}
-
-.real b {
-  color: var(--a-text);
-}
-
-/* 40 soru: bölüm bilgisi sabit genişlikte tek satır, kutucuklar küçük ve sıkı */
-.row {
-  grid-template-columns: 190px auto;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 8px 12px;
-}
-
-.rowTitle {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 13px;
-}
-
-.rowNums {
-  white-space: nowrap;
-}
-
-.chips {
-  gap: 5px;
-}
-
-.chip {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.rows {
-  gap: 6px;
-}
-
-.sheet {
+/* ── kapanış ── */
+.footButtons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
-  padding: 16px 20px;
 }
 
-.detail {
-  padding: 12px 16px;
+.again {
+  padding: 11px 18px;
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--a-text);
+  font: 600 15px var(--font-body);
+  cursor: pointer;
 }
 
-.detailQ {
-  font-size: 16px;
-  margin-bottom: 10px;
+.again:hover {
+  border-color: var(--a-blue);
+  color: var(--a-blue);
 }
 
-/* tablet ve telefon: profil üstte, cevap kâğıdı altında; sayfa aşağı kayar */
+/* uzun ekran: yazılar ve kutular da büyür */
+@media (min-height: 821px) {
+  .verdict {
+    font-size: 15px;
+  }
+
+  .left .scoreTop {
+    font-size: 15px;
+  }
+
+  .left .scoreTop b {
+    font-size: 34px;
+  }
+
+  .left .secTitle {
+    font-size: 14px;
+  }
+
+  .right .chip {
+    height: 48px;
+    font-size: 15px;
+  }
+
+  .tab {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .right .detailQ {
+    font-size: 19px;
+  }
+
+  .right .compare > div {
+    padding: 12px 14px;
+  }
+
+  .right .compare b,
+  .right .why {
+    font-size: 15px;
+  }
+
+  .left .title {
+    font-size: 34px;
+  }
+}
+
 @media (max-width: 960px) {
   .board {
+    padding: 16px 12px 32px;
+  }
+
+  .doc {
     grid-template-columns: minmax(0, 1fr);
-    padding: 12px 10px 20px;
-    gap: 12px;
+    grid-template-rows: auto;
+  }
+
+  .left,
+  .right {
+    overflow: visible;
+  }
+
+  .left {
+    border-right: 0;
+    border-bottom: 1px solid var(--a-line-soft);
   }
 }
 
 @media (max-width: 760px) {
-  .row {
+
+  .head {
     grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    padding: 28px 20px 22px;
   }
 
-  .chips {
-    flex-wrap: wrap;
+  .stamp {
+    justify-self: start;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .scores {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .score {
+    padding: 20px;
+  }
+
+  .score + .score {
+    border-left: 0;
+    border-top: 1px solid var(--a-line-soft);
+  }
+
+  .block,
+    .sections li {
+    grid-template-columns: minmax(0, 1fr) 48px;
+  }
+
+  .secTitle {
+    grid-column: 1 / -1;
   }
 
   .compare {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .meta {
-    grid-template-columns: minmax(0, 1fr);
-    justify-content: start;
+@media (prefers-reduced-motion: reduce) {
+  .doc,
+  .stamp,
+  .meter i,
+  .bar i {
+    animation: none;
   }
-}
-
-/* raporun kişisel gözlemleri: adayın kendi cevaplarından */
-.observe {
-  margin: 0 0 12px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: #f8fafd;
-  font-size: 13px;
-}
-
-.observe ul {
-  display: grid;
-  gap: 6px;
-  margin: 6px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.observe li {
-  padding-left: 10px;
-  border-left: 3px solid var(--a-line);
-  line-height: 1.45;
-}
-
-.observe em {
-  color: var(--a-muted);
-}
-
-.observe li.obsKey {
-  border-left-color: var(--a-blue);
-}
-
-.observe li.obsSense {
-  border-left-color: var(--a-ok);
 }

@@ -34,9 +34,9 @@ export function CounterBody({ y, width, height }: { y: number; width: number; he
 
 
 /** Tezgâhta yatan kalın, bez ciltli veresiye defteri: üstünde tükenmez, ağzından kırmızı ayraç sarkar. Tıklanınca açılır. */
-function DeskLedger({ onOpen }: { onOpen?: () => void }) {
+function DeskLedger({ onOpen, glow }: { onOpen?: () => void; glow?: boolean }) {
   return (
-    <g transform={`translate(1010 ${COUNTER_Y})`} className={styles.desk} onClick={onOpen} role="button" aria-label="Defteri aç">
+    <g transform={`translate(1010 ${COUNTER_Y})`} data-tour="ledger" className={`${styles.desk} ${glow ? styles.coach : ''}`} onClick={onOpen} role="button" aria-label="Defteri aç">
       <ellipse cx="0" cy="2" rx="96" ry="8" fill="rgba(0,0,0,.32)" />
       {/* sayfa destesi: önden görünen kâğıt kenarları */}
       <path d="M-86 -4 L-80 -22 H80 L86 -4 V0 H-86 Z" fill="#efe6cc" />
@@ -61,9 +61,9 @@ function DeskLedger({ onOpen }: { onOpen?: () => void }) {
 }
 
 /** Tezgâhta duran hesap makinesi: tıklanınca büyüğü açılır. */
-function DeskCalculator({ onOpen }: { onOpen?: () => void }) {
+function DeskCalculator({ onOpen, glow }: { onOpen?: () => void; glow?: boolean }) {
   return (
-    <g transform={`translate(1140 ${COUNTER_Y})`} className={styles.desk} onClick={onOpen} role="button" aria-label="Hesap makinesini aç">
+    <g transform={`translate(1140 ${COUNTER_Y})`} data-tour="calc" className={`${styles.desk} ${glow ? styles.coach : ''}`} onClick={onOpen} role="button" aria-label="Hesap makinesini aç">
       <ellipse cx="0" cy="1" rx="34" ry="5" fill="rgba(0,0,0,.3)" />
       <path d="M-28 0 L-22 -58 H22 L28 0 Z" fill="#2c3035" />
       <path d="M-22 -58 H22 L21 -54 H-21 Z" fill="#4a5056" />
@@ -77,14 +77,14 @@ function DeskCalculator({ onOpen }: { onOpen?: () => void }) {
 }
 
 
-export function CounterTop({ onPet, onCalc, onBook, gum, gumActive, onGum }: { onPet?: () => void; onCalc?: () => void; onBook?: () => void; gum: number; gumActive: boolean; onGum?: () => void }) {
+export function CounterTop({ onPet, onCalc, onBook, gum, gumActive, onGum, coach }: { onPet?: () => void; onCalc?: () => void; onBook?: () => void; gum: number; gumActive: boolean; onGum?: () => void; coach?: string | null }) {
   return (
     <g>
-      <DeskCalculator onOpen={onCalc} />
+      <DeskCalculator onOpen={onCalc} glow={coach === 'calc'} />
       <g transform={`translate(600 ${COUNTER_Y}) scale(1.3)`}>
         <GumMachine count={gum} active={gumActive} onTurn={onGum} />
       </g>
-      <DeskLedger onOpen={onBook} />
+      <DeskLedger onOpen={onBook} glow={coach === 'book'} />
       <Cat onPet={onPet} />
     </g>
   );

@@ -1,5 +1,6 @@
 import { tl, type Product, type Reaction, type Visit } from './data';
-import { LOAN, dilemmaAsk, shortBy, type Answer, type ChangeWay, type Outcome, type Stock } from './week';
+import { revealOf, type Receipt } from './returns';
+import { LOAN, dilemmaAsk, shortBy, type Answer, type ChangeWay, type Outcome } from './week';
 import styles from './BakkalGame.module.css';
 
 /*
@@ -8,14 +9,59 @@ import styles from './BakkalGame.module.css';
  * yazar kasadan girilir; bu panel yalnızca seçenekleri ve sonucu gösterir.
  */
 
-export type Errand = 'account' | 'loan' | 'empty' | null;
-export type Step = 'ask' | 'counter' | 'credit' | 'dilemma' | 'change' | 'result';
+export type Errand = 'account' | 'loan' | 'empty' | 'charity' | 'fine' | 'return' | 'audit' | null;
+export type Step = 'ask' | 'counter' | 'credit' | 'dilemma' | 'change' | 'gift' | 'result';
+
+/** "Süt (1 lt)" → ad ve ölçü ayrı satırda. */
+const split = (name: string) => {
+  const m = name.match(/^(.*?) \((.*)\)$/);
+  return m ? { title: m[1], size: m[2] } : { title: name, size: '' };
+};
+
+/**
+ * Müşterinin istediği: sipariş fişi gibi. Başlıkta kimin istediği, kaç kalem olduğu ve günün sırası; her kalem
+ * yan yana kendi kutusunda: simgesi, adı, raf durumu ve ölçüsü (tost ve sandviçte içindekiler).
+ */
+function WantList({ visit, missing, queue }: { visit: Visit; missing: Product[]; queue: string }) {
+  return (
+    <div className={styles.want}>
+      <div className={styles.wantHead}>
+        <span className={styles.wantWho}>
+          {visit.villager.name}
+          <span className={styles.wantCount}>{visit.items.length} kalem</span>
+        </span>
+        <span className={styles.wantQueue}>{queue}</span>
+      </div>
+      <ul className={styles.wantList} style={{ gridTemplateColumns: `repeat(${visit.items.length}, minmax(0, 1fr))` }}>
+        {visit.items.map((p) => {
+          const { title, size } = split(p.name);
+          const out = missing.includes(p);
+          return (
+            <li key={p.id} className={out ? styles.wantOut : ''}>
+              <span className={styles.wantIcon} aria-hidden="true">
+                {p.emoji}
+              </span>
+              <span className={styles.wantText} title={p.detail}>
+                <b>{title}</b>
+                <small>
+                  <i className={`${styles.wantTag} ${out ? styles.wantTagOut : p.detail ? styles.wantTagMade : ''}`}>{out ? 'yok' : p.detail ? 'tezgâhta' : 'rafta'}</i>
+                  {p.detail ?? size}
+                </small>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 export function Till({
   queue,
+  news = [],
+  onAudit,
   last,
   visit,
-  stock,
   shelf,
   errand,
   step,
@@ -27,17 +73,29 @@ export function Till({
   onAccount,
   onDilemma,
   onNoStock,
+  onCharity,
+  onFine,
+  charity,
+  fine,
+  staleNote,
   onNext,
   pay,
   coins,
   gum,
   gumGiven,
   onChange,
+  onReturn,
+  receipts,
+  onDrawer,
+  gift,
+  onGift,
 }: {
   queue: string;
+  /** Sabahın haberleri: toptancı, seyyar satıcı, zincir market. */
+  news?: string[];
+  onAudit: () => void;
   last: boolean;
   visit: Visit;
-  stock: Stock;
   shelf: { have: Product[]; missing: Product[] };
   errand: Errand;
   step: Step;
@@ -49,6 +107,13 @@ export function Till({
   onAccount: (a: Answer) => void;
   onDilemma: (kindly: boolean) => void;
   onNoStock: () => void;
+  onCharity: () => void;
+  onFine: () => void;
+  /** Hayırseverin ödeyeceği açık veresiye ve zabıtanın cezası. */
+  charity: number;
+  fine: number;
+  /** Bu satışta müşterinin eline geçen bayat mal. */
+  staleNote: string | null;
   onNext: () => void;
   /** Müşterinin uzattığı para ve para üstü. */
   pay: { bill: number; change: number; odd: number } | null;
@@ -58,36 +123,89 @@ export function Till({
   /** Sakızla verilirken çevrilen kol sayısı (null: sakız seçilmedi). */
   gumGiven: number | null;
   onChange: (way: ChangeWay) => void;
+  /** İade kararı ve fiş çekmecesi. */
+  onReturn: (accept: boolean) => void;
+  receipts: readonly Receipt[];
+  onDrawer: () => void;
+  /** Satılan paketin içinden çıkan para ve kararı. */
+  gift: { amount: number; product: Product } | null;
+  onGift: (keep: boolean) => void;
 }) {
   return (
     <main className={styles.shop}>
 
       <section className={styles.till}>
-        <p className={styles.queue}>
-          {queue}
-        </p>
-        {errand === 'account' || errand === 'loan' ? (
+        {errand && <p className={styles.queue}>{queue}</p>}
+        {news.map((n) => (
+          <p key={n} className={styles.warn}>
+            {n}
+          </p>
+        ))}
+        {errand === 'audit' ? (
           <div className={styles.product}>
-            <span className={styles.big}>{errand === 'account' ? '📒' : '💊'}</span>
-            <b>{errand === 'account' ? `Eski hesap · ${visit.villager.name}` : `${visit.villager.name} borç istiyor`}</b>
+            <span className={styles.big}>🗂️</span>
+            <b>{visit.villager.name} · vergi denetimi</b>
+          </div>
+        ) : errand === 'return' && visit.returning ? (
+          <div className={styles.product}>
+            <span className={styles.big}>{visit.returning.product.emoji}</span>
+            <b>
+              {visit.villager.name} iade getirdi · {visit.returning.product.name} · {tl(visit.returning.price)} istiyor
+            </b>
+          </div>
+        ) : errand === 'account' || errand === 'loan' || errand === 'charity' || errand === 'fine' ? (
+          <div className={styles.product}>
+            <span className={styles.big}>{{ account: '📒', loan: '💊', charity: '🤲', fine: '🧾' }[errand]}</span>
+            <b>{{ account: `Eski hesap · ${visit.villager.name}`, loan: `${visit.villager.name} borç istiyor`, charity: `${visit.villager.name} · hayır için geldi`, fine: `${visit.villager.name} · denetim` }[errand]}</b>
           </div>
         ) : (
-          <div className={styles.product}>
-            <span className={styles.big}>{visit.items.map((i) => i.emoji).join('')}</span>
-            <span>
-              {visit.items.map((i) => (
-                <b key={i.id} className={stock[i.id] ? '' : styles.gone}>
-                  {i.name}
-                </b>
-              ))}
-            </span>
+          <WantList visit={visit} missing={shelf.missing} queue={queue} />
+        )}
+
+        {step === 'ask' && !errand && (
+          <p className={styles.wantHint}>
+            {shelf.missing.length > 0 && shelf.missing.length < visit.items.length && 'Rafta olmayanı almaz; gerisinin '}
+            {shelf.missing.length > 0 && shelf.missing.length < visit.items.length ? 'fiyatını' : 'Fiyatı'} kasaya gir, <kbd>ONAY</kbd>'a bas
+          </p>
+        )}
+
+        {step === 'ask' && errand === 'audit' && (
+          <div className={styles.priceForm}>
+            <span className={styles.or}>Z raporlarını kasayla karşılaştıracak. Kasaya kayıtsız para attıysan bulunur.</span>
+            <button autoFocus className={styles.primary} onClick={onAudit}>
+              🗂️ Defteri ve kasayı göster
+            </button>
           </div>
         )}
 
-        {step === 'ask' && !errand && shelf.missing.length > 0 && (
-          <p className={styles.warn}>Rafta kalmamış: {shelf.missing.map((i) => i.name).join(', ')}. Gerisini alır ama söylenir.</p>
+        {step === 'ask' && errand === 'return' && (
+          <div className={styles.priceForm}>
+            <span className={styles.or}>Gün sonu Z raporlarına bak: bu mal buradan mı, kaça alınmış, iadesi alınmış mı?</span>
+            <button autoFocus className={styles.ghost} onClick={onDrawer}>
+              🧾 Z raporlarına bak
+            </button>
+            <button className={styles.primary} onClick={() => onReturn(true)}>
+              İadeyi al
+            </button>
+            <button className={styles.ghost} onClick={() => onReturn(false)}>
+              İade almam
+            </button>
+          </div>
         )}
-        {step === 'ask' && !errand && <p className={styles.or}>Fiyatı kasaya gir, ONAY'a bas.</p>}
+
+        {step === 'gift' && gift && (
+          <div className={styles.priceForm}>
+            <span>
+              🎁 {gift.product.name.replace(/ \(.*\)$/, '')} paketinin içinden <b>{tl(gift.amount)}</b> çıktı ("kapağın altına bak" kampanyası). Müşteri fark etmedi.
+            </span>
+            <button autoFocus className={styles.primary} onClick={() => onGift(false)}>
+              Müşteriye ver
+            </button>
+            <button className={styles.ghost} onClick={() => onGift(true)}>
+              Kasaya at
+            </button>
+          </div>
+        )}
 
         {step === 'ask' && errand === 'empty' && (
           <div className={styles.priceForm}>
@@ -115,6 +233,24 @@ export function Till({
             </button>
             <button className={styles.ghost} onClick={() => onAccount('insist')}>
               Defterde açık, ödemelisin
+            </button>
+          </div>
+        )}
+
+        {step === 'ask' && errand === 'charity' && (
+          <div className={styles.priceForm}>
+            <span>{charity > 0 ? `Defterdeki bütün veresiyeyi ödeyecek: ${tl(charity)}.` : 'Defterde açık veresiye yok.'}</span>
+            <button autoFocus className={styles.primary} onClick={onCharity}>
+              {charity > 0 ? '📒 Defteri göster, Allah razı olsun' : 'Defter temiz, sağ olun'}
+            </button>
+          </div>
+        )}
+
+        {step === 'ask' && errand === 'fine' && (
+          <div className={styles.priceForm}>
+            <span className={styles.warn}>Dün {visit.fine} bayat mal satıldı, şikâyet gelmiş. Ceza: {tl(fine)}.</span>
+            <button autoFocus className={styles.primary} onClick={onFine}>
+              Cezayı öde
             </button>
           </div>
         )}
@@ -224,6 +360,10 @@ export function Till({
               )
             ) : (
               <p>Satış olmadı.</p>
+            )}
+            {staleNote && <p className={styles.warn}>⚠️ {staleNote}</p>}
+            {errand === 'return' && visit.returning && (
+              <p className={styles.or}>{revealOf(visit.returning, visit.villager.name, receipts)}</p>
             )}
             <button autoFocus className={styles.primary} onClick={onNext}>
               {last ? 'Kepengi indir' : 'Sıradaki müşteri'}

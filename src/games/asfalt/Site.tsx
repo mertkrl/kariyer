@@ -80,10 +80,17 @@ export function Backdrop({ rain, weather = rain ? 'rain' : 'sun' }: { rain: bool
 }
 
 /** Silindir: `y` tamburun oturduğu yüzey; çukurun içinde çalışırken aşağı iner. */
-export function RollerSprite({ x, y }: { x: number; y: number }) {
+/** Silindir; `vibe` açıkken tambur titrer ve altında titreşim çizgileri görünür. */
+export function RollerSprite({ x, y, vibe = false }: { x: number; y: number; vibe?: boolean }) {
   const r = 5.5;
   return (
     <g transform={`translate(${x} ${y - ROAD})`}>
+      {vibe && (
+        <g stroke="rgba(255,255,255,.7)" strokeWidth="0.35" fill="none">
+          <path d={`M-1.5 ${ROAD - 7} q-1 1 0 2 q1 1 0 2`} />
+          <path d={`M${ROLLER_W + 1.5} ${ROAD - 7} q1 1 0 2 q-1 1 0 2`} />
+        </g>
+      )}
       {/* kabin */}
       <rect x="4" y={ROAD - 25} width="9" height="2" rx="1" fill="#2d2d2d" />
       <rect x="5" y={ROAD - 23} width="1" height="8" fill="#2d2d2d" />

@@ -23,15 +23,18 @@ export function CashRegister({
   label,
   shown,
   open,
+  onDrawer,
 }: {
   value: string;
   onChange: Dispatch<SetStateAction<string>>;
   onSubmit: (price: number) => void;
   active: boolean;
   label: string;
-  /** Fiyat beklenmiyorken ekranda yazan tutar. */
-  shown: number | null;
+  /** Fiyat beklenmiyorken ekranda yazan son işlem: adı, tutarı, alınan para ve üstü. */
+  shown: { amount: number | null; label?: string; paid?: number; change?: number };
   open: boolean;
+  /** Çekmeceye tıklayınca fişler açılır. */
+  onDrawer?: () => void;
 }) {
   // hızlı basılan tuşlar kaybolmasın: değer her zaman en güncel hâlinden güncellenir
   const latest = useRef(value);
@@ -66,16 +69,32 @@ export function CashRegister({
 
   const keys = ['7', '8', '9', 'C', '4', '5', '6', '⌫', '1', '2', '3', '00', '0'];
   const seat = useCounterSeat();
-  const screen = active ? `${value || '0'},00` : shown === null ? '0,00' : `${shown},00`;
+  // nakit satışta ekran büyümez: satış, alınan para ve para üstü aynı satırda sırayla döner
+  const frames = !active && shown.paid !== undefined ? [{ label: shown.label ?? 'SATIŞ', amount: shown.amount }, { label: 'ALINAN', amount: shown.paid }, { label: 'ÜSTÜ', amount: shown.change ?? 0 }] : null;
+  const [frame, setFrame] = useState(0);
+  useEffect(() => {
+    setFrame(0);
+    if (!frames) return;
+    const t = window.setInterval(() => setFrame((f) => (f + 1) % 3), 1700);
+    return () => window.clearInterval(t);
+    // yalnızca yeni bir ödeme gelince baştan başlar
+  }, [shown.paid, shown.change, shown.amount, active]);
+  const now = frames ? frames[frame] : { label: active ? label : (shown.label ?? 'KASA'), amount: active ? Number(value || 0) : shown.amount };
+  const money = now.amount === null ? (now.label === 'İPTAL' ? '— — —' : '0,00') : `${now.amount},00`;
   return (
-    <div className={`${styles.cash} ${active ? styles.live : ''}`} style={{ bottom: seat.bottom, transform: `translateX(-50%) scale(${seat.scale})` }} role="group" aria-label="Yazar kasa">
+    <div data-tour="register" className={`${styles.cash} ${active ? styles.live : ''}`} style={{ bottom: seat.bottom, transform: `translateX(-50%) scale(${seat.scale})` }} role="group" aria-label="Yazar kasa">
       <div className={styles.printer}>
         <span className={styles.slot} />
       </div>
       <div className={styles.tower}>
         <div className={styles.lcd} aria-live="polite">
-          <small>{active ? label : 'KASA'}</small>
-          <span>{screen} ₺</span>
+          <span key={`${now.label}-${frame}`} className={styles.frame}>
+            <small>{now.label}</small>
+            <b>
+              {money}
+              {now.amount !== null && ' ₺'}
+            </b>
+          </span>
         </div>
       </div>
       <div className={styles.deck}>
@@ -90,9 +109,9 @@ export function CashRegister({
           </button>
         </div>
       </div>
-      <div className={`${styles.drawer} ${open ? styles.drawerOpen : ''}`}>
+      <button type="button" className={`${styles.drawer} ${open ? styles.drawerOpen : ''}`} onClick={onDrawer} aria-label="Kasanın çekmecesi: fişlere bak" title="Çekmece: fişler">
         <span />
-      </div>
+      </button>
     </div>
   );
 }

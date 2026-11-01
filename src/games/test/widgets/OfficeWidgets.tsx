@@ -58,6 +58,7 @@ export function LunchWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
             key={d.name}
             className={`${styles.dish} ${dish === i ? styles.dishOn : ''}`}
             aria-pressed={dish === i}
+            disabled={selected !== null}
             onClick={() => {
               click();
               setDish(i);
@@ -77,8 +78,10 @@ export function LunchWidget({ w, onAnswer, selected }: Props<Extract<ExamWidget,
           <button
             key={a.label}
             className={`${styles.action} ${i === 2 ? styles.actionOut : ''} ${selected === i ? styles.actionOn : ''}`}
-            disabled={a.needsDish && dish === null}
+            // karar verildikten sonra öteki seçenekler kapanır: her şıkka basıp sonucunu görmek olmaz
+            disabled={selected !== null ? selected !== i : a.needsDish && dish === null}
             onClick={() => {
+              if (selected !== null) return;
               click();
               onAnswer(i);
             }}

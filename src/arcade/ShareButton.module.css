@@ -10,6 +10,25 @@
   opacity: 0.8;
 }
 
+/* yüzen bildirim: düğmenin üstünde, sağa yaslı; düğme ve çevresi yerinden oynamaz */
+.float {
+  position: relative;
+}
+
+.float .note {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 2;
+  width: max-content;
+  max-width: 260px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #1d2733;
+  color: #fff;
+  opacity: 1;
+}
+
 .note:empty {
   display: none;
 }

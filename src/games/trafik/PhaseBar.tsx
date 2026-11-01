@@ -75,6 +75,8 @@ export function PhaseCards({ sim, plan, selected, onSelect, onPlan }: Omit<Props
         const stage = active ? ctl.stage : null;
         const prog = !active ? 0 : ctl.stage === 'green' ? Math.min(1, ctl.t / p.green) : ctl.stage === 'amber' ? ctl.t / AMBER : 1;
         const next = (ctl.next ?? (ctl.phase + 1) % plan.phases.length) === i && !active;
+        // evre hangi yollara yeşil yakıyor: şemadaki oklar tek başına okunmuyor, kolların adı yazılır
+        const roads = [...new Set(p.moves.filter((m) => turnOf(m) !== 'P').map((m) => sim.spec.legs[legOf(m)]?.name))].filter(Boolean).join(' · ');
         return (
           <div key={i} role="listitem" className={`${ui.card} ${active ? ui[`on_${stage}`] : ''} ${selected === i ? ui.sel : ''}`}>
             <button type="button" className={ui.cardMain} onClick={() => onSelect(selected === i ? null : i)} aria-pressed={selected === i} aria-label={`${i + 1}. evre: ${p.moves.map(moveName).join(', ') || 'boş'}`}>
@@ -83,6 +85,9 @@ export function PhaseCards({ sim, plan, selected, onSelect, onPlan }: Omit<Props
                 {active ? <em>{stage === 'green' ? (ctl.hold ? 'tutuluyor' : 'yeşil') : stage === 'amber' ? 'sarı' : 'tüm kırmızı'}</em> : next ? <em className={ui.nextTag}>sıradaki</em> : null}
               </span>
               <PhaseGlyph sim={sim} moves={p.moves} />
+              <span className={ui.roads} title={roads}>
+                {roads || (p.moves.length ? 'yalnız yaya' : 'boş evre')}
+              </span>
             </button>
             <div className={styles.secs}>
               <button type="button" onClick={() => setGreen(i, p.green - 1)} aria-label={`${i + 1}. evrenin yeşilini kısalt`}>

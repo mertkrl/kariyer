@@ -431,7 +431,7 @@ export function drawQueueTags(ctx: CanvasRenderingContext2D, sim: Sim, view: Vie
     const wy = g.u[1] * (g.stop + 26) - g.rout[1] * (g.inW + 2.4);
     let sx = view.w / 2 + (wx - view.cx) * view.k;
     let sy = view.h / 2 + (wy - view.cy) * view.k;
-    const text = `${g.spec.name} · ${q.n} araç · ${Math.round(q.wait)} sn${back ? ` · +${back} geride` : ''}`;
+    const text = `${q.wait > 45 ? '📢 ' : ''}${g.spec.name} · ${q.n} araç · ${Math.round(q.wait)} sn${back ? ` · +${back} geride` : ''}`;
     const tw = ctx.measureText(text).width + 22 * dpr;
     const th = 24 * dpr;
     sx = Math.max(8 * dpr + tw / 2, Math.min(view.w - 8 * dpr - tw / 2, sx));

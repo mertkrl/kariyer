@@ -3,17 +3,6 @@ import type { ExamQuestion } from './questions';
 /** Bilişsel bölümün beşinci dalgası: sayısal, sözel, dikkat ve şekil soruları. */
 export const COGNITIVE_QUESTIONS: ExamQuestion[] = [
   {
-    id: 'overtime-series',
-    kind: 'sayısal',
-    prompt: 'Dizide soru işaretinin yerine hangi sayı gelmelidir?',
-    figure: '45   48   52   57   ?',
-    hint: 'Dizi, bir çalışanın haftalık mesai saatlerinden alınmıştır.',
-    options: ['70', '62', '65', 'Hafta sonu da eklenmeli'],
-    answer: 0,
-    sensible: 1,
-    why: 'Farklar 3, 4, 5, 6: sıradaki fark 7. 55 + 7 = 62.',
-  },
-  {
     id: 'coffee-math',
     kind: 'sayısal',
     prompt: 'Kahve makinesi günde 120 bardak veriyor, 3 gündür bozuk. Kaç bardak kahve içilemedi?',

@@ -5,7 +5,7 @@ import type { LevelSpec, Report } from './model';
  * kazıldığını görür.
  */
 
-export type Tool = 'soil' | 'gravel' | 'asphalt' | 'shovel' | 'pump' | 'roller';
+export type Tool = 'saw' | 'shovel' | 'pump' | 'soil' | 'gravel' | 'tamper' | 'tack' | 'asphalt' | 'rake' | 'roller' | 'probe';
 
 export interface Level {
   spec: LevelSpec;
@@ -16,6 +16,10 @@ export interface Level {
   tools: Tool[];
   /** Ödenek (₺). */
   budget: number;
+  /** Kemer sıkma: ödenek dolunca malzeme gelmez. */
+  strictBudget?: boolean;
+  /** Mıcır kamyonu bu saniyede gelir; o zamana kadar mıcır yok. */
+  gravelAfterSec?: number;
   /** İş bitince, bir sonraki işin başında okunan haber. */
   after: string;
 }
@@ -25,8 +29,8 @@ export const LEVELS: Level[] = [
     spec: { id: 'mahalle', seed: 1923, center: 162, half: 26, depth: 24 },
     place: 'Kadıköy, Moda · Ara sokak',
     title: 'Mahalle çukuru',
-    order: 'Vatandaş üç aydır şikâyet ediyor; çukura giren arabanın tamponu hâlâ içinde. Altına toprak, üstüne mıcır, en üste asfalt. Asfalt soğumadan silindiri geçir.',
-    tools: ['soil', 'gravel', 'asphalt', 'shovel', 'roller'],
+    order: 'Vatandaş üç aydır şikâyet ediyor; çukura giren arabanın tamponu hâlâ içinde. Önce kırık kenarları kesme makinesiyle düz kes, molozu al. Altına toprak, üstüne mıcır: toprak yol hizasının en az 30 cm altında kalsın, her katı silindirle. Kenarlara ve tabana yapıştırıcı sür, en üste asfalt. Asfalt 78 °C\'nin altına inmeden silindiri geçir, soğuyunca trafiğe aç.',
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
     budget: 175_000,
     after: 'Ertesi sabah 07.40: İSKİ ekibi yamanın tam ortasını kazdı. "Boru değişecekmiş."',
   },
@@ -35,7 +39,7 @@ export const LEVELS: Level[] = [
     place: 'Bakırköy · Ana cadde',
     title: 'Yağmurdan sonra',
     order: 'Çukur gölete dönmüş, yağmur hâlâ yağıyor. Başkan iki dakika sonra kurdele kesecek. Suyu çek, yağmurun dinmesini bekle ya da beklemeden dök. Karar senin.',
-    tools: ['soil', 'gravel', 'asphalt', 'shovel', 'pump', 'roller'],
+    tools: ['saw', 'shovel', 'pump', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
     budget: 240_000,
     after: 'Açılıştan bir hafta sonra: doğalgaz ekibi geldi. Sen kazmayı görmeden yamanın fotoğrafını çektin, hatıra.',
   },
@@ -43,17 +47,17 @@ export const LEVELS: Level[] = [
     spec: { id: 'dogalgaz', seed: 1071, center: 168, half: 14, depth: 40 },
     place: 'Üsküdar, Kuzguncuk · Boru hattı',
     title: 'Doğalgaz kazısının üstü',
-    order: 'Doğalgaz ekibi boruyu döşemiş, hendeği öylece bırakmış. Dar ve derin: toprağı sık sık silindirle, yoksa ilk kamyonda yama hendeğe oturur.',
-    tools: ['soil', 'gravel', 'asphalt', 'shovel', 'roller'],
+    order: 'Doğalgaz ekibi boruyu döşemiş, hendeği öylece bırakmış. Dar ve derin: silindir dibe inmez: toprağı ince ince dök, her katı tokmakla sıkıştır. Yoksa ilk kamyonda yama hendeğe oturur.',
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
     budget: 150_000,
     after: 'İki gün sonra: aynı hendeği bu kez internet altyapısı için açtılar. "Koordinasyon toplantısı" önümüzdeki ay.',
   },
   {
-    spec: { id: 'kis', seed: 1881, center: 160, half: 30, depth: 22, cold: 0.35 },
+    spec: { id: 'kis', seed: 1881, center: 160, half: 30, depth: 22, cold: 0.2 },
     place: 'Sarıyer, Zekeriyaköy · Kış sabahı',
     title: 'Kış yaması',
     order: 'Hava eksi iki derece. Asfalt kamyondan inerken donmaya başlıyor. Az az dök, hemen silindirle; beklersen silindir taşın üstünden zıplar.',
-    tools: ['soil', 'gravel', 'asphalt', 'shovel', 'roller'],
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
     budget: 200_000,
     after: 'Bahar geldi: kış yamalarının yarısı tuz ve donla dağıldı. Seninki hâlâ yerinde mi, birazdan göreceğiz.',
   },
@@ -62,19 +66,53 @@ export const LEVELS: Level[] = [
     place: 'Esenyurt · Ana bulvar, gece 02.00',
     title: 'Seçim öncesi gece mesaisi',
     order: 'Seçime üç gün var. Bulvarın en geniş çukuru sabah kameralar gelmeden kapanacak. Süre dar, ödenek bol: hızlı ama dikkatli.',
-    tools: ['soil', 'gravel', 'asphalt', 'shovel', 'roller'],
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
     budget: 320_000,
     after: 'Seçimden bir hafta sonra: bulvarın öbür ucunda yeni bir çukur açıldı. Kimse fotoğraf çekmeye gelmedi.',
   },
+  {
+    spec: { id: 'tramvay', seed: 1914, center: 140, half: 24, depth: 22, rail: [172, 236] },
+    place: 'Kadıköy, Moda · Tramvay hattı',
+    title: 'Rayın dibindeki çukur',
+    order: 'Çukur nostaljik tramvayın rayına iki adım. Tramvay her on dakikada geçiyor: raya tek kova düşerse sefer durur, vatman da seni haberlere çıkarır. Dikkatli dök.',
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
+    budget: 170_000,
+    after: 'Ertesi gün: tramvay her zamanki gibi geçti. Vatman yamaya bakıp el salladı; bu belediyede nadir bir an.',
+  },
+  {
+    spec: { id: 'kemer', seed: 1994, center: 160, half: 24, depth: 20 },
+    place: 'Ümraniye · Ara sokak',
+    title: 'Kemer sıkma',
+    order: 'Yılın son çukuru, ödenek neredeyse bitmiş. Bu sefer ek ödenek yok: para bitince kamyon geri döner. Toprağı akıllıca kullan: yol hizasının 30 cm altına kadar mıcır, altı toprak. Asfaltı ince ama yeterli dök.',
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
+    budget: 150_000,
+    strictBudget: true,
+    after: 'Yeni yılın ilk iş emri: "Geçen yılın yamalarını yeniden yap." Ödenek iki katına çıkmış.',
+  },
+  {
+    spec: { id: 'micir', seed: 2008, center: 160, half: 30, depth: 22, deadlineSec: 110 },
+    place: 'Kartal · Sahil yolu',
+    title: 'Mıcır kamyonu gecikti',
+    order: 'Mıcır kamyonu E-5’te trafiğe takıldı, 45 saniye sonra gelir. Açılışa iki dakika var. Bekleyip doğru mu yaparsın, mıcırsız döküp yetiştirir misin?',
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
+    budget: 220_000,
+    gravelAfterSec: 45,
+    after: 'Kamyon şoförü ertesi gün aradı: "Abi trafik vardı." Sen zaten biliyordun.',
+  },
 ];
 
-export const TOOL_LABEL: Record<Tool, { name: string; hint: string; key: string }> = {
-  soil: { name: 'Toprak', hint: 'Alt dolgu, ucuz', key: '1' },
-  gravel: { name: 'Mıcır', hint: 'Asfaltın yatağı', key: '2' },
-  asphalt: { name: 'Sıcak asfalt', hint: 'Soğumadan silindirle', key: '3' },
-  shovel: { name: 'Kürek', hint: 'Fazlayı al', key: '4' },
-  pump: { name: 'Su motoru', hint: 'Suyu çek', key: '5' },
-  roller: { name: 'Silindir', hint: 'Sürükle ya da ← →', key: '6' },
+export const TOOL_LABEL: Record<Tool, { name: string; hint: string }> = {
+  saw: { name: 'Kesme', hint: 'Kırık kenarın gerisi' },
+  shovel: { name: 'Kürek', hint: 'Moloz ve fazlalık' },
+  pump: { name: 'Su motoru', hint: 'Suyu çek' },
+  soil: { name: 'Toprak', hint: 'Alt dolgu, ucuz' },
+  gravel: { name: 'Mıcır', hint: 'Asfaltın yatağı' },
+  tack: { name: 'Yapıştırıcı', hint: 'Kenar ve taban' },
+  tamper: { name: 'Tokmak', hint: 'Dar yer, kenar dibi' },
+  asphalt: { name: 'Sıcak asfalt', hint: '160 °C' },
+  rake: { name: 'Tırmık', hint: 'Yüzeyi düzle' },
+  roller: { name: 'Silindir', hint: 'Sürükle · V titreşim' },
+  probe: { name: 'Ölçüm', hint: 'Karot, °C, mastar' },
 };
 
 /** Muhtarın anlık lafları: dünya bir olayı ilk gördüğünde bir kez söyler. */
@@ -88,6 +126,18 @@ export const REMARKS: Record<string, string> = {
   collapse: 'Yama çöktü, araç içine gömüldü! Yol trafiğe kapatıldı.',
   stuck: 'Araba çukura gömüldü! Çukur dolmadan yol mu açılır evladım?',
   overBudget: 'Ödenek bitti. Ek ödenek yazısı çıktı, imzaya gitti.',
+  budgetLock: 'Ödenek bitti, kamyon geri döndü. Ek ödenek yok evladım; elindekiyle bitir.',
+  rail: 'Rayın üstüne malzeme düştü! Tramvay vatmanı kornaya bastı.',
+  gravelLate: 'Mıcır kamyonu trafikte. Bekle ya da mıcırsız dök, sen bilirsin.',
+  gravelHere: 'Mıcır geldi! Kamyon kapıda.',
+  sawOk: 'Kenar dimdik kesildi. Kırık asfalt söküldü, molozu çukurda; kürekle al.',
+  sawDone: 'Bu yan zaten kesildi evladım.',
+  sawFar: 'O kadar geriden kesersen sağlam yolu da sökersin. Kırık kenarın hemen gerisinden kes.',
+  sawCracked: 'Orası zaten kırık. Kesimi sağlam asfalta, kırığın gerisine at.',
+  sawInside: 'Kesme makinesi yolun üstünde çalışır; çukurun içinde kesecek bir şey yok.',
+  rollerMark: 'Titreşim açıkken sıcak asfaltın üstünde durulmaz evladım, tambur yolu oydu. Ya yürü ya titreşimi kapat.',
+  waste: 'Kürekle attığın da, silindirin yola ittiği de para evladım. Az az dök, ölçerek.',
+  tackFirst: 'Yapıştırıcı sürülmeden asfalt dökülürse kenardan ayrılır. Kenarlar ve taban parlak siyah olmalı.',
 };
 
 /** İşi teslim almak için kontrol mühendisinin istediği en düşük yama puanı. */
@@ -95,10 +145,13 @@ export const PASS_SCORE = 60;
 
 /** Fişin altındaki hüküm: puan ve en büyük kusura göre. */
 export function verdict(r: Report): string {
+  if (r.rail > 3) return 'Rayın üstüne malzeme saçıldı; tramvay bir saat durdu, yolcular yürüdü. Yama sağlam ama haberlere sen çıktın.';
   if (r.stuck >= 0 && r.phases.length > 0 && r.phases[0].dips > 0) return 'Yama trafiğin altında çöktü, araç içine gömüldü. Yol kapandı, ekip yeniden çağrıldı.';
   if (r.stuck >= 0) return 'İlk araba çukura gömüldü, vinç çağrıldı. Yol bir hafta kapalı; çukur yerinde duruyor.';
   if (r.bare > 6) return 'Üstüne asfalt dökülmeyen toprak ilk tekerlekte ezildi, yol çamur oldu.';
   if (r.soilBase > 10) return 'Asfaltın altına toprak doldurulmuş. Kontrol mühendisi karot aldı, raporuna "taşıyıcı tabaka yok" yazdı.';
+  if (r.uncut === 2 && r.unbonded === 2) return 'Kenar ne kesilmiş ne yapıştırılmış. İlk donda su kenardan girdi, yama eski yoldan ayrıldı.';
+  if (r.rubble > 15) return 'Molozun üstüne dolgu yapılmış. Karot alınınca altından kırık asfalt parçaları çıktı.';
   if (r.hot > 10) return 'Asfalt soğumadan trafiğe açıldı; otobüs geçince tekerlek izi oluk oldu. Asfalt soğumadan yol açılmaz.';
   if (r.unpacked > 10) return 'Silindir geçmeyen dolgu ilk otobüste oturdu. Kontrol mühendisi sıkışma deneyine bile gerek görmedi.';
   if (r.thin > 10) return 'Asfalt kağıt gibi ince serilmiş. İlk kışta çatlar, bahara çukur geri gelir.';

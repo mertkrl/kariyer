@@ -133,6 +133,9 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  /* sürüklenen ve uçan kart yana taşar: sayfada yatay kaydırma çubuğu çıkmasın */
+  overflow-x: clip;
+  overflow-clip-margin: 24px;
 }
 
 .deckTitle {

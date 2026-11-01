@@ -228,6 +228,84 @@
   opacity: 0.8;
 }
 
+/* ── çizim dosya: dolu renk yerine kâğıda keçeli kalemle çizilmiş bir dosya ── */
+.sketch {
+  color: #2b2620;
+}
+
+.sketch .tab,
+.sketch .body,
+.sketch .soonBody {
+  border: 2.5px solid #2b2620;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
+  filter: none;
+}
+
+.sketch .tab {
+  border-bottom: 0;
+  border-radius: 10px 14px 0 0 / 14px 9px 0 0;
+  color: #2b2620;
+}
+
+.sketch .body,
+.sketch .soonBody {
+  border-radius: 4px 18px 12px 20px / 3px 14px 20px 12px;
+}
+
+/*
+ * Resim kâğıda kalemle çizilmiş gibidir: zemin dosyanın renginde renkli kalemle taranır, çizimin
+ * şekilleri kâğıt beyazı kalır ve kenarları grafit kalemle, hafif titrek çizilir (#kalem-cizim,
+ * PencilFilter). Hover sahnesi de aynı kalemle oynar.
+ */
+.sketch .artWrap {
+  border-bottom: 2px solid #2b2620;
+  background:
+    repeating-linear-gradient(-35deg, color-mix(in srgb, var(--card) 70%, transparent) 0 1.4px, transparent 1.4px 6px),
+    repeating-linear-gradient(55deg, color-mix(in srgb, var(--card) 35%, transparent) 0 1px, transparent 1px 9px),
+    color-mix(in srgb, var(--card) 16%, #fbf8ef);
+}
+
+.sketch .art {
+  filter: url(#kalem-cizim);
+}
+
+/* fosforlu kalem her satırın altına ayrı çekilir; iki satırlı başlıkta tek blok olup yazıya binmez */
+.sketch .cardTitleInk {
+  padding: 0 4px;
+  margin-left: -4px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: linear-gradient(transparent 55%, color-mix(in srgb, var(--card) 45%, transparent) 55% 92%, transparent 92%);
+}
+
+.sketch .badge {
+  border: 2px solid #2b2620;
+  background: #ffe25a;
+  color: #2b2620;
+}
+
+.sketch .play {
+  border: 2px solid #2b2620;
+  border-radius: 14px 10px 16px 9px / 10px 15px 9px 14px;
+  background: none;
+  color: #2b2620;
+}
+
+.card.sketch:hover .body,
+.card.sketch:focus-visible .body {
+  box-shadow: 5px 6px 0 color-mix(in srgb, var(--card) 55%, transparent);
+}
+
+.card.sketch:hover .play,
+.card.sketch:focus-visible .play {
+  background: color-mix(in srgb, var(--card) 22%, transparent);
+}
+
+.soon.sketch .soonBody {
+  border-style: dashed;
+}
+
 @media (max-width: 760px) {
   .clock > span:last-child {
     display: none;

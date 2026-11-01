@@ -1,0 +1,213 @@
+/* İzin takvimi, e-posta CC'si ve fazla mesai formu (HrWidgets.tsx). Renkler TestGame'in .app değişkenlerinden. */
+
+.leave,
+.mail,
+.form {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 12px;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.leave > :not(header),
+.mail > :not(header),
+.form > :not(header) {
+  margin-inline: 14px;
+}
+
+.appBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: #f1f4f8;
+  border-bottom: 1px solid var(--a-line);
+  font-size: 13px;
+}
+
+.appBar span {
+  color: var(--a-muted);
+  font-size: 12px;
+}
+
+.primary,
+.ghost {
+  justify-self: start;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--a-blue);
+  color: #fff;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--a-blue-dark);
+}
+
+.ghost {
+  border: 1.5px solid var(--a-line);
+  background: #fff;
+  color: var(--a-text);
+}
+
+.prev {
+  color: var(--a-muted);
+  font-size: 13px;
+}
+
+.ok {
+  margin-block: 0;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.warn {
+  margin-block: 0;
+  color: #b45309;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.note {
+  margin-block: 0;
+  color: var(--a-muted);
+  font-size: 13px;
+}
+
+/* ── izin takvimi ── */
+.days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
+  margin-block: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.day {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 4px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 8px;
+  background: #fff;
+  font: 13px var(--font-body);
+  cursor: pointer;
+}
+
+.day small {
+  color: var(--a-muted);
+  font-size: 10.5px;
+}
+
+.day.picked {
+  border-color: var(--a-blue);
+  background: #e8f0fb;
+}
+
+.day.holiday {
+  border-style: dashed;
+  background: #fff4e5;
+  cursor: default;
+}
+
+.day.holiday small {
+  color: #b45309;
+}
+
+/* ── e-posta ── */
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eef1f5;
+  font-size: 13px;
+}
+
+.field > span:first-child {
+  width: 46px;
+  color: var(--a-muted);
+}
+
+.field em {
+  color: #aab3bf;
+  font-style: normal;
+}
+
+.chip {
+  padding: 3px 10px;
+  border: 1px solid var(--a-line);
+  border-radius: 999px;
+  background: #f6f8fb;
+  font: 12.5px var(--font-body);
+  color: var(--a-text);
+  cursor: pointer;
+}
+
+.chipOn {
+  border-color: var(--a-blue);
+  background: #e8f0fb;
+}
+
+.body {
+  margin-block: 2px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── fazla mesai ── */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.row input {
+  width: 18px;
+  height: 18px;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepper button {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--a-line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.stepper b {
+  min-width: 24px;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}

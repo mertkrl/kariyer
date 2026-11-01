@@ -1,0 +1,322 @@
+/* girişte yarım kalan test ekranı */
+.resumePage {
+  max-width: 720px;
+  justify-content: center;
+}
+
+.resumePage .resume {
+  gap: 26px;
+  margin: 0;
+  padding: 34px 36px 30px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--a-blue-soft) 0, #fff 120px);
+}
+
+.resumePage .resumeHead {
+  align-items: start;
+  gap: 18px;
+}
+
+.resumePage .resumeIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+}
+
+.resumePage .resumeIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.resumePage .resumeTitle {
+  font-size: 28px;
+}
+
+.resumePage .resumePct {
+  font-size: 40px;
+}
+
+.resumePage .stepBar {
+  height: 8px;
+}
+
+.resumePage .stepLabel {
+  font-size: 13px;
+}
+
+.resumePage .resumeMeta > div {
+  padding: 16px 18px;
+}
+
+.resumePage .resumeMeta dd {
+  font-size: 24px;
+}
+
+.resumePage .resumeActions {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.resumePage .resumeGo {
+  justify-content: center;
+  padding: 17px 24px;
+  font-size: 17px;
+}
+
+.resumePage .resumeGhost,
+.resumePage .resumeConfirm {
+  justify-content: center;
+  align-self: center;
+}
+
+.resumeLead {
+  margin: 8px 0 0;
+  color: var(--a-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.resume {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  margin: 4px 0 22px;
+  padding: 20px 22px 18px;
+  border: 1px solid var(--a-line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--a-blue-soft) 0, #fff 64px);
+  box-shadow: var(--a-shadow);
+  overflow: hidden;
+}
+
+.resume::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a-blue), #3f8fd8);
+}
+
+.resumeHead {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.resumeIcon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--a-blue);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(43, 98, 192, 0.3);
+}
+
+.resumeKicker {
+  margin: 0 0 2px;
+  color: var(--a-blue);
+  font: 700 11px var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resumeTitle {
+  margin: 0;
+  color: var(--a-text);
+  font: 700 18px/1.25 var(--font-body);
+}
+
+.resumePct {
+  color: var(--a-blue-dark);
+  font: 800 26px/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.resumeSteps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-auto-flow: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumeSteps li {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.stepBar {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--a-line-soft);
+}
+
+.stepLabel {
+  overflow: hidden;
+  color: var(--a-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stepLabel b {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 3px;
+  border-radius: 50%;
+  background: var(--a-line-soft);
+  font-size: 10px;
+}
+
+.step_done .stepBar {
+  background: var(--a-ok);
+}
+
+.step_done .stepLabel b {
+  background: var(--a-ok-soft);
+  color: var(--a-ok);
+}
+
+.step_now .stepBar {
+  background: linear-gradient(90deg, var(--a-blue) 50%, var(--a-blue-soft) 50%);
+  background-size: 200% 100%;
+  animation: resumePulse 2.4s ease-in-out infinite;
+}
+
+.step_now .stepLabel {
+  color: var(--a-text);
+  font-weight: 600;
+}
+
+.step_now .stepLabel b {
+  background: var(--a-blue);
+  color: #fff;
+}
+
+@keyframes resumePulse {
+  0%, 100% { background-position: 50% 0; }
+  50% { background-position: 0 0; }
+}
+
+.resumeMeta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  border: 1px solid var(--a-line-soft);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.resumeMeta > div {
+  padding: 10px 14px;
+  min-width: 0;
+}
+
+.resumeMeta > div + div {
+  border-left: 1px solid var(--a-line-soft);
+}
+
+.resumeMeta dt {
+  color: var(--a-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.resumeMeta dd {
+  margin: 3px 0 0;
+  color: var(--a-text);
+  font: 700 17px/1.2 var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.resumeMeta small {
+  display: block;
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--a-muted);
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.resumeActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+.resumeGo {
+  padding: 13px 22px;
+  font-size: 15px;
+}
+
+.resumeGo span {
+  display: inline-block;
+  transition: transform var(--motion-enter);
+}
+
+.resumeGo:hover span {
+  transform: translateX(3px);
+}
+
+.resumeGhost {
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  color: var(--a-muted);
+  font: 14px var(--font-body);
+  cursor: pointer;
+}
+
+.resumeGhost:hover {
+  color: var(--a-bad);
+}
+
+.resumeConfirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--a-text);
+  font-size: 14px;
+}
+
+.resumeDanger {
+  padding: 7px 12px;
+  border: 1px solid var(--a-bad);
+  border-radius: 8px;
+  background: var(--a-bad-soft);
+  color: var(--a-bad);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .resume, .resumePage .resume { padding: 20px 16px; }
+  .resumePage .resumeHead { grid-template-columns: auto 1fr; }
+  .resumePage .resumePct { grid-column: 1 / -1; font-size: 32px; }
+  .resumePage .resumeTitle { font-size: 22px; }
+  .resumeMeta { grid-template-columns: 1fr 1fr; }
+  .resumeMeta > div:last-child { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--a-line-soft); }
+  .stepLabel { font-size: 0; }
+  .stepLabel b { font-size: 10px; }
+  .step_now .stepLabel { font-size: 12px; }
+  .resumeGo { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step_now .stepBar { animation: none; background: var(--a-blue); }
+}

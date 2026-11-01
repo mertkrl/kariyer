@@ -259,3 +259,16 @@
     display: none;
   }
 }
+
+/* evrenin yeşil yaktığı yolların adları */
+.roads {
+  display: -webkit-box;
+  width: 100%;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 10.5px;
+  line-height: 1.25;
+  text-align: center;
+  opacity: 0.85;
+}

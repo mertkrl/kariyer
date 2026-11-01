@@ -37,3 +37,26 @@ export function darknessAt(hour: number, weather: Weather): number {
   const time = hour < 10 ? (10 - hour) * 0.05 : hour > 16 ? Math.min(0.42, (hour - 16) * 0.1) : 0;
   return Math.min(0.55, time + { sunny: 0, cloudy: 0.06, rain: 0.13, snow: 0.05 }[weather]);
 }
+
+/**
+ * Odanın renk tonu: sabah altın, öğlen nötr, ikindi sıcak, akşam turuncu. Bulut ve yağış tonu
+ * soldurur. `alpha` 0 ise ton yok.
+ */
+export function tintAt(hour: number, weather: Weather): { color: string; alpha: number } {
+  const dim = { sunny: 1, cloudy: 0.5, rain: 0.25, snow: 0.4 }[weather];
+  if (hour < 10) return { color: '#ffcf8a', alpha: 0.14 * (10 - hour) * 0.5 * dim };
+  if (hour < 15) return { color: '#fff3d6', alpha: 0 };
+  if (hour < 17.5) return { color: '#ffb36b', alpha: (0.06 + (hour - 15) * 0.04) * dim };
+  return { color: '#ff8a50', alpha: Math.min(0.24, 0.16 + (hour - 17.5) * 0.05) * dim };
+}
+
+/**
+ * Kapı camından yere düşen güneş huzmesi: sabah içeri uzun ve sağa, öğlen kısa, akşam sola yatar.
+ * `skew` derece, `opacity` havaya ve saate göre (güneşsiz havada yok).
+ */
+export function beamAt(hour: number, weather: Weather): { skew: number; opacity: number } {
+  const t = Math.max(0, Math.min(1, (hour - 8) / 11));
+  const sun = weather === 'sunny' ? 1 : weather === 'cloudy' ? 0.3 : 0;
+  const strength = hour >= 8 && hour < 18.5 ? Math.sin(Math.PI * Math.min(1, t * 0.95 + 0.05)) : 0;
+  return { skew: 38 - t * 70, opacity: Math.round(0.34 * sun * strength * 100) / 100 };
+}

@@ -2,9 +2,9 @@ import { PRODUCTS } from './data';
 import { OLD_DEBTS } from './week';
 
 /*
- * Hacı Emmi'nin defteri: yıllardır tezgâhta duran, kullanılmış bir defter. İç kapak, eski ve yeni
+ * Şükrü Amca'nın defteri: yıllardır tezgâhta duran, kullanılmış bir defter. İç kapak, eski ve yeni
  * veresiyeler (kayıtlar week.ts'te; borçlular ilk günlerde hesap görmeye gelir), bir yıl önceki
- * tek bir toptancı fişinin dökümü; sonda oyuncuya kalan boş sayfalar. Hacı Emmi'nin el yazısı
+ * tek bir toptancı fişinin dökümü; sonda oyuncuya kalan boş sayfalar. Şükrü Amca'nın el yazısı
  * sabittir ve yer yer okunmaz.
  * Oyuncu her sayfaya yalnızca kalemle yazar, silgiyle siler; her sayfanın kendi geri al / ileri al
  * geçmişi vardır.
@@ -37,9 +37,9 @@ export const undo = (p: Page): Page => (p.past.length ? { strokes: p.past[p.past
 
 export const redo = (p: Page): Page => (p.future.length ? { strokes: p.future[0], past: [...p.past, p.strokes], future: p.future.slice(1) } : p);
 
-// --- Hacı Emmi'nin yazdıkları ---
+// --- Şükrü Amca'nın yazdıkları ---
 
-/** Hacı Emmi'nin bir satırı: kenarda tarih, solda yazı, sağda tutar. */
+/** Şükrü Amca'nın bir satırı: kenarda tarih, solda yazı, sağda tutar. */
 export interface Written {
   date?: string;
   text: string;
@@ -65,11 +65,20 @@ export interface PageSpec {
   stain?: boolean;
 }
 
-/** Eski toptancı fiyatı: ilk günkü maliyetin bir kesri, tam liraya yuvarlanır. Bazı satırlar okunmaz. */
-const bought = (share: number, smudged: string[] = []): Written[] =>
-  PRODUCTS.map((p) => ({ text: p.name, amount: `${Math.round(p.cost * share)} ₺`, smudge: smudged.includes(p.id) }));
+/**
+ * Geçen yılın etiketleri: Şükrü Amca'nın bir yıl önce sattığı fiyatlar, yalnızca birkaç temel mal.
+ * Kemal bugünkü alışı söyler; oyuncu ikisinden Şükrü Amca'nın kâr payını, zamla birlikte bugünkü
+ * satış fiyatını kendisi çıkarır.
+ */
+export const LAST_YEAR = ['ekmek', 'sut', 'yumurta', 'cay', 'seker', 'makarna', 'un', 'peynir', 'sabun', 'kibrit'];
+/** Bir yılda fiyatlar aşağı yukarı bu kadara indirilir (geçen yıl = bugün × LAST_YEAR_SHARE). */
+export const LAST_YEAR_SHARE = 0.62;
 
-/** Veresiye sayfası: Hacı Emmi'nin eski borç kayıtları (week.ts); ödenenlerin üstü çizili. */
+/** Geçen yılın satış fiyatı: ilk günkü market fiyatının bir kesri, tam liraya yuvarlanır. Bazı satırlar okunmaz. */
+const labels = (smudged: string[] = []): Written[] =>
+  PRODUCTS.filter((p) => LAST_YEAR.includes(p.id)).map((p) => ({ text: p.name, amount: `${Math.round(p.market * LAST_YEAR_SHARE)} ₺`, smudge: smudged.includes(p.id) }));
+
+/** Veresiye sayfası: Şükrü Amca'nın eski borç kayıtları (week.ts); ödenenlerin üstü çizili. */
 const debts = (page: 1 | 2): Written[] =>
   OLD_DEBTS.filter((d) => d.page === page).map((d) => ({
     date: d.date,
@@ -87,24 +96,24 @@ export const BOOK: PageSpec[] = [
   {
     id: 'kapak',
     written: [
-      { text: 'HACI EMMİ BAKKALİYE', big: true },
-      { text: 'Defter No: 7', big: true },
+      { text: 'ŞÜKRÜ AMCA BAKKALİYE', big: true },
       { text: '' },
       { text: "Yukarıkavak köyü · 1987'den beri" },
       { text: 'Bulan getirsin, çay benden.' },
-      { text: 'Hacı Emmi, telefon 2 10 44', smudge: true },
+      { text: 'Şükrü Amca, telefon 2 10 44', smudge: true },
     ],
   },
   { id: 'veresiye1', title: 'Veresiye', stain: true, written: debts(1) },
   { id: 'veresiye2', title: 'Veresiye', written: debts(2) },
   {
-    id: 'toptanci',
-    title: 'Toptancı · eski fiş',
+    id: 'fiyatlar',
+    title: 'Etiketler · geçen yıl',
     stain: true,
     written: [
-      { date: '1 yıl önce', text: 'Kasaba toptancısı, fiş 1204 · birim alış', smudge: true },
-      ...bought(0.55, ['yumurta', 'peynir']),
-      { text: 'Satışa alışın üstüne üçte bir koy, ufak şeylerde yarısı.', note: 'H.E.' },
+      { date: 'geçen güz', text: 'Dükkânın satış fiyatları', smudge: true },
+      ...labels(['yumurta', 'peynir']),
+      { text: 'Etiketi alışa bakıp koyarım; kimseyi kazıklamam.', note: 'Ş.A.' },
+      { text: 'Büyük malda az kâr, ufak malda biraz fazla.' },
     ],
   },
   ...[1, 2, 3, 4, 5, 6, 7, 8].map(blank),
@@ -117,3 +126,5 @@ export const EMPTY_PAGES: Pages = Object.fromEntries(BOOK.map((p) => [p.id, BLAN
 
 /** Veresiye isteyen müşteri gelince defter bu sayfada açılır. */
 export const CREDIT_PAGE = BOOK.findIndex((p) => p.id === 'veresiye2');
+/** Şükrü Amca'nın geçen yılki etiket fiyatlarının sayfası: tanıtım defteri burada açar. */
+export const PRICE_PAGE = BOOK.findIndex((p) => p.id === 'fiyatlar');
