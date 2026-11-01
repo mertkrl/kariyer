@@ -16,8 +16,12 @@ export interface Level {
   tools: Tool[];
   /** Ödenek (₺). */
   budget: number;
-  /** Kemer sıkma: ödenek dolunca malzeme gelmez. */
+  /** Kemer sıkma: bu işte ödenek kıt, ek ödenek de yok (ödenek her işte dolunca malzeme gelmez). */
   strictBudget?: boolean;
+  /** Rehberli iş: ustabaşı adım adım gösterir. */
+  guided?: boolean;
+  /** Bu işle açılan yeni araçlar ve iş emrindeki tanıtımı. */
+  unlock?: string;
   /** Mıcır kamyonu bu saniyede gelir; o zamana kadar mıcır yok. */
   gravelAfterSec?: number;
   /** İş bitince, bir sonraki işin başında okunan haber. */
@@ -26,12 +30,13 @@ export interface Level {
 
 export const LEVELS: Level[] = [
   {
-    spec: { id: 'mahalle', seed: 1923, center: 162, half: 26, depth: 24 },
+    spec: { id: 'mahalle', seed: 1923, center: 162, half: 26, depth: 24, precut: true },
     place: 'Kadıköy, Moda · Ara sokak',
     title: 'Mahalle çukuru',
-    order: 'Vatandaş üç aydır şikâyet ediyor; çukura giren arabanın tamponu hâlâ içinde. Önce kırık kenarları kesme makinesiyle düz kes, molozu al. Altına toprak, üstüne mıcır: toprak yol hizasının en az 30 cm altında kalsın, her katı silindirle. Kenarlara ve tabana yapıştırıcı sür, en üste asfalt. Asfalt 78 °C\'nin altına inmeden silindiri geçir, soğuyunca trafiğe aç.',
-    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 175_000,
+    order: 'İlk günün. Vatandaş üç aydır şikâyet ediyor; çukura giren arabanın tamponu hâlâ içinde. Kenarları sabah ekip kesti. Ustabaşı Hayri yanında: molozu al, altına toprak, üstüne mıcır, her katı silindirle; yapıştırıcıyı sür, en üste asfalt. O ne derse onu yap.',
+    tools: ['shovel', 'soil', 'gravel', 'tack', 'asphalt', 'roller'],
+    budget: 60_000,
+    guided: true,
     after: 'Ertesi sabah 07.40: İSKİ ekibi yamanın tam ortasını kazdı. "Boru değişecekmiş."',
   },
   {
@@ -39,8 +44,9 @@ export const LEVELS: Level[] = [
     place: 'Bakırköy · Ana cadde',
     title: 'Yağmurdan sonra',
     order: 'Çukur gölete dönmüş, yağmur hâlâ yağıyor. Başkan iki dakika sonra kurdele kesecek. Suyu çek, yağmurun dinmesini bekle ya da beklemeden dök. Karar senin.',
-    tools: ['saw', 'shovel', 'pump', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 240_000,
+    tools: ['saw', 'shovel', 'pump', 'soil', 'gravel', 'tack', 'asphalt', 'rake', 'roller'],
+    budget: 80_000,
+    unlock: 'Kesme makinesi: kırık kenarın hemen gerisinden düz kes. Su motoru ve tırmık da kamyonda.',
     after: 'Açılıştan bir hafta sonra: doğalgaz ekibi geldi. Sen kazmayı görmeden yamanın fotoğrafını çektin, hatıra.',
   },
   {
@@ -48,8 +54,9 @@ export const LEVELS: Level[] = [
     place: 'Üsküdar, Kuzguncuk · Boru hattı',
     title: 'Doğalgaz kazısının üstü',
     order: 'Doğalgaz ekibi boruyu döşemiş, hendeği öylece bırakmış. Dar ve derin: silindir dibe inmez: toprağı ince ince dök, her katı tokmakla sıkıştır. Yoksa ilk kamyonda yama hendeğe oturur.',
-    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 150_000,
+    tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller'],
+    budget: 42_000,
+    unlock: 'Tokmak: silindirin girmediği dar hendekte toprağı kat kat sıkıştırır.',
     after: 'İki gün sonra: aynı hendeği bu kez internet altyapısı için açtılar. "Koordinasyon toplantısı" önümüzdeki ay.',
   },
   {
@@ -58,16 +65,17 @@ export const LEVELS: Level[] = [
     title: 'Kış yaması',
     order: 'Hava eksi iki derece. Asfalt kamyondan inerken donmaya başlıyor. Az az dök, hemen silindirle; beklersen silindir taşın üstünden zıplar.',
     tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 200_000,
+    budget: 66_000,
+    unlock: 'Ölçüm: imleci yamanın üstünde gezdir; karot kesiti, sıcaklık, sıkışma ve mastar sapması görünür.',
     after: 'Bahar geldi: kış yamalarının yarısı tuz ve donla dağıldı. Seninki hâlâ yerinde mi, birazdan göreceğiz.',
   },
   {
     spec: { id: 'secim', seed: 2024, center: 160, half: 44, depth: 20, deadlineSec: 100 },
     place: 'Esenyurt · Ana bulvar, gece 02.00',
     title: 'Seçim öncesi gece mesaisi',
-    order: 'Seçime üç gün var. Bulvarın en geniş çukuru sabah kameralar gelmeden kapanacak. Süre dar, ödenek bol: hızlı ama dikkatli.',
+    order: 'Seçime üç gün var. Bulvarın en geniş çukuru sabah kameralar gelmeden kapanacak. Süre dar, ödenek bu sefer bol: hızlı ama dikkatli.',
     tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 320_000,
+    budget: 100_000,
     after: 'Seçimden bir hafta sonra: bulvarın öbür ucunda yeni bir çukur açıldı. Kimse fotoğraf çekmeye gelmedi.',
   },
   {
@@ -76,7 +84,7 @@ export const LEVELS: Level[] = [
     title: 'Rayın dibindeki çukur',
     order: 'Çukur nostaljik tramvayın rayına iki adım. Tramvay her on dakikada geçiyor: raya tek kova düşerse sefer durur, vatman da seni haberlere çıkarır. Dikkatli dök.',
     tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 170_000,
+    budget: 53_000,
     after: 'Ertesi gün: tramvay her zamanki gibi geçti. Vatman yamaya bakıp el salladı; bu belediyede nadir bir an.',
   },
   {
@@ -85,7 +93,7 @@ export const LEVELS: Level[] = [
     title: 'Kemer sıkma',
     order: 'Yılın son çukuru, ödenek neredeyse bitmiş. Bu sefer ek ödenek yok: para bitince kamyon geri döner. Toprağı akıllıca kullan: yol hizasının 30 cm altına kadar mıcır, altı toprak. Asfaltı ince ama yeterli dök.',
     tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 150_000,
+    budget: 46_000,
     strictBudget: true,
     after: 'Yeni yılın ilk iş emri: "Geçen yılın yamalarını yeniden yap." Ödenek iki katına çıkmış.',
   },
@@ -95,7 +103,7 @@ export const LEVELS: Level[] = [
     title: 'Mıcır kamyonu gecikti',
     order: 'Mıcır kamyonu E-5’te trafiğe takıldı, 45 saniye sonra gelir. Açılışa iki dakika var. Bekleyip doğru mu yaparsın, mıcırsız döküp yetiştirir misin?',
     tools: ['saw', 'shovel', 'soil', 'gravel', 'tamper', 'tack', 'asphalt', 'rake', 'roller', 'probe'],
-    budget: 220_000,
+    budget: 66_000,
     gravelAfterSec: 45,
     after: 'Kamyon şoförü ertesi gün aradı: "Abi trafik vardı." Sen zaten biliyordun.',
   },
@@ -125,8 +133,8 @@ export const REMARKS: Record<string, string> = {
   spill: 'Yola dökülen de para, haberin olsun.',
   collapse: 'Yama çöktü, araç içine gömüldü! Yol trafiğe kapatıldı.',
   stuck: 'Araba çukura gömüldü! Çukur dolmadan yol mu açılır evladım?',
-  overBudget: 'Ödenek bitti. Ek ödenek yazısı çıktı, imzaya gitti.',
   budgetLock: 'Ödenek bitti, kamyon geri döndü. Ek ödenek yok evladım; elindekiyle bitir.',
+  chuteFull: 'Oluk kendiliğinden kapandı: bu kat ipe geldi. Oluğu boş yere çevir.',
   rail: 'Rayın üstüne malzeme düştü! Tramvay vatmanı kornaya bastı.',
   gravelLate: 'Mıcır kamyonu trafikte. Bekle ya da mıcırsız dök, sen bilirsin.',
   gravelHere: 'Mıcır geldi! Kamyon kapıda.',

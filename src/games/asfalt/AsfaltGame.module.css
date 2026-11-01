@@ -426,19 +426,15 @@
 }
 
 .help {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px 16px;
+  display: grid;
+  gap: 7px;
   margin: 0;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: rgba(34, 31, 27, 0.55);
+  padding: 0;
   list-style: none;
   counter-reset: step;
   color: #f3eee2;
   font-size: 12.5px;
-  backdrop-filter: blur(6px);
+  line-height: 1.35;
 }
 
 /* adımlar numaralı: "1 Molozu kürekle al" */
@@ -452,7 +448,8 @@
   place-items: center;
   width: 18px;
   height: 18px;
-  margin-right: 6px;
+  flex: none;
+  margin-right: 8px;
   border-radius: 50%;
   background: var(--hazard);
   color: #222;
@@ -607,10 +604,6 @@
     z-index: 20;
   }
 
-  .help {
-    display: none;
-  }
-
   .tools {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -642,8 +635,7 @@
   }
 
   .tool small,
-  .tool kbd,
-  .help {
+  .tool kbd {
     display: none;
   }
 
@@ -657,8 +649,7 @@
 }
 
 @media (max-width: 560px) {
-  .tool kbd,
-  .help {
+  .tool kbd {
     display: none;
   }
 

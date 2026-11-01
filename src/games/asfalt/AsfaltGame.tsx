@@ -10,6 +10,7 @@ import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/
 import { crewTitle, LEVELS, TOOL_LABEL } from './levels';
 import { Work } from './Work';
 import styles from './AsfaltGame.module.css';
+import ui from './Work.module.css';
 
 /*
  * Yama Ekibi: belediyenin asfalt ekibinde bir mesai. Her iş bir çukur: toprak, mıcır, sıcak asfalt
@@ -46,7 +47,9 @@ export function AsfaltGame() {
   return (
     <div className={styles.app}>
       <header className={styles.top}>
-        <ClockOut risk={phase.at === 'work' ? 'Yarım kalan yama kaybolur; biten işler kayıtlı.' : undefined} />
+        <span className={ui.exit}>
+          <ClockOut risk={phase.at === 'work' ? 'Yarım kalan yama kaybolur; biten işler kayıtlı.' : undefined} />
+        </span>
       </header>
 
       {phase.at === 'order' && level && (
@@ -64,6 +67,18 @@ export function AsfaltGame() {
               <dd>{level.budget.toLocaleString('tr-TR')} ₺</dd>
               <dt>Araçlar</dt>
               <dd>{level.tools.map((t) => TOOL_LABEL[t].name).join(' · ')}</dd>
+              {level.unlock && (
+                <>
+                  <dt>Yeni</dt>
+                  <dd>{level.unlock}</dd>
+                </>
+              )}
+              {level.guided && (
+                <>
+                  <dt>Rehber</dt>
+                  <dd>Ustabaşı yanında, adım adım gösterir</dd>
+                </>
+              )}
               {level.spec.deadlineSec && (
                 <>
                   <dt>Açılış</dt>

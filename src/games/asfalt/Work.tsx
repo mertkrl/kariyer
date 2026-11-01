@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion } from '../../components/ui/motion';
 import { PASS_SCORE, REMARKS, TOOL_LABEL, verdict, type Level, type Tool } from './levels';
-import { CHUTE_Y, H, PRICE, ROAD, ROLLER_W, SAW_PRICE, TACK_PRICE, TICKS_PER_SEC, TRAFFIC, W, checklist, costOf, createWorld, dig, driveRoller, endDay, gradeTraffic, passVehicle, pour, rake, surfaceTemp, tamp, toggleVibe, probe, pump, raining, runTraffic, sawCut, spray, startTraffic, step, surfaceAt, findPit, railSpill, type Material, type Probe, type Report, type StepKey, type VehicleKind, type Weather, type World } from './model';
+import { CHUTE_Y, FILL_TO, chuteFull, H, PRICE, ROAD, ROLLER_W, SAW_PRICE, TACK_PRICE, TICKS_PER_SEC, TRAFFIC, W, checklist, costOf, createWorld, dig, driveRoller, endDay, gradeTraffic, passVehicle, pour, rake, surfaceTemp, tamp, toggleVibe, probe, pump, raining, runTraffic, sawCut, spray, startTraffic, step, surfaceAt, findPit, railSpill, type Material, type Probe, type Report, type StepKey, type VehicleKind, type Weather, type World } from './model';
 import { draw, newImage, SCALE } from './render';
+import { GUIDE } from './guide';
 import { Backdrop, CarSprite, RollerSprite, VEHICLE } from './Site';
 import styles from './AsfaltGame.module.css';
 import ui from './Work.module.css';
@@ -39,7 +40,7 @@ const tons = (cells: number) => `${((cells * KG_PER_CELL) / 1000).toLocaleString
  */
 const STEPS: { key: StepKey; text: string; tool?: Tool }[] = [
   { key: 'water', text: 'Suyu çek', tool: 'pump' },
-  { key: 'cut', text: 'Kenarları kes' },
+  { key: 'cut', text: 'Kenarları kes', tool: 'saw' },
   { key: 'rubble', text: 'Molozu al' },
   { key: 'base', text: 'Toprak 30 cm altta, üstü mıcır; her kat silindirli' },
   { key: 'tack', text: 'Kenara, tabana yapıştırıcı' },
@@ -80,6 +81,12 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
       alive.current = false;
     };
   }, []);
+  // rehberli işte ustabaşının adımı; silindirin çukurun ortasından geçişleri adımın başından sayılır
+  const [lesson, setLesson] = useState(level.guided ? 0 : GUIDE.length);
+  const lessonRef = useRef(lesson);
+  lessonRef.current = lesson;
+  const passes = useRef(0);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [overlay, setOverlay] = useState({ rollerX: -1, rollerY: 0, vibe: true, px: 0, py: 0, over: false, down: false });
 
   const pick = (t: Tool) => {
@@ -116,19 +123,23 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
           // kesme makinesi her basışta bir kez keser: kısa bir dokunuş da sayılır
           if (p.fresh) {
             p.fresh = false;
-            if (t === 'saw' && level.strictBudget && costOf(w) >= level.budget) say('budgetLock');
+            if (t === 'saw' && costOf(w) + SAW_PRICE > level.budget) say('budgetLock');
             else if (t === 'saw') {
               const r = sawCut(w, p.x);
               setRemark((m) => ({ text: REMARKS[SAW_LINE[r]], id: m.id + 1 }));
             }
           }
           if (p.down) {
-            const locked = level.strictBudget && costOf(w) >= level.budget;
+            // ödenek dolunca kamyon malzeme vermez: bir sonraki kova da sığmıyorsa dökülmez
+            const locked = t === 'tack' ? costOf(w) + TACK_PRICE * 4 > level.budget : MATERIALS.includes(t) && costOf(w) + PRICE[t as Material] * 3 > level.budget;
             const late = t === 'gravel' && w.tick < (level.gravelAfterSec ?? 0) * TICKS_PER_SEC;
             if (t === 'soil' || t === 'gravel' || t === 'asphalt') {
               if (locked) say('budgetLock');
               // malzeme kamyonun oluğundan akar: imleç yalnızca oluğun nereye çevrileceğini seçer
-              else if (!late) pour(w, t, p.x, CHUTE_Y, 2, 3);
+              else if (late) {
+                // mıcır kamyonu yolda
+              } else if (chuteFull(w, t, p.x)) say('chuteFull');
+              else pour(w, t, p.x, CHUTE_Y, 2, 3);
               if (t === 'asphalt' && !checklist(w).tack) say('tackFirst');
             } else if (t === 'saw') {
               // kesme makinesi basışta keser (aşağıda), basılı tutmak bir şey değiştirmez
@@ -146,14 +157,21 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
             } else if (t === 'pump') pump(w, p.x, p.y, 6);
             else driveRoller(w, p.x - ROLLER_W / 2);
           }
+          const before = w.roller ? w.roller.x + ROLLER_W / 2 : -1;
           step(w);
+          const mid = (w.hole[0] + w.hole[1]) / 2;
+          if (w.roller && before >= 0 && (before - mid) * (w.roller.x + ROLLER_W / 2 - mid) < 0) passes.current++;
         }
         for (const e of w.events) say(e);
+        if (lessonRef.current < GUIDE.length && frame % 10 === 0 && GUIDE[lessonRef.current].done(w, checklist(w), passes.current)) {
+          passes.current = 0;
+          setLesson(lessonRef.current + 1);
+          lessonRef.current++;
+        }
         const r = raining(w);
         if (wasRaining && !r) say('rainStop');
         wasRaining = r;
         if (deadline - w.tick < 20 * TICKS_PER_SEC && deadline !== Infinity) say('deadline');
-        if (!level.strictBudget && costOf(w) > level.budget) say('overBudget');
         if (level.gravelAfterSec) {
           if (w.tick < level.gravelAfterSec * TICKS_PER_SEC) say('gravelLate');
           else say('gravelHere');
@@ -304,8 +322,9 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
   const over = hud.cost > level.budget;
   const w = world.current;
   const isMaterial = MATERIALS.includes(tool);
+  const coach = lesson < GUIDE.length ? GUIDE[lesson] : null;
   // mastar ipi: yol hizası ve seçili malzemenin hedef seviyesi, çukurun iki yanına gerilmiş
-  const guide = tool === 'soil' ? { y: ROAD + 12, label: 'toprak buraya kadar (−30 cm)' } : tool === 'gravel' ? { y: ROAD + 3, label: 'mıcır buraya kadar (−7,5 cm)' } : tool === 'asphalt' ? { y: ROAD - 1, label: 'sıkışma payı (+2,5 cm)' } : null;
+  const guide = tool === 'soil' ? { y: FILL_TO.soil, label: 'toprak buraya kadar (−30 cm)' } : tool === 'gravel' ? { y: FILL_TO.gravel, label: 'mıcır buraya kadar (−7,5 cm)' } : tool === 'asphalt' ? { y: FILL_TO.asphalt, label: 'sıkışma payı (+2,5 cm)' } : null;
   const [g0, g1] = [w.hole[0] - 4, w.hole[1] + 4];
 
   return (
@@ -393,17 +412,44 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
       </p>
       {stage === 'receipt' && report && <Receipt level={level} world={w} report={report} last={last} onNext={() => onNext(report.score)} onRetry={onRetry} />}
 
+      {coach && stage === 'work' && (
+        <aside className={ui.coach} aria-live="polite">
+          <header>
+            <b>Ustabaşı Hayri</b>
+            <span>
+              {lesson + 1}/{GUIDE.length}
+            </span>
+          </header>
+          <p>{coach.text}</p>
+          <button type="button" className={ui.skip} onClick={() => setLesson(GUIDE.length)}>
+            Rehberi kapat
+          </button>
+        </aside>
+      )}
+      {stage === 'work' && (
+        <div className={ui.helpWrap}>
+          {helpOpen && (
+            <div id="asfalt-sira" className={ui.helpCard}>
+              <b>Yapılış sırası</b>
+              <ol className={styles.help}>
+                {STEPS.filter((st) => !st.tool || level.tools.includes(st.tool)).map((st) => (
+                  <li key={st.key} className={done[st.key] ? styles.stepDone : ''}>
+                    {st.text}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+          <button type="button" className={ui.helpBtn} aria-expanded={helpOpen} aria-controls="asfalt-sira" aria-label="Yapılış sırası" onClick={() => setHelpOpen((o) => !o)}>
+            {helpOpen ? '×' : '?'}
+          </button>
+        </div>
+      )}
+
       <div className={styles.dock}>
-        <ol className={styles.help} aria-label="Yapılış sırası">
-          {STEPS.filter((st) => !st.tool || level.tools.includes(st.tool)).map((st) => (
-            <li key={st.key} className={done[st.key] ? styles.stepDone : ''}>
-              {st.text}
-            </li>
-          ))}
-        </ol>
         <div className={styles.tools} role="toolbar" aria-label="Araçlar">
           {level.tools.map((t, k) => (
-            <button key={t} type="button" className={`${styles.tool} ${tool === t ? styles.on : ''}`} aria-pressed={tool === t} disabled={stage !== 'work' || (t === 'gravel' && hud.sec < (level.gravelAfterSec ?? 0))} onClick={() => pick(t)}>
+            <button key={t} type="button" className={`${styles.tool} ${tool === t ? styles.on : ''} ${coach?.tool === t && tool !== t ? ui.hint : ''}`} aria-pressed={tool === t} disabled={stage !== 'work' || (t === 'gravel' && hud.sec < (level.gravelAfterSec ?? 0))} onClick={() => pick(t)}>
               <i style={{ background: SWATCH[t] }} />
               <span>
                 <b>{TOOL_LABEL[t].name}</b>
@@ -446,7 +492,7 @@ export function Work({ level, last, onNext, onRetry }: { level: Level; last: boo
           {day && stage !== 'work' && <div className={styles.chip}>{{ sun: '☀️', rain: '🌧', snow: '❄️' }[day.weather]} {day.label}</div>}
           {level.spec.rainSec !== undefined && stage === 'work' && <div className={styles.chip}>{hud.rain ? '🌧 Yağmur yağıyor' : '⛅ Yağmur dindi'}</div>}
           {left !== null && <div className={`${styles.chip} ${left < 20 ? styles.bad : ''}`}>Kurdeleye {Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')}</div>}
-          <button type="button" className={styles.primary} disabled={stage !== 'work'} onClick={finish}>
+          <button type="button" className={`${styles.primary} ${coach?.tool === 'open' ? ui.hint : ''}`} disabled={stage !== 'work'} onClick={finish}>
             Trafiğe aç
           </button>
         </div>

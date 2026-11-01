@@ -35,7 +35,7 @@ export type Cell = number;
 export type Material = 'soil' | 'gravel' | 'asphalt';
 export const MATERIAL_CELL: Record<Material, Cell> = { soil: SOIL, gravel: GRAVEL, asphalt: HOT };
 /** Bir hücrenin bedeli (₺). */
-export const PRICE: Record<Material, number> = { soil: 40, gravel: 95, asphalt: 280 };
+export const PRICE: Record<Material, number> = { soil: 10, gravel: 22, asphalt: 100 };
 
 /** Sıcak asfalt bu sıcaklığın altına inince donar. */
 export const SET_HEAT = 60;
@@ -63,11 +63,13 @@ export const tempC = (heat: number) => Math.round(30 + heat * 0.51);
 /** Kesme makinesi kırık kenarın en çok bu kadar gerisinden keser (hücre); ötesi sağlam yolu söker. */
 export const SAW_REACH = 10;
 /** Bir kesimin bedeli ve bir hücre yapıştırıcının bedeli (₺). */
-export const SAW_PRICE = 3500;
-export const TACK_PRICE = 20;
+export const SAW_PRICE = 750;
+export const TACK_PRICE = 27;
 
 export interface LevelSpec {
   id: string;
+  /** Kenarlar sabah ekipçe kesilmiş gelir (rehberli ilk iş). */
+  precut?: boolean;
   seed: number;
   /** Çukurun ortası, yarı genişliği ve en derin yeri (hücre). */
   center: number;
@@ -160,7 +162,7 @@ function lose(w: World, i: number) {
 }
 
 /** Boşa giden malzeme bu tutarı geçince muhtar söyler (₺). */
-export const WASTE_WARN = 8000;
+export const WASTE_WARN = 2000;
 
 /** Yolu kurar, ortasına çukuru açar; çukurun dibine moloz, istenirse su koyar. */
 export function createWorld(spec: LevelSpec): World {
@@ -216,6 +218,12 @@ export function createWorld(spec: LevelSpec): World {
   ] as const) {
     for (let k = 0; k < 3; k++) if (rng() < 0.5) w.cells[idx(x + dir * k, ROAD)] = EMPTY;
   }
+
+  if (spec.precut)
+    for (const side of [-1, 1]) {
+      const edge = side < 0 ? w.hole[0] : w.hole[1];
+      for (let d = 1; d <= SAW_REACH; d++) if (sawCut(w, edge + side * d) === 'ok') break;
+    }
 
   if (spec.waterTop !== undefined) {
     for (let y = ROAD + spec.waterTop; y < H; y++)
@@ -491,6 +499,32 @@ export function dig(w: World, cx: number, cy: number, radius = 4) {
 
 /** Kamyonun döküm oluğunun yüksekliği (satır): malzeme buradan akar, yerçekimiyle iner. */
 export const CHUTE_Y = ROAD - 24;
+
+/** Her malzemenin mastar ipi (satır): toprak 30 cm altta, mıcır 7,5 cm altta, asfalt sıkışma payıyla 2,5 cm üstte. */
+export const FILL_TO: Record<Material, number> = { soil: ROAD + 12, gravel: ROAD + 3, asphalt: ROAD - 1 };
+
+/**
+ * Oluğun ölçü kesicisi: oluğun altındaki sütunlar (düşmekte olan malzeme de sayılarak) o malzemenin
+ * ipine gelince kamyon dökmeyi keser. Fazla malzeme hiç yola çıkmaz; oyuncu oluğu boş yere çevirir.
+ */
+export function chuteFull(w: World, mat: Material, cx: number, radius = 2) {
+  const x0 = Math.max(0, Math.round(cx - radius));
+  const x1 = Math.min(W - 1, Math.round(cx + radius));
+  let top = 0;
+  let falling = 0;
+  for (let x = x0; x <= x1; x++) {
+    // oturmuş yüzey: alttan yukarı ilk boşluğa kadar; üstündekiler havada, düşüyor
+    let y = H - 1;
+    while (y >= 0 && w.cells[idx(x, y)] !== EMPTY && w.cells[idx(x, y)] !== WATER) y--;
+    top += y + 1;
+    for (let k = y; k >= CHUTE_Y; k--) {
+      const c = w.cells[idx(x, k)];
+      if (c !== EMPTY && c !== WATER) falling++;
+    }
+  }
+  const n = x1 - x0 + 1;
+  return top / n - falling / n <= FILL_TO[mat];
+}
 
 /**
  * Tırmık (tesviye): imlecin iki yanındaki en yüksek sütunun tepesindeki gevşek malzemeyi en

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { EMPTY, GRAVEL, H, HOT, OLD, PACKED, ROAD, ROLLER_W, RUBBLE, SAW_REACH, SET, SOIL, TACK, W, WATER, WET, DENSE, ROLLER_MAX, bondOf, checklist, createWorld, dig, rake, tamp, soilIntrusion, surfaceTemp, probe, railSpill, driveRoller, holeVolume, idx, openToTraffic, pour, rubbleLeft, sawCut, spray, step, surfaceAt, type LevelSpec, type World } from '../src/games/asfalt/model';
+import { FILL_TO, chuteFull, EMPTY, GRAVEL, H, HOT, OLD, PACKED, ROAD, ROLLER_W, RUBBLE, SAW_REACH, SET, SOIL, TACK, W, WATER, WET, DENSE, ROLLER_MAX, bondOf, checklist, createWorld, dig, rake, tamp, soilIntrusion, surfaceTemp, probe, railSpill, driveRoller, holeVolume, idx, openToTraffic, pour, rubbleLeft, sawCut, spray, step, surfaceAt, type LevelSpec, type World } from '../src/games/asfalt/model';
 import { crewTitle, LEVELS, PASS_SCORE } from '../src/games/asfalt/levels';
 
 const SPEC: LevelSpec = { id: 'deneme', seed: 7, center: 120, half: 24, depth: 22 };
@@ -451,4 +451,28 @@ test('tırmık malzemeyi kaybetmeden düzler; tokmak silindirin inemediği dar h
   layer(t, ROAD + 30, H, SOIL);
   for (let k = 0; k < 120; k++) tamp(t, c, surfaceAt(t, c));
   assert.ok(t.flags[idx(c, surfaceAt(t, c))] & PACKED, 'tokmaklanan kat sıkışır');
+});
+
+test('oluğun ölçü kesicisi: malzeme ipe gelince oluk kapanır, fazlası dökülmez', () => {
+  const w = createWorld(SPEC);
+  let poured = 0;
+  for (let k = 0; k < 4000; k++) {
+    if (!chuteFull(w, 'soil', 120)) poured += pour(w, 'soil', 120, ROAD - 24, 2, 3);
+    step(w);
+  }
+  assert.ok(poured > 0);
+  // oluğun altı ipin biraz üstüne kadar dolar, yol hizasına taşmaz
+  assert.ok(surfaceAt(w, 120) <= FILL_TO.soil + 1, `${surfaceAt(w, 120)}`);
+  assert.ok(surfaceAt(w, 120) > ROAD + 4, `${surfaceAt(w, 120)}`);
+});
+
+test('kademeler: ilk iş rehberli ve kenarları kesik gelir; kesme ve ölçüm sonradan açılır', () => {
+  const first = LEVELS[0];
+  assert.ok(first.guided);
+  const w = createWorld(first.spec);
+  assert.ok(checklist(w).cut);
+  assert.ok(!first.tools.includes('saw') && !first.tools.includes('probe'));
+  const at = (t: string) => LEVELS.findIndex((l) => l.tools.includes(t as never));
+  assert.ok(at('saw') > 0 && at('probe') > at('saw'));
+  for (const l of LEVELS.slice(at('probe'))) assert.ok(l.tools.includes('probe'), l.spec.id);
 });
