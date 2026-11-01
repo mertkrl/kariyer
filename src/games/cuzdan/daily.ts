@@ -21,9 +21,18 @@ export function dayNumber(d: Date): number {
 export interface DailyRound {
   item: Item;
   year: Year;
-  /** Artan sırada dört fiyat; biri doğru. */
+  /** Karışık sırada dört fiyat; biri doğru, yeri her soruda başka. */
   options: number[];
   answer: number;
+}
+
+function shuffleWith<T>(xs: T[], r: () => number): T[] {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 const FACTORS = [0.35, 0.5, 0.65, 1.5, 2, 3];
@@ -45,7 +54,7 @@ export function makeDaily(day: number): DailyRound[] {
       options.push(v);
       if (options.length === 4) break;
     }
-    out.push({ item, year, options: options.sort((a, b) => a - b), answer });
+    out.push({ item, year, options: shuffleWith(options, r), answer });
   }
   return out;
 }

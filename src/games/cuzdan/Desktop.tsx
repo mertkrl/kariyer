@@ -4,6 +4,7 @@ import { EVENTS, YEAR_NOTE, type Year } from './data';
 import { CheaperApp } from './apps/CheaperApp';
 import { GuessApp } from './apps/GuessApp';
 import { DailyApp } from './apps/DailyApp';
+import { ERA_GAME_TITLE, EraGame } from './apps/EraGame';
 import { ShopApp } from './apps/ShopApp';
 import { MusicApp } from './apps/MusicApp';
 import { ClockApp, NoteApp, ReportApp } from './apps/Utility';
@@ -29,7 +30,7 @@ import s from './Shell.module.css';
 
 type Quiz = Exclude<Mode, 'makine'>;
 
-const WIDTH: Record<AppId, number> = { gunluk: 400, gecmis: 410, ucuz: 360, web: 620, not: 420, saat: 390, muzik: 320, karne: 440 };
+const WIDTH: Record<AppId, number> = { gunluk: 400, gecmis: 410, ucuz: 360, web: 620, not: 420, saat: 390, muzik: 320, karne: 440, oyun: 360 };
 const MAX: Record<Quiz, number> = { gecmis: GUESS_ROUNDS * 100, ucuz: quickMax(QUICK_ROUNDS) };
 
 /** Pencerelerin ilk yerleri: ekranın genişliğine göre, birbirini az örtecek biçimde. */
@@ -45,6 +46,7 @@ function layout(): Record<AppId, Pos> {
     karne: { x: Math.round(W * 0.3), y: 40 },
     gunluk: { x: Math.round(W * 0.28), y: 24 },
     muzik: { x: W - 360, y: Math.round(H * 0.5) },
+    oyun: { x: Math.round(W * 0.55), y: 60 },
   };
 }
 
@@ -55,13 +57,17 @@ interface ErrorWin {
   pos: Pos;
 }
 
+/** Her açılışta başka tohum: ürünler her oyunda başka sırayla gelir. */
+const newSeed = () => Math.floor(Math.random() * 2 ** 31) + 1;
+
+
 export function Desktop({ year, persona, onYear, onLogout }: { year: Year; persona: Persona; onYear: (y: Year) => void; onLogout: () => void }) {
   const [order, setOrder] = useState<AppId[]>([]);
   const [pos, setPos] = useState(layout);
   const [sizes, setSizes] = useState<Partial<Record<AppId, Size>>>({});
   const [maxed, setMaxed] = useState<Partial<Record<AppId, boolean>>>({});
   const [selected, setSelected] = useState<AppId | null>(null);
-  const [seeds, setSeeds] = useState<Record<string, number>>(() => ({ gecmis: 1, ucuz: 2, web: 4 }));
+  const [seeds, setSeeds] = useState<Record<string, number>>(() => ({ gecmis: newSeed(), ucuz: newSeed(), web: newSeed() }));
   const [report, setReport] = useState<{ mode: Quiz; log: RoundLog[]; year: Year } | null>(null);
   const [errors, setErrors] = useState<ErrorWin[]>([]);
   const [shake, setShake] = useState(false);
@@ -84,7 +90,7 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
   const isOpen = (id: AppId) => order.includes(id);
   const move = (id: AppId) => (p: Pos) => setPos((all) => ({ ...all, [id]: p }));
   const say = (icon: string, body: ReactNode) => setToast((t) => ({ icon, body, n: (t?.n ?? 0) + 1 }));
-  const reseed = (id: string) => setSeeds((x) => ({ ...x, [id]: Date.now() % 100000 }));
+  const reseed = (id: string) => setSeeds((x) => ({ ...x, [id]: newSeed() }));
 
   // müzik: giriş tıklamasıyla başlar (tarayıcı izin verir), masaüstü kapanınca durur
   const theme = themeOf(year);
@@ -200,6 +206,7 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
       ),
     },
     web: { title: theme === 'luna' ? `ZAMAN BAKKALI ${year} — İnternet Gezgini` : theme === 'glass' ? 'zamanbakkali.com — Gezgin' : 'zaman — Market uygulaması', short: 'Zaman Bakkalı', body: <ShopApp key={year} year={year} persona={persona} onPaid={(k) => say('🛒', <><b>Zaman Bakkalı</b>: Sepetin {Math.round(k)} kat pahalandı.</>)} /> },
+    oyun: { title: `${ERA_GAME_TITLE[theme]} — ${year}`, short: 'Dönemin Oyunu', body: <EraGame key={year} year={year} /> },
     not: { title: `bordro_${year}.txt — Not Defteri`, short: 'bordro.txt', body: <NoteApp year={year} persona={persona} /> },
     muzik: {
       title: 'Medya Çalar',
@@ -352,7 +359,7 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
           ))}
         </ul>
 
-        {(['karne', 'gunluk', 'gecmis', 'ucuz', 'web', 'not', 'muzik', 'saat'] as AppId[]).map(appWin)}
+        {(['karne', 'gunluk', 'gecmis', 'ucuz', 'web', 'oyun', 'not', 'muzik', 'saat'] as AppId[]).map(appWin)}
 
         {errors.map((e, i) => (
           <Window

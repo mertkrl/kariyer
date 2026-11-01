@@ -1,0 +1,145 @@
+/* Dönemin oyunu: Eşini Bul kartları, Yapboz Aracı'nın cam çerçevesi ve Etiket Avı ızgarası. */
+
+.memory {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.card {
+  aspect-ratio: 1;
+  border: 1px solid var(--btn-line);
+  border-radius: var(--btn-r);
+  background: linear-gradient(#3a6fd8, #1d48a8);
+  color: #ffd84a;
+  font: 900 22px Tahoma, sans-serif;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.cardOpen {
+  background: #fffef4;
+  color: inherit;
+  font-size: 28px;
+  transform: rotateY(0);
+}
+
+.cardFound {
+  opacity: 0.55;
+  box-shadow: inset 0 0 0 2px #2ccf2c;
+}
+
+.gadget {
+  display: grid;
+  place-items: center;
+  margin: 10px auto;
+  padding: 10px;
+  width: fit-content;
+  border-radius: 10px;
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.55), rgb(120 170 220 / 0.35));
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.35), inset 0 0 0 1px rgb(255 255 255 / 0.7);
+}
+
+.slide {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  grid-template-rows: repeat(3, 72px);
+  gap: 2px;
+  background: rgb(0 0 0 / 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tile {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: radial-gradient(circle at 30% 25%, #fff6c9, #f2b230 70%, #b56f12);
+  cursor: pointer;
+}
+
+.tile:disabled {
+  cursor: default;
+}
+
+.hole {
+  background: rgb(255 255 255 / 0.15);
+}
+
+.hole .piece {
+  visibility: hidden;
+}
+
+.piece {
+  position: absolute;
+  left: calc(var(--x) * -72px);
+  top: calc(var(--y) * -72px);
+  width: 216px;
+  height: 216px;
+  display: grid;
+  place-items: center;
+  font-size: 170px;
+  line-height: 1;
+}
+
+.num {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  color: #fff;
+  font: 700 11px Tahoma, sans-serif;
+  text-shadow: 0 0 2px #000;
+}
+
+.hunt {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.spot {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-height: 86px;
+  padding: 4px;
+  border: 1px solid var(--btn-line);
+  border-radius: var(--btn-r);
+  background: var(--btn);
+  font: 11px var(--font), Tahoma, sans-serif;
+  color: #000;
+  cursor: pointer;
+}
+
+.spot:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.spotEmoji {
+  font-size: 26px;
+}
+
+.flashOk {
+  animation: flashOk 0.35s;
+}
+
+.flashNo {
+  animation: flashNo 0.35s;
+}
+
+@keyframes flashOk {
+  from {
+    background: #9be59b;
+  }
+}
+
+@keyframes flashNo {
+  from {
+    background: #f19b9b;
+  }
+}

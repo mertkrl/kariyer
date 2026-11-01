@@ -80,6 +80,14 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
     audioEngine.setMusicMood('off');
   }, []);
   const [saved] = useState(hasSave);
+  // Cüzdan Zamanı: profil seçilip oturum açıldıysa kart "devam et" der
+  const [cuzdanSaved] = useState(() => {
+    try {
+      return localStorage.getItem('kariyerweb-cuzdan-oturum-v1') !== null;
+    } catch {
+      return false;
+    }
+  });
   const [root, track] = usePointerVars<HTMLDivElement>(true);
   const [now] = useState(() => new Date());
   // patron yalnızca mesai saatinde gelir: düğme dakikada bir yeniden bakar
@@ -186,7 +194,7 @@ export function ArcadeScreen({ preload }: { preload: (route: string) => void }) 
                     <path d="M50 2 C 88 1, 99 22, 98 52 C 97 86, 80 99, 48 98 C 12 97, 1 80, 2 46 C 3 14, 24 3, 58 4" pathLength={1} />
                   </svg>
                 )}
-                <GameCard sketch game={g} isNew={i === 0} preload={preload} resume={g.route === 'iseAlim' && saved} />
+                <GameCard sketch game={g} isNew={i === 0} preload={preload} resume={(g.route === 'iseAlim' && saved) || (g.route === 'cuzdan' && cuzdanSaved)} />
                 {played && (
                   <>
                     <Tick />

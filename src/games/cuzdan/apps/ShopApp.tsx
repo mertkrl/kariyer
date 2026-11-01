@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { markPlayed } from '../../../arcade/progress';
 import { CATEGORY_LABEL, ERA_ITEMS, EVENTS, ITEMS, LIMITS, NOW, type Category, type Year } from '../data';
-import { basketCost, basketCount, money, priceIn, themeOf, times, walletOf, type Basket, type Persona } from '../model';
+import { basketCost, basketCount, money, priceIn, rng, themeOf, times, walletOf, type Basket, type Persona } from '../model';
 import { sfx } from '../sfx';
 import { AppShop, Web2Shop } from './ShopModern';
 import { ShopReceipt } from './ShopReceipt';
@@ -23,10 +23,22 @@ const DIAL = ['Numara çevriliyor: 0822 …', 'Karşı modem yanıt verdi', 'Kul
 const ADSL = ['ADSL bağlantısı kuruluyor…', '8 Mbps bağlandı'];
 const SPLASH = ['zaman', ''];
 
+/** Raf her açılışta başka sırayla dizilir: aynı kategori içinde ürünler karışık gelir. */
+function shuffled<T>(salt: number, xs: T[]): T[] {
+  const r = rng(salt);
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export function ShopApp({ year, persona, onPaid }: { year: Year; persona: Persona; onPaid: (k: number) => void }) {
   const era = themeOf(year);
   const steps = era === 'luna' ? DIAL : era === 'glass' ? ADSL : SPLASH;
   const [step, setStep] = useState(0);
+  const [salt] = useState(() => Math.floor(Math.random() * 2 ** 31) + 1);
   const [basket, setBasket] = useState<Basket>({});
   const [paid, setPaid] = useState(false);
   const [warn, setWarn] = useState('');
@@ -44,10 +56,10 @@ export function ShopApp({ year, persona, onPaid }: { year: Year; persona: Person
 
   // o yılın rafı: her zamanki ürünler ve o yıla özgü dönem ürünleri
   const limits = LIMITS[year] ?? {};
-  const goods: Goods[] = [
+  const goods: Goods[] = shuffled(salt, [
     ...ERA_ITEMS.filter((e) => e.prices[year] !== undefined).map((e) => ({ id: e.id, name: e.name, unit: e.unit, emoji: e.emoji, cat: 'donem' as const, price: e.prices[year]!, tag: e.tag, soldOut: e.soldOut?.includes(year), limit: limits[e.id] })),
     ...ITEMS.map((it) => ({ id: it.id, name: it.name, unit: it.unit, emoji: it.emoji, cat: it.cat, price: it.prices[year], limit: limits[it.id] })),
-  ];
+  ]);
   const lines: Line[] = goods
     .filter((g) => basket[g.id])
     .map((g) => ({ id: g.id, name: g.name, n: basket[g.id], then: basket[g.id] * g.price, now: priceIn(g.id, NOW) === null ? null : basket[g.id] * priceIn(g.id, NOW)!, nowNote: ERA_ITEMS.find((e) => e.id === g.id)?.nowNote }));

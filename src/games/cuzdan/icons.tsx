@@ -10,7 +10,7 @@ import type { Theme } from './model';
  * Renkler `paint` ile verilir; dönem ona göre degrade, düz renk ya da parlama üretir.
  */
 
-export type IconId = 'gecmis' | 'ucuz' | 'web' | 'not' | 'saat' | 'muzik' | 'karne' | 'gunluk' | 'start';
+export type IconId = 'gecmis' | 'ucuz' | 'web' | 'not' | 'saat' | 'muzik' | 'karne' | 'gunluk' | 'oyun' | 'start';
 
 const shade = (hex: string, k: number) => {
   const n = parseInt(hex.slice(1), 16);
@@ -191,6 +191,14 @@ function art(id: IconId, p: Paint): ReactNode {
           <circle cx="29" cy="28" r="3.5" fill={p.f('#e0533d')} {...p.s('#e0533d')} />
           <circle cx="36" cy="27" r="3" fill={p.f('#3cb371')} {...p.s('#3cb371')} />
           <path d="M27 35 H41 M28 40 H40" stroke={p.d('#c98a3b')} strokeWidth="1" />
+        </>
+      );
+    case 'oyun': // yapboz parçası: "Dönemin Oyunu"
+      return (
+        <>
+          <path d="M8 14 H19 a5 5 0 1 1 10 0 H40 V25 a5 5 0 1 0 0 10 V42 H8 V35 a5 5 0 1 1 0-10Z" fill={p.f('#3cb371')} {...p.s('#3cb371')} />
+          <path d="M24 20 V42 M8 30 H40" stroke={p.d('#3cb371')} strokeWidth="1" strokeDasharray="2 2" />
+          {p.gloss(24, 18, 14, 5)}
         </>
       );
     case 'start': // başlat düğmesinin altın sikkesi

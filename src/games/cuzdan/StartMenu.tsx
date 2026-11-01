@@ -20,6 +20,7 @@ const GAMES: { id: IconId; label: string; desc: string }[] = [
   { id: 'gecmis', label: 'Geçmişi Bil', desc: 'Bugünkü fiyattan o yılkini bul' },
   { id: 'ucuz', label: 'Hangisi Ucuz?', desc: 'İki etiketten ucuzunu seç' },
   { id: 'web', label: 'Zaman Bakkalı', desc: "O yılın harçlığıyla alışveriş" },
+  { id: 'oyun', label: 'Dönemin Oyunu', desc: 'Her dönemde başka bir mini oyun' },
 ];
 const TOOLS: { id: IconId; label: string }[] = [
   { id: 'not', label: 'bordro.txt' },
