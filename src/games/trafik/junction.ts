@@ -32,6 +32,8 @@ export interface LegGeo {
   cw1: number;
   stop: number;
   crosswalk: boolean;
+  /** Kolun boyu: araçların doğduğu ve çıktığı uç. */
+  len: number;
 }
 
 export interface Junction {
@@ -80,6 +82,7 @@ export function buildJunction(legs: Partial<Record<Dir, LegSpec>>): Junction {
       cw1: 0,
       stop: 0,
       crosswalk: spec.crosswalk !== false,
+      len: spec.len ?? LEG_LEN,
     };
   }
   // kutunun kenarları: dik kolların o yana düşen yarı genişliklerinin en büyüğü
@@ -121,10 +124,10 @@ export function buildJunction(legs: Partial<Record<Dir, LegSpec>>): Junction {
 }
 
 function makePath(geo: Partial<Record<Dir, LegGeo>>, g: LegGeo, lane: number, e: LegGeo, exitLane: number, t: Turn): Path {
-  const p0 = inPoint(g, lane, LEG_LEN);
+  const p0 = inPoint(g, lane, g.len);
   const p1 = inPoint(g, lane, g.stop);
   const p2 = outPoint(e, exitLane, e.stop);
-  const p3 = outPoint(e, exitLane, LEG_LEN);
+  const p3 = outPoint(e, exitLane, e.len);
   const ctrl: [number, number] = t === 'T' ? [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2] : g.u[0] === 0 ? [p1[0], p2[1]] : [p2[0], p1[1]];
   const curve: [number, number][] = [];
   const N = 18;

@@ -1,23 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
-import { PASS_SCORE, verdict, type Level } from './levels';
-import { AMBER, DT, moveName, type MoveId, type Plan } from './model';
-import { cycleOf } from './controller';
-import { PhaseCards, PhaseEditor } from './PhaseBar';
-import { applyPlan, createSim, delays, avgPedWait, los, planIssues, report, setHold, skipTo, step, type Report, type Sim } from './sim';
-import { Scene } from './Scene';
-import { GUIDE } from './guide';
-import { IncidentCards, RoadPanel } from './Roads';
+import { starsOf, verdict, type Level } from './levels';
+import { DIFFICULTY, DT, moveName, type Difficulty, type Dir, type MoveId, type Plan } from './model';
+import { Bay, LightCards, NodeKeys, RoadSwitches, SideSwitches, SmartSwitch } from './Console';
+import ui from './Console.module.css';
+import inst from './Instruments.module.css';
+import { applyPlan, los, say, setHold, setSideRule, skipTo, type Report, type Sim } from './sim';
+import { setOff } from './controller';
+import { createNet, netLog, netReport, nodeX, setClosed, stepNet, type Net } from './net';
+import { clampCam, Scene, ZOOM_MIN, type Camera } from './Scene';
+import { IncidentCards } from './Incidents';
+import { greenWave, lightName } from './engineer';
+import { Help } from './Help';
+import { WaveBay } from './Wave';
+import { Tour, type TourState } from './Tour';
+import { Patience, Timeline, type Sample } from './Hud';
+import { queueOf } from './score';
+import { citySound, type CitySound } from './citySound';
 import styles from './TrafikGame.module.css';
 
 /*
- * Bir vardiya: kavşak ekranı kaplar, göstergeler ve kontrolör paneli üstünde yüzer. Süre durukken
- * plan okunur ve düzeltilir; ▶ ile trafik akar. Plan oyun sırasında da değişir (gerçek
- * kontrolörde olduğu gibi, geçerli evre bitince yeni süreler işler). "Tut" yeşili sabitler,
- * "Şimdi geç" en kısa yeşil dolunca sıradaki evreye geçer. Süre bitince tutanak gelir.
+ * Bir bölüm: cadde (bir ya da birkaç kavşak) ekranı kaplar, altta küçük kontrol paneli. Panel seçili
+ * kavşağı yönetir: kavşak sekmeleri ve akıllı mod, ışık kartları (lambaya bas: yeşil yolları açar, sarı
+ * yeşili bitirir, kırmızı ışığı kırmızıda tutar; her ışığın yeşili, sarısı ve hepsi kırmızısı kendi
+ * kartında), açıldıysa sağda Yollar ve Yeşil dalga. "?" cep kartını açar. Vardiya emri kapanınca trafik
+ * kendiliğinden akar; hız 1× ya da 2×. Süre bitince bütün ağın tutanağı gelir. Tanıtımda (`tour`) aynı
+ * ekran olaysız ve süresiz açılır, üstünde adım adım tur yürür; tur bitince vardiya emri gelir.
  */
-
-const SPEEDS = [1, 2, 4];
 
 /** Kısa, iki tonlu bir araba kornası: sürücü söylendiğinde ya da konvoy geldiğinde. */
 function honk() {
@@ -43,49 +52,147 @@ function honk() {
   }
 }
 
+/**
+ * Lambaya basınca kısa bir "tık": yeşil tiz, sarı orta, kırmızı pes. Ses kapalıysa çalmaz.
+ */
+function blip(freq: number) {
+  if (audioEngine.isMuted()) return;
+  try {
+    const ctx = new AudioContext();
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.14);
+    g.connect(ctx.destination);
+    const o = ctx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(freq, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq * 1.25, ctx.currentTime + 0.08);
+    o.connect(g);
+    o.start();
+    o.stop(ctx.currentTime + 0.16);
+    window.setTimeout(() => void ctx.close(), 300);
+  } catch {
+    // ses yoksa sessiz geçer
+  }
+}
+
 /** Kolun gecikmesinden kaç korna çalar: her 12 saniyede bir, en çok beş. */
 const horns = (delay: number) => Math.min(5, Math.floor(delay / 12));
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const LOS_TONE: Record<string, string> = { A: '#3fae63', B: '#6dbb4a', C: '#c9b437', D: '#e6a813', E: '#e2783f', F: '#e2553f' };
+/** Hizmet düzeyinin sade karşılığı. */
+const LOS_TEXT: Record<string, string> = { A: 'su gibi aktı', B: 'rahat', C: 'kabul edilir', D: 'sıkışık', E: 'sınırda', F: 'kilit' };
 
-export function Play({ level, briefing, last, onNext, onRetry }: { level: Level; briefing: boolean; last: boolean; onNext: (score: number) => void; onRetry: () => void }) {
-  const [sim] = useState<Sim>(() => createSim(level.spec));
-  const [plan, setPlanState] = useState<Plan>(() => sim.plan);
+/** Tutanaktaki tek öğüt: bir sonraki denemede neyi değiştirmeli. */
+function coach(r: Report, level: Level, pass: number) {
+  if (r.pedHits) return 'Yayaya çarpan araç sarıda ya da kırmızıda geçti. kartlardaki “Hepsi kırmızı” süresini uzat, yayaların yeşilini kısma.';
+  if (r.jammed) return 'Bir yolun kuyruğu haritadan taştı. Kuyruk uzayınca o yolun ışığında hemen “Yeşil yak”a bas; “yetmiyor” diyen ışığın yeşil süresini + ile uzat.';
+  if (r.cutIns > 2) return 'Ara sokaklarda uzun bekleyen sürücüler sabredemeyip araya daldı. Sokaklar panelinden o sokağın ağzına “Dur” koy ya da ana yolun kuyruğunu kısalt ki sokak ağzı tıkanmasın.';
+  if (r.crashes) return 'Kavşağın ortasında kaza oldu: ışık kartlarında “Sarı” ya da “Hepsi kırmızı” süresini bir iki saniye uzat.';
+  if (r.ambulanceLate) return 'Ambulans bekledi. Siren çıkınca söylenen ışığın “Yeşil yak” düğmesine hemen bas.';
+  if (r.workHits) return 'İşçilerin yanından araç geçti. Telsiz uyarınca kolu çalışma başlamadan kapat.';
+  if (r.detour > 20) return 'Kapalı yol yüzünden çok sürücü saptı. İş bitince kolu hemen yeniden aç.';
+  const worst = r.worstMv ? `${r.worstAt && level.spec.nodes.length > 1 ? `${r.worstAt}’da ` : ''}${moveName(r.worstMv)}` : '';
+  const more = 'ışığının yeşil süresini + ile uzat';
+  if ((r.worst > 45 || r.score < pass) && worst) return `En çok ${worst} bekledi (${r.worst.toFixed(0)} sn). O yönün ${more}.`;
+  if (r.score < pass) return 'Kuyruklar uzadı. “Yetmiyor” diyen ışığın yeşilini uzat, boş yolun yeşilini kıs.';
+  if (level.spec.tools.wave && r.score < 85) return 'Ana caddeye yeterli yeşil verip dalgayı kurarsan batıdan gelenler hiç durmaz.';
+  if (level.spec.tools.detect && r.score < 85) return 'Sakin zamanda ışıkların üstündeki “Akıllı mod”u aç; boş yola yeşil yanmasın.';
+  return 'Mühendis gibi yönettin: yeşil kalabalığa, güvenlik önde.';
+}
+
+/** Bir hareketin yeşil yandığı ilk ışık: siren uyarısı oyuncuya hangi ışığa yeşil yakacağını söyler. */
+const phaseOf = (sim: Sim, mv: MoveId) => sim.plan.phases.findIndex((p) => p.moves.includes(mv));
+
+
+/** Ağda ambulans ya da konvoy: hangi kavşakta, hangi yönden. */
+function special(net: Net, kinds: string[]) {
+  for (const [i, s] of net.sims.entries()) {
+    const c = s.cars.find((x) => kinds.includes(x.kind) && x.s < x.path.boxOut);
+    if (c) return { i, s, mv: c.mv };
+    const k = Object.entries(s.backlog).find(([key, l]) => l.length && kinds.some((x) => key.startsWith(x === 'ambulance' ? 'amb:' : x === 'police' ? 'pol:' : 'vip:')));
+    if (k) return { i, s, mv: k[0].slice(4) as MoveId };
+  }
+  return null;
+}
+export function Play({
+  level,
+  diff = 'normal',
+  briefing,
+  last,
+  onNext,
+  onRetry,
+  tour,
+  onTourDone,
+}: {
+  level: Level;
+  diff?: Difficulty;
+  briefing: boolean;
+  last: boolean;
+  onNext: (score: number) => void;
+  onRetry: () => void;
+  tour?: boolean;
+  onTourDone?: () => void;
+}) {
+  // tanıtımda olay yok, süre bitmez
+  const [net] = useState<Net>(() => createNet(tour ? { ...level.spec, events: [], duration: 3600 } : level.spec, diff));
+  const [learn, setLearn] = useState<TourState>({ zoomed: false, panned: false, whole: false, green: false, timed: false, paused: false });
+  const learned = useCallback((k: keyof TourState) => setLearn((s) => (s[k] ? s : { ...s, [k]: true })), []);
   const [, setTick] = useState(0);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selected, setSelected] = useState(0);
+  // dar ekranda panelin tek bölümü görünür: kartlar, süreler ya da yollar
+  const [pane, setPane] = useState<'cards' | 'roads' | 'wave' | 'streets'>('cards');
+  // geniş ekranda ışıklar hep görünür; sağdaki sütun (açıldıysa) sekmeli: yollar ya da dalga
+  const [sideTab, setSideTab] = useState<'roads' | 'wave' | 'streets'>(level.spec.tools.roads ? 'roads' : level.spec.tools.wave ? 'wave' : 'streets');
+  // cep kartı açıkken oyun durur; kapanınca kaldığı yerden sürer
+  const [help, setHelp] = useState(false);
+  const wasRunning = useRef(false);
+  // telefonda cadde ekrana sığınca araçlar seçilmez: ilk kavşağa yakın başlar
+  const [camera, setCamera] = useState<Camera>(() => {
+    const xs0 = level.spec.nodes.map((n) => n.x);
+    const narrow = typeof window !== 'undefined' && window.innerWidth <= 760 && xs0.length > 1;
+    return narrow ? clampCam({ zoom: 2.2, dx: Math.min(...xs0) - (Math.min(...xs0) + Math.max(...xs0)) / 2, dy: 0 }, xs0) : { zoom: 1, dx: 0, dy: 0 };
+  });
   const [result, setResult] = useState<Report | null>(null);
-  // rehberli bölüm: adım adım; her adımın koşulu tutunca kendiliğinden ilerler
-  const [lesson, setLesson] = useState(level.spec.guided ? 0 : GUIDE.length);
-  const used = useRef(new Set<string>());
+  // üstüne gelinen ışık kartı: yolları haritada parlar
+  const [point, setPoint] = useState<number | null>(null);
   const refresh = useCallback(() => setTick((f) => f + 1), []);
-  const guideOn = lesson < GUIDE.length;
-  const step = guideOn ? GUIDE[lesson] : null;
-  sim.guideOpen = guideOn;
-  const stepDone = !!step?.done?.({ sim, plan: sim.plan, selected, running, used: used.current });
+  const tools = level.spec.tools;
+  const sim = net.sims[selected];
+  const xs = useMemo(() => net.sims.map((s) => nodeX(net, s)), [net]);
+  // en uzak yakınlık ekrana göre değişir: harita çizdikçe Scene bildirir, kamera yeni sınıra oturur
+  const [floor, setFloor] = useState(ZOOM_MIN);
+  useEffect(() => setCamera((c) => clampCam(c, xs, floor)), [floor, xs]);
+  // tanıtım: kamera hareketleri adımları tamamlar
   useEffect(() => {
-    if (stepDone) setLesson((n) => n + 1);
-  }, [stepDone]);
+    if (!tour) return;
+    if (camera.zoom > 1.25) learned('zoomed');
+    if (Math.abs(camera.dx) + Math.abs(camera.dy) > 10) learned('panned');
+    if (camera.zoom <= floor * 1.001 && floor < 0.99) learned('whole');
+  }, [tour, camera, floor, learned]);
+  // vardiya emri kapanınca trafik kendiliğinden akar
   useEffect(() => {
-    if (guideOn && !briefing) GUIDE[lesson].enter?.(sim);
-  }, [lesson, guideOn, briefing, sim]);
-  const hint = !briefing && step ? step.target : undefined;
-  const mark = (what: string) => {
-    used.current.add(what);
-    refresh();
-  };
+    if (!briefing && net.t === 0) setRunning(true);
+  }, [briefing, net]);
   // kayda yeni bir sürücü sesi düştüyse korna çalar
   const heard = useRef('');
-  const top = sim.log[0];
+  const log = netLog(net);
+  const top = log[0];
   useEffect(() => {
     if (!top?.horn) return;
-    const id = `${top.t}-${top.text}`;
+    const id = `${top.at}-${top.t}-${top.text}`;
     if (heard.current === id) return;
     heard.current = id;
     honk();
   }, [top]);
   const lastUi = useRef(0);
+  // kuyruk çizelgesi için her iki saniyede bir bütün kollardaki bekleyen
+  const samples = useRef<Sample[]>([]);
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
 
   useEffect(() => {
     if (!running) return;
@@ -94,264 +201,379 @@ export function Play({ level, briefing, last, onNext, onRetry }: { level: Level;
     let acc = 0;
     const tick = (now: number) => {
       // sekme arkadayken biriken süreyi tek seferde koşturma
-      acc += Math.min(0.25, (now - prev) / 1000) * speed;
+      acc += Math.min(0.25, (now - prev) / 1000) * speedRef.current;
       prev = now;
-      while (acc >= DT && !sim.done) {
-        step(sim);
+      while (acc >= DT && !net.done) {
+        stepNet(net);
         acc -= DT;
+        const last = samples.current[samples.current.length - 1];
+        if (!last || net.t - last.t >= 2) {
+          let q = 0;
+          let leg = '';
+          let legQ = -1;
+          for (const s of net.sims)
+            for (const d of Object.keys(s.j.legs) as Dir[]) {
+              const n = queueOf(s, d).n;
+              q += n;
+              if (n > legQ) {
+                legQ = n;
+                leg = net.sims.length > 1 ? `${s.name} · ${s.spec.legs[d]!.name}` : s.spec.legs[d]!.name;
+              }
+            }
+          samples.current.push({ t: net.t, q, leg, legQ });
+        }
       }
       // arayüz saniyede birkaç kez yenilenir; harita kendi karesini çizer
-      if (now - lastUi.current > 180 || sim.done) {
+      if (now - lastUi.current > 180 || net.done) {
         lastUi.current = now;
         refresh();
       }
-      if (sim.done) {
+      if (net.done) {
         setRunning(false);
-        setResult(report(sim));
+        setResult(netReport(net));
         return;
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [running, speed, sim, refresh]);
+  }, [running, net, refresh]);
+
+  const openHelp = useCallback(() => {
+    setRunning((r) => {
+      wasRunning.current = r;
+      return false;
+    });
+    setHelp(true);
+  }, []);
+  const closeHelp = () => {
+    setHelp(false);
+    if (wasRunning.current && !net.done) setRunning(true);
+  };
+
+  /** Kavşağı seçer; harita yakınsa kamera ona kayar. */
+  const select = useCallback(
+    (i: number) => {
+      setSelected(i);
+      setCamera((c) => (c.zoom > 1.05 ? clampCam({ ...c, dx: xs[i] - (xs[0] + xs[xs.length - 1]) / 2 }, xs, floor) : c));
+    },
+    [xs, floor],
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (briefing || result || (e.target as HTMLElement).closest('input, textarea')) return;
+      if (briefing || result || help || (e.target as HTMLElement).closest('input, textarea')) return;
+      if (e.key === '?' || e.key === 'h') openHelp();
       if (e.code === 'Space') {
         e.preventDefault();
-        setRunning((r) => !r && !sim.done);
+        setRunning((r) => {
+          if (r) learned('paused');
+          return !r && !net.done;
+        });
       }
+      const n = Number(e.key);
+      if (n >= 1 && n <= net.sims.length) select(n - 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [briefing, result, sim]);
+  }, [briefing, result, help, net, select, openHelp, learned]);
 
   const setPlan = (p: Plan) => {
-    setPlanState(p);
+    if (p.phases.some((ph, i) => ph.green !== sim.plan.phases[i]?.green)) learned('timed');
     applyPlan(sim, p);
     refresh();
   };
+  // tek dokunuş: başka evreye geç; yanan yeşile dokununca tut, bir daha dokununca bırak
+  // ışık kafasının lambaları: yeşil buraya gelsin, yanan yeşil bitsin, ışık kırmızıda kalsın
+  const lamps = {
+    green: (i: number) => {
+      if (sim.plan.phases[i].off) setOff(sim, i, false);
+      skipTo(sim, i);
+      learned('green');
+      blip(880);
+      refresh();
+    },
+    amber: () => {
+      skipTo(sim);
+      blip(560);
+      refresh();
+    },
+    red: (i: number) => {
+      setOff(sim, i, !sim.plan.phases[i].off);
+      blip(330);
+      refresh();
+    },
+    hold: () => {
+      setHold(sim, !sim.ctl.hold);
+      blip(sim.ctl.hold ? 700 : 500);
+      refresh();
+    },
+  };
+  const toggle = (d: Dir) => {
+    setClosed(sim, d, !sim.closed[d]);
+    refresh();
+  };
+  const wave = () => {
+    greenWave(net.sims, xs);
+    say(net.sims[0], `Yeşil dalga kuruldu: ${net.sims.length} ışığın döngüsü eşitlendi, ışıklar birkaç turda kayacak.`, 'good');
+    refresh();
+  };
+  const zoomBy = (f: number) => setCamera((c) => clampCam({ ...c, zoom: c.zoom * f }, xs, floor));
+  // ⤢: kavşaklar görünümünden bütün haritaya (yolların tamamı ve mahalle), oradan yine kavşaklara
+  const whole = camera.zoom <= floor * 1.001 && floor < 0.99;
 
-  const issues = planIssues(sim, plan);
-  const d = delays(sim);
-  const pedWait = avgPedWait(sim);
-  const grade = los(d.avg);
-  const crashes = sim.crashes.length;
-  const amb = sim.cars.find((c) => c.kind === 'ambulance');
-  const vip = sim.cars.find((c) => c.kind === 'police' || c.kind === 'vip') ?? null;
-  const vipWaiting = Object.entries(sim.backlog).find(([k, l]) => k.startsWith('vip:') && l.length);
-  const cycle = cycleOf(plan);
+  // canlı puan: tutanaktaki gecikme kalemi, oyun sürerken
+  const live = result ? null : netReport(net);
+  // şehrin uğultusu kuyrukla yükselir: son ölçülen toplam kuyruk, kol başına 8 araçta tavan
+  const sound = useRef<CitySound | null>(null);
+  useEffect(() => {
+    sound.current = citySound();
+    return () => sound.current?.stop();
+  }, []);
+  const lastQ = samples.current[samples.current.length - 1]?.q ?? 0;
+  const legs = net.sims.reduce((m, s) => m + Object.keys(s.j.legs).length, 0);
+  useEffect(() => {
+    sound.current?.set(lastQ / (legs * 8), running && !help);
+  }, [lastQ, legs, running, help]);
+  const amb = special(net, ['ambulance']);
+  const vip = special(net, ['police', 'vip']);
+  const multi = net.sims.length > 1;
+  const sides = [
+    ...(tools.roads ? [['roads', 'Yollar']] : []),
+    ...(tools.wave && multi ? [['wave', 'Dalga']] : []),
+    ...(net.sims.some((s) => s.sides.some((x) => x.side === 1)) ? [['streets', 'Sokaklar']] : []),
+  ] as ['roads' | 'wave' | 'streets', string][];
+  // dar ekranda üstteki sekme, genişte sağ sütunun sekmesi seçer
+  const shown = pane === 'cards' ? sideTab : pane;
 
   return (
     <main className={styles.play}>
-      <Scene sim={sim} />
+      <Scene net={net} selected={selected} onSelect={select} camera={camera} onCamera={setCamera} onFloor={setFloor} highlight={point === null ? null : sim.plan.phases[point]?.moves ?? null} />
+
+      {live && !briefing && <Patience r={live} where={live.worstAt && multi ? `${live.worstAt}’da ` : ''} />}
 
       <div className={styles.topRight}>
-        <div className={styles.stat}>
-          <small>Araç başına gecikme</small>
-          <b>
-            {d.avg.toFixed(0)} sn{' '}
-            <span className={styles.los} style={{ background: LOS_TONE[grade] }} title="Hizmet düzeyi: A en iyi, F kilit">
-              {grade}
-            </span>
-          </b>
-        </div>
-        <div className={styles.stat}>
-          <small>En çok bekleyen</small>
-          <b>{d.worstMv ? `${moveName(d.worstMv)} · ${d.worst.toFixed(0)} sn` : '—'}</b>
-        </div>
-        {level.spec.peds.length > 0 && (
-          <div className={styles.stat}>
-            <small>Yaya bekleyişi</small>
-            <b>
-              {pedWait.toFixed(0)} sn{sim.jay ? <span className={styles.bad}> · {sim.jay} kırmızıda</span> : null}
-            </b>
-          </div>
-        )}
-        <div className={styles.stat}>
-          <small>Kaza</small>
-          <b className={crashes ? styles.bad : undefined}>{crashes}</b>
+        <div className={styles.zoom} data-tour="zoom">
+          <button type="button" onClick={() => zoomBy(1.4)} aria-label="Yakınlaştır">
+            +
+          </button>
+          <button type="button" onClick={() => zoomBy(1 / 1.4)} aria-label="Uzaklaştır">
+            −
+          </button>
+          <button
+            type="button"
+            onClick={() => setCamera({ zoom: whole ? 1 : floor, dx: 0, dy: 0 })}
+            aria-label={whole ? 'Kavşaklara dön' : 'Bütün haritayı göster'}
+            title={whole ? 'Kavşaklara dön' : 'Bütün harita'}
+          >
+            ⤢
+          </button>
+          <button type="button" data-tour="help" className={styles.helpKey} onClick={openHelp} disabled={briefing || !!result} aria-label="Cep kartı: panel ne diyor?" title="Panel ne diyor? (?)">
+            ?
+          </button>
         </div>
       </div>
 
-      {(vip || vipWaiting) && !amb && (
-        <div className={styles.siren} role="status">
+      {vip && !amb && (
+        <button type="button" className={styles.siren} role="status" onClick={() => select(vip.i)}>
           <i aria-hidden="true" />
-          Konvoy yolda: {moveName(vip ? vip.mv : (vipWaiting![0].slice(4) as MoveId))} · ışığa bakmaz, yolu boşalt
-        </div>
+          Konvoy {multi ? `${vip.s.name}’da` : 'yolda'} ({moveName(vip.mv)}), ışıkta durmaz: “{lightName(vip.s, phaseOf(vip.s, vip.mv))}” ışığında Yeşil yak, sonra Yeşil kalsın
+        </button>
       )}
 
       {amb && (
-        <div className={styles.siren} role="status">
+        <button type="button" className={styles.siren} role="status" onClick={() => select(amb.i)}>
           <i aria-hidden="true" />
-          Ambulans yolda: {moveName(amb.mv)}
-        </div>
+          Ambulans {multi ? `${amb.s.name}’da` : 'yolda'} ({moveName(amb.mv)}): “{lightName(amb.s, phaseOf(amb.s, amb.mv))}” ışığında Yeşil yak
+        </button>
       )}
 
       <ol className={styles.log} aria-live="polite">
-        {sim.log.slice(0, 3).map((l) => (
-          <li key={`${l.t}-${l.text}`} className={styles[l.tone]}>
-            <time>{clock(l.t)}</time> {l.text}
+        {log.slice(0, 2).map((l) => (
+          <li key={`${l.at}-${l.t}-${l.text}`} className={styles[l.tone]}>
+            <time>{clock(l.t)}</time> {l.at && <b>{l.at}: </b>}
+            {l.text}
           </li>
         ))}
-        {!sim.log.length && <li className={styles.info}>{level.tip}</li>}
+        {!log.length && <li className={styles.info}>{level.tip}</li>}
       </ol>
 
-      <RoadPanel sim={sim} hint={hint === 'roads' || hint === 'manual' ? hint : undefined} onChange={mark} />
-      <IncidentCards sim={sim} hint={hint === 'incidents'} onSend={() => mark('dispatch')} />
+      <IncidentCards sims={net.sims} onSend={refresh} onSelect={select} />
 
-      <section className={styles.console} aria-label="Kavşak kontrolörü">
-        <PhaseEditor
-          hint={hint === 'editor'}
-          sim={sim}
-          plan={plan}
-          selected={selected}
-          onSelect={setSelected}
-          onPlan={setPlan}
-          onJump={(i) => {
-            skipTo(sim, i);
-            refresh();
-          }}
-        />
-        <div className={styles.bar}>
-          <div className={styles.transport}>
-            <button type="button" className={`${running ? styles.pauseBtn : styles.playBtn} ${hint === 'play' ? styles.hint : ''}`} disabled={sim.done || briefing} onClick={() => setRunning(!running)} aria-label={running ? 'Duraklat' : 'Başlat'}>
-              {running ? '❚❚' : '▶'}
-            </button>
-            <div className={styles.timeBox}>
-              <b>{clock(Math.max(0, level.spec.duration - sim.t))}</b>
-              <div className={styles.speeds}>
-                {SPEEDS.map((s) => (
-                  <button key={s} type="button" className={speed === s ? styles.on : undefined} onClick={() => setSpeed(s)} aria-pressed={speed === s}>
-                    {s}×
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <PhaseCards sim={sim} plan={plan} selected={selected} onSelect={setSelected} onPlan={setPlan} hint={hint === 'cards'} />
-
-          <div className={styles.knobs}>
-            <div className={styles.knob}>
-              <small>Tüm kırmızı</small>
-              <div className={styles.secs}>
-                <button type="button" onClick={() => setPlan({ ...plan, allRed: Math.max(0, plan.allRed - 1) })} aria-label="Tüm kırmızıyı kısalt">
-                  −
+      <section className={styles.console} aria-label="Kontrol konsolu">
+        <div className={ui.desk}>
+          <Bay label="Durum" className={ui.cluster} data-tour="clock">
+            <div className={inst.flight}>
+              <p className={`${inst.clock} ${level.spec.duration - net.t < 15 && !net.done ? inst.hurry : ''}`} aria-label="Kalan süre">
+                <b>{tour ? clock(net.t) : clock(Math.max(0, level.spec.duration - net.t))}</b>
+                <small>{tour ? 'tanıtım' : 'kalan'}</small>
+              </p>
+              <div className={inst.flightRow}>
+                <button type="button" className={`${inst.run} ${running ? '' : inst.paused}`} disabled={net.done || briefing} onClick={() => {
+                    if (running) learned('paused');
+                    setRunning(!running);
+                  }}
+                  aria-label={running ? 'Duraklat' : 'Sürdür'}
+                >
+                  {running ? '❚❚' : '▶'}
                 </button>
-                <span>
-                  <b>{plan.allRed}</b> sn
-                </span>
-                <button type="button" onClick={() => setPlan({ ...plan, allRed: Math.min(5, plan.allRed + 1) })} aria-label="Tüm kırmızıyı uzat">
-                  +
+                <button type="button" role="switch" aria-checked={speed === 2} className={`${inst.speed} ${speed === 2 ? inst.fast : ''}`} onClick={() => setSpeed(speed === 1 ? 2 : 1)} aria-label={`Hız ${speed}×, değiştir`}>
+                  <span className={speed === 1 ? inst.speedOn : undefined}>1×</span>
+                  <span className={speed === 2 ? inst.speedOn : undefined}>2×</span>
                 </button>
               </div>
             </div>
-            <label className={styles.toggle}>
-              <input type="checkbox" checked={!!plan.sensor} onChange={(e) => setPlan({ ...plan, sensor: e.target.checked })} />
-              <span>Sensörlü</span>
-            </label>
-            <div className={`${styles.live} ${hint === 'live' ? styles.hint : ''}`}>
-              <button type="button" className={sim.ctl.hold ? styles.holdOn : undefined} disabled={sim.t === 0 || !!sim.manual} onClick={() => (setHold(sim, !sim.ctl.hold), mark('hold'))} aria-pressed={sim.ctl.hold}>
-                {sim.ctl.hold ? 'Bırak' : 'Tut'}
-              </button>
-              <button type="button" disabled={sim.t === 0 || sim.ctl.stage !== 'green' || !!sim.manual} onClick={() => (skipTo(sim), refresh())}>
-                Şimdi geç
-              </button>
+          </Bay>
+
+          {sides.length > 0 && (
+            <div className={styles.panes} role="tablist" aria-label="Konsol">
+              {([['cards', 'Işıklar'], ...sides] as ['cards' | 'roads' | 'wave' | 'streets', string][]).map(([k, name]) => (
+                <button key={k} type="button" role="tab" aria-selected={pane === k} className={pane === k ? styles.paneOn : undefined} onClick={() => setPane(k)}>
+                  {name}
+                </button>
+              ))}
             </div>
-            <small className={styles.cycle}>
-              Döngü {cycle} sn · sarı {AMBER} sn
-            </small>
-          </div>
+          )}
+
+          <Bay label={multi ? `Işıklar · ${sim.name}` : 'Işıklar'} className={ui.center} data-hide={pane !== 'cards'} data-tour="cards">
+            {(multi || tools.detect) && (
+              <div className={ui.lightsBar}>
+                {multi && <NodeKeys sims={net.sims} selected={selected} onSelect={select} />}
+                {tools.detect && <SmartSwitch sim={sim} onPlan={setPlan} />}
+              </div>
+            )}
+            <LightCards sim={sim} onPlan={setPlan} onGreen={lamps.green} onAmber={lamps.amber} onRed={lamps.red} onHold={lamps.hold} onPoint={setPoint} />
+          </Bay>
+
+          {sides.length > 0 && (
+            <div className={styles.side} data-hide={pane === 'cards'}>
+              {multi && pane !== 'cards' && <NodeKeys sims={net.sims} selected={selected} onSelect={select} />}
+              {sides.length > 1 && (
+                <div className={ui.sideTabs} role="tablist" aria-label="Panelin sağı">
+                  {sides.map(([k, name]) => (
+                    <button key={k} type="button" role="tab" aria-selected={shown === k} className={shown === k ? ui.sideTabOn : undefined} onClick={() => setSideTab(k)}>
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {shown === 'roads' && <RoadSwitches sim={sim} onToggle={toggle} />}
+              {shown === 'wave' && <WaveBay sims={net.sims} xs={xs} onWave={wave} />}
+              {shown === 'streets' && (
+                <SideSwitches
+                  sim={sim}
+                  onRule={(i, r) => {
+                    setSideRule(sim, i, r);
+                    blip(r === 'yield' ? 700 : 420);
+                    refresh();
+                  }}
+                />
+              )}
+            </div>
+          )}
         </div>
-        {(issues.hard.length > 0 || issues.warn.length > 0) && (
-          <p className={styles.issues}>
-            {[...issues.hard, ...issues.warn].slice(0, 2).join(' · ')}
-          </p>
-        )}
       </section>
 
-      {!briefing && step && !result && (
-        <div className={styles.coach} role="dialog" aria-label="Rehber">
-          <small>
-            Rehber · {lesson + 1}/{GUIDE.length}
-          </small>
-          <b>{step.title}</b>
-          <p>{step.text}</p>
-          <div>
-            <button type="button" className={styles.ghost} onClick={() => setLesson(GUIDE.length)}>
-              Rehberi kapat
-            </button>
-            {step.done ? (
-              <button type="button" className={styles.ghost} onClick={() => setLesson(lesson + 1)}>
-                Bu adımı atla
-              </button>
-            ) : (
-              <button type="button" className={styles.primary} onClick={() => setLesson(lesson + 1)}>
-                {lesson + 1 < GUIDE.length ? 'İleri' : 'Başla'}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {!briefing && !running && sim.t === 0 && !guideOn && (
+      {!briefing && !running && !result && net.t > 0 && (
         <p className={styles.paused}>
-          Süre durdu. Planı incele, evre kartına dokunup düzenle; hazır olunca <b>▶</b> ya da boşluk.
+          Durdu. Sürdürmek için <b>▶</b> ya da boşluk.
         </p>
       )}
 
-      {result && <Tutanak result={result} last={last} onNext={onNext} onRetry={onRetry} />}
+      {help && <Help tools={tools} onClose={closeHelp} />}
+
+      {tour && onTourDone && !help && <Tour state={learn} onDone={onTourDone} />}
+
+      {result && <Tutanak level={level} result={result} diff={diff} last={last} onNext={onNext} onRetry={onRetry} samples={samples.current} />}
     </main>
   );
 }
-
-/** Vardiya tutanağı: puanın kalemleri ve yorum; geçtiyse sonraki kavşağa. */
-function Tutanak({ result, last, onNext, onRetry }: { result: Report; last: boolean; onNext: (score: number) => void; onRetry: () => void }) {
-  const pass = result.score >= PASS_SCORE;
+/** Kavşak tutanağı: yıldızlar, kısa yorum, kol kol korna haritası ve mesleğin gerçek hâli. */
+function Tutanak({ level, result, diff, last, onNext, onRetry, samples }: { level: Level; result: Report; diff: Difficulty; last: boolean; onNext: (score: number) => void; onRetry: () => void; samples: Sample[] }) {
+  const pass = DIFFICULTY[diff].pass;
+  const stars = starsOf(result.score, pass);
+  const hasAmb = level.spec.events.some((e) => e.kind === 'ambulance');
+  const hasVip = level.spec.events.some((e) => e.kind === 'motorcade');
+  const hasWork = level.spec.events.some((e) => e.kind === 'roadwork');
   return (
     <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="trafik-sonuc">
       <article className={styles.order}>
         <header>
-          <span>TRAFİK KONTROL MERKEZİ · VARDİYA TUTANAĞI</span>
+          <span>TRAFİK KONTROL MERKEZİ · TUTANAK</span>
+          <span>{result.score} / 100</span>
         </header>
-        <h2 id="trafik-sonuc">{result.score} / 100</h2>
-        <p>{verdict(result.score, !!result.jammed, result.pedHits)}</p>
-        <dl>
-          {result.parts.map((p) => (
-            <div key={p.label} className={styles.row}>
-              <dt>{p.label}</dt>
-              <dd>
-                {p.got} / {p.max}
-              </dd>
-            </div>
+        <h2 id="trafik-sonuc" className={styles.stars} aria-label={`${stars} yıldız`}>
+          {[1, 2, 3].map((k) => (
+            <span key={k} className={k <= stars ? styles.starOn : undefined} aria-hidden="true">
+              ★
+            </span>
           ))}
+        </h2>
+        <p>{verdict(result.score, !!result.jammed, result.pedHits, pass)}</p>
+        <Timeline samples={samples} duration={level.spec.duration} />
+        <dl>
           <div className={styles.row}>
-            <dt>Ortalama gecikme</dt>
+            <dt>Araç başına bekleyiş</dt>
+            <dd>{result.delay.toFixed(0)} sn</dd>
+          </div>
+          <div className={styles.row}>
+            <dt>Hizmet düzeyi</dt>
             <dd>
-              {result.delay.toFixed(1)} sn ({result.los})
+              <b className={styles.los} style={{ background: LOS_TONE[result.los] }}>
+                {result.los}
+              </b>{' '}
+              {LOS_TEXT[result.los]}
             </dd>
           </div>
           {result.worstMv && (
             <div className={styles.row}>
               <dt>En çok bekleyen</dt>
               <dd>
+                {result.worstAt && level.spec.nodes.length > 1 ? `${result.worstAt} · ` : ''}
                 {moveName(result.worstMv)} · {result.worst.toFixed(0)} sn
               </dd>
             </div>
           )}
           <div className={styles.row}>
-            <dt>Geçen araç</dt>
+            <dt>{level.spec.nodes.length > 1 ? 'Caddeden geçen araç' : 'Geçen araç'}</dt>
             <dd>{result.delivered}</dd>
           </div>
+          {result.detour > 0 && (
+            <div className={styles.row}>
+              <dt>Kapalı yoldan sapan</dt>
+              <dd>{result.detour} araç</dd>
+            </div>
+          )}
+          {result.crashes + result.pedHits > 0 && (
+            <div className={styles.row}>
+              <dt>Kaza</dt>
+              <dd className={styles.bad}>{result.crashes + result.pedHits}</dd>
+            </div>
+          )}
+          {hasAmb && (
+            <div className={styles.row}>
+              <dt>Ambulans</dt>
+              <dd>{result.ambulanceLate ? `${result.ambulanceLate} kez bekledi` : 'beklemeden geçti'}</dd>
+            </div>
+          )}
+          {hasWork && (
+            <div className={styles.row}>
+              <dt>Yol çalışması</dt>
+              <dd className={result.workHits ? styles.bad : undefined}>{result.workHits ? `${result.workHits} araç işçilerin yanından geçti` : 'işçiler güvende kaldı'}</dd>
+            </div>
+          )}
+          {hasVip && (
+            <div className={styles.row}>
+              <dt>Makam konvoyu</dt>
+              <dd>{result.parts.find((p) => p.label === 'Konvoy')?.got === 10 ? 'durmadan geçti' : 'kavşakta durdu'}</dd>
+            </div>
+          )}
         </dl>
         {result.legs.length > 0 && (
           <div className={styles.horns}>
             <b>Korna haritası</b>
             {result.legs.map((l) => (
-              <div key={l.dir} className={styles.hornRow}>
+              <div key={l.name} className={styles.hornRow}>
                 <span>{l.name}</span>
                 <i aria-hidden="true">
                   <em style={{ width: `${Math.min(100, (l.delay / 80) * 100)}%`, background: LOS_TONE[los(l.delay)] }} />
@@ -363,13 +585,19 @@ function Tutanak({ result, last, onNext, onRetry }: { result: Report; last: bool
             ))}
           </div>
         )}
+        <p className={styles.coach}>
+          <b>Mühendisin yorumu</b> {coach(result, level, pass)}
+        </p>
+        <p className={styles.job}>
+          <b>Gerçekte</b> {level.job}
+        </p>
         <div className={styles.actions}>
-          {pass && (
+          {stars > 0 && (
             <button type="button" className={styles.primary} onClick={() => onNext(result.score)}>
               {last ? 'Vardiyayı bitir' : 'Sonraki kavşak'}
             </button>
           )}
-          <button type="button" className={pass ? styles.ghost : styles.primary} onClick={onRetry}>
+          <button type="button" className={stars > 0 ? styles.ghost : styles.primary} onClick={onRetry}>
             Tekrar dene
           </button>
         </div>

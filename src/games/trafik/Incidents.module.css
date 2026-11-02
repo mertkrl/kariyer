@@ -1,0 +1,56 @@
+/* Kavşak Amiri: soldaki olay kartları ("Trafik ekiplerine bildir"). */
+/* olay kartları: solda, kontrolörün üstünde */
+.incidents {
+  position: absolute;
+  left: 14px;
+  bottom: 200px;
+  z-index: 5;
+  display: grid;
+  gap: 6px;
+  width: min(300px, calc(100% - 28px));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.incidents li {
+  display: grid;
+  gap: 6px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: rgba(40, 18, 14, 0.9);
+  border: 1px solid rgba(255, 120, 80, 0.55);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.incidents li small {
+  color: rgba(236, 233, 225, 0.62);
+}
+
+.incidents li.solved {
+  background: rgba(16, 40, 24, 0.9);
+  border-color: rgba(70, 200, 110, 0.55);
+}
+
+.incidents button {
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid #3a7d4c;
+  background: #3a7d4c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.incidents .goto {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 760px) {
+  .incidents {
+    left: 8px;
+    bottom: 300px;
+    width: min(260px, calc(100% - 16px));
+  }
+}

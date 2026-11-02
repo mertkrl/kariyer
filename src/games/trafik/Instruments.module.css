@@ -1,0 +1,186 @@
+/*
+ * Konsolun aletleri: kalan süre, oynat/durdur ve hız, akıllı mod anahtarı ve yollar kutusunun
+ * genişliği. Masa ve bölümler Console.module.css'te.
+ */
+
+/* saat, oynat/durdur ve hız */
+.flight {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.flightRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* kalan süre: büyük, sade rakamlar */
+.clock {
+  display: grid;
+  justify-items: center;
+  margin: 0;
+  line-height: 1;
+}
+
+.clock b {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: #f4f1e8;
+}
+
+.clock small {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(236, 233, 225, 0.45);
+}
+
+/* son saniyeler: saat kırmızı ve nabız gibi atar */
+.hurry b {
+  color: #ff6a5a;
+  animation: hurry 1s ease-in-out infinite;
+}
+
+@keyframes hurry {
+  50% {
+    transform: scale(1.08);
+    text-shadow: 0 0 14px rgba(255, 75, 58, 0.7);
+  }
+}
+
+/* oynat / durdur */
+.run {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 0;
+  background: #36e07a;
+  box-shadow: 0 4px 14px rgba(54, 224, 122, 0.35);
+  color: #062a14 !important;
+  font-size: 13px;
+  font-weight: 800;
+  transition: transform 0.08s, background 0.15s;
+}
+
+.run:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.run.paused {
+  background: #ffb81c;
+  box-shadow: 0 4px 14px rgba(255, 184, 28, 0.4);
+  color: #2a1a00 !important;
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 184, 28, 0.12);
+  }
+}
+
+/* iki konumlu hız seçici ve akıllı mod: aynı kaydırmalı hap */
+.speed,
+.mode {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.speed {
+  width: 64px;
+  height: 26px;
+}
+
+.mode {
+  height: 30px;
+}
+
+.speed span,
+.mode span {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: rgba(236, 233, 225, 0.5);
+  transition: color 0.18s;
+}
+
+.speed span.speedOn,
+.mode span.speedOn {
+  color: #111;
+}
+
+.speed::before,
+.mode::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  border-radius: 999px;
+  background: #f1eee6;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.speed.fast::before,
+.modeOn::before {
+  transform: translateX(100%);
+}
+
+.modeOn::before {
+  background: #36e07a;
+}
+
+/* ── Yol anahtarları ── */
+.roads {
+  flex: none;
+  width: 200px;
+}
+
+@media (max-width: 1100px) and (min-width: 761px) {
+  .roads {
+    width: 170px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run.paused,
+  .hurry b {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .flight {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .clock {
+    justify-items: start;
+  }
+
+  .clock b {
+    font-size: 22px;
+  }
+
+  .roads {
+    flex: 1 1 100%;
+    width: auto;
+  }
+}

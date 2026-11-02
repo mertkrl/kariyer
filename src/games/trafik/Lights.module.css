@@ -1,0 +1,493 @@
+/*
+ * Işık kartları. Her kart bir ışık: üstte yolların adı, ortada gerçek bir trafik lambası kutusu
+ * (siperlikli üç lamba, basılabilir), renkli durum etiketi ve "Yeşil kalsın"; altta ışığın üç
+ * süresi. Yanan ışığın kartı kendi renginde hafifçe parlar. Masanın camı Console.module.css'te.
+ */
+
+.cards {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+}
+
+/* ── Kart ── */
+.card {
+  --tone: rgba(255, 255, 255, 0.1);
+  position: relative;
+  flex: 1 1 0;
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-width: 270px;
+  padding: 11px 12px 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+
+/* yanan ışığın rengi: ince kenar ve üstten hafif bir ışıma */
+.card_green {
+  --tone: #36e07a;
+}
+
+.card_amber {
+  --tone: #ffb81c;
+}
+
+.card_red {
+  --tone: #ff4b3a;
+}
+
+.card_green,
+.card_amber,
+.card_red {
+  border-color: color-mix(in srgb, var(--tone) 55%, transparent);
+  background:
+    radial-gradient(120% 70% at 0% 0%, color-mix(in srgb, var(--tone) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone) 20%, transparent), 0 8px 24px -10px color-mix(in srgb, var(--tone) 55%, transparent);
+}
+
+/* sıradaki ışık: kesikli beyaz kenar */
+.cardNext {
+  border-style: dashed;
+  border-color: rgba(241, 238, 230, 0.4);
+}
+
+/* kırmızıda tutulan ışık soluk ve çizgili */
+.modOff {
+  opacity: 0.7;
+  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 8px, rgba(255, 75, 58, 0.06) 8px 16px);
+}
+
+/* kartın başı: yolların adı, bekleyen arabalar, geçen araç */
+.modHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+/* yolların adı: kartın başlığı */
+.modName {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #f4f1e8;
+}
+
+.modTop {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Trafik lambası kutusu: yatay, siperlikli üç lamba ── */
+.signal {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #23262c, #121418);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px #050607,
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.lamp {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #2d3036, #17191d 70%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.85);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.08s;
+}
+
+/* siperlik: lambanın üstünde yarım halka */
+.lamp::before {
+  content: '';
+  position: absolute;
+  inset: -3px -3px 50% -3px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border: 2px solid #0b0c0f;
+  border-bottom: 0;
+  pointer-events: none;
+}
+
+.lamp:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.signal .lamp:disabled {
+  cursor: default;
+  /* yanan lamba basılamasa da tam parlaklıkta kalır */
+  opacity: 1;
+}
+
+/* basılabilen lamba: üstüne gelince kendi renginde hafifçe aydınlanır */
+.lampR:not(:disabled):hover {
+  background: radial-gradient(circle at 50% 40%, #6b2a24, #2a1513 70%);
+}
+
+.lampA:not(:disabled):hover {
+  background: radial-gradient(circle at 50% 40%, #6b5220, #2a2110 70%);
+}
+
+.lampG:not(:disabled):hover {
+  background: radial-gradient(circle at 50% 40%, #1f6b3e, #102a1b 70%);
+}
+
+.lampR.lampOn {
+  background: radial-gradient(circle at 42% 36%, #ffd0c9 0 8%, #ff5a48 30%, #c6261a 75%);
+  box-shadow: 0 0 14px 2px rgba(255, 75, 58, 0.75);
+}
+
+.lampA.lampOn {
+  background: radial-gradient(circle at 42% 36%, #fff1c2 0 8%, #ffc12e 30%, #c98606 75%);
+  box-shadow: 0 0 14px 2px rgba(255, 184, 28, 0.7);
+}
+
+.lampG.lampOn {
+  background: radial-gradient(circle at 42% 36%, #d6ffe6 0 8%, #46e888 30%, #179a4a 75%);
+  box-shadow: 0 0 14px 2px rgba(54, 224, 122, 0.7);
+}
+
+/* kırmızıda tutuluyor: lambanın çevresinde kesikli halka */
+.lampLock {
+  outline: 2px dashed #ff6a5a;
+  outline-offset: 3px;
+}
+
+/* yanan yeşilin geri sayım halkası: süre azaldıkça kapanır */
+.ring::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: conic-gradient(#46e888 calc(var(--p) * 360deg), rgba(255, 255, 255, 0.08) 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  transition: background 0.3s linear;
+  pointer-events: none;
+}
+
+/* lambaya basınca yayılan dalga */
+.ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #f1eee6;
+  animation: ripple 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+/* ── Bekleyen arabalar ── */
+.queue {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.queue i {
+  width: 7px;
+  height: 11px;
+  border-radius: 2.5px 2.5px 2px 2px;
+  background: var(--car);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35);
+  animation: carIn 0.25s ease-out;
+}
+
+.queue small {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: rgba(236, 233, 225, 0.6);
+}
+
+.queue .empty {
+  font-weight: 500;
+  color: rgba(236, 233, 225, 0.35);
+}
+
+.carOk {
+  --car: #36e07a;
+}
+
+.carWarn {
+  --car: #ffb81c;
+}
+
+.carBad {
+  --car: #ff4b3a;
+}
+
+@keyframes carIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* geçen araç: her yeni araçta zıplar */
+.passed {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(54, 224, 122, 0.12);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #6ff3a2;
+  animation: pop 0.35s ease-out;
+}
+
+@keyframes pop {
+  40% {
+    transform: scale(1.25);
+    background: rgba(54, 224, 122, 0.32);
+  }
+}
+
+/* süre değişince rakam hafifçe büyüyüp küçülür */
+.bump {
+  display: inline-block;
+  animation: bump 0.22s ease-out;
+}
+
+@keyframes bump {
+  50% {
+    transform: scale(1.22);
+  }
+}
+
+/* ── Durum etiketi ── */
+.chip {
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip_g {
+  background: rgba(54, 224, 122, 0.14);
+  color: #6ff3a2;
+}
+
+.chip_a {
+  background: rgba(255, 184, 28, 0.16);
+  color: #ffc94d;
+}
+
+.chip_r {
+  background: rgba(255, 75, 58, 0.12);
+  color: #ff8a7c;
+}
+
+.chip_next {
+  background: rgba(241, 238, 230, 0.12);
+  color: #f1eee6;
+}
+
+.chip_off {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(236, 233, 225, 0.6);
+}
+
+/* ── Yeşil kalsın ── */
+.holdKey {
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 184, 28, 0.55);
+  background: transparent;
+  color: #ffc94d !important;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.holdKey:hover:not(:disabled) {
+  background: rgba(255, 184, 28, 0.12);
+}
+
+.holdKey:disabled {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(236, 233, 225, 0.28) !important;
+  cursor: default;
+}
+
+.holdOn {
+  border-color: #ffb81c;
+  background: #ffb81c;
+  color: #241600 !important;
+  box-shadow: 0 0 12px rgba(255, 184, 28, 0.55);
+}
+
+.holdOn:hover:not(:disabled) {
+  background: #ffc94d;
+}
+
+/* ── Işığın üç süresi ── */
+.modFoot {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.stepper {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 6px 5px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* adın önünde süresinin rengi */
+.stepName {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  padding-left: 2px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: rgba(236, 233, 225, 0.6);
+}
+
+.stepName::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 6px var(--dot);
+}
+
+.step_g {
+  --dot: #36e07a;
+}
+
+.step_a {
+  --dot: #ffb81c;
+}
+
+.step_r {
+  --dot: #ff4b3a;
+}
+
+.stepBox {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 22px;
+  align-items: center;
+}
+
+.stepBox button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  color: #f1eee6 !important;
+  transition: background 0.15s;
+}
+
+.stepBox button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.stepBox button:disabled {
+  opacity: 0.25;
+}
+
+.stepBox b {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+  color: #f4f1e8;
+}
+
+.stepBox b small {
+  margin-left: 2px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(236, 233, 225, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple,
+  .queue i,
+  .passed,
+  .bump {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .card {
+    flex-basis: calc(100vw - 56px);
+    min-width: calc(100vw - 56px);
+  }
+
+  .modTop {
+    gap: 7px;
+  }
+
+  .signal {
+    gap: 5px;
+    padding: 5px 6px;
+  }
+
+  .lamp {
+    width: 22px;
+    height: 22px;
+  }
+
+  .chip {
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  .holdKey {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}

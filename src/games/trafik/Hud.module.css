@@ -1,0 +1,129 @@
+/* Canlı sabır göstergesi (haritanın üstünde, ortada) ve tutanaktaki kuyruk çizelgesi. */
+.gauge {
+  --tone: #36e07a;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 4;
+  width: min(300px, calc(100% - 300px));
+  min-width: 200px;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  padding: 7px 12px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(20, 23, 29, 0.84);
+  color: #ece9e1;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.gauge[data-band='1'] {
+  --tone: #ffb81c;
+}
+
+.gauge[data-band='0'] {
+  --tone: #ff4b3a;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.row span {
+  color: var(--tone);
+  font-weight: 700;
+}
+
+.track {
+  height: 6px;
+  margin: 5px 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.track i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--tone);
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+.gauge small {
+  display: block;
+  overflow: hidden;
+  color: rgba(236, 233, 225, 0.62);
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.shake {
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  20%,
+  60% {
+    transform: translateX(calc(-50% - 6px));
+  }
+  40%,
+  80% {
+    transform: translateX(calc(-50% + 6px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shake {
+    animation: none;
+  }
+}
+
+.timeline {
+  margin: 12px 0 14px;
+}
+
+.timeline figcaption {
+  margin-bottom: 4px;
+  color: #6e664d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.timeline svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.axis {
+  stroke: #d3c9b4;
+  stroke-width: 1;
+}
+
+.area {
+  fill: rgba(226, 85, 63, 0.14);
+}
+
+.line {
+  fill: none;
+  stroke: #e2553f;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.peak {
+  fill: #fffdf6;
+  stroke: #e2553f;
+  stroke-width: 2;
+}
+
+.timeline p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #6e664d;
+}

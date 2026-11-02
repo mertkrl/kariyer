@@ -1,0 +1,444 @@
+/*
+ * Kontrol paneli: haritanın altında yüzen koyu bir cam. Bölümler çerçevesiz, aralarında ince
+ * çizgi; düğmeler yuvarlak hatlı. Işık kartları Lights.module.css'te, saat ve düğmeler
+ * Instruments.module.css'te.
+ */
+
+/* ── Masa: yarı saydam cam ── */
+.desk {
+  position: relative;
+  scrollbar-color: #3c414a transparent;
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(24, 27, 33, 0.92), rgba(14, 16, 20, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 50px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(14px);
+}
+
+/* ── Bölüm: çerçevesiz ── */
+.bay {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.bayHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.bayHead b {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(236, 233, 225, 0.55);
+}
+
+.bayHead small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  color: rgba(236, 233, 225, 0.45);
+}
+
+/* ── Gösterge kümesi (sol) ── */
+.cluster {
+  flex: none;
+  align-content: center;
+  justify-items: center;
+  width: 118px;
+  padding-right: 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ── Orta: kavşak tuşları ve evre modülleri ── */
+.center {
+  flex: 1;
+}
+
+/* ışıkların üstü: kavşak tuşları solda, akıllı mod sağda */
+.lightsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lightsBar > button {
+  flex: none;
+  width: 190px;
+}
+
+.nodeKeys {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nodeKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.nodeKey:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nodeKeyOn,
+.nodeKeyOn:hover {
+  background: #f1eee6;
+  border-color: #f1eee6;
+  color: #111 !important;
+}
+
+.nodeLed {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.ledOk {
+  background: #36e07a;
+  color: #36e07a;
+}
+
+.ledWarn {
+  background: #ffb81c;
+  color: #ffb81c;
+}
+
+.ledBad {
+  background: #ff4b3a;
+  color: #ff4b3a;
+}
+
+.nodeLedBlink {
+  animation: caution 0.9s steps(2) infinite;
+}
+
+/* dar masaüstü: modüller biraz daralır */
+@media (max-width: 1100px) and (min-width: 761px) {
+  .bayHead small {
+    display: none;
+  }
+
+}
+
+@keyframes caution {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nodeLedBlink {
+    animation: none;
+  }
+}
+
+/* ── Yol anahtarları: açık / kapalı ── */
+.switches {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.switches li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid #000;
+  background: #1d9e4f;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.toggle i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f1eee6, #b9b5aa);
+  transition: transform 0.15s;
+}
+
+.toggleOn {
+  background: #b52317;
+}
+
+.toggleOn i {
+  transform: translateX(20px);
+}
+
+.swName {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.swName small {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: rgba(236, 233, 225, 0.55);
+}
+
+.swLamp {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #23262b;
+}
+
+.swLampOn {
+  background: #ff4b3a;
+  box-shadow: 0 0 8px #ff4b3a;
+}
+
+/* ── Sağ sütunun sekmeleri (geniş ekran; dar ekranda üstteki sekmeler yeter) ── */
+.sideTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.sideTabs button {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #000;
+  background: linear-gradient(180deg, #2f333b, #23262c);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a9b0ba !important;
+}
+
+.sideTabs .sideTabOn {
+  background: linear-gradient(180deg, #f1eee6, #c9c5ba);
+  color: #111 !important;
+}
+
+@media (max-width: 760px) {
+  .sideTabs {
+    display: none;
+  }
+}
+
+/* ── Yeşil dalga: zaman-yol çizelgesi ── */
+.wave {
+  flex: none;
+  width: 290px;
+}
+
+.waveChart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.waveGrid {
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 1;
+}
+
+.waveAxis,
+.waveName {
+  fill: #a9b0ba;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 8px;
+}
+
+.waveAxis {
+  text-anchor: middle;
+}
+
+.waveName {
+  text-anchor: end;
+  font-size: 8.5px;
+}
+
+.wG {
+  fill: #2fbf68;
+}
+
+.wA {
+  fill: #e6a813;
+}
+
+.wR {
+  fill: #5a1d18;
+}
+
+.waveLine {
+  fill: none;
+  stroke: #f2efe6;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 2;
+  opacity: 0.85;
+}
+
+.waveStatus {
+  margin: 0;
+  font-size: 11.5px;
+  color: #ffb81c;
+}
+
+.waveStatus.waveOk {
+  color: #4cf08e;
+}
+
+.waveBtn {
+  justify-self: start;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #000;
+  background: linear-gradient(180deg, #36e07a, #1d9e4f);
+  color: #062a14 !important;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 2px 0 #0b0c0e;
+}
+
+.waveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Dar ekran: masa satırlara iner, sekmeyle yalnızca seçili bölüm görünür ── */
+@media (max-width: 760px) {
+  .desk {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .desk > [data-hide='true'] {
+    display: none;
+  }
+
+  .cluster {
+    flex: 1 1 100%;
+    width: auto;
+    padding: 0 0 8px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    justify-items: stretch;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    row-gap: 6px;
+    padding: 6px 8px 8px;
+  }
+
+  .cluster > .bayHead {
+    display: none;
+  }
+
+
+  .center {
+    flex: 1 1 100%;
+    width: auto;
+  }
+
+  .bayHead small {
+    display: none;
+  }
+
+  .wave {
+    flex: 1 1 100%;
+    width: auto;
+  }
+
+}
+
+/* ── Ara sokaklar: ağızdaki kural ── */
+.switches .sideRow {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sideRow .rules {
+  justify-self: start;
+}
+
+.rules {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.rules button {
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  font-size: 11.5px !important;
+  font-weight: 600;
+  color: rgba(236, 233, 225, 0.7) !important;
+}
+
+.rules button + button {
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.rules .ruleOn {
+  color: #111 !important;
+  background: #36e07a;
+}
+
+.rules .ruleOn[data-rule='stop'] {
+  background: #ffb81c;
+}
+
+.rules .ruleOn[data-rule='closed'] {
+  background: #ff4b3a;
+}
+
+.swEmpty {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(236, 233, 225, 0.55);
+}

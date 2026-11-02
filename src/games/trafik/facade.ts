@@ -135,13 +135,35 @@ function mosque(ctx: CanvasRenderingContext2D, b: Building, dusk: number) {
   ctx.fill();
 }
 
-export function building(ctx: CanvasRenderingContext2D, b: Building, dusk: number) {
-  if (b.landmark === 'cami') return mosque(ctx, b, dusk);
+/** `coarse`: uzaktan bakışta (bütün harita) yalnızca yüzler ve düz renk çatı; pencere, balkon, tabela yok. */
+export function building(ctx: CanvasRenderingContext2D, b: Building, dusk: number, coarse = false) {
+  if (b.landmark === 'cami' && !coarse) return mosque(ctx, b, dusk);
   const r = rng(b.seed);
   const H = b.floors * 3 + 0.8;
   const ox = H * OBL_X;
   const oy = -H * OBL_Y;
   const { x, y, w, d } = b;
+  if (coarse) {
+    ctx.fillStyle = shade(b.color, 0.68);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y + d);
+    ctx.lineTo(x + ox, y + d + oy);
+    ctx.lineTo(x + ox, y + oy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = b.color;
+    ctx.beginPath();
+    ctx.moveTo(x, y + d);
+    ctx.lineTo(x + w, y + d);
+    ctx.lineTo(x + w + ox, y + d + oy);
+    ctx.lineTo(x + ox, y + d + oy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = b.roof === 'tile' ? '#a24e36' : b.slab;
+    ctx.fillRect(x + ox, y + oy, w, d);
+    return;
+  }
   // batı yüzü (gölgede)
   ctx.fillStyle = shade(b.color, 0.68);
   ctx.beginPath();

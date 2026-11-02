@@ -1,8 +1,8 @@
 import { inPoint, type Junction, type LegGeo } from './junction';
-import { LANE_W, SIDEWALK } from './model';
+import { LANE_W, SIDE_W, SIDE_WALK, SIDEWALK } from './model';
 import { rng } from './sim';
 import { building, OBL_X, OBL_Y } from './facade';
-import { WORLD, type Scenery } from './scenery';
+import { roadRect, WORLD, type Scenery } from './scenery';
 
 /*
  * Kavşağın sabit katmanları: bir kez ekran boyunda çizilir, her karede altına (zemin) ve üstüne
@@ -10,7 +10,8 @@ import { WORLD, type Scenery } from './scenery';
  * bordürlü kaldırımlar, kilitli parke, sarı hissedilebilir yüzey; şerit çizgileri, oklar, duruş
  * çizgisi, zebra; refüj; park ve otopark; apartmanların gölgesi, yan ve ön cepheleri (pencere,
  * balkon, klima, dükkân camı, tente, tabela) ve çatıları (su deposu, güneş paneli, çanak anten,
- * kiremit).
+ * kiremit). Ara sokaklar kaldırımlarıyla ana yola dik bağlanır; ana yola çıkan şeridinde "yol ver"
+ * üçgenleri ve levhası, ortasında kesikli çizgi, üstünde adı.
  */
 
 export interface View {
@@ -185,19 +186,21 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
     applyView(ctx, v);
     ctx.fill(path);
     ctx.clip(path);
-    // kilitli parke derzleri
+    // kilitli parke derzleri: uzaktan piksel altında kalır, çizilmez
     ctx.strokeStyle = 'rgba(120,112,98,0.22)';
     ctx.lineWidth = 0.04;
     ctx.beginPath();
-    for (let x = Math.floor(Math.max(B.x0, -WORLD)); x < Math.min(B.x1, WORLD); x += 0.6) {
-      ctx.moveTo(x, B.y0);
-      ctx.lineTo(x, B.y1);
+    if (v.k > 3) {
+      for (let x = Math.floor(Math.max(B.x0, -WORLD)); x < Math.min(B.x1, WORLD); x += 0.6) {
+        ctx.moveTo(x, B.y0);
+        ctx.lineTo(x, B.y1);
+      }
+      for (let y = Math.floor(Math.max(B.y0, -WORLD)); y < Math.min(B.y1, WORLD); y += 1.2) {
+        ctx.moveTo(B.x0, y);
+        ctx.lineTo(B.x1, y);
+      }
+      ctx.stroke();
     }
-    for (let y = Math.floor(Math.max(B.y0, -WORLD)); y < Math.min(B.y1, WORLD); y += 1.2) {
-      ctx.moveTo(B.x0, y);
-      ctx.lineTo(B.x1, y);
-    }
-    ctx.stroke();
     // avlu: kaldırımın gerisi
     const fx = cx + sx * (b.vRoad ? SIDEWALK : 0);
     const fy = cy + sy * (b.hRoad ? SIDEWALK : 0);
@@ -205,9 +208,9 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
     ctx.fillRect(Math.min(fx, sx * WORLD), Math.min(fy, sy * WORLD), WORLD, WORLD);
     // avluda çimen parçaları
     ctx.fillStyle = 'rgba(112,140,78,0.55)';
-    for (let k = 0; k < 18; k++) {
-      const gx = fx + sx * (18 + r() * 120);
-      const gy = fy + sy * (18 + r() * 120);
+    for (let k = 0; k < 120; k++) {
+      const gx = fx + sx * (18 + r() * (WORLD - 30));
+      const gy = fy + sy * (18 + r() * (WORLD - 30));
       ctx.fillRect(gx, gy, 3 + r() * 5, 2 + r() * 4);
     }
     ctx.restore();
@@ -300,6 +303,202 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
     }
   }
 
+  // arka sokaklar: kaldırımlı iki şerit, ortada kesikli çizgi
+  const asphalt = ctx.createPattern(noiseTile(seed, [75, 77, 82], 16), 'repeat')!;
+  for (const rd of sc.roads) {
+    const R = roadRect(rd);
+    if (R.x1 < B.x0 || R.x0 > B.x1 || R.y1 < B.y0 || R.y0 > B.y1) continue;
+    ctx.fillStyle = '#cbc5b8';
+    ctx.fillRect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0);
+    const hw = SIDE_W / 2;
+    const [a0, a1] = [Math.min(rd.from, rd.to), Math.max(rd.from, rd.to)];
+    const band = rd.vertical ? [rd.at - hw, a0, SIDE_W, a1 - a0] : [a0, rd.at - hw, a1 - a0, SIDE_W];
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(band[0], band[1], band[2], band[3]);
+    ctx.clip();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = asphalt;
+    ctx.fillRect(0, 0, v.w, v.h);
+    ctx.restore();
+    applyView(ctx, v);
+    ctx.strokeStyle = PAINT;
+    ctx.lineWidth = 0.12;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    if (rd.vertical) {
+      ctx.moveTo(rd.at, a0 + 2);
+      ctx.lineTo(rd.at, a1 - 2);
+    } else {
+      ctx.moveTo(a0 + 2, rd.at);
+      ctx.lineTo(a1 - 2, rd.at);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ara sokaklar
+  for (const t of sc.streets) {
+    if (t.x1 < B.x0 || t.x0 > B.x1 || t.y1 < B.y0 || t.y0 > B.y1) continue;
+    const g = j.legs[t.x.leg]!;
+    const P = (a: number, l: number): [number, number] => [g.u[0] * a + t.out[0] * l, g.u[1] * a + t.out[1] * l];
+    const quad = (a0: number, a1: number, l0: number, l1: number) => {
+      const q = new Path2D();
+      const pts = [P(a0, l0), P(a1, l0), P(a1, l1), P(a0, l1)];
+      q.moveTo(pts[0][0], pts[0][1]);
+      for (const [x, y] of pts.slice(1)) q.lineTo(x, y);
+      q.closePath();
+      return q;
+    };
+    const at = t.x.at;
+    const hw = SIDE_W / 2;
+    const end = t.edge + t.depth;
+    // çıkmaz sokağın sonu kaldırımla kapanır
+    const tip = t.x.short ? end - SIDE_WALK : end;
+    ctx.fillStyle = '#cbc5b8';
+    ctx.fill(quad(at - hw - SIDE_WALK, at + hw + SIDE_WALK, t.edge + 0.2, end));
+    // yol: ağızda kavisli bordürle genişler ki dönen araç bordüre sürtmesin
+    const road = quad(at - hw, at + hw, t.edge - 0.4, tip);
+    const R = 3;
+    const mouth = new Path2D();
+    for (const sgn of [-1, 1]) {
+      const pts = [P(at + sgn * hw, t.edge - 0.4), P(at + sgn * (hw + R), t.edge - 0.4), P(at + sgn * (hw + R), t.edge)];
+      mouth.moveTo(pts[0][0], pts[0][1]);
+      mouth.lineTo(pts[1][0], pts[1][1]);
+      mouth.lineTo(pts[2][0], pts[2][1]);
+      const c = P(at + sgn * hw, t.edge);
+      const e = P(at + sgn * hw, t.edge + R);
+      mouth.quadraticCurveTo(c[0], c[1], e[0], e[1]);
+      mouth.closePath();
+    }
+    ctx.save();
+    ctx.clip(road);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = asphalt;
+    ctx.fillRect(0, 0, v.w, v.h);
+    ctx.restore();
+    ctx.save();
+    ctx.clip(mouth);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = asphalt;
+    ctx.fillRect(0, 0, v.w, v.h);
+    ctx.restore();
+    applyView(ctx, v);
+    // bordürler
+    ctx.lineWidth = 0.3;
+    ctx.strokeStyle = '#7d7a73';
+    ctx.beginPath();
+    for (const sgn of [-1, 1]) {
+      const a = P(at + sgn * (hw + R), t.edge);
+      const c = P(at + sgn * hw, t.edge);
+      const e = P(at + sgn * hw, t.edge + R);
+      const b = P(at + sgn * hw, tip);
+      ctx.moveTo(a[0], a[1]);
+      ctx.quadraticCurveTo(c[0], c[1], e[0], e[1]);
+      ctx.lineTo(b[0], b[1]);
+    }
+    if (t.x.short) {
+      const a = P(at - hw, tip);
+      const b = P(at + hw, tip);
+      ctx.moveTo(a[0], a[1]);
+      ctx.lineTo(b[0], b[1]);
+    }
+    ctx.stroke();
+    // ortada kesikli çizgi
+    ctx.strokeStyle = PAINT;
+    ctx.lineWidth = 0.12;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    const c0 = P(at, t.edge + 4);
+    const c1 = P(at, tip - 2);
+    ctx.moveTo(c0[0], c0[1]);
+    ctx.lineTo(c1[0], c1[1]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    if (t.x.side === 1) {
+      // ana yola çıkan şerit (kavşağa yakın yarı): yol ver üçgenleri sürücüye bakar
+      ctx.fillStyle = PAINT;
+      for (let a = at - hw + 0.35; a < at - 0.4; a += 0.75) {
+        const p0 = P(a, t.edge + 1.0);
+        const p1 = P(a + 0.5, t.edge + 1.0);
+        const p2 = P(a + 0.25, t.edge + 1.8);
+        ctx.beginPath();
+        ctx.moveTo(p0[0], p0[1]);
+        ctx.lineTo(p1[0], p1[1]);
+        ctx.lineTo(p2[0], p2[1]);
+        ctx.closePath();
+        ctx.fill();
+      }
+      // levha: kırmızı kenarlı ters üçgen
+      const [sx, sy] = P(at - hw - 0.9, t.edge + 1.6);
+      ctx.fillStyle = '#55585e';
+      ctx.beginPath();
+      ctx.arc(sx, sy, 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#c8322a';
+      ctx.beginPath();
+      ctx.moveTo(sx - 0.45, sy - 0.75);
+      ctx.lineTo(sx + 0.45, sy - 0.75);
+      ctx.lineTo(sx, sy - 0.05);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#f4f1ea';
+      ctx.beginPath();
+      ctx.moveTo(sx - 0.25, sy - 0.65);
+      ctx.lineTo(sx + 0.25, sy - 0.65);
+      ctx.lineTo(sx, sy - 0.25);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // adı, sokağın üstünde boydan
+    const [nx, ny] = P(at, t.edge + 16);
+    ctx.save();
+    ctx.translate(nx, ny);
+    const ang = Math.atan2(t.out[1], t.out[0]);
+    ctx.rotate(Math.abs(ang) > Math.PI / 2 ? ang + Math.PI : ang);
+    ctx.font = '700 1.5px "Work Sans Variable", "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(240,238,230,0.55)';
+    ctx.fillText(t.x.name.toUpperCase(), 0, 0);
+    ctx.restore();
+  }
+
+  // deniz: kıyının ötesi; kıyıda taş kordon ve korkuluk, açıkta dalga çizgileri
+  if (sc.sea) {
+    const sg = sc.sea.dir === 'S' ? 1 : -1;
+    const y0 = sg * sc.sea.at;
+    const y1 = sg * (WORLD + 60);
+    const top = Math.min(y0, y1);
+    const water = ctx.createLinearGradient(0, y0, 0, y0 + sg * 400);
+    water.addColorStop(0, '#4b8aa3');
+    water.addColorStop(1, '#2b5b78');
+    ctx.fillStyle = water;
+    ctx.fillRect(B.x0 - 10, top, B.x1 - B.x0 + 20, Math.abs(y1 - y0));
+    ctx.fillStyle = '#d9d2c2';
+    ctx.fillRect(B.x0 - 10, Math.min(y0, y0 - sg * 3), B.x1 - B.x0 + 20, 3);
+    ctx.strokeStyle = '#4a4d52';
+    ctx.lineWidth = 0.25;
+    ctx.beginPath();
+    ctx.moveTo(B.x0 - 10, y0);
+    ctx.lineTo(B.x1 + 10, y0);
+    ctx.stroke();
+    if (v.k > 1.2) {
+      const w = rng(seed * 3 + 1);
+      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+      ctx.lineWidth = 0.3;
+      for (let k = 0; k < 900; k++) {
+        const x = -WORLD + w() * WORLD * 2;
+        const y = y0 + sg * (6 + w() * (WORLD - sc.sea.at));
+        if (x < B.x0 || x > B.x1 || y < B.y0 || y > B.y1) continue;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.quadraticCurveTo(x + 1.5, y - 0.6, x + 3, y);
+        ctx.stroke();
+      }
+    }
+  }
+
   // park ve otopark
   for (const l of sc.lots) {
     if (l.x > B.x1 || l.x + l.w < B.x0 || l.y > B.y1 || l.y + l.d < B.y0) continue;
@@ -364,7 +563,9 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
     ctx.fill();
   }
   vis.sort((a, b) => a.y + a.d - (b.y + b.d) || b.x - a.x);
-  for (const b of vis) building(ctx, b, dusk);
+  // uzaktan (metrede 2 pikselden az) binalar sade çizilir: bütün harita hızlı açılsın
+  const coarse = v.k < 2;
+  for (const b of vis) building(ctx, b, dusk, coarse);
   return cv;
 }
 

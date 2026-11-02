@@ -1,6 +1,6 @@
 import type { Junction } from './junction';
-import { OBL_Y } from './facade';
-import { SIDEWALK, type Dir, type Landmark, type LevelSpec } from './model';
+import { OBL_X, OBL_Y } from './facade';
+import { CITY, SIDE_W, SIDE_WALK, SIDEWALK, type City, type Dir, type Landmark, type LevelSpec, type SideStreet } from './model';
 import { rng } from './sim';
 
 /*
@@ -9,7 +9,7 @@ import { rng } from './sim';
  * babalar. Yalnızca veri: tohumdan aynı mahalle çıkar, çizimi paint.ts yapar.
  */
 
-export const WORLD = 240;
+export const WORLD = CITY;
 
 export interface Block {
   /** Ada dikdörtgeni ve yola bakan iç köşesi. */
@@ -61,11 +61,66 @@ export interface Lot {
   d: number;
 }
 
+/** Ara sokağın kapladığı yer: yol ve iki yanındaki kaldırım, ana yolun kenarından sokağın sonuna. */
+export interface Street {
+  x: SideStreet;
+  /** Dünyadaki dikdörtgen (kaldırımlar dahil). */
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  /** Ana yolun kenarı (kolun enine, m) ve sokağın boyu. */
+  edge: number;
+  depth: number;
+  /** Sokağın ana yoldan uzaklaşan birim yönü. */
+  out: [number, number];
+}
+
+export function streetOf(j: Junction, x: SideStreet, sea?: City['sea']): Street {
+  const g = j.legs[x.leg]!;
+  const out = x.side === 1 ? g.rin : g.rout;
+  const edge = x.side === 1 ? g.inW : g.outW;
+  // denize doğru giden sokak sahil yoluna kadar
+  const shore = sea && Math.sign(out[1]) === (sea.dir === 'S' ? 1 : -1) ? sea.at - 12 - edge : WORLD;
+  const depth = Math.min(x.short ? 46 : WORLD, shore);
+  const h = SIDE_W / 2 + SIDE_WALK;
+  const pts = [
+    [x.at - h, edge],
+    [x.at + h, edge + depth],
+  ].map(([a, l]) => [g.u[0] * a + out[0] * l, g.u[1] * a + out[1] * l]);
+  return { x, x0: Math.min(pts[0][0], pts[1][0]), x1: Math.max(pts[0][0], pts[1][0]), y0: Math.min(pts[0][1], pts[1][1]), y1: Math.max(pts[0][1], pts[1][1]), edge, depth, out };
+}
+
+/**
+ * Arka sokak: ana yola değmeyen, mahallenin içinden geçen yol (yalnızca görüntü; içinde ışıksız
+ * akan araçlar çizilir). Ara sokaklarla kesişip mahalleyi ızgaraya böler.
+ */
+export interface Road {
+  /** Ekseni: dikey yolda x, yatayda y. */
+  at: number;
+  vertical: boolean;
+  /** Boyunca uzanış (dikeyde y, yatayda x). */
+  from: number;
+  to: number;
+}
+
+/** Yolun kaldırımlarıyla kapladığı dikdörtgen. */
+export const roadRect = (r: Road) => {
+  const h = SIDE_W / 2 + SIDE_WALK;
+  const [a0, a1] = [Math.min(r.from, r.to), Math.max(r.from, r.to)];
+  return r.vertical ? { x0: r.at - h, x1: r.at + h, y0: a0, y1: a1 } : { x0: a0, x1: a1, y0: r.at - h, y1: r.at + h };
+};
+
 export interface Scenery {
   blocks: Block[];
+  roads: Road[];
+  /** Kıyı: kavşaktan kuzeye ya da güneye bu kadar metrede deniz başlar. */
+  sea?: City['sea'];
+  /** Işıksız ara sokaklar: binalar, ağaçlar ve parklar bunların üstüne düşmez. */
+  streets: Street[];
   buildings: Building[];
   lots: Lot[];
-  trees: { x: number; y: number; r: number; tone: number }[];
+  trees: { x: number; y: number; r: number; tone: number; street?: boolean }[];
   lamps: { x: number; y: number; a: number }[];
   bollards: [number, number][];
 }
@@ -82,7 +137,11 @@ function legSide(j: Junction, d: Dir, side: number) {
   return g.rin[axis] * side > 0 ? g.inW : g.outW;
 }
 
-export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmarks'] = []): Scenery {
+/**
+ * `reach`: komşu kavşağa doğru mahallenin bittiği uzaklık (m). İki kavşak arasındaki adalar ortada
+ * buluşur; binalar oraya kadar dizilir, öbür yarıyı komşunun mahallesi doldurur.
+ */
+export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmarks'] = [], reach: { W?: number; E?: number } = {}, sides: SideStreet[] = [], city: City = {}): Scenery {
   const rand = rng(seed * 7 + 3);
   const pick = <T>(a: T[]) => a[Math.floor(rand() * a.length)];
   const blocks: Block[] = [];
@@ -100,12 +159,15 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
       const hRoad = !!j.legs[h];
       const cx = sx * legSide(j, v, sx);
       const cy = sy * legSide(j, h, sy);
-      blocks.push({ x0: Math.min(cx, sx * WORLD), x1: Math.max(cx, sx * WORLD), y0: Math.min(cy, sy * WORLD), y1: Math.max(cy, sy * WORLD), cx, cy, sx, sy, round: vRoad && hRoad, vRoad, hRoad });
+      const xr = sx > 0 ? (reach.E ?? WORLD) : (reach.W ?? WORLD);
+      blocks.push({ x0: Math.min(cx, sx * xr), x1: Math.max(cx, sx * xr), y0: Math.min(cy, sy * WORLD), y1: Math.max(cy, sy * WORLD), cx, cy, sx, sy, round: vRoad && hRoad, vRoad, hRoad });
     }
 
   for (const b of blocks) {
     const { sx, sy } = b;
     const fx = b.cx + sx * (b.vRoad ? SIDEWALK : 0);
+    // adanın yola paralel (x) boyu: binalar bu kadar uzağa dizilir
+    const span = (sx > 0 ? b.x1 : -b.x0) - Math.abs(fx);
     const fy = b.cy + sy * (b.hRoad ? SIDEWALK : 0);
     // bina: yerel koordinatta (yola uzaklık) verilir, dünyaya çevrilir
     const put = (u0: number, v0: number, w: number, d: number, extra: Partial<Building> = {}) => {
@@ -129,7 +191,6 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
         y: Math.min(ya, yb),
         w,
         d,
-        floors,
         color: pick(FACADES),
         roof,
         tanks: roof === 'flat' ? spots(1 + Math.floor(rand() * n)) : [],
@@ -160,7 +221,11 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
             : mark === 'plaza'
               ? { landmark: 'plaza', floors: sy < 0 ? 16 : 5, color: '#8fa8b6', roof: 'flat', solar: [], dishes: [], balcony: 99 }
               : { floors: 6 + Math.floor(rand() * 3), shop: { name: pick(SHOPS), awning: pick(AWNINGS) } };
-    const shift = put(1, 1, cornerW, cornerD, markExtra) - 1;
+    // park köşesi: bina yerine ağaçlı bir park (çocuk trafik eğitim parkındaki gibi)
+    const shift =
+      mark === 'park'
+        ? (lots.push({ kind: 'park', x: Math.min(fx + sx, fx + sx * (1 + cornerW)), y: Math.min(fy + sy, fy + sy * (1 + cornerD)), w: cornerW, d: cornerD }), 0)
+        : put(1, 1, cornerW, cornerD, markExtra) - 1;
     // dikey yol boyunca (adanın yola bakan dik kenarı): v ekseninde dizilir
     if (b.vRoad) {
       let v0 = 1 + cornerD + 1 + shift;
@@ -178,7 +243,7 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
     }
     if (b.hRoad) {
       let u0 = 1 + cornerW + 1;
-      while (u0 < WORLD - 20) {
+      while (u0 < span - 20) {
         const r = rand();
         if (r < 0.07) {
           lots.push({ kind: rand() < 0.5 ? 'park' : 'parking', x: Math.min(fx + sx * u0, fx + sx * (u0 + 26)), y: Math.min(fy + sy * 1, fy + sy * 23), w: 26, d: 22 });
@@ -192,7 +257,18 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
     }
     // arka sıra: avlunun ardında bir sıra daha (çoğu ekran dışında kalır)
     for (let v0 = 36; v0 < WORLD - 20; v0 += 22 + rand() * 6)
-      for (let u0 = 36; u0 < WORLD - 20; u0 += 20 + rand() * 6) if (rand() < 0.7) put(u0, v0, 13 + rand() * 5, 13 + rand() * 4);
+      for (let u0 = 36; u0 < span - 20; u0 += 20 + rand() * 6)
+        if (rand() < 0.7) {
+          // iş merkezinde arka sıraların bir kısmı cam cepheli plaza
+          const tower = city.towers && v0 > 60 && rand() < 0.4;
+          put(
+            u0,
+            v0,
+            13 + rand() * 5,
+            13 + rand() * 4,
+            tower ? { floors: 10 + Math.floor(rand() * 14), color: pick(['#8fa8b6', '#9fb3c0', '#6f8796', '#a7b6bd', '#7d93a3']), roof: 'flat', tanks: [], solar: [], dishes: [], balcony: 99 } : {},
+          );
+        }
 
     // kaldırım ağaçları ve aydınlatma direkleri: kaldırımın yola yakın yanında
     const near = 14;
@@ -204,7 +280,7 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
         if (Math.floor(v0 / 9) % 3 === 0) lamps.push({ x: b.cx + sx * 0.7, y: y + 3, a: sx > 0 ? Math.PI : 0 });
       }
     if (b.hRoad)
-      for (let u0 = near; u0 < WORLD; u0 += 8 + rand() * 4) {
+      for (let u0 = near; u0 < span; u0 += 8 + rand() * 4) {
         const x = b.cx + sx * u0;
         const y = b.cy + sy * 1.6;
         if (rand() < 0.75) trees.push({ x, y, r: 2.2 + rand() * 1.4, tone: rand() });
@@ -219,5 +295,49 @@ export function makeScenery(j: Junction, seed: number, marks: LevelSpec['landmar
   }
   for (const l of lots)
     if (l.kind === 'park') for (let k = 0; k < 6; k++) trees.push({ x: l.x + 3 + rand() * (l.w - 6), y: l.y + 3 + rand() * (l.d - 6), r: 2.6 + rand() * 1.8, tone: rand() });
-  return { blocks, buildings, lots, trees, lamps, bollards };
+  // ara sokakların üstüne düşen bina, park, ağaç ve direk kalkar (sokak boyunca kendi ağaçları dikilir)
+  const sea = city.sea;
+  const sy0 = sea ? (sea.dir === 'S' ? 1 : -1) : 0;
+  /** Kıyının ötesi (biraz payla): orada bina, ağaç, yol yok. */
+  const wet = (y: number, pad = 14) => !!sea && y * sy0 > sea.at - pad;
+  const streets = sides.map((x) => streetOf(j, x, sea));
+  // arka sokaklar: ana yoldan 70 m içeride başlar. Yatay olanlar her kavşakta aynı yerde (komşu
+  // kavşağın mahallesinde sürsün), dikeyler tohumdan; ara sokağa çok yakın olan atlanır.
+  const roads: Road[] = [];
+  const near = (v: number, list: number[]) => list.some((x) => Math.abs(x - v) < 40);
+  const sideX = sides.filter((x) => x.leg === 'E' || x.leg === 'W').map((x) => j.legs[x.leg]!.u[0] * x.at);
+  const sideY = sides.filter((x) => x.leg === 'N' || x.leg === 'S').map((x) => j.legs[x.leg]!.u[1] * x.at);
+  for (const b of blocks) {
+    const { sx, sy } = b;
+    const xr = sx > 0 ? b.x1 : -b.x0;
+    // denize bakan yanda arka sokaklar sahil yolunda biter; sahil yolu kıyı boyunca uzanır
+    const end = sea && sy === sy0 ? sea.at - 14 : WORLD;
+    for (let y = 150; y < end - 40; y += 140) if (!near(sy * y, sideY)) roads.push({ at: sy * y, vertical: false, from: b.cx + sx * 70, to: sx * xr });
+    for (let x = 120 + rand() * 50; x < xr - 50; x += 120 + rand() * 60) if (!near(sx * x, sideX)) roads.push({ at: sx * x, vertical: true, from: b.cy + sy * 70, to: sy * end });
+    if (sea && sy === sy0) roads.push({ at: sy * (sea.at - 8), vertical: false, from: b.cx, to: sx * xr });
+  }
+  const rects = [...streets, ...roads.map(roadRect)];
+  const hits = (x0: number, y0: number, x1: number, y1: number, pad = 1) => rects.some((t) => x0 < t.x1 + pad && x1 > t.x0 - pad && y0 < t.y1 + pad && y1 > t.y0 - pad);
+  const free = <T extends { x: number; y: number }>(p: T) => !hits(p.x, p.y, p.x, p.y, 0.5);
+  for (const t of streets) {
+    const side = SIDE_W / 2 + SIDE_WALK - 0.8;
+    for (let d = 14; d < t.depth - 4; d += 9 + rand() * 5)
+      for (const sgn of [-1, 1]) {
+        if (rand() < 0.35) continue;
+        const g = j.legs[t.x.leg]!;
+        trees.push({ x: g.u[0] * (t.x.at + sgn * side) + t.out[0] * (t.edge + d), y: g.u[1] * (t.x.at + sgn * side) + t.out[1] * (t.edge + d), r: 1.8 + rand() * 1.2, tone: rand(), street: true });
+      }
+  }
+  return {
+    blocks,
+    streets,
+    roads,
+    // eğik bakışta çatı kuzeydoğuya kayar: çatısı sokağa taşan bina da kalkar
+    buildings: buildings.filter((b) => !hits(b.x, b.y - b.floors * 3 * OBL_Y, b.x + b.w + b.floors * 3 * OBL_X, b.y + b.d) && !wet(b.y) && !wet(b.y + b.d)),
+    lots: lots.filter((l) => !hits(l.x, l.y, l.x + l.w, l.y + l.d) && !wet(l.y) && !wet(l.y + l.d)),
+    trees: trees.filter((t) => (t.street || free(t)) && !wet(t.y, 10)),
+    lamps: lamps.filter((l) => free(l) && !wet(l.y, 10)),
+    sea,
+    bollards,
+  };
 }

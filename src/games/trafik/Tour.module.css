@@ -1,0 +1,158 @@
+/* Tanıtım: haritanın üstünde yüzen kâğıt kart ve gösterilen öğenin çevresinde yanıp sönen halka. */
+.ring {
+  position: fixed;
+  z-index: 40;
+  border: 3px solid #ffb81c;
+  border-radius: 14px;
+  box-shadow: 0 0 0 4px rgba(255, 184, 28, 0.25), 0 0 28px rgba(255, 184, 28, 0.45);
+  pointer-events: none;
+  animation: pulse 1.4s ease-in-out infinite;
+  transition: left 0.2s, top 0.2s, width 0.2s, height 0.2s;
+}
+
+.ringOk {
+  border-color: #36e07a;
+  box-shadow: 0 0 0 4px rgba(54, 224, 122, 0.25), 0 0 28px rgba(54, 224, 122, 0.45);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.card {
+  position: fixed;
+  z-index: 41;
+  left: 50%;
+  width: min(440px, calc(100% - 32px));
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  padding: 16px 18px 14px;
+  background: #fffdf6;
+  color: #221f1b;
+  border: 1px solid #d3c9b4;
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.middle {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.card > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #d3c9b4;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #6e664d;
+}
+
+.card h3 {
+  margin: 12px 0 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.card p {
+  margin: 0 0 10px;
+}
+
+.task {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border-left: 3px solid #ffb81c;
+  background: #fbf3dc;
+  font-weight: 600;
+}
+
+.taskOk {
+  border-left-color: #3a7d4c;
+  background: #e7f3e6;
+  color: #2c6b3c;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d3c9b4;
+}
+
+.dots .dotDone {
+  background: #3a7d4c;
+}
+
+.dots .dotOn {
+  background: #ffb81c;
+}
+
+.card button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.skip {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #6e664d !important;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-decoration: underline;
+}
+
+.back {
+  padding: 7px 12px;
+  border: 1px solid #d3c9b4;
+  background: transparent;
+  color: #221f1b !important;
+  font-weight: 600;
+}
+
+.next {
+  padding: 7px 16px;
+  border: 1px solid #3a7d4c;
+  background: #3a7d4c;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.next:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .card {
+    font-size: 13px;
+  }
+
+  .card h3 {
+    font-size: 20px;
+  }
+}
