@@ -190,7 +190,8 @@ button.preset:hover {
 
 .palette,
 .inspector {
-  padding: 14px;
+  /* üstte yüzen "Mesaiyi bitir" ve geri düğmesine yer */
+  padding: 60px 14px 14px;
   background: var(--panel);
   overflow-y: auto;
   max-height: calc(100vh - 56px);
@@ -342,6 +343,7 @@ button.preset:hover {
 }
 
 .note {
+  animation: toast 0.25s ease-out;
   margin: 0 auto;
   padding: 8px 14px;
   border-radius: 8px;
@@ -498,11 +500,13 @@ button.preset:hover {
 @media (max-width: 960px) {
   .editor {
     grid-template-columns: 1fr;
+    padding-top: 56px;
   }
 
   .palette,
   .inspector {
     max-height: none;
+    padding-top: 14px;
     border: 0;
   }
 
@@ -537,4 +541,11 @@ button.preset:hover {
   color: var(--accent-hi) !important;
   text-decoration: underline;
   font-size: 13px;
+}
+
+@keyframes toast {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }

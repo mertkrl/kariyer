@@ -9,8 +9,9 @@ import { Scene } from './Scene';
 import styles from './MeydanGame.module.css';
 
 /*
- * Meydan Islahı: İstanbul meydanlarının tabela, afiş ve klima yığını altında kalmış cephelerini
- * baştan düzenle. Önce meydan seçilir, sonra serbest modda istediğin gibi boyanır ve temizlenir.
+ * Meydan Islahı: beş bölgeden beş sokağın tabela, klima, kaçak kat ve yama altında kalmış
+ * cephelerini mimar ve mühendis gözüyle baştan düzenle. Önce meydan seçilir, sonra serbest modda
+ * boyanır, kaplanır, güçlendirilir ve temizlenir.
  */
 
 type Phase = { at: 'pick' } | { at: 'edit'; place: Place; design: Design; key: number };
@@ -53,11 +54,12 @@ export function MeydanGame() {
       {phase.at === 'pick' && (
         <main className={styles.center}>
           <h2>Hangi meydanı düzelteceksin?</h2>
-          <p className={styles.lead}>Binaları boya, tabelaları sök ya da yeniden as, klimaları kaldır. Kural yok, karar senin.</p>
+          <p className={styles.lead}>Cepheyi kapla, doğramayı değiştir, kaçak katı yık, binayı güçlendir, tabelaları hizaya sok. Mimar da mühendis de sensin.</p>
           <div className={styles.places}>
             {PLACES.map((p) => (
               <button key={p.id} type="button" className={styles.place} onClick={() => setPhase({ at: 'edit', place: p, design: loadDraft(p), key: Date.now() })}>
                 <Scene place={p} design={loadDraft(p)} className={styles.thumb} />
+                <small className={styles.region}>{p.region}</small>
                 <b>
                   {p.district} · {p.title}
                 </b>

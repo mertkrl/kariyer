@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
-import { loadProgress, markPlayed } from '../../arcade/progress';
+import { markPlayed } from '../../arcade/progress';
 import { STOP_SECONDS } from './lines';
 import { CALL_SECONDS } from './live';
 import { FONTS, GRID, PRESET_ACCENT, SCENES, H, KINDS, MAX_WIDGETS, W, blankDesign, currentDesign, makeWidget, sampleDesign, scopeOf, snap, draftKey, type Align, type Design, type FontId, type Kind, type SceneId, type Widget } from './model';
-import { screenPng } from './png';
 import { Screen } from './Screen';
-import { shareUrl } from './share';
+import { ShareSheet } from './ShareSheet';
 import { evaluate, saveStars, type Report, type Task } from './spec';
 import { Checklist, ReportCard } from './Dossier';
 import { ding } from './sfx';
+import { applyTheme, backdropOf, bestInk, contrast, hasReadableText, readability, THEMES } from './theme';
 import { useClock } from './useClock';
 import styles from './EkranGame.module.css';
+import tools from './Tools.module.css';
 
 /*
  * Normal mod: serbest atölye. Solda bileşen paleti, ortada ekran, sağda seçilenin ayarları.
@@ -25,6 +26,21 @@ interface History {
 }
 
 type Drag = { id: string; mode: 'move' | 'resize'; px: number; py: number; start: Widget; before: Design };
+type Guides = { x: number | null; y: number | null };
+
+/** Sürüklerken yapışma payı (sanal piksel): ekranın ortasına, kenarlarına ve öbür bileşenlerin hizasına. */
+const SNAP = 10;
+
+/** Kutunun üç çizgisinden (baş, orta, son) birini en yakın hedefe oturtur; yoksa olduğu gibi bırakır. */
+function align(pos: number, size: number, targets: number[]): { pos: number; line: number | null } {
+  let best = { d: SNAP + 1, pos, line: null as number | null };
+  for (const t of targets)
+    for (const off of [0, size / 2, size]) {
+      const d = Math.abs(pos + off - t);
+      if (d < best.d) best = { d, pos: Math.round(t - off), line: t };
+    }
+  return best;
+}
 
 const KIND_ORDER: Kind[] = ['text', 'box', 'clock', 'date', 'number', 'patient', 'queue', 'nextStop', 'terminus', 'stops', 'lineMap', 'video', 'ticker', 'logo', 'taskbar'];
 const TEXT_KINDS: Kind[] = ['text', 'ticker', 'logo', 'number', 'queue', 'nextStop', 'terminus', 'video'];
@@ -55,7 +71,9 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
   const [live, setLive] = useState(true);
   const [bell, setBell] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  const [link, setLink] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [guides, setGuides] = useState<Guides>({ x: null, y: null });
+  const [fresh, setFresh] = useState<string | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const drag = useRef<Drag | null>(null);
@@ -91,6 +109,7 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
     const wd = makeWidget(kind, { x: base.x ?? snap((W - (base.w ?? 200)) / 2), y: base.y ?? snap((H - (base.h ?? 80)) / 2) });
     set({ ...design, widgets: [...design.widgets, wd] });
     setSelected(wd.id);
+    setFresh(wd.id);
   };
   const load = (d: Design, message: string) => {
     set(d);
@@ -123,7 +142,7 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (report || t.closest('input, textarea, select')) return;
+      if (report || sharing || t.closest('input, textarea, select')) return;
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 'z') {
         e.preventDefault();
@@ -170,28 +189,28 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
     const dx = (e.clientX - d.px) * k;
     const dy = (e.clientY - d.py) * k;
     const fit = e.altKey ? Math.round : snap;
-    const p = d.mode === 'move' ? { x: fit(d.start.x + dx), y: fit(d.start.y + dy) } : { w: Math.max(GRID, fit(d.start.w + dx)), h: Math.max(GRID, fit(d.start.h + dy)) };
+    let p: Partial<Widget>;
+    if (d.mode === 'move') {
+      // ekranın ortası ve kenarları, öbür bileşenlerin baş, orta ve son çizgileri; Alt basılıyken serbest
+      const others = design.widgets.filter((wd) => wd.id !== d.id);
+      const xs = [0, W / 2, W, ...others.flatMap((o) => [o.x, o.x + o.w / 2, o.x + o.w])];
+      const ys = [0, H / 2, H, ...others.flatMap((o) => [o.y, o.y + o.h / 2, o.y + o.h])];
+      const ax = e.altKey ? { pos: Math.round(d.start.x + dx), line: null } : align(d.start.x + dx, d.start.w, xs);
+      const ay = e.altKey ? { pos: Math.round(d.start.y + dy), line: null } : align(d.start.y + dy, d.start.h, ys);
+      p = { x: ax.line === null ? fit(d.start.x + dx) : ax.pos, y: ay.line === null ? fit(d.start.y + dy) : ay.pos };
+      if (ax.line !== guides.x || ay.line !== guides.y) setGuides({ x: ax.line, y: ay.line });
+    } else p = { w: Math.max(GRID, fit(d.start.w + dx)), h: Math.max(GRID, fit(d.start.h + dy)) };
     setHist((h) => ({ ...h, present: { ...h.present, widgets: h.present.widgets.map((wd) => (wd.id === d.id ? { ...wd, ...p } : wd)) } }));
   };
   const onUp = () => {
     const d = drag.current;
     drag.current = null;
+    setGuides({ x: null, y: null });
     if (!d) return;
     // sürükleme tek adım olarak geri alınır; hiç kımıldamadıysa geçmişe yazılmaz
     setHist((h) => (h.present === d.before || sameBox(h.present, d.before, d.id) ? h : { past: [...h.past, d.before].slice(-100), present: h.present, future: [] }));
   };
 
-  const share = async () => {
-    if (!loadProgress().played.ekran) markPlayed('ekran', 'Ekran tasarlandı');
-    const url = await shareUrl(design);
-    setLink(url);
-    try {
-      await navigator.clipboard.writeText(url);
-      flash('Bağlantı panoya kopyalandı.');
-    } catch {
-      flash('Bağlantıyı aşağıdan kopyalayabilirsin.');
-    }
-  };
   const submit = () => {
     if (!task) return;
     const rep = evaluate(design, task);
@@ -200,19 +219,9 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
     markPlayed('ekran', `${'★'.repeat(rep.stars)}${'☆'.repeat(3 - rep.stars)} kurul kararı`);
     setReport(rep);
   };
-  const png = async () => {
-    if (!svg.current) return;
-    try {
-      const blob = await screenPng(svg.current);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ekran-${design.preset}.png`;
-      a.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch {
-      flash('PNG oluşturulamadı.');
-    }
+  const openShare = () => {
+    setSelected(null);
+    setSharing(true);
   };
 
   return (
@@ -256,10 +265,7 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
             🔔 Zil
           </button>
           <span className={styles.grow} />
-          <button type="button" onClick={png}>
-            PNG indir
-          </button>
-          <button type="button" className={styles.primary} onClick={share}>
+          <button type="button" className={styles.primary} onClick={openShare}>
             Paylaş
           </button>
         </div>
@@ -272,7 +278,8 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
               {design.widgets.map((wd) => (
                 <div
                   key={wd.id}
-                  className={`${styles.handle} ${wd.id === selected ? styles.picked : ''}`}
+                  className={`${styles.handle} ${wd.id === selected ? styles.picked : ''} ${wd.id === fresh ? tools.fresh : ''}`}
+                  onAnimationEnd={() => setFresh(null)}
                   style={{ left: `${(wd.x / W) * 100}%`, top: `${(wd.y / H) * 100}%`, width: `${(wd.w / W) * 100}%`, height: `${(wd.h / H) * 100}%` }}
                   onPointerDown={(e) => onDown(e, wd, 'move')}
                   title={KINDS[wd.kind].label}
@@ -280,7 +287,10 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
                   {wd.id === selected && <span className={styles.resize} onPointerDown={(e) => onDown(e, wd, 'resize')} aria-hidden="true" />}
                 </div>
               ))}
+              {guides.x !== null && <i className={tools.guideV} style={{ left: `${(guides.x / W) * 100}%` }} />}
+              {guides.y !== null && <i className={tools.guideH} style={{ top: `${(guides.y / H) * 100}%` }} />}
             </div>
+            {!design.widgets.length && <p className={tools.empty}>Ekran boş. Soldan bir bileşen ekle ya da hazır bir başlangıç seç.</p>}
           </div>
         </div>
 
@@ -289,26 +299,13 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
             {note}
           </p>
         )}
-        {link && (
-          <div className={styles.link}>
-            <label>
-              Paylaşım bağlantısı
-              <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} />
-            </label>
-            <a href={link} target="_blank" rel="noopener">
-              Yeni sekmede aç
-            </a>
-            <button type="button" onClick={() => setLink(null)} aria-label="Bağlantıyı kapat">
-              ✕
-            </button>
-          </div>
-        )}
       </section>
 
+      {sharing && <ShareSheet design={design} seconds={seconds} now={now} screen={() => svg.current} onClose={() => setSharing(false)} />}
       {task && report && <ReportCard task={task} report={report} onClose={() => setReport(null)} onFiles={() => onFiles?.()} onNext={onNext} />}
 
       <aside className={styles.inspector} aria-label="Ayarlar">
-        {sel ? <WidgetPanel wd={sel} patch={(p, c) => patch(sel.id, p, c)} onDelete={() => remove(sel.id)} onCopy={() => duplicate(sel)} onLayer={(dir) => layer(sel.id, dir)} /> : <ScreenPanel design={design} set={set} />}
+        {sel ? <WidgetPanel design={design} wd={sel} patch={(p, c) => patch(sel.id, p, c)} onDelete={() => remove(sel.id)} onCopy={() => duplicate(sel)} onLayer={(dir) => layer(sel.id, dir)} /> : <ScreenPanel design={design} set={set} />}
       </aside>
     </div>
   );
@@ -324,7 +321,23 @@ function ScreenPanel({ design, set }: { design: Design; set: (d: Design) => void
   return (
     <>
       <h2>Ekran</h2>
-      <p className={styles.hint}>Bir bileşeni seçmek için üstüne tıkla. Sürükle, sağ alt köşesinden büyüt. Ok tuşları kaydırır, Delete siler.</p>
+      <p className={styles.hint}>Bir bileşeni seçmek için üstüne tıkla. Sürükle, sağ alt köşesinden büyüt; pembe çizgiler hizayı gösterir.</p>
+      <Meter design={design} />
+      <div className={styles.field}>
+        Hazır renkler
+        <div className={tools.themes}>
+          {THEMES.map((t) => (
+            <button key={t.id} type="button" className={tools.theme} onClick={() => set(applyTheme(design, t))} title={`${t.label}: bütün ekranı bu renklere boya`}>
+              <span className={tools.chips} aria-hidden="true">
+                <i style={{ background: t.bg }} />
+                <i style={{ background: t.strong }} />
+                <i style={{ background: t.highlight }} />
+              </span>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <label className={styles.field}>
         Zemin rengi
         <input type="color" value={design.bg} onChange={(e) => set({ ...design, bg: e.target.value })} />
@@ -358,12 +371,44 @@ function ScreenPanel({ design, set }: { design: Design; set: (d: Design) => void
           Kurum rengine dön
         </button>
       )}
-      <p className={styles.hint}>{design.widgets.length} bileşen</p>
+      <p className={styles.hint}>{design.widgets.length} bileşen · Ctrl+Z geri alır</p>
     </>
   );
 }
 
-function WidgetPanel({ wd, patch, onDelete, onCopy, onLayer }: { wd: Widget; patch: (p: Partial<Widget>, commit?: boolean) => void; onDelete: () => void; onCopy: () => void; onLayer: (dir: 1 | -1) => void }) {
+/** Okunurluk göstergesi: yazıların kaçı üç metreden rahat okunur. */
+function Meter({ design }: { design: Design }) {
+  const { score, weak } = readability(design);
+  const tone = score >= 80 ? '#3fb67a' : score >= 50 ? '#f0b429' : '#e0574a';
+  return (
+    <div className={tools.meter}>
+      <span>
+        <b>Okunurluk</b>
+        <b style={{ color: tone }}>%{score}</b>
+      </span>
+      <span className={tools.bar}>
+        <i style={{ width: `${score}%`, background: tone }} />
+      </span>
+      <small>{weak.length ? `${weak.length} yazı zor okunuyor: rengi zeminine yakın ya da çok küçük.` : 'Bütün yazılar uzaktan rahat okunuyor.'}</small>
+    </div>
+  );
+}
+
+/** Hızlı renk: ekranda zaten kullanılan renkler ve birkaç temel renk. */
+function Swatches({ design, value, onPick }: { design: Design; value: string; onPick: (c: string) => void }) {
+  const used = new Set<string>([design.bg, ...design.widgets.flatMap((wd) => [wd.fill, wd.color])]);
+  used.delete('none');
+  const list = [...new Set(['#ffffff', '#000000', '#14212b', '#f2c500', '#e0262d', ...used])].slice(0, 12);
+  return (
+    <div className={tools.swatches} role="group" aria-label="Hazır renkler">
+      {list.map((c) => (
+        <button key={c} type="button" style={{ background: c }} aria-pressed={c === value} aria-label={c} onClick={() => onPick(c)} />
+      ))}
+    </div>
+  );
+}
+
+function WidgetPanel({ design, wd, patch, onDelete, onCopy, onLayer }: { design: Design; wd: Widget; patch: (p: Partial<Widget>, commit?: boolean) => void; onDelete: () => void; onCopy: () => void; onLayer: (dir: 1 | -1) => void }) {
   const hasText = wd.kind !== 'box' && wd.kind !== 'taskbar';
   const num = (key: 'x' | 'y' | 'w' | 'h', label: string) => (
     <label className={styles.small}>
@@ -374,6 +419,7 @@ function WidgetPanel({ wd, patch, onDelete, onCopy, onLayer }: { wd: Widget; pat
   return (
     <>
       <h2>{KINDS[wd.kind].label}</h2>
+      <Legibility design={design} wd={wd} patch={patch} />
       {TEXT_KINDS.includes(wd.kind) && (
         <label className={styles.field}>
           {TEXT_LABEL[wd.kind] ?? 'Yazı'}
@@ -402,6 +448,8 @@ function WidgetPanel({ wd, patch, onDelete, onCopy, onLayer }: { wd: Widget; pat
           </label>
         )}
       </div>
+      {wd.fill !== 'none' && <Swatches design={design} value={wd.fill} onPick={(c) => patch({ fill: c })} />}
+      {hasText && <Swatches design={design} value={wd.color} onPick={(c) => patch({ color: c })} />}
       {hasText && (
         <>
           <label className={styles.field}>
@@ -464,6 +512,12 @@ function WidgetPanel({ wd, patch, onDelete, onCopy, onLayer }: { wd: Widget; pat
         </label>
       )}
       <div className={styles.actions}>
+        <button type="button" onClick={() => patch({ x: Math.round((W - wd.w) / 2) })} title="Ekranın tam ortasına al">
+          Ortala
+        </button>
+        <button type="button" onClick={() => patch({ x: 0, w: W })} title="Soldan sağa bütün ekran">
+          Tam genişlik
+        </button>
         <button type="button" onClick={() => onLayer(1)} title="Öne getir">
           Öne
         </button>
@@ -478,5 +532,21 @@ function WidgetPanel({ wd, patch, onDelete, onCopy, onLayer }: { wd: Widget; pat
         </button>
       </div>
     </>
+  );
+}
+
+/** Seçilen yazının zeminiyle karşıtlığı; zayıfsa tek tıkla en okunur renge çeker. */
+function Legibility({ design, wd, patch }: { design: Design; wd: Widget; patch: (p: Partial<Widget>) => void }) {
+  if (!hasReadableText(wd)) return null;
+  const under = backdropOf(design, wd);
+  const ratio = contrast(wd.color, under);
+  if (ratio >= 4.5 && wd.size >= 16) return <p className={`${tools.warn} ${tools.ok}`}>✓ Okunur · karşıtlık {ratio.toFixed(1)}:1</p>;
+  return (
+    <p className={tools.warn}>
+      {wd.size < 16 ? 'Yazı uzaktan okunmayacak kadar küçük.' : `Zor okunuyor · karşıtlık ${ratio.toFixed(1)}:1`}
+      <button type="button" onClick={() => patch(ratio < 4.5 ? { color: bestInk(under), size: Math.max(16, wd.size) } : { size: 16 })}>
+        Düzelt
+      </button>
+    </p>
   );
 }

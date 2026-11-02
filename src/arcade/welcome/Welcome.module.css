@@ -1,0 +1,502 @@
+/*
+ * Karşılama, Figma'daki 1600×1000 çerçeve birebir. Geniş ekranda çerçeve ekrana sığacak biçimde
+ * ölçeklenir: --u çerçevenin bir pikselidir ve her öğe Figma'daki yerinde durur. Dar ekranda
+ * öğeler alt alta akar: üst menü, maket, karşılama, konum.
+ */
+
+.page {
+  --bg: #eae6dc;
+  --ink: #234638;
+  --muted: #657468;
+  --line: rgba(35, 70, 56, 0.19);
+  --u: 1px;
+  --inter: 'Inter', Arial, sans-serif;
+  --manrope: 'Manrope', Arial, sans-serif;
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--inter);
+  transition: filter 0.5s;
+}
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 24px;
+}
+
+/* ── üst menü ── */
+
+.top {
+  order: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--u));
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--u));
+  white-space: nowrap;
+}
+
+.brand b {
+  font-family: var(--manrope);
+  font-size: calc(27 * var(--u));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: calc(3 * var(--u));
+}
+
+.brand small {
+  font-size: calc(9 * var(--u));
+  font-weight: 500;
+  letter-spacing: calc(3.5 * var(--u));
+}
+
+.divider {
+  width: 1px;
+  height: calc(32 * var(--u));
+  background: var(--ink);
+  opacity: 0.3;
+}
+
+.street {
+  font-size: calc(13 * var(--u));
+  white-space: nowrap;
+}
+
+.tools {
+  display: flex;
+  gap: calc(10 * var(--u));
+}
+
+.tool {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(42 * var(--u));
+  height: calc(42 * var(--u));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tool:hover,
+.tool[aria-pressed='true'] {
+  background: rgba(35, 70, 56, 0.05);
+}
+
+.tool svg {
+  width: calc(18 * var(--u));
+  height: calc(18 * var(--u));
+}
+
+.tool svg,
+.cta svg,
+.foot svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* sessizken hoparlörün üstüne çapraz çizgi */
+.slash {
+  position: absolute;
+  width: calc(22 * var(--u));
+  height: 1px;
+  background: var(--ink);
+  transform: rotate(45deg);
+}
+
+.tool:focus-visible,
+.identity:focus-visible,
+.cta:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ── karşılama ── */
+
+.intro {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(22 * var(--u));
+  width: calc(340 * var(--u));
+  max-width: 100%;
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.intro > * {
+  margin: 0;
+}
+
+.kicker {
+  font-size: calc(9 * var(--u));
+  font-weight: 600;
+  letter-spacing: calc(1.7 * var(--u));
+}
+
+.title {
+  font-family: var(--manrope);
+  font-size: calc(47 * var(--u));
+  font-weight: 500;
+  line-height: 1.14;
+  letter-spacing: calc(-2.1 * var(--u));
+}
+
+.lead {
+  font-size: calc(15 * var(--u));
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.rule {
+  display: block;
+  width: calc(64 * var(--u));
+  height: 1px;
+  background: var(--ink);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(12 * var(--u));
+  color: inherit;
+  font-size: calc(13 * var(--u));
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cta svg {
+  width: calc(16 * var(--u));
+  height: calc(16 * var(--u));
+  transition: transform 0.25s;
+}
+
+
+/* ── maket ── */
+
+.model {
+  order: 1;
+  position: relative;
+  display: block;
+  align-self: center;
+  width: 112%;
+  max-width: 1028px;
+  aspect-ratio: 1152 / 928;
+  margin: 28px 0 8px;
+  /* yalnızca başlarken: biten dönüşüm, telefondaki sabit kartın konumunu bozmasın */
+  animation: rise 0.9s 0.1s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+/* ── alt çizgi ve konum ── */
+
+.foot {
+  order: 3;
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+  margin-top: 40px;
+  padding-top: calc(28 * var(--u));
+  border-top: 1px solid var(--line);
+  font-size: calc(10 * var(--u));
+  letter-spacing: calc(1.4 * var(--u));
+  color: var(--muted);
+}
+
+.foot svg {
+  width: calc(13 * var(--u));
+  height: calc(13 * var(--u));
+  stroke-width: 1.3;
+}
+
+/* ── yardım ve ayarlar paneli ── */
+
+.panel {
+  position: fixed;
+  top: 76px;
+  right: 20px;
+  z-index: 40;
+  width: min(320px, calc(100vw - 40px));
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: rgba(234, 230, 220, 0.95);
+  box-shadow: 0 18px 60px rgba(35, 70, 56, 0.12);
+  backdrop-filter: blur(12px);
+  animation: rise 0.25s ease-out both;
+}
+
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.panelHead h2 {
+  margin: 0;
+  font-family: var(--manrope);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -4px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: rgba(35, 70, 56, 0.05);
+}
+
+.panelBody {
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 24px;
+  color: var(--muted);
+}
+
+.panelBody p {
+  margin: 0;
+}
+
+.panelBody p + p {
+  margin-top: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 8px 0;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+
+.row input[type='range'] {
+  width: 130px;
+  accent-color: var(--ink);
+}
+
+.switch {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(35, 70, 56, 0.22);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+
+.switch:checked {
+  background: var(--ink);
+}
+
+.switch:checked::after {
+  transform: translateX(14px);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .model,
+  .panel {
+    animation: none;
+  }
+}
+
+/* oyuna geçiş: yazılar çekilir, ekran oyunun zemin rengine döner */
+.top,
+.intro,
+.foot {
+  transition: opacity 0.35s;
+}
+
+.leaving .top,
+.leaving .intro,
+.leaving .foot {
+  opacity: 0;
+}
+
+.fade {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s 0.45s;
+}
+
+.leaving .fade {
+  opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .frame {
+    padding: 24px 32px;
+  }
+
+  .model {
+    width: 95%;
+  }
+
+  .panel {
+    right: 32px;
+  }
+}
+
+@media (max-width: 639px) {
+  .divider,
+  .street {
+    display: none;
+  }
+
+  .title {
+    font-size: 42px;
+  }
+}
+
+/* geniş ekran: Figma çerçevesi, her öğe çerçevedeki yerinde */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .page {
+    --u: min(calc(100vw / 1600), calc(100dvh / 1000));
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  .frame {
+    display: block;
+    width: calc(1600 * var(--u));
+    height: calc(1000 * var(--u));
+    padding: 0;
+  }
+
+  .top {
+    position: absolute;
+    top: calc(34 * var(--u));
+    left: calc(48 * var(--u));
+    width: calc(1504 * var(--u));
+  }
+
+  .intro {
+    position: absolute;
+    top: calc(310 * var(--u));
+    left: calc(48 * var(--u));
+  }
+
+  .model {
+    position: absolute;
+    top: calc(88 * var(--u));
+    left: calc(470 * var(--u));
+    width: calc(1028 * var(--u));
+    max-width: none;
+    margin: 0;
+  }
+
+  .foot {
+    position: absolute;
+    top: calc(918 * var(--u));
+    left: calc(48 * var(--u));
+    width: calc(1504 * var(--u));
+    margin: 0;
+  }
+
+  .panel {
+    top: calc(50% - 500 * var(--u) + 88 * var(--u));
+    right: calc(50% - 800 * var(--u) + 48 * var(--u));
+  }
+}
+
+/* sağ alttaki mini KASM Labs işareti: üstteki markanın küçük, sessiz kardeşi */
+.labs {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(2 * var(--u));
+  margin-left: auto;
+  color: var(--ink);
+  line-height: 1;
+  opacity: 0.85;
+  letter-spacing: 0;
+}
+
+.labs b {
+  font-family: var(--manrope);
+  font-size: calc(14 * var(--u));
+  font-weight: 800;
+  letter-spacing: calc(2 * var(--u));
+}
+
+.labs small {
+  font-size: calc(7 * var(--u));
+  font-weight: 500;
+  letter-spacing: calc(4.2 * var(--u));
+  margin-right: calc(-4.2 * var(--u));
+}
+

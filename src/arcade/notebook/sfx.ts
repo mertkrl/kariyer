@@ -35,3 +35,22 @@ export function scribble() {
   e.noiseHit({ filter: 'bandpass', freq: 2400, freqEnd: 3600, q: 1.6, when: now, attack: 0.008, decay: 0.07, peak: 0.03 });
   e.noiseHit({ filter: 'bandpass', freq: 3000, freqEnd: 2000, q: 1.6, when: now + 0.08, attack: 0.008, decay: 0.06, peak: 0.025 });
 }
+
+/** Demir paraya fiske: kısa bir tık ve madenî bir çınlama. */
+export function flick() {
+  const now = e.ensureContext().currentTime;
+  e.noiseHit({ filter: 'highpass', freq: 2800, when: now, attack: 0.001, decay: 0.02, peak: 0.05 });
+  e.noiseHit({ filter: 'bandpass', freq: 5200, q: 18, when: now + 0.005, attack: 0.002, decay: 0.25, peak: 0.03 });
+}
+
+/** Para parmağa çarptı: boğuk bir tok. */
+export function clink() {
+  e.noiseHit({ filter: 'bandpass', freq: 700, q: 2, attack: 0.002, decay: 0.06, peak: 0.05 });
+}
+
+/** Gol: kâğıt hışırtısıyla kısa bir sevinç (iki parlak çınlama). */
+export function goal() {
+  const now = e.ensureContext().currentTime;
+  e.noiseHit({ filter: 'bandpass', freq: 4200, q: 20, when: now, attack: 0.002, decay: 0.3, peak: 0.035 });
+  e.noiseHit({ filter: 'bandpass', freq: 6300, q: 20, when: now + 0.12, attack: 0.002, decay: 0.35, peak: 0.035 });
+}

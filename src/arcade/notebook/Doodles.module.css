@@ -81,6 +81,81 @@
   text-decoration: underline;
 }
 
+/* gizli kâğıt oyunu: tam ekran kareli kâğıt; defter arkada kalır */
+.full {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: auto;
+  padding: 28px 16px 40px;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, transparent 65px, #d8262c 65px 67px, transparent 67px),
+    linear-gradient(#b9bcc1 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, #b9bcc1 1px, transparent 1px) 0 0 / 22px 22px,
+    #ffffff;
+  animation: ink 0.25s ease-out;
+}
+
+.fullInner {
+  container: paper / inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 900px);
+  margin: 0 auto;
+}
+
+.fullInner > :last-child {
+  max-width: 100%;
+}
+
+.fullTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+  margin-bottom: 22px;
+  padding-bottom: 6px;
+  align-self: stretch;
+  border-bottom: 2px solid var(--ink);
+}
+
+.fullTitle {
+  margin: 0;
+  color: #2c4f8f;
+  font: 700 clamp(2rem, 6vw, 2.8rem)/1 'Caveat', cursive;
+}
+
+.back {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #b3261e;
+  font: 700 1.5rem/1 'Caveat', cursive;
+  cursor: pointer;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+/* tahtalar ekranı doldursun */
+.full svg {
+  width: min(calc(100vw - 32px), 520px);
+  max-height: 74vh;
+}
+
+@media (max-width: 760px) {
+  .full {
+    background:
+      linear-gradient(#b9bcc1 1px, transparent 1px) 0 0 / 22px 22px,
+      linear-gradient(90deg, #b9bcc1 1px, transparent 1px) 0 0 / 22px 22px,
+      #ffffff;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .draw,
   .letter {

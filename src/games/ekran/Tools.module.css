@@ -1,0 +1,371 @@
+/* Ekran İhalesi: paylaş penceresi, hazır renk takımları, okunurluk göstergesi ve hizalama çizgileri. */
+
+/* —— paylaş penceresi —— */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 12, 16, 0.72);
+  backdrop-filter: blur(4px);
+  animation: fade 0.2s ease-out;
+}
+
+.sheet {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 380px) 300px;
+  gap: 28px;
+  align-items: center;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 28px;
+  border-radius: 18px;
+  background: #2d3139;
+  border: 1px solid #3d424c;
+  color: #eef0f3;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  animation: rise 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cardWrap {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1b1e23;
+  aspect-ratio: 1080 / 1350;
+}
+
+.card {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transform: scale(0.97);
+  transition:
+    opacity 0.4s ease,
+    transform 0.5s ease;
+}
+
+.card[data-ready='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.side h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f0b429;
+  font-weight: 700;
+}
+
+.sub {
+  margin: 0 0 6px;
+  color: #a3a9b4;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.big {
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: 10px;
+  border: 0;
+  background: #4c7fb0;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 16px;
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+
+.big:hover {
+  background: #6a9bcc;
+  transform: translateY(-1px);
+}
+
+.linkRow {
+  display: flex;
+  gap: 6px;
+}
+
+.linkRow input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid #3d424c;
+  background: #23262d;
+  color: #eef0f3;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.linkRow button,
+.minor button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #3d424c;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.minor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.minor a {
+  color: #6a9bcc;
+}
+
+.offscreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* —— hazır renk takımları —— */
+.themes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.theme {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid #3d424c;
+  background: transparent;
+  font-size: 11px !important;
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+
+.theme:hover {
+  border-color: #6a9bcc;
+  transform: translateY(-1px);
+}
+
+.chips {
+  display: flex;
+  height: 18px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.chips i {
+  flex: 1;
+}
+
+/* —— renk örnekleri —— */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.swatches button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  transition: transform 0.12s;
+}
+
+.swatches button:hover {
+  transform: scale(1.18);
+}
+
+.swatches button[aria-pressed='true'] {
+  border-color: #f0b429;
+}
+
+/* —— okunurluk —— */
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+}
+
+.meter > span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #3d424c;
+  overflow: hidden;
+}
+
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transition:
+    width 0.5s cubic-bezier(0.2, 0.9, 0.3, 1),
+    background 0.3s;
+}
+
+.warn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: rgba(240, 180, 41, 0.12);
+  color: #f5d27a;
+}
+
+.ok {
+  background: rgba(47, 160, 100, 0.14);
+  color: #8fd8ae;
+}
+
+.warn button {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+  background: transparent;
+  font-size: 12px !important;
+}
+
+/* —— sahnede hizalama çizgileri ve yeni bileşen —— */
+.guideV,
+.guideH {
+  position: absolute;
+  pointer-events: none;
+  background: #ff4fa3;
+  box-shadow: 0 0 0 1px rgba(255, 79, 163, 0.25);
+  z-index: 2;
+}
+
+.guideV {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.guideH {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.fresh {
+  animation: pop 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  padding: 24px;
+  background: rgba(20, 22, 26, 0.55);
+  color: #eef0f3;
+  font-size: 15px;
+  text-align: center;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+    background: rgba(240, 180, 41, 0.35);
+  }
+  60% {
+    background: rgba(240, 180, 41, 0.2);
+  }
+}
+
+@media (max-width: 760px) {
+  .backdrop {
+    padding: 10px;
+    align-items: start;
+  }
+
+  .sheet {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 20px 16px;
+  }
+
+  .cardWrap {
+    width: min(100%, 300px);
+    justify-self: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .sheet,
+  .fresh {
+    animation: none;
+  }
+}

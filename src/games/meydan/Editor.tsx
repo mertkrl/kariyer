@@ -1,16 +1,21 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { flushSync } from 'react-dom';
-import { svgImage } from '../../arcade/share';
+import { drawResultCard, svgImage, type ResultCard } from '../../arcade/share';
 import { markPlayed } from '../../arcade/progress';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
-import { GRID, GROUND, H, ITEM_KINDS, MAX_ITEMS, SIGN_KINDS, SWATCHES, W, colorCount, draftKey, isJunk, itemsOn, makeItem, makeover, snap, withoutJunk, type Design, type Item, type Paint, type Place, type SignKind } from './model';
+import { GRID, GROUND, H, ITEM_KINDS, MAX_ITEMS, SIGN_KINDS, W, applySignCode, colorCount, draftKey, isJunk, itemsOn, makeItem, snap, withoutJunk, type Design, type Item, type Place, type Site, type SignKind, type Spec } from './model';
+import { BuildingPanel, ColorField, ScoreStrip, SitePanel } from './Inspector';
+import { makeover, openDefects, type Report } from './report';
 import { SceneDefs, SceneLayers, type DragMode, type Pick } from './Scene';
+import { paintMeydanCard } from './shareCard';
 import styles from './MeydanGame.module.css';
 
 /*
- * Serbest mod: meydanı istediğin gibi düzenle. Binaya tıklayınca cephe, doğrama ve dükkân rengi;
- * tabelaya tıklayınca yazısı ve renkleri değişir, sürüklenir, köşesinden boyutlanır, sökülür.
+ * Serbest mod: meydanı istediğin gibi düzenle. Binaya tıklayınca renkleri, mimari seçenekleri
+ * (cephe, doğrama, korkuluk, çatı, saçak, vitrin, ışık) ve yapısal seçenekleri (güçlendirme, kaçak
+ * kat); boşluğa tıklayınca meydanın zemini, yeşili ve direkleri; tabelaya tıklayınca yazısı ve
+ * renkleri değişir, sürüklenir, köşesinden boyutlanır, sökülür.
  * Her adım geri alınabilir; taslak tarayıcıda saklanır. Karşılaştırma, meydanın bugünkü hâliyle
  * senin hâlini bir sürgüyle yan yana gösterir. Paylaşılan kart ikisini alt alta koyar: o an, ekran
  * dışında, seçim çizgileri olmadan bir kez daha çizilir.
@@ -26,12 +31,6 @@ interface History {
 const ZOOM = 2.2;
 
 type Drag = { id: string; mode: DragMode; px: number; py: number; start: Item; before: Design };
-
-const PAINT_FIELDS: { key: Exclude<keyof Paint, 'id'>; label: string }[] = [
-  { key: 'wall', label: 'Cephe' },
-  { key: 'trim', label: 'Doğrama ve korniş' },
-  { key: 'shop', label: 'Zemin kat' },
-];
 
 export function Editor({ place, initial }: { place: Place; initial: Design }) {
   const [hist, setHist] = useState<History>({ past: [], present: initial, future: [] });
@@ -56,13 +55,22 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
   const design = hist.present;
   const item = picked?.type === 'item' ? (design.items.find((it) => it.id === picked.id) ?? null) : null;
   const building = picked?.type === 'building' ? (place.buildings.find((b) => b.id === picked.id) ?? null) : null;
-  const paint = building ? design.paints.find((p) => p.id === building.id) : undefined;
+  const spec = building ? design.specs.find((p) => p.id === building.id) : undefined;
+  const report = makeover(place, design);
 
   const set = (d: Design) => setHist((h) => ({ past: [...h.past, h.present].slice(-100), present: d, future: [] }));
   const undo = () => setHist((h) => (h.past.length ? { past: h.past.slice(0, -1), present: h.past[h.past.length - 1], future: [h.present, ...h.future] } : h));
   const redo = () => setHist((h) => (h.future.length ? { past: [...h.past, h.present], present: h.future[0], future: h.future.slice(1) } : h));
   const patchItem = (id: string, p: Partial<Item>) => set({ ...design, items: design.items.map((it) => (it.id === id ? { ...it, ...p } : it)) });
-  const patchPaint = (id: string, p: Partial<Paint>) => set({ ...design, paints: design.paints.map((pt) => (pt.id === id ? { ...pt, ...p } : pt)) });
+  const patchSpec = (id: string, p: Partial<Spec>) => set({ ...design, specs: design.specs.map((pt) => (pt.id === id ? { ...pt, ...p } : pt)) });
+  const patchSite = (p: Partial<Site>) => set({ ...design, site: { ...design.site, ...p } });
+  const signCode = () => {
+    const next = applySignCode(design, place);
+    const gone = design.items.length - next.items.length;
+    set(next);
+    if (item && !next.items.some((it) => it.id === item.id)) setPicked(null);
+    flash(gone ? `${gone} afiş ve folyo söküldü, panolar hizaya girdi.` : 'Panolar vitrin bandına hizalandı.');
+  };
   const removeItem = (id: string) => {
     set({ ...design, items: design.items.filter((it) => it.id !== id) });
     setPicked(null);
@@ -92,7 +100,7 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
   };
   const clearJunk = () => {
     const n = design.items.filter((it) => isJunk(it.kind)).length;
-    if (!n) return flash('Sökülecek klima, anten ya da kablo kalmadı.');
+    if (!n) return flash('Sökülecek klima, anten, depo ya da kablo kalmadı.');
     set(withoutJunk(design));
     if (item && isJunk(item.kind)) setPicked(null);
     flash(`${n} parça söküldü.`);
@@ -200,39 +208,40 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
 
   /** Meydan düzenlendi ve karşılaştırıldı ya da paylaşıldı: salonun defterine tik ve unvan. */
   const logMakeover = () => {
-    const m = makeover(place.original, design);
-    if (m.title === 'Dokunulmamış Meydan') return;
-    markPlayed('meydan', m.title);
+    if (report.title === 'Dokunulmamış Meydan') return;
+    markPlayed('meydan', report.title);
   };
 
-  const shareCard = async () => {
-    logMakeover();
+  /** Paylaşım kartı: önce/sonra o an, ekran dışında, seçim çizgileri olmadan bir kez daha çizilir. */
+  const makeCard = async (): Promise<ResultCard> => {
     flushSync(() => setShot(true));
     try {
       const [before, after] = await Promise.all([svgImage(shotBefore.current!), svgImage(shotAfter.current!)]);
-      const m = makeover(place.original, design);
+      const m = report;
       return {
-        route: 'meydan' as const,
+        route: 'meydan',
         kicker: `${place.district} · ${place.title}`,
         title: m.title,
-        pictures: [
-          { label: 'ÖNCE', image: before, w: W, h: H },
-          { label: 'SONRA', image: after, w: W, h: H },
-        ],
         stats: [
-          { label: 'Tabela', value: `${m.signsBefore}→${m.signsAfter}` },
-          { label: 'Sökülen klima, anten', value: String(m.junkRemoved), tone: '#3f6b63' },
-          { label: 'Renk', value: `${m.colorsBefore}→${m.colorsAfter}` },
+          { label: 'Estetik', value: `${m.scoreBefore}→${m.score}` },
+          { label: 'Güvenli bina', value: `${m.safe}/${m.total}`, tone: '#3f6b63' },
+          { label: 'Keşif', value: formatShort(m.cost) },
         ],
         question: 'Senin meydanın nasıl olurdu?',
+        paint: paintMeydanCard({ place: `${place.district} · ${place.title}`, region: place.region, before, after, r: m, date: new Date().toLocaleDateString('tr-TR') }),
         text:
           m.signsAfter > m.signsBefore
             ? `${place.district} meydanına ${m.signsAfter - m.signsBefore} tabela daha astım. Belediye "Tabela Cenneti" dedi. Senin meydanın nasıl olurdu?`
-            : `${place.district} meydanında ${m.signsBefore - m.signsAfter} tabelayı ve ${m.junkRemoved} klimayı söktüm, renk sayısını ${m.colorsBefore} → ${m.colorsAfter} yaptım: "${m.title}". Senin meydanın nasıl olurdu?`,
+            : `${place.district} ${place.title}: estetik puanı ${m.scoreBefore} → ${m.score}, ${m.safe}/${m.total} bina depreme hazır, ${m.junkRemoved} klima ve anten söküldü: "${m.title}". Senin meydanın nasıl olurdu?`,
       };
     } finally {
       setShot(false);
     }
+  };
+
+  const shareCard = () => {
+    logMakeover();
+    return makeCard();
   };
 
   return (
@@ -246,7 +255,7 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
           </button>
         ))}
         <h2>Binalar</h2>
-        {place.buildings.map((b) => (
+        {place.buildings.map((b, i) => (
           <button
             key={b.id}
             type="button"
@@ -258,8 +267,9 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
             disabled={compare}
           >
             <span className={styles.bRow}>
-              <i style={{ background: design.paints.find((p) => p.id === b.id)?.wall }} />
+              <i style={{ background: design.specs[i]?.wall }} />
               {b.name}
+              {openDefects(b, design.specs[i]).length > 0 && <em className={styles.badge}>{openDefects(b, design.specs[i]).length}</em>}
             </span>
           </button>
         ))}
@@ -276,6 +286,9 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
           <span className={styles.sep} />
           <button type="button" onClick={clearJunk} disabled={compare}>
             Klima, anten, kabloları sök
+          </button>
+          <button type="button" onClick={signCode} disabled={compare}>
+            Tabela yönetmeliği
           </button>
           <button type="button" onClick={reset} disabled={compare}>
             Baştan başla
@@ -307,6 +320,7 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
           </div>
         )}
 
+        <ScoreStrip r={report} />
         <div className={styles.stageWrap}>
           <div className={`${styles.stage} ${zoom ? styles.zoomed : ''}`} style={{ ['--pan' as string]: pan, ['--zoom' as string]: ZOOM }}>
             <svg
@@ -373,8 +387,9 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
               <span>Sonra</span>
             </label>
           )}
-          {compare && <PressRelease place={place} m={makeover(place.original, design)} />}
-          <p className={styles.hint}>{compare ? 'Sürgüyü kaydırarak meydanın bugünkü hâliyle karşılaştır.' : 'Binaya tıkla: renklerini değiştir. Tabelaya tıkla: sürükle, köşesinden boyutlandır, Delete ile sök.'}</p>
+          {compare && <CardPreview make={makeCard} share={shareCard} />}
+          {compare && <PressRelease place={place} m={report} />}
+          <p className={styles.hint}>{compare ? 'Sürgüyü kaydırarak meydanın bugünkü hâliyle karşılaştır.' : 'Binaya tıkla: cephesini, çatısını, taşıyıcısını yenile. Boşluğa tıkla: meydanın zemini ve yeşili. Tabelaya tıkla: sürükle, köşesinden boyutlandır, Delete ile sök.'}</p>
           {note && (
             <p className={styles.note} role="status">
               {note}
@@ -415,32 +430,19 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
               </button>
             </div>
           </>
-        ) : building && paint ? (
-          <>
-            <h2>{building.name}</h2>
-            {PAINT_FIELDS.map((f) => (
-              <ColorField key={f.key} label={f.label} value={paint[f.key]} onChange={(c) => patchPaint(building.id, { [f.key]: c })} />
-            ))}
-            <div className={styles.actions}>
-              <button type="button" className={styles.danger} onClick={clearFacade}>
-                Bu cepheyi temizle
-              </button>
-            </div>
-            <p className={styles.muted}>Seçili binaya yeni tabela asmak için soldan bir tür seç.</p>
-          </>
+        ) : building && spec ? (
+          <BuildingPanel key={building.id} place={place} b={building} s={spec} onSpec={(p) => patchSpec(building.id, p)} onClear={clearFacade} />
         ) : (
-          <>
-            <h2>Meydan</h2>
-            <p className={styles.muted}>Bir binaya ya da tabelaya tıkla. Klavyede ok tuşları kaydırır, Ctrl+Z geri alır.</p>
-            <dl className={styles.stats}>
-              <dt>Tabela</dt>
-              <dd>{signs}</dd>
-              <dt>Klima, anten, kablo</dt>
-              <dd>{junk}</dd>
-              <dt>Kullanılan renk</dt>
-              <dd>{colorCount(design)}</dd>
-            </dl>
-          </>
+          <SitePanel
+            site={design.site}
+            onSite={patchSite}
+            onSignCode={signCode}
+            stats={[
+              { label: 'Tabela', value: signs },
+              { label: 'Klima, anten, depo, kablo', value: junk },
+              { label: 'Kullanılan renk', value: colorCount(design) },
+            ]}
+          />
         )}
       </aside>
     </main>
@@ -458,30 +460,58 @@ function Tag({ x, text }: { x: number; text: string }) {
   );
 }
 
-function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (c: string) => void }) {
+/** Kısa bedel: kartın sayı sütununa sığsın. */
+function formatShort(tl: number) {
+  return tl >= 1e6 ? `₺${(tl / 1e6).toLocaleString('tr-TR', { maximumFractionDigits: 1 })} mn` : `₺${Math.round(tl / 1e3)} bin`;
+}
+
+/** Önce/sonra açıkken paylaşılacak kartın kendisi: oyuncu ne paylaşacağını görür. */
+function CardPreview({ make, share }: { make: () => Promise<ResultCard>; share: () => Promise<ResultCard> }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let live = true;
+    // ilk çizim sahne oturduktan sonra: ekran dışındaki kopyalar o an kurulur
+    const t = window.setTimeout(async () => {
+      try {
+        const card = await make();
+        if (live && canvas.current) {
+          drawResultCard(canvas.current, card);
+          setReady(true);
+        }
+      } catch {
+        /* önizleme olmazsa paylaşım yine çalışır */
+      }
+    }, 60);
+    return () => {
+      live = false;
+      window.clearTimeout(t);
+    };
+    // önizleme karşılaştırma her açıldığında bir kez çizilir
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
-    <fieldset className={styles.color}>
-      <legend>{label}</legend>
-      <div className={styles.swatches}>
-        {SWATCHES.map((c) => (
-          <button key={c} type="button" className={styles.swatch} style={{ background: c }} aria-label={c} aria-pressed={value === c} onClick={() => onChange(c)} />
-        ))}
-        <input type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`${label}: özel renk`} />
-      </div>
-    </fieldset>
+    <figure className={styles.preview}>
+      <canvas ref={canvas} className={styles.previewCard} data-ready={ready} aria-label="Paylaşılacak kartın önizlemesi" />
+      <figcaption>
+        <b>Proje paftası</b>
+        <span>Paylaşınca bu kart iner ya da telefonda paylaşım menüsü açılır.</span>
+        <ShareButton className={styles.primary} label="Paftayı paylaş" make={share} />
+      </figcaption>
+    </figure>
   );
 }
 
 /** Önce/sonra açıkken belediyenin basın bülteni: oyuncunun yaptığı, kurumsal dille. */
-function PressRelease({ place, m }: { place: Place; m: ReturnType<typeof makeover> }) {
+function PressRelease({ place, m }: { place: Place; m: Report }) {
   const fewer = m.signsBefore - m.signsAfter;
   return (
     <Finale kind="news" kicker={`${place.district} Belediyesi · Basın bülteni`} title={`${place.title} yeni yüzüne kavuştu: "${m.title}"`}>
       <p>
         Belediyemizin vizyon projesi kapsamında {place.title} cephelerinde kapsamlı bir düzenleme yapılmıştır.{' '}
-        {fewer > 0 ? `${fewer} tabela kaldırılmış, ` : fewer < 0 ? `esnafımızın talebiyle ${-fewer} yeni tabela eklenmiş, ` : ''}
-        {m.junkRemoved > 0 ? `${m.junkRemoved} klima, anten ve kablo cepheden sökülmüştür. ` : ''}
-        {m.colorsAfter === m.colorsBefore ? `Meydandaki renk sayısı korunmuştur (${m.colorsAfter}).` : `Meydandaki renk sayısı ${m.colorsAfter < m.colorsBefore ? 'azaltılmıştır' : 'artırılmıştır'}: önce ${m.colorsBefore}, şimdi ${m.colorsAfter}.`}
+        {m.works.length ? `${m.works.join(', ')}. ` : ''}
+        {fewer > 0 ? `${fewer} tabela kaldırılmıştır. ` : fewer < 0 ? `Esnafımızın talebiyle ${-fewer} yeni tabela eklenmiştir. ` : ''}
+        Projenin keşif bedeli {formatShort(m.cost)} olup {m.safe}/{m.total} binamız depreme karşı güvenli kabul edilmektedir.
       </p>
       <p>
         {m.note} Açılış töreni hafta sonu yapılacak olup kurdele kesimi sırasında meydan trafiğe kapatılacaktır.

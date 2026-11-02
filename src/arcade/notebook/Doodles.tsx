@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { SOS_N, sosLines, sosMove, xoxMove, xoxWinner, type Letter, type Mark } from './boardGames';
-import { bounds, recognize, type Pt } from './glyph';
+import { bounds, recognize, type Glyph, type Pt } from './glyph';
+import { PaperGame } from './PaperBoards';
+import { PAPER_TITLES, letterOf, type PaperKind } from './paperGames';
 import * as sfx from './sfx';
 import s from './Doodles.module.css';
 
@@ -13,6 +16,11 @@ import s from './Doodles.module.css';
  * S yazar, O için O çizilir). Oyun bitince yeni bir işaret yeni oyunu başlatır; ✕ tahtayı siler.
  * Telefonda sayfa kaydırması bozulmasın diye çizim kısa bir basılı tutmayla başlar.
  * Tanıma glyph.ts'te, kurallar ve robot boardGames.ts'te.
+ *
+ * Gizli kâğıt oyunları da böyle açılır, hepsi tek hamlede çizilir: M çizen (ya da sayfada
+ * TOPLANTI yazan) toplantı asmacaya, kare çizen (KUTU) noktalar ve kutulara, üçgen çizen (GOL)
+ * kâğıt futboluna başlar. Bunlar tam ekran açılır, defter arkada kalır (PaperBoards.tsx);
+ * "deftere dön" kapatır.
  */
 
 const CELL = 44;
@@ -25,6 +33,46 @@ const GROUP_MS = 550;
 /** Dokunmatik ekranda çizime başlamak için basılı tutma süresi. */
 const HOLD_MS = 260;
 const ROBOT_MS = 650;
+
+/** Gizli kâğıt oyununu açan işaret ve sayfada yazılınca açan sözcükler. */
+const PAPER_GLYPH: Partial<Record<Glyph, PaperKind>> = { M: 'asmaca', '□': 'kutu', '△': 'futbol' };
+const PAPER_WORDS: [string, PaperKind][] = [
+  ['TOPLANTI', 'asmaca'],
+  ['ASMACA', 'asmaca'],
+  ['KUTU', 'kutu'],
+  ['GOL', 'futbol'],
+];
+interface Paper {
+  kind: PaperKind;
+  /** Aynı türden yenisi baştan başlasın diye. */
+  id: number;
+}
+
+/** Bir dokunuşla tıklanır kâğıt kenarı gibi değil, tam ekran: kareli kâğıt, başlık, geri dönüş. */
+function PaperScreen({ paper, onClose }: { paper: Paper; onClose: () => void }) {
+  // arkadaki defter kaymasın
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+  return createPortal(
+    <div className={s.full} role="dialog" aria-modal="true" aria-label={PAPER_TITLES[paper.kind]} data-no-doodle>
+      <div className={s.fullInner}>
+        <div className={s.fullTop}>
+          <h2 className={s.fullTitle}>{PAPER_TITLES[paper.kind]}</h2>
+          <button type="button" className={s.back} onClick={onClose}>
+            ← deftere dön
+          </button>
+        </div>
+        <PaperGame key={paper.id} kind={paper.kind} />
+      </div>
+    </div>,
+    document.body,
+  );
+}
 
 type Who = 'me' | 'pc';
 
@@ -143,7 +191,12 @@ export function Doodles({ page }: { page: RefObject<HTMLDivElement | null> }) {
   const [game, setGame] = useState<Game | null>(null);
   const [ink, setInk] = useState<Pt[][]>([]);
   const [fading, setFading] = useState(false);
+  const [paper, setPaper] = useState<Paper | null>(null);
+  const paperRef = useRef<Paper | null>(null);
   const gameRef = useRef<Game | null>(null);
+  useEffect(() => {
+    paperRef.current = paper;
+  }, [paper]);
   useEffect(() => {
     gameRef.current = game;
   }, [game]);
@@ -196,8 +249,28 @@ export function Doodles({ page }: { page: RefObject<HTMLDivElement | null> }) {
       // tahta ve altındaki not sayfanın içinde kalır
       const bottom = Math.floor((root.clientHeight - n * CELL - 90) / GRID) * GRID;
       const y = Math.max(GRID, Math.min(bottom, Math.round((cy - CELL / 2) / GRID) * GRID - mid * CELL));
+      setPaper(null);
       const fresh: Game = { kind, x, y, n, cells: Array(n * n).fill(null), owner: Array(n * n).fill(null), lines: [], me: glyph === 'O' ? 'O' : 'X', turn: 'me', over: false };
       play(move(fresh, Math.floor((n * n) / 2), kind === 'xox' ? fresh.me : glyph === 'O' ? 'O' : 'S', 'me'));
+    };
+
+    /** Gizli kâğıt oyunu: tam ekran açılır; defterdeki tahta silinir. */
+    const startPaper = (kind: PaperKind) => {
+      sfx.scribble();
+      setGame(null);
+      setPaper({ kind, id: Date.now() });
+    };
+
+    // sayfada yazılan gizli sözcük (bir alana yazılmıyorsa); asmaca açıkken harfler ona gider
+    let typed = '';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || e.target !== document.body || paperRef.current?.kind === 'asmaca') return;
+      const c = letterOf(e.key);
+      typed = c ? (typed + c).slice(-12) : '';
+      const hit = PAPER_WORDS.find(([w]) => typed.endsWith(w));
+      if (!hit) return;
+      typed = '';
+      startPaper(hit[1]);
     };
 
     const finish = () => {
@@ -208,8 +281,10 @@ export function Doodles({ page }: { page: RefObject<HTMLDivElement | null> }) {
       const glyph = recognize(strokes);
       const box = bounds(strokes);
       const g = gameRef.current;
-      if (g && !g.over && tryMove([box.cx, box.cy], glyph)) return;
-      if (glyph && (!g || g.over)) return startGame(glyph, box.cx, box.cy);
+      const paperKind = glyph && PAPER_GLYPH[glyph];
+      if (g && !g.over && tryMove([box.cx, box.cy], paperKind ? null : (glyph as 'X' | 'S' | 'O' | null))) return;
+      if (paperKind) return startPaper(paperKind);
+      if (glyph && (!g || g.over)) return startGame(glyph as 'X' | 'S' | 'O', box.cx, box.cy);
       // tanınmayan karalama silinir gibi solar
       setInk(strokes);
       setFading(true);
@@ -280,7 +355,9 @@ export function Doodles({ page }: { page: RefObject<HTMLDivElement | null> }) {
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
     root.addEventListener('touchmove', touch, { passive: false });
+    window.addEventListener('keydown', onKey);
     return () => {
+      window.removeEventListener('keydown', onKey);
       root.removeEventListener('pointerdown', down);
       window.removeEventListener('pointermove', moveP);
       window.removeEventListener('pointerup', up);
@@ -301,6 +378,7 @@ export function Doodles({ page }: { page: RefObject<HTMLDivElement | null> }) {
           <path key={i} className={fading ? s.fade : undefined} d={pathOf(pts)} stroke={BLUE} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
         ))}
       </svg>
+      {paper && <PaperScreen paper={paper} onClose={() => setPaper(null)} />}
       {game && st && (
         <div className={s.note} style={{ left: game.x, top: game.y + game.n * CELL + 8 }} data-no-doodle>
           <span className={s.kind}>{game.kind === 'xox' ? 'XOX' : 'SOS'}</span>

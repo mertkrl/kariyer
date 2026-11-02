@@ -56,5 +56,22 @@ test('şantiyeler: kat sayısı takvimi kaydırır, aşamalar sıralı kalır, i
     assert.ok(Math.abs(data.workAt(data.TOTAL) - data.WORK_TOTAL) < 0.2, p.id);
   }
   data.selectProject('huzur');
-  assert.equal(data.WORK_TOTAL, 254);
+  assert.equal(data.WORK_TOTAL, 306);
+});
+
+test('şantiye defteri: her aşama ve kat adımının ekibi, kaydı, kontrolü ve İSG önlemi var', async () => {
+  const data = await import('../src/games/insaat/data');
+  const crew = await import('../src/games/insaat/crew');
+  for (const st of data.STAGES) {
+    if (st.id === 'karkas') continue; // kaba inşaatın defteri kat adımlarındadır
+    const p = crew.STAGE_PLANS[st.id];
+    assert.ok(p && p.crew.length && p.log.length && p.checks.length && p.isg, st.id);
+    p.log.forEach((l) => assert.ok(l.who in crew.ROLES, st.id));
+  }
+  for (const fs of data.FLOOR_STEPS) assert.ok(crew.FLOOR_PLANS[fs.id]?.log.length, fs.id);
+  // sahada her meslekten biri en az bir kez bulunur
+  const seen = new Set([...Object.values(crew.STAGE_PLANS), ...Object.values(crew.FLOOR_PLANS)].flatMap((p) => p.crew));
+  for (const r of Object.keys(crew.ROLES)) assert.ok(seen.has(r as never), r);
+  const q = data.quantities(6, 380);
+  assert.ok(q.concrete > 0 && q.steel > 0 && q.cubes >= 6 * 7);
 });

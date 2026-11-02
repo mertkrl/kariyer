@@ -1,69 +1,137 @@
-import { makeItem, type BuildingShape, type Design, type Item, type ItemKind, type Paint, type Place, type PlaceId } from './model';
+import { BLANK_SITE, BLANK_SPEC, GROUND, makeItem, topOf, type BuildingShape, type Design, type Item, type ItemKind, type Place, type PlaceId, type Spec } from './model';
 
 /*
- * Meydanlar ve bugünkü hâlleri. Her binanın biçimi sabittir; tabelalar, afişler, klimalar ve
- * kablolar meydanın "kirli" hâlidir ve oyuncu bunları söküp yeniden düzenler. Dükkân adları
- * uydurmadır; gerçek bir işletmeye ya da markaya benzemesi amaçlanmamıştır.
+ * Meydanlar ve bugünkü hâlleri: beş bölgeden beş sokak. Her binanın biçimi ve kusurları sabittir;
+ * tabelalar, afişler, klimalar, termosifonlar ve kablolar meydanın "kirli" hâlidir ve oyuncu
+ * bunları söküp yeniden düzenler. Dükkân adları uydurmadır; gerçek bir işletmeye ya da markaya
+ * benzemesi amaçlanmamıştır. Bina sıraları o bölgenin tipik sokaklarından derlenmiştir, birebir
+ * bir sokağın kopyası değildir.
  */
 
-const item = (id: string, kind: ItemKind, x: number, y: number, w: number, h: number, fill: string, color: string, text = ''): Item => makeItem(kind, { id, x, y, w, h, fill, color, text });
-const paint = (id: string, wall: string, trim: string, shop: string): Paint => ({ id, wall, trim, shop });
+const item = (id: string, kind: ItemKind, x: number, y: number, w: number, h: number, fill: string, color: string, text = ''): Item => makeItem(kind, { id, x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h), fill, color, text });
+const spec = (id: string, wall: string, trim: string, shop: string): Spec => ({ id, wall, trim, shop, ...BLANK_SPEC });
+const design = (place: PlaceId, specs: Spec[], items: Item[]): Design => ({ v: 2, place, specs, site: { ...BLANK_SITE }, items });
+
+const KLIMA = ['#e9e8e2', '#8a8a84'] as const;
+const ANTEN = ['#e3e3de', '#6d6d68'] as const;
+
+/**
+ * Binaya göre yerleştiren kısayollar: `n` zeminden sayılan kat (1 = birinci kat), `fx` binanın
+ * genişliğinde soldan oran. Böylece tabelalar ve klimalar binanın biçimi değişse de yerinde kalır.
+ */
+function kit(buildings: BuildingShape[]) {
+  let k = 0;
+  const id = () => `k${++k}`;
+  const B = (bid: string) => buildings.find((b) => b.id === bid)!;
+  const shop = (b: BuildingShape) => GROUND - b.groundH;
+  // bırakılmış kaçak katın üstü: antenler ve depolar oraya çıkar
+  const roof = (b: BuildingShape) => topOf(b) - (b.defects?.illegal ? b.floorH : 0) - (b.roof === 'kirma' ? 30 : 0);
+  return {
+    pano: (bid: string, text: string, fill: string, color: string, fx = 0.03, fw = 0.94) => {
+      const b = B(bid);
+      return item(id(), 'pano', b.x + b.w * fx, shop(b) - 4, b.w * fw, 32, fill, color, text);
+    },
+    afis: (bid: string, n: number, text: string, fill: string, color: string, fx = 0.12, fw = 0.7, h = 56) => {
+      const b = B(bid);
+      return item(id(), 'afis', b.x + b.w * fx, shop(b) - n * b.floorH + 4, b.w * fw, h, fill, color, text);
+    },
+    folyo: (bid: string, text: string, fill: string, color: string, fx = 0.06, fw = 0.5, n = 0) => {
+      const b = B(bid);
+      return item(id(), 'folyo', b.x + b.w * fx, n ? shop(b) - n * b.floorH + b.floorH * 0.18 : shop(b) + 40, b.w * fw, n ? b.floorH * 0.5 : 32, fill, color, text);
+    },
+    kutu: (bid: string, text: string, fill: string, color: string, fx = 0.8, w = 44) => {
+      const b = B(bid);
+      return item(id(), 'kutu', b.x + b.w * fx, shop(b) + 36, w, 38, fill, color, text);
+    },
+    bayrak: (bid: string, n: number, text: string, fill: string, color: string, fx = 0.86) => {
+      const b = B(bid);
+      return item(id(), 'bayrak', b.x + b.w * fx, shop(b) - n * b.floorH, 28, 100, fill, color, text);
+    },
+    tente: (bid: string, fill: string, color: string, fx = 0.04, fw = 0.9) => {
+      const b = B(bid);
+      return item(id(), 'tente', b.x + b.w * fx, shop(b) + 30, b.w * fw, 26, fill, color);
+    },
+    klima: (bid: string, n: number, fx: number) => {
+      const b = B(bid);
+      return item(id(), 'klima', b.x + b.w * fx, shop(b) - (n - 1) * b.floorH - 38, 48, 34, ...KLIMA);
+    },
+    baca: (bid: string, n: number, fx: number) => {
+      const b = B(bid);
+      return item(id(), 'baca', b.x + b.w * fx, shop(b) - n * b.floorH - 18, 30, 60, '#5b5b58', '#2a2a28');
+    },
+    anten: (bid: string, fx: number) => {
+      const b = B(bid);
+      return item(id(), 'anten', b.x + b.w * fx, roof(b) - 40, 36, 40, ...ANTEN);
+    },
+    gunes: (bid: string, fx: number) => {
+      const b = B(bid);
+      return item(id(), 'gunes', b.x + b.w * fx, roof(b) - 44, 70, 44, '#2c4a6e', '#e9e8e2');
+    },
+    depo: (bid: string, fx: number) => {
+      const b = B(bid);
+      return item(id(), 'depo', b.x + b.w * fx, roof(b) - 34, 40, 34, '#3d7cc9', '#2b5c99');
+    },
+    kablo: (x: number, y: number, w: number) => item(id(), 'kablo', x, y, w, 28, '#1e1e1e', '#1e1e1e'),
+  };
+}
+
+/* ── Marmara: İstanbul, Bakırköy ── */
 
 // Bakırköy Cumhuriyet (Özgürlük) Meydanı, bayrak direğinin arkasındaki sıra: soldan Marmaray
 // istasyonu, beyaz kâgir bina, kiremit çatılı apartmanlar, tuğla han ve yeşil sundurmalı tek katlı
 // dükkânlar. Wikimedia Commons'taki fotoğraflara bakılarak çizildi (Mereyü, 2021 ve Zach1055,
-// 2026; ikisi de CC BY-SA 4.0).
+// 2026; ikisi de CC BY-SA 4.0). Kusurlar oyun için eklenmiştir.
 const BAKIRKOY_BUILDINGS: BuildingShape[] = [
-  { id: 'b1', name: 'İstasyon binası', x: 0, w: 170, floors: 1, floorH: 56, groundH: 90, cols: 4, balcony: false, roof: 'duz', facade: 'cam' },
-  { id: 'b2', name: 'Beyaz kâgir bina', x: 170, w: 210, floors: 2, floorH: 60, groundH: 90, cols: 4, balcony: false, roof: 'kirma', facade: 'tas' },
-  { id: 'b3', name: 'Kiremit çatılı apartman', x: 380, w: 150, floors: 4, floorH: 48, groundH: 90, cols: 3, balcony: true, roof: 'kirma', facade: 'apartman' },
-  { id: 'b4', name: 'Somon cumbalı apartman', x: 530, w: 140, floors: 5, floorH: 46, groundH: 90, cols: 4, balcony: false, roof: 'kirma', facade: 'cumba' },
-  { id: 'b5', name: 'Köşe apartmanı', x: 670, w: 170, floors: 5, floorH: 48, groundH: 90, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', penthouse: true },
-  { id: 'b6', name: 'Tuğla han', x: 840, w: 130, floors: 4, floorH: 50, groundH: 90, cols: 2, balcony: false, roof: 'kornis', facade: 'tugla' },
-  { id: 'b7', name: 'Yeşil sundurmalı dükkânlar', x: 970, w: 230, floors: 0, floorH: 48, groundH: 90, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman' },
+  { id: 'b1', name: 'İstasyon binası', x: 0, w: 170, floors: 1, floorH: 56, groundH: 90, cols: 4, balcony: false, roof: 'duz', facade: 'cam', year: 2013, risk: 0 },
+  { id: 'b2', name: 'Beyaz kâgir bina', x: 170, w: 210, floors: 2, floorH: 60, groundH: 90, cols: 4, balcony: false, roof: 'kirma', facade: 'tas', year: 1928, risk: 1, defects: { cracked: true } },
+  { id: 'b3', name: 'Kiremit çatılı apartman', x: 380, w: 150, floors: 4, floorH: 48, groundH: 90, cols: 3, balcony: true, roof: 'kirma', facade: 'apartman', year: 1968, risk: 1, defects: { enclosed: true } },
+  { id: 'b4', name: 'Somon cumbalı apartman', x: 530, w: 140, floors: 5, floorH: 46, groundH: 90, cols: 4, balcony: false, roof: 'kirma', facade: 'cumba', year: 1956, risk: 1, defects: { bare: true } },
+  { id: 'b5', name: 'Köşe apartmanı', x: 670, w: 170, floors: 5, floorH: 48, groundH: 90, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1978, risk: 1, defects: { illegal: 'pvc' } },
+  { id: 'b6', name: 'Tuğla han', x: 840, w: 130, floors: 4, floorH: 50, groundH: 90, cols: 2, balcony: false, roof: 'kornis', facade: 'tugla', year: 1924, risk: 1, defects: { patch: 'kompozit' } },
+  { id: 'b7', name: 'Yeşil sundurmalı dükkânlar', x: 970, w: 230, floors: 0, floorH: 48, groundH: 90, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman', year: 1990, risk: 0 },
 ];
 
-const BAKIRKOY: Design = {
-  v: 1,
-  place: 'bakirkoy',
-  paints: [
-    paint('b1', '#d9dcdf', '#7d868e', '#5b6670'),
-    paint('b2', '#ece8df', '#d2cbbd', '#4a4a48'),
-    paint('b3', '#e2cdb0', '#f1ebe0', '#6b5a4a'),
-    paint('b4', '#dba48c', '#f3ece2', '#7d7570'),
-    paint('b5', '#cfc6b5', '#8e959c', '#3f4a52'),
-    paint('b6', '#93573f', '#d8cdb8', '#3a2a20'),
-    paint('b7', '#2f5d46', '#2f6b4f', '#38423f'),
+const BAKIRKOY = design(
+  'bakirkoy',
+  [
+    spec('b1', '#d9dcdf', '#7d868e', '#5b6670'),
+    spec('b2', '#ece8df', '#d2cbbd', '#4a4a48'),
+    spec('b3', '#e2cdb0', '#f1ebe0', '#6b5a4a'),
+    spec('b4', '#dba48c', '#f3ece2', '#7d7570'),
+    spec('b5', '#cfc6b5', '#8e959c', '#3f4a52'),
+    spec('b6', '#93573f', '#d8cdb8', '#3a2a20'),
+    spec('b7', '#2f5d46', '#2f6b4f', '#38423f'),
   ],
-  items: [
+  [
     // istasyon: tabelanın yanında simitçi ve kiralık dükkân afişi
     item('k1', 'pano', 8, 440, 154, 24, '#f4f4f2', '#1d2a44', 'BAKIRKÖY İSTASYONU'),
     item('k2', 'kutu', 14, 478, 96, 28, '#c8102e', '#ffffff', 'SİMİT • POĞAÇA'),
     item('k3', 'folyo', 112, 504, 50, 40, '#ffdf00', '#111111', 'KİRALIK'),
-    item('k4', 'klima', 120, 384, 48, 34, '#e9e8e2', '#8a8a84'),
+    item('k4', 'klima', 120, 384, 48, 34, ...KLIMA),
     // beyaz kâgir bina: kemerli pencerelerin önünde dev açılış afişi, altta dönerci ve optik
     item('k5', 'pano', 176, 466, 198, 34, '#d71920', '#ffd200', 'LEZZET DÖNER'),
     item('k6', 'afis', 196, 372, 158, 70, '#c8102e', '#ffffff', 'BÜYÜK AÇILIŞ'),
     item('k7', 'bayrak', 360, 380, 28, 96, '#1d2a44', '#ffffff', 'OPTİK'),
-    item('k8', 'klima', 186, 314, 48, 34, '#e9e8e2', '#8a8a84'),
+    item('k8', 'klima', 186, 314, 48, 34, ...KLIMA),
     item('k9', 'kablo', 150, 330, 260, 30, '#1e1e1e', '#1e1e1e'),
-    // kiremit çatılı apartman: eczane, dershane folyosu, turuncu tente
+    // kiremit çatılı apartman: eczane, dershane folyosu, turuncu tente, çatıda su deposu
     item('k10', 'pano', 384, 468, 142, 30, '#ffffff', '#d0021b', 'ECZANE'),
     item('k11', 'kutu', 500, 404, 26, 36, '#d0021b', '#ffffff', 'E'),
     item('k12', 'folyo', 392, 324, 124, 40, '#ffee00', '#0a0a0a', 'KURS MERKEZİ'),
     item('k13', 'tente', 390, 500, 130, 26, '#ef7d00', '#ffffff'),
+    item('k32', 'depo', 470, 214, 40, 34, '#3d7cc9', '#2b5c99'),
     // somon cumbalı apartman: köfteci, satılık afişi
     item('k14', 'pano', 534, 466, 132, 34, '#f26b1d', '#ffffff', 'TASTY KÖFTE'),
     item('k15', 'afis', 548, 300, 104, 54, '#ffd200', '#111111', 'SAHİBİNDEN SATILIK'),
-    item('k16', 'klima', 612, 392, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k17', 'anten', 560, 196, 36, 40, '#e3e3de', '#6d6d68'),
-    // köşe apartmanı: tekel, döviz, diyetisyen
+    item('k16', 'klima', 612, 392, 48, 34, ...KLIMA),
+    item('k17', 'anten', 560, 196, 36, 40, ...ANTEN),
+    // köşe apartmanı: tekel, döviz, diyetisyen; kaçak katın üstünde anten
     item('k18', 'pano', 674, 466, 162, 32, '#5a2d82', '#ffd200', 'TEKEL • MARKET'),
     item('k19', 'bayrak', 826, 330, 28, 110, '#0b3d91', '#ffffff', 'DÖVİZ'),
     item('k20', 'folyo', 690, 380, 130, 34, '#ffffff', '#2e9d4f', 'DİYETİSYEN'),
     item('k21', 'kutu', 784, 506, 46, 36, '#1a237e', '#ffeb3b', 'LOTO'),
-    item('k22', 'klima', 690, 290, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k23', 'anten', 790, 150, 36, 40, '#e3e3de', '#6d6d68'),
+    item('k22', 'klima', 690, 290, 48, 34, ...KLIMA),
+    item('k23', 'anten', 790, 142, 36, 40, ...ANTEN),
     // tuğla han: kuyumcu, pembe takı afişi
     item('k24', 'pano', 844, 466, 122, 32, '#141414', '#e8c35a', 'KUYUMCU'),
     item('k25', 'afis', 856, 330, 100, 56, '#e0457b', '#ffffff', 'TAKI %40'),
@@ -73,197 +141,333 @@ const BAKIRKOY: Design = {
     item('k28', 'afis', 1120, 448, 76, 46, '#ffdf00', '#111111', 'KAMPANYA'),
     item('k29', 'folyo', 986, 506, 110, 32, '#111111', '#ffdf00', '3 AL 2 ÖDE'),
     item('k30', 'kutu', 1150, 504, 42, 38, '#c8102e', '#ffffff', 'ATM'),
-    item('k31', 'klima', 1090, 412, 48, 34, '#e9e8e2', '#8a8a84'),
+    item('k31', 'klima', 1090, 412, 48, 34, ...KLIMA),
   ],
-};
+);
 
-// Beşiktaş Çarşı: kartallı meydanın arkasındaki dar cepheler; balıkçılar, çay ocakları, tantuni
-// ve dört katlı eski apartmanlar. Sıra ve biçimler temsilîdir.
-const BESIKTAS_BUILDINGS: BuildingShape[] = [
-  { id: 'b1', name: 'Köşedeki eski kâgir', x: 0, w: 190, floors: 3, floorH: 52, groundH: 90, cols: 3, balcony: false, roof: 'kornis', facade: 'tas' },
-  { id: 'b2', name: 'Cumbalı dar apartman', x: 190, w: 130, floors: 4, floorH: 46, groundH: 90, cols: 2, balcony: false, roof: 'kirma', facade: 'cumba' },
-  { id: 'b3', name: 'Balkonlu apartman', x: 320, w: 180, floors: 5, floorH: 46, groundH: 90, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', penthouse: true },
-  { id: 'b4', name: 'Tuğla iş hanı', x: 500, w: 160, floors: 4, floorH: 50, groundH: 90, cols: 3, balcony: false, roof: 'kornis', facade: 'tugla' },
-  { id: 'b5', name: 'Pasaj girişi', x: 660, w: 150, floors: 3, floorH: 48, groundH: 90, cols: 3, balcony: true, roof: 'duz', facade: 'apartman' },
-  { id: 'b6', name: 'Kiremit çatılı ev', x: 810, w: 140, floors: 2, floorH: 52, groundH: 90, cols: 2, balcony: false, roof: 'kirma', facade: 'tas' },
-  { id: 'b7', name: 'Balıkçı dükkânları', x: 950, w: 250, floors: 0, floorH: 48, groundH: 90, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman' },
+/* ── Karadeniz: Rize ── */
+
+// Rize merkezde sahile paralel bir cadde: dik yamaçlara sıkışmış yedi katlı bloklar, aralarında
+// kalmış ahşap cumbalı ev ve taş konak, çatılarda sonradan çakılmış trapez sac katlar, yağmurdan
+// kararmış sıva, pencerelerden çıkan soba boruları.
+const RIZE_BUILDINGS: BuildingShape[] = [
+  { id: 'b1', name: 'Çay ocaklı iş hanı', x: 0, w: 150, floors: 5, floorH: 44, groundH: 88, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1979, risk: 2, defects: { illegal: 'sac', enclosed: true } },
+  { id: 'b2', name: 'Yeşil cumbalı apartman', x: 150, w: 140, floors: 6, floorH: 44, groundH: 88, cols: 4, balcony: false, roof: 'kirma', facade: 'cumba', year: 1986, risk: 1, defects: { bare: true } },
+  { id: 'b3', name: 'Eski taş konak', x: 290, w: 170, floors: 2, floorH: 56, groundH: 88, cols: 3, balcony: false, roof: 'kirma', facade: 'tas', year: 1908, risk: 1, defects: { cracked: true, patch: 'seramik' } },
+  { id: 'b4', name: 'Yedi katlı blok', x: 460, w: 190, floors: 7, floorH: 44, groundH: 88, cols: 4, balcony: true, roof: 'duz', facade: 'apartman', year: 1994, risk: 1, defects: { illegal: 'briket', enclosed: true, patch: 'kompozit' } },
+  { id: 'b5', name: 'Belediye pasajı', x: 650, w: 180, floors: 4, floorH: 46, groundH: 88, cols: 4, balcony: false, roof: 'duz', facade: 'apartman', year: 1988, risk: 2, defects: { leanTo: true } },
+  { id: 'b6', name: 'Ahşap cumbalı ev', x: 830, w: 120, floors: 3, floorH: 46, groundH: 88, cols: 2, balcony: false, roof: 'kirma', facade: 'cumba', year: 1932, risk: 1, defects: { bare: true } },
+  { id: 'b7', name: 'Pastaneli apartman', x: 950, w: 150, floors: 5, floorH: 44, groundH: 88, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 2001, risk: 0, defects: { illegal: 'pvc', patch: 'seramik' } },
+  { id: 'b8', name: 'Balıkçı barakası', x: 1100, w: 100, floors: 0, floorH: 44, groundH: 88, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman', year: 1997, risk: 0 },
 ];
 
-const BESIKTAS: Design = {
-  v: 1,
-  place: 'besiktas',
-  paints: [
-    paint('b1', '#e6dccb', '#c9bba3', '#4c4036'),
-    paint('b2', '#c9a27c', '#f0e8da', '#5a4636'),
-    paint('b3', '#d4d0c4', '#8b9298', '#3c454c'),
-    paint('b4', '#9c5a41', '#d8cdb8', '#3a2a20'),
-    paint('b5', '#bfc7c1', '#6c7a74', '#33403b'),
-    paint('b6', '#e9d9b8', '#f4eee2', '#6b5a4a'),
-    paint('b7', '#1f4f6e', '#2a6386', '#2c3a44'),
+const r = kit(RIZE_BUILDINGS);
+const RIZE = design(
+  'rize',
+  [
+    spec('b1', '#c9c4b6', '#8e959c', '#3c454c'),
+    spec('b2', '#9fbf9a', '#eef0e6', '#45524a'),
+    spec('b3', '#d8cfbd', '#b8ad97', '#4c4036'),
+    spec('b4', '#e6dcc4', '#8b9298', '#3a4248'),
+    spec('b5', '#b7b8b0', '#6c7a74', '#33403b'),
+    spec('b6', '#c98f6b', '#f0e6d6', '#5b4838'),
+    spec('b7', '#f1d3c2', '#ffffff', '#6e5e55'),
+    spec('b8', '#2a6386', '#1f4f6e', '#2c3a44'),
   ],
-  items: [
-    item('k1', 'pano', 8, 466, 174, 32, '#0b3d91', '#ffffff', 'ÇARŞI ÇAY OCAĞI'),
-    item('k2', 'afis', 30, 360, 130, 60, '#000000', '#ffffff', 'ŞAMPİYON!'),
-    item('k3', 'klima', 140, 300, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k4', 'pano', 194, 468, 122, 30, '#d71920', '#ffffff', 'TANTUNİ'),
-    item('k5', 'bayrak', 300, 320, 26, 100, '#111111', '#ffffff', 'BAR'),
-    item('k6', 'folyo', 200, 506, 100, 36, '#ffee00', '#111111', 'KAHVALTI'),
-    item('k7', 'pano', 324, 466, 172, 32, '#141414', '#e8c35a', 'MEYHANE 1923'),
-    item('k8', 'afis', 344, 300, 134, 54, '#ff2d55', '#ffffff', 'CANLI MÜZİK'),
-    item('k9', 'klima', 440, 380, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k10', 'anten', 360, 150, 36, 40, '#e3e3de', '#6d6d68'),
-    item('k11', 'kablo', 280, 260, 260, 28, '#1e1e1e', '#1e1e1e'),
-    item('k12', 'pano', 504, 466, 152, 32, '#ffffff', '#d0021b', 'ECZANE'),
-    item('k13', 'folyo', 516, 330, 130, 40, '#00a2e8', '#ffffff', 'KPSS KURSU'),
-    item('k14', 'kutu', 620, 400, 36, 40, '#d0021b', '#ffffff', 'E'),
-    item('k15', 'pano', 664, 466, 142, 32, '#5a2d82', '#ffd200', 'PASAJ'),
-    item('k16', 'afis', 676, 340, 118, 56, '#ffd200', '#111111', 'KİRALIK OFİS'),
-    item('k17', 'klima', 760, 300, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k18', 'pano', 814, 466, 132, 30, '#f26b1d', '#ffffff', 'KOKOREÇ'),
-    item('k19', 'tente', 818, 500, 124, 26, '#c8102e', '#ffffff'),
-    item('k20', 'pano', 956, 452, 150, 30, '#ffffff', '#0b3d91', 'BALIKÇI SABRİ'),
-    item('k21', 'afis', 1110, 446, 84, 46, '#ffdf00', '#111111', 'TAZE!'),
-    item('k22', 'folyo', 970, 506, 120, 32, '#111111', '#ffdf00', 'MİDYE DOLMA'),
-    item('k23', 'kutu', 1146, 504, 46, 38, '#c8102e', '#ffffff', 'ATM'),
-    item('k24', 'klima', 1080, 410, 48, 34, '#e9e8e2', '#8a8a84'),
+  [
+    r.pano('b1', 'ÇAY OCAĞI', '#2e7d32', '#ffffff'),
+    r.afis('b1', 3, 'SATILIK DAİRE', '#ffdf00', '#111111'),
+    r.baca('b1', 2, 0.78),
+    r.anten('b1', 0.2),
+    r.pano('b2', 'MUHLAMA • KUYMAK', '#d71920', '#ffffff'),
+    r.klima('b2', 3, 0.02),
+    r.baca('b2', 4, 0.86),
+    r.afis('b2', 5, 'KİRALIK', '#ffffff', '#d50000', 0.2, 0.6, 46),
+    r.pano('b3', 'MOBİLYA DÜNYASI', '#0b3d91', '#ffffff'),
+    r.afis('b3', 2, 'SEZON SONU %70', '#e0457b', '#ffffff', 0.1, 0.8, 60),
+    r.klima('b3', 1, 0.82),
+    r.pano('b4', 'ECZANE', '#ffffff', '#d0021b', 0.03, 0.5),
+    r.pano('b4', 'TELEFONCU', '#ff7a00', '#ffffff', 0.53, 0.44),
+    r.folyo('b4', 'YKS • LGS KURSU', '#ffee00', '#0a0a0a', 0.1, 0.8, 3),
+    r.kutu('b4', 'E', '#d0021b', '#ffffff', 0.4, 30),
+    r.klima('b4', 2, 0.02),
+    r.klima('b4', 5, 0.74),
+    r.anten('b4', 0.3),
+    r.anten('b4', 0.62),
+    r.depo('b4', 0.82),
+    r.pano('b5', 'PASAJ • ÇARŞI', '#5a2d82', '#ffd200'),
+    r.afis('b5', 2, 'OFİS KİRALIK', '#d71920', '#ffffff', 0.15, 0.7, 50),
+    r.bayrak('b5', 3, 'DÖVİZ', '#0b3d91', '#ffffff', 0.86),
+    r.klima('b5', 3, 0.08),
+    r.pano('b6', 'HAMSİ & PİDE', '#f26b1d', '#ffffff'),
+    r.tente('b6', '#c8102e', '#ffffff'),
+    r.baca('b6', 2, 0.1),
+    r.pano('b7', 'PASTANE', '#e0457b', '#ffffff'),
+    r.folyo('b7', 'DÜĞÜN PASTASI', '#ffffff', '#e0457b', 0.08, 0.6),
+    r.klima('b7', 4, 0.04),
+    r.anten('b7', 0.5),
+    r.pano('b8', 'BALIK', '#ffffff', '#0b3d91', 0.05, 0.9),
+    r.folyo('b8', 'TAZE HAMSİ', '#111111', '#ffdf00', 0.08, 0.8),
+    r.kablo(120, 300, 220),
+    r.kablo(620, 340, 260),
+    r.kablo(900, 380, 220),
   ],
-};
+);
 
-// Eminönü: Yeni Cami'ye bakan sıra; hanlar, kuruyemişçiler, tuhafiyeciler ve vapur iskelesine
-// inen kalabalık. Sıra ve biçimler temsilîdir.
-const EMINONU_BUILDINGS: BuildingShape[] = [
-  { id: 'b1', name: 'Taş han', x: 0, w: 220, floors: 4, floorH: 54, groundH: 92, cols: 4, balcony: false, roof: 'kornis', facade: 'tas' },
-  { id: 'b2', name: 'Tuğla depo', x: 220, w: 160, floors: 3, floorH: 52, groundH: 92, cols: 3, balcony: false, roof: 'kornis', facade: 'tugla' },
-  { id: 'b3', name: 'Dar cumbalı bina', x: 380, w: 120, floors: 4, floorH: 46, groundH: 92, cols: 2, balcony: false, roof: 'kirma', facade: 'cumba' },
-  { id: 'b4', name: 'Altmışların iş merkezi', x: 500, w: 200, floors: 5, floorH: 44, groundH: 92, cols: 4, balcony: false, roof: 'duz', facade: 'apartman' },
-  { id: 'b5', name: 'Kemerli eski han', x: 700, w: 190, floors: 3, floorH: 56, groundH: 92, cols: 3, balcony: false, roof: 'kornis', facade: 'tas' },
-  { id: 'b6', name: 'Cam cepheli mağaza', x: 890, w: 150, floors: 2, floorH: 56, groundH: 92, cols: 3, balcony: false, roof: 'duz', facade: 'cam' },
-  { id: 'b7', name: 'İskele büfeleri', x: 1040, w: 160, floors: 0, floorH: 48, groundH: 92, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman' },
+/* ── Ege: İzmir, Kemeraltı ── */
+
+// Konak'tan Kemeraltı'na giren bir cadde: Levanten taş evler, cumbalı Rum evleri ve aralarına
+// yetmişlerde yapılmış altı katlı işhanları. Kumaşçıların tenteleri, termosifonlar, dev tabelalar.
+const IZMIR_BUILDINGS: BuildingShape[] = [
+  { id: 'b1', name: 'Levanten taş ev', x: 0, w: 180, floors: 2, floorH: 58, groundH: 92, cols: 3, balcony: false, roof: 'kirma', facade: 'tas', year: 1889, risk: 1, defects: { bare: true, cracked: true } },
+  { id: 'b2', name: 'Cumbalı Rum evi', x: 180, w: 140, floors: 2, floorH: 56, groundH: 92, cols: 3, balcony: false, roof: 'kirma', facade: 'cumba', year: 1905, risk: 1, defects: { patch: 'seramik' } },
+  { id: 'b3', name: 'Altı katlı işhanı', x: 320, w: 200, floors: 6, floorH: 44, groundH: 92, cols: 4, balcony: true, roof: 'duz', facade: 'apartman', year: 1972, risk: 2, defects: { enclosed: true, illegal: 'sac' } },
+  { id: 'b4', name: 'Eski otel', x: 520, w: 170, floors: 3, floorH: 54, groundH: 92, cols: 3, balcony: false, roof: 'kornis', facade: 'tas', year: 1912, risk: 1, defects: { patch: 'kompozit' } },
+  { id: 'b5', name: 'Köşe apartmanı', x: 690, w: 160, floors: 5, floorH: 46, groundH: 92, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1981, risk: 1, defects: { leanTo: true } },
+  { id: 'b6', name: 'Tuğla depo', x: 850, w: 150, floors: 2, floorH: 56, groundH: 92, cols: 2, balcony: false, roof: 'kornis', facade: 'tugla', year: 1921, risk: 1, defects: { bare: true } },
+  { id: 'b7', name: 'Kumaşçılar sırası', x: 1000, w: 200, floors: 0, floorH: 46, groundH: 92, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman', year: 1975, risk: 0 },
 ];
 
-const EMINONU: Design = {
-  v: 1,
-  place: 'eminonu',
-  paints: [
-    paint('b1', '#d8cbb2', '#bfb095', '#4a3e30'),
-    paint('b2', '#a5603f', '#d6c6a8', '#3a2a20'),
-    paint('b3', '#cf9f7c', '#f0e6d6', '#5b4838'),
-    paint('b4', '#c7c9c3', '#7e868b', '#3a4248'),
-    paint('b5', '#e2d6bd', '#c4b597', '#4d4032'),
-    paint('b6', '#9fb3c2', '#5f6b73', '#2f3b45'),
-    paint('b7', '#8a2c2c', '#a83a3a', '#3a2a2a'),
+const iz = kit(IZMIR_BUILDINGS);
+const IZMIR = design(
+  'izmir',
+  [
+    spec('b1', '#e6d6b8', '#cbb894', '#4a3e30'),
+    spec('b2', '#e7b8a0', '#f4ede2', '#5b4838'),
+    spec('b3', '#cfd0c8', '#7e868b', '#3a4248'),
+    spec('b4', '#efe2c8', '#c4b597', '#4d4032'),
+    spec('b5', '#d6c9a5', '#8e959c', '#3f4a52'),
+    spec('b6', '#a5603f', '#d6c6a8', '#3a2a20'),
+    spec('b7', '#c9a227', '#a8861e', '#3a3324'),
   ],
-  items: [
-    item('k1', 'pano', 8, 468, 204, 32, '#3e2a16', '#f0c75e', 'KURUYEMİŞ & BAHARAT'),
-    item('k2', 'afis', 30, 330, 160, 70, '#d71920', '#ffffff', 'TOPTAN FİYATINA'),
-    item('k3', 'folyo', 20, 506, 90, 40, '#ffdf00', '#111111', '%50'),
-    item('k4', 'klima', 170, 290, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k5', 'pano', 224, 468, 152, 32, '#0b3d91', '#ffffff', 'TUHAFİYE'),
-    item('k6', 'bayrak', 352, 330, 26, 110, '#c8102e', '#ffffff', 'NAKIŞ'),
-    item('k7', 'afis', 236, 360, 120, 54, '#ffffff', '#c8102e', 'DÜĞÜN SETİ'),
-    item('k8', 'kablo', 150, 270, 280, 30, '#1e1e1e', '#1e1e1e'),
-    item('k9', 'pano', 384, 468, 112, 30, '#f26b1d', '#ffffff', 'BALIK EKMEK'),
-    item('k10', 'tente', 388, 502, 108, 26, '#2e7d32', '#ffffff'),
-    item('k11', 'klima', 440, 330, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k12', 'pano', 504, 466, 192, 32, '#1d2a44', '#ffffff', 'ELEKTRONİK ÇARŞISI'),
-    item('k13', 'folyo', 520, 300, 160, 40, '#00a2e8', '#ffffff', 'TELEFON TAMİR'),
-    item('k14', 'afis', 540, 360, 120, 56, '#ffd200', '#111111', 'KAPANIYORUZ'),
-    item('k15', 'klima', 640, 250, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k16', 'anten', 560, 120, 36, 40, '#e3e3de', '#6d6d68'),
-    item('k17', 'pano', 706, 466, 178, 32, '#141414', '#e8c35a', 'LOKUM • ŞEKER'),
-    item('k18', 'afis', 720, 330, 150, 60, '#e0457b', '#ffffff', 'HEDİYELİK'),
-    item('k19', 'klima', 840, 400, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k20', 'pano', 894, 466, 142, 32, '#ffffff', '#111111', 'BÜYÜK İNDİRİM'),
-    item('k21', 'folyo', 904, 380, 124, 40, '#ff2d55', '#ffffff', 'SON GÜN'),
-    item('k22', 'pano', 1046, 452, 148, 30, '#ffdf00', '#c8102e', 'İSKELE BÜFE'),
-    item('k23', 'kutu', 1150, 504, 44, 38, '#1a237e', '#ffeb3b', 'LOTO'),
-    item('k24', 'folyo', 1050, 506, 90, 32, '#111111', '#ffffff', 'SİMİT'),
+  [
+    iz.pano('b1', 'BOYOZ • GEVREK', '#d71920', '#ffffff'),
+    iz.afis('b1', 2, 'HER ŞEY 10 ₺', '#ffdf00', '#d50000', 0.1, 0.8, 62),
+    iz.klima('b1', 1, 0.8),
+    iz.tente('b1', '#2e7d32', '#ffffff'),
+    iz.pano('b2', 'GELİNLİK', '#ffffff', '#c2185b'),
+    iz.folyo('b2', 'NİŞAN SETİ', '#e0457b', '#ffffff', 0.08, 0.7),
+    iz.klima('b2', 2, 0.04),
+    iz.pano('b3', 'TOPTAN KUMAŞ', '#1d2a44', '#ffffff', 0.03, 0.6),
+    iz.kutu('b3', 'DÖVİZ', '#5a2d82', '#ffd200', 0.68, 56),
+    iz.afis('b3', 2, 'KAPANIŞ İNDİRİMİ', '#d71920', '#ffffff', 0.12, 0.76, 60),
+    iz.folyo('b3', 'DİŞ KLİNİĞİ', '#ffffff', '#0b3d91', 0.1, 0.7, 5),
+    iz.klima('b3', 3, 0.02),
+    iz.klima('b3', 4, 0.76),
+    iz.gunes('b3', 0.1),
+    iz.gunes('b3', 0.55),
+    iz.pano('b4', 'KUMRU EVİ', '#f26b1d', '#ffffff'),
+    iz.afis('b4', 2, 'OTEL • PANSİYON', '#0b3d91', '#ffffff', 0.14, 0.7, 48),
+    iz.bayrak('b4', 3, 'OTEL', '#c8102e', '#ffffff', 0.04),
+    iz.klima('b4', 3, 0.8),
+    iz.pano('b5', 'KUYUMCU', '#141414', '#e8c35a'),
+    iz.folyo('b5', 'ALTIN ALINIR', '#ffdf00', '#111111', 0.1, 0.6),
+    iz.klima('b5', 2, 0.04),
+    iz.gunes('b5', 0.5),
+    iz.depo('b5', 0.1),
+    iz.pano('b6', 'TUHAFİYE', '#2e7d32', '#ffffff'),
+    iz.afis('b6', 1, 'DEPO SATIŞI', '#ffffff', '#d50000', 0.16, 0.68, 50),
+    iz.pano('b7', 'KEMERALTI KUMAŞ', '#ffffff', '#1d2a44', 0.03, 0.6),
+    iz.tente('b7', '#1565c0', '#ffffff', 0.04, 0.9),
+    iz.kutu('b7', 'ATM', '#c8102e', '#ffffff', 0.74, 44),
+    iz.kablo(140, 330, 240),
+    iz.kablo(480, 300, 260),
   ],
-};
+);
 
-// Mecidiyeköy: Büyükdere Caddesi'ne bakan sıra; cam kuleler, eski apartmanlar ve köprü altındaki
-// dükkânlar. Sıra ve biçimler temsilîdir.
-const MECIDIYEKOY_BUILDINGS: BuildingShape[] = [
-  { id: 'b1', name: 'Cam ofis kulesi', x: 0, w: 200, floors: 7, floorH: 44, groundH: 92, cols: 4, balcony: false, roof: 'duz', facade: 'cam' },
-  { id: 'b2', name: 'Yetmişlerin apartmanı', x: 200, w: 160, floors: 5, floorH: 46, groundH: 90, cols: 3, balcony: true, roof: 'duz', facade: 'apartman' },
-  { id: 'b3', name: 'Gri iş hanı', x: 360, w: 180, floors: 6, floorH: 44, groundH: 90, cols: 4, balcony: false, roof: 'duz', facade: 'apartman', penthouse: true },
-  { id: 'b4', name: 'Tuğla köşe apartmanı', x: 540, w: 150, floors: 4, floorH: 48, groundH: 90, cols: 3, balcony: true, roof: 'kornis', facade: 'tugla' },
-  { id: 'b5', name: 'Cumbalı apartman', x: 690, w: 140, floors: 5, floorH: 46, groundH: 90, cols: 3, balcony: false, roof: 'kirma', facade: 'cumba' },
-  { id: 'b6', name: 'AVM girişi', x: 830, w: 210, floors: 3, floorH: 56, groundH: 96, cols: 4, balcony: false, roof: 'duz', facade: 'cam' },
-  { id: 'b7', name: 'Köprü altı dükkânlar', x: 1040, w: 160, floors: 0, floorH: 48, groundH: 90, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman' },
+/* ── İç Anadolu: Ankara, Kızılay ── */
+
+// Kızılay'da Sakarya Caddesi'ne açılan bir sıra: yetmişlerin sekiz katlı apartmanları, cam
+// giydirme bir işhanı, eski banka binası ve pasaj; her katta başka bir kurs, klinik ve büro.
+const ANKARA_BUILDINGS: BuildingShape[] = [
+  { id: 'b1', name: 'Cam giydirme işhanı', x: 0, w: 190, floors: 8, floorH: 40, groundH: 92, cols: 4, balcony: false, roof: 'duz', facade: 'cam', year: 1998, risk: 0 },
+  { id: 'b2', name: 'Yetmişlerin apartmanı', x: 190, w: 160, floors: 6, floorH: 44, groundH: 92, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1971, risk: 2, defects: { enclosed: true, illegal: 'pvc' } },
+  { id: 'b3', name: 'Kızılay pasajı', x: 350, w: 200, floors: 5, floorH: 46, groundH: 92, cols: 4, balcony: false, roof: 'duz', facade: 'apartman', year: 1966, risk: 2, defects: { patch: 'kompozit', cracked: true } },
+  { id: 'b4', name: 'Tuğla köşe apartmanı', x: 550, w: 150, floors: 5, floorH: 46, groundH: 92, cols: 3, balcony: true, roof: 'kornis', facade: 'tugla', year: 1958, risk: 1, defects: { bare: true } },
+  { id: 'b5', name: 'Dar apartman', x: 700, w: 130, floors: 7, floorH: 42, groundH: 92, cols: 2, balcony: true, roof: 'duz', facade: 'apartman', year: 1984, risk: 1, defects: { illegal: 'briket', enclosed: true } },
+  { id: 'b6', name: 'Eski banka binası', x: 830, w: 200, floors: 4, floorH: 52, groundH: 92, cols: 4, balcony: false, roof: 'kornis', facade: 'tas', year: 1954, risk: 1, defects: { cracked: true, leanTo: true } },
+  { id: 'b7', name: 'Büfeler', x: 1030, w: 170, floors: 0, floorH: 44, groundH: 92, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman', year: 1993, risk: 0 },
 ];
 
-const MECIDIYEKOY: Design = {
-  v: 1,
-  place: 'mecidiyekoy',
-  paints: [
-    paint('b1', '#9fb3c2', '#5f6b73', '#2f3b45'),
-    paint('b2', '#d9cdb3', '#8e959c', '#3f4a52'),
-    paint('b3', '#b8b8b2', '#7a8086', '#343b40'),
-    paint('b4', '#a5603f', '#d6c6a8', '#3a2a20'),
-    paint('b5', '#e1b7a0', '#f3ece2', '#6e5e55'),
-    paint('b6', '#a9c3d6', '#6d808e', '#2a353d'),
-    paint('b7', '#5f6b73', '#3f4a52', '#2a2f33'),
+const an = kit(ANKARA_BUILDINGS);
+const ANKARA = design(
+  'ankara',
+  [
+    spec('b1', '#7d8f9c', '#4f5d68', '#2f3b45'),
+    spec('b2', '#d9cdb3', '#8e959c', '#3f4a52'),
+    spec('b3', '#b8b8b2', '#7a8086', '#343b40'),
+    spec('b4', '#a5603f', '#d6c6a8', '#3a2a20'),
+    spec('b5', '#e1c9a0', '#f3ece2', '#6e5e55'),
+    spec('b6', '#ddd4c2', '#b9ae98', '#3a3530'),
+    spec('b7', '#5f6b73', '#3f4a52', '#2a2f33'),
   ],
-  items: [
-    item('k1', 'afis', 20, 180, 160, 120, '#d71920', '#ffffff', 'OFİS KATI KİRALIK'),
-    item('k2', 'pano', 8, 468, 186, 32, '#1d2a44', '#ffffff', 'PLAZA GİRİŞİ'),
-    item('k3', 'pano', 204, 468, 152, 30, '#f26b1d', '#ffffff', 'DÖNER 7/24'),
-    item('k4', 'folyo', 214, 330, 130, 40, '#ffee00', '#0a0a0a', 'YDS KURSU'),
-    item('k5', 'klima', 300, 400, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k6', 'klima', 220, 260, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k7', 'anten', 240, 200, 36, 40, '#e3e3de', '#6d6d68'),
-    item('k8', 'pano', 364, 468, 172, 32, '#5a2d82', '#ffd200', 'DÖVİZ • ALTIN'),
-    item('k9', 'afis', 380, 250, 140, 90, '#ffffff', '#0b3d91', 'DİŞ KLİNİĞİ'),
-    item('k10', 'bayrak', 512, 340, 26, 110, '#0b3d91', '#ffffff', 'HOSTEL'),
-    item('k11', 'klima', 460, 360, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k12', 'kablo', 330, 300, 260, 30, '#1e1e1e', '#1e1e1e'),
-    item('k13', 'pano', 544, 468, 142, 30, '#ffffff', '#d0021b', 'ECZANE'),
-    item('k14', 'folyo', 556, 330, 120, 40, '#00a2e8', '#ffffff', 'PSİKOLOG'),
-    item('k15', 'pano', 694, 468, 132, 30, '#141414', '#e8c35a', 'BÖREKÇİ'),
-    item('k16', 'afis', 704, 300, 112, 56, '#ffd200', '#111111', 'SATILIK DAİRE'),
-    item('k17', 'klima', 770, 380, 48, 34, '#e9e8e2', '#8a8a84'),
-    item('k18', 'afis', 850, 330, 170, 80, '#e0457b', '#ffffff', 'BÜYÜK SEZON SONU'),
-    item('k19', 'pano', 836, 466, 198, 34, '#111111', '#ffffff', 'ALIŞVERİŞ MERKEZİ'),
-    item('k20', 'kutu', 846, 506, 46, 38, '#c8102e', '#ffffff', 'ATM'),
-    item('k21', 'pano', 1046, 452, 148, 30, '#ff7a00', '#ffffff', 'TELEFONCU'),
-    item('k22', 'folyo', 1056, 506, 120, 32, '#111111', '#ffdf00', 'KILIF 50 ₺'),
-    item('k23', 'klima', 1120, 410, 48, 34, '#e9e8e2', '#8a8a84'),
+  [
+    an.afis('b1', 6, 'OFİS KATI KİRALIK', '#d71920', '#ffffff', 0.08, 0.84, 100),
+    an.pano('b1', 'İŞ MERKEZİ', '#1d2a44', '#ffffff'),
+    an.folyo('b1', 'NOTER', '#ffffff', '#0b3d91', 0.1, 0.5, 2),
+    an.pano('b2', 'DÖNER • İSKENDER', '#f26b1d', '#ffffff'),
+    an.folyo('b2', 'KPSS • ALES', '#ffee00', '#0a0a0a', 0.1, 0.8, 2),
+    an.folyo('b2', 'AVUKATLIK', '#ffffff', '#1d2a44', 0.1, 0.8, 4),
+    an.klima('b2', 3, 0.02),
+    an.klima('b2', 5, 0.72),
+    an.anten('b2', 0.4),
+    an.pano('b3', 'PASAJ', '#5a2d82', '#ffd200', 0.03, 0.4),
+    an.pano('b3', 'KİTABEVİ', '#0b3d91', '#ffffff', 0.45, 0.52),
+    an.afis('b3', 3, 'DİŞ KLİNİĞİ', '#ffffff', '#0b3d91', 0.1, 0.8, 70),
+    an.bayrak('b3', 2, 'HOSTEL', '#111111', '#ffffff', 0.88),
+    an.klima('b3', 2, 0.04),
+    an.klima('b3', 5, 0.7),
+    an.depo('b3', 0.2),
+    an.anten('b3', 0.6),
+    an.pano('b4', 'ECZANE', '#ffffff', '#d0021b'),
+    an.folyo('b4', 'PSİKOLOG', '#00a2e8', '#ffffff', 0.1, 0.7, 3),
+    an.kutu('b4', 'E', '#d0021b', '#ffffff', 0.76, 30),
+    an.klima('b4', 4, 0.02),
+    an.pano('b5', 'TELEFON', '#ff7a00', '#ffffff'),
+    an.afis('b5', 4, 'SATILIK', '#ffdf00', '#111111', 0.1, 0.8, 46),
+    an.klima('b5', 2, 0.6),
+    an.anten('b5', 0.4),
+    an.pano('b6', 'DÖVİZ • ALTIN', '#141414', '#e8c35a'),
+    an.afis('b6', 2, 'BÜYÜK SEZON SONU', '#e0457b', '#ffffff', 0.1, 0.8, 70),
+    an.klima('b6', 3, 0.84),
+    an.pano('b7', 'BÜFE • TOST', '#ffdf00', '#c8102e', 0.03, 0.62),
+    an.kutu('b7', 'LOTO', '#1a237e', '#ffeb3b', 0.7, 46),
+    an.folyo('b7', 'AYRAN 20 ₺', '#111111', '#ffdf00', 0.06, 0.6),
+    an.kablo(160, 280, 260),
+    an.kablo(520, 260, 220),
+    an.kablo(800, 330, 260),
   ],
-};
+);
+
+/* ── Güneydoğu: Diyarbakır, Sur ── */
+
+// Sur içinde Gazi Caddesi'ne açılan bir sıra: siyah bazalt han ve kemerli evler, aralarına
+// yükselmiş beton apartmanlar; bazaltın üstüne çıplak briketten katlar, çatılarda termosifonlar.
+const DIYARBAKIR_BUILDINGS: BuildingShape[] = [
+  { id: 'b1', name: 'Bazalt han', x: 0, w: 200, floors: 2, floorH: 60, groundH: 96, cols: 3, balcony: false, roof: 'kornis', facade: 'tas', year: 1720, risk: 1, defects: { illegal: 'briket', cracked: true } },
+  { id: 'b2', name: 'Beton apartman', x: 200, w: 150, floors: 5, floorH: 46, groundH: 92, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1987, risk: 2, defects: { enclosed: true, bare: true } },
+  { id: 'b3', name: 'Kemerli bazalt ev', x: 350, w: 170, floors: 2, floorH: 58, groundH: 96, cols: 2, balcony: false, roof: 'duz', facade: 'tas', year: 1880, risk: 1, defects: { leanTo: true, patch: 'seramik' } },
+  { id: 'b4', name: 'Dört katlı işhanı', x: 520, w: 180, floors: 4, floorH: 48, groundH: 92, cols: 4, balcony: false, roof: 'duz', facade: 'apartman', year: 1979, risk: 2, defects: { illegal: 'sac', patch: 'kompozit' } },
+  { id: 'b5', name: 'Taş kahvehane', x: 700, w: 140, floors: 1, floorH: 60, groundH: 96, cols: 2, balcony: false, roof: 'duz', facade: 'tas', year: 1910, risk: 0, defects: { bare: true } },
+  { id: 'b6', name: 'Köşe apartmanı', x: 840, w: 170, floors: 5, floorH: 46, groundH: 92, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1996, risk: 1, defects: { illegal: 'pvc' } },
+  { id: 'b7', name: 'Kuyumcular çarşısı', x: 1010, w: 190, floors: 0, floorH: 46, groundH: 92, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman', year: 1985, risk: 0 },
+];
+
+const dy = kit(DIYARBAKIR_BUILDINGS);
+const DIYARBAKIR = design(
+  'diyarbakir',
+  [
+    spec('b1', '#4a4744', '#d8d0c0', '#2a2724'),
+    spec('b2', '#d8c9a8', '#8e959c', '#3f4a52'),
+    spec('b3', '#55514c', '#d8d0c0', '#2a2724'),
+    spec('b4', '#c7c2b4', '#7e868b', '#3a4248'),
+    spec('b5', '#4f4b46', '#cfc6b3', '#2a2724'),
+    spec('b6', '#e6d3b0', '#ffffff', '#5b4838'),
+    spec('b7', '#7a2e2e', '#5e2222', '#2f2420'),
+  ],
+  [
+    dy.pano('b1', 'CİĞERCİ', '#d71920', '#ffffff'),
+    dy.afis('b1', 2, 'KAHVALTI SALONU', '#ffdf00', '#111111', 0.12, 0.76, 56),
+    dy.klima('b1', 1, 0.82),
+    dy.anten('b1', 0.3),
+    dy.depo('b1', 0.7),
+    dy.pano('b2', 'TELEFONCU', '#ff7a00', '#ffffff'),
+    dy.folyo('b2', 'KURS MERKEZİ', '#ffee00', '#0a0a0a', 0.1, 0.8, 2),
+    dy.klima('b2', 2, 0.02),
+    dy.klima('b2', 3, 0.72),
+    dy.klima('b2', 4, 0.02),
+    dy.gunes('b2', 0.08),
+    dy.gunes('b2', 0.52),
+    dy.pano('b3', 'MEYAN ŞERBETİ', '#5a2d82', '#ffd200'),
+    dy.afis('b3', 1, 'ÇEYİZ', '#e0457b', '#ffffff', 0.2, 0.6, 48),
+    dy.gunes('b3', 0.3),
+    dy.pano('b4', 'BAKLAVA', '#2e7d32', '#ffd200', 0.03, 0.5),
+    dy.pano('b4', 'DÖVİZ', '#0b3d91', '#ffffff', 0.55, 0.42),
+    dy.afis('b4', 3, 'OFİS KİRALIK', '#d71920', '#ffffff', 0.14, 0.7, 50),
+    dy.klima('b4', 2, 0.02),
+    dy.klima('b4', 4, 0.76),
+    dy.anten('b4', 0.4),
+    dy.pano('b5', 'KAHVE', '#3e2a16', '#f0c75e'),
+    dy.tente('b5', '#c8102e', '#ffffff'),
+    dy.depo('b5', 0.6),
+    dy.pano('b6', 'MARKET', '#d0021b', '#ffffff'),
+    dy.folyo('b6', '%30 İNDİRİM', '#ffdf00', '#111111', 0.1, 0.6),
+    dy.klima('b6', 3, 0.04),
+    dy.gunes('b6', 0.4),
+    dy.anten('b6', 0.1),
+    dy.pano('b7', 'KUYUMCULAR ÇARŞISI', '#141414', '#e8c35a', 0.03, 0.94),
+    dy.kutu('b7', 'ATM', '#c8102e', '#ffffff', 0.74, 44),
+    dy.kablo(150, 330, 240),
+    dy.kablo(480, 300, 260),
+    dy.kablo(800, 320, 260),
+  ],
+);
 
 export const PLACES: Place[] = [
   {
     id: 'bakirkoy',
     title: 'Cumhuriyet Meydanı',
-    district: 'Bakırköy',
-    blurb: 'Dev bayrağın arkasında istasyon, kiremit çatılar ve yeşil sundurmalı dükkânlar: otuzu aşkın tabela, afiş ve klima.',
+    district: 'İstanbul · Bakırköy',
+    region: 'Marmara',
+    blurb: 'Dev bayrağın arkasında istasyon, kiremit çatılar ve yeşil sundurmalı dükkânlar: otuzu aşkın tabela, kaçak bir PVC kat, çatlamış kâgir bina.',
+    backdrop: 'istanbul',
+    landmark: 'bayrak',
+    stone: '#d8cbb2',
+    local: ['siva', 'tas', 'tugla', 'mantolama'],
     buildings: BAKIRKOY_BUILDINGS,
     original: BAKIRKOY,
   },
   {
-    id: 'besiktas',
-    title: 'Çarşı',
-    district: 'Beşiktaş',
-    blurb: 'Kartalın arkasında meyhaneler, tantuni, balıkçılar ve pasaj: dar cephelerde yirmi dört tabela, afiş ve klima.',
-    buildings: BESIKTAS_BUILDINGS,
-    original: BESIKTAS,
+    id: 'rize',
+    title: 'Cumhuriyet Caddesi',
+    district: 'Rize · Merkez',
+    region: 'Karadeniz',
+    blurb: 'Çay bahçeli yamaçların dibinde yedi katlı bloklar: çatılarda trapez sac katlar, pencerelerde soba boruları, yağmurdan kararmış briket.',
+    backdrop: 'karadeniz',
+    landmark: 'cay',
+    stone: '#9a968c',
+    local: ['ahsap', 'tas', 'siva', 'mantolama'],
+    buildings: RIZE_BUILDINGS,
+    original: RIZE,
   },
   {
-    id: 'eminonu',
-    title: 'Eminönü',
-    district: 'Fatih',
-    blurb: 'Taş hanlar, kuruyemişçiler ve iskele büfeleri: tarihi cepheler "toptan fiyatına" afişlerin altında.',
-    buildings: EMINONU_BUILDINGS,
-    original: EMINONU,
+    id: 'izmir',
+    title: 'Kemeraltı Girişi',
+    district: 'İzmir · Konak',
+    region: 'Ege',
+    blurb: 'Saat Kulesi\'nin arkasında Levanten taş evler ve cumbalı Rum evleri; aralarında yetmişlerin işhanları, termosifonlar ve kumaşçı tenteleri.',
+    backdrop: 'ege',
+    landmark: 'saat',
+    stone: '#e2d3b4',
+    local: ['siva', 'tas', 'ahsap'],
+    buildings: IZMIR_BUILDINGS,
+    original: IZMIR,
   },
   {
-    id: 'mecidiyekoy',
-    title: 'Mecidiyeköy',
-    district: 'Şişli',
-    blurb: 'Cam kuleler, yetmişlerin apartmanları ve AVM girişi: plaza afişleri, klinikler ve köprü altı dükkânlar.',
-    buildings: MECIDIYEKOY_BUILDINGS,
-    original: MECIDIYEKOY,
+    id: 'ankara',
+    title: 'Sakarya Caddesi',
+    district: 'Ankara · Kızılay',
+    region: 'İç Anadolu',
+    blurb: 'Sekiz katlı apartmanlarda her pencerede başka bir kurs, klinik, büro: kompozit yamalar, kaçak katlar ve çatlamış bir pasaj.',
+    backdrop: 'bozkir',
+    landmark: 'metro',
+    stone: '#cfc4ae',
+    local: ['siva', 'tas', 'mantolama', 'tugla'],
+    buildings: ANKARA_BUILDINGS,
+    original: ANKARA,
+  },
+  {
+    id: 'diyarbakir',
+    title: 'Gazi Caddesi',
+    district: 'Diyarbakır · Sur',
+    region: 'Güneydoğu Anadolu',
+    blurb: 'Surların dibinde siyah bazalt han ve kemerli evler; üstlerine çıplak briketten katlar, çatılarda termosifon ve su deposu ormanı.',
+    backdrop: 'sur',
+    landmark: 'cesme',
+    stone: '#3f3c39',
+    local: ['tas', 'siva'],
+    buildings: DIYARBAKIR_BUILDINGS,
+    original: DIYARBAKIR,
   },
 ];
 

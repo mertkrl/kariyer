@@ -33,9 +33,9 @@ export const GAMES: ArcadeGame[] = [
   {
     route: 'trafik',
     title: 'Kavşak Amiri',
-    blurb: 'Moda’dan Çengelköy’e dokuz kavşak. Evreleri kur, süreleri ayarla, yolu tek yön yap ya da kapat, ışıkları elle çevir; düğün konvoyu, mesai çıkışı, arıza ve makam konvoyu varken kavşağı kilitletme.',
+    blurb: 'Tek kavşaktan dört kavşaklı caddeye. Yeşili, sarıyı, kırmızıyı ayarla; maç çıkışında dedektörü aç, sönen ışığa usta çağır, Vatan Caddesi’ne yeşil dalga kur.',
     color: 'var(--blue-ink)',
-    minutes: 10,
+    minutes: 18,
     file: 8,
   },
   {
@@ -49,7 +49,7 @@ export const GAMES: ArcadeGame[] = [
   {
     route: 'meydan',
     title: 'Meydan Islahı',
-    blurb: 'Bakırköy Cumhuriyet Meydanı: otuz tabela, sekiz klima, yedi renk kavgası. Cepheleri boya, tabelaları sök, meydanı baştan düzenle.',
+    blurb: 'İstanbul’dan Diyarbakır’a beş sokak: kaçak katlar, klimalar, kompozit yamalar. Cepheyi kapla, binayı güçlendir, tabelaları hizaya sok.',
     color: 'var(--green)',
     minutes: 10,
     file: 6,
@@ -75,7 +75,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'İnşaat İzleme',
     blurb: 'Bir apartman, temelden çatıya. Ellerini arkana koy, izle. Yorum yapmak serbest, karışmak yasak.',
     color: 'var(--clay)',
-    minutes: 6,
+    minutes: 7,
     file: 3,
   },
   {

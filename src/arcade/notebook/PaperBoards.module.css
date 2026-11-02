@@ -1,0 +1,340 @@
+/*
+ * Defterin gizli kâğıt kalem oyunları: zemin defterin kendisidir; yazılar el yazısı, çizgiler mavi
+ * (sen) ve kırmızı (bilgisayar) tükenmez. Dar yerde (kutunun genişliği) asmaca alt alta dizilir.
+ */
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 14px 0 0;
+  color: #2c4f8f;
+  font: 600 1.35rem/1.2 'Caveat', cursive;
+}
+
+.score {
+  color: #3b3a36;
+}
+
+.again {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #b3261e;
+  font: 700 1.35rem/1 'Caveat', cursive;
+  cursor: pointer;
+}
+
+.again:hover {
+  text-decoration: underline;
+}
+
+/* ── adam asmaca ── */
+.hang {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 28px 44px;
+  align-items: start;
+}
+
+.word {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 8px;
+  margin: 0 0 26px;
+  min-height: 52px;
+}
+
+.slot {
+  display: inline-grid;
+  place-items: end center;
+  width: 30px;
+  height: 46px;
+  border-bottom: 3px solid #3b3a36;
+  color: #2c4f8f;
+  font: 700 2.4rem/1 'Caveat', cursive;
+}
+
+.missed {
+  color: #b3261e;
+}
+
+.gap {
+  width: 22px;
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 560px;
+}
+
+.key {
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid #3b3a36;
+  border-radius: 6px 8px 5px 9px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #3b3a36;
+  font: 700 1.35rem/1 'Caveat', cursive;
+  cursor: pointer;
+}
+
+.key:hover:not(:disabled) {
+  background: #fff6b8;
+}
+
+.key:disabled {
+  cursor: default;
+}
+
+.hit {
+  border-color: #2c4f8f;
+  color: #2c4f8f;
+}
+
+.miss {
+  border-color: rgba(179, 38, 30, 0.5);
+  color: #b3261e;
+  text-decoration: line-through 2px;
+  opacity: 0.6;
+}
+
+/* takvim: saatler ve gelen davetler */
+.calendar {
+  margin: 0;
+  padding: 10px 12px;
+  list-style: none;
+  border: 2px solid #3b3a36;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.calendar::before {
+  content: 'Bugün · takvim';
+  display: block;
+  margin-bottom: 6px;
+  font: 700 1.3rem 'Caveat', cursive;
+}
+
+.calendar li {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border-top: 1px dashed #b9bcc1;
+}
+
+.time {
+  font: 600 0.78rem var(--font-mono);
+  color: #6b6a64;
+}
+
+.empty {
+  color: #a5a7ab;
+  font: 600 1.15rem 'Caveat', cursive;
+}
+
+.invite > span:last-child {
+  display: grid;
+  margin: 3px 0;
+  padding: 4px 8px;
+  border-left: 4px solid #b3261e;
+  border-radius: 3px;
+  background: #fde7c4;
+  transform: rotate(var(--r));
+  animation: drop 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.invite b {
+  font-size: 0.86rem;
+}
+
+.invite small {
+  color: #6b6a64;
+  font-size: 0.7rem;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) rotate(-6deg);
+  }
+}
+
+/* ── tahtalar ── */
+.board {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ink {
+  animation: ink 0.25s ease-out;
+}
+
+@keyframes ink {
+  from {
+    opacity: 0;
+  }
+}
+
+.hitLine {
+  cursor: pointer;
+}
+
+.hitLine line {
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.hitLine:hover line {
+  opacity: 0.35;
+}
+
+.mark {
+  font: 700 28px 'Caveat', cursive;
+}
+
+.pop {
+  animation: ink 0.3s ease-out;
+}
+
+/* ── demir para futbolu: hepsi kurşun kalem, kâğıdın üstünde ── */
+.board .table {
+  width: min(calc(100vw - 32px), 960px);
+  height: auto;
+  max-height: none;
+  aspect-ratio: 760 / 340;
+}
+
+.table {
+  touch-action: none;
+  /* imleç: kurşun kalemle çizilmiş işaret parmağı; ucu (11, 2) fiskeyi atar */
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M9 15V4a2.3 2.3 0 0 1 4.6 0v9a2.2 2.2 0 0 1 4.4 0v1a2.2 2.2 0 0 1 4.4.5v1a2.2 2.2 0 0 1 4.4.5V22c0 4-3 8-8 8h-3c-3 0-5-2-6.5-4.5L5 20a2.3 2.3 0 0 1 3.6-2.8L9 18z' fill='white' stroke='%233b3a36' stroke-width='1.6' stroke-linejoin='round'/><path d='M13.6 13v4M18 14v3.5M22.4 15.5v3M10.2 5.2h2.3' stroke='%233b3a36' stroke-width='1.1' stroke-linecap='round' fill='none'/></svg>") 11 2, pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.coinGame {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.coinHud {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  color: #3b3a36;
+  font: 700 1.4rem/1 'Caveat', cursive;
+}
+
+.levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.level {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid #3b3a36;
+  border-radius: 50% 46% 52% 48%;
+  background: #fff;
+  color: #3b3a36;
+  font: 700 1.3rem/1 'Caveat', cursive;
+  cursor: pointer;
+}
+
+.level:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.levelOn {
+  background: #3b3a36;
+  color: #fff;
+}
+
+.wind {
+  fill: #3b3a36;
+  font: 700 26px 'Caveat', cursive;
+}
+
+.bookTitle {
+  fill: #3b3a36;
+  font: 700 11px var(--font-mono);
+  letter-spacing: 1px;
+}
+
+.coinText {
+  fill: #3b3a36;
+  font: 700 15px 'Caveat', cursive;
+}
+
+.coinPower {
+  fill: #3b3a36;
+  font: 600 17px 'Caveat', cursive;
+}
+
+.carve {
+  fill: #3b3a36;
+  font: 600 15px 'Caveat', cursive;
+  opacity: 0.45;
+}
+
+/* durunca para yere yatar: biraz sallanarak oturur */
+.lie {
+  animation: settle 0.6s ease-out;
+}
+
+@keyframes settle {
+  0% {
+    transform: scale(0.4, 1);
+  }
+  40% {
+    transform: scale(1.08, 0.94);
+  }
+  70% {
+    transform: scale(0.96, 1.03);
+  }
+}
+
+.goalTag {
+  font: 600 15px 'Caveat', cursive;
+}
+
+@container paper (max-width: 620px) {
+  .hang {
+    grid-template-columns: 1fr;
+  }
+
+  .slot {
+    width: 22px;
+    font-size: 2rem;
+  }
+
+  .key {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink,
+  .pop,
+  .lie,
+  .invite > span:last-child {
+    animation: none;
+  }
+}

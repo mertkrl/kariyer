@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { ArcadeScreen } from './arcade/ArcadeScreen';
+import { WelcomeScreen } from './arcade/welcome/WelcomeScreen';
 import { useRoute } from './arcade/route';
 import { SITE_NAME } from './arcade/games';
 
@@ -36,7 +36,7 @@ export function Root() {
     window.scrollTo(0, 0);
   }, [route]);
 
-  if (route === 'arcade') return <ArcadeScreen preload={preload} />;
+  if (route === 'arcade') return <WelcomeScreen preload={preload} />;
   if (route === 'iseAlim')
     return (
       <Suspense fallback={null}>

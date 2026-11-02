@@ -73,6 +73,17 @@ test('kâğıda çizilen işaret tanınır: X iki çapraz çizgi, O kapalı halk
   assert.equal(recognize([line([0, 0], [40, 40]), line([10, 0], [50, 40])]), null);
   const ring: Pt[] = Array.from({ length: 40 }, (_, i) => [20 + 18 * Math.cos((i / 38) * Math.PI * 2), 20 + 20 * Math.sin((i / 38) * Math.PI * 2)]);
   assert.equal(recognize([ring]), 'O');
+  const square: Pt[] = [...line([0, 0], [40, 1], 8), ...line([40, 1], [41, 40], 8), ...line([41, 40], [1, 39], 8), ...line([1, 39], [2, 3], 8)];
+  assert.equal(recognize([square]), '□');
+  const tri: Pt[] = [...line([20, 0], [42, 38], 10), ...line([42, 38], [0, 40], 10), ...line([0, 40], [19, 2], 10)];
+  assert.equal(recognize([tri]), '△');
+  const m: Pt[] = [...line([0, 40], [8, 0], 8), ...line([8, 0], [20, 30], 8), ...line([20, 30], [32, 0], 8), ...line([32, 0], [40, 40], 8)];
+  assert.equal(recognize([m]), 'M');
+  // elle çizilmiş, hafif titrek bir O hâlâ O
+  const wobbly: Pt[] = Array.from({ length: 60 }, (_, i) => [20 + (19 + Math.sin(i * 1.7)) * Math.cos((i / 58) * Math.PI * 2), 20 + (21 + Math.cos(i * 2.3)) * Math.sin((i / 58) * Math.PI * 2)]);
+  assert.equal(recognize([wobbly]), 'O');
+  // iki düz çizgiyle T artık oyun açmaz
+  assert.equal(recognize([line([0, 0], [40, 2]), line([20, 1], [21, 45])]), null);
   // S: yukarıdan aşağı, sağdan sola, sağa, sola
   const s: Pt[] = [...line([30, 0], [5, 6], 6), ...line([5, 6], [5, 16], 4), ...line([5, 16], [30, 24], 6), ...line([30, 24], [30, 36], 4), ...line([30, 36], [3, 42], 6)];
   assert.equal(recognize([s]), 'S');

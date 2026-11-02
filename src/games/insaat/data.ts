@@ -28,23 +28,36 @@ const BASE_STAGES: Stage[] = [
     lines: ['Burası eskiden bostandı.', 'Duydun mu, buraya altı kat dikeceklermiş.'],
   },
   {
+    id: 'etut',
+    title: 'Zemin etüdü',
+    at: 6,
+    lines: ['Sondaj yapıyorlar, petrol mü çıkacak?', 'Zemin sağlam, ben buranın çocuğuyum.', 'Eskiden burada dere vardı, yazsınlar.'],
+  },
+  {
+    id: 'aplikasyon',
+    title: 'Aplikasyon ve şantiye kurulumu',
+    at: 16,
+    lines: ['İp gerdiler, kazık çaktılar.', 'Çit çektiler, artık göremeyeceğiz. Delik var ama.', 'Konteyner geldi, şef orada oturacak.'],
+  },
+  {
     id: 'hafriyat',
-    title: 'Hafriyat',
-    at: 8,
-    lines: ['Kepçeci iyi ama sağa fazla yükleniyor.', 'Bu toprak killi, söyleyeyim de.', 'Kamyon kaçıncı sefer, saydın mı?', 'Çukur derin oldu, otopark yapacaklar.'],
+    title: 'Hafriyat ve iksa',
+    at: 24,
+    lines: ['Kepçeci iyi ama sağa fazla yükleniyor.', 'Bu toprak killi, söyleyeyim de.', 'Kamyon kaçıncı sefer, saydın mı?', 'Yan apartmana kazık çaktılar, iyi ettiler.', 'Çukur derin oldu, otopark yapacaklar.'],
   },
   {
     id: 'temel',
     title: 'Radye temel',
-    at: 30,
-    lines: ['Demir az, ben görüyorum.', 'Pompa geldi, bugün döküm var.', 'Betonu sulamaları lazım, yazın çatlar.', 'Usta! O tarafa bir kova daha!'],
+    at: 46,
+    lines: ['Altına kara bir şey serdiler, yalıtımmış.', 'Demir az, ben görüyorum.', 'Pompa geldi, bugün döküm var.', 'Betonu sulamaları lazım, yazın çatlar.', 'Usta! O tarafa bir kova daha!'],
   },
   {
     id: 'karkas',
     title: 'Kaba inşaat',
-    at: 54,
+    at: 72,
     lines: [
       'Kolon ince olmuş bu.',
+      'Kontrolcü geldi, demirleri tek tek saydı.',
       'Kalıbı erken söktüler, yazık.',
       'Kat kat çıkıyor maşallah.',
       'Kat irtifakı var mı acaba?',
@@ -57,37 +70,55 @@ const BASE_STAGES: Stage[] = [
   {
     id: 'duvar',
     title: 'Duvar örme',
-    at: 150,
+    at: 168,
     lines: ['Tuğla değil bu, gazbeton.', 'Harç az, bunu not edin.', 'Ses yalıtımı yok, komşuyu duyarsın.', 'Usta iyi örüyor, Sivaslı herhalde.'],
   },
   {
     id: 'cati',
     title: 'Çatı',
-    at: 180,
+    at: 196,
     lines: ['Kiremit Marsilya mı, değil mi?', 'Çatı katı dubleks olacak, en pahalısı orası.'],
   },
   {
     id: 'pencere',
     title: 'Doğrama ve balkon',
-    at: 196,
+    at: 210,
     lines: ['PVC iyi, alüminyum terletir.', 'Balkonu kapatırlar sonra, görürsün.', 'Güney cephe mi bu? Değil.'],
   },
   {
+    id: 'tesisat',
+    title: 'Mekanik ve elektrik tesisatı',
+    at: 224,
+    lines: ['Kablolar bakır mı alüminyum mu?', 'Doğalgaz hattı geldi, kombi yeri neresi?', 'Asansör de koyuyorlar, iyi, dizlerim tutmuyor.'],
+  },
+  {
     id: 'siva',
-    title: 'Mantolama ve boya',
-    at: 214,
+    title: 'Mantolama ve dış cephe',
+    at: 242,
     lines: ['Mantolama yaptılar, iyi.', 'Rengi güzel ama bir ton açık olmalıydı.', 'Somon renk her yerde artık.'],
   },
   {
+    id: 'ince',
+    title: 'İnce işler',
+    at: 258,
+    lines: ['Seramikler İtalyan diyorlar, Çanakkale bence.', 'Alçıcı iyi, köşeleri düz.', 'Mutfak dolabı geldi, beyaz parlak, iz yapar.'],
+  },
+  {
+    id: 'peyzaj',
+    title: 'Peyzaj ve çevre',
+    at: 280,
+    lines: ['Ağaç diktiler, üç günde kurur.', 'Rampa yapmışlar, tekerlekli sandalye çıkar.', 'Bank koysalar biz de otururduk.'],
+  },
+  {
     id: 'teslim',
-    title: 'Teslim',
-    at: 240,
+    title: 'Denetim ve teslim',
+    at: 292,
     lines: ['Hayırlı olsun.', 'Klimaları da taktılar bak.', 'Ben yine de bir bakardım temeline.', 'Karşıya da inşaat başlıyormuş, yarın oraya gideriz.'],
   },
 ];
 
 /** Altı katta işin bittiği an (iş saati): teslimden sonra kısa bir duruş, sonra son ekran. */
-const BASE_TOTAL = 254;
+const BASE_TOTAL = 306;
 
 /*
  * Şantiyeler: aynı takvim, başka bina. Kat sayısı, cephe rengi, tabela ve amcaların lafları
@@ -101,6 +132,8 @@ export interface Project {
   /** Tabeladaki ikinci satır. */
   sign: string;
   floors: number;
+  /** Bir katın brüt alanı (m²): metraj bu alandan hesaplanır. */
+  area: number;
   paint: string;
   paintSide: string;
   /** Tabeladaki teslim yılları: inşaat ilerledikçe ertelenir. */
@@ -120,6 +153,7 @@ export const PROJECTS: Project[] = [
     parcel: 'Ada 412, Parsel 7',
     sign: 'HUZUR EVLERİ · 6 KAT',
     floors: 6,
+    area: 380,
     paint: '#e7a98e',
     paintSide: '#c78a70',
     due: [2019, 2021, 2023, 2025, 2026],
@@ -135,6 +169,7 @@ export const PROJECTS: Project[] = [
     parcel: 'Ada 88, Parsel 3',
     sign: 'MAVİ KULE REZİDANS · 8 KAT',
     floors: 8,
+    area: 520,
     paint: '#9fb8cc',
     paintSide: '#7f98ad',
     due: [2024, 2026, 2028, 2030, 2031],
@@ -156,6 +191,7 @@ export const PROJECTS: Project[] = [
     parcel: 'Ada 15, Parsel 1',
     sign: 'GÜL SOKAK İLKOKULU · 3 KAT',
     floors: 3,
+    area: 1100,
     paint: '#f0c75e',
     paintSide: '#c9a440',
     due: [2022, 2023, 2024, 2025, 2026],
@@ -179,18 +215,23 @@ export let STAGES: Stage[] = BASE_STAGES;
 /** İşin bittiği an (iş saati). */
 export let WORK_TOTAL = BASE_TOTAL;
 
-/** Kaba inşaatta bir katın alt adımları: katın kendi süresi içindeki başlangıç oranları. */
+/**
+ * Kaba inşaatta bir katın alt adımları: katın kendi süresi içindeki başlangıç oranları. Bina
+ * çizimi kalıbı 0.18'de, döşeme demirini 0.34'te, dökümü 0.46'da, prizi 0.62'de, sökümü 0.86'da okur.
+ */
 export const FLOOR_STEPS = [
-  { at: 0, title: 'Kolon demiri' },
-  { at: 0.18, title: 'Kalıp ve dikme' },
-  { at: 0.34, title: 'Döşeme demiri' },
-  { at: 0.46, title: 'Beton döküm' },
-  { at: 0.62, title: 'Priz bekleniyor' },
-  { at: 0.86, title: 'Kalıp sökümü' },
+  { id: 'aks', at: 0, title: 'Aks aplikasyonu' },
+  { id: 'rebar', at: 0.03, title: 'Kolon ve perde demiri' },
+  { id: 'form', at: 0.18, title: 'Kalıp ve dikme' },
+  { id: 'mesh', at: 0.34, title: 'Döşeme demiri ve tesisat boşlukları' },
+  { id: 'check', at: 0.41, title: 'Yapı denetim demir kontrolü' },
+  { id: 'pour', at: 0.46, title: 'Beton döküm' },
+  { id: 'cure', at: 0.62, title: 'Kür ve priz' },
+  { id: 'strip', at: 0.86, title: 'Kalıp sökümü' },
 ] as const;
 
 /** Alt adımların sırası (FLOOR_STEPS içindeki yer): Building, Site ve konuşmalar bunları okur. */
-export const FLOOR_STEP = { rebar: 0, form: 1, mesh: 2, pour: 3, cure: 4, strip: 5 } as const;
+export const FLOOR_STEP = { aks: 0, rebar: 1, form: 2, mesh: 3, check: 4, pour: 5, cure: 6, strip: 7 } as const;
 
 /** Tabeladaki teslim tarihi: inşaat ilerledikçe ertelenir. */
 export let DUE_YEARS = PROJECT.due;
@@ -292,8 +333,28 @@ export const floorStepAt = (w: number) => {
   const p = f - floor;
   let step = 0;
   while (step + 1 < FLOOR_STEPS.length && FLOOR_STEPS[step + 1].at <= p) step++;
-  return { floor, step, title: FLOOR_STEPS[step].title };
+  return { floor, step, p: (p - FLOOR_STEPS[step].at) / ((FLOOR_STEPS[step + 1]?.at ?? 1) - FLOOR_STEPS[step].at), id: FLOOR_STEPS[step].id, title: FLOOR_STEPS[step].title };
 };
+
+/**
+ * Metraj: kat alanından kaba ama gerçekçi miktarlar. Radye 80 cm ve bina izinden taşkın; her kat
+ * döşeme, kiriş, kolon ve perdeyle m² başına ~0,33 m³ beton; donatı m³ başına ~120 kg; transmikser
+ * 9 m³; her döküm günü ve her 100 m³ için altı küp (üçü 7, üçü 28 günlük kırım).
+ */
+export function quantities(floors = FLOORS, area = PROJECT.area) {
+  const pours = [area * 1.2 * 0.8, ...Array.from({ length: floors }, () => area * 0.33)];
+  const concrete = pours.reduce((a, b) => a + b, 0);
+  const excavation = area * 1.3 * 4.5;
+  return {
+    excavation: Math.round(excavation),
+    trucks: Math.ceil(excavation / 15),
+    concrete: Math.round(concrete),
+    steel: Math.round(concrete * 0.12),
+    mixers: pours.reduce((n, m) => n + Math.ceil(m / 9), 0),
+    cubes: pours.reduce((n, m) => n + 6 * Math.max(1, Math.ceil(m / 100)), 0),
+    inspections: floors + 1,
+  };
+}
 
 /* ── izleyenler ── */
 

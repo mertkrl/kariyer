@@ -5,7 +5,8 @@ import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
 import { audioEngine } from '../../audio/audioEngine';
 import { clearSlot, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
-import { DAYS_PER_SECOND, PROJECT, PROJECTS, STAGES, TOTAL, floorStepAt, idleAt, selectProject, stageAt, watchersAt, workAt } from './data';
+import { DAYS_PER_SECOND, PROJECT, PROJECTS, STAGES, TOTAL, floorStepAt, idleAt, quantities, selectProject, stageAt, watchersAt, workAt } from './data';
+import { Logbook } from './Logbook';
 import { Scene } from './Scene';
 import styles from './InsaatGame.module.css';
 
@@ -71,6 +72,7 @@ export function InsaatGame() {
   const idle = idleAt(t);
   const day = Math.floor(t * DAYS_PER_SECOND) + 1;
   const over = t >= TOTAL;
+  const q = quantities();
   // bina teslim edildi: salonun defterine tik
   useEffect(() => {
     if (!over) return;
@@ -144,6 +146,8 @@ export function InsaatGame() {
         ))}
       </ol>
 
+      {!over && <Logbook w={w} idle={idle} day={day} />}
+
       {idle && (
         <p className={styles.idle} role="status">
           {IDLE_TEXT[idle]}
@@ -159,8 +163,23 @@ export function InsaatGame() {
           <p className={styles.eyebrow}>Teslim tutanağı</p>
           <h2 id="ins-end">Bina teslim edildi.</h2>
           <p>
-            İnşaat <b>{day.toLocaleString('tr-TR')} gün</b> sürdü. Teslim tarihi dört kez ertelendi; şantiye gece, yağmur ve kar yüzünden sık sık durdu. Siz de baştan sona izlediniz; hiçbir şeye karışmadınız. Örnek bir vatandaşsınız.
+            İnşaat <b>{day.toLocaleString('tr-TR')} gün</b> sürdü. Zemin etüdünden iskân başvurusuna kadar yirmi dört meslekten ekip çalıştı; yapı denetim her katın demirini döküm öncesi kontrol etti. Teslim tarihi dört kez ertelendi; şantiye gece, yağmur ve kar yüzünden sık sık durdu. Siz de baştan sona izlediniz; hiçbir şeye karışmadınız. Örnek bir vatandaşsınız.
           </p>
+          <dl className={styles.report} aria-label="Teknik özet">
+            {[
+              ['Hafriyat', `${q.excavation.toLocaleString('tr-TR')} m³ · ${q.trucks} kamyon`],
+              ['Beton C30/37', `${q.concrete.toLocaleString('tr-TR')} m³ · ${q.mixers} mikser`],
+              ['Donatı B420C', `${q.steel.toLocaleString('tr-TR')} ton`],
+              ['Küp numune', `${q.cubes} adet`],
+              ['Demir kontrol tutanağı', `${q.inspections} adet`],
+              ['İş kazası', '0 · İSG kayıtları tam'],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd className="mono">{v}</dd>
+              </div>
+            ))}
+          </dl>
           <Finale kind="news" kicker={`Mahalle Postası · ${new Date().getFullYear() + 10}`} title={PROJECT.future.title}>
             <p>{PROJECT.future.text}</p>
           </Finale>

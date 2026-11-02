@@ -122,7 +122,7 @@ export function Site({ w, working, night }: { w: number; working: boolean; night
   const boom = `M ${BOOM_BASE} ${GROUND - 36} L ${BOOM_BASE - 30} ${pourY - 80} L ${LEFT + WIDTH - 40} ${pourY - 60} L ${LEFT + WIDTH - 80} ${pourY - 6}`;
   const crane = karkas > 0 && windows < 0.4;
   const scaffold = walls > 0 && paint < 1;
-  const due = DUE_YEARS[Math.min(DUE_YEARS.length - 1, Math.max(0, stage - 3))];
+  const due = DUE_YEARS[Math.min(DUE_YEARS.length - 1, Math.max(0, stage - STAGES.findIndex((st) => st.id === 'karkas')))];
   // vinç o adımda ne gerekiyorsa taşır: demir, kalıp (sökülünce bir üst kata), tuğla
   const wallFloor = Math.min(FLOORS - 1, Math.floor(walls * FLOORS));
   const craneLoad: CraneLoad = !working

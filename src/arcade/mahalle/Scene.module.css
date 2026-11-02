@@ -1,0 +1,522 @@
+/*
+ * Mahallenin çizimi: gökyüzü, gün ışığının süzgeçleri, yanan pencereler ve sahnedeki her hareket
+ * (bulutlar, trafik, trafik ışığı, vinç, kedi). Günün saati SVG'nin kendi sınıfıdır (sabah,
+ * gunduz, aksam, gece); `body` gövdeleri süzülür, `lit`/`lamp`/`neon` yalnızca akşam ve gece yanar.
+ */
+
+.svg {
+  --glass: #a7cde4;
+}
+
+.sabah {
+  --sky0: #8fbfe3;
+  --sky1: #f4dcc4;
+  --sky2: #f7c8a0;
+  --sun: #fff0c2;
+  --sunHalo: #ffd28a;
+  --cloud: #fff4ea;
+  --glass: #cfe0ea;
+}
+
+.gunduz {
+  --sky0: #4f9bd8;
+  --sky1: #a4d0f0;
+  --sky2: #e6f3f9;
+  --sun: #fff6cf;
+  --sunHalo: #fff0a8;
+  --cloud: #ffffff;
+}
+
+.aksam {
+  --sky0: #29336a;
+  --sky1: #c8607a;
+  --sky2: #f8a65a;
+  --sun: #ffb35a;
+  --sunHalo: #ff9a4a;
+  --cloud: #f4b6a6;
+  --glass: #f0b48e;
+}
+
+.gece {
+  --sky0: #060b1e;
+  --sky1: #121d45;
+  --sky2: #2a3866;
+  --cloud: #29345a;
+  --glass: #5a6e9a;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sky0 {
+  stop-color: var(--sky0);
+}
+.sky1 {
+  stop-color: var(--sky1);
+}
+.sky2 {
+  stop-color: var(--sky2);
+}
+.sunHalo {
+  stop-color: var(--sunHalo);
+}
+.sunDisc {
+  fill: var(--sun);
+}
+
+.sky0,
+.sky1,
+.sky2 {
+  transition: stop-color 1.2s;
+}
+
+/* gün ışığı: gövdeler süzülür, ışık saçanlar süzülmez */
+.sabah .body {
+  filter: url(#mh-sabah);
+}
+.aksam .body {
+  filter: url(#mh-aksam);
+}
+.gece .body {
+  filter: url(#mh-gece);
+}
+
+.lit,
+.lamp,
+.neon {
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.aksam .lit {
+  opacity: 0.7;
+}
+.gece .lit {
+  opacity: 1;
+}
+.aksam .lamp {
+  opacity: 0.55;
+}
+.gece .lamp {
+  opacity: 1;
+}
+.aksam .neon,
+.gece .neon {
+  opacity: 1;
+  animation: flicker 6s infinite;
+}
+
+@keyframes flicker {
+  0%,
+  92%,
+  96%,
+  100% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 0.3;
+  }
+}
+
+.glass,
+.carGlass {
+  fill: var(--glass);
+  transition: fill 1.2s;
+}
+
+.glint {
+  fill: #fff;
+  opacity: 0.28;
+}
+
+.gece .glint {
+  opacity: 0.06;
+}
+
+.puddle {
+  fill: var(--sky1);
+  opacity: 0.85;
+}
+
+.decor {
+  pointer-events: none;
+}
+
+/* gökyüzü */
+.star {
+  fill: #fff;
+  animation: twinkle ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.clouds {
+  transform: translateX(calc(var(--px, 0) * -18px));
+  transition: transform 0.8s ease-out;
+}
+
+.cloud {
+  fill: var(--cloud);
+  opacity: 0.92;
+  animation: drift linear infinite;
+}
+
+.gece .cloud {
+  opacity: 0.55;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-500px);
+  }
+  to {
+    transform: translateX(1900px);
+  }
+}
+
+.birds {
+  animation: glide 40s linear infinite;
+}
+
+.gece .birds {
+  display: none;
+}
+
+.bird {
+  fill: none;
+  stroke: #3a4250;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flap 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes flap {
+  to {
+    transform: scaleY(0.4);
+  }
+}
+
+@keyframes glide {
+  from {
+    transform: translate(-200px, 20px);
+  }
+  50% {
+    transform: translate(400px, -10px);
+  }
+  to {
+    transform: translate(1000px, 20px);
+  }
+}
+
+.far {
+  transform: translateX(calc(var(--px, 0) * -10px));
+  transition: transform 0.8s ease-out;
+}
+
+/* hareketli parçalar */
+.blink {
+  animation: blink 1.4s steps(2, jump-none) infinite;
+}
+
+.blinkSlow {
+  animation: blink 2.2s steps(2, jump-none) infinite;
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.15;
+  }
+}
+
+.marquee {
+  animation: marquee 16s linear infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-560px);
+  }
+}
+
+.sway {
+  transform-box: view-box;
+  transform-origin: 381px 126px;
+  animation: sway 5s ease-in-out infinite alternate;
+}
+
+@keyframes sway {
+  from {
+    transform: rotate(-1.6deg);
+  }
+  to {
+    transform: rotate(1.6deg);
+  }
+}
+
+.tail {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: tail 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes tail {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+.boat {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: boat 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes boat {
+  from {
+    transform: translateY(-1px) rotate(-5deg);
+  }
+  to {
+    transform: translateY(1px) rotate(5deg);
+  }
+}
+
+.shine {
+  animation: shine 7s ease-in-out infinite alternate;
+}
+
+@keyframes shine {
+  from {
+    opacity: 0.06;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+
+.leaves {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: rustle 6s ease-in-out infinite alternate;
+}
+
+@keyframes rustle {
+  from {
+    transform: rotate(-0.8deg);
+  }
+  to {
+    transform: rotate(0.8deg);
+  }
+}
+
+/* trafik ışığı: kırmızı, kırmızı-sarı, yeşil, sarı (12 sn) */
+.red,
+.amber,
+.green {
+  animation: 12s steps(1, end) infinite;
+}
+.red {
+  animation-name: red;
+}
+.amber {
+  animation-name: amber;
+}
+.green {
+  animation-name: green;
+}
+
+@keyframes red {
+  0% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0;
+  }
+}
+
+@keyframes amber {
+  0% {
+    opacity: 0;
+  }
+  34% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0;
+  }
+  84% {
+    opacity: 1;
+  }
+}
+
+@keyframes green {
+  0% {
+    opacity: 0;
+  }
+  42% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 0;
+  }
+}
+
+/* trafik ve yayalar */
+.driveR,
+.driveL,
+.bump,
+.walkR,
+.walkL {
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.driveR {
+  animation-name: driveR;
+}
+.driveL {
+  animation-name: driveL;
+}
+.walkR {
+  animation-name: walkR;
+}
+.walkL {
+  animation-name: walkL;
+}
+
+@keyframes driveR {
+  from {
+    transform: translateX(-260px);
+  }
+  to {
+    transform: translateX(1860px);
+  }
+}
+
+@keyframes driveL {
+  from {
+    transform: translateX(1860px);
+  }
+  to {
+    transform: translateX(-260px);
+  }
+}
+
+@keyframes walkR {
+  from {
+    transform: translateX(-60px);
+  }
+  to {
+    transform: translateX(1660px);
+  }
+}
+
+@keyframes walkL {
+  from {
+    transform: translateX(1660px);
+  }
+  to {
+    transform: translateX(-60px);
+  }
+}
+
+/* yakın şeritteki araç çukura girer: önce ön, sonra arka tekerlek */
+.bump {
+  animation-name: bump;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+@keyframes bump {
+  0%,
+  31.4%,
+  34%,
+  36.3%,
+  39%,
+  100% {
+    transform: none;
+  }
+  32.4% {
+    transform: translateY(4px) rotate(2.2deg);
+  }
+  37.3% {
+    transform: translateY(4px) rotate(-1.6deg);
+  }
+}
+
+.legA,
+.legB {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: leg 0.6s ease-in-out infinite alternate;
+}
+
+.legB {
+  animation-direction: alternate-reverse;
+}
+
+@keyframes leg {
+  from {
+    transform: rotate(-16deg);
+  }
+  to {
+    transform: rotate(16deg);
+  }
+}
+
+/* hareket azaltılınca araçlar, bulutlar ve yayalar yerinde durur */
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .driveR,
+  .driveL,
+  .walkR,
+  .walkL,
+  .birds {
+    animation-name: none !important;
+  }
+}
+
+:root[data-motion='reduce'] .cloud,
+:root[data-motion='reduce'] .driveR,
+:root[data-motion='reduce'] .driveL,
+:root[data-motion='reduce'] .walkR,
+:root[data-motion='reduce'] .walkL,
+:root[data-motion='reduce'] .birds {
+  animation-name: none !important;
+}
+
+/* ── tıklanan yerler ── */
+
+.spot {
+  cursor: pointer;
+  outline: none;
+  transition: filter 0.25s;
+}
+
+.spot.on {
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 9px rgba(255, 214, 120, 0.95));
+}
+
+.spot:focus-visible {
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 0 #000) drop-shadow(0 0 10px rgba(255, 214, 120, 1));
+}
+

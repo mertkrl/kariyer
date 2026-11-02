@@ -300,3 +300,174 @@
   text-transform: uppercase;
   color: var(--text-dim);
 }
+
+/* şantiye defteri: solda, üst şeridin altında */
+.log {
+  position: absolute;
+  top: 72px;
+  left: 18px;
+  z-index: 2;
+  width: min(310px, calc(100% - 36px));
+  max-height: calc(100% - 150px);
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md);
+  background: rgba(251, 248, 240, 0.86);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(12px) saturate(1.2);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+
+.logHead {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 700 13px var(--font-body);
+  cursor: pointer;
+}
+
+.logHead:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.logBody {
+  padding: 0 12px 12px;
+}
+
+.logBody h3 {
+  margin: 10px 0 4px;
+  font-size: var(--fs-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.logStage {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.logStage span {
+  color: var(--text-muted);
+}
+
+.logEntry {
+  margin: 8px 0 0;
+  padding: 6px 9px;
+  border-left: 3px solid var(--clay);
+  background: rgba(34, 31, 27, 0.05);
+}
+
+.logEntry small {
+  display: block;
+  font-weight: 700;
+  color: var(--clay);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper-light);
+  font-size: 11px;
+}
+
+.chips .off {
+  opacity: 0.4;
+}
+
+.machines {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.checks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checks li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.checks i {
+  display: inline-grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  font: 700 10px/1 var(--font-body);
+  font-style: normal;
+}
+
+.checks .ok {
+  color: var(--ink);
+}
+
+.checks .ok i {
+  background: var(--teal, #2f7d6d);
+  border-color: var(--teal, #2f7d6d);
+  color: #fff;
+}
+
+.isg {
+  margin: 10px 0 0;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: rgba(240, 199, 94, 0.3);
+}
+
+.isg b {
+  margin-right: 4px;
+  color: var(--red);
+}
+
+/* teslim kartındaki teknik özet */
+.report {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin: 0 0 12px;
+  font-size: var(--fs-small);
+}
+
+.report dt {
+  color: var(--text-dim);
+  font-size: var(--fs-label);
+}
+
+.report dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .log {
+    top: 120px;
+    left: 16px;
+    max-height: calc(100% - 200px);
+  }
+}

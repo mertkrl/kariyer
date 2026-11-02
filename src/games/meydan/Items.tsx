@@ -163,6 +163,48 @@ export function ItemView({ it, onDown }: { it: Item; onDown?: (e: ReactPointerEv
         </>
       );
       break;
+    case 'gunes':
+      // güneş enerjili termosifon: eğik siyah-mavi panel, üstünde beyaz depo, ince ayaklar
+      body = (
+        <>
+          <path d={`M${x + 6} ${y + h} L${x + 10} ${y + h * 0.45} M${x + w - 8} ${y + h} L${x + w - 8} ${y + h * 0.3} M${x + 2} ${y + h} H${x + w}`} stroke="#8a8a84" strokeWidth="2" />
+          <polygon points={`${x},${y + h * 0.95} ${x + w * 0.86},${y + h * 0.95} ${x + w},${y + h * 0.32} ${x + w * 0.16},${y + h * 0.32}`} fill={fill} />
+          {[0.33, 0.66].map((k) => (
+            <line key={k} x1={x + w * 0.08 + w * 0.86 * k} y1={y + h * 0.95} x2={x + w * 0.16 + w * 0.84 * k} y2={y + h * 0.32} stroke="#9fb6cf" strokeWidth="1" />
+          ))}
+          <polygon points={`${x},${y + h * 0.95} ${x + w * 0.86},${y + h * 0.95} ${x + w},${y + h * 0.32} ${x + w * 0.16},${y + h * 0.32}`} fill="#fff" opacity="0.12" />
+          <rect x={x + w * 0.12} y={y} width={w * 0.86} height={h * 0.3} rx={h * 0.15} fill={color} />
+          <rect x={x + w * 0.12} y={y} width={w * 0.86} height={h * 0.1} rx={h * 0.05} fill="#fff" opacity="0.5" />
+        </>
+      );
+      break;
+    case 'depo':
+      body = (
+        <>
+          <rect x={x + 3} y={y + 3} width={w} height={h} rx="4" fill="#000" opacity="0.18" />
+          <rect x={x} y={y + h * 0.12} width={w} height={h * 0.88} rx="4" fill={fill} />
+          {[0.35, 0.62].map((k) => (
+            <rect key={k} x={x} y={y + h * k} width={w} height="2" fill={color} />
+          ))}
+          <ellipse cx={cx} cy={y + h * 0.12} rx={w / 2} ry={h * 0.12} fill={color} />
+          <rect x={cx - 5} y={y} width="10" height={h * 0.1} fill="#e9e8e2" />
+          <rect x={x} y={y + h * 0.12} width={w * 0.25} height={h * 0.88} fill="#fff" opacity="0.18" />
+        </>
+      );
+      break;
+    case 'baca':
+      // pencereden çıkan soba borusu: dirsek, şapka ve duvarda is
+      body = (
+        <>
+          <rect x={x + w * 0.2} y={y - 30} width={w * 0.7} height={h * 0.9} fill={url('stain')} opacity="0.9" />
+          <rect x={x} y={y + h - 12} width={w * 0.7} height="8" fill={fill} />
+          <rect x={x + w * 0.45} y={y + 8} width="8" height={h - 12} fill={fill} />
+          <rect x={x + w * 0.45} y={y + 8} width="2.5" height={h - 12} fill="#fff" opacity="0.2" />
+          <polygon points={`${x + w * 0.3},${y + 8} ${x + w * 0.95},${y + 8} ${x + w * 0.62},${y}`} fill={color} />
+          <rect x={x - 3} y={y + h - 14} width="6" height="12" fill={color} />
+        </>
+      );
+      break;
     case 'kablo': {
       const a = `M${x} ${y + 2} Q${cx} ${y + h * 1.6} ${x + w} ${y + 4}`;
       return (

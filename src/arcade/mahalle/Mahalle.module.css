@@ -1,0 +1,699 @@
+/*
+ * Mahalle: sahne, tabelalar, kart ve asansör. Günün saati kökteki sınıftır (sabah, gunduz,
+ * aksam, gece); gökyüzünün renkleri, binaların süzgeci ve yanan ışıklar ona göre değişir.
+ */
+
+.page {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sky0);
+  color: #1d2733;
+  font-family: var(--font-body);
+  transition: background 1.2s;
+  --ink-hud: #17202c;
+}
+
+.sabah {
+  --sky0: #8fbfe3;
+}
+
+.gunduz {
+  --sky0: #4f9bd8;
+}
+
+.aksam {
+  --sky0: #29336a;
+}
+
+.gece {
+  --sky0: #060b1e;
+}
+
+/* ── sahne ── */
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* sahne 16:10; ekran daha genişse gökyüzünün üstü taşar, daha darsa sokak yana kayar */
+.world {
+  position: relative;
+  flex: 0 0 auto;
+  width: max(100vw, 160vh);
+  height: calc(max(100vw, 160vh) * 0.625);
+  animation: worldIn 0.9s var(--ease-enter) both;
+}
+
+@supports (height: 1dvh) {
+  .world {
+    width: max(100vw, 160dvh);
+    height: calc(max(100vw, 160dvh) * 0.625);
+  }
+}
+
+/* dik telefon: sokak daha az büyür, üstte kalan boşluk gökyüzünün rengidir (sayfanın zemini) */
+@media (max-aspect-ratio: 3/4) {
+  .world {
+    width: max(100vw, 120vh);
+    height: calc(max(100vw, 120vh) * 0.625);
+  }
+
+  @supports (height: 1dvh) {
+    .world {
+      width: max(100vw, 120dvh);
+      height: calc(max(100vw, 120dvh) * 0.625);
+    }
+  }
+}
+
+@keyframes worldIn {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
+
+.leaving {
+  transform: scale(1.8);
+  transition: transform 0.6s cubic-bezier(0.55, 0, 0.75, 0.2);
+}
+
+/* ── tabelalar ── */
+
+.pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pin {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 5px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.95);
+  color: var(--ink-hud);
+  font: 700 13px/1 var(--font-body);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  box-shadow:
+    0 8px 18px rgba(14, 22, 40, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-50%, calc(-100% - 9px));
+  transition:
+    transform 0.25s var(--ease-enter),
+    background 0.2s,
+    color 0.2s;
+  animation: pinIn 0.6s var(--ease-enter) both;
+  animation-delay: calc(var(--i) * 70ms + 350ms);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pin::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 2px;
+  height: 9px;
+  margin-left: -1px;
+  background: rgba(255, 253, 247, 0.95);
+  border-radius: 1px;
+}
+
+.pin:hover,
+.pinOn {
+  background: var(--ink-hud);
+  color: #fff;
+  transform: translate(-50%, calc(-100% - 15px)) scale(1.06);
+}
+
+.pinOn::after,
+.pin:hover::after {
+  background: var(--ink-hud);
+  height: 15px;
+  bottom: -15px;
+}
+
+@keyframes pinIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 30px));
+  }
+}
+
+.pinIcon {
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  border-radius: 50%;
+  background: #f2c230;
+  fill: none;
+  stroke: #17202c;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.pinDone {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #2f9a5a;
+  color: #fff;
+  font-size: 10px;
+}
+
+.pinStar {
+  color: #e0a100;
+  font-size: 14px;
+}
+
+.pinToday {
+  box-shadow:
+    0 0 0 3px rgba(242, 194, 48, 0.9),
+    0 8px 18px rgba(14, 22, 40, 0.25);
+}
+
+.pinToday::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 2px solid #f2c230;
+  animation: ring 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ring {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.35, 1.7);
+  }
+}
+
+/* ── yerin kartı ── */
+
+.card {
+  position: absolute;
+  z-index: 5;
+  width: 310px;
+  padding: 14px 16px 13px;
+  border-radius: 16px;
+  background: #fffdf7;
+  color: var(--ink-hud);
+  box-shadow:
+    0 22px 50px rgba(10, 18, 35, 0.32),
+    0 0 0 1px rgba(20, 30, 50, 0.06);
+  pointer-events: none;
+  --tx: -50%;
+  --ty: calc(-100% - 58px);
+  transform: translate(var(--tx), var(--ty));
+  animation: cardIn 0.22s var(--ease-enter);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 5px;
+  border-radius: 16px 16px 0 0;
+  background: var(--c);
+}
+
+.below {
+  --ty: 16px;
+}
+
+.alignL {
+  --tx: -40px;
+}
+
+.alignR {
+  --tx: calc(-100% + 40px);
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translate(var(--tx), calc(var(--ty) + 8px));
+  }
+}
+
+.where {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 2px 0 8px;
+  font: 600 10.5px/1.3 var(--font-mono);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #5d6676;
+}
+
+.todayTag {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #fff1c2;
+  color: #8a6300;
+  letter-spacing: 0.4px;
+}
+
+.gameLine + .gameLine {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(23, 32, 44, 0.16);
+}
+
+.cardTitle {
+  margin: 0;
+  font: 700 21px/1.15 var(--font-display);
+  letter-spacing: -0.2px;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 10.5px;
+  color: #6b7383;
+  letter-spacing: 0.6px;
+}
+
+.blurb {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #3f4756;
+}
+
+.played {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #237a47;
+}
+
+.resume {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #e2f1e8;
+  color: #237a47;
+  font: 700 10.5px/1.3 var(--font-body);
+  letter-spacing: 0;
+}
+
+.cta {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c);
+  filter: brightness(0.8);
+}
+
+.cta:empty {
+  display: none;
+}
+
+/* dokunmatik: kart ekranın altından açılır */
+.sheet {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 20;
+  max-width: 460px;
+  margin: 0 auto;
+  border-radius: 18px;
+  background: #fffdf7;
+  box-shadow: 0 24px 60px rgba(10, 18, 35, 0.4);
+  animation: sheetIn 0.28s var(--ease-enter);
+}
+
+@keyframes sheetIn {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+}
+
+.cardSheet {
+  position: relative;
+  width: auto;
+  box-shadow: none;
+  background: transparent;
+  pointer-events: auto;
+  --tx: 0;
+  --ty: 0;
+  padding-bottom: 6px;
+}
+
+.sheetActions {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.sheetClose,
+.sheetGo {
+  flex: 1;
+  min-height: 46px;
+  border-radius: 12px;
+  border: 0;
+  font: 800 15px/1 var(--font-body);
+  cursor: pointer;
+}
+
+.sheetClose {
+  flex: 0 0 auto;
+  padding: 0 18px;
+  background: #ece7da;
+  color: var(--ink-hud);
+}
+
+.sheetGo {
+  background: var(--ink-hud);
+  color: #fff;
+}
+
+/* ── üst şerit: sokak tabelası ve saat ── */
+
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.hud > * {
+  pointer-events: auto;
+}
+
+.brand {
+  animation: dropIn 0.7s var(--ease-enter) both 0.15s;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) rotate(-2deg);
+  }
+}
+
+/* belediye tabelası: lacivert, beyaz çerçeve, köşelerde vida */
+.sign {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 7px 26px 9px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #2a64b8, #1c4c97);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 3px #1c4c97,
+    inset 0 0 0 5px #fff,
+    0 10px 24px rgba(8, 20, 45, 0.35);
+  transform: rotate(-1.2deg);
+  width: fit-content;
+}
+
+.sign::before,
+.sign::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff, #9aa3ad);
+}
+
+.sign::before {
+  left: 10px;
+}
+
+.sign::after {
+  right: 10px;
+}
+
+.signTop {
+  font: 600 11px/1.2 var(--font-body);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.signMain {
+  font: 800 26px/1.1 var(--font-body);
+  letter-spacing: 0.2px;
+}
+
+.tagline {
+  width: fit-content;
+  margin: 10px 0 0 4px;
+  padding: 6px 11px;
+  border-radius: 9px;
+  background: rgba(255, 253, 247, 0.9);
+  box-shadow: 0 6px 16px rgba(10, 20, 40, 0.18);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-hud);
+}
+
+.taglineHint {
+  color: #5d6676;
+  font-weight: 500;
+}
+
+.hudRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: dropIn 0.7s var(--ease-enter) both 0.25s;
+}
+
+.clock,
+.phaseBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(16, 22, 34, 0.74);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4be37a;
+  box-shadow: 0 0 8px #4be37a;
+}
+
+.dotWork {
+  background: #ff5a3c;
+  box-shadow: 0 0 8px #ff5a3c;
+}
+
+.clockText {
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.phaseBtn {
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.phaseBtn:hover {
+  background: rgba(16, 22, 34, 0.9);
+}
+
+.phaseBtn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #ffd36b;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.phaseBtn small {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tally {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: 0 6px 18px rgba(10, 20, 40, 0.2);
+  font-size: 12.5px;
+  color: var(--ink-hud);
+}
+
+.tallyBar {
+  width: 54px;
+  height: 6px;
+  border-radius: 3px;
+  background: #e3ddcd;
+  overflow: hidden;
+}
+
+.tallyBar > span {
+  display: block;
+  height: 100%;
+  background: #2f9a5a;
+  border-radius: 3px;
+}
+
+.swipe {
+  position: fixed;
+  left: 50%;
+  bottom: 62px;
+  z-index: 10;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(16, 22, 34, 0.78);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: nudge 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes nudge {
+  from {
+    transform: translateX(calc(-50% - 8px));
+  }
+  to {
+    transform: translateX(calc(-50% + 8px));
+  }
+}
+
+.fade {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.18s;
+}
+
+.fadeOn {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── dar ekranlar ── */
+
+@media (max-width: 760px) {
+  .hud {
+    padding: 12px;
+  }
+
+  .signMain {
+    font-size: 19px;
+  }
+
+  .signTop {
+    font-size: 9.5px;
+  }
+
+  .sign {
+    padding: 6px 22px 7px;
+  }
+
+  .tagline {
+    font-size: 12px;
+    max-width: 210px;
+  }
+
+  .clockText,
+  .phaseBtn span,
+  .phaseBtn small {
+    display: none;
+  }
+
+  .clock,
+  .phaseBtn {
+    height: 34px;
+    padding: 0 11px;
+  }
+
+  .pin {
+    font-size: 12px;
+  }
+
+  .tally {
+    left: 12px;
+    bottom: 12px;
+  }
+}
+
+@media (max-height: 520px) {
+  .tagline {
+    display: none;
+  }
+}
