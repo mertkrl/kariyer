@@ -58,14 +58,6 @@
   padding: 56px 64px;
 }
 
-.meta {
-  margin: 0 0 18px;
-  font-size: 20px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
 .title {
   margin: 0 0 22px;
   font-family: var(--font-display);

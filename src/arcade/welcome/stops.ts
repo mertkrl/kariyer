@@ -17,8 +17,6 @@ export interface Stop {
   name: string;
   where: string;
   routes: GameRoute[];
-  /** Kartta oyunun altına düşen kısa satır. */
-  line: string;
   /** İşaretin kutu içindeki yeri, yüzde olarak. */
   x: number;
   y: number;
@@ -33,20 +31,20 @@ function toBox(ix: number, iy: number) {
   return { x: ((ix * scale - crop) / BOX_W) * 100, y: ((iy * scale) / BOX_H) * 100 };
 }
 
-const RAW: { id: PlaceId; at: [number, number]; r: number; line: string }[] = [
-  { id: 'plaza', at: [545, 250], r: 13, line: 'Asansör iki kat sorar: işe alım ya da uyum testi.' },
-  { id: 'santiye', at: [845, 330], r: 13, line: 'Temelden çatıya bir apartman. İzle, karışma.' },
-  { id: 'meydan', at: [255, 470], r: 13, line: 'Çatlak sıvalar, kaçak katlar: cepheyi elden geçir.' },
-  { id: 'bakkal', at: [350, 615], r: 10, line: 'Etiket yok; fiyatı sen söylersin.' },
-  { id: 'durak', at: [495, 605], r: 7, line: 'Yıllardır aynı duran ekranı baştan tasarla.' },
-  { id: 'isik', at: [697, 585], r: 6, line: 'Yeşili, sarıyı, kırmızıyı sen ayarla.' },
-  { id: 'doviz', at: [790, 625], r: 10, line: 'Kurlar 2002’den. Eski fiyatı bil, cüzdanı doldur.' },
-  { id: 'cukur', at: [672, 716], r: 7, line: 'Üç aydır kapanmayan çukur. Asfalt soğumadan kapat.' },
+const RAW: { id: PlaceId; at: [number, number]; r: number }[] = [
+  { id: 'plaza', at: [545, 250], r: 13 },
+  { id: 'santiye', at: [845, 330], r: 13 },
+  { id: 'meydan', at: [255, 470], r: 13 },
+  { id: 'bakkal', at: [350, 615], r: 10 },
+  { id: 'durak', at: [495, 605], r: 7 },
+  { id: 'isik', at: [697, 585], r: 6 },
+  { id: 'doviz', at: [790, 625], r: 10 },
+  { id: 'cukur', at: [672, 716], r: 7 },
 ];
 
-export const STOPS: Stop[] = RAW.map(({ id, at, r, line }) => {
+export const STOPS: Stop[] = RAW.map(({ id, at, r }) => {
   const place = PLACES.find((p) => p.id === id)!;
-  return { id, name: place.name, where: place.where, routes: place.routes, line, r, ...toBox(at[0], at[1]) };
+  return { id, name: place.name, where: place.where, routes: place.routes, r, ...toBox(at[0], at[1]) };
 });
 
 /** İmlecin en yakın durağı (kutu yüzdesiyle; yükseklik kutunun en-boy oranıyla düzeltilir). */

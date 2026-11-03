@@ -175,9 +175,8 @@ function Card({ stop, progress, onEnter, onClose, pinned }: { stop: Stop; progre
         return (
           <div key={route} className={s.game}>
             <h3>{g.title}</h3>
-            <p className={s.meta}>
-              {g.minutes} dk{g.perDay && ' / gün'}{played && <span className={s.played}> · ✓ {played.result}</span>}
-            </p>
+            <p className={s.line}>{g.quip}</p>
+            {played && <p className={`${s.meta} ${s.played}`}>✓ {played.result}</p>}
             {stop.routes.length > 1 && (
               <button type="button" className={s.play} onClick={() => onEnter(stop, route)}>
                 {played ? 'Tekrar oyna' : 'Oyna'}
@@ -189,7 +188,6 @@ function Card({ stop, progress, onEnter, onClose, pinned }: { stop: Stop; progre
           </div>
         );
       })}
-      <p className={s.line}>{stop.line}</p>
       {stop.routes.length === 1 && (
         <button type="button" className={s.play} onClick={() => onEnter(stop, stop.routes[0])}>
           {progress.played[stop.routes[0]] ? 'Tekrar oyna' : 'Oyna'}

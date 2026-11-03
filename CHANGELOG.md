@@ -8,9 +8,10 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 - Ana sayfa artık mahalle maketi; eski kareli defter salonu (`ArcadeScreen`, `arcade/notebook/`, `arcade/mahalle/` sahnesi ve asansörü) hiçbir yerden açılmadığı için testleriyle birlikte silindi (~9.200 satır). Aşağıdaki defter maddeleri bu yüzden artık sitede yok.
 - Maketin kırılma noktaları ortak listeye taşındı (`tests/layout.test.ts` yeniden geçiyor); 961 px ve üstünde maket çerçevesi, 560 px ve altında tek sütun.
 - UyumMetre: testi bir kez bitiren aday sistem kontrolünü beklemez; bölüm tanıtımında "Örnek soruyu atla, bölüme başla" çıkar.
-- Köy Bakkalı: açılıştaki yedi maddelik kural listesi kalktı, yerine iki cümlelik emanet notu; itibar sınırı ve elektrik gideri dükkândaki tanıtıma taşındı. Kartta süre "5 dk / gün"; maket kartındaki dükkân sahibi Şükrü Amca.
+- Köy Bakkalı: açılıştaki yedi maddelik kural listesi kalktı, yerine iki cümlelik emanet notu; itibar sınırı ve elektrik gideri dükkândaki tanıtıma taşındı. Maket kartındaki dükkân sahibi Şükrü Amca.
 - Cüzdan Zamanı: 2005 masaüstünün duvar kâğıdı akşamüstü Boğaz, başlat düğmesi Cüzdan'ın turuncu sikkesi; kullanıcı seçimi düğmeleri ekran okuyucuda düğme olarak okunur.
 - Kavşak Amiri: olaylar ve trafik ekipleri `incidentSim.ts`'e, yayalar `peds.ts`'e, tutanak `Tutanak.tsx`'e ayrıldı (sim.ts 1.279 → 1.030, Play.tsx 538 → 475 satır); çizim sırasında ref okuyan yerler düzeltildi.
+- Maket kartlarında ve paylaşım önizlemelerinde oyun süresi yazmıyor; her oyunun adının altında onu tek cümleyle anlatan bir espri var (`games.ts`'te `quip`).
 - README sitenin bütününü (oyunlar, adresleri, kodları, yeni oyun ekleme adımları) anlatıyor.
 
 ### Salon

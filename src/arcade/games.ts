@@ -16,9 +16,8 @@ export interface ArcadeGame {
   blurb: string;
   /** Kartın zemin rengi (tokens.css). */
   color: string;
-  minutes: number;
-  /** Süre bütün oyunun değil, oyunun bir gününün süresiyse: kartta "5 dk / gün" yazar. */
-  perDay?: boolean;
+  /** Oyunu tek cümleyle, şakayla anlatan satır: maketteki kartta oyunun adının altında yazar. */
+  quip: string;
   /** Personel dosyası numarası: kartın sekmesinde yazar, sırayı da verir. */
   file: number;
 }
@@ -29,7 +28,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Cüzdan Zamanı',
     blurb: 'Cüzdan TL 2005\'te açılıyor. Saati 2002\'ye geri al: simit 250 bin, ekran mavi pencereli. Eski fiyatı bil, ucuzu seç, çevirmeli bağlanıp eski bakkaldan alışveriş yap; her şeyi enflasyonla karşılaştır.',
     color: 'var(--teal)',
-    minutes: 8,
+    quip: "Saati 2002'ye geri alıyorsun: simit ucuzluyor, sen bir anlığına zengin oluyorsun.",
     file: 9,
   },
   {
@@ -37,7 +36,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Kavşak Amiri',
     blurb: 'Tek kavşaktan dört kavşaklı caddeye. Yeşili, sarıyı, kırmızıyı ayarla; maç çıkışında dedektörü aç, sönen ışığa usta çağır, Vatan Caddesi’ne yeşil dalga kur.',
     color: 'var(--blue-ink)',
-    minutes: 18,
+    quip: "Kırk sürücü aynı anda korna çalıyor ve hepsi haklı; ışık sende.",
     file: 8,
   },
   {
@@ -45,7 +44,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Yama Ekibi',
     blurb: 'Üç aydır kapanmayan çukur, yağmur ve kurdele kesmeye gelen başkan. Toprağı dök, mıcırı yay, asfalt soğumadan silindiri geçir.',
     color: 'var(--red)',
-    minutes: 8,
+    quip: "Üç aydır bekleyen çukuru, başkan kurdeleyi kesmeden kapatman gerekiyor.",
     file: 7,
   },
   {
@@ -53,7 +52,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Meydan Islahı',
     blurb: 'İstanbul’dan Diyarbakır’a beş sokak: kaçak katlar, klimalar, kompozit yamalar. Cepheyi kapla, binayı güçlendir, tabelaları hizaya sok.',
     color: 'var(--green)',
-    minutes: 10,
+    quip: "Klimayı, tabelayı, kaçak katı topla; gerisini bir sonraki imar affına bırak.",
     file: 6,
   },
   {
@@ -61,7 +60,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Ekran İhalesi',
     blurb: 'Hastane sıra ekranı, metrobüs, Marmaray… Yıllardır aynı duran ekranları baştan tasarla, canlı çalıştır, paylaş.',
     color: 'var(--blue)',
-    minutes: 15,
+    quip: "2009'dan beri \"PES**** TÜR****\" yazan ekranı kurtarma ihalesi sana kaldı.",
     file: 5,
   },
   {
@@ -69,8 +68,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Köy Bakkalı',
     blurb: 'Etiket yok, fiyatı sen söylersin. Müşterinin yüzünü oku, defterini tut, köyü küstürmeden kasayı doldur. Şükrü Amca 30 gün sonra dönüyor.',
     color: 'var(--gold)',
-    minutes: 5,
-    perDay: true,
+    quip: "Etiket yok, fiyatı sen söylersin; köy de senin hakkında ne düşündüğünü söyler.",
     file: 4,
   },
   {
@@ -78,7 +76,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'İnşaat İzleme',
     blurb: 'Bir apartman, temelden çatıya. Ellerini arkana koy, izle. Yorum yapmak serbest, karışmak yasak.',
     color: 'var(--clay)',
-    minutes: 7,
+    quip: "Hiçbir şeye dokunmadan koca bir apartman bitiriyorsun; amcalar seninle gurur duyuyor.",
     file: 3,
   },
   {
@@ -86,7 +84,7 @@ export const GAMES: ArcadeGame[] = [
     title: 'Genel Yetenek ve Uyum Testi',
     blurb: 'Bilimsel olarak geliştirilmiş, tamamen objektif bir değerlendirme. Lütfen sekmeyi değiştirmeyiniz.',
     color: 'var(--plum)',
-    minutes: 24,
+    quip: "Doğru cevap yok, ama yanlış cevaplarınız yöneticinize raporlanacaktır.",
     file: 2,
   },
   {
@@ -94,7 +92,7 @@ export const GAMES: ArcadeGame[] = [
     title: "Sen İK'sin",
     blurb: '5 günlük işe alım simülasyonu. Kurallara mı uyacaksın, vicdanını mı dinleyeceksin?',
     color: 'var(--teal)',
-    minutes: 45,
+    quip: "Beş günde yüzlerce CV, bir müdür ve bir vicdan: üçünü birden memnun edemezsin.",
     file: 1,
   },
 ];
