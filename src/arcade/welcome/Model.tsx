@@ -176,7 +176,6 @@ function Card({ stop, progress, onEnter, onClose, pinned }: { stop: Stop; progre
           <div key={route} className={s.game}>
             <h3>{g.title}</h3>
             <p className={s.line}>{g.quip}</p>
-            {played && <p className={`${s.meta} ${s.played}`}>✓ {played.result}</p>}
             {stop.routes.length > 1 && (
               <button type="button" className={s.play} onClick={() => onEnter(stop, route)}>
                 {played ? 'Tekrar oyna' : 'Oyna'}

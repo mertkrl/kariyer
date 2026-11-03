@@ -319,18 +319,6 @@
   letter-spacing: -0.6px;
 }
 
-.meta {
-  margin: 4px 0 0;
-  font-size: 11px;
-  letter-spacing: 0.4px;
-  color: #657468;
-}
-
-.played {
-  color: var(--ink);
-  font-weight: 500;
-}
-
 .line {
   margin: 6px 0 0;
   font-size: 13px;

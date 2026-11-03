@@ -11,7 +11,7 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 - Köy Bakkalı: açılıştaki yedi maddelik kural listesi kalktı, yerine iki cümlelik emanet notu; itibar sınırı ve elektrik gideri dükkândaki tanıtıma taşındı. Maket kartındaki dükkân sahibi Şükrü Amca.
 - Cüzdan Zamanı: 2005 masaüstünün duvar kâğıdı akşamüstü Boğaz, başlat düğmesi Cüzdan'ın turuncu sikkesi; kullanıcı seçimi düğmeleri ekran okuyucuda düğme olarak okunur.
 - Kavşak Amiri: olaylar ve trafik ekipleri `incidentSim.ts`'e, yayalar `peds.ts`'e, tutanak `Tutanak.tsx`'e ayrıldı (sim.ts 1.279 → 1.030, Play.tsx 538 → 475 satır); çizim sırasında ref okuyan yerler düzeltildi.
-- Maket kartlarında ve paylaşım önizlemelerinde oyun süresi yazmıyor; her oyunun adının altında onu tek cümleyle anlatan bir espri var (`games.ts`'te `quip`).
+- Maket kartlarında ve paylaşım önizlemelerinde oyun süresi yazmıyor; her oyunun adının altında onu tek cümleyle anlatan bir espri var (`games.ts`'te `quip`); bitirilen oyunun sonucu ("Ekran tasarlandı", "Günün Sepeti 4/5"…) kartta yazmıyor, düğme "Tekrar oyna" olur.
 - README sitenin bütününü (oyunlar, adresleri, kodları, yeni oyun ekleme adımları) anlatıyor.
 
 ### Salon
