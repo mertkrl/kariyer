@@ -451,7 +451,7 @@
 }
 
 /* dar ekran: kart maketin altına, tam genişlikte açılır */
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   .card,
   .cardLeft {
     position: fixed;

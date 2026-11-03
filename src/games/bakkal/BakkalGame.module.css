@@ -78,15 +78,6 @@
   color: var(--text-muted);
 }
 
-.rules {
-  margin: 16px 0 20px;
-  padding: 0;
-  list-style: none;
-  text-align: left;
-  display: grid;
-  gap: 8px;
-}
-
 .primary,
 .ghost {
   padding: 8px 18px;

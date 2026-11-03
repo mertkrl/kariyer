@@ -9,7 +9,7 @@ import styles from './BakkalGame.module.css';
 import sheet from './DayEnd.module.css';
 
 /*
- * Kepenk kapalıyken görünen kartlar: açılıştaki kısa kurallar; akşam kepenk inince günün kasa
+ * Kepenk kapalıyken görünen kartlar: açılıştaki kısa emanet notu (kurallar dükkânın içindeki tanıtımda); akşam kepenk inince günün kasa
  * defteri, kasanın gün gün grafiği ve yarının siparişleri; dükkân batınca ya da devredilince
  * Şükrü Amca'nın karnesi.
  */
@@ -19,15 +19,7 @@ export function IntroCard({ onOpen, busy, resumeDay, onResume }: { onOpen: () =>
     <main className={styles.card}>
       <h2>Dükkân artık senin</h2>
       <p>Şükrü Amca bir aylığına memlekete gitti, bakkalı sana bıraktı. Etiket yok: fiyatı sen söylersin.</p>
-      <ul className={styles.rules}>
-        <li>😄 Ucuzsa sevinir, pahalıysa söylenir; çok pahalıysa pazarlık eder ya da gider.</li>
-        <li>🍞 Ekmeğin, yağın, şekerin fiyatını köylü bilir: temel gıdada fazlasına razı olmaz, pazarlık etmeden kasabaya gider. Cips, kolonya, pil gibi mallarda ise "köyde başka yerde yok" diye biraz fazlasını öder. Her şeyi aynı oranda satan batar.</li>
-        <li>📒 Defter ve hesap makinesi tezgâhta. Defterde eski borçlar ve Şükrü Amca'nın geçen yılki etiket fiyatları var.</li>
-        <li>📦 Rafta her maldan birkaç tane var, ancak açılış gününe yeter. Satılanı her akşam toptancı Kemal'e söylersin; tost ve sandviçi tezgâhta sen hazırlarsın.</li>
-        <li>⭐ Pahalı satarsan itibar düşer; itibar 60'ın altına inince köylü hızla başka yere gider.</li>
-        <li>💰 Elektrik her akşam, kira haftada bir kasadan çıkar. Bütün parayı mala yatırma: kira günü kasa eksiye düşerse dükkân batar.</li>
-        <li>🚌 Şükrü Amca 30 gün sonra dönecek: dükkânı batırmadan, köyü küstürmeden teslim et.</li>
-      </ul>
+      <p>Otuz gün sonra dönecek: dükkânı batırmadan, köyü küstürmeden teslim et. Gerisini içeride kendisi gösterecek.</p>
       {onResume && resumeDay ? (
         <div className={styles.introActions}>
           <button className={styles.primary} onClick={onResume} disabled={busy}>

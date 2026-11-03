@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { prefersReducedMotion } from '../../components/ui/motion';
 import { applyView, bounds, lampHeads, paintCanopy, paintGround, type View } from './paint';
 import { makeScenery, WORLD, type Scenery } from './scenery';
@@ -59,15 +59,17 @@ export function Scene({
   highlight?: MoveId[] | null;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  // kamera ve seçim her karede okunur; efekt yeniden kurulmasın
+  // kamera ve seçim her karede okunur; efekt yeniden kurulmasın (refler çizimden önce güncellenir)
   const cam = useRef(camera);
-  cam.current = camera;
   const sel = useRef(selected);
-  sel.current = selected;
   const lit = useRef(highlight);
-  lit.current = highlight;
   const handlers = useRef({ onSelect, onCamera, onFloor });
-  handlers.current = { onSelect, onCamera, onFloor };
+  useLayoutEffect(() => {
+    cam.current = camera;
+    sel.current = selected;
+    lit.current = highlight;
+    handlers.current = { onSelect, onCamera, onFloor };
+  });
 
   useEffect(() => {
     const el = canvas.current!;

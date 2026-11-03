@@ -23,7 +23,7 @@ export function GameOg({ game }: { game: ArcadeGame }) {
       </div>
       <div className={styles.text}>
         <p className={`${styles.meta} mono`}>
-          ~{game.minutes} dakika
+          ~{game.minutes} dakika{game.perDay && ' / gün'}
         </p>
         <h1 className={styles.title}>{game.title}</h1>
         <p className={styles.blurb}>{game.blurb}</p>

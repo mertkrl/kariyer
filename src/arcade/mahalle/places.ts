@@ -22,7 +22,7 @@ export interface Place {
 
 export const PLACES: Place[] = [
   { id: 'santiye', name: 'Şantiye', where: 'Köşedeki inşaat', routes: ['insaat'], pin: { x: 150, y: 352 } },
-  { id: 'bakkal', name: 'Bakkal', where: 'Hüsnü Amca’nın bakkalı', routes: ['bakkal'], pin: { x: 397, y: 392 } },
+  { id: 'bakkal', name: 'Bakkal', where: 'Şükrü Amca’nın bakkalı', routes: ['bakkal'], pin: { x: 397, y: 392 } },
   { id: 'meydan', name: 'Meydan', where: 'Meydandaki eski apartman', routes: ['meydan'], pin: { x: 630, y: 228 } },
   { id: 'plaza', name: 'Plaza', where: 'KASM Plaza · asansörle çık', routes: ['iseAlim', 'test'], pin: { x: 895, y: 560 } },
   { id: 'doviz', name: 'Döviz', where: 'Döviz bürosu · kurlar 2002’den', routes: ['cuzdan'], pin: { x: 1105, y: 448 } },

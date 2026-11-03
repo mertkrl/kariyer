@@ -1,8 +1,24 @@
-# Sen İK'sin
+# Mesai Dışı
 
-Beş günlük bir işe alım simülasyonu. Yeni işe başlamış bir İK uzmanısın (Defne Aral): her gün masana onlarca CV düşüyor, müdürün hız istiyor, sistem adayların çoğunu sen görmeden eliyor. Kurallara uymakla vicdanını dinlemek arasında verdiğin her karar iki puana yansıyor: **Performans** ve **Vicdan**.
+Kısa, tuhaf oyunlar. Ana sayfa bir mahalle maketi (`src/arcade/welcome/`): maketteki her yer bir oyuna açılır. Oyunların listesi, süreleri ve kart metinleri `src/arcade/games.ts`'te, adresleri `src/arcade/slugs.ts`'te.
 
-Oyun tamamen tarayıcıda çalışır; sunucu, hesap ya da dış ağ isteği yoktur. Derlenmiş sürüm bir kez açıldıktan sonra çevrimdışı da oynanabilir ve uygulama olarak kurulabilir.
+| Oyun | Adres | Kod |
+| --- | --- | --- |
+| Sen İK'sin: beş günlük işe alım simülasyonu | `#/ise-alim` | `src/App.tsx`, `src/game/`, `src/screens/`, `src/components/` |
+| Genel Yetenek ve Uyum Testi (UyumMetre) | `#/test` | `src/games/test/` |
+| İnşaat İzleme | `#/insaat` | `src/games/insaat/` |
+| Köy Bakkalı | `#/bakkal` | `src/games/bakkal/` |
+| Ekran İhalesi | `#/ekran` | `src/games/ekran/` |
+| Meydan Islahı | `#/meydan` | `src/games/meydan/` |
+| Yama Ekibi | `#/asfalt` | `src/games/asfalt/` |
+| Kavşak Amiri | `#/trafik` | `src/games/trafik/` |
+| Cüzdan Zamanı | `#/cuzdan` | `src/games/cuzdan/` |
+
+Her oyun kendi parçası olarak yalnızca girilince yüklenir; kaydını `src/arcade/saveSlot.ts` ile kendi anahtarında tutar, bitince `src/arcade/progress.ts` ile ana sayfadaki maketin tikini yazar. Ortak parçalar `src/arcade/` altında: çıkış düğmesi (`ClockOut`), oyun sonu belgesi (`Finale`), sonuç kartı ve paylaşım (`share.ts`, `ShareButton`). Yeni oyun eklemek: `slugs.ts`'e adresini, `games.ts`'e kartını, `Root.tsx`'e yükleyicisini, `welcome/stops.ts` ve `mahalle/places.ts`'e maketteki yerini ekle.
+
+Hepsi tamamen tarayıcıda çalışır; sunucu, hesap ya da dış ağ isteği yoktur. Derlenmiş sürüm bir kez açıldıktan sonra çevrimdışı da oynanabilir ve uygulama olarak kurulabilir.
+
+Bu belgenin geri kalanı çoğunlukla ilk ve en büyük oyun olan **Sen İK'sin**'i anlatır: yeni işe başlamış bir İK uzmanısın (Defne Aral); her gün masana onlarca CV düşüyor, müdürün hız istiyor, sistem adayların çoğunu sen görmeden eliyor. Kurallara uymakla vicdanını dinlemek arasında verdiğin her karar iki puana yansıyor: **Performans** ve **Vicdan**.
 
 ## Çalıştırma
 

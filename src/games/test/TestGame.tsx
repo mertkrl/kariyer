@@ -6,6 +6,7 @@ import { storeMuted } from '../../game/lib/prefs';
 import * as sfx from './sfx';
 import { EXAM_SECTIONS, type ExamQuestion } from './data/questions';
 import { MailScene } from './MailScene';
+import { loadProgress as loadDefter } from '../../arcade/progress';
 import { clearProgress, loadProgress, loadSeen, saveProgress, saveSeen, type ExamProgress } from './progress';
 import { clockText, PASS_MARK, PROCTOR_REACTIONS, nextSeen, pickExam, type ExamLog, type ProctorEvent, scoreExam, SECTION_SECONDS, verdictOf, type ExamAnswer, type ExamSection } from './logic';
 import { Result } from './Result';
@@ -66,6 +67,8 @@ export function TestGame() {
   };
   // yarıda kalmış bir sınav varsa girişte devam önerilir
   const [saved, setSaved] = useState(() => loadProgress());
+  // testi daha önce bitiren aday sistem kontrolünü ve örnek soruları yeniden beklemez
+  const [veteran] = useState(() => !!loadDefter().played.test);
 
   return (
     <div className={styles.app}>
@@ -87,7 +90,7 @@ export function TestGame() {
       </header>
       {stage.at === 'intro' && (
         <Intro
-          onStart={check}
+          onStart={veteran ? start : check}
           saved={saved}
           onResume={() => saved && setStage({ at: 'exam', exam: saved.exam, resume: saved })}
           onDiscard={() => {
@@ -98,7 +101,7 @@ export function TestGame() {
       )}
       {stage.at === 'intro' && <StudioMark minimal />}
       {stage.at === 'check' && <SystemCheck onReady={start} />}
-      {stage.at === 'exam' && <Exam exam={stage.exam} resume={stage.resume} onDone={(answers, log) => setStage({ at: 'result', exam: stage.exam, answers, log })} />}
+      {stage.at === 'exam' && <Exam exam={stage.exam} resume={stage.resume} skipPractice={veteran} onDone={(answers, log) => setStage({ at: 'result', exam: stage.exam, answers, log })} />}
       {stage.at === 'result' && <Ending key={stage.answers.join()} exam={stage.exam} answers={stage.answers} log={stage.log} onAgain={start} />}
       <footer className={styles.footer}>Bu bir parodidir. {BRAND} ve sorular uydurmadır; kamera açılmaz, hiçbir cevap kaydedilmez ya da gönderilmez.</footer>
     </div>
@@ -154,7 +157,7 @@ function Ending({ exam, answers, log, onAgain }: { exam: ExamSection[]; answers:
   return <MailScene passed={r.company >= PASS_MARK} title={v.title} company={r.company} onReport={() => setReport(true)} />;
 }
 
-function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProgress; onDone: (answers: ExamAnswer[], log: ExamLog) => void }) {
+function Exam({ exam, resume, skipPractice, onDone }: { exam: ExamSection[]; resume?: ExamProgress; skipPractice: boolean; onDone: (answers: ExamAnswer[], log: ExamLog) => void }) {
   const flat = useMemo(() => exam.flatMap((s, si) => s.questions.map((q) => ({ q, si }))), [exam]);
   // her bölümün ilk sorusunun sırası ve süresi
   const starts = useMemo(() => exam.map((_, i) => exam.slice(0, i).reduce((n, s) => n + s.questions.length, 0)), [exam]);
@@ -313,7 +316,7 @@ function Exam({ exam, resume, onDone }: { exam: ExamSection[]; resume?: ExamProg
 
   if (phase === 'intro') {
     const brief = BRIEFINGS.find((b) => b.id === EXAM_SECTIONS[sec].id) ?? BRIEFINGS[sec];
-    return <SectionIntro key={sec} no={sec + 1} of={exam.length} title={exam[sec].title} questions={to - from} seconds={total} brief={brief} onStart={() => setPhase('run')} />;
+    return <SectionIntro key={sec} no={sec + 1} of={exam.length} title={exam[sec].title} questions={to - from} seconds={total} brief={brief} skipPractice={skipPractice} onStart={() => setPhase('run')} />;
   }
 
   const sectionAnswers = answers.slice(from, to);

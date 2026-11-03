@@ -6,9 +6,10 @@ import si from './SectionIntro.module.css';
 
 /*
  * Bölüm girişi, iki adım: önce tanıtım (amaç, yönerge, soru sayısı, süre), sonra puanlanmayan
- * bir örnek soru ve açıklaması. Her şey ciddi; şaka bölümün asıl sorularıyla başlar.
+ * bir örnek soru ve açıklaması. Her şey ciddi; şaka bölümün asıl sorularıyla başlar. Testi daha önce
+ * bitiren aday (`skipPractice`) örnek soruyu atlayıp doğrudan bölüme başlayabilir.
  */
-export function SectionIntro({ no, of, title, questions, seconds, brief, onStart }: { no: number; of: number; title: string; questions: number; seconds: number; brief: SectionBriefing; onStart: () => void }) {
+export function SectionIntro({ no, of, title, questions, seconds, brief, skipPractice, onStart }: { no: number; of: number; title: string; questions: number; seconds: number; brief: SectionBriefing; skipPractice: boolean; onStart: () => void }) {
   const [step, setStep] = useState<'about' | 'practice'>('about');
   const [picked, setPicked] = useState<number | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -57,6 +58,11 @@ export function SectionIntro({ no, of, title, questions, seconds, brief, onStart
               <li>Süre, örnek sorudan sonra “Bölüme başla” dediğinizde başlar. Sorular sırayla gelir; boş geçebilir, bölüm içinde geçtiğiniz sorulara dönebilirsiniz, biten bölümlere dönemezsiniz.</li>
             </ul>
             <div className={si.end}>
+              {skipPractice && (
+                <button className={styles.linkBtn} onClick={onStart}>
+                  Örnek soruyu atla, bölüme başla
+                </button>
+              )}
               <button className={`${styles.primary} ${styles.big}`} onClick={() => setStep('practice')}>
                 Örnek soruya geç →
               </button>

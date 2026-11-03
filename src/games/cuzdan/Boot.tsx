@@ -98,9 +98,9 @@ export function Boot({ onLogin }: { onLogin: (p: Persona) => void }) {
         </div>
         <div className={b.loginSep} aria-hidden="true" />
         <div className={b.users}>
-          <div className={b.userList} role="list" aria-label="Kullanıcılar">
+          <div className={b.userList} role="group" aria-label="Kullanıcılar">
             {PERSONAS.map((p, i) => (
-              <button key={p.id} type="button" role="listitem" className={b.user} onClick={() => onLogin(p)} autoFocus={i === 0}>
+              <button key={p.id} type="button" className={b.user} onClick={() => onLogin(p)} autoFocus={i === 0}>
                 <span className={s.avatar} aria-hidden="true">
                   {p.avatar}
                 </span>
@@ -132,7 +132,7 @@ function SalaryUser({ onLogin }: { onLogin: (p: Persona) => void }) {
   const ok = n >= 1000 && n <= 10_000_000;
   if (!open)
     return (
-      <button type="button" role="listitem" className={b.user} onClick={() => setOpen(true)}>
+      <button type="button" className={b.user} onClick={() => setOpen(true)}>
         <span className={s.avatar} aria-hidden="true">
           💼
         </span>
@@ -144,7 +144,7 @@ function SalaryUser({ onLogin }: { onLogin: (p: Persona) => void }) {
     );
   return (
     <form
-      role="listitem"
+     
       className={`${b.user} ${b.custom}`}
       onSubmit={(e) => {
         e.preventDefault();
@@ -178,7 +178,7 @@ function CustomUser({ onLogin }: { onLogin: (p: Persona) => void }) {
   const ok = n >= 1 && n <= 100_000;
   if (!open)
     return (
-      <button type="button" role="listitem" className={b.user} onClick={() => setOpen(true)}>
+      <button type="button" className={b.user} onClick={() => setOpen(true)}>
         <span className={s.avatar} aria-hidden="true">
           ✏️
         </span>
@@ -190,7 +190,7 @@ function CustomUser({ onLogin }: { onLogin: (p: Persona) => void }) {
     );
   return (
     <form
-      role="listitem"
+     
       className={`${b.user} ${b.custom}`}
       onSubmit={(e) => {
         e.preventDefault();

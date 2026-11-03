@@ -17,6 +17,8 @@ export interface ArcadeGame {
   /** Kartın zemin rengi (tokens.css). */
   color: string;
   minutes: number;
+  /** Süre bütün oyunun değil, oyunun bir gününün süresiyse: kartta "5 dk / gün" yazar. */
+  perDay?: boolean;
   /** Personel dosyası numarası: kartın sekmesinde yazar, sırayı da verir. */
   file: number;
 }
@@ -65,9 +67,10 @@ export const GAMES: ArcadeGame[] = [
   {
     route: 'bakkal',
     title: 'Köy Bakkalı',
-    blurb: 'Etiket yok, fiyatı sen söylersin. Müşterinin yüzünü oku, defterini tut, köyü küstürmeden kasayı doldur.',
+    blurb: 'Etiket yok, fiyatı sen söylersin. Müşterinin yüzünü oku, defterini tut, köyü küstürmeden kasayı doldur. Şükrü Amca 30 gün sonra dönüyor.',
     color: 'var(--gold)',
-    minutes: 10,
+    minutes: 5,
+    perDay: true,
     file: 4,
   },
   {
@@ -96,9 +99,3 @@ export const GAMES: ArcadeGame[] = [
   },
 ];
 
-/** Mesai saati (09:00–18:00): salonun üst şeridi buna göre konuşur. */
-export function isWorkHours(d: Date): boolean {
-  const day = d.getDay();
-  const h = d.getHours();
-  return day >= 1 && day <= 5 && h >= 9 && h < 18;
-}

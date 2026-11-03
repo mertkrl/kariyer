@@ -36,14 +36,17 @@
   --task-ink: #fff;
   --taskitem: #3c81f3;
   --taskitem-on: #1e4bb8;
-  --start: linear-gradient(180deg, #5cc84a, #3c9a2a 40%, #2f8a20);
+  /* başlat düğmesi Cüzdan'ın kendi sikke rengi; duvar kâğıdı akşamüstü Boğaz: dönemin havası, kendi resmimiz */
+  --start: linear-gradient(180deg, #ffc35a, #f08a1c 40%, #d96f0c);
   --start-r: 0 12px 12px 0;
   --tray: linear-gradient(180deg, #19a0f7, #0f8ff3);
   --menu: #fff;
   --wall:
-    radial-gradient(60% 30% at 20% 22%, rgba(255, 255, 255, 0.75), transparent 70%), radial-gradient(40% 18% at 70% 15%, rgba(255, 255, 255, 0.6), transparent 70%),
-    radial-gradient(160% 60% at 30% 118%, #4f9a2b 52%, transparent 52.5%), radial-gradient(120% 55% at 95% 112%, #3f8a20 50%, transparent 50.5%),
-    linear-gradient(180deg, #2c6be0 0%, #6aa6f2 55%, #b8d8f7 75%);
+    radial-gradient(40% 14% at 22% 20%, rgba(255, 255, 255, 0.55), transparent 70%), radial-gradient(10% 22% at 76% 80%, rgba(255, 210, 140, 0.55), transparent 70%),
+    radial-gradient(12% 9% at 76% 62%, #ffe2a8 40%, rgba(255, 190, 110, 0.5) 60%, transparent 75%),
+    linear-gradient(180deg, transparent 0 66%, #3a6fa6 66%, #24548c 82%, #173d6b 100%),
+    radial-gradient(48% 9% at 18% 66.5%, #4b5d7a 60%, transparent 61%), radial-gradient(36% 6% at 55% 66.5%, #5d6c88 60%, transparent 61%),
+    linear-gradient(180deg, #2b5fb8 0%, #6f9be0 42%, #e9b98a 64%, #f4cf98 66%);
 }
 
 .app[data-theme='glass'] {

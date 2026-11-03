@@ -394,7 +394,7 @@
   opacity: 1;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 561px) {
   .frame {
     padding: 24px 32px;
   }
@@ -408,7 +408,7 @@
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: 560px) {
   .divider,
   .street {
     display: none;
@@ -420,7 +420,7 @@
 }
 
 /* geniş ekran: Figma çerçevesi, her öğe çerçevedeki yerinde */
-@media (min-width: 1024px) and (min-height: 600px) {
+@media (min-width: 961px) and (min-height: 521px) {
   .page {
     --u: min(calc(100vw / 1600), calc(100dvh / 1000));
     position: fixed;

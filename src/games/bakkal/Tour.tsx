@@ -57,7 +57,7 @@ export const TOUR: TourStep[] = [
   {
     target: 'stats',
     title: 'Dükkânın durumu',
-    body: 'Kasa, itibar ve veresiye burada. Üstüne gelince ne anlama geldiği yazar. Kira her hafta kasadan çıkar: bütün parayı mala yatırma, kira günü kasa eksiye düşerse dükkân batar.',
+    body: 'Kasa, itibar ve veresiye burada. Pahalı satarsan itibar düşer; 60\'ın altına inerse köylü başka yere gider. Elektrik her akşam, kira her hafta kasadan çıkar: bütün parayı mala yatırma, kira günü kasa eksiye düşerse dükkân batar.',
   },
   {
     target: 'sign',

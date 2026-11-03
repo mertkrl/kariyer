@@ -25,14 +25,3 @@ export function press() {
   e.tone({ type: 'triangle', freq: 420, decay: 0.06, peak: 0.02 });
 }
 
-/** Kat geldi: iki notalı asansör zili. */
-export function ding() {
-  const now = e.ensureContext().currentTime;
-  e.tone({ type: 'sine', freq: 1318, when: now, decay: 0.9, peak: 0.05 });
-  e.tone({ type: 'sine', freq: 1046, when: now + 0.28, decay: 1.1, peak: 0.05 });
-}
-
-/** Kapılar kapanır: uzun, boğuk bir sürtünme. */
-export function doors() {
-  e.noiseHit({ filter: 'lowpass', freq: 900, freqEnd: 300, attack: 0.08, decay: 0.5, peak: 0.05 });
-}
