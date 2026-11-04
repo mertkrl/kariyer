@@ -4,6 +4,8 @@ import { storeMuted } from '../../shared/prefs';
 import { prefersReducedMotion } from '../../shared/motion';
 import { GAMES, loadingBgOf, SITE_TAGLINE } from '../games';
 import { loadProgress } from '../progress';
+import { newsFor } from '../news';
+import { News } from './News';
 import { hrefOf } from '../route';
 import type { GameRoute } from '../slugs';
 import { Model, type Leaving } from './Model';
@@ -214,6 +216,10 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
   const [panel, setPanel] = useState<'help' | 'settings' | null>(null);
   const toggle = (p: 'help' | 'settings') => setPanel((cur) => (cur === p ? null : p));
   const [progress] = useState(loadProgress);
+  // haber satırı gün değişince değişir: aynı gün aynı satır (gün açılışta bir kez okunur)
+  const [today] = useState(() => Math.floor(Date.now() / 86_400_000));
+  const news = newsFor(progress, today);
+  const stopOf = (route: GameRoute) => STOPS.find((st) => st.routes.includes(route))!;
   const [leaving, setLeaving] = useState<Leaving | null>(null);
   const [overtimeSince, setOvertimeSince] = useState<number | null>(null);
   useOvertimeAmbience(overtimeSince !== null);
@@ -339,6 +345,8 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             hoş geldin.
           </h1>
           <p className={s.lead}>Her köşede başka bir hikâye, her durakta yeni bir oyun.</p>
+          {/* Mahalle Postası: bitirilen oyunlar mahallede iz bırakır (news.ts); seri ya da ceza yok */}
+          <News news={news} onGo={(route) => enterGame(stopOf(route), route)} />
           <span className={s.rule} aria-hidden="true" />
         </section>
 

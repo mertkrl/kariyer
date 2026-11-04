@@ -3,7 +3,7 @@ import { join, relative } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 import { CSP } from './csp.ts'
-import { gamePages } from './gamePages.ts'
+import { discoveryFiles, gamePages, siteLdTag } from './gamePages.ts'
 import { serviceWorkerSource } from './serviceWorker.ts'
 
 /** `dir` altındaki her dosya, ona göreli yollar olarak. */
@@ -51,6 +51,8 @@ function publishedPage(): Plugin {
       handler(html) {
         let out = html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`)
         const site = process.env.SITE_URL?.replace(/\/+$/, '')
+        // ana sayfanın yapılandırılmış verisi (site ve oyunlar; gamePages.ts)
+        out = out.replace('</head>', `  ${siteLdTag(site)}\n  </head>`)
         if (site) {
           out = out
             .replace(/content="\.?\/og\.png"/g, `content="${site}/og.png"`)
@@ -80,7 +82,7 @@ function sharePages(): Plugin {
       })
     },
     generateBundle() {
-      for (const [fileName, source] of Object.entries(gamePages(site()))) this.emitFile({ type: 'asset', fileName, source })
+      for (const [fileName, source] of Object.entries({ ...gamePages(site()), ...discoveryFiles(site()) })) this.emitFile({ type: 'asset', fileName, source })
     },
   }
 }

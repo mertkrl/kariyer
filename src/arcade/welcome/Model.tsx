@@ -272,6 +272,13 @@ function Card({ stop, progress, onEnter, onSplit, onClose, pinned }: { stop: Sto
             <div key={route} className={s.game}>
               <h3>{g.title}</h3>
               <p className={s.line}>{g.quip}</p>
+              {/* bitirildiyse son sonuç ve kaç kez: defterin karşılığı (progress.ts) */}
+              {progress.played[route] && (
+                <p className={s.result}>
+                  Son sonucun: <b>{progress.played[route]!.result}</b>
+                  {progress.played[route]!.plays > 1 && ` · ${progress.played[route]!.plays}. kez`}
+                </p>
+              )}
             </div>
           );
         })

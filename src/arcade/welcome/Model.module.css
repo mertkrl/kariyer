@@ -377,6 +377,20 @@
   color: #4d5a50;
 }
 
+/* bitirilen oyunun son sonucu */
+.result {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(35, 70, 56, 0.2);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #4d5a50;
+}
+
+.result b {
+  color: #234638;
+}
+
 .play {
   display: inline-flex;
   align-items: center;

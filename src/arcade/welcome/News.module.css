@@ -1,0 +1,51 @@
+/* Mahalle Postası (News.tsx): sayaç, haber satırı, günlük içerik; sakin, gövde metniyle aynı ağırlıkta */
+.news {
+  display: grid;
+  gap: 6px;
+  margin: 2px 0 14px;
+  font-size: max(calc(13 * var(--u)), 13px);
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.news p {
+  margin: 0;
+}
+
+.count b {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  margin-right: 4px;
+  font-size: max(calc(10 * var(--u)), 10px);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.link {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: var(--ink);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

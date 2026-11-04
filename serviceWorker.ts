@@ -6,9 +6,9 @@
  */
 import { createHash } from 'node:crypto'
 
-/** Önbelleğe hiç girmeyecek dosyalar: kaynak haritaları, macOS çöpü, paylaşım görselleri ve sayfaları, sunucu başlıkları. */
+/** Önbelleğe hiç girmeyecek dosyalar: kaynak haritaları, macOS çöpü, paylaşım görselleri ve sayfaları, sunucu başlıkları, arama motoru dosyaları. */
 export function cacheableFiles(all: string[]): string[] {
-  return all.filter((f) => !f.endsWith('.map') && !f.endsWith('.DS_Store') && f !== 'og.png' && !f.startsWith('og/') && !f.startsWith('oyun/') && f !== '_headers')
+  return all.filter((f) => !f.endsWith('.map') && !f.endsWith('.DS_Store') && f !== 'og.png' && !f.startsWith('og/') && !f.startsWith('oyun/') && f !== '_headers' && f !== 'robots.txt' && f !== 'sitemap.xml')
 }
 
 export function serviceWorkerSource(bundleFiles: string[]): string {

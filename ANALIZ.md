@@ -317,6 +317,11 @@ boyutları ve tek bir oyunun (İK) mobil deneyimi.
 akıllıca telafi edilmiş. Eksikler basit: robots.txt, sitemap, yapılandırılmış veri ve kanonik adres
 için `SITE_URL`'nin CI'da tanımlı olması.
 
+
+> **Durum (4 Kasım 2026): uygulandı.** Derleme `robots.txt` (her zaman) ve `sitemap.xml` (SITE_URL ile:
+> ana sayfa + 9 paylaşım sayfası) yazar; her paylaşım sayfasında `VideoGame`, ana sayfada `WebSite`
+> JSON-LD (`gamePages.ts`, `tests/seo.test.ts`). Not: Pages proje sitesinde (`/kariyer/`) tarayıcılar
+> `robots.txt`'yi yalnızca alan adı kökünde arar; site haritasını Search Console'a elle vermek gerekir.
 🟠 **`robots.txt` ve `sitemap.xml` yok.** Önizleme sunucusunda `/robots.txt` SPA'nın HTML'ini (`200 text/html`) döndürüyor, Lighthouse "34 hata". Pages'te 404 olur.
 - Düzeltme: `public/robots.txt`:
   ```
@@ -339,6 +344,11 @@ için `SITE_URL`'nin CI'da tanımlı olması.
 **Özet:** Metinler bu projenin en güçlü yanı: kısa, esprili, yerel. Sorunlar ton tutarlılığında
 değil, işlevsel metinlerde (geri düğmesi, hata, engel ekranı) ve küçük tutarsızlıklarda.
 
+
+> **Durum (4 Kasım 2026): uygulandı.** Tablodaki işlevsel metinler önceki turlarda değişti (hata ve
+> "yeni sürüm" ekranı, İK mobil şeridi, "Salona dön", bilinmeyen adres notu). Ana slogan tek:
+> "Kısa, tuhaf oyunlar."; `index.html` açıklamaları dokuz oyunu kapsıyor, "Mesai bitti, kimse
+> bakmıyor" yalnızca salonun saat esprisinde.
 🟠 **İşlevsel metinler oyunun dünyasına göre değil, İK'ya göre yazılmış:**
 | Yer | Şimdi | Öneri |
 | --- | --- | --- |
@@ -360,6 +370,12 @@ değil, işlevsel metinlerde (geri düğmesi, hata, engel ekranı) ve küçük t
 olan, "mahalle"nin bir dünya olarak oyunları birbirine bağlaması. Bugün salon bir menü; bir yer
 olabilir.
 
+
+> **Durum (4 Kasım 2026): uygulandı (1 ve 2), kısmen (3).** Mahalle Postası (`src/arcade/news.ts`):
+> bitirilen oyunun manşeti ya da bitmeyen durağın çağrısı, günden güne değişir. Bakkal'da köylüler
+> şehirden duyduklarını anlatır (`games/bakkal/cityTalk.ts`): çukur, kavşak, İK, eski fiyatlar;
+> oyuncu o oyunu bitirdiyse cümle değişir; 30 günde 8–12 kez. Maketin görsel olarak değişmesi yeni
+> çizim ister; şimdilik bitirilen durakta tik ve kartta son sonuç.
 🟠 **Mahalle bir menü, dünya değil.** Maket harika, ama duraklar arasında anlatı bağı yok. Oysa malzeme hazır: Bakkal'ın Şükrü Amca'sı, Yama Ekibi'nin "Kadıköy, Moda · Ara sokak" çukuru, Trafik'in "104.6" radyosu, Cüzdan'ın 2005'i. Somut öneriler:
 1. **Çapraz göndermeler:** Bakkal'da bir müşteri "Köşedeki çukur hâlâ kapanmadı" desin; Yama Ekibi'ni bitiren oyuncu, Bakkal'da o müşteriyi "Çukur kapandı, sağ ol" diye görsün (`progress.ts` zaten hangi oyunun bitirildiğini biliyor).
 2. **Trafik radyosu salonun sesi olsun:** Salonun üstündeki "Mesai bitti. Kimse bakmıyor." şeridi, oynanan oyunlara göre değişen bir haber bandına dönüşsün ("Kavşak Amiri Vatan Caddesi'ne yeşil dalga kurdu", "Köy bakkalında fiyatlar makul").
@@ -377,6 +393,12 @@ olabilir.
 kavşağı). Salon düzeyinde ilerleme hissi zayıf. Önerilerim karanlık desen içermiyor: seri cezası,
 yapay kıtlık ya da bildirim yok.
 
+
+> **Durum (4 Kasım 2026): uygulandı.** Salonda "2/9 durakta mesai bitti" sayacı, durak kartında son
+> sonuç ve kaçıncı kez ([`kurgu-durak-karti.webp`](docs/analiz/kurgu-durak-karti.webp)), "Bugün:
+> Günün kavşağı · Günün sepeti". Bakkal zorluk eğrisi **ölçüldü ve değiştirilmedi**: özel olaylar
+> gün 1'de 1, gün 2–3'te 2, gün 4'te 3; denetim ve hayırsever ilk 8 günde yok denecek kadar az,
+> tedarik sorunu 3. günden sonra; tahmin ettiğim ani sıçrama yok.
 🟠 **Salon düzeyinde ilerleme görünmüyor.** `arcade/progress.ts` bitirilen oyunu ve sonucunu saklıyor (`{result, at}`), ama salonda bunun karşılığı zayıf.
 - Öneri: Maket üzerinde "yapıldı" işaretleri (bkz. §12/3) ve salonda "9 durağın 4'ü" gibi sakin bir sayaç. Sonuç metni (`result`) durak kartında görünsün: "Köy Bakkalı · 30 gün, itibar 82".
 

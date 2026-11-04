@@ -3,10 +3,12 @@ import type { Step } from './Till';
 import { accountAsk, dilemmaAsk, type Outcome } from './week';
 import { returnLine } from './returns';
 import { rivalLine } from './pressure';
+import { cityTalk } from './cityTalk';
 
 /*
  * Müşterinin konuşma balonu: kapıdan girerken istediği, fiyata tepkisi, veresiye isteği, eski
- * hesap, ikilem ya da para üstüne söylediği; sırasıyla en son olan söylenir.
+ * hesap, ikilem ya da para üstüne söylediği; sırasıyla en son olan söylenir. Selamın ardından
+ * ara sıra şehirden duyduğu bir şey (cityTalk.ts: mahallenin öteki oyunlarına gönderme).
  */
 
 const cap = (s: string) => s.charAt(0).toLocaleUpperCase('tr-TR') + s.slice(1);
@@ -28,7 +30,7 @@ export function say({ visit, step, outcome, reaction, credited, lineNo, memory, 
   if (reaction) return lineFor(reaction.mood, lineNo, reaction.offer, type);
   return (
     <>
-      {greetingFor(visit.villager, memory)} {rivalLine(day, visit.villager.id) ?? ''} <b>{cap(sayItems(visit.items))}</b> verir misin? {visit.items.length > 1 ? 'Hepsi kaça?' : 'Kaça bu?'}
+      {greetingFor(visit.villager, memory)} {rivalLine(day, visit.villager.id) ?? cityTalk(day, visit.villager.id) ?? ''} <b>{cap(sayItems(visit.items))}</b> verir misin? {visit.items.length > 1 ? 'Hepsi kaça?' : 'Kaça bu?'}
     </>
   );
 }
