@@ -349,10 +349,6 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             muted={muted}
             onMute={toggleMute}
             onExit={() => setFerry(false)}
-            onPlay={(route) => {
-              preload(route);
-              window.location.hash = hrefOf(route);
-            }}
           />
         </Suspense>
       )}

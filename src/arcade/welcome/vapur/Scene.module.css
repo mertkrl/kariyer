@@ -1,12 +1,14 @@
 /*
- * Vapurdan bakış: gökyüzü, güneş ya da ay, sallanan ufuk ve farklı hızlarda kayan kıyı katmanları
- * (Scene.tsx). Katmanlar yalnızca transform ile kayar; "hareketi azalt"ta (.sceneStill) durur.
+ * Vapurdan bakış (Scene.tsx): gökyüzü, ufuk, rota boyunca bir kez kayan kıyı katmanları, sürekli
+ * kayan dalgalar ve köpük. Kayan her şey yalnızca transform ile oynar: katman ekran kartında
+ * kalır, her karede yeniden çizilmez. Rota katmanları vapur kalkınca (.moving) yürür.
  */
 
 .scene {
   position: absolute;
   inset: 0;
-  animation: sceneIn 0.6s ease both;
+  overflow: hidden;
+  animation: sceneIn 0.8s ease both;
 }
 
 @keyframes sceneIn {
@@ -15,49 +17,75 @@
   }
 }
 
+/* ── gökyüzü ── */
+
 .sky {
   position: absolute;
   inset: 0;
-  background: linear-gradient(var(--sky-top), var(--sky-low) var(--shore));
+  background: linear-gradient(var(--sky-top) 0%, var(--sky-mid) 38%, var(--sky-low) var(--horizon));
 }
 
 .stars {
   position: absolute;
-  inset: 0 0 40% 0;
-  background-image:
-    radial-gradient(1.2px 1.2px at 12% 18%, #fff 50%, transparent 51%),
-    radial-gradient(1px 1px at 28% 8%, #fff 50%, transparent 51%),
-    radial-gradient(1.4px 1.4px at 46% 22%, #fff 50%, transparent 51%),
-    radial-gradient(1px 1px at 63% 12%, #fff 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 88% 30%, #fff 50%, transparent 51%),
-    radial-gradient(1px 1px at 36% 34%, #fff 50%, transparent 51%),
-    radial-gradient(1px 1px at 72% 40%, #fff 50%, transparent 51%),
-    radial-gradient(1.3px 1.3px at 6% 42%, #fff 50%, transparent 51%);
-  opacity: 0.8;
+  inset: 0 0 auto;
+  width: 100%;
+  height: var(--horizon);
+}
+
+.twinkle {
+  animation: twinkle 4.2s ease-in-out infinite;
+}
+
+.twinkle2 {
+  animation: twinkle 5.6s ease-in-out -2s infinite;
+}
+
+@keyframes twinkle {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.glow {
+  position: absolute;
+  width: 120vmin;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .sun {
   position: absolute;
-  border-radius: 50%;
-  background: var(--sun);
-  box-shadow: 0 0 90px 30px color-mix(in srgb, var(--sun) 45%, transparent);
   transform: translate(-50%, -50%);
+  overflow: visible;
 }
 
-/* ay: hilal (gölgesi gökyüzünün renginde bir daire) */
-.moon {
-  box-shadow: 0 0 60px 10px rgba(243, 236, 210, 0.18);
-}
-
-.moon::after {
-  content: '';
+.clouds {
   position: absolute;
-  inset: -6% -6% 10% 26%;
-  border-radius: 50%;
-  background: var(--sky-top);
+  inset: 0 0 auto;
+  height: 50%;
+  overflow: hidden;
+  filter: blur(1.5px);
 }
 
-/* ufuk sallanır: dünya döner, küpeşte (vapur) yerinde kalır */
+.cloudTrack {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: loop 700s linear infinite;
+  will-change: transform;
+}
+
+.cloudTile {
+  display: block;
+  flex: none;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 3200 / 420;
+}
+
+/* ── ufuk: dünya sallanır, vapur (güverte) yerinde kalır ── */
+
 .world {
   position: absolute;
   inset: -4%;
@@ -68,38 +96,79 @@
 @keyframes sway {
   0%,
   100% {
-    transform: rotate(-0.5deg) translateY(0);
+    transform: rotate(-0.45deg) translateY(0);
   }
   50% {
-    transform: rotate(0.5deg) translateY(-5px);
+    transform: rotate(0.45deg) translateY(-5px);
   }
 }
 
-.water {
-  position: absolute;
-  inset: var(--shore) 0 0 0;
-  background: linear-gradient(var(--water), var(--water-deep));
-}
-
+/* rota katmanı: yolculuk boyunca baştan sona bir kez */
 .strip {
   position: absolute;
   inset: 0;
   overflow: hidden;
 }
 
-.track {
-  display: flex;
-  width: max-content;
+.pan {
+  display: block;
   height: 100%;
-  animation: slide linear infinite;
+  width: auto;
+  animation: pan linear both;
+  animation-play-state: paused;
   will-change: transform;
 }
 
-.reverse .track {
+.moving .pan {
+  animation-play-state: running;
+}
+
+.reverse .pan {
   animation-direction: reverse;
 }
 
-.tile {
+@keyframes pan {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* dünya ekrandan %8 geniş: katmanın sağ ucu dünyanın sağ ucuna gelir */
+    transform: translateX(calc(-100% + 108vw));
+  }
+}
+
+/* gece yanan pencerelerin ve anıtların suya düşen ışıkları */
+.pan :global(.glints) {
+  animation: shimmer 2.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* sürekli kayan dalga ve köpük */
+.loop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.loopTrack {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: loop linear infinite;
+  will-change: transform;
+}
+
+.reverse .loopTrack {
+  animation-direction: reverse;
+}
+
+.loopTile {
   display: block;
   flex: none;
   height: 100%;
@@ -107,87 +176,112 @@
   aspect-ratio: 32 / 9;
 }
 
-@keyframes slide {
+@keyframes loop {
   to {
     transform: translateX(-50%);
   }
 }
 
-.twinkle {
-  animation: twinkle 3.2s ease-in-out infinite;
+.wake {
+  -webkit-mask: linear-gradient(transparent 82%, #000 92%);
+  mask: linear-gradient(transparent 82%, #000 92%);
 }
 
-.blink {
-  animation: blink 1.6s steps(1) infinite;
-}
-
-.shimmer {
-  animation: shimmer 2.4s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-  50% {
-    opacity: 0.55;
-  }
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0.15;
-  }
-}
-
-@keyframes shimmer {
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.gulls {
+/* güneşin suya düşen yolu */
+.glitter {
   position: absolute;
-  top: 14%;
-  left: 0;
-  width: 110px;
-  animation: fly 26s linear 4s infinite;
+  top: calc(var(--horizon) + 0.3%);
+  bottom: 0;
+  width: 44vh;
+  height: auto;
+  transform: translateX(-50%);
+  mix-blend-mode: screen;
 }
 
-.gull {
-  fill: none;
-  stroke: #2a2420;
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: flap 0.9s ease-in-out infinite;
+.glint0 {
+  animation: glint 1.3s steps(2) infinite;
 }
 
-.gull2 {
-  transform: translate(56px, 14px);
-  animation-delay: -0.4s;
+.glint1 {
+  animation: glint 1.1s steps(2) -0.4s infinite;
 }
 
-@keyframes fly {
-  from {
-    transform: translate(-140px, 0);
-  }
+.glint2 {
+  animation: glint 1.7s steps(2) -0.9s infinite;
+}
+
+@keyframes glint {
   50% {
-    transform: translate(50vw, -30px);
+    opacity: 0.2;
+  }
+}
+
+/* karşıdan gelen vapur: yolculuğun ortasında bir kez geçer */
+.ferry {
+  position: absolute;
+  top: 46%;
+  left: 0;
+  height: 15%;
+  aspect-ratio: 420 / 260;
+  transform: translateX(115vw);
+  animation: ferry 70s linear 120s both;
+  animation-play-state: paused;
+}
+
+.moving .ferry {
+  animation-play-state: running;
+}
+
+.ferry svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@keyframes ferry {
+  from {
+    transform: translateX(115vw);
   }
   to {
-    transform: translate(110vw, 10px);
+    transform: translateX(-40vw);
   }
 }
 
-@keyframes flap {
-  50% {
-    scale: 1 0.55;
+.smoke circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: smoke 3.4s ease-out infinite;
+}
+
+.smoke circle:nth-child(2) {
+  animation-delay: -1.1s;
+}
+
+.smoke circle:nth-child(3) {
+  animation-delay: -2.2s;
+}
+
+@keyframes smoke {
+  from {
+    opacity: 0.9;
+    transform: translate(0, 0) scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: translate(40px, -30px) scale(1.8);
   }
 }
 
-.sceneStill .track,
 .sceneStill .world,
+.sceneStill .loopTrack,
+.sceneStill .cloudTrack,
 .sceneStill .twinkle,
-.sceneStill .shimmer {
+.sceneStill .twinkle2,
+.sceneStill .glint0,
+.sceneStill .glint1,
+.sceneStill .glint2,
+.sceneStill .pan,
+.sceneStill .pan :global(.glints) {
   animation: none;
 }

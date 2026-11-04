@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { prefersReducedMotion } from '../../../components/ui/motion';
-import { GAMES } from '../../games';
-import { PLACES, phaseOf } from '../../mahalle/places';
-import type { GameRoute } from '../../slugs';
+import { phaseOf } from '../../mahalle/places';
 import { Deck } from './Deck';
-import { PALETTES } from './palettes';
+import { LANDMARKS, PALETTES, TRIP } from './palettes';
 import { Scene } from './Scene';
 import * as snd from './sounds';
 import s from './Vapur.module.css';
@@ -15,25 +13,43 @@ import s from './Vapur.module.css';
  *   1. Sayfa dağılır: yazılar kayarak söner, maket en son plazaya doğru yaklaşıp gider.
  *   2. "Sakin ol." — sonra bir tam nefes: daire büyürken "Nefes al…", küçülürken "…ver."
  *   3. Dairenin içinde 3-2-1; sonunda vapur düdüğü çalar, ekran aşağıdan suyla dolar.
- *   4. Güverte: kıyılar kayar, önde küpeşte, çay ve simit. Yolculuk dört dakika sürer; iskeleye
- *      varınca "Mesaiye dönüyor musun?" diye sorar. "Bir tur daha" vapuru geri yollar.
+ *   4. Güverte: Karaköy'den Kadıköy'e gerçek rota (Panorama.tsx) dört dakikada bir kez kayar;
+ *      önde küpeşte, çay ve simit (Deck.tsx). İskeleye varınca "Mesaiye dönüyor musun?" diye
+ *      sorar. "Bir tur daha" aynı yolu geri gider.
  * "Geç" düğmesi ve Esc girişi atlar. "Hareketi azalt" diyende her geçiş yalnızca solar, kıyılar
  * durur. Sekme gizliyken yolculuk, sesler ve kayan katmanlar bekler.
  */
 
 type Phase = 'away' | 'calm' | 'in' | 'out' | 'count' | 'horn' | 'ride' | 'arrived' | 'leaving';
 
-const TRIP = 240;
 const PIERS = ['Karaköy', 'Kadıköy'];
 
-/** Yolculuk boyunca sırası gelince alt yazıda beliren satırlar (saniye). */
-const CAPTIONS: [number, string, string][] = [
-  [3, 'Kaptan', 'Hoş geldiniz. Karşıya dört dakika; telefonlar cepte kalabilir.'],
-  [45, 'Çaycı', 'Çaaay! Taze çay! Bardağına dokun, tazeleyeyim.'],
-  [100, 'Yan koltuktaki amca', 'Bu vapurda kırk yıldır gidip geliyorum, mesai hep bitmedi.'],
-  [160, 'Karşıdan gelen vapur', 'Düüüt! (Selam verdi.)'],
-  [215, 'Kaptan', 'İskeleye yaklaşıyoruz. Halatı atan abiye selam verin.'],
-];
+/** Karşıdan gelen vapurun ekranın ortasından geçtiği an (Scene.module.css: 120 sn bekler, 70 sn sürer). */
+const FERRY_AT = 149;
+
+/** Yolculuk boyunca sırası gelince alt yazıda beliren satırlar (saniye): rotadaki yerlere göre. */
+function captions(leg: number): [number, string, string][] {
+  const back = leg % 2 === 1;
+  const at = (f: number) => Math.round((back ? 1 - f : f) * TRIP);
+  const list: [number, string, string][] = [
+    [4, 'Kaptan', back ? 'Kadıköy’den Karaköy’e hareket ettik. Yolculuk dört dakika, çay ocağı açık.' : 'Karaköy’den Kadıköy’e hareket ettik. Yolculuk dört dakika, çay ocağı açık.'],
+    [at(LANDMARKS.suleymaniye), 'Yan koltuktaki amca', 'Şu tepedeki Süleymaniye. Mimar Sinan “kalfalık eserim” demiş; düşün ustalığını.'],
+    [at(LANDMARKS.topkapi), 'Simitçi', 'Sarayburnu’ndayız. Martılar simit kokusunu aldı, simidine sahip çık.'],
+    [at(LANDMARKS.sultanahmet), 'Turist', '“Is that the Blue Mosque?” Amca: “Sultanahmet, evladım. Altı minareli.”'],
+    [FERRY_AT, 'Karşıdan gelen vapur', 'Düüüt! (Selam verdi, bizimki de cevap verdi.)'],
+    [at(LANDMARKS.kizKulesi), 'Kaptan', 'Kız Kulesi göründü. Kız yılandan kaçamamış, sen mesaiden kaçtın; daha şanslısın.'],
+    [at(LANDMARKS.haydarpasa), 'Yan koltuktaki amca', 'Haydarpaşa Garı. Yüz yıldır aynı yerde bekliyor; senin kadar sabırlı.'],
+    [TRIP - 22, 'Kaptan', back ? 'Karaköy iskelesine yanaşıyoruz. Halatı atan abiye selam verin.' : 'Kadıköy iskelesine yanaşıyoruz. Halatı atan abiye selam verin.'],
+  ];
+  // aynı saniyeye düşen iki satır olmasın
+  const seen = new Set<number>();
+  return list.map(([t, who, text]) => {
+    let u = Math.max(1, Math.min(TRIP - 1, t));
+    while (seen.has(u)) u += 7;
+    seen.add(u);
+    return [u, who, text];
+  });
+}
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const clock = (sec: number) => `${pad(Math.floor(sec / 3600))}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}`;
@@ -78,10 +94,9 @@ interface Props {
   muted: boolean;
   onMute: () => void;
   onExit: () => void;
-  onPlay: (route: GameRoute) => void;
 }
 
-export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Props) {
+export default function Vapur({ since, now, muted, onMute, onExit }: Props) {
   const [still] = useState(prefersReducedMotion);
   const [low] = useState(lowPower);
   const visible = useVisible();
@@ -91,9 +106,6 @@ export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Pro
   const [leg, setLeg] = useState(0);
   const [tick, setTick] = useState(() => Date.now());
   const [caption, setCaption] = useState<{ who: string; text: string; key: number } | null>(null);
-  const [tea, setTea] = useState(0);
-  const [simit, setSimit] = useState<'here' | 'gone'>('here');
-  const [pier, setPier] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   // ana ekran her yeniden çizildiğinde yeni bir onExit gelir; adımların sayacı sıfırlanmasın
   const exit = useRef(onExit);
@@ -175,20 +187,23 @@ export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Pro
       setT(next);
       if (next >= TRIP) {
         setPhase('arrived');
-        setPier(false);
         snd.horn(false);
         return;
       }
-      const line = CAPTIONS.find(([at]) => at === next);
+      const line = captions(leg).find(([at]) => at === next);
       if (!line) return;
       // oyuncunun dokunup açtığı satır (anahtarı zaman damgası) sırası gelen satıra yenilmez
       setCaption((cur) => (cur && cur.key > TRIP ? cur : { who: line[1], text: line[2], key: next }));
-      if (line[0] === 160) snd.horn(false);
+      if (line[0] === FERRY_AT) {
+        // karşıdan gelen vapurun düdüğü uzaktan; bizimki cevap verir
+        snd.horn(false, true);
+        window.setTimeout(() => snd.horn(false), 2200);
+      }
     }, 1000);
     return () => window.clearInterval(id);
     // t yalnızca vapur kalkarken okunur (yeni turda 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, leg]);
 
   useEffect(() => {
     if (!caption) return;
@@ -199,13 +214,12 @@ export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Pro
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (pier) setPier(false);
-      else if (intro) setPhase('ride');
+      if (intro) setPhase('ride');
       else setPhase('leaving');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [intro, pier]);
+  }, [intro]);
 
   useEffect(() => {
     if (phase === 'ride' || phase === 'arrived') root.current?.focus();
@@ -213,20 +227,13 @@ export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Pro
 
   // güvertenin sesleri: dalga, makine, uzak martılar
   const sound = visible && !muted && (phase === 'ride' || phase === 'arrived');
-  useEvery(sound ? 3200 : null, snd.wave);
-  useEvery(sound && phase === 'ride' ? 3600 : null, snd.engine);
-  useEvery(sound ? 15000 : null, snd.gull);
+  useEffect(() => (sound ? snd.startAmbience() : undefined), [sound]);
+  useEvery(sound ? 14000 : null, () => snd.gull(0.25 + Math.random() * 0.3));
 
   const say = (who: string, text: string) => setCaption({ who, text, key: Date.now() });
   const from = PIERS[leg % 2];
   const to = PIERS[(leg + 1) % 2];
   const left = Math.max(0, Math.ceil((TRIP - t) / 60));
-
-  const go = (route: GameRoute) => {
-    setPier(false);
-    setPhase('leaving');
-    window.setTimeout(() => onPlay(route), still ? 0 : 450);
-  };
 
   const classes = [s.vapur, visible ? '' : s.paused, still ? s.still : '', phase === 'leaving' ? s.leaving : ''].join(' ');
 
@@ -234,24 +241,8 @@ export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Pro
     <div ref={root} className={classes} role="dialog" aria-modal="true" aria-label="Fazla mesai vapuru" tabIndex={-1} style={{ '--text': p.text, '--halo': p.lit ? 'rgba(10,14,24,.6)' : 'rgba(255,250,238,.7)', '--flood': p.water, '--flood-deep': p.waterDeep } as CSSProperties}>
       {sceneOn && (
         <>
-          <Scene p={p} low={low} reverse={leg % 2 === 1} still={still} />
-          <Deck
-            tea={tea}
-            still={still}
-            simit={simit}
-            onTea={() => {
-              snd.clink();
-              setTea((n) => n + 1);
-              say('Çaycı', tea === 0 ? 'Taze çay geldi abi, şekeri tabağında.' : tea < 3 ? `${tea + 1}. çay. Mesai uzun, haklısın.` : 'Abi çay ocağında da bu kadar içilmez.');
-            }}
-            onSimit={() => {
-              if (simit === 'gone') return;
-              snd.snatch();
-              setSimit('gone');
-              say('Martı', 'Simidi havada kaptı. Mesai dışında herkes serbest.');
-              window.setTimeout(() => setSimit('here'), 9000);
-            }}
-          />
+          <Scene key={leg} p={p} low={low} reverse={leg % 2 === 1} still={still} moving={phase === 'ride'} trip={TRIP} />
+          <Deck still={still} tint={p.gull} facing={leg % 2 === 1 ? -1 : 1} onSay={say} />
         </>
       )}
 
@@ -323,29 +314,7 @@ export default function Vapur({ since, now, muted, onMute, onExit, onPlay }: Pro
               <span>{to}</span>
               <small>{phase === 'arrived' ? 'vardık' : `${left} dk`}</small>
             </div>
-            <button type="button" className={s.pierBtn} aria-expanded={pier} onClick={() => setPier((v) => !v)}>
-              İskele tabelası
-            </button>
           </footer>
-
-          {pier && (
-            <section className={s.pier} aria-label="İskele tabelası: oyunlar">
-              <h3>Bu vapur nerelere uğrar?</h3>
-              <ul>
-                {GAMES.map((g) => {
-                  const place = PLACES.find((pl) => pl.routes.includes(g.route));
-                  return (
-                    <li key={g.route}>
-                      <button type="button" onClick={() => go(g.route)}>
-                        <small>{place ? `${place.name} iskelesi` : 'Ara iskele'}</small>
-                        <b>{g.title}</b>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
 
           {phase === 'arrived' && (
             <div className={s.arrive} role="alertdialog" aria-label="İskeleye vardık">
