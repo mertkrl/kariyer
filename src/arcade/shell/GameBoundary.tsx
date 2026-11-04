@@ -1,7 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { navigate } from '../route';
 import { gameReport, isChunkError } from './errors';
-import styles from '../../components/ui/ErrorBoundary.module.css';
+import styles from './GameBoundary.module.css';
 
 /*
  * Bir oyunun hata sınırı: oyun çizilirken hata verirse ya da oyunun parçası inemezse oyuncu boş

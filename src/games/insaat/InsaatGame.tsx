@@ -3,7 +3,7 @@ import { ClockOut } from '../../arcade/ClockOut';
 import { markPlayed } from '../../arcade/progress';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { clearSlot, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { DAYS_PER_SECOND, PROJECTS, floorStepAt, idleAt, planFor, stageAt, watchersAt, workAt } from './data';
 import { Logbook } from './Logbook';

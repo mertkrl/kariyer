@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
-import { storeMuted } from '../../game/lib/prefs';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { audioEngine } from '../../shared/audio/audioEngine';
+import { storeMuted } from '../../shared/prefs';
+import { prefersReducedMotion } from '../../shared/motion';
 import { GAMES, loadingBgOf } from '../games';
 import { loadProgress } from '../progress';
 import { hrefOf } from '../route';

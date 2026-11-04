@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { sliderOption, type ExamQuestion, type ExamWidget } from '../data/questions';
-import { audioEngine } from '../../../audio/audioEngine';
+import { audioEngine } from '../../../shared/audio/audioEngine';
 import styles from './OfficeWidgets.module.css';
 
 /*

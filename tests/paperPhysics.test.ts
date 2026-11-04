@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeIn, makeOut, stepIn, stepOut } from '../src/screens/flood/paperPhysics';
+import { makeIn, makeOut, stepIn, stepOut } from '../src/games/ise-alim/screens/flood/paperPhysics';
 
 const VW = 1280;
 const VH = 800;

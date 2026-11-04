@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
 import { StudioMark } from '../../arcade/Studio';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { Editor } from './Editor';
 import { draftKey, sanitize, type Design, type Place } from './model';
 import { PLACES } from './places';
 import { adoptOldDrafts } from './drafts';
 import { Scene } from './Scene';
 import styles from './MeydanGame.module.css';
+import { migrateWith, readJson } from '../../shared/storage';
 
 /*
  * Meydan Islahı: dört bölgeden dört sokağın tabela, klima, kaçak kat ve yama altında kalmış
@@ -18,13 +19,13 @@ import styles from './MeydanGame.module.css';
 type Phase = { at: 'pick' } | { at: 'edit'; place: Place; design: Design; key: number };
 
 function loadDraft(place: Place): Design {
+  migrateWith((storage) => adoptOldDrafts(storage, PLACES.map((p) => p.id)));
   try {
-    adoptOldDrafts(localStorage, PLACES.map((p) => p.id));
-    const raw = localStorage.getItem(draftKey(place.id));
-    const d = raw ? sanitize(JSON.parse(raw), place) : null;
+    const raw = readJson(draftKey(place.id));
+    const d = raw ? sanitize(raw, place) : null;
     if (d) return d;
   } catch {
-    /* depolama yok ya da taslak bozuk */
+    /* taslak bozuk */
   }
   return place.original;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import { applyView, bounds, paintGround, type View } from './paint';
 import { lampHeads, paintCanopy } from './canopy';
 import { makeScenery, WORLD, type Scenery } from './scenery';

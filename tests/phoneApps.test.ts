@@ -4,10 +4,10 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { HOME, OFFICE, ROUTES, arrival, congestionColor, smooth, trafficAt } from '../src/components/phone/apps/traffic/trafficModel';
-import { clampView } from '../src/components/phone/apps/traffic/useMapView';
-import { EXPLORE_EXTRA, buildFeed, handleOf, toggled } from '../src/components/phone/apps/social/socialFeed';
-import { SOCIAL_DAYS } from '../src/components/phone/apps/socialContent';
+import { HOME, OFFICE, ROUTES, arrival, congestionColor, smooth, trafficAt } from '../src/games/ise-alim/components/phone/apps/traffic/trafficModel';
+import { clampView } from '../src/games/ise-alim/components/phone/apps/traffic/useMapView';
+import { EXPLORE_EXTRA, buildFeed, handleOf, toggled } from '../src/games/ise-alim/components/phone/apps/social/socialFeed';
+import { SOCIAL_DAYS } from '../src/games/ise-alim/components/phone/apps/socialContent';
 
 test('trafik: akşam yoğunluğu araba süresini uzatır, sabah normaldir', () => {
   const morning = trafficAt(60, 0);

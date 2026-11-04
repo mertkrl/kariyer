@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StudioMark } from '../../arcade/Studio';
 import { ClockOut } from '../../arcade/ClockOut';
-import { audioEngine } from '../../audio/audioEngine';
-import { storeMuted } from '../../game/lib/prefs';
+import { audioEngine } from '../../shared/audio/audioEngine';
+import { storeMuted } from '../../shared/prefs';
 import * as sfx from './sfx';
 import { EXAM_SECTIONS, type ExamQuestion } from './data/questions';
 import { MailScene } from './MailScene';

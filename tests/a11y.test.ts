@@ -4,9 +4,9 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { avatarStyle, contrastRatio, inkOn, readablePair } from '../src/components/ui/avatarStyle';
-import { SCREEN_NAMES } from '../src/components/ui/useScreenFocus';
-import { candidates } from '../src/game/data/candidates';
+import { avatarStyle, contrastRatio, inkOn, readablePair } from '../src/games/ise-alim/components/ui/avatarStyle';
+import { SCREEN_NAMES } from '../src/games/ise-alim/components/ui/useScreenFocus';
+import { candidates } from '../src/games/ise-alim/game/data/candidates';
 
 test('erişilebilirlik: her adayın baş harfleri kendi renginde okunur (en az 4.5:1)', () => {
   for (const c of Object.values(candidates)) {

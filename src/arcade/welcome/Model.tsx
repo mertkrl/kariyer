@@ -1,5 +1,5 @@
 import { lazy, Suspense, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import { GAMES } from '../games';
 import type { Progress } from '../progress';
 import type { GameRoute } from '../slugs';

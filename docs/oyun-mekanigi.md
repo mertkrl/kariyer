@@ -73,7 +73,7 @@ Teknik olarak: her vaka bir `id` + `decision` + `revealDay` (kaç gün sonra son
 
 ## 6. Sonlar (Ending Variations)
 
-Son, puan eşiklerinden değil **Defne'nin iki kararından** çıkar (`src/game/events/offer.ts`, `src/game/engine/ending.ts`):
+Son, puan eşiklerinden değil **Defne'nin iki kararından** çıkar (`src/games/ise-alim/game/events/offer.ts`, `src/games/ise-alim/game/engine/ending.ts`):
 
 1. **Cuma 18:40 — Hakan Bey'in kadro teklifi (iş).** Kadro tek kişilik: Defne ya da Ayşe. Seçenekler: *Kabul ediyorum* · *Bir şartla kabul* (Perşembe önerdiğin değişiklik; öneri yapmadıysan puan tablosunun açılması) · *Kadro Ayşe'nin olsun* · *Ben ayrılıyorum*. Şart reddedilirse son bir soru gelir: şartsız kabul mü, yoksa hiç mi?
 2. **Cuma 21:40 — annenle telefon (ev).** Kadro haberini duyar; ayrıldıysan (istifa, kadroyu Ayşe'ye bırakmak, şartın reddi) konuşma bu haberle açılır, Hakan Bey'in ne dediğini sorar ve vedası da buna değinir; son cümlen sonun son satırı olur (kahvaltı / uyku / iş değiştirmeyi düşünmek ya da ayrıldıysan yeni başvurular).

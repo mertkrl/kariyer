@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { sliderOption, stampOption, type ExamQuestion, type ExamWidget } from '../data/questions';
-import { audioEngine } from '../../../audio/audioEngine';
+import { audioEngine } from '../../../shared/audio/audioEngine';
 import styles from './FloorWidgets.module.css';
 
 /*

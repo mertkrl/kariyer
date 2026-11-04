@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
-import { MUSIC_VOLUME_KEY, readStoredVolume, SFX_VOLUME_KEY, storeVolume } from '../../game/lib/prefs';
-import { clearAllGameData } from '../../game/lib/privacy';
+import { audioEngine } from '../../shared/audio/audioEngine';
+import { MUSIC_VOLUME_KEY, readStoredVolume, SFX_VOLUME_KEY, storeVolume } from '../../shared/prefs';
+import { clearAllGameData } from '../../shared/privacy';
 import s from './Welcome.module.css';
 
 /*

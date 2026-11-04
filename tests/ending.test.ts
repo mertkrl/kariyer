@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { getEnding, type EndingContext } from '../src/game/engine/ending';
-import type { OfferOutcome } from '../src/game/events/offer';
-import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../src/game/engine/achievements';
+import { getEnding, type EndingContext } from '../src/games/ise-alim/game/engine/ending';
+import type { OfferOutcome } from '../src/games/ise-alim/game/events/offer';
+import { ACHIEVEMENTS, loadUnlocked, unlockAchievements, type AchievementInput } from '../src/games/ise-alim/game/engine/achievements';
 
 const ctx = (over: Partial<EndingContext> = {}): EndingContext => ({ refusals: 0, hireFit: 3, aiUses: 0, weekendChoice: null, difficulty: 'normal', ...over });
 

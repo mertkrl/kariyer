@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { candidateDetails } from '../src/game/data/candidateDetails';
-import { candidates } from '../src/game/data/candidates';
-import { SALARY_CAP, panelDecision, salaryOf } from '../src/game/day/managerCalls';
-import { CODE_CASES, DEFENSE_THRESHOLD, caseAnswer, caseFor, defenseHolds, evidenceStrength, hooksIn, salaryMoves, salaryTalk, scoreGap, sentencesOf, tagNote } from '../src/game/events/interview';
+import { candidateDetails } from '../src/games/ise-alim/game/data/candidateDetails';
+import { candidates } from '../src/games/ise-alim/game/data/candidates';
+import { SALARY_CAP, panelDecision, salaryOf } from '../src/games/ise-alim/game/day/managerCalls';
+import { CODE_CASES, DEFENSE_THRESHOLD, caseAnswer, caseFor, defenseHolds, evidenceStrength, hooksIn, salaryMoves, salaryTalk, scoreGap, sentencesOf, tagNote } from '../src/games/ise-alim/game/events/interview';
 
 const ids = Object.keys(candidateDetails);
 
@@ -100,7 +100,7 @@ test('kanıt gücü göstergesi savunmanın saydığıyla aynı: en iyi üç not
 });
 
 test('kanıt kartları yalnızca oyuncunun baktığı şeylerden doğar', async () => {
-  const { evidenceFor, EVIDENCE_SITE } = await import('../src/game/data/evidence');
+  const { evidenceFor, EVIDENCE_SITE } = await import('../src/games/ise-alim/game/data/evidence');
   assert.deepEqual(evidenceFor('ferhat', { site: false, reference: false }), []);
   const cards = evidenceFor('ferhat', { site: true, reference: true });
   assert.ok(cards.some((c) => c.code === EVIDENCE_SITE && c.answer.length > 40));

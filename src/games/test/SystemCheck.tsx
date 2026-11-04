@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import base from './TestGame.module.css';
 import styles from './SystemCheck.module.css';
 

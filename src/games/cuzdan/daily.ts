@@ -1,5 +1,6 @@
 import { ITEMS, YEARS, type Item, type Year } from './data';
 import { money, niceRound, rng } from './model';
+import { readJson, writeJson } from '../../shared/storage';
 
 /*
  * Günün Sepeti: herkese aynı gün aynı beş soru. Tohum tarihten gelir, bu yüzden arkadaşınla aynı
@@ -69,21 +70,11 @@ export interface DailyState {
 }
 
 export function loadDaily(): DailyState | null {
-  try {
-    const v = JSON.parse(localStorage.getItem(DAILY_KEY) ?? 'null') as DailyState | null;
-    return v && typeof v.day === 'number' && Array.isArray(v.picks) ? v : null;
-  } catch {
-    return null;
-  }
+  const v = readJson(DAILY_KEY) as DailyState | null;
+  return v && typeof v.day === 'number' && Array.isArray(v.picks) ? v : null;
 }
 
-export function saveDaily(s: DailyState) {
-  try {
-    localStorage.setItem(DAILY_KEY, JSON.stringify(s));
-  } catch {
-    // gizli pencere: bu oturumluk
-  }
-}
+export const saveDaily = (s: DailyState) => writeJson(DAILY_KEY, s);
 
 /** Bugün bitirilince seri: dün de oynandıysa bir artar, yoksa 1'den başlar. */
 export const nextStreak = (prev: DailyState | null, day: number) => (prev && prev.last === day - 1 ? prev.streak + 1 : prev && prev.last === day ? prev.streak : 1);

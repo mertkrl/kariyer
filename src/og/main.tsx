@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '../styles/fonts.css';
-import '../styles/global.css';
+import '../shared/styles/fonts.css';
+import '../shared/styles/global.css';
 import { GAMES } from '../arcade/games';
 import { GameOg, SiteOg } from './OgCard';
 

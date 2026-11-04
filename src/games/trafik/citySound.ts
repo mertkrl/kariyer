@@ -1,4 +1,4 @@
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 
 /*
  * Şehrin uğultusu: süzülmüş kahverengi gürültü. Kuyruk uzadıkça yükselir ve parlaklaşır, kuyruk çok

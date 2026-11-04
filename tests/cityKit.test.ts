@@ -4,9 +4,9 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { clamp, hsl, lerp, makeRng, mix, pick, polyY, range, rgba, scale } from '../src/components/dayend/city/paint';
-import { makeCars } from '../src/components/dayend/city/scenes/servisCars';
-import { ferryAt, isWater, depthScale, P } from '../src/components/dayend/city/scenes/bosphorus';
+import { clamp, hsl, lerp, makeRng, mix, pick, polyY, range, rgba, scale } from '../src/games/ise-alim/components/dayend/city/paint';
+import { makeCars } from '../src/games/ise-alim/components/dayend/city/scenes/servisCars';
+import { ferryAt, isWater, depthScale, P } from '../src/games/ise-alim/components/dayend/city/scenes/bosphorus';
 
 test('şehir: aynı tohum aynı sahneyi çizer, değerler [0, 1) aralığında', () => {
   const a = makeRng(1973);

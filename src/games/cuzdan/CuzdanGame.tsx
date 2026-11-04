@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { Boot } from './Boot';
 import { clearSlot, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { YEARS, type Year } from './data';

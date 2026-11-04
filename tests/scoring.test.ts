@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CONSIDERED_SECONDS, decisionEffect, systemVerdict, wasConsidered } from '../src/game/engine/scoring';
-import { NEIGHBOUR_ID, NEPHEW_ID, candidates } from '../src/game/data/candidates';
-import { candidateDetails } from '../src/game/data/candidateDetails';
+import { CONSIDERED_SECONDS, decisionEffect, systemVerdict, wasConsidered } from '../src/games/ise-alim/game/engine/scoring';
+import { NEIGHBOUR_ID, NEPHEW_ID, candidates } from '../src/games/ise-alim/game/data/candidates';
+import { candidateDetails } from '../src/games/ise-alim/game/data/candidateDetails';
 
 const FAIR_FLAG = new Set(Object.values(candidates).filter((c) => c.flagIsFair).map((c) => c.id));
 const SPECIAL = new Set([NEPHEW_ID, NEIGHBOUR_ID]);

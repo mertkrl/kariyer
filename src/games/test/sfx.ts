@@ -1,4 +1,4 @@
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 
 /*
  * UyumMetre'nin sesleri: dosya yok, hepsi oyunun ortak ses motoruyla (audioEngine) anında

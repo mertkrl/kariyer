@@ -13,12 +13,14 @@
 
 | Değişiklik | Yer |
 | --- | --- |
-| Aday, gün, ilan metni | `src/game/data/` (JSON'lar yüklenirken denetlenir; `tests/data.test.ts`) |
-| Mesai içinde olanlar (saat, e-posta, müdür, telefon) | `src/game/day/` |
-| Haftanın özel anları (toplantı, mülakat, teklif, hafta sonu) | `src/game/events/` |
-| Puanlama ve sonlar | `src/game/engine/`; ardından `tests/balance*.test.ts` çalıştırılır, botların sırası bozulmamalı |
-| Oyun durumu ve kayıt | `src/game/store/`; kayıt biçimi değişirse `SAVE_VERSION` artar |
-| Oyundan bağımsız araçlar | `src/game/lib/` |
+| Aday, gün, ilan metni | `src/games/ise-alim/game/data/` (JSON'lar yüklenirken denetlenir; `tests/data.test.ts`) |
+| Mesai içinde olanlar (saat, e-posta, müdür, telefon) | `src/games/ise-alim/game/day/` |
+| Haftanın özel anları (toplantı, mülakat, teklif, hafta sonu) | `src/games/ise-alim/game/events/` |
+| Puanlama ve sonlar | `src/games/ise-alim/game/engine/`; ardından `tests/balance*.test.ts` çalıştırılır, botların sırası bozulmamalı |
+| Oyun durumu ve kayıt | `src/games/ise-alim/game/store/`; kayıt biçimi değişirse `SAVE_VERSION` artar |
+| Oyundan bağımsız araçlar | `src/shared/` (bütün oyunlar), `src/games/ise-alim/game/lib/` (yalnızca İK) |
+| Yeni oyun | `src/games/<ad>/`; adımlar ve kalıp `docs/yeni-oyun.md`, katmanlar `docs/mimari.md` |
+| Tarayıcıda saklanan veri | `src/shared/storage.ts` (doğrudan `localStorage` yok; `tests/architecture.test.ts`) |
 | Bileşen stili | Bileşenin yanındaki `X.module.css`; 800 satırı geçen dosya bölünür |
 | Animasyon | `requestAnimationFrame` kullanıyorsa `prefersReducedMotion()` sorulur |
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { puzzleSolved, ROBOT_CHALLENGES, ROBOT_FAIL_LINES, ROBOT_PUZZLES, robotPassed, type RobotChallenge, type RobotPuzzle } from './data/robot';
 import styles from './RobotCheck.module.css';
 

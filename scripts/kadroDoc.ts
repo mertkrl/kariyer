@@ -3,10 +3,10 @@
  * günün kuralı ve her adayın sistem önerisi. Belge elle güncellenmez; `npm run docs:kadro` yazar,
  * tests/kadroDoc.test.ts eskiyip eskimediğini denetler.
  */
-import { days } from '../src/game/data/days';
-import { candidates } from '../src/game/data/candidates';
-import { EXTRA_CANDIDATES } from '../src/game/data/extraCandidates';
-import { KEY_CAST, STORY_FIXED } from '../src/game/day/lineups';
+import { days } from '../src/games/ise-alim/game/data/days';
+import { candidates } from '../src/games/ise-alim/game/data/candidates';
+import { EXTRA_CANDIDATES } from '../src/games/ise-alim/game/data/extraCandidates';
+import { KEY_CAST, STORY_FIXED } from '../src/games/ise-alim/game/day/lineups';
 
 const VERDICT: Record<string, string> = { priority: 'Öncelikli', review: 'Ek inceleme', low: 'Düşük öncelik', out: 'Değerlendirme dışı' };
 

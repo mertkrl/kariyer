@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import type { Level } from './levels';
 import { DT, moveName, type Difficulty, type Dir, type MoveId, type Plan } from './model';
 import { Bay, LightCards, NodeKeys, RoadSwitches, SideSwitches, SmartSwitch } from './Console';

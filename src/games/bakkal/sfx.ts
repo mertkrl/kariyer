@@ -4,6 +4,8 @@
  * Ses kapatılınca hepsi susar. Tarayıcı ilk dokunuştan önce ses çalmaz: bağlam ilk çağrıda kurulur.
  */
 
+import { readText, writeText } from '../../shared/storage';
+
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let muted = false;
@@ -26,12 +28,9 @@ function ac() {
 }
 
 function readVolume(): number {
-  try {
-    const v = Number(localStorage.getItem(VOLUME_KEY));
-    return localStorage.getItem(VOLUME_KEY) !== null && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.6;
-  } catch {
-    return 0.6;
-  }
+  const raw = readText(VOLUME_KEY);
+  const v = Number(raw);
+  return raw !== null && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.6;
 }
 
 const apply = () => {
@@ -49,11 +48,7 @@ export const isMuted = () => muted;
 export function setVolume(v: number) {
   volume = Math.max(0, Math.min(1, v));
   apply();
-  try {
-    localStorage.setItem(VOLUME_KEY, String(volume));
-  } catch {
-    // saklanamazsa düzey yalnızca bu oturumda geçerli
-  }
+  writeText(VOLUME_KEY, String(volume));
 }
 
 export const getVolume = () => volume;

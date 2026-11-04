@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { clearAllGameData } from '../src/game/lib/privacy';
-import { writeSave } from '../src/game/store/save';
-import { useGameStore } from '../src/game/store/store';
+import { clearAllGameData } from '../src/shared/privacy';
+import { writeSave } from '../src/games/ise-alim/game/store/save';
+import { useGameStore } from '../src/games/ise-alim/game/store/store';
 
 test('verilerimi sil yalnızca oyunun kayıtlarını siler', async () => {
   localStorage.clear();

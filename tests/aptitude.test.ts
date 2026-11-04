@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { APTITUDE_QUESTIONS } from '../src/game/data/aptitudeTest';
-import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude, scoreAptitude, testTalk } from '../src/game/events/aptitude';
-import { candidates } from '../src/game/data/candidates';
-import { candidateDetails } from '../src/game/data/candidateDetails';
+import { APTITUDE_QUESTIONS } from '../src/games/ise-alim/game/data/aptitudeTest';
+import { APTITUDE_CUTOFF, aptitudeNote, candidateAptitude, scoreAptitude, testTalk } from '../src/games/ise-alim/game/events/aptitude';
+import { candidates } from '../src/games/ise-alim/game/data/candidates';
+import { candidateDetails } from '../src/games/ise-alim/game/data/candidateDetails';
 
 test('her sorunun anahtarı ve aklı başında cevabı şıkların içinde ve farklı', () => {
   for (const q of APTITUDE_QUESTIONS) {
@@ -52,7 +52,7 @@ test('elle yazılmış kâğıtlar: yeğen tam puan, sistemin gözdesi eşiğin 
 });
 
 test('rapor: eşikte takılan güçlü dosyalar ve kendi puanın tartışma sorusuna döner', async () => {
-  const { sessionReport } = await import('../src/game/engine/report');
+  const { sessionReport } = await import('../src/games/ise-alim/game/engine/report');
   const r = sessionReport({
     seed: 1, difficulty: 'normal', endingTitle: '', performans: 50, vicdan: 50,
     weekLog: [{ id: 'irem', day: 1, decision: 'approve' }, { id: 'serkan', day: 1, decision: 'approve' }, { id: 'serkan', day: 3, decision: 'approve' }],

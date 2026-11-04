@@ -5,8 +5,8 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FERRY_HALF, boatAfloat, ferryAt, isWater, spawnBoats, stepBoat } from '../src/components/dayend/city/scenes/bosphorus';
-import { makeRng } from '../src/components/dayend/city/kit';
+import { FERRY_HALF, boatAfloat, ferryAt, isWater, spawnBoats, stepBoat } from '../src/games/ise-alim/components/dayend/city/scenes/bosphorus';
+import { makeRng } from '../src/games/ise-alim/components/dayend/city/kit';
 
 test('the Ortaköy vapur never runs aground', () => {
   for (let t = 0; t <= 150; t += 0.25) {

@@ -55,11 +55,34 @@
     },
     {
       "files": [
-        "src/game/data/**",
+        "src/games/ise-alim/game/data/**",
         "tests/**"
       ],
       "rules": {
         "max-lines": "off"
+      }
+    },
+    {
+      "files": [
+        "src/shared/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/games/**",
+                  "**/arcade/**",
+                  "**/Root",
+                  "**/main"
+                ],
+                "message": "Ortak katman (src/shared) oyunlara ya da salona bağlanamaz; bkz. docs/mimari.md."
+              }
+            ]
+          }
+        ]
       }
     }
   ]

@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { reportText, sessionReport, type ReportInput } from '../src/game/engine/report';
-import { NEPHEW_ID, candidates } from '../src/game/data/candidates';
-import { isStrong, isWronglyFlagged } from '../src/game/engine/scoring';
+import { reportText, sessionReport, type ReportInput } from '../src/games/ise-alim/game/engine/report';
+import { NEPHEW_ID, candidates } from '../src/games/ise-alim/game/data/candidates';
+import { isStrong, isWronglyFlagged } from '../src/games/ise-alim/game/engine/scoring';
 
 const strongFlagged = Object.keys(candidates).filter((id) => isWronglyFlagged(id) && isStrong(id));
 const base: ReportInput = {
@@ -59,8 +59,8 @@ test('metin hali oyun kodunu, sonu ve soruları taşır', () => {
 });
 
 test('rapor mülakat puanlarının isabetini ve Hakan Bey\'in hedeflerine farkı söyler', async () => {
-  const { sessionReport } = await import('../src/game/engine/report');
-  const { candidateDetails } = await import('../src/game/data/candidateDetails');
+  const { sessionReport } = await import('../src/games/ise-alim/game/engine/report');
+  const { candidateDetails } = await import('../src/games/ise-alim/game/data/candidateDetails');
   const ids = Object.keys(candidateDetails);
   const strong = ids.find((id) => candidateDetails[id].hireFit === 5)!;
   const weak = ids.find((id) => candidateDetails[id].hireFit === 1)!;

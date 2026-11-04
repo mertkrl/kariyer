@@ -8,8 +8,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { CSP_DIRECTIVES, HEADER_ONLY_DIRECTIVES, TT_POLICY } from '../csp';
-import { checkSave } from '../src/game/store/save';
-import { STORAGE_PREFIX } from '../src/game/lib/privacy';
+import { checkSave } from '../src/games/ise-alim/game/store/save';
+import { STORAGE_PREFIX } from '../src/shared/privacy';
 
 const root = new URL('..', import.meta.url).pathname;
 const srcFiles = readdirSync(join(root, 'src'), { recursive: true, encoding: 'utf8' })
@@ -18,7 +18,7 @@ const srcFiles = readdirSync(join(root, 'src'), { recursive: true, encoding: 'ut
 
 test('oyun ağ üzerinden hiçbir şey göndermez', () => {
   // tek istekler oyunun kendi müzik dosyaları (aynı köken, GET)
-  const allowed = new Set(['audio/engineCore.ts', 'audio/audioEngine.ts']);
+  const allowed = new Set(['shared/audio/engineCore.ts', 'shared/audio/audioEngine.ts']);
   const network = /\b(XMLHttpRequest|WebSocket|EventSource|sendBeacon|RTCPeerConnection)\b|\bfetch\s*\(/;
   const offenders = srcFiles.filter(({ f, text }) => network.test(text) && !allowed.has(f)).map(({ f }) => f);
   assert.deepEqual(offenders, []);
@@ -76,11 +76,11 @@ test('politika dışarıya kapı açmaz', () => {
 });
 
 test('Trusted Types politikası yalnızca service worker adresine izin verir', () => {
-  const sw = srcFiles.find(({ f }) => f === 'swUpdate.ts')!.text;
+  const sw = srcFiles.find(({ f }) => f === 'shared/swUpdate.ts')!.text;
   assert.ok(sw.includes(`createPolicy('${TT_POLICY}'`), 'swUpdate.ts politikayı csp.ts adıyla kurmuyor');
   assert.match(sw, /if \(url !== SW_URL\) throw/);
   // başka hiçbir dosya politika oluşturamaz
-  assert.deepEqual(srcFiles.filter(({ f, text }) => f !== 'swUpdate.ts' && /createPolicy\s*\(/.test(text)).map(({ f }) => f), []);
+  assert.deepEqual(srcFiles.filter(({ f, text }) => f !== 'shared/swUpdate.ts' && /createPolicy\s*\(/.test(text)).map(({ f }) => f), []);
 });
 
 test('service worker: yalnızca kendi dosyaları, müzik ilk indirmede yok, her derleme yeni önbellek', async () => {

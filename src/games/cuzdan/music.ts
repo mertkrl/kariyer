@@ -1,4 +1,4 @@
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import type { Theme } from './model';
 
 /*

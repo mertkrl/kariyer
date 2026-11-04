@@ -5,9 +5,9 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { candidates, checkCandidate } from '../src/game/data/candidates';
-import { candidateDetails, checkDetails } from '../src/game/data/candidateDetails';
-import { DataError, flattenSections } from '../src/game/data/validate';
+import { candidates, checkCandidate } from '../src/games/ise-alim/game/data/candidates';
+import { candidateDetails, checkDetails } from '../src/games/ise-alim/game/data/candidateDetails';
+import { DataError, flattenSections } from '../src/games/ise-alim/game/data/validate';
 
 const ahmet = () => structuredClone(candidates.ahmet);
 const details = () => structuredClone(candidateDetails.ahmet);

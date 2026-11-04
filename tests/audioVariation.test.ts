@@ -3,8 +3,8 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeVariation } from '../src/audio/engineCore';
-import { rngFor } from '../src/game/lib/rng';
+import { makeVariation } from '../src/shared/audio/engineCore';
+import { rngFor } from '../src/games/ise-alim/game/lib/rng';
 
 test('efekt sapması küçük ve sınırlı kalır', () => {
   const rand = rngFor(7, 'sfx');

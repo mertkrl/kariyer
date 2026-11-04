@@ -25,6 +25,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # tip denetiminin artımlı önbelleği (tsconfig "incremental"): değişmeyen dosyalar yeniden denetlenmez
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/.tmp
+          key: tsbuild-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig*.json') }}-${{ github.sha }}
+          restore-keys: tsbuild-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig*.json') }}-
       # the same command a developer runs before pushing (package.json "ci")
       - run: npm run ci
       - uses: actions/upload-artifact@v4

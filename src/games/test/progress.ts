@@ -1,4 +1,5 @@
 import type { ExamAnswer, ExamLog, ExamSection } from './logic';
+import { readJson, removeKey, writeJson } from '../../shared/storage';
 
 /*
  * Yarıda kalan sınav: seçilen sorular (şıkları karışık hâliyle), cevaplar ve nerede kalındığı
@@ -22,10 +23,9 @@ export interface ExamProgress {
 }
 
 export function loadProgress(): ExamProgress | null {
+  const p = readJson(KEY) as ExamProgress | null;
   try {
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return null;
-    const p = JSON.parse(raw) as ExamProgress;
+    if (!p) return null;
     const count = p.exam.reduce((n, s) => n + s.questions.length, 0);
     // eski ya da bozuk bir kayıt baştan başlatılır
     if (!Array.isArray(p.answers) || p.answers.length !== count || p.sec < 0 || p.sec >= p.exam.length) return null;
@@ -35,39 +35,16 @@ export function loadProgress(): ExamProgress | null {
   }
 }
 
-export function saveProgress(p: ExamProgress) {
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify(p));
-  } catch {
-    // kayıt tutulamazsa oyun yine oynanır
-  }
-}
+export const saveProgress = (p: ExamProgress) => writeJson(KEY, p);
 
-export function clearProgress() {
-  try {
-    window.localStorage.removeItem(KEY);
-  } catch {
-    // yok sayılır
-  }
-}
+export const clearProgress = () => removeKey(KEY);
 
 /* Önceki testlerde çıkan soruların kimlikleri: yeni test önce görülmemiş sorulardan kurulur. */
 const SEEN_KEY = 'kariyerweb-uyummetre-seen-v1';
 
 export function loadSeen(): Set<string> {
-  try {
-    const raw = window.localStorage.getItem(SEEN_KEY);
-    const ids = raw ? (JSON.parse(raw) as unknown) : [];
-    return new Set(Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : []);
-  } catch {
-    return new Set();
-  }
+  const ids = readJson(SEEN_KEY);
+  return new Set(Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : []);
 }
 
-export function saveSeen(seen: ReadonlySet<string>) {
-  try {
-    window.localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
-  } catch {
-    // kayıt tutulamazsa sorular yine karışık gelir
-  }
-}
+export const saveSeen = (seen: ReadonlySet<string>) => writeJson(SEEN_KEY, [...seen]);

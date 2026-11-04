@@ -1,4 +1,4 @@
-import { LEGACY_PREFIXES } from '../../game/lib/privacy';
+import { LEGACY_PREFIXES } from '../../shared/privacy';
 import { draftKey, type PlaceId } from './model';
 
 /** Önekten önceki taslak anahtarı: `meydan:taslak:v3:<yer>`. */

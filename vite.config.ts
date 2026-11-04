@@ -20,7 +20,7 @@ function filesIn(dir: string, root = dir): string[] {
  * `sw.js`'i yazar. Müzik ve yağmur (birkaç MB) bu ilk indirmenin parçası değildir: her biri ilk
  * çaldığında saklanır, böylece mobil veri kullanan bir telefon belki hiç duymayacağı sesi indirmez.
  * Önbellek dosya listesinin bir özetiyle adlandırılır, böylece yeni bir derleme eskisinin yerini alır.
- * Sayfanın kendisi önce ağdan alınır; yeni bir derleme oyuncuyu bekler (swUpdate.ts).
+ * Sayfanın kendisi önce ağdan alınır; yeni bir derleme oyuncuyu bekler (src/shared/swUpdate.ts).
  */
 function offlineCache(): Plugin {
   return {

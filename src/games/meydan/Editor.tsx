@@ -10,6 +10,7 @@ import { makeover, openDefects, type Report } from './report';
 import { SceneDefs, SceneLayers, type DragMode, type Pick } from './Scene';
 import { paintMeydanCard } from './shareCard';
 import styles from './MeydanGame.module.css';
+import { writeJson } from '../../shared/storage';
 
 /*
  * Serbest mod: meydanı istediğin gibi düzenle. Binaya tıklayınca renkleri, mimari seçenekleri
@@ -125,11 +126,7 @@ export function Editor({ place, initial }: { place: Place; initial: Design }) {
 
   // taslak her değişiklikte saklanır; gizli pencerede depolama yoksa sessizce geçilir
   useEffect(() => {
-    try {
-      localStorage.setItem(draftKey(place.id), JSON.stringify(design));
-    } catch {
-      /* depolama yok */
-    }
+    writeJson(draftKey(place.id), design);
   }, [design, place.id]);
 
   // klavye: sök, ok tuşlarıyla kaydır, geri al / yinele, çoğalt

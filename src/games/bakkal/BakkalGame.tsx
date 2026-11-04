@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { markPlayed } from '../../arcade/progress';
 import { readSlot } from '../../arcade/saveSlot';
 import { isShopSave, SAVE_KEY, type ShopSave } from './save';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { awayOf, loyalOf, basketOn, DAILY, characterOf, complains, BARGAIN, TOURIST_MARKUP, haggleOffer, isBasic, coolOff, dayVisits, effectiveType, eventOn, forget, hourOf, react, remember, rng, customerOf, settleDebts, titleFor, tl, weatherOn, type Product, type Reaction } from './data';
 import { CREDIT_PAGE } from './pages';
 import { type Errand, type Step } from './Till';

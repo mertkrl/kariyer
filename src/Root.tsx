@@ -8,7 +8,7 @@ import { GameLoading } from './arcade/shell/GameLoading';
 
 // Salon ilk pakettedir; her oyun kendi parçasıdır ve yalnızca girilince (ya da kartın üstüne gelince) iner.
 const LOADERS: Record<GameRoute, () => Promise<{ default: ComponentType }>> = {
-  iseAlim: () => import('./App'),
+  iseAlim: () => import('./games/ise-alim/App'),
   test: () => import('./games/test/TestGame').then((m) => ({ default: m.TestGame })),
   insaat: () => import('./games/insaat/InsaatGame').then((m) => ({ default: m.InsaatGame })),
   bakkal: () => import('./games/bakkal/BakkalGame').then((m) => ({ default: m.BakkalGame })),

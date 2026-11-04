@@ -1,0 +1,16 @@
+import { applyUpdate, useUpdateReady } from '../../../../shared/swUpdate';
+import styles from './UpdateNotice.module.css';
+
+/** Daha yeni bir derleme hazır: yalnızca karşılama ekranında gösterilir, böylece hiçbir hafta yarıda kesilmez. */
+export function UpdateNotice() {
+  const ready = useUpdateReady();
+  if (!ready) return null;
+  return (
+    <div className={styles.notice} role="status">
+      <span>Oyunun yeni sürümü hazır.</span>
+      <button className={styles.action} onClick={applyUpdate}>
+        Yenile
+      </button>
+    </div>
+  );
+}

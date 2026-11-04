@@ -11,7 +11,7 @@ Site neal.fun gibi olur: ana sayfada oyun kartları bulunur, her kart kendi oyun
 - Kart 1: İşe Alım Haftası (mevcut oyun)
 - Kart 2: Genel Yetenek ve Uyum Değerlendirmesi (yeni oyun)
 
-**Elimizdeki malzeme:** `src/game/data/aptitudeTest.ts` dosyasında 22 soru ve altı etkileşim türü
+**Elimizdeki malzeme:** `src/games/ise-alim/game/data/aptitudeTest.ts` dosyasında 22 soru ve altı etkileşim türü
 duruyor (kaydırıcı, sıralama, toplantıda baş sallama, takvim, gece mesajı, kaçan düğme). Her sorunun
 bir "anahtar" cevabı ve bir de "aklı başında" cevabı var. İkinci oyun bunun üstüne kurulur, sıfırdan
 başlamaz.

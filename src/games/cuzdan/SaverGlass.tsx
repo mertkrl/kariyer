@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import { ITEMS, type Year } from './data';
 import { money } from './model';
 import s from './Shell.module.css';

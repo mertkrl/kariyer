@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ClockOut } from '../../arcade/ClockOut';
 import { StudioMark } from '../../arcade/Studio';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { Editor } from './Editor';
 import { Home, Monitor, Pick } from './Lobby';
 import { loadProgress, TASKS, type Task } from './spec';
@@ -11,6 +11,7 @@ import { Screen } from './Screen';
 import { decodeDesign, sharedCodeOf } from './share';
 import { useClock } from './useClock';
 import styles from './EkranGame.module.css';
+import { readJson } from '../../shared/storage';
 
 /*
  * Ekran İhalesi: kamu kurumlarının yıllardır aynı duran ekranlarını yeniden tasarla. Önce mod
@@ -22,11 +23,11 @@ type Phase = { at: 'loading' } | { at: 'home' } | { at: 'pick' } | { at: 'hard' 
 
 function loadDraft(preset: PresetId, key = draftKey(preset)): Design {
   try {
-    const raw = localStorage.getItem(key);
-    const d = raw ? sanitize(JSON.parse(raw)) : null;
+    const raw = readJson(key);
+    const d = raw ? sanitize(raw) : null;
     if (d) return d;
   } catch {
-    /* depolama yok ya da taslak bozuk */
+    /* taslak bozuk */
   }
   return currentDesign(preset);
 }

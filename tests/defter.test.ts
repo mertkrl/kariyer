@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseProgress, PROGRESS_KEY, withPlayed } from '../src/arcade/progress';
 import { GAMES } from '../src/arcade/games';
-import { STORAGE_PREFIX } from '../src/game/lib/privacy';
+import { STORAGE_PREFIX } from '../src/shared/privacy';
 
 const ROUTES = GAMES.map((g) => g.route);
 

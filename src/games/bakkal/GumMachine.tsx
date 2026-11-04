@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import styles from './ShopScene.module.css';
 
 /*

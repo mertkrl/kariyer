@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { sliderOption, type ExamQuestion, type ExamWidget } from '../data/questions';
-import { audioEngine } from '../../../audio/audioEngine';
+import { audioEngine } from '../../../shared/audio/audioEngine';
 import * as sfx from '../sfx';
-import { prefersReducedMotion } from '../../../components/ui/motion';
+import { prefersReducedMotion } from '../../../shared/motion';
 import styles from './QuestionWidgets.module.css';
 import { HistoryWidget, ScreenshareWidget } from './ScreenWidgets';
 import { BackgroundWidget, InviteWidget, ReactionWidget } from './AppWidgets';

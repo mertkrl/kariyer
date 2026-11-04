@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { screenshareOption, type ExamQuestion, type ExamWidget } from '../data/questions';
-import { audioEngine } from '../../../audio/audioEngine';
+import { audioEngine } from '../../../shared/audio/audioEngine';
 import styles from './ScreenWidgets.module.css';
 import { MockPage } from './MockPages';
 

@@ -4,8 +4,8 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CASE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, type Entry } from '../src/screens/final/interviewModel';
-import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from '../src/screens/final/interviewRoom';
+import { CASE, FOLLOW, FORBIDDEN, OWNER, QUESTION_BUDGET, type Entry } from '../src/games/ise-alim/screens/final/interviewModel';
+import { answerBackIn, canAsk, canFollowUp, handOffQuestions, roomState, settleSalaryIn } from '../src/games/ise-alim/screens/final/interviewRoom';
 
 const q = (n: number, by?: 'hakan' | 'umit'): Entry => ({ kind: 'q', q: n, ...(by ? { by } : {}) });
 

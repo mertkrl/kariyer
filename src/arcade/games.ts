@@ -8,7 +8,7 @@ export const SITE_TAGLINE = 'Kısa, tuhaf oyunlar.';
 
 /**
  * Salondaki kartlar. Her oyun kendi kodu, verisi ve kaydıyla ayrıdır; yalnızca altyapı ortaktır.
- * Yeni oyun: route.ts'e adresini, buraya kartını (en yenisi en üstte), CardArt.tsx'e çizimini ekle.
+ * Yeni oyun: adımlar docs/yeni-oyun.md'de (slugs.ts'e adresi, buraya kartı, en yenisi en üstte).
  */
 export interface ArcadeGame {
   route: GameRoute;

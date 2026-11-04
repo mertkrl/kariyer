@@ -1,4 +1,4 @@
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 
 /*
  * Cüzdan TL'nin sesleri: açılış ezgisi, tık, hata, titreşim ve çevirmeli modem. Hepsi Web Audio

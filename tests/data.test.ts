@@ -2,15 +2,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { NEIGHBOUR_ID, NEPHEW_ID, candidates } from '../src/game/data/candidates';
-import { candidateDetails } from '../src/game/data/candidateDetails';
-import { EXTRA_CANDIDATES, EXTRA_FEMALE } from '../src/game/data/extraCandidates';
-import { days } from '../src/game/data/days';
-import { REQUESTS } from '../src/game/data/phoneScript';
-import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/game/day/lineups';
-import { hasSite } from '../src/game/data/portfolios';
-import { rngFor } from '../src/game/lib/rng';
-import { jobDrafts, salaryText } from '../src/game/data/jobs';
+import { NEIGHBOUR_ID, NEPHEW_ID, candidates } from '../src/games/ise-alim/game/data/candidates';
+import { candidateDetails } from '../src/games/ise-alim/game/data/candidateDetails';
+import { EXTRA_CANDIDATES, EXTRA_FEMALE } from '../src/games/ise-alim/game/data/extraCandidates';
+import { days } from '../src/games/ise-alim/game/data/days';
+import { REQUESTS } from '../src/games/ise-alim/game/data/phoneScript';
+import { KEY_CAST, defaultLineups, makeLineups, questionsFor } from '../src/games/ise-alim/game/day/lineups';
+import { hasSite } from '../src/games/ise-alim/game/data/portfolios';
+import { rngFor } from '../src/games/ise-alim/game/lib/rng';
+import { jobDrafts, salaryText } from '../src/games/ise-alim/game/data/jobs';
 
 /** Her kararın sistem satırını açtığı etiket. Puanlama `verdict`i okur; oyuncular satırı okur. */
 const LABELS = {
@@ -32,9 +32,9 @@ test('hikâye rolleri verideki adaylara bağlı', () => {
   assert.equal(candidates[NEIGHBOUR_ID].storyRole, 'neighbour');
 });
 
-// Aynı tohum, aynı hafta: oyun mantığı yalnızca rng.ts'den çeker. Görsel ve işitsel gürültü src/game dışında yaşar.
+// Aynı tohum, aynı hafta: oyun mantığı yalnızca rng.ts'den çeker. Görsel ve işitsel gürültü src/games/ise-alim/game dışında yaşar.
 test('oyun mantığı Math.random kullanmaz (rng.ts dışında)', () => {
-  const root = new URL('../src/game', import.meta.url).pathname;
+  const root = new URL('../src/games/ise-alim/game', import.meta.url).pathname;
   const offenders = readdirSync(root, { recursive: true, encoding: 'utf8' })
     .filter((f) => /\.tsx?$/.test(f) && f !== 'lib/rng.ts')
     .filter((f) => /Math\.random\s*\(/.test(readFileSync(join(root, f), 'utf8')));
@@ -79,7 +79,7 @@ test('karışık kadro aynı adayları dağıtır, hikâye karakterleri kendi g�
 });
 
 test('yapay zekâ eşleşme puanı masadaki herkese yüksek, sabit ve kimseyi ayırmıyor', async () => {
-  const { aiScore } = await import('../src/game/day/ats');
+  const { aiScore } = await import('../src/games/ise-alim/game/day/ats');
   const byVerdict = new Map<string, number[]>();
   for (const c of Object.values(candidates)) {
     const s = aiScore(c);
@@ -102,7 +102,7 @@ test('her ilan maaş aralığını açıkça yazar', () => {
 });
 
 test('adayların karşı soruları deneyime bağlı: yeniler az ve amatörce, deneyimliler çok ve keskin', async () => {
-  const { backQuestionsFor, backQuestionCount, experienceYears, seniorityOf } = await import('../src/game/data/interviewExtras');
+  const { backQuestionsFor, backQuestionCount, experienceYears, seniorityOf } = await import('../src/games/ise-alim/game/data/interviewExtras');
   assert.equal(experienceYears('9 yıl (2 yıllık boşluk var)'), 9);
   assert.equal(experienceYears('15 yıl öğretmenlik, 1 yıl yazılım'), 1);
   assert.equal(experienceYears('0 yıl (bootcamp mezunu)'), 0);

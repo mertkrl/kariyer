@@ -5,15 +5,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { managerQuickReplies, type QuickReply } from '../src/game/day/manager';
-import { candidates } from '../src/game/data/candidates';
-import { EXTRA_CANDIDATES } from '../src/game/data/extraCandidates';
-import { handOver, ownerOf } from '../src/game/events/panel';
-import { buildOpening } from '../src/game/events/meeting';
-import { buildCall } from '../src/game/events/weekend';
-import { inbox } from '../src/game/day/mail';
-import { COLLEAGUES } from '../src/screens/final/interviewModel';
-import type { Finalist } from '../src/game/store/storeTypes';
+import { managerQuickReplies, type QuickReply } from '../src/games/ise-alim/game/day/manager';
+import { candidates } from '../src/games/ise-alim/game/data/candidates';
+import { EXTRA_CANDIDATES } from '../src/games/ise-alim/game/data/extraCandidates';
+import { handOver, ownerOf } from '../src/games/ise-alim/game/events/panel';
+import { buildOpening } from '../src/games/ise-alim/game/events/meeting';
+import { buildCall } from '../src/games/ise-alim/game/events/weekend';
+import { inbox } from '../src/games/ise-alim/game/day/mail';
+import { COLLEAGUES } from '../src/games/ise-alim/screens/final/interviewModel';
+import type { Finalist } from '../src/games/ise-alim/game/store/storeTypes';
 
 const unanswered = (replies: QuickReply[] | undefined): string[] =>
   (replies ?? []).flatMap((r) => [...(r.reaction.trim().endsWith('?') && !r.followUp?.length ? [r.reaction] : []), ...unanswered(r.followUp)]);
@@ -26,7 +26,7 @@ test('Hakan Bey bir soru sorarsa ona cevap verilebilir', () => {
 });
 
 test('telefon senaryosunda soru biçimindeki her tepkinin cevapları var', () => {
-  const src = readFileSync(new URL('../src/game/data/phoneScript.ts', import.meta.url), 'utf8');
+  const src = readFileSync(new URL('../src/games/ise-alim/game/data/phoneScript.ts', import.meta.url), 'utf8');
   const bare = src.split('\n').filter((l) => /reaction: '[^']*\?'/.test(l) && !l.includes('followUp'));
   assert.deepEqual(bare, []);
 });
@@ -54,7 +54,7 @@ test('toplantı bir anlatıcı cümlesiyle değil, selamlaşmayla başlar', () =
 });
 
 test('sahne notu yok: konuşmalarda "(kısa bir sessizlik)" gibi parantezler yazılmaz', () => {
-  const files = ['src/game/day/story.ts', 'src/game/data/interviewExtras.ts', 'src/game/data/phoneScript.ts', 'src/game/events/weekend.ts'];
+  const files = ['src/games/ise-alim/game/day/story.ts', 'src/games/ise-alim/game/data/interviewExtras.ts', 'src/games/ise-alim/game/data/phoneScript.ts', 'src/games/ise-alim/game/events/weekend.ts'];
   const notes = files.flatMap((f) => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8').match(/\((kısa|uzun|bir süre)[^)]*(sessizlik|duraksama|düşünüyor)\)/g) ?? []);
   assert.deepEqual(notes, []);
 });
@@ -75,7 +75,7 @@ test('gizlilik hatırlatması gönderilmez, kariyer platformunun e-postası spam
 });
 
 test('insanın yazdığı cevaplar kişiden kişiye değişir; kurumsal yanıt bilerek hep aynıdır', async () => {
-  const { replyBackMail } = await import('../src/game/day/rejectionMails');
+  const { replyBackMail } = await import('../src/games/ise-alim/game/day/rejectionMails');
   const ids = Object.keys(candidates).slice(0, 24);
   const bodies = (kind: 'warm' | 'reason' | 'formal') =>
     new Set(ids.map((id) => replyBackMail({ id: `reply-0-${id}`, day: 0, at: 0, from: '', address: '', subject: 'Re: x', body: '' }, kind, 0, 0)!.body.replace(new RegExp(candidates[id].name.split(' ')[0], 'g'), '').replace(/"[^"]*"/g, '')));

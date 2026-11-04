@@ -95,6 +95,13 @@ Asıl borç, ilk oyunun (İK) kökte yaşaması: `src/game`, `src/screens`, `src
 bir oyunun kodu ama paylaşılan altyapı gibi duruyor. 10 kat büyümede kırılacak ilk şey bu
 belirsizlik ve paylaşılan kodun yokluğu olur.
 
+> **Durum (4 Kasım 2026): bu bölümdeki maddeler uygulandı.** İK `src/games/ise-alim/`'e taşındı;
+> ortak kod `src/shared/` altında (ses motoru, stiller, depo, rastgelelik, renk, tercihler). İmport
+> yönü `tests/architecture.test.ts` ve `src/shared/**` için lint kuralıyla korunuyor. Kayıt erişimi
+> `src/shared/storage.ts`'te; eski sürüm anahtarları için göç desteği var (Trafik v1–v3 temizleniyor).
+> Yeni oyun kalıbı `docs/yeni-oyun.md`, katmanlar `docs/mimari.md`. `tsc -b` artımlı hâle geldi:
+> sıcak denetim 24,9 s → **0,46 s**, tek dosya değişince ~3–4 s; CI'da önbellekli.
+
 🟠 **İK oyunu kökü işgal ediyor.** `src/game/` (9.272 satır), `src/screens/` (8.014), `src/components/` (15.669) yalnızca `#/ise-alim` için; yine de `ErrorBoundary`, `motion`, `MobileBlock` gibi gerçekten ortak parçalar da `src/components/ui/` içinde. Yeni bir geliştirici neyin paylaşıldığını anlayamaz.
 - Düzeltme: `src/games/ise-alim/` altına taşıyın; gerçekten ortak olanları `src/shared/` (ui, lib, audio) altında toplayın. Lint ile yön koruyun: `games/*` → `shared/*` serbest, `games/a` → `games/b` yasak (oxlint `no-restricted-imports`).
 - Etki: yüksek (10x büyümede) · Efor: 1 gün (çoğu taşıma + import yolu).

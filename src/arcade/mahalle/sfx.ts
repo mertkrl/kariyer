@@ -1,4 +1,4 @@
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 
 /*
  * Mahallenin sesleri: dosya yok, ortak ses motoruyla üretilir ve sitenin sessiz tercihine uyar.

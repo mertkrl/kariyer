@@ -4,10 +4,10 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { minutesPerTick, useGameStore } from '../src/game/store/store';
-import { INVITE_LIMIT, days } from '../src/game/data/days';
+import { minutesPerTick, useGameStore } from '../src/games/ise-alim/game/store/store';
+import { INVITE_LIMIT, days } from '../src/games/ise-alim/game/data/days';
 import { playWeek, type BotStyle, type Run } from './support/bot';
-import { rngFor } from '../src/game/lib/rng';
+import { rngFor } from '../src/games/ise-alim/game/lib/rng';
 
 const store = useGameStore;
 
@@ -63,7 +63,7 @@ test('onaylayan ve reddeden oyuncu farklı yerlere varır', () => {
 
 
 test('gerçek bir haftanın gün başı kaydı eksiksiz geri yüklenir', async () => {
-  const { loadSave } = await import('../src/game/store/store');
+  const { loadSave } = await import('../src/games/ise-alim/game/store/store');
   playStyle(31, 'mixed');
   const save = loadSave();
   assert.ok(save, 'son gün başı kaydı geçersiz sayıldı');

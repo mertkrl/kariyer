@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import * as sfx from './sfx';
 import { EXAM_SECTIONS } from './data/questions';
 import { clockText, QUESTIONS_PER_SECTION, SECTION_SECONDS } from './logic';

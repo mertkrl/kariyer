@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import { REMARKS, TOOL_LABEL, type Level, type Tool } from './levels';
 import { CHUTE_Y, FILL_TO, chuteFull, costOf, dig, pour, rake, tamp, pump, spray } from './tools';
 import { H, PRICE, ROAD, ROLLER_W, SAW_PRICE, TACK_PRICE, TICKS_PER_SEC, W, createWorld, surfaceAt, type Material, type World, sawCut, type VehicleKind, type Weather } from './model';

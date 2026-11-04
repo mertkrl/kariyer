@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { prefersReducedMotion } from '../../components/ui/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import type { Year } from './data';
 import type { Theme } from './model';
 import { FlatSaver } from './SaverFlat';

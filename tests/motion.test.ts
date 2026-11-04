@@ -1,6 +1,6 @@
 /*
  * Hareketi azaltmayı seçen oyuncu: CSS animasyonları global.css'te durur, JavaScript ile çizilen
- * her sahne ve sayaç da components/ui/motion.ts'e sorar. Yeni bir requestAnimationFrame döngüsü
+ * her sahne ve sayaç da shared/motion.ts'e sorar. Yeni bir requestAnimationFrame döngüsü
  * bu soruyu sormadan eklenemez.
  */
 import { test } from 'node:test';
@@ -15,7 +15,7 @@ const sources = readdirSync(root, { recursive: true, encoding: 'utf8' })
 
 // hareket değil: odağı ekran açılınca bir kez yerleştirmek için kare beklenir; Kavşak Amiri'nin
 // simülasyon saati oyunun kendisidir (çizimi Scene yapar, o tercihi sorar)
-const NOT_MOTION = new Set(['components/ui/useScreenFocus.ts', 'games/trafik/Play.tsx']);
+const NOT_MOTION = new Set(['games/ise-alim/components/ui/useScreenFocus.ts', 'games/trafik/Play.tsx']);
 
 test('her animasyon döngüsü hareket azaltma tercihini sorar', () => {
   const missing = sources
@@ -25,6 +25,6 @@ test('her animasyon döngüsü hareket azaltma tercihini sorar', () => {
 });
 
 test('tercih tek yerden okunur', () => {
-  const raw = sources.filter(({ f, code }) => f !== 'components/ui/motion.ts' && code.includes('prefers-reduced-motion')).map(({ f }) => f);
+  const raw = sources.filter(({ f, code }) => f !== 'shared/motion.ts' && code.includes('prefers-reduced-motion')).map(({ f }) => f);
   assert.deepEqual(raw, []);
 });

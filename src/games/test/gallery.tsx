@@ -1,7 +1,7 @@
 import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import '../../styles/fonts.css';
-import '../../styles/global.css';
+import '../../shared/styles/fonts.css';
+import '../../shared/styles/global.css';
 import { EXAM_QUESTIONS } from './data/questions';
 import { QuestionWidget } from './widgets/QuestionWidgets';
 import styles from './TestGame.module.css';

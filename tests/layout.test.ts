@@ -25,14 +25,14 @@ test('her stil dosyası yalnızca ortak kırılma noktalarını kullanır', () =
       if (!(dim === 'width' ? WIDTHS : HEIGHTS).includes(value)) stray.push(`${f}: ${kind}-${dim}: ${px}px`);
     }
   }
-  assert.deepEqual(stray, [], 'listede olmayan kırılma noktası: styles/layout.css ve docs/yerlesim.md');
+  assert.deepEqual(stray, [], 'listede olmayan kırılma noktası: shared/styles/layout.css ve docs/yerlesim.md');
 });
 
 test('çerçeve ölçüleri tek yerde tanımlı, başka yerde yeniden tanımlanmaz', () => {
-  const layout = sheets.find((s) => s.f === join('styles', 'layout.css'))!.css;
+  const layout = sheets.find((s) => s.f === join('shared', 'styles', 'layout.css'))!.css;
   const shared = ['--frame-topbar', '--pc-titlebar', '--pc-taskbar', '--pc-task', '--pc-side'];
   for (const v of shared) assert.match(layout, new RegExp(`${v}:`), `${v} layout.css'te yok`);
-  const elsewhere = sheets.filter((s) => s.f !== join('styles', 'layout.css')).flatMap(({ f, css }) => shared.filter((v) => new RegExp(`${v}\\s*:`).test(css)).map((v) => `${f}: ${v}`));
+  const elsewhere = sheets.filter((s) => s.f !== join('shared', 'styles', 'layout.css')).flatMap(({ f, css }) => shared.filter((v) => new RegExp(`${v}\\s*:`).test(css)).map((v) => `${f}: ${v}`));
   assert.deepEqual(elsewhere, []);
 });
 

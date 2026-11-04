@@ -3,10 +3,10 @@
  * bir süre oku (portal ekrandayken), karar ver, saati tutan ne varsa cevapla. Nasıl okuduğu, karar
  * verdiği ve müdüre cevap verdiği çağırana kalmış.
  */
-import { useGameStore } from '../../src/game/store/store';
-import { days } from '../../src/game/data/days';
-import { lineupFor } from '../../src/game/store/storeDefaults';
-import type { Decision, Difficulty } from '../../src/game/types';
+import { useGameStore } from '../../src/games/ise-alim/game/store/store';
+import { days } from '../../src/games/ise-alim/game/data/days';
+import { lineupFor } from '../../src/games/ise-alim/game/store/storeDefaults';
+import type { Decision, Difficulty } from '../../src/games/ise-alim/game/types';
 
 const store = useGameStore;
 const MAX_TICKS_PER_DAY = 2000;

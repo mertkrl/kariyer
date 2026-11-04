@@ -5,7 +5,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { MUSIC_TRACKS, trackFor } from '../src/audio/musicPlan';
+import { MUSIC_TRACKS } from '../src/shared/audio/musicPlan';
+import { trackFor } from '../src/games/ise-alim/audio/trackFor';
 
 test('haftanın gerginliği parçalara yansır', () => {
   assert.deepEqual([0, 1, 2, 3].map((d) => trackFor('gameplay', d)), ['calm', 'calm', 'tense', 'tense']);

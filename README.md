@@ -6,7 +6,7 @@
 
 | Oyun | Maketteki yeri | Adres | Kod |
 | --- | --- | --- | --- |
-| **Sen İK'sin**: beş günlük işe alım simülasyonu; kurallar mı, vicdan mı? (yalnızca geniş ekranda) | Plaza | `#/ise-alim` | `src/App.tsx`, `src/game/`, `src/screens/`, `src/components/` |
+| **Sen İK'sin**: beş günlük işe alım simülasyonu; kurallar mı, vicdan mı? (yalnızca geniş ekranda) | Plaza | `#/ise-alim` | `src/games/ise-alim/` |
 | **Genel Yetenek ve Uyum Testi** (UyumMetre): "tamamen objektif" bir işe alım sınavının hicvi | Plaza | `#/test` | `src/games/test/` |
 | **İnşaat İzleme**: bir apartmanı temelden çatıya, ellerin arkanda izle | Şantiye | `#/insaat` | `src/games/insaat/` |
 | **Köy Bakkalı**: etiket yok, fiyatı sen söylersin; otuz gün dükkânı batırmadan tut | Bakkal | `#/bakkal` | `src/games/bakkal/` |
@@ -59,17 +59,20 @@ src/
     Finale, share.ts      Oyun sonu belgesi ve 1080×1350 sonuç kartı, paylaşım
     saveSlot.ts           Oyunların ortak kayıt yuvası (doğrulamalı)
     progress.ts           Maketteki tikler: hangi oyun bitti, sonucu ne
+    shell/                Her oyunun hata sınırı ve yükleniyor ekranı
   games/<oyun>/           Her oyun kendi klasöründe, kendi verisi ve kaydıyla
-  App.tsx, game/, screens/, components/   Sen İK'sin (aşağıda)
-  audio/                  Ortak ses motoru ve sahneleri
-  styles/                 Yazı tipleri, temel palet, ortak kırılma noktaları
+  games/ise-alim/         Sen İK'sin (aşağıda)
+  shared/                 Oyunları bilmeyen ortak katman: ses motoru (audio/), stiller (styles/),
+                          depo (storage.ts), rastgelelik, renk, hareket ve ses tercihleri
 gamePages.ts              Her oyunun paylaşım sayfası (`oyun/<ad>/`)
 serviceWorker.ts, csp.ts  Çevrimdışı kopya ve içerik güvenliği politikası
 ```
 
 Her oyun ayrı bir parça olarak yalnızca girilince (ya da maketteki durağın üstüne gelince) iner; ilk açılış yalnızca maketi indirir. Oyun bitince `progress.ts` ile maketteki durağına tik düşer.
 
-**Yeni oyun eklemek:** `slugs.ts`'e adresini, `games.ts`'e kartını (açılış zemini dahil), `Root.tsx`'teki `LOADERS`'a yükleyicisini, `mahalle/places.ts` ve `welcome/stops.ts`'e maketteki yerini ekle. Oyun salona `ClockOut` ile döner, bitince `markPlayed` çağırır, kaydını `saveSlot.ts` ile `kariyerweb-` önekli kendi anahtarında tutar.
+Katmanlar ve bağımlılık yönü (`shared/` ← `arcade/` ← `games/<oyun>/`, oyunlar birbirini import etmez): [docs/mimari.md](docs/mimari.md); `tests/architecture.test.ts` korur.
+
+**Yeni oyun eklemek:** klasör kalıbı, reducer şablonu ve salona bağlama adımları [docs/yeni-oyun.md](docs/yeni-oyun.md)'de.
 
 ## Testler
 
@@ -106,7 +109,7 @@ Sunucu, hesap, analiz ya da üçüncü taraf betiği yoktur. Her oyunun kaydı, 
 **Akış:** karşılama → ilan seçimi → başvuru seli → gün brifingi → mesai (masa, İşe Alım Portalı, e-posta, sabit hat, cep telefonu) → Çarşamba 11:00 haftalık İK toplantısı → gün sonu özetleri → Cuma mülakatları → Cuma 18:40 Hakan Bey'in kadro teklifi → annenle telefon → final ve oturum raporu.
 
 ```
-src/
+src/games/ise-alim/
   App.tsx                 Aşamaya göre ekran seçimi (ekranlar ihtiyaç anında yüklenir)
   screens/                Her aşamanın ekranı
   components/             desk/ pc/ phone/ (masa, bilgisayar, telefon), gameplay/, meeting/, dayend/, ui/
@@ -116,12 +119,12 @@ src/
     day/                  Mesainin kendisi: saat, e-posta, müdür, ATS, aday havuzu, hikâye
     events/               Haftanın özel anları: toplantı, mülakat, kurul, teklif, hafta sonu
     engine/               Puanlama, sonlar, başarımlar, oturum raporu
-    lib/                  Oyundan bağımsız araçlar: tohumlu rastgelelik, zaman, Türkçe ekler, ses çıkışı
+    lib/                  İK'nın araçları: etiketli tohumlu rastgelelik, zaman, Türkçe ekler
+  audio/trackFor.ts       Haftanın hangi anında hangi müzik
     data/                 Adaylar, günler, ilanlar, telefon senaryosu
-docs/                     Senaryo, oyun mekaniği, vakalar, kadrolar, yerleşim, eğitmen rehberi
 ```
 
-- **Kayıt:** her günün başında otomatik kayıt alınır; karşılama ekranında "Devam et" o günün sabahına döner. Kayıt biçimi değişirse `game/store/save.ts`'te `SAVE_VERSION` artar, mümkünse `MIGRATIONS`'a bir geçiş yazılır.
+- **Kayıt:** her günün başında otomatik kayıt alınır; karşılama ekranında "Devam et" o günün sabahına döner. Kayıt biçimi değişirse `src/games/ise-alim/game/store/save.ts`'te `SAVE_VERSION` artar, mümkünse `MIGRATIONS`'a bir geçiş yazılır.
 - **Aynı haftayı yeniden oynamak:** adresin sonuna `?seed=<kod>` eklenirse aynı aday dizilimi, aynı ricalar ve aynı olaylarla aynı hafta yeniden başlar.
 - **Eğitimde kullanmak:** final ekranındaki **Oturum raporu** oyuncunun haftasını ve kendi kararlarından başlayan tartışma sorularını gösterir; yazdırılabilir ya da metin olarak kopyalanabilir, hiçbir yere gönderilmez. Oturum planı: [docs/egitmen-rehberi.md](docs/egitmen-rehberi.md).
 - **Hata bildirmek:** hata ekranındaki "Hata raporunu kopyala" sürümü, oyun kodunu, aşamayı, günü ve hata izini panoya alır; kişisel bilgi içermez.

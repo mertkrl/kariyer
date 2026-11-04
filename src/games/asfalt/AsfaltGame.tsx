@@ -5,7 +5,7 @@ import { markPlayed } from '../../arcade/progress';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
 import { StudioMark } from '../../arcade/Studio';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { crewTitle, LEVELS, TOOL_LABEL } from './levels';
 import { H, ROAD, W } from './model';

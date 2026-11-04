@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ExamQuestion, ExamWidget } from '../data/questions';
 import * as sfx from '../sfx';
-import { prefersReducedMotion } from '../../../components/ui/motion';
+import { prefersReducedMotion } from '../../../shared/motion';
 import styles from './InboxWidget.module.css';
 
 /*

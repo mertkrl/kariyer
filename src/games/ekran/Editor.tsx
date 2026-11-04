@@ -13,6 +13,7 @@ import { applyTheme, readability, THEMES } from './theme';
 import { useClock } from './useClock';
 import styles from './EkranGame.module.css';
 import tools from './Tools.module.css';
+import { writeJson } from '../../shared/storage';
 
 /*
  * Normal mod: serbest atölye. Solda bileşen paleti, ortada ekran, sağda seçilenin ayarları.
@@ -115,11 +116,7 @@ export function Editor({ initial, task, storeKey, onFiles, onNext }: EditorProps
 
   // taslak her değişiklikte saklanır; gizli pencerede depolama yoksa sessizce geçilir
   useEffect(() => {
-    try {
-      localStorage.setItem(storeKey ?? draftKey(design.preset), JSON.stringify(design));
-    } catch {
-      /* depolama yok */
-    }
+    writeJson(storeKey ?? draftKey(design.preset), design);
   }, [design, storeKey]);
 
   // yeni hasta çağrılınca ya da durak değişince zil (açıksa)

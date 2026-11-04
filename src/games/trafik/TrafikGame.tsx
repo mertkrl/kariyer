@@ -4,7 +4,7 @@ import { hrefOf } from '../../arcade/route';
 import { markPlayed } from '../../arcade/progress';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
-import { audioEngine } from '../../audio/audioEngine';
+import { audioEngine } from '../../shared/audio/audioEngine';
 import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { LEVELS, shiftTitle, starsOf, type Level } from './levels';
 import { dayLabel, daySeed, freeLevel } from './free';
@@ -12,6 +12,7 @@ import { DIFFICULTY, type Difficulty } from './model';
 import { Play } from './Play';
 import { Title } from './Title';
 import styles from './TrafikGame.module.css';
+import { readText, writeText } from '../../shared/storage';
 
 /*
  * Kavşak Amiri: trafik kontrol merkezinde bir akşam vardiyası. Giriş ekranında "Oyna" zorluğu
@@ -23,27 +24,17 @@ import styles from './TrafikGame.module.css';
 
 /** Günün kavşağında en iyi puan, güne göre. */
 const dayKey = (seed: number) => `kariyerweb-trafik-gun-${seed}`;
-const readBest = (seed: number) => {
-  try {
-    return Number(localStorage.getItem(dayKey(seed))) || null;
-  } catch {
-    return null;
-  }
-};
+const readBest = (seed: number) => Number(readText(dayKey(seed))) || null;
 
 type Phase = { at: 'title' } | { at: 'free'; level: Level; daily: boolean; brief: boolean; key: number } | { at: 'tour'; then: 'order' | 'title'; key: number } | { at: 'order'; n: number; key: number } | { at: 'play'; n: number; key: number } | { at: 'done' };
 
 /** Vardiya kaydı: sıradaki kavşak ve bitenlerin puanları. Yarım kalan kavşak baştan açılır. */
 const SAVE_KEY = 'kariyerweb-trafik-v4';
+/** Önceki biçimlerin kayıtları: bölümler değiştiği için çevrilemez, ilk açılışta silinir (storage.ts). */
+const OLD_SAVES = ['kariyerweb-trafik-v1', 'kariyerweb-trafik-v2', 'kariyerweb-trafik-v3'].map((key) => ({ key }));
 /** Tanıtım bir kez kendiliğinden açılır; sonra giriş ekranındaki "Nasıl oynanır?" ile. */
 const TOUR_KEY = 'kariyerweb-trafik-tanitim';
-const tourSeen = () => {
-  try {
-    return localStorage.getItem(TOUR_KEY) === '1';
-  } catch {
-    return true;
-  }
-};
+const tourSeen = () => readText(TOUR_KEY) === '1';
 interface Shift {
   n: number;
   scores: number[];
@@ -54,7 +45,7 @@ const isShift = (v: unknown): v is Shift =>
 
 export function TrafikGame() {
   // `#/trafik?kavsak=3`: doğrudan o kavşaktan başlar (paylaşılan bağlantı ve deneme için)
-  const [saved, setSaved] = useState(() => readSlot(SAVE_KEY, isShift));
+  const [saved, setSaved] = useState(() => readSlot(SAVE_KEY, isShift, OLD_SAVES));
   const [phase, setPhase] = useState<Phase>(() => {
     const n = Number(new URLSearchParams(window.location.hash.split('?')[1]).get('kavsak'));
     if (n >= 1 && n <= LEVELS.length) return { at: 'order', n: Math.floor(n) - 1, key: 0 };
@@ -90,21 +81,14 @@ export function TrafikGame() {
   const playFree = (daily: boolean) => setPhase({ at: 'free', level: freeLevel(daily ? daySeed() : Math.floor(Math.random() * 1e6), daily), daily, brief: true, key: Date.now() });
   const endFree = (score: number, daily: boolean) => {
     if (daily && score > (best ?? 0)) {
-      try {
-        localStorage.setItem(dayKey(daySeed()), String(score));
-      } catch {
-        // kayıt yoksa en iyi puan yalnızca bu açılışta
-      }
+      // kayıt yoksa en iyi puan yalnızca bu açılışta
+      writeText(dayKey(daySeed()), String(score));
       setBest(score);
     }
     setPhase({ at: 'title' });
   };
   const endTour = (then: 'order' | 'title') => {
-    try {
-      localStorage.setItem(TOUR_KEY, '1');
-    } catch {
-      // kayıt yoksa tanıtım bir dahaki sefer yine açılır
-    }
+    writeText(TOUR_KEY, '1');
     setPhase(then === 'order' ? { at: 'order', n: 0, key: Date.now() } : { at: 'title' });
   };
   const next = (n: number, score: number) => {

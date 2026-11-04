@@ -1,5 +1,6 @@
 import { H, W, type Design, type Kind, type PresetId, type Widget } from './model';
 import { contrast, luminance } from '../../shared/color';
+import { readJson, writeJson } from '../../shared/storage';
 
 /*
  * Zor mod: ihale şartnamesi. Her ekranın üç dosyası var; her dosyada kurumun istekleri birer
@@ -285,23 +286,18 @@ export function unlocked(task: Task, progress: Progress): boolean {
 }
 
 export function loadProgress(): Progress {
-  try {
-    const raw = JSON.parse(localStorage.getItem(PROGRESS_KEY) ?? '{}');
-    const out: Progress = {};
-    for (const t of TASKS) if (typeof raw?.[t.id] === 'number') out[t.id] = Math.max(0, Math.min(3, Math.round(raw[t.id])));
-    return out;
-  } catch {
-    return {};
+  const raw = (readJson(PROGRESS_KEY) ?? {}) as Record<string, unknown>;
+  const out: Progress = {};
+  for (const t of TASKS) {
+    const v = raw[t.id];
+    if (typeof v === 'number') out[t.id] = Math.max(0, Math.min(3, Math.round(v)));
   }
+  return out;
 }
 
 export function saveStars(id: string, stars: number): Progress {
   const p = loadProgress();
   p[id] = Math.max(p[id] ?? 0, stars);
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
-  } catch {
-    /* depolama yok */
-  }
+  writeJson(PROGRESS_KEY, p);
   return p;
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ExamQuestion, ExamWidget } from '../data/questions';
-import { audioEngine } from '../../../audio/audioEngine';
+import { audioEngine } from '../../../shared/audio/audioEngine';
 import styles from './AppWidgets.module.css';
 import { Bookshelf, CompanyLogo, LivingRoom } from './Backdrops';
 

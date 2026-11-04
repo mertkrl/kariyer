@@ -1,5 +1,6 @@
 import { GAMES } from './games';
 import type { GameRoute } from './slugs';
+import { readText, writeJson } from '../shared/storage';
 
 /*
  * Salonun defteri neyi hatırlar: hangi oyun bitirildi ve sonucu ne çıktı. Yalnızca bu tarayıcıda,
@@ -44,20 +45,10 @@ export function withPlayed(p: Progress, route: GameRoute, result: string, now: n
 const ROUTES = GAMES.map((g) => g.route);
 
 export function loadProgress(): Progress {
-  try {
-    return parseProgress(localStorage.getItem(PROGRESS_KEY), ROUTES);
-  } catch {
-    return empty();
-  }
+  return parseProgress(readText(PROGRESS_KEY), ROUTES);
 }
 
-function store(p: Progress) {
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
-  } catch {
-    // gizli pencere: bu oturumluk
-  }
-}
+const store = (p: Progress) => writeJson(PROGRESS_KEY, p);
 
 /** Oyun bitti: deftere tik ve sonucu yazılır. */
 export function markPlayed(route: GameRoute, result: string) {
