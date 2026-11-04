@@ -102,10 +102,10 @@ function Door({ hour, weather, open, onSign, glow }: { hour: number; weather: We
       <rect x="90" y="150" width="270" height="540" fill="#4f3220" />
       <rect x="110" y="168" width="230" height="522" fill="url(#doorWood)" />
       {/* cam: dışarısı köy sokağı (Street.tsx), kapı kasasına kırpılır */}
-      <clipPath id="glass">
+      <clipPath id="doorGlass">
         <rect x="132" y="190" width="186" height="240" />
       </clipPath>
-      <g clipPath="url(#glass)">
+      <g clipPath="url(#doorGlass)">
         <rect x="132" y="190" width="186" height="240" fill="url(#outside)" />
         {night ? (
           <circle cx="280" cy="215" r="10" fill="#f4f1de" />
@@ -160,7 +160,7 @@ function Door({ hour, weather, open, onSign, glow }: { hour: number; weather: We
       <g
         key={open ? 'open' : 'closed'}
         data-tour="sign"
-        className={`${styles.sign} ${open ? '' : styles.signReady} ${glow ? styles.coach : ''}`}
+        className={`${styles.sign} ${open ? '' : styles.signReady} ${glow ? styles.signCall : ''}`}
         role={open ? undefined : 'button'}
         tabIndex={open ? undefined : 0}
         aria-label={open ? 'Tabela: dışarıda AÇIK yazıyor' : 'Tabelayı çevir, dükkânı aç (dışarıda KAPALI yazıyor)'}
@@ -179,7 +179,7 @@ function Door({ hour, weather, open, onSign, glow }: { hour: number; weather: We
   );
 }
 
-export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12, weather = 'sunny', onPet, onCalc, onBook, open = true, onSign, coach = null }: { children?: ReactNode; stock: Stock; gumActive?: boolean; onGum?: () => void; hour?: number; weather?: Weather; onPet?: () => void; onCalc?: () => void; onBook?: () => void; open?: boolean; onSign?: () => void; coach?: 'book' | 'calc' | 'sign' | null }) {
+export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12, weather = 'sunny', onCalc, onBook, open = true, onSign, coach = null }: { children?: ReactNode; stock: Stock; gumActive?: boolean; onGum?: () => void; hour?: number; weather?: Weather; onCalc?: () => void; onBook?: () => void; open?: boolean; onSign?: () => void; coach?: 'book' | 'calc' | 'sign' | null }) {
   const sky = skyAt(hour, weather);
   const dark = darknessAt(hour, weather);
   const tint = tintAt(hour, weather);
@@ -337,18 +337,16 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         </g>
         <Extras />
 
-        {/* duvar saati: soğuk dolabın üstünde */}
-        <g transform="translate(1254 -70)">
+        {/* duvar saati: soğuk dolabın üstünde; akrep ve yelkovan oyunun saatini gösterir */}
+        <g transform="translate(1254 -10)" className={styles.clock}>
           <circle r="42" fill="#fdf8ea" stroke="#5c3b22" strokeWidth="6" />
           {Array.from({ length: 12 }, (_, i) => (
             <path key={i} d="M0 -36 V-30" stroke="#333" strokeWidth={i % 3 ? 1.5 : 3} transform={`rotate(${i * 30})`} />
           ))}
-          <path d="M0 0 V-24" stroke="#222" strokeWidth="5" strokeLinecap="round" transform={`rotate(${((hour % 12) / 12) * 360})`} />
-          <path d="M0 0 V-34" stroke="#222" strokeWidth="3" strokeLinecap="round" transform={`rotate(${(hour % 1) * 360})`} />
+          <path d="M0 0 V-24" stroke="#222" strokeWidth="5" strokeLinecap="round" style={{ transform: `rotate(${(hour % 12) * 30}deg)` }} />
+          <path d="M0 0 V-34" stroke="#222" strokeWidth="3" strokeLinecap="round" style={{ transform: `rotate(${hour * 360}deg)` }} />
           <circle r="4" fill="#222" />
         </g>
-        {/* sinek kağıdı */}
-        <path d="M420 0 v60" stroke="#c9a227" strokeWidth="6" />
 
         </g>
         {/* tavandan sarkan ampul ve ışığı */}
@@ -365,7 +363,7 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
       <svg className={`${styles.layer} ${styles.front}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
         <CounterBody y={fitY(COUNTER_Y)} width={W} height={H} />
         <g transform={FIT}>
-          <CounterTop coach={coach} onPet={onPet} onCalc={onCalc} onBook={onBook} gum={stock.sakiz ?? 0} gumActive={gumActive} onGum={onGum} />
+          <CounterTop coach={coach} onCalc={onCalc} onBook={onBook} gum={stock.sakiz ?? 0} gumActive={gumActive} onGum={onGum} />
         </g>
         {/* akşam ve kötü havada oda kararır; ampulün çevresi aydınlık kalır */}
         <rect className={styles.light} width={W} height={H} fill="#1a1530" style={{ opacity: dark }} pointerEvents="none" />

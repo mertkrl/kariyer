@@ -8,6 +8,7 @@ import styles from './Tour.module.css';
  * nesnenin yanına oturur, oku ona döner. Bazı adımlar oyuncunun bir şey yapmasını bekler (defteri
  * açmak, levhayı çevirmek, ilk fiyatı söylemek): o adımda "İleri" yoktur, nesnenin kendisine
  * tıklanır. Hedef hareket ederse (müşteri yürüyerek gelir, defter sürüklenir) spot onu izler.
+ * Kartın sağ üstündeki × tanıtımı hemen kapatmaz: kartın içinde "atlamak istiyor musun?" sorulur.
  */
 
 type Box = { x: number; y: number; w: number; h: number };
@@ -52,6 +53,11 @@ export function TourOverlay({ at, onNext, onBack, onSkip }: { at: number; onNext
   const card = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box | null>(null);
   const [cardH, setCardH] = useState(200);
+  /** × basıldı: atlama onayı soruluyor. */
+  const [askedAt, setAskedAt] = useState<number | null>(null);
+  // adım değişince soru kendiliğinden kapanır
+  const asking = askedAt === at;
+  const setAsking = (on: boolean) => setAskedAt(on ? at : null);
 
   // hedef hareket edebilir: birkaç yüz milisaniyede bir yeniden ölçülür
   useLayoutEffect(() => {
@@ -76,12 +82,14 @@ export function TourOverlay({ at, onNext, onBack, onSkip }: { at: number; onNext
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
-      if (e.key === 'ArrowRight' && !step.wait) onNext();
+      if (e.key === 'Escape') setAskedAt((a) => (a === at ? null : at));
+      else if (asking) return;
+      else if (e.key === 'ArrowRight' && !step.wait) onNext();
       else if (e.key === 'ArrowLeft' && at > 0) onBack();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [at, step.wait, onNext, onBack]);
+  }, [at, step.wait, onNext, onBack, asking]);
 
   const p = place(box, cardH);
   return (
@@ -99,6 +107,9 @@ export function TourOverlay({ at, onNext, onBack, onSkip }: { at: number; onNext
         role="dialog"
         aria-label={`Tanıtım ${at + 1}/${TOUR.length}: ${step.title}`}
       >
+        <button type="button" className={styles.close} onClick={() => setAsking(true)} aria-label="Tanıtımı kapat" title="Tanıtımı kapat">
+          ×
+        </button>
         <div className={styles.head}>
           <span className={styles.avatar} aria-hidden="true">
             👴
@@ -108,34 +119,51 @@ export function TourOverlay({ at, onNext, onBack, onSkip }: { at: number; onNext
             <b>{step.title}</b>
           </span>
         </div>
-        <p>{step.body}</p>
-        {step.wait && step.hint && (
-          <p className={styles.hint}>
-            <span aria-hidden="true">👉</span> {step.hint}
-          </p>
+        {asking ? (
+          <div className={styles.confirm} role="alertdialog" aria-label="Tanıtımı atla">
+            <p>
+              <b>Tanıtımı atlamak istiyor musun?</b>
+              <br />
+              Şükrü Amca'nın anlatacakları kalır; dükkânı kapıdaki levhayı çevirerek kendin açarsın.
+            </p>
+            <div className={styles.actions}>
+              <button type="button" className={styles.back} onClick={() => setAsking(false)} autoFocus>
+                Devam et
+              </button>
+              <button type="button" className={styles.next} onClick={onSkip}>
+                Evet, atla
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p>{step.body}</p>
+            {step.wait && step.hint && (
+              <p className={styles.hint}>
+                <span aria-hidden="true">👉</span> {step.hint}
+              </p>
+            )}
+            <div className={styles.foot}>
+              <div className={styles.dots} aria-hidden="true">
+                {TOUR.map((_, i) => (
+                  <i key={i} className={i === at ? styles.dotOn : i < at ? styles.dotDone : undefined} />
+                ))}
+              </div>
+              <div className={styles.actions}>
+                {at > 0 && !step.wait && (
+                  <button type="button" className={styles.back} onClick={onBack}>
+                    Geri
+                  </button>
+                )}
+                {!step.wait && (
+                  <button type="button" className={styles.next} onClick={onNext} autoFocus>
+                    {at === 0 ? 'Başla' : 'İleri'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
         )}
-        <div className={styles.foot}>
-          <div className={styles.dots} aria-hidden="true">
-            {TOUR.map((_, i) => (
-              <i key={i} className={i === at ? styles.dotOn : i < at ? styles.dotDone : undefined} />
-            ))}
-          </div>
-          <div className={styles.actions}>
-            {at > 0 && !step.wait && (
-              <button type="button" className={styles.back} onClick={onBack}>
-                Geri
-              </button>
-            )}
-            {!step.wait && (
-              <button type="button" className={styles.next} onClick={onNext} autoFocus>
-                {at === 0 ? 'Başlayalım' : 'İleri'}
-              </button>
-            )}
-          </div>
-        </div>
-        <button type="button" className={styles.skip} onClick={onSkip}>
-          Tanıtımı atla
-        </button>
       </div>
     </div>
   );

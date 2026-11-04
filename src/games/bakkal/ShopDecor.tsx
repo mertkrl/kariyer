@@ -1,7 +1,7 @@
 import styles from './ShopScene.module.css';
 
 /*
- * Dükkânın küçük eşyaları: rafın üstündeki radyo, kapının solunda duvar rafındaki küçük tüplü
+ * Dükkânın küçük eşyaları: kapının solunda duvar rafındaki küçük tüplü
  * televizyon, kapının üstünde asılı biber ve sarımsak dizileri, ekmek dolabının üstünde fileye
  * geçirilmiş plastik futbol topları ve tezgâhtaki uyuyan kedi. Sahneyle aynı koordinatlarda çizilir.
  */
@@ -81,26 +81,10 @@ function TubeTv() {
   );
 }
 
-/** Rafın üstündeki radyo, kapının üstündeki biber ve sarımsak dizileri, toplar ve televizyon. */
+/** Kapının üstündeki biber ve sarımsak dizileri, toplar ve televizyon. */
 export function Extras() {
   return (
     <g>
-      {/* eski tip lambalı radyo: ahşap kasa, kumaş hoparlör, skala, iki düğme */}
-      <g transform="translate(560 56)">
-        <ellipse cx="0" cy="0" rx="66" ry="5" fill="rgba(0,0,0,.35)" />
-        <path d="M70 -60 L96 -108" stroke="#8a8f93" strokeWidth="3" />
-        <rect x="-64" y="-62" width="128" height="62" rx="12" fill="url(#post)" />
-        <rect x="-60" y="-58" width="120" height="54" rx="9" fill="#8b5a2b" />
-        <rect x="-52" y="-50" width="60" height="38" rx="5" fill="#cdb48a" />
-        {Array.from({ length: 24 }, (_, i) => (
-          <circle key={i} cx={-46 + (i % 8) * 7} cy={-43 + Math.floor(i / 8) * 9} r="1.6" fill="#8a7550" />
-        ))}
-        <rect x="14" y="-50" width="38" height="14" rx="2" fill="#f2e6c2" />
-        <path d="M18 -43 h30" stroke="#a88b54" strokeWidth="1" />
-        <rect x="30" y="-49" width="2" height="12" fill="#c0392b" />
-        <circle cx="22" cy="-22" r="7" fill="#3d2a17" stroke="#c9a227" strokeWidth="1.5" />
-        <circle cx="44" cy="-22" r="7" fill="#3d2a17" stroke="#c9a227" strokeWidth="1.5" />
-      </g>
       {/* kurutulmuş biber ve sarımsak dizileri */}
       {[
         { x: 112, n: 7, c: '#b3261e', r: 7 },
@@ -127,11 +111,11 @@ const PINK = '#e7a19b';
 /**
  * Tezgâhtaki tekir kedi: turuncu tüyde koyu çizgiler, krem göğüs ve ağız, pembe burun ve kulak içi,
  * bıyıklar. Hep uyur: sola bakan bir yumak gibi kıvrılır, kuyruğu önüne dolanır, ucu ara sıra
- * kıpırdar. Okşanınca mırlar.
+ * kıpırdar. Sessizdir: tıklanmaz.
  */
-export function Cat({ onPet }: { onPet?: () => void }) {
+export function Cat() {
   return (
-    <g transform={`translate(300 ${COUNTER_Y})`} className={styles.cat} onClick={onPet} role="button" aria-label="Kediyi okşa">
+    <g transform={`translate(300 ${COUNTER_Y})`} pointerEvents="none">
       <defs>
         <radialGradient id="catFur" cx=".45" cy=".3" r=".8">
           <stop offset="0" stopColor="#f0ab63" />

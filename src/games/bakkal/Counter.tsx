@@ -77,7 +77,7 @@ function DeskCalculator({ onOpen, glow }: { onOpen?: () => void; glow?: boolean 
 }
 
 
-export function CounterTop({ onPet, onCalc, onBook, gum, gumActive, onGum, coach }: { onPet?: () => void; onCalc?: () => void; onBook?: () => void; gum: number; gumActive: boolean; onGum?: () => void; coach?: string | null }) {
+export function CounterTop({ onCalc, onBook, gum, gumActive, onGum, coach }: { onCalc?: () => void; onBook?: () => void; gum: number; gumActive: boolean; onGum?: () => void; coach?: string | null }) {
   return (
     <g>
       <DeskCalculator onOpen={onCalc} glow={coach === 'calc'} />
@@ -85,7 +85,7 @@ export function CounterTop({ onPet, onCalc, onBook, gum, gumActive, onGum, coach
         <GumMachine count={gum} active={gumActive} onTurn={onGum} />
       </g>
       <DeskLedger onOpen={onBook} glow={coach === 'book'} />
-      <Cat onPet={onPet} />
+      <Cat />
     </g>
   );
 }

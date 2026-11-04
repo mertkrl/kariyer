@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { tl, type Product, type Reaction, type Visit } from './data';
 import { revealOf, type Receipt } from './returns';
 import { LOAN, dilemmaAsk, shortBy, type Answer, type ChangeWay, type Outcome } from './week';
@@ -22,7 +23,7 @@ const split = (name: string) => {
  * Müşterinin istediği: sipariş fişi gibi. Başlıkta kimin istediği, kaç kalem olduğu ve günün sırası; her kalem
  * yan yana kendi kutusunda: simgesi, adı, raf durumu ve ölçüsü (tost ve sandviçte içindekiler).
  */
-function WantList({ visit, missing, queue }: { visit: Visit; missing: Product[]; queue: string }) {
+function WantList({ visit, missing, queue, foot }: { visit: Visit; missing: Product[]; queue: string; foot?: ReactNode }) {
   return (
     <div className={styles.want}>
       <div className={styles.wantHead}>
@@ -52,6 +53,8 @@ function WantList({ visit, missing, queue }: { visit: Visit; missing: Product[];
           );
         })}
       </ul>
+      {/* fişin alt şeridi: ne yapılacağı (fiyatı kasaya gir) fişin parçası olarak durur */}
+      {foot && <div className={styles.wantFoot}>{foot}</div>}
     </div>
   );
 }
@@ -159,14 +162,24 @@ export function Till({
             <b>{{ account: `Eski hesap · ${visit.villager.name}`, loan: `${visit.villager.name} borç istiyor`, charity: `${visit.villager.name} · hayır için geldi`, fine: `${visit.villager.name} · denetim` }[errand]}</b>
           </div>
         ) : (
-          <WantList visit={visit} missing={shelf.missing} queue={queue} />
-        )}
-
-        {step === 'ask' && !errand && (
-          <p className={styles.wantHint}>
-            {shelf.missing.length > 0 && shelf.missing.length < visit.items.length && 'Rafta olmayanı almaz; gerisinin '}
-            {shelf.missing.length > 0 && shelf.missing.length < visit.items.length ? 'fiyatını' : 'Fiyatı'} kasaya gir, <kbd>ONAY</kbd>'a bas
-          </p>
+          <WantList
+            visit={visit}
+            missing={shelf.missing}
+            queue={queue}
+            foot={
+              step === 'ask' && !errand ? (
+                <p className={styles.wantHint}>
+                  <span className={styles.wantStep} aria-hidden="true">
+                    ₺
+                  </span>
+                  <span>
+                    {shelf.missing.length > 0 && shelf.missing.length < visit.items.length && 'Rafta olmayanı almaz; gerisinin '}
+                    {shelf.missing.length > 0 && shelf.missing.length < visit.items.length ? 'fiyatını' : 'Fiyatı'} kasaya gir, <kbd>ONAY</kbd>'a bas
+                  </span>
+                </p>
+              ) : undefined
+            }
+          />
         )}
 
         {step === 'ask' && errand === 'audit' && (
@@ -342,10 +355,7 @@ export function Till({
         {step === 'result' && (reaction || outcome) && (
           <div className={styles.result}>
             {outcome && reaction?.sold !== undefined && !visit.dilemma ? (
-              <p>
-                Satıldı: <b>{tl(reaction.sold)}</b>
-                {outcome.cash < 0 && ` · üstünü yuvarladın (−${tl(-outcome.cash)})`}
-              </p>
+              outcome.cash < 0 && <p>Üstünü yuvarladın: −{tl(-outcome.cash)}</p>
             ) : outcome ? (
               <p>{outcome.cash > 0 ? <>Kasaya girdi: <b className={styles.pos}>{tl(outcome.cash)}</b></> : outcome.cash < 0 ? <>Kasadan çıktı: <b className={styles.neg}>{tl(-outcome.cash)}</b></> : 'Kasaya para girmedi.'}</p>
             ) : reaction!.sold !== undefined ? (
@@ -353,11 +363,7 @@ export function Till({
                 <p>
                   Deftere yazıldı: <b>{tl(reaction!.sold)}</b> · mal gitti, para gelecek mi bakalım
                 </p>
-              ) : (
-                <p>
-                  Satıldı: <b>{tl(reaction!.sold)}</b>
-                </p>
-              )
+              ) : null
             ) : (
               <p>Satış olmadı.</p>
             )}

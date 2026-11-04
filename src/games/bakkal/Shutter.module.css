@@ -22,6 +22,7 @@
   inset: 0;
   display: flex;
   flex-direction: column;
+  background: #1d2124;
   transition: transform 1.45s cubic-bezier(0.45, 0.05, 0.4, 1);
 }
 
@@ -32,118 +33,70 @@
 .slats {
   position: relative;
   flex: 1;
+  margin: 0 30px;
   background:
-    /* delikler: her lamelde bir sıra */
-    radial-gradient(circle, rgba(18, 20, 22, 0.75) 0 1.3px, transparent 1.9px) 0 11px / 12px 30px,
+    /* havalandırma delikleri: her lamelde bir sıra yatay yuva, alt kenarı parlak */
+    radial-gradient(ellipse 3px 1.6px at 50% 50%, rgba(14, 16, 18, 0.85) 0 70%, transparent 100%) 0 12px / 14px 32px,
+    radial-gradient(ellipse 3px 1.6px at 50% 50%, rgba(255, 255, 255, 0.35) 0 70%, transparent 100%) 0 13.5px / 14px 32px,
     /* ince kir ve leke dokusu */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .28 0 0 0 0 .24 0 0 0 0 .2 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
-    /* yağmurun bıraktığı dikine pas izleri */
-    repeating-linear-gradient(90deg, transparent 0 173px, rgba(120, 72, 30, 0.13) 173px 176px, transparent 176px 311px, rgba(120, 72, 30, 0.08) 311px 313px, transparent 313px 420px),
-    /* ışık: kutunun altı ve yerin üstü karanlık, ortası açık */
-    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0) 20%, rgba(0, 0, 0, 0) 68%, rgba(30, 20, 10, 0.38)),
-    radial-gradient(ellipse 70% 60% at 50% 42%, rgba(255, 255, 255, 0.14), transparent 70%),
-    /* lamel profili: 30 piksel */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .26 0 0 0 0 .23 0 0 0 0 .2 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"),
+    /* ışık: kutunun altı ve yerin üstü karanlık, ortası soldan vuran açık bir leke */
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 16%, rgba(0, 0, 0, 0) 72%, rgba(24, 18, 12, 0.42)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0) 12%, rgba(0, 0, 0, 0) 88%, rgba(0, 0, 0, 0.3)),
+    radial-gradient(ellipse 60% 55% at 38% 40%, rgba(255, 255, 255, 0.16), transparent 70%),
+    /* lamel profili (32 piksel): kilit oluğu, parlak bombe, düz yüz, gölgeli alt kıvrım */
     repeating-linear-gradient(
-      #3b4145 0 1px,
-      #e2e7e9 1px 3px,
-      #bcc3c6 3px 8px,
-      #a4acb0 8px 15px,
-      #8f979c 15px 21px,
-      #767e83 21px 26px,
-      #5c6368 26px 29px,
-      #3b4145 29px 30px
+      #2b3033 0 1px,
+      #59626a 1px 2px,
+      #f4f7f8 2px 3.5px,
+      #d4dadd 3.5px 6px,
+      #b9c1c5 6px 10px,
+      #a5aeb3 10px 17px,
+      #959ea3 17px 22px,
+      #7c858a 22px 26px,
+      #5e666b 26px 29px,
+      #444b50 29px 31px,
+      #2b3033 31px 32px
     );
+  box-shadow: inset 0 14px 18px -10px rgba(0, 0, 0, 0.6);
 }
 
-/* cıvatalı yan raylar */
-.slats::before,
-.slats::after {
-  content: '';
+/* yağmurun bıraktığı dikine pas izleri ve alt köşelerde kabaran pas */
+.wear {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 24px;
+  inset: 0;
+  pointer-events: none;
   background:
-    radial-gradient(circle, #d6dbde 0 2px, #4a5054 2.5px 3.5px, transparent 4px) 50% 40px / 24px 140px repeat-y,
-    linear-gradient(90deg, #2e3336, #6f787d 30%, #9aa3a8 50%, #5b6368 72%, #2a2e31);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
-}
-
-.slats::before {
-  left: 0;
-}
-
-.slats::after {
-  right: 0;
-}
-
-/* boyayla elle yazılmış ad: biraz eğri, sprey kenarı yumuşak */
-.paint {
-  position: absolute;
-  top: 82px;
-  left: 0;
-  right: 0;
-  margin: 0;
-  color: #9e2419;
-  font: 800 clamp(2rem, 7vw, 4.4rem) / 0.95 var(--font-display);
-  letter-spacing: 2px;
-  text-align: center;
-  text-shadow: 0 0 2px rgba(158, 36, 25, 0.6), 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: rotate(-2deg);
-  opacity: 0.86;
+    linear-gradient(rgba(150, 82, 30, 0), rgba(150, 82, 30, 0.22) 40%, rgba(150, 82, 30, 0)) 22% 0 / 3px 46% no-repeat,
+    linear-gradient(rgba(150, 82, 30, 0), rgba(150, 82, 30, 0.16) 50%, rgba(150, 82, 30, 0)) 61% 0 / 2px 38% no-repeat,
+    linear-gradient(rgba(150, 82, 30, 0), rgba(150, 82, 30, 0.14) 50%, rgba(150, 82, 30, 0)) 83% 0 / 3px 30% no-repeat,
+    radial-gradient(ellipse 120px 50px at 4% 100%, rgba(130, 72, 28, 0.28), transparent 70%),
+    radial-gradient(ellipse 160px 44px at 97% 100%, rgba(130, 72, 28, 0.22), transparent 70%);
   mix-blend-mode: multiply;
 }
 
-.paint span {
-  display: block;
-  font-size: 0.55em;
-  letter-spacing: 6px;
-}
-
-/* şablonla sıkılmış uyarı: beyaz, soluk, kenarları dağınık */
-.stencil {
-  position: absolute;
-  left: max(36px, 5%);
-  bottom: 40px;
-  margin: 0;
-  color: rgba(245, 245, 240, 0.62);
-  font: 800 clamp(0.75rem, 1.6vw, 1.05rem) var(--font-mono);
-  letter-spacing: 3px;
-  text-shadow: 0 0 1.5px rgba(255, 255, 255, 0.5);
-  filter: blur(0.3px);
-}
-
-/* bantlı kâğıt: sağ altta */
-.note {
-  position: absolute;
-  right: max(40px, 6%);
-  bottom: 30px;
-  margin: 0;
-  padding: 12px 16px 10px;
-  background: #fbf6e6;
-  color: #2b211b;
-  font: 600 1.15rem/1.25 'Caveat', cursive;
-  text-align: center;
-  transform: rotate(3deg);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.note::before {
+/* derin U kanallı kılavuz raylar: duvara cıvatalı, iç yüzü gölgede */
+.curtain::before,
+.curtain::after {
   content: '';
   position: absolute;
-  top: -8px;
-  left: 50%;
-  width: 54px;
-  height: 16px;
-  background: rgba(240, 230, 190, 0.75);
-  transform: translateX(-50%) rotate(-4deg);
+  top: 0;
+  bottom: 18px;
+  z-index: 1;
+  width: 34px;
+  background:
+    radial-gradient(circle, #e4e8ea 0 2.2px, #3e4448 2.7px 3.8px, rgba(0, 0, 0, 0.35) 4.2px 5px, transparent 5.5px) 50% 60px / 34px 150px repeat-y,
+    linear-gradient(90deg, #1d2124, #4a5257 10%, #9aa3a8 26%, #c9d0d3 36%, #8a9398 50%, #5b6368 66%, #2c3134 82%, #15181a);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.55);
 }
 
-.note small {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.95rem;
-  color: #6a5a4a;
+.curtain::before {
+  left: 0;
+}
+
+.curtain::after {
+  right: 0;
+  transform: scaleX(-1);
 }
 
 /* alt profil: kalın köşebent sac, iki kulp, ortada yere inen kilit dili */
@@ -152,20 +105,24 @@
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
-  height: 46px;
-  background: linear-gradient(#c3cacd, #8c9599 18%, #5a6266 55%, #3c4245);
-  border-top: 1px solid #e8eced;
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.35);
+  height: 48px;
+  margin: 0 30px;
+  background:
+    linear-gradient(transparent 7px, rgba(255, 255, 255, 0.55) 7px 8px, transparent 8px),
+    linear-gradient(#e6ebed, #b3bbbf 10%, #8c9599 30%, #6a7378 60%, #454c50 88%, #2b3033);
+  border-top: 1px solid #f4f7f8;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.4), 0 -6px 10px rgba(0, 0, 0, 0.25);
 }
 
 .handle {
   width: 70px;
   height: 16px;
   margin-top: 8px;
-  border: 5px solid #24282b;
+  border: 5px solid #8e979c;
   border-top: 0;
   border-radius: 0 0 12px 12px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+  border-bottom-color: #c9d0d3;
 }
 
 /* kilit dili ve asma kilit */
@@ -218,8 +175,10 @@
 .ground {
   height: 18px;
   background:
-    repeating-linear-gradient(90deg, transparent 0 118px, rgba(0, 0, 0, 0.25) 118px 120px),
-    linear-gradient(#8d8a82, #6f6c65);
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0) 5px),
+    repeating-linear-gradient(90deg, transparent 0 118px, rgba(42, 35, 29, 0.35) 118px 120px),
+    linear-gradient(#a8a49b, #8d8a82 40%, #6f6c65);
+  border-top: 2px solid #c9c5bc;
 }
 
 /* üstte sabit kepenk kutusu: lameller içine sarılır */
@@ -230,10 +189,13 @@
   right: 0;
   height: 74px;
   background:
-    radial-gradient(circle, #d6dbde 0 2px, #4a5054 2.5px 3.5px, transparent 4px) 60px 52px / 180px 40px repeat-x,
-    linear-gradient(#59626a, #8e979c 55%, #aab2b6 80%, #646d72);
-  border-bottom: 2px solid #2d3236;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+    /* cıvatalar ve sac ek yerleri */
+    radial-gradient(circle, #eef1f2 0 2px, #3e4448 2.6px 3.6px, rgba(0, 0, 0, 0.3) 4px 4.8px, transparent 5.2px) 60px 54px / 180px 40px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 239px, rgba(30, 34, 37, 0.5) 239px 240px, rgba(255, 255, 255, 0.35) 240px 241px, transparent 241px 360px),
+    /* bombeli sac: üstte gölge, altta parlak kıvrım ve damlalık */
+    linear-gradient(#3e464c, #6d777d 18%, #a3acb1 52%, #cfd5d8 70%, #9aa3a8 84%, #e9edef 88%, #5b6368 92%, #2a2f32);
+  border-bottom: 1px solid #1b1f22;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {

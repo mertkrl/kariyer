@@ -152,7 +152,7 @@ export function Street({ night, snow }: { night: boolean; snow: boolean }) {
           const x = 142 + k * 7;
           return <path key={c} d={quad(left, x, x + 4, 0.09, k % 2 ? 0.17 : 0.2)} fill={c} {...LINE} strokeWidth={0.4} />;
         })}
-      {/* saçak ve kiremit dam, baca ve çanak anten */}
+      {/* saçak ve kiremit dam, baca */}
       <path d={quad(left, 150, 158, -0.46, -0.1)} fill="#c9a874" {...LINE} />
       <path d={quad(left, 149, 159, -0.5, -0.44)} fill="#6f665c" {...LINE} strokeWidth={0.6} />
       <path d={quad(left, 132, 210, -0.22, 0)} fill={roofSnow ?? '#b9573a'} {...LINE} />
@@ -164,10 +164,6 @@ export function Street({ night, snow }: { night: boolean; snow: boolean }) {
       ))}
       <path d={`M${left(132, 0)} L${left(208, 0)}`} stroke="#efe6d4" strokeWidth="2.4" />
       <path d={`M${left(132, 0.02)} L${left(208, 0.02)}`} stroke={INK} strokeWidth="0.6" />
-      <g transform={`translate(${left(184, -0.16)})`}>
-        <ellipse rx="3.2" ry="4" fill="#ece8e0" {...LINE} strokeWidth={0.6} transform="rotate(-20)" />
-        <path d="M0 0 L4 -1.6" stroke={INK} strokeWidth="0.5" />
-      </g>
       {/* çevre çizgisi: kalın mürekkep */}
       <path d={`M${left(132, 1)} L${left(132, 0)} L${left(206, 0)} L${left(206, 1)} Z`} fill="none" stroke={INK} strokeWidth="1.3" />
       {/* beton kaldırım: plakalar ve bordür */}

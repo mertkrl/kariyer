@@ -541,8 +541,6 @@ function useBakkal() {
       setPhase('shop');
     });
 
-  const pet = () => sfx.meow();
-
   /** Levha çevrilir: dışarıda AÇIK yazar, ilk müşteri kapıdan girer. */
   const openShop = () => {
     if (phase !== 'shop' || signOpen) return;
@@ -604,7 +602,7 @@ function useBakkal() {
     // oxlint-disable-next-line react/exhaustive-deps
   }, [phase]);
 
-  return { acceptCharity, answerAccount, bankrupt, basket, befriended, book, bookAt, calc, carried, changeVolume, coins, credited, day, daySales, decideCredit, decideDilemma, decideGift, decideReturn, deeds, drawer, errand, ethics, fine, flow, gift, giveChange, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, muted, next, nextDay, noStock, old, openBook, openDebt, openShop, order, outcome, pages, paidToday, pay, payFine, pet, phase, playing, price, raise, reaction, receipts, rep, repAtDayStart, restart, resume, returned, rising, saved, seed, sell, setBook, setBookAt, setCalc, setDrawer, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, setTour, setView, shelf, short, showBooks, signOpen, spoiled, staleNote, step, stock, supply, till, toggleMute, tour, tourTo, turnGum, unpaid, verdicts, view, visit, visits, volume, weather, written };
+  return { acceptCharity, answerAccount, bankrupt, basket, befriended, book, bookAt, calc, carried, changeVolume, coins, credited, day, daySales, decideCredit, decideDilemma, decideGift, decideReturn, deeds, drawer, errand, ethics, fine, flow, gift, giveChange, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, muted, next, nextDay, noStock, old, openBook, openDebt, openShop, order, outcome, pages, paidToday, pay, payFine, phase, playing, price, raise, reaction, receipts, rep, repAtDayStart, restart, resume, returned, rising, saved, seed, sell, setBook, setBookAt, setCalc, setDrawer, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, setTour, setView, shelf, short, showBooks, signOpen, spoiled, staleNote, step, stock, supply, till, toggleMute, tour, tourTo, turnGum, unpaid, verdicts, view, visit, visits, volume, weather, written };
 }
 
 /** Oyunun bütün hâli ve işleri: ShopView bunları çizer. */

@@ -104,6 +104,7 @@
 .head {
   display: flex;
   align-items: center;
+  padding-right: 28px;
   gap: 10px;
   padding-left: 14px;
 }
@@ -215,21 +216,43 @@
 
 .next:focus-visible,
 .back:focus-visible,
-.skip:focus-visible {
+.close:focus-visible {
   outline: 2px solid #8a5226;
   outline-offset: 2px;
 }
 
-.skip {
-  justify-self: end;
-  margin-top: -4px;
-  padding: 2px 4px;
-  border: 0;
-  background: none;
-  color: #8a6a48;
-  font: 600 11.5px var(--font-body);
-  text-decoration: underline;
+.close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(92, 54, 19, 0.25);
+  border-radius: 50%;
+  background: #f6ead2;
+  color: #5c3613;
+  font: 600 18px/1 var(--font-body);
   cursor: pointer;
+}
+
+.close:hover {
+  background: #eedcb8;
+}
+
+.confirm {
+  display: grid;
+  gap: 10px;
+}
+
+.confirm b {
+  color: #7a3a14;
+}
+
+.confirm .actions {
+  justify-content: flex-end;
 }
 
 @keyframes cardIn {

@@ -16,6 +16,7 @@ import { ReceiptDrawer } from './Drawer';
 import { SUPPLY_NOTE } from './pressure';
 import { viewAttrs } from './access';
 import { TourOverlay } from './Tour';
+import { SignFallback } from './SignFallback';
 import styles from './BakkalGame.module.css';
 import type { Bakkal } from './BakkalGame';
 
@@ -25,10 +26,10 @@ import type { Bakkal } from './BakkalGame';
 const faceOf = (r: Reaction): Face => (r.mood === 'happy' && r.rep >= 2 ? 'delight' : r.mood === 'leave' && r.rep <= -4 ? 'shock' : r.mood);
 
 export function ShopView({ g }: { g: Bakkal }) {
-  const { acceptCharity, answerAccount, bankrupt, basket, befriended, book, bookAt, calc, carried, changeVolume, coins, credited, day, daySales, decideCredit, decideDilemma, decideGift, decideReturn, deeds, drawer, errand, ethics, fine, flow, gift, giveChange, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, muted, next, nextDay, noStock, old, openBook, openDebt, openShop, order, outcome, pages, paidToday, pay, payFine, pet, phase, playing, price, raise, reaction, receipts, rep, repAtDayStart, restart, resume, returned, rising, saved, seed, sell, setBook, setBookAt, setCalc, setDrawer, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, setTour, setView, shelf, short, showBooks, signOpen, spoiled, staleNote, step, stock, supply, till, toggleMute, tour, tourTo, turnGum, unpaid, verdicts, view, visit, visits, volume, weather, written } = g;
+  const { acceptCharity, answerAccount, bankrupt, basket, befriended, book, bookAt, calc, carried, changeVolume, coins, credited, day, daySales, decideCredit, decideDilemma, decideGift, decideReturn, deeds, drawer, errand, ethics, fine, flow, gift, giveChange, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, muted, next, nextDay, noStock, old, openBook, openDebt, openShop, order, outcome, pages, paidToday, pay, payFine, phase, playing, price, raise, reaction, receipts, rep, repAtDayStart, restart, resume, returned, rising, saved, seed, sell, setBook, setBookAt, setCalc, setDrawer, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, setTour, setView, shelf, short, showBooks, signOpen, spoiled, staleNote, step, stock, supply, till, toggleMute, tour, tourTo, turnGum, unpaid, verdicts, view, visit, visits, volume, weather, written } = g;
   return (
     <div className={styles.app} {...viewAttrs(view)}>
-      <ShopScene open={signOpen} onSign={openShop} coach={tour === null && !signOpen ? 'sign' : null} stock={stock} gumActive={gumGiven !== null && !!pay && gumGiven < pay.odd} onGum={turnGum} hour={hour} weather={weather} onPet={pet} onCalc={() => setCalc((c) => !c)} onBook={openBook}>
+      <ShopScene open={signOpen} onSign={openShop} coach={tour === null && !signOpen ? 'sign' : null} stock={stock} gumActive={gumGiven !== null && !!pay && gumGiven < pay.odd} onGum={turnGum} hour={hour} weather={weather} onCalc={() => setCalc((c) => !c)} onBook={openBook}>
         {visit && (
           <Customer
             key={`${day}-${idx}`}
@@ -65,22 +66,8 @@ export function ShopView({ g }: { g: Bakkal }) {
         />
       )}
 
-      {phase === 'shop' && !signOpen && !rising && tour === null && (
-        <main className={styles.coachCard}>
-          <section className={styles.till}>
-            <p className={styles.queue}>
-              {day}. gün · {clockText(hour)} · dükkân kapalı
-            </p>
-            <p className={styles.or}>
-              Kapıdaki levhada içeriden <b>AÇIK</b> yazıyor, yani dışarıdan dükkân kapalı görünüyor. Levhayı çevir: dışarıda AÇIK yazsın, müşteriler gelsin.
-            </p>
-            <button autoFocus className={styles.primary} onClick={openShop}>
-              🔄 Levhayı çevir, dükkânı aç
-            </button>
-          </section>
-        </main>
-      )}
-
+      {/* dükkân kapalıyken yönerge kartı yok: kapıdaki AÇIK levhası yanıp söner, oyuncu oradan açar */}
+      {phase === 'shop' && !signOpen && !rising && tour === null && <SignFallback onOpen={openShop} />}
       {phase === 'shop' && !rising && tour !== null && <TourOverlay at={tour} onNext={() => tourTo(tour + 1)} onBack={() => tourTo(tour - 1)} onSkip={() => tourTo(null)} />}
 
       {phase === 'shop' && visit && basket && shelf && (
