@@ -250,7 +250,7 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
                   navigate('arcade');
                 }}
               >
-                Evet, çık
+                Evet, salona dön
               </button>
             </div>
           </div>
@@ -260,7 +260,7 @@ export function SettingsPanel({ onResume }: { onResume: () => void }) {
               <span className={styles.md} aria-hidden="true">
                 MD
               </span>
-              Mesaiyi bitir
+              Salona dön
             </button>
             <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onResume}>
               Devam et

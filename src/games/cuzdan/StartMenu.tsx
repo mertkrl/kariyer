@@ -8,11 +8,11 @@ import m from './StartMenu.module.css';
 /*
  * Cüzdan TL'nin başlat menüsü, üç dönemde üç düzen (aynı içerik, StartMenu.module.css):
  * - 2002–2005: iki sütun; solda beyaz zeminde masalar, sağda açık mavi zeminde belgeler ve ayarlar,
- *   altta mavi şeritte "Kullanıcı değiştir" ve kırmızı "Mesaiyi bitir".
+ *   altta mavi şeritte "Kullanıcı değiştir" ve kırmızı "Salona dön".
  * - 2008–2012: koyu cam; solda beyaz liste, sağda cam üstünde kullanıcı resmi ve bağlantılar, güç
  *   düğmesi sağ sütunun dibinde.
  * - 2016–2020: ortada açılan kart; üstte sabitlenmiş simgeler ızgarası, altta kullanıcı ve güç.
- * "Mesaiyi bitir" salona döner; Escape ya da dışarı tıklama menüyü kapatır.
+ * "Salona dön" salona döner; Escape ya da dışarı tıklama menüyü kapatır.
  */
 
 const GAMES: { id: IconId; label: string; desc: string }[] = [
@@ -113,7 +113,7 @@ export function StartMenu({ theme, year, persona, onOpen, onLogout, onClose }: {
           <span className={`${m.footIcon} ${m.power}`} aria-hidden="true">
             ⏻
           </span>
-          Mesaiyi bitir
+          Salona dön
         </a>
       </div>
     </div>

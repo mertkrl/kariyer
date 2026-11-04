@@ -40,6 +40,11 @@ interface Props {
   preload: (route: GameRoute) => void;
 }
 
+/** Maketin ekrandaki genişliği (ölçüldü: telefonda tam ekran, tablette %87, masaüstünde %64). */
+const SIZES = '(max-width: 600px) 100vw, (max-width: 900px) 87vw, 64vw';
+/** Aynı görselin 576 ve 864 piksellik kopyaları (public/mahalle/<ad>-576.webp …) ve kendisi. */
+const srcSetOf = (src: string) => [576, 864].map((w) => `${src.replace(/\.webp$/, `-${w}.webp`)} ${w}w`).concat(`${src} 1152w`).join(', ');
+
 export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, onEnter, preload }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const maskId = `maket-isik-${useId().replace(/\W/g, '')}`;
@@ -129,11 +134,13 @@ export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, 
       onClick={onClick}
     >
       <div className={s.tilt} style={origin}>
-        <img className={s.base} src={src} alt="İstanbul mahalle maketi: eski evler, bir bakkal, döviz bürosu, inşaat ve otobüs durağı" width={1152} height={928} decoding="async" fetchPriority="high" draggable={false} />
+        <img className={s.base} src={src} srcSet={srcSetOf(src)} sizes={SIZES} alt="İstanbul mahalle maketi: eski evler, bir bakkal, döviz bürosu, inşaat ve otobüs durağı" width={1152} height={928} decoding="async" fetchPriority="high" draggable={false} />
         {/* gece katmanı: gece görseli ve pencere ışıkları birlikte biner. Ayrı ayrı solarlarsa
-            pencerelerin çevresindeki gece pikselleri gündüzün üstünde kara kareler olarak görünür. */}
+            pencerelerin çevresindeki gece pikselleri gündüzün üstünde kara kareler olarak görünür.
+            Gündüz hiç kurulmaz: iki görsel (~200 KB) hava kararmaya başlayınca iner. */}
+        {dark > 0 && (
         <div className={`${s.base} ${s.nightImg}`} style={{ opacity: dark }} aria-hidden="true">
-          <img className={s.fill} src={nightSrc} alt="" width={1152} height={928} decoding="async" draggable={false} />
+          <img className={s.fill} src={nightSrc} srcSet={srcSetOf(nightSrc)} sizes={SIZES} alt="" width={1152} height={928} decoding="async" draggable={false} />
           <svg className={s.fill} viewBox="0 0 1152 928" preserveAspectRatio="xMidYMid slice">
             <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="1152" height="928">
               {WINDOWS.map(([, points], i) => (
@@ -143,8 +150,9 @@ export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, 
             <image href={litSrc} width="1152" height="928" mask={`url(#${maskId})`} />
           </svg>
         </div>
+        )}
         <div className={s.lit} aria-hidden="true">
-          <img className={s.fill} src={night ? nightSrc : src} alt="" width={1152} height={928} draggable={false} />
+          <img className={s.fill} src={night ? nightSrc : src} srcSet={srcSetOf(night ? nightSrc : src)} sizes={SIZES} alt="" width={1152} height={928} draggable={false} />
           {night && (
             <svg className={s.fill} viewBox="0 0 1152 928" preserveAspectRatio="xMidYMid slice">
               <image href={litSrc} width="1152" height="928" mask={`url(#${maskId})`} />

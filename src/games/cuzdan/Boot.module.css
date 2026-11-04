@@ -2,15 +2,18 @@
 .bios {
   position: absolute;
   inset: 0;
-  padding: 26px 30px;
+  /* en uzun satır 47 karakter: dar ekranda yazı genişliğe göre küçülür, satırlar kesilmez */
+  padding: 26px clamp(12px, 4vw, 30px);
   background: #000;
   color: #c8c8c8;
-  font: 15px/1.35 ui-monospace, 'Courier New', monospace;
+  font: min(15px, 3.2vw) / 1.35 ui-monospace, 'Courier New', monospace;
   white-space: pre;
 }
 
+
 .skip {
   position: absolute;
+  min-height: 44px;
   right: 18px;
   bottom: 16px;
   padding: 5px 12px;

@@ -13,6 +13,15 @@ export function routeOf(hash: string): Route {
   return found ?? 'arcade';
 }
 
+/** Salonun kendi adresleri: boş, `#/` ve eski `#/mahalle`. */
+const HOME_PATHS = ['', '/', '/mahalle'];
+
+/** Adres bir oyuna da salona da karşılık gelmiyor mu (eski ya da yanlış yazılmış bağlantı). */
+export function isUnknownHash(hash: string): boolean {
+  const path = hash.replace(/^#/, '').split('?')[0].replace(/\/+$/, '');
+  return !HOME_PATHS.includes(path) && !HOME_PATHS.includes(`${path}/`) && routeOf(hash) === 'arcade';
+}
+
 export function hrefOf(route: Route): string {
   return route === 'arcade' ? '#/' : `#/${SLUGS[route]}`;
 }

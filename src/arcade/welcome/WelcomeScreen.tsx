@@ -274,6 +274,7 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
                   </svg>
                 )}
                 {g.title}
+                {g.desktopOnly && <small className={s.chipTag}>masaüstü</small>}
                 {progress.played[g.route] && <span className="sr-only"> (bitirildi)</span>}
               </button>
             );

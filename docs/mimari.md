@@ -77,3 +77,24 @@ sil") dokunduğunu da denetler.
 `tsc -b` artımlıdır (`incremental`): önbellek `node_modules/.tmp/` altında, CI'da
 `actions/cache` ile korunur. Soğuk denetim ~25 s, değişiklik yokken ~0,5 s, tek dosya değişince
 ~3–4 s.
+
+## Performans kuralları
+
+Ölçülerek konmuş kurallar; yenisini eklemeden önce Lighthouse ile önce/sonra ölç.
+
+- **İlk paket bütçesi 90 KB gzip** (`npm run size`). Salonun ilk boyamasına gerekmeyen her şey
+  tembel iner: oyunlar (`Root.tsx`), ses motoru (`shared/audio/lazy.ts`), çerçeve uyarısı.
+- **Canlı sahnede SVG filtresi yok.** Bakkal'da denenen `feConvolveMatrix` mürekkep filtresi kareyi
+  14'ten 3 fps'e düşürdü: sahnedeki herhangi bir animasyon (bir düğmenin nabzı bile) filtreyi her
+  karede yeniden çalıştırır. Mürekkep çizgisi CSS `stroke` + `vector-effect: non-scaling-stroke`,
+  doku `<pattern>` ile verilir (`games/bakkal/ShopScene.module.css` `.inked`).
+- **Görseller ekran boyunda iner.** Maket `srcset` ile 576/864/1152 piksel; gece katmanı ve pencere
+  ışıkları yalnızca hava kararmaya başlayınca kurulur (`arcade/welcome/Model.tsx`). Yeni boyut:
+  `public/mahalle/<ad>-<genişlik>.webp`.
+- **Ağır SVG'yi ilk boyamadan sonraya ertelemek her zaman kazanç değil.** Meydan'ın seçim kartlarını
+  (kart başına ~2.400 düğüm) ekrana yaklaşınca kurmak denendi: iş ilk boyamadan sonraya kaydığı için
+  engellenme süresi 35 → 474 ms çıktı, mobil Lighthouse 88 → 75 düştü; geri alındı. Önizleme
+  gerçekten hafifletilecekse düğüm sayısı azaltılmalı (ortak `<symbol>` + `<use>`), ertelenmemeli.
+- **Yazı tipi ön yüklemesi yok.** `index.html` bütün adreslerde aynı; salonun yazı tiplerini ön
+  yüklemek salonda FCP'yi iyileştirse de paylaşım bağlantısıyla doğrudan oyuna gelenin ilk
+  açılışını yavaşlattı (Bakkal mobil 81 → 70). Yazı tipleri `font-display: swap`.

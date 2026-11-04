@@ -387,3 +387,14 @@
   color: var(--on-dark-muted);
   text-align: center;
 }
+
+/* telefon: oyun başlamaz, "İşe başla" yerine MobileBlock'un şeridi görünür (App.tsx) */
+@media (max-width: 760px), (max-height: 520px) {
+  .actions {
+    display: none;
+  }
+
+  .content {
+    padding-bottom: 200px;
+  }
+}

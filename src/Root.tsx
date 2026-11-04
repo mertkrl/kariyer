@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect, type ComponentType } from 'react';
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
 import { WelcomeScreen } from './arcade/welcome/WelcomeScreen';
-import { useRoute } from './arcade/route';
+import { hrefOf, isUnknownHash, useRoute } from './arcade/route';
+import { NotFoundNotice } from './arcade/shell/NotFoundNotice';
 import { GAMES, loadingBgOf, SITE_NAME } from './arcade/games';
 import type { GameRoute } from './arcade/slugs';
 import { GameBoundary } from './arcade/shell/GameBoundary';
@@ -28,6 +29,19 @@ const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe al
 
 export function Root() {
   const route = useRoute();
+  // bilinmeyen adres (açılışta ya da adres çubuğundan değişince): salonda not çıkar, adres salona
+  // düzeltilir; yenileyince not tekrar çıkmaz
+  const [lost, setLost] = useState<string | null>(null);
+  useEffect(() => {
+    const check = () => {
+      if (!isUnknownHash(window.location.hash)) return;
+      setLost(window.location.hash.replace(/^#/, ''));
+      history.replaceState(null, '', hrefOf('arcade'));
+    };
+    check();
+    window.addEventListener('hashchange', check);
+    return () => window.removeEventListener('hashchange', check);
+  }, []);
   useEffect(() => {
     // oyuna girildi: ses motoru (salonun ilk paketinde değil) hemen insin
     if (route !== 'arcade') void loadAudio();
@@ -35,7 +49,13 @@ export function Root() {
     window.scrollTo(0, 0);
   }, [route]);
 
-  if (route === 'arcade') return <WelcomeScreen preload={preload} />;
+  if (route === 'arcade')
+    return (
+      <>
+        {lost && <NotFoundNotice key={lost} path={lost} />}
+        <WelcomeScreen preload={preload} />
+      </>
+    );
   const Game = GAME_VIEWS[route];
   const title = GAMES.find((g) => g.route === route)?.title ?? SITE_NAME;
   /*

@@ -1,0 +1,57 @@
+/* bilinmeyen adres notu: salonun üstünde, ortada, sakin */
+.note {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 10px 10px 10px 16px;
+  border-radius: 12px;
+  background: #1d1a16;
+  color: #f4efe4;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  font: 500 calc(14px * var(--ts, 1)) / 1.4 var(--font-body);
+  transform: translateX(-50%);
+  animation: drop 0.3s ease-out both;
+}
+
+.note b {
+  color: #f0c24a;
+}
+
+.note code {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.note button {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font: 600 18px/1 var(--font-body);
+  cursor: pointer;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note {
+    animation: none;
+  }
+}

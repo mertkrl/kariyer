@@ -98,8 +98,9 @@ function App() {
       {phase === 'welcome' && <UpdateNotice />}
       {phase === 'welcome' && <ClockOut tone="dark" fixed />}
       {phase === 'welcome' && <StudioMark tone="dark" minimal />}
-      {/* telefonda oyun başlamaz: açılış sayfası okunur, gerisi geniş ekran ister */}
-      {phase !== 'welcome' && <MobileBlock />}
+      {/* telefonda oyun başlamaz: açılış sayfası okunur ve durum altta baştan söylenir (İşe başla
+          yerine), oyunun içi ekranı kaplar; ikisinde de salona dönüş ve bağlantıyı paylaşma var */}
+      <MobileBlock inline={phase === 'welcome'} />
     </>
   );
 }

@@ -170,6 +170,14 @@ Trusted Types, sıfır zafiyet, `innerHTML` yok, gizli anahtar yok. Bulduğum te
 render'ı engelleyen CSS ve mobile göre büyük maket görseli. İlk açılış paketi bütçenin tam
 sınırında; bir sonraki özellik bütçeyi delecek.
 
+
+> **Durum (4 Kasım 2026): uygulandı, ölçüldü.** Mobil Lighthouse (3 çalıştırmanın ortancası):
+> salon 83 → **85** (LCP 4,00 → 3,49 s, 600 → 511 KB gece; gündüz gece katmanı hiç inmiyor), Bakkal
+> 81 → 82, Meydan 87 → 88 (değişiklik geri alındı, aşağıda), salon masaüstü 100. Yapılanlar: maket
+> görselleri `srcset` (576/864/1152), gece katmanı yalnızca hava kararınca, ses motoru ilk paketten
+> çıktı (ilk açılış 87,4 KB / 90). **Denenip geri alınanlar:** yazı tipi ön yüklemesi salonda FCP'yi
+> 2,42 → 1,46 s yaptı ama doğrudan oyuna gelende Bakkal'ı 81 → 70 düşürdü; Meydan kartlarının tembel
+> çizimi DOM'u azalttı ama TBT'yi 35 → 474 ms yaptı. Kurallar `docs/mimari.md` "Performans kuralları"nda.
 🟠 **İlk açılış bütçesi doldu: 90 / 90 KB.** `index-*.js` 85,6 KB gzip. İçinde salonun maketi, durak verisi ve ses motoru köprüsü var.
 - Düzeltme: Ses motorunun başlatılması (`main.tsx:15-18`) ve `UpdateNotice` ilk boyamadan sonraya alınabilir. Salonun "yardım" ve "ayarlar" panelleri ayrı parça olabilir. Tahmini kazanç: 8–15 KB gzip.
 
@@ -197,6 +205,13 @@ sınırında; bir sonraki özellik bütçeyi delecek.
 Oyunların girişleri net ve tek düğmeli. Sorunlar sınırlarda: mobilde İK'da çıkmaz sokak, bilinmeyen
 adreste sessiz yönlendirme ve oyunlar arasında tutarsız "geri" dili.
 
+
+> **Durum (4 Kasım 2026): bu bölümdeki maddeler uygulandı.** Mobilde İK: "İşe başla" yerine altta
+> durum şeridi, "Bağlantıyı paylaş" ve "Salona dön"; oyun içindeki engelde de aynı iki düğme; salonda
+> İK çipinde "masaüstü" etiketi ([`ux-ik-mobil.webp`](docs/analiz/ux-ik-mobil.webp)). Bilinmeyen adres
+> salonda not gösterir ve adresi düzeltir ([`ux-bilinmeyen-adres.webp`](docs/analiz/ux-bilinmeyen-adres.webp)).
+> Bütün oyunlarda geri düğmesi "Salona dön". Cüzdan açılışı 375 px'e sığıyor; Trafik "Oyna" koyu
+> yazı / sarı zemin.
 🔴 **Mobilde İK: önce "İşe başla" deniyor, sonra kapı kapanıyor.**
 - Tekrar: 375 px → `#/ise-alim` → "İşe başla" → "Bu oyun bilgisayar için" ([`qa-ik-mobil.webp`](docs/analiz/qa-ik-mobil.webp)).
 - Problem: Oyuncu bir adım atıyor, sonra cezalandırılıyor. Engel ekranında **hiç düğme yok** (`src/components/ui/MobileBlock.tsx`, `role="dialog" aria-modal="true"`, odaklanacak öğe yok). Tek çıkış tarayıcının geri tuşu.

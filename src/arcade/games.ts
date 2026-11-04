@@ -24,6 +24,8 @@ export interface ArcadeGame {
    * renk (WelcomeScreen.tsx). Oyunun ilk ekranıyla aynıdır, böylece geçişte renk sıçramaz.
    */
   loadingBg: string;
+  /** Yalnızca geniş ekranda oynanır: telefonda listede önceden "masaüstü" yazar. */
+  desktopOnly?: boolean;
 }
 
 export const GAMES: ArcadeGame[] = [
@@ -98,6 +100,7 @@ export const GAMES: ArcadeGame[] = [
     quip: "Beş günde yüzlerce CV, bir müdür ve bir vicdan: üçünü birden memnun edemezsin.",
     file: 1,
     loadingBg: '#100e0b', // İK sisteminin koyu açılışı
+    desktopOnly: true,
   },
 ];
 

@@ -55,7 +55,7 @@ src/
     games.ts, slugs.ts    Oyun listesi ve adresleri
     route.ts              `#/<oyun>` adresleri (herhangi bir statik sunucuda, çevrimdışı da çalışır)
     welcome/, mahalle/    Ana sayfa: mahalle maketi, duraklar, kartlar, mahalle rehberi
-    ClockOut              Her oyunun sol üstündeki "Mesaiyi bitir" (gerekirse onay ister)
+    ClockOut              Her oyunun sol üstündeki "Salona dön" (gerekirse çıkış kartıyla onay ister)
     Finale, share.ts      Oyun sonu belgesi ve 1080×1350 sonuç kartı, paylaşım
     saveSlot.ts           Oyunların ortak kayıt yuvası (doğrulamalı)
     progress.ts           Maketteki tikler: hangi oyun bitti, sonucu ne

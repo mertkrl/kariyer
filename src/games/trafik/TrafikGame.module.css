@@ -24,7 +24,8 @@
   font-size: 14px;
 }
 
-.app button {
+/* :where ağırlık katmaz: düğmelerin kendi rengi (ör. giriş ekranının sarı "Oyna"sı) bu kuralı ezer */
+:where(.app) button {
   font: inherit;
   color: inherit;
   cursor: pointer;

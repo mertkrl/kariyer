@@ -167,7 +167,7 @@ export function Mobile({
           <span aria-hidden="true">👤</span>
           Kullanıcı
         </button>
-        <a href={hrefOf('arcade')} aria-label="Mesaiyi bitir">
+        <a href={hrefOf('arcade')} aria-label="Salona dön">
           <span aria-hidden="true">⏻</span>
           Çıkış
         </a>

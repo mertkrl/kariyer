@@ -4,7 +4,8 @@ import { hrefOf, navigate } from './route';
 import styles from './ClockOut.module.css';
 
 /*
- * Oyundan salona dönüş: "Mesaiyi bitir". Solda geri oku, yanında yazı; dar ekranda yalnızca ok
+ * Oyundan salona dönüş: "Salona dön" (her oyunda aynı söz; mesai esprisi onay balonundaki çıkış
+ * kartında kalır). Solda geri oku, yanında yazı; dar ekranda yalnızca ok
  * kalır. Oyunda kaybolacak bir ilerleme varsa (`risk`) önce bir onay
  * balonu açılır, yoksa doğrudan salona gider. Her oyun aynı bileşeni kullanır; `tone` oyunun
  * zeminine uyar, `fixed` oyunun kendi üst çubuğu yoksa sol üst köşeye sabitler.
@@ -28,7 +29,7 @@ export function ClockOut({ tone = 'light', fixed = false, risk }: { tone?: 'ligh
       <a
         className={styles.out}
         href={hrefOf('arcade')}
-        aria-label={`Mesaiyi bitir, ${SITE_NAME} ana sayfasına dön`}
+        aria-label={`Salona dön: ${SITE_NAME} ana sayfası`}
         aria-expanded={risk ? asking : undefined}
         aria-controls={risk ? id : undefined}
         onClick={(e) => {
@@ -40,10 +41,10 @@ export function ClockOut({ tone = 'light', fixed = false, risk }: { tone?: 'ligh
         <svg className={styles.arrow} viewBox="0 0 20 20" aria-hidden="true">
           <path d="M16 10H4M9 4.5 3.5 10 9 15.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className={styles.label}>Mesaiyi bitir</span>
+        <span className={styles.label}>Salona dön</span>
       </a>
       {asking && (
-        <span id={id} className={styles.ask} role="alertdialog" aria-label="Mesaiyi bitir">
+        <span id={id} className={styles.ask} role="alertdialog" aria-label="Salona dön">
           {/* çıkış kartı: kart saatine basılmayı bekleyen bir puantaj kartı */}
           <span className={styles.card} aria-hidden="true">
             <span className={styles.cardHead}>
@@ -70,7 +71,7 @@ export function ClockOut({ tone = 'light', fixed = false, risk }: { tone?: 'ligh
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M8 3.5H4.5v13H8M12.5 6.5 16 10l-3.5 3.5M16 10H7.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              Evet, çık
+              Evet, salona dön
             </button>
           </span>
         </span>
