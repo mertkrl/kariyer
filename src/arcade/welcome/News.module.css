@@ -49,3 +49,8 @@
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
+
+.note {
+  margin-left: 6px;
+  color: var(--ink);
+}

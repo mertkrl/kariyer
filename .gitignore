@@ -25,3 +25,5 @@ dist-ssr
 
 # packaged builds (npm run package)
 release
+# npm run coverage:all
+coverage

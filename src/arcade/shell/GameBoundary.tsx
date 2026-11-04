@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { navigate } from '../route';
 import { gameReport, isChunkError } from './errors';
+import { issueUrl } from './feedback';
 import styles from './GameBoundary.module.css';
 
 /*
@@ -75,7 +76,13 @@ export class GameBoundary extends Component<Props, State> {
                 Hata raporunu kopyala
               </button>
             )}
+            {!chunk && (
+              <a className={styles.secondary} href={issueUrl(gameReport(title, error, this.state.componentStack))} target="_blank" rel="noopener noreferrer">
+                GitHub'da bildir
+              </a>
+            )}
           </div>
+          {!chunk && <p className={styles.note}>"GitHub'da bildir" herkese açık bir hata kaydı formu açar; rapor doldurulmuş gelir, sen göndermeden hiçbir şey gitmez. İçinde kişisel bilgi yok.</p>}
           <p className={styles.note} aria-live="polite">
             {copied === true && 'Rapor panoya kopyalandı. Hata bildirirken yapıştırman yeterli; içinde kişisel bilgi yok.'}
             {copied === false && 'Panoya erişilemedi; rapor aşağıda seçili. Kopyalayıp hata bildirirken yapıştırabilirsin.'}

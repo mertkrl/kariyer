@@ -33,6 +33,8 @@ npm run dev
 | `npm run lint` | `oxlint` ile kod denetimi (hook bağımlılıkları, 500 satır sınırı dahil) |
 | `npm test` | Testler: Node'un kendi test aracıyla, ek paket kurmadan |
 | `npm run check` | Tip kontrolü + lint + testler |
+| `npm run e2e` | Derlemeyi (`dist/`) gerçek bir tarayıcıda dener: her adres telefon ve masaüstü genişliğinde, kritik akışlar (`e2e/`; önce `npm run build`, tarayıcı yoksa `npx playwright install chromium`) |
+| `npm run coverage:all` | Dürüst kapsam: testlerin hiç yüklemediği dosyaları da %0 sayarak bütün kaynağın oranı |
 | `npm run size` | Derlemeden sonra ilk açılış paketinin boyut bütçesini denetler |
 | `npm run og` | Çalışan geliştirme sunucusundan bağlantı önizlemesi görsellerini (`public/og.png`, `public/og/<oyun>.png`) Chrome ile yeniden üretir |
 | `npm run package` | Derleyip `release/mesai-disi-<sürüm>-web.zip`'i üretir (itch.io'ya HTML projesi olarak yüklenmeye hazır) |

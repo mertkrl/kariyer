@@ -2,6 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { clearSave, readSave } from '../../game/store/save';
 import { getState } from '../../game/store/storeApi';
 import { isChunkError } from '../../../../arcade/shell/errors';
+import { issueUrl } from '../../../../arcade/shell/feedback';
 import styles from './ErrorBoundary.module.css';
 
 /*
@@ -92,6 +93,9 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
             <button className={styles.secondary} onClick={this.copyReport}>
               Hata raporunu kopyala
             </button>
+            <a className={styles.secondary} href={issueUrl(report(error, this.state.componentStack))} target="_blank" rel="noopener noreferrer">
+              GitHub'da bildir
+            </a>
           </div>
           <p className={styles.note} aria-live="polite">
             {copied === true && 'Rapor panoya kopyalandı. Hata bildirirken yapıştırman yeterli; içinde kişisel bilgi yok.'}

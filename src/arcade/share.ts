@@ -9,7 +9,12 @@ import { slugOf, type GameRoute } from './slugs';
  */
 
 export interface ResultCard {
-  route: GameRoute;
+  /** Kartın oyunu: rengi ve paylaşım sayfası buradan. Salonun kendi kartında yok (`link` ve `paint` verilir). */
+  route?: GameRoute;
+  /** Paylaşılan adres; verilmezse oyunun paylaşım sayfası. */
+  link?: string;
+  /** İnen dosyanın adı (uzantısız); verilmezse `mesai-disi-<oyun>`. */
+  fileName?: string;
   /** Kâğıdın üst satırı, ör. "Aday Profil Raporu". */
   kicker: string;
   /** Unvan: kartın en büyük yazısı. */
@@ -41,6 +46,14 @@ const MUTED = '#6e664d';
 export function shareLink(route: GameRoute): string {
   const dir = window.location.pathname.replace(/[^/]*$/, '');
   return `${window.location.origin}${dir}oyun/${slugOf(route)}/`;
+}
+
+/** Kartın paylaştığı adres: verilen ya da oyunun paylaşım sayfası. */
+const linkOf = (card: ResultCard) => card.link ?? shareLink(card.route!);
+
+/** Salonun adresi: ana sayfa (paylaşım önizlemesinde sitenin kendi görseli). */
+export function siteLink(): string {
+  return `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, '')}`;
 }
 
 /** Kartın rengi: games.ts'teki CSS değişkeninin bugünkü değeri. */
@@ -86,11 +99,12 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
   canvas.width = CARD_W;
   canvas.height = CARD_H;
   if (card.paint) {
-    card.paint(ctx, shareLink(card.route).replace(/^https?:\/\//, '').replace(/\/$/, ''));
+    card.paint(ctx, linkOf(card).replace(/^https?:\/\//, '').replace(/\/$/, ''));
     return;
   }
-  const game = GAMES.find((g) => g.route === card.route)!;
-  const color = colorOf(card.route);
+  const route = card.route!;
+  const game = GAMES.find((g) => g.route === route)!;
+  const color = colorOf(route);
   const pad = 72;
   const inner = CARD_W - pad * 2;
 
@@ -219,7 +233,7 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
   ctx.fillText(card.question, pad, CARD_H - 118);
   ctx.fillStyle = 'rgba(255,255,255,.82)';
   ctx.font = `500 26px ${BODY}`;
-  ctx.fillText(shareLink(card.route).replace(/^https?:\/\//, '').replace(/\/$/, ''), pad, CARD_H - 70);
+  ctx.fillText(linkOf(card).replace(/^https?:\/\//, '').replace(/\/$/, ''), pad, CARD_H - 70);
 }
 
 /** Oyunun yazı tipleri ilk kullanımda iner: tuval onları almadan çizmesin. */
@@ -258,9 +272,9 @@ export async function shareResult(card: ResultCard): Promise<ShareOutcome> {
   drawResultCard(canvas, card);
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Kart oluşturulamadı');
-  const link = shareLink(card.route);
+  const link = linkOf(card);
   const text = `${card.text} ${link}`;
-  const file = new File([blob], `mesai-disi-${slugOf(card.route)}.png`, { type: 'image/png' });
+  const file = new File([blob], `${card.fileName ?? `mesai-disi-${slugOf(card.route!)}`}.png`, { type: 'image/png' });
   if (navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file], text });

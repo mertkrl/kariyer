@@ -7,7 +7,7 @@
 3. Dal bir PR ile `main`'e girer. PR şablonundaki denetimler doldurulur, CI yeşil olmadan birleştirilmez.
 4. Ekranda görünen her değişiklik `CHANGELOG.md`'nin **Yayımlanmadı** bölümüne bir satır olarak yazılır.
 
-İlk klonda bir kez `git config core.hooksPath .githooks` çalıştır: her `git push` önce `npm run ci`'ı çalıştırır.
+`npm install` git kancalarını kendiliğinden bağlar (`scripts/hooks.mjs`): her `git push` önce `npm run ci`'ı çalıştırır; acil durumda `git push --no-verify`. Arayüz değişikliklerinde `npm run build && npm run e2e` de çalıştır (gerçek tarayıcıda uçtan uca testler; CI'da da koşar).
 
 ## Nereye ne konur
 

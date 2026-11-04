@@ -38,3 +38,19 @@ jobs:
           name: dist
           path: dist
           retention-days: 14
+
+  # uçtan uca testler: derlenmiş site gerçek bir tarayıcıda (Playwright, Chromium) her adreste açılır,
+  # kritik akışlar (Bakkal'ın ilk satışı, hata ve bilinmeyen adres ekranları, mobil İK) denenir
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run e2e

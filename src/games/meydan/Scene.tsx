@@ -27,10 +27,14 @@ const PICK = '#1e88e5';
 const ROAD = GROUND + 14;
 const PLAZA = GROUND + 46;
 
-export function Scene({ place, design, className, label }: { place: Place; design: Design; className?: string; label?: string }) {
+/**
+ * Bir meydanın sahnesi. `defs` false ise ortak tanımlar (gradyan, desen) çizilmez: aynı sayfada
+ * birden çok sahne varsa tanımlar bir kez, sayfada çizilir (MeydanGame); aynı kimlik tekrarlanmaz.
+ */
+export function Scene({ place, design, className, label, defs = true }: { place: Place; design: Design; className?: string; label?: string; defs?: boolean }) {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={className} role="img" aria-label={label ?? `${place.district} ${place.title}`}>
-      <SceneDefs />
+      {defs && <SceneDefs />}
       <SceneLayers place={place} design={design} />
     </svg>
   );

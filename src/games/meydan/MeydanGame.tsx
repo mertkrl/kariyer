@@ -6,7 +6,7 @@ import { Editor } from './Editor';
 import { draftKey, sanitize, type Design, type Place } from './model';
 import { PLACES } from './places';
 import { adoptOldDrafts } from './drafts';
-import { Scene } from './Scene';
+import { Scene, SceneDefs } from './Scene';
 import styles from './MeydanGame.module.css';
 import { migrateWith, readJson } from '../../shared/storage';
 
@@ -60,10 +60,14 @@ export function MeydanGame() {
         <main className={styles.center}>
           <h2>Hangi meydanı düzelteceksin?</h2>
           <p className={styles.lead}>Cepheyi kapla, doğramayı değiştir, kaçak katı yık, binayı güçlendir, tabelaları hizaya sok. Mimar da mühendis de sensin.</p>
+          {/* dört önizlemenin ortak tanımları bir kez: kimlikler tekrarlanmaz */}
+          <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>
+            <SceneDefs />
+          </svg>
           <div className={styles.places}>
             {PLACES.map((p) => (
               <button key={p.id} type="button" className={styles.place} onClick={() => setPhase({ at: 'edit', place: p, design: loadDraft(p), key: Date.now() })}>
-                <Scene place={p} design={loadDraft(p)} className={styles.thumb} />
+                <Scene place={p} design={loadDraft(p)} className={styles.thumb} defs={false} />
                 <small className={styles.region}>{p.region}</small>
                 <b>
                   {p.district} · {p.title}

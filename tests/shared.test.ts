@@ -47,3 +47,14 @@ test('parça yükleme hataları tanınır, sıradan hatalar tanınmaz', () => {
   assert.ok(isChunkError(new Error('error loading dynamically imported module')));
   assert.ok(!isChunkError(new Error("Cannot read properties of undefined (reading 'x')")));
 });
+
+test('hata bildirimi: GitHub formu rapor alanı dolu açılır, uzun rapor kısaltılır', async () => {
+  const { issueUrl, ISSUES_URL } = await import('../src/arcade/shell/feedback');
+  const short = new URL(issueUrl('Köy Bakkalı 1.1.0 — hata raporu\nTypeError: x'));
+  assert.equal(`${short.origin}${short.pathname}`, ISSUES_URL);
+  assert.equal(short.searchParams.get('template'), 'hata.yml');
+  assert.match(short.searchParams.get('rapor')!, /^Köy Bakkalı/);
+  const long = issueUrl('a'.repeat(20000));
+  assert.ok(long.length < 8000, String(long.length));
+  assert.match(decodeURIComponent(long), /kısaltıldı/);
+});

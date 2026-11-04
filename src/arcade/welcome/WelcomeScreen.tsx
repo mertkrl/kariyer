@@ -346,7 +346,7 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
           </h1>
           <p className={s.lead}>Her köşede başka bir hikâye, her durakta yeni bir oyun.</p>
           {/* Mahalle Postası: bitirilen oyunlar mahallede iz bırakır (news.ts); seri ya da ceza yok */}
-          <News news={news} onGo={(route) => enterGame(stopOf(route), route)} />
+          <News news={news} progress={progress} onGo={(route) => enterGame(stopOf(route), route)} />
           <span className={s.rule} aria-hidden="true" />
         </section>
 

@@ -412,6 +412,15 @@ yapay kıtlık ya da bildirim yok.
 
 ## 14. QA
 
+
+> **Durum (4 Kasım 2026): uygulandı.** Q1–Q7'nin hepsi önceki turlarda düzeldi. Yeni: `npm run e2e`
+> (Playwright 1.63.0, `e2e/`): 10 adres × 2 genişlikte sayfa hatası, kırık istek, yatay kaydırma, `h1`,
+> adsız düğme, `alt`sız görsel ve tekrarlanan kimlik denetimi; oyun dosyası inmeyince hata ekranı,
+> bilinmeyen adres, Bakkal'ın ilk satışı, mobil İK, eski biçimli defter, mahalle karnesi. **26 test,
+> hepsi geçiyor**; CI'da ayrı iş. İlk koşu gerçek bir hata buldu ve düzeldi: Meydan'ın seçim ekranında
+> 30'dan fazla SVG kimliği dörder kez tekrarlanıyordu. Dürüst kapsam (`npm run coverage:all`): testlerin
+> yüklediği dosyalarda %89,9, **bütün kaynakta %33,7** (468 dosya). axe-core eklenmedi: MPL-2.0
+> lisansı `docs/bagimliliklar.md`'deki izin listesinde değil; temel denetimler e2e'ye yazıldı.
 **Özet:** 33 route ziyaretinde sıfır konsol hatası, testler yeşil, çift tıklama ve yenileme sağlam.
 Bulunan hatalar arayüz katmanında; bunlar bugün testlerle yakalanamıyor çünkü UI testi yok.
 
@@ -444,6 +453,12 @@ Bulunan hatalar arayüz katmanında; bunlar bugün testlerle yakalanamıyor çü
 
 ## 15. DevOps
 
+
+> **Durum (4 Kasım 2026): uygulandı (biçimlendirici hariç).** Hata ekranlarında "GitHub'da bildir":
+> `hata.yml` formu rapor alanı dolu açılır, oyuncu göndermeden hiçbir şey gitmez. `npm install`
+> git kancasını kendiliğinden bağlar (`scripts/hooks.mjs`). CI'da uçtan uca test işi ve tip
+> denetimi önbelleği. **Biçimlendirici eklenmedi:** Biome en gevşek ayarla (satır 320) bile 352
+> dosyada 4.691 satırı değiştiriyor; `git blame` geçmişini ve açık işleri bozmaya değmez.
 **Özet:** CI/CD çoğu projeden olgun: tip + lint + kapsamlı test + derleme + boyut bütçesi + audit tek
 komutta (`npm run ci`), pre-push hook, Pages yayını, sürüm paketi (itch.io). Eksikler hata görünürlüğü
 ve derleme hızı.
@@ -463,6 +478,13 @@ ve derleme hızı.
 
 ## 16. Ürün stratejisi
 
+
+> **Durum (4 Kasım 2026): uygulandı (eğitim kullanımı kapsam dışı bırakıldı).** Düzeltme: "en çok fark
+> yaratacak değişiklik" olarak önerdiğim oyun başına sonuç kartı **dokuz oyunun hepsinde zaten varmış**
+> (`arcade/share.ts`); analizde atlamışım. Eksik olan salon düzeyindeki paylaşımdı: "Mahalle karnesi"
+> eklendi (`arcade/mahalleCard.ts`, düğmeye basınca iner): kaç durakta mesai bitti ve her durağın
+> sonucu tek kartta, bağlantı salona gider ([`urun-mahalle-karnesi.webp`](docs/analiz/urun-mahalle-karnesi.webp)).
+> Mahalle dünyası önceki turda (Mahalle Postası, köylülerin şehir haberleri).
 **Özet:** "Mesai Dışı", Türkiye'nin gündelik absürtlüklerini (işe alım, enflasyon, kavşak, bakkal
 veresiyesi) kısa ve oynanabilir hicivlere çeviriyor. Kurulumsuz, hesapsız, çevrimdışı çalışıyor.
 Değer önerisi oyunların içinde çok net, salonun kapısında daha az net.
