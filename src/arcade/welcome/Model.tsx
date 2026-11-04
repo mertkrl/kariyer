@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import { lazy, Suspense, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { prefersReducedMotion } from '../../components/ui/motion';
 import { GAMES } from '../games';
 import type { Progress } from '../progress';
@@ -6,7 +6,8 @@ import type { GameRoute } from '../slugs';
 import * as sfx from '../mahalle/sfx';
 import { nearestStop, STOPS, type Stop } from './stops';
 import { WINDOWS } from './windows';
-import { SidePicker } from './SidePicker';
+// seçim ekranı yalnızca plazaya tıklanınca iner: ilk açılış paketine girmez
+const SidePicker = lazy(() => import('./SidePicker').then((m) => ({ default: m.SidePicker })));
 import s from './Model.module.css';
 
 /*
@@ -58,6 +59,7 @@ export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, 
     if (stop) {
       sfx.hover();
       stop.routes.forEach(preload);
+      if (stop.routes.length > 1) void import('./SidePicker');
     }
   };
 
@@ -198,15 +200,17 @@ export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, 
         />
       )}
       {split && !leaving && (
-        <SidePicker
-          played={progress.played}
-          onClose={() => setSplit(null)}
-          onPick={(route) => {
-            const stop = split;
-            setSplit(null);
-            onEnter(stop, route);
-          }}
-        />
+        <Suspense fallback={null}>
+          <SidePicker
+            played={progress.played}
+            onClose={() => setSplit(null)}
+            onPick={(route) => {
+              const stop = split;
+              setSplit(null);
+              onEnter(stop, route);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

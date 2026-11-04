@@ -8,6 +8,7 @@
  */
 import { CSP } from './csp.ts'
 import { GAMES, SITE_NAME, SITE_TAGLINE } from './src/arcade/games.ts'
+import { BLURBS } from './src/arcade/blurbs.ts'
 import { slugOf } from './src/arcade/slugs.ts'
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -28,19 +29,19 @@ export function gamePages(site?: string): Record<string, string> {
     <meta http-equiv="Content-Security-Policy" content="${CSP}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${esc(title)}</title>
-    <meta name="description" content="${esc(g.blurb)}" />
+    <meta name="description" content="${esc(BLURBS[g.route])}" />
     <meta name="referrer" content="no-referrer" />${url}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="tr_TR" />
     <meta property="og:site_name" content="${esc(`${SITE_NAME} · ${SITE_TAGLINE}`)}" />
     <meta property="og:title" content="${esc(title)}" />
-    <meta property="og:description" content="${esc(g.blurb)}" />
+    <meta property="og:description" content="${esc(BLURBS[g.route])}" />
     <meta property="og:image" content="${image}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${esc(title)}" />
-    <meta name="twitter:description" content="${esc(g.blurb)}" />
+    <meta name="twitter:description" content="${esc(BLURBS[g.route])}" />
     <meta name="twitter:image" content="${image}" />
     <meta http-equiv="refresh" content="0; url=${target}" />
   </head>

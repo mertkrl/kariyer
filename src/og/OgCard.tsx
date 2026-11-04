@@ -1,5 +1,6 @@
 import { CraneArt, DeskArt, ExamArt, FacadeArt, JunctionArt, PatchArt, ScreenArt, ShopArt, WalletArt } from '../arcade/CardArt';
 import { GAMES, SITE_NAME, SITE_TAGLINE, type ArcadeGame } from '../arcade/games';
+import { BLURBS } from '../arcade/blurbs';
 import styles from './OgCard.module.css';
 
 /*
@@ -23,7 +24,7 @@ export function GameOg({ game }: { game: ArcadeGame }) {
       </div>
       <div className={styles.text}>
         <h1 className={styles.title}>{game.title}</h1>
-        <p className={styles.blurb}>{game.blurb}</p>
+        <p className={styles.blurb}>{BLURBS[game.route]}</p>
         <p className={styles.foot}>
           <b>{SITE_NAME}</b> · {SITE_TAGLINE} <span className={styles.play}>Oyna →</span>
         </p>
