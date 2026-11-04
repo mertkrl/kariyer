@@ -10,9 +10,10 @@ export const DEFAULT_VOLUME = 0.8;
 
 export function readStoredMuted(): boolean {
   try {
-    return localStorage.getItem(MUTED_STORAGE_KEY) === 'true';
+    // tercih yoksa sessiz başlar: ses, açana sürpriz olsun
+    return localStorage.getItem(MUTED_STORAGE_KEY) !== 'false';
   } catch {
-    return false;
+    return true;
   }
 }
 

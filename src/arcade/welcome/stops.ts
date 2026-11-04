@@ -25,7 +25,7 @@ export interface Stop {
 }
 
 /** Görseldeki bir noktayı kutunun yüzdesine çevirir (cover kırpması dahil). */
-function toBox(ix: number, iy: number) {
+export function toBox(ix: number, iy: number) {
   const scale = BOX_H / IMG_H;
   const crop = (IMG_W * scale - BOX_W) / 2;
   return { x: ((ix * scale - crop) / BOX_W) * 100, y: ((iy * scale) / BOX_H) * 100 };

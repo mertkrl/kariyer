@@ -25,18 +25,3 @@ export function press() {
   e.tone({ type: 'triangle', freq: 420, decay: 0.06, peak: 0.02 });
 }
 
-
-/** Fazla mesai: uzaktan bir klavye tuşu. */
-export function keyTap() {
-  e.noiseHit({ filter: 'highpass', freq: 3200 + Math.random() * 1200, attack: 0.001, decay: 0.02, peak: 0.012 });
-}
-
-/** Fazla mesai: floresanın uğultusu (uzun, kısık bir 100 Hz). */
-export function hum() {
-  e.tone({ type: 'sawtooth', freq: 100, attack: 0.8, decay: 3.2, peak: 0.004 });
-}
-
-/** Lambalar yanarken: kısa bir şıkırtı. */
-export function lampOn() {
-  e.tone({ type: 'triangle', freq: 880, freqEnd: 660, decay: 0.08, peak: 0.012 });
-}

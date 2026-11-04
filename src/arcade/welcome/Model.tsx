@@ -8,6 +8,8 @@ import { nearestStop, STOPS, type Stop } from './stops';
 import { WINDOWS } from './windows';
 // seçim ekranı yalnızca plazaya tıklanınca iner: ilk açılış paketine girmez
 const SidePicker = lazy(() => import('./SidePicker').then((m) => ({ default: m.SidePicker })));
+// canlı katman (duman, kedi, laflar, sırlar, sesler) maket göründükten sonra iner
+const Life = lazy(() => import('./life/Life'));
 import s from './Model.module.css';
 
 /*
@@ -34,13 +36,15 @@ interface Props {
   dark: number;
   /** WINDOWS sırasıyla hangi pencerenin ışığı yanık. */
   lights: boolean[];
+  muted: boolean;
+  overtime: boolean;
   progress: Progress;
   leaving: Leaving | null;
   onEnter: (stop: Stop, route: GameRoute) => void;
   preload: (route: GameRoute) => void;
 }
 
-export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, onEnter, preload }: Props) {
+export function Model({ src, nightSrc, litSrc, dark, lights, muted, overtime, progress, leaving, onEnter, preload }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const maskId = `maket-isik-${useId().replace(/\W/g, '')}`;
   const night = dark >= 0.5;
@@ -78,6 +82,8 @@ export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, 
     }
     // kartın üstündeyken durak değişmez
     if ((e.target as Element).closest(`.${s.card}`)) return;
+    // maketin sırlarının üstünde durak kartı açılmaz
+    if ((e.target as Element).closest('[data-egg]')) return activate(null);
     activate(nearestStop(p.x, p.y));
   };
 
@@ -151,6 +157,12 @@ export function Model({ src, nightSrc, litSrc, dark, lights, progress, leaving, 
             </svg>
           )}
         </div>
+
+        {!leaving && (
+          <Suspense fallback={null}>
+            <Life night={night} overtime={overtime} muted={muted} quiet={!!active} />
+          </Suspense>
+        )}
 
         <ul className={s.pins} aria-label="Mahallenin durakları">
           {STOPS.map((stop, i) => {

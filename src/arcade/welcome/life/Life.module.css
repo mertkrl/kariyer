@@ -1,0 +1,336 @@
+/*
+ * Maketin canlı katmanı. Hareketler yavaş, kısa ve tekrar eden döngüler: göz kenarda bir şey
+ * kıpırdadığını görür ama maketten kopmaz. Sekme gizliyken (.paused) hepsi durur; "hareketi
+ * azalt" diyende (.still) döngü yok, yalnızca balonlar yumuşakça belirir.
+ */
+
+.life {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  animation: lifeIn 1.2s ease both;
+}
+
+@keyframes lifeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.paused,
+.paused * {
+  animation-play-state: paused !important;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ── duman ve buhar ── */
+
+.puff {
+  fill: rgba(150, 142, 132, 0.5);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: puff 4.2s linear infinite;
+}
+
+.night .puff {
+  fill: rgba(190, 196, 214, 0.32);
+}
+
+.steam {
+  fill: rgba(255, 255, 255, 0.6);
+  animation-duration: 3.4s;
+}
+
+@keyframes puff {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, -48px) scale(1.9);
+  }
+}
+
+/* ── güvercinler ── */
+
+.bird {
+  animation: bob 3.9s ease-in-out infinite;
+}
+
+.head {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: peck 3.9s ease-in-out infinite;
+  animation-delay: inherit;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.8px);
+  }
+}
+
+@keyframes peck {
+  0%,
+  70%,
+  100% {
+    transform: translate(0, 0);
+  }
+  78% {
+    transform: translate(2px, 3px);
+  }
+  86% {
+    transform: translate(0, 0);
+  }
+  92% {
+    transform: translate(2px, 3px);
+  }
+}
+
+.pigeons {
+  transition:
+    transform 1.6s cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 1.2s ease 0.3s;
+}
+
+.flown {
+  transform: translate(140px, -150px);
+  opacity: 0;
+}
+
+.still .pigeons {
+  transition: opacity 0.4s;
+}
+
+.still .flown {
+  transform: none;
+}
+
+/* ── kedi ── */
+
+.tail {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: swish 2.6s ease-in-out infinite;
+}
+
+@keyframes swish {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-22deg);
+  }
+}
+
+.catJump {
+  animation: catJump 0.7s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+@keyframes catJump {
+  40% {
+    transform: translate(232px, 622px) scaleX(-1);
+  }
+  100% {
+    transform: translate(232px, 640px);
+  }
+}
+
+/* ── dolmuş, sıva, toz ── */
+
+.dolmus {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.plaster {
+  animation: fall 0.9s cubic-bezier(0.5, 0, 1, 1) forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translate(6px, 80px) rotate(160deg);
+    opacity: 0;
+  }
+}
+
+.dust {
+  fill: rgba(196, 170, 128, 0.7);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dust 1.4s ease-out forwards;
+}
+
+@keyframes dust {
+  from {
+    transform: scale(0.3);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(-26px) scale(2.2);
+    opacity: 0;
+  }
+}
+
+.still .tail,
+.still .bird,
+.still .head,
+.still .catJump,
+.still .plaster,
+.still .dust {
+  animation: none;
+}
+
+/* sırların dokunma alanları: görünmez */
+.hit {
+  fill: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* ── balon ── */
+
+.bubble {
+  position: absolute;
+  /* durak işaretlerinin (z-index 1) üstünde, durak kartının (5) altında */
+  z-index: 2;
+  max-width: 230px;
+  padding: 9px 12px 10px;
+  border: 1.5px solid #2a2420;
+  border-radius: 14px;
+  background: #fffaf0;
+  box-shadow: 0 10px 24px rgba(35, 70, 56, 0.18);
+  color: #2a2420;
+  font: 500 13px/1.35 'Inter', Arial, sans-serif;
+  transform: translate(-50%, calc(-100% - 14px));
+  animation: bubbleIn 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  pointer-events: none;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  border-right: 1.5px solid #2a2420;
+  border-bottom: 1.5px solid #2a2420;
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.bubble b {
+  display: block;
+  margin-bottom: 2px;
+  color: #9d2732;
+  font: 700 10.5px/1.2 'Manrope', Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bubble span {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+}
+
+.toLeft {
+  transform: translate(calc(-100% + 26px), calc(-100% - 14px));
+}
+
+.toLeft::after {
+  left: auto;
+  right: 14px;
+  transform: rotate(45deg);
+}
+
+.toRight {
+  transform: translate(-26px, calc(-100% - 14px));
+}
+
+.toRight::after {
+  left: 14px;
+  transform: rotate(45deg);
+}
+
+.eggBubble {
+  background: #fff3c4;
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    margin-top: 10px;
+    scale: 0.85;
+  }
+}
+
+.still .bubble {
+  animation: fadeIn 0.3s ease both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── sır sayacı ── */
+
+.secrets {
+  position: absolute;
+  left: 3%;
+  bottom: 3%;
+  z-index: 3;
+  margin: 0;
+  padding: 6px 11px;
+  border: 1px solid rgba(35, 70, 56, 0.22);
+  border-radius: 999px;
+  background: rgba(240, 237, 229, 0.9);
+  color: #234638;
+  font: 600 11px/1 'Manrope', Arial, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.secrets b {
+  margin-left: 4px;
+  color: #9d2732;
+}
+
+.pop {
+  animation: pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes pop {
+  40% {
+    scale: 1.18;
+    background: #fff3c4;
+  }
+}
+
+@media (max-width: 760px) {
+  .bubble {
+    max-width: 180px;
+    font-size: 12px;
+  }
+}

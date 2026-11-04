@@ -185,30 +185,6 @@ function useNow(): Date {
  */
 const shadeOf = (dark: number) => (dark < 0.5 ? dark * 0.5 : 0.75 + (dark - 0.5) * 0.5);
 
-/** Fazla mesaide uzaktan klavye tıkırtısı ve floresan uğultusu. */
-function useOvertimeAmbience(on: boolean) {
-  useEffect(() => {
-    if (!on || prefersReducedMotion()) return;
-    let alive = true;
-    const timers: number[] = [];
-    const burst = () => {
-      if (!alive) return;
-      const n = 3 + Math.floor(Math.random() * 7);
-      for (let i = 0; i < n; i++) timers.push(window.setTimeout(sfx.keyTap, i * (70 + Math.random() * 90)));
-      timers.push(window.setTimeout(burst, 1400 + Math.random() * 2600));
-    };
-    for (let i = 0; i < 8; i++) timers.push(window.setTimeout(sfx.lampOn, 400 + i * 180));
-    burst();
-    sfx.hum();
-    const hum = window.setInterval(sfx.hum, 3600);
-    return () => {
-      alive = false;
-      timers.forEach(window.clearTimeout);
-      window.clearInterval(hum);
-    };
-  }, [on]);
-}
-
 export function WelcomeScreen({ preload }: { preload: (route: string) => void }) {
   const [muted, setMuted] = useState(() => audioEngine.isMuted());
   const [panel, setPanel] = useState<'help' | 'settings' | null>(null);
@@ -216,7 +192,6 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
   const [progress] = useState(loadProgress);
   const [leaving, setLeaving] = useState<Leaving | null>(null);
   const [overtimeSince, setOvertimeSince] = useState<number | null>(null);
-  useOvertimeAmbience(overtimeSince !== null);
   const now = useNow();
   // fazla mesaide de ışık dışarıdaki saati izler: gündüz aydınlık, akşam yavaşça kararır
   const dark = darkness(now);
@@ -258,7 +233,7 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             src={`${import.meta.env.BASE_URL}mahalle/giris.webp`}
             nightSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece.webp`}
             litSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece-isik.webp`}
-            dark={dark} lights={lights} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
+            dark={dark} lights={lights} muted={muted} overtime={overtimeSince !== null} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
         </div>
 
         {/* data-safe-top: maketteki kart bu çubuğun altında açılır */}
