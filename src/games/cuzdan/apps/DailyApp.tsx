@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { markPlayed } from '../../../arcade/progress';
 import { ShareButton } from '../../../arcade/ShareButton';
+import { paintCuzdanCard } from '../shareCard';
 import { NOW, YEAR_NOTE } from '../data';
 import { DAILY_ROUNDS, dailyShare, dayNumber, loadDaily, makeDaily, nextStreak, saveDaily, type DailyState } from '../daily';
 import { money, times } from '../model';
@@ -68,6 +69,18 @@ export function DailyApp({ onDone }: { onDone: (hits: number) => void }) {
               ],
               question: 'Bugünün sepetini sen kaç bilirsin?',
               text: dailyShare(day, rounds, done.picks),
+              paint: paintCuzdanCard({
+                kicker: `Günün Sepeti #${day}`,
+                title: `${hits}/${DAILY_ROUNDS} bildim`,
+                marks: rounds.map((r, i) => r.options[done.picks[i]] === r.answer),
+                rows: [
+                  ['Doğru', `${hits}/${DAILY_ROUNDS}`],
+                  ['Seri', `${done.streak} gün`],
+                ],
+                question: 'Bugünün sepetini sen kaç bilirsin?',
+                seal: ['GÜNÜN SEPETİ', `#${day} · KASADAN ÇIKTI`],
+                seed: day,
+              }),
             })}
           />
         </div>

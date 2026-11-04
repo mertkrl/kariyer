@@ -4,6 +4,7 @@ import { hrefOf } from '../../arcade/route';
 import { markPlayed } from '../../arcade/progress';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
+import { paintTrafikCard } from './shareCard';
 import { audioEngine } from '../../audio/audioEngine';
 import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { LEVELS, shiftTitle, starsOf, type Level } from './levels';
@@ -257,6 +258,7 @@ export function TrafikGame() {
                     ].slice(-3),
                     question: 'Sen olsan Büyükdere’de akşam zirvesine kaç saniye yeşil verirdin?',
                     text: radioShare(scores),
+                    paint: paintTrafikCard({ title: t.title, note: t.note, avg: t.avg, junctions: scores.map((s, i) => ({ place: LEVELS[i]?.place ?? '', score: s })), date: new Date().toLocaleDateString('tr-TR') }),
                   };
                 }}
               />

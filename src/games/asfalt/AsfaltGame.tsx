@@ -4,6 +4,7 @@ import { hrefOf } from '../../arcade/route';
 import { markPlayed } from '../../arcade/progress';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
+import { paintAsfaltCard } from './shareCard';
 import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
@@ -177,6 +178,7 @@ export function AsfaltGame() {
                     stats: [...LEVELS.map((l, i) => ({ label: l.title, value: `${scores[i] ?? 0}` })), { label: 'Ortalama', value: `${t.avg}`, tone: '#a8402f' }].slice(-3),
                     question: 'Senin yaman kaç gün dayanır?',
                     text: shareLine(scores),
+                    paint: paintAsfaltCard({ title: t.title, note: t.note, avg: t.avg, jobs: scores.map((s, i) => ({ place: LEVELS[i]?.place ?? '', title: LEVELS[i]?.title ?? '', score: s })), date: new Date().toLocaleDateString('tr-TR') }),
                   };
                 }}
               />

@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Finale } from '../../arcade/Finale';
 import { ShareButton } from '../../arcade/ShareButton';
+import { paintBakkalCard } from './shareCard';
 import { CUSTOMERS, DAILY, PRODUCTS, priceOn, titleFor, tl, type Debt, type Product } from './data';
 import { OrderBill, WholesaleOrder } from './Order';
 import { ethicsTitle, type Flow, type Stock } from './week';
@@ -472,6 +473,7 @@ export function FinalCard({
               { label: 'Esnaf ahlakı', value: ethicsTitle(ethics) },
             ],
             question: 'Sen kaç gün dayanırdın?',
+            paint: paintBakkalCard({ title: t.title, note: t.note, days, money: tl(money), moneyNegative: money < 0, unpaid: tl(unpaid), rep, ethics: ethicsTitle(ethics), lines: [...verdicts, ...deeds], bankrupt, date: new Date().toLocaleDateString('tr-TR') }),
             text: foe
               ? `Köy Bakkalı'nda ${days} gün dayandım; fiyatlarıma ${foe} o kadar kızdı ki kasabadaki markete gitti. Şükrü Amca'nın mektubu: "${t.title}". Sen fiyatı kaça söylerdin?`
               : friend

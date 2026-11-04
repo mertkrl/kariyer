@@ -1,5 +1,6 @@
 import { GAMES, SITE_NAME } from './games';
 import { slugOf, type GameRoute } from './slugs';
+import { BODY, DISPLAY, MONO, round, wrap } from './cardKit';
 
 /*
  * Oyunların ortak sonuç kartı: oyun bitince oyuncunun paylaştığı 1080×1350 bir görsel (telefonda
@@ -30,9 +31,6 @@ export interface ResultCard {
 export const CARD_W = 1080;
 export const CARD_H = 1350;
 
-const DISPLAY = "'Fraunces', Georgia, serif";
-const BODY = "'Work Sans', system-ui, sans-serif";
-const MONO = "'JetBrains Mono', ui-monospace, monospace";
 const INK = '#221f1b';
 const PAPER = '#fbf8f0';
 const MUTED = '#6e664d';
@@ -50,20 +48,6 @@ function colorOf(route: GameRoute): string {
   return (name && getComputedStyle(document.documentElement).getPropertyValue(name).trim()) || v || INK;
 }
 
-function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  const lines: string[] = [];
-  let line = '';
-  for (const word of text.split(' ')) {
-    const next = line ? `${line} ${word}` : word;
-    if (ctx.measureText(next).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
-    } else line = next;
-  }
-  if (line) lines.push(line);
-  return lines;
-}
-
 /** En büyük yazının sığdığı boyut: iki satırı geçmesin. */
 function fitTitle(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): { size: number; lines: string[] } {
   for (let size = 104; size > 52; size -= 6) {
@@ -73,11 +57,6 @@ function fitTitle(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   }
   ctx.font = `700 52px ${DISPLAY}`;
   return { size: 52, lines: wrap(ctx, text, maxWidth).slice(0, 3) };
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, r);
 }
 
 export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
@@ -117,7 +96,7 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
   ctx.shadowBlur = 40;
   ctx.shadowOffsetY = 14;
   ctx.fillStyle = PAPER;
-  roundRect(ctx, pad - 24, top, inner + 48, bottom - top, 28);
+  round(ctx, pad - 24, top, inner + 48, bottom - top, 28);
   ctx.fill();
   ctx.restore();
 
@@ -141,7 +120,7 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
     const px = x + (w - pw) / 2;
     const slice = pw / card.pictures.length;
     ctx.save();
-    roundRect(ctx, px, y, pw, ph, 14);
+    round(ctx, px, y, pw, ph, 14);
     ctx.clip();
     card.pictures.forEach((p, i) => {
       ctx.save();
@@ -161,7 +140,7 @@ export function drawResultCard(canvas: HTMLCanvasElement, card: ResultCard) {
       const tw = ctx.measureText(p.label).width + 28;
       const lx = i ? px + slice * (i + 1) - tw - 14 : px + 14;
       ctx.fillStyle = 'rgba(16,14,11,.78)';
-      roundRect(ctx, lx, y + 14, tw, 38, 8);
+      round(ctx, lx, y + 14, tw, 38, 8);
       ctx.fill();
       ctx.fillStyle = '#fff';
       ctx.fillText(p.label, lx + 14, y + 41);

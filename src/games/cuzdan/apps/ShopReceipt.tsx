@@ -1,4 +1,5 @@
 import { ShareButton } from '../../../arcade/ShareButton';
+import { paintCuzdanCard } from '../shareCard';
 import { NOW } from '../data';
 import { cpiMultiple, duration, money, salaryIn, times, vsInflation, workMinutes } from '../model';
 import type { Shop } from './shopState';
@@ -60,6 +61,18 @@ export function ShopReceipt({ shop, c }: { shop: Shop; c: { receipt: string; row
               { label: String(NOW), value: money(now, NOW) },
             ],
             question: 'Senin sepetin kaç kat?',
+            paint: paintCuzdanCard({
+              kicker: `${year} sepeti, ${NOW} fiyatıyla`,
+              title: `${times(k)} pahalı`,
+              note: lines.map((l) => `${l.n} ${l.name.toLocaleLowerCase('tr-TR')}`).join(', '),
+              rows: [
+                [`${year} toplam`, money(then, year)],
+                [`${NOW} toplam`, money(now, NOW)],
+              ],
+              question: 'Senin sepetin kaç kat?',
+              seal: ['ENFLASYONA UYARLANDI', `${year} → ${NOW}`],
+              seed: Math.round(now),
+            }),
             text: persona.salary
               ? `Aynı alım gücündeki maaşımla bu sepet ${year}'de maaşımın ${pctText(pct(then, year))} kadarı, bugün ${pctText(pct(now, NOW))} kadarı. Senin maaşın neye yetiyor?`
               : `${year}'de ${money(then, year)} tutan sepetim bugün ${money(now, NOW)}.`,

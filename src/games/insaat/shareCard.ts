@@ -3,8 +3,7 @@ import { CARD_H, CARD_W } from '../../arcade/share';
 /*
  * İnşaat İzleme'nin paylaşım kartı: akşamüstü, teslim edilmiş apartman ve yanında şantiye tabelası.
  * Tabelada proje, ertelenen teslim yılları (üstü çizili) ve izleyicinin karnesi var; üstüne kırmızı
- * "İSKÂN ALINDI" mührü basılmış. Önde, sırtı dönük amcalar binaya bakıyor. Üstte ve zeminde şantiye
- * şeridi; altta koyu bir bantta soru ve adres.
+ * "İSKÂN ALINDI" mührü basılmış. Üstte ve zeminde şantiye şeridi; altta koyu bir bantta soru ve adres.
  */
 
 export interface InsaatCardData {
@@ -212,35 +211,6 @@ function shade(hex: string, k: number) {
   return `rgb(${c.map((v) => Math.round(v + (t - v) * Math.abs(k))).join(',')})`;
 }
 
-/** Sırtı dönük amca: kasket, omuz, ense. */
-function amca(ctx: CanvasRenderingContext2D, cx: number, base: number, s: number, coat: string, cap: string) {
-  ctx.save();
-  ctx.translate(cx, base);
-  ctx.scale(s, s);
-  ctx.strokeStyle = INK;
-  ctx.lineWidth = 3;
-  ctx.fillStyle = coat;
-  ctx.beginPath();
-  ctx.moveTo(-46, 0);
-  ctx.quadraticCurveTo(-46, -62, 0, -66);
-  ctx.quadraticCurveTo(46, -62, 46, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = '#d9a982';
-  ctx.beginPath();
-  ctx.arc(0, -86, 24, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = cap;
-  ctx.beginPath();
-  ctx.ellipse(0, -100, 27, 14, 0, Math.PI, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-}
-
 export function paintInsaatCard(d: InsaatCardData) {
   return (ctx: CanvasRenderingContext2D, link: string) => {
     ctx.textBaseline = 'alphabetic';
@@ -414,7 +384,7 @@ export function paintInsaatCard(d: InsaatCardData) {
     ctx.restore();
     ctx.textAlign = 'left';
 
-    // zeminde şantiye şeridi ve izleyen amcalar (sırtı dönük)
+    // zeminde şantiye şeridi
     ctx.strokeStyle = RED;
     ctx.lineWidth = 6;
     ctx.beginPath();
@@ -425,13 +395,6 @@ export function paintInsaatCard(d: InsaatCardData) {
     ctx.setLineDash([22, 22]);
     ctx.stroke();
     ctx.setLineDash([]);
-    const coats = ['#5b6b7a', '#7a5a3f', '#4d5b45', '#6a4e5e', '#3f4e66', '#806a4c', '#55606b'];
-    const caps = ['#2f2b27', '#45403a', '#3a3530'];
-    const count = Math.max(3, Math.min(7, d.watchers));
-    for (let i = 0; i < count; i++) {
-      const ax = 110 + (i * (CARD_W - 220)) / (count - 1);
-      amca(ctx, ax, 1180 + (i % 2) * 8, 1.05, coats[i % coats.length], caps[i % caps.length]);
-    }
 
     // alt bant: soru ve adres
     ctx.fillStyle = INK;

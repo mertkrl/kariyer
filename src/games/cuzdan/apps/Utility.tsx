@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShareButton } from '../../../arcade/ShareButton';
+import { paintCuzdanCard } from '../shareCard';
 import { MIN_WAGE, NOW, YEARS, YEAR_NOTE, type Year } from '../data';
 import { MONTH_HOURS, money, salaryTable, successOf, titleFor, type Mode, type Persona, type RoundLog } from '../model';
 import a from '../Apps.module.css';
@@ -167,6 +168,18 @@ export function ReportApp({ mode, log, max, year, onAgain }: { mode: Exclude<Mod
               { label: 'İsabet', value: `${hits}/${log.length}` },
             ],
             question: NAME[mode].question,
+            paint: paintCuzdanCard({
+              kicker: NAME[mode].kicker,
+              title: t.title,
+              note: t.note,
+              rows: [
+                ['Puan', `${total}/${max}`],
+                ['İsabet', `${hits}/${log.length}`],
+              ],
+              question: NAME[mode].question,
+              seal: ['KARNE ONAYLANDI', `${total}/${max} PUAN`],
+              seed: total + 11,
+            }),
             text: `Cüzdan Zamanı'nda ${total}/${max} puanla "${t.title}" oldum.`,
           })}
         />
