@@ -7,8 +7,8 @@ import styles from './BakkalGame.module.css';
 import bar from './TopBar.module.css';
 
 /*
- * Üst çubuk: çıkış, oyunun adı ve dükkânın göstergeleri. Her gösterge küçük bir tahta levha:
- * üstünde adı, altında değeri; üstüne gelince (ya da klavyeyle odaklanınca) ne anlama geldiğini
+ * Üst çubuk: çıkış ve dükkânın göstergeleri. Göstergeler tek, sakin bir koyu ceviz panelde ince
+ * ayraçlarla yan yana durur: ince çizgi simge, küçük harfle adı, altında değeri; üstüne gelince (ya da klavyeyle odaklanınca) ne anlama geldiğini
  * anlatan bir not açılır. Sağda ses: düğme açıp kapatır, yanındaki kaydırıcı düzeyi ayarlar.
  */
 
@@ -21,10 +21,35 @@ function repWord(rep: number) {
   return { word: 'Küstüler', tone: bar.neg };
 }
 
-function Stat({ icon, name, tip, children, className = '' }: { icon: string; name: string; tip: string; children: ReactNode; className?: string }) {
+/** Göstergelerin ince çizgi simgeleri: renkleri yazıdan gelir, göze batmaz. */
+const ICONS = {
+  day: (
+    <>
+      <rect x="4" y="5.5" width="16" height="14" rx="2" />
+      <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    </>
+  ),
+  cash: (
+    <>
+      <ellipse cx="12" cy="7" rx="7" ry="2.8" />
+      <path d="M5 7v5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V7M5 12v5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-5" />
+    </>
+  ),
+  book: (
+    <>
+      <path d="M5 4.5h11a2 2 0 012 2v13H7a2 2 0 01-2-2z" />
+      <path d="M5 17.5a2 2 0 012-2h11M9 8.5h5" />
+    </>
+  ),
+  rep: <path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z" />,
+};
+
+function Stat({ icon, name, tip, children, className = '' }: { icon: keyof typeof ICONS; name: string; tip: string; children: ReactNode; className?: string }) {
   return (
     <span className={`${bar.stat} ${className}`} tabIndex={0} aria-label={`${name}: ${tip}`}>
-      <i aria-hidden="true">{icon}</i>
+      <svg className={bar.icon} viewBox="0 0 24 24" aria-hidden="true">
+        {ICONS[icon]}
+      </svg>
       <span>
         <small>{name}</small>
         <b>{children}</b>
@@ -106,22 +131,22 @@ export function TopBar({
   return (
     <header className={styles.top}>
       <ClockOut risk={risk} />
-      <div className={bar.stats} data-tour="stats">
+      <div className={bar.stats}>
         {!intro && (
-          <>
-            <Stat icon="📅" name={`${day}. gün`} tip={`Şükrü Amca ${RETURN_DAY}. günün akşamı dönüyor: ${Math.max(0, RETURN_DAY - day)} gün kaldı. Dükkân 08.00'de açılır, 19.00'da kapanır.`}>
+          <div className={bar.panel} data-tour="stats">
+            <Stat icon="day" name={`${day}. gün`} tip={`Şükrü Amca ${RETURN_DAY}. günün akşamı dönüyor: ${Math.max(0, RETURN_DAY - day)} gün kaldı. Dükkân 08.00'de açılır, 19.00'da kapanır.`}>
               {clock}
             </Stat>
-            <Stat icon="💰" name="Kasa" className={money < 0 ? bar.neg : ''} tip="Kasadaki para. Her akşam elektrik, haftada bir vergi ve kira çıkar; toptancının malı da buradan ödenir. Eksiye düşerse dükkân batar.">
+            <Stat icon="cash" name="Kasa" className={money < 0 ? bar.neg : ''} tip="Kasadaki para. Her akşam elektrik, haftada bir vergi ve kira çıkar; toptancının malı da buradan ödenir. Eksiye düşerse dükkân batar.">
               {tl(money)}
             </Stat>
             {unpaid > 0 && (
-              <Stat icon="📒" name="Veresiye" tip="Defterde ödenmemiş veresiye. Vadesi geçen borç batabilir; itibarın düşükse veresiyeciler hiç ödemez.">
+              <Stat icon="book" name="Veresiye" tip="Defterde ödenmemiş veresiye. Vadesi geçen borç batabilir; itibarın düşükse veresiyeciler hiç ödemez.">
                 {tl(unpaid)}
               </Stat>
             )}
             <Stat
-              icon="⭐"
+              icon="rep"
               name="İtibar"
               className={r.tone}
               tip={`Köyün sana bakışı: ${rep}/100, "${r.word}". Adil fiyat, veresiye ve iyilik artırır; pahalı satış, küstürmek ve bayat mal düşürür. 35'in altında köylü kasabaya gider, gelenler yabancı olur.`}
@@ -131,7 +156,7 @@ export function TopBar({
               </span>
               {r.word}
             </Stat>
-          </>
+          </div>
         )}
         <div className={bar.sound} ref={lookBox}>
           <button type="button" className={bar.mute} onClick={() => setLook((o) => !o)} aria-expanded={look} aria-label="Görünüm ve erişilebilirlik" title="Görünüm ve erişilebilirlik">
@@ -178,7 +203,7 @@ export function TopBar({
               ) : (
                 <>
                   <path d="M15 9.2a4 4 0 010 5.6" className={bar.wave} />
-                  {volume > 0.5 && <path d="M17.6 6.8a7.4 7.4 0 010 10.4" className={`${bar.wave} ${bar.wave2}`} />}
+                  {volume > 0.5 && <path d="M17.6 6.8a7.4 7.4 0 010 10.4" className={bar.wave} />}
                 </>
               )}
             </svg>

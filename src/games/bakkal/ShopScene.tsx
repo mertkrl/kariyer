@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import type { Weather } from './data';
 import type { Stock } from './week';
 import { CounterBody, CounterTop } from './Counter';
-import { BreadCase, Fridge, Shelves } from './Goods';
+import { Fridge, Shelves } from './Goods';
+import { BreadCase } from './BreadCase';
 import { ChipsRack } from './Furniture';
 import { beamAt, darknessAt, skyAt, tintAt } from './sky';
 import { COUNTER_Y, Extras } from './ShopDecor';
@@ -101,6 +102,7 @@ function Door({ hour, weather, open, onSign, glow }: { hour: number; weather: We
     <g>
       <rect x="90" y="150" width="270" height="540" fill="#4f3220" />
       <rect x="110" y="168" width="230" height="522" fill="url(#doorWood)" />
+      <rect x="110" y="168" width="230" height="522" fill="url(#woodGrainV)" stroke="none" />
       {/* cam: dışarısı köy sokağı (Street.tsx), kapı kasasına kırpılır */}
       <clipPath id="doorGlass">
         <rect x="132" y="190" width="186" height="240" />
@@ -142,6 +144,7 @@ function Door({ hour, weather, open, onSign, glow }: { hour: number; weather: We
         <g key={py}>
           <rect x="132" y={py} width="186" height="98" rx="3" fill="rgba(0,0,0,.18)" />
           <rect x="138" y={py + 6} width="174" height="86" rx="2" fill="url(#doorWood)" />
+          <rect x="138" y={py + 6} width="174" height="86" rx="2" fill="url(#woodGrain)" stroke="none" />
           <path d={`M138 ${py + 92} H312 V${py + 6}`} stroke="rgba(255,220,170,.25)" strokeWidth="3" fill="none" />
         </g>
       ))}
@@ -296,6 +299,32 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
             <stop offset="0" stopColor="rgba(255,226,150,.45)" />
             <stop offset="1" stopColor="rgba(255,226,150,0)" />
           </radialGradient>
+          {/*
+            el çizimi dokular (mahalle maketinin dili): ahşap damarı, mürekkep tarama gölge ve sıva.
+            Üstüne bindirilen şekiller stroke="none" taşır: mürekkep çizgisi kuralına girmesinler.
+          */}
+          <pattern id="woodGrain" width="240" height="46" patternUnits="userSpaceOnUse">
+            <path d="M0 8 C40 4 80 12 120 8 S200 4 240 8 M0 21 C50 25 90 17 140 21 S210 25 240 21 M0 34 C30 31 70 37 110 34 S190 30 240 34" stroke="rgba(42,24,10,.22)" strokeWidth="1.2" fill="none" />
+            <path d="M0 14 C60 12 100 17 170 14 S230 12 240 14 M0 41 C70 43 130 38 240 41" stroke="rgba(255,226,180,.12)" strokeWidth="1" fill="none" />
+            <ellipse cx="168" cy="27" rx="9" ry="3.2" fill="none" stroke="rgba(42,24,10,.28)" strokeWidth="1.1" />
+            <ellipse cx="168" cy="27" rx="3.5" ry="1.2" fill="rgba(42,24,10,.25)" />
+          </pattern>
+          <pattern id="woodGrainV" width="46" height="240" patternUnits="userSpaceOnUse" patternTransform="rotate(90)">
+            <path d="M0 8 C40 4 80 12 120 8 S200 4 240 8 M0 21 C50 25 90 17 140 21 S210 25 240 21 M0 34 C30 31 70 37 110 34 S190 30 240 34" stroke="rgba(42,24,10,.22)" strokeWidth="1.2" fill="none" transform="rotate(-90) translate(-240 0)" />
+          </pattern>
+          <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M0 0 V7" stroke="rgba(42,35,29,.38)" strokeWidth="1.3" />
+          </pattern>
+          <pattern id="plaster" width="320" height="320" patternUnits="userSpaceOnUse">
+            <path d="M30 40 q30 -12 64 4 q20 18 -8 34 q-36 10 -58 -10 q-12 -16 2 -28 Z" fill="rgba(140,100,50,.07)" />
+            <path d="M210 190 q40 -8 70 14 q8 26 -30 30 q-40 2 -48 -20 Z" fill="rgba(255,248,230,.16)" />
+            {[
+              [12, 140], [64, 210], [118, 96], [150, 260], [196, 30], [240, 120], [282, 260], [300, 60], [90, 300], [170, 170],
+            ].map(([x, y]) => (
+              <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" fill="rgba(90,62,30,.28)" />
+            ))}
+            <path d="M228 270 l8 10 l-3 9 l7 11" stroke="rgba(42,35,29,.22)" strokeWidth="1" fill="none" />
+          </pattern>
           <radialGradient id="vignette" cx=".5" cy=".45" r=".75">
             <stop offset=".6" stopColor="rgba(0,0,0,0)" />
             <stop offset="1" stopColor="rgba(20,10,0,.55)" />
@@ -305,11 +334,15 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         <g className={styles.inked}>
         <rect width={W} height={H} fill="url(#wall)" />
         {/* tavan kirişi ve sıva lekeleri */}
+        <rect width={W} height={H} fill="url(#plaster)" stroke="none" />
         <rect width={W} height="40" fill="#5c3b22" />
+        <rect width={W} height="40" fill="url(#woodGrain)" stroke="none" />
+        <rect y="48" width={W} height="16" fill="url(#hatch)" stroke="none" />
         <rect y="40" width={W} height="8" fill="rgba(0,0,0,.2)" />
         <path d={`M0 40 H${W}`} stroke="#2a231d" strokeWidth="2" />
         {/* lambri */}
         <rect y={fitY(560)} width={W} height="140" fill="#7a5232" />
+        <rect y={fitY(560)} width={W} height="140" fill="url(#woodGrainV)" stroke="none" />
         {Array.from({ length: 50 }, (_, i) => (
           <rect key={i} x={i * 32} y={fitY(560)} width="3" height="140" fill="rgba(0,0,0,.18)" />
         ))}

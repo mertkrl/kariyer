@@ -13,8 +13,11 @@ export function CounterBody({ y, width, height }: { y: number; width: number; he
     <g>
       <rect x="0" y={y - 4} width={width} height="8" fill="#d8ab78" />
       <rect x="0" y={y + 4} width={width} height="18" fill="url(#counterTop)" />
+      <rect x="0" y={y + 4} width={width} height="18" fill="url(#woodGrain)" stroke="none" />
       <rect x="0" y={y + 22} width={width} height={height - y - 22} fill="url(#counterFront)" />
+      <rect x="0" y={y + 22} width={width} height={height - y - 22} fill="url(#woodGrainV)" stroke="none" />
       <rect x="0" y={y + 22} width={width} height="6" fill="rgba(0,0,0,.35)" />
+      <rect x="0" y={y + 22} width={width} height="14" fill="url(#hatch)" stroke="none" />
       {/* tahta kapaklar: çerçeve, iç pano, damar ve kulp */}
       {Array.from({ length: 8 }, (_, i) => {
         const x = 12 + i * 200;
@@ -23,7 +26,7 @@ export function CounterBody({ y, width, height }: { y: number; width: number; he
           <g key={i}>
             <rect x={x} y={y + 40} width="176" height={h} rx="5" fill="rgba(0,0,0,.18)" />
             <rect x={x + 6} y={y + 46} width="164" height={h - 12} rx="3" fill="url(#panel)" />
-            <path d={`M${x + 14} ${y + 60} q60 8 150 0 M${x + 14} ${y + 90} q70 -6 150 2`} stroke="rgba(40,20,5,.25)" strokeWidth="1.5" fill="none" />
+            <rect x={x + 6} y={y + 46} width="164" height={h - 12} rx="3" fill="url(#woodGrain)" stroke="none" />
             <rect x={x + 76} y={y + 52} width="24" height="6" rx="3" fill="url(#brass)" />
           </g>
         );
