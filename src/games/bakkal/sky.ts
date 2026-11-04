@@ -1,4 +1,5 @@
 import type { Weather } from './data';
+import { mixHex } from '../../shared/color';
 
 /*
  * Sahnenin ışığı: kapı camındaki gökyüzü ve odanın kararması, günün saatine ve havaya göre.
@@ -14,12 +15,7 @@ const SKY: [number, [string, string, string]][] = [
   [21, ['#141a35', '#2a2f55', '#4a4060']],
 ];
 
-const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
-function mix(a: string, b: string, t: number) {
-  const x = hex(a);
-  const y = hex(b);
-  return `#${x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('')}`;
-}
+const mix = mixHex;
 
 /** Saat ve havaya göre gökyüzü; bulut, yağmur ve kar gri bir perde çeker. */
 export function skyAt(hour: number, weather: Weather): [string, string, string] {

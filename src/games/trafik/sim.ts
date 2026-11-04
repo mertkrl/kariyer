@@ -6,6 +6,7 @@ import { addIncident, stepFault, stepIncidents } from './incidentSim';
 import { stepPeds } from './peds';
 import { buildJunction, exitOf, inPoint, pose, type Junction } from './junction';
 import { CITY, CAR_COLORS, DETOUR, DT, JAM, legOf, moveOfKey, DIFFICULTY, turnOf, type Car, type Controller, type Crash, type Difficulty, type Dir, type Event as SimEvent, type Incident, type Kind, type LevelSpec, type LogLine, type Ped, type Plan, type SideCar, type SideStreet, type Turn } from './model';
+import { mulberry32 } from '../../shared/random';
 
 /*
  * Kavşağın simülasyonu: 0,1 saniyelik adımlarla kontrolör, araçlar ve yayalar. Araçlar önlerindeki
@@ -142,16 +143,8 @@ export interface Sim {
   cutIns: number;
 }
 
-export function rng(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+/** Tohumlu rastgele sayı akışı (mulberry32, src/shared/random.ts). */
+export const rng = mulberry32;
 
 export const say = (s: Sim, text: string, tone: LogLine['tone'] = 'info', horn = false) => {
   s.log.unshift({ t: s.t, text, tone, ...(horn ? { horn } : {}) });

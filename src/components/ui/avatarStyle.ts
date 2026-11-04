@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { toneHex } from '../../shared/color';
 
 /*
  * Bir kişinin renginin üstünde baş harfler: beyaz koyu renklerde okunur ama altın ya da kum
@@ -36,11 +37,7 @@ export function inkOn(background: string): string {
 }
 
 /** `hex`, `f` (0–1) kadar siyaha doğru koyulaştırılmış. */
-function darken(hex: string, f: number): string {
-  const n = parseInt(hex.replace('#', ''), 16);
-  const ch = (v: number) => Math.round(v * (1 - f)).toString(16).padStart(2, '0');
-  return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
-}
+const darken = (hex: string, f: number) => toneHex(hex, -f);
 
 /** Aralarında en az 4.5:1 olan, `background`a olabildiğince yakın bir arka plan ve yazı rengi çifti. */
 export function readablePair(background: string): { background: string; color: string } {

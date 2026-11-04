@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './styles/fonts.css'
 import './styles/global.css'
 import { Root } from './Root'
-import { ErrorBoundary } from './components/ui/ErrorBoundary'
+import { GameBoundary } from './arcade/shell/GameBoundary'
+import { SITE_NAME } from './arcade/games'
 import { applyTextScale, loadTextScale } from './game/lib/textScale'
 import { applyMotionReduced, loadMotionReduced } from './components/ui/motion'
 import { audioEngine } from './audio/audioEngine'
@@ -22,9 +23,10 @@ connectSound(audioEngine)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ErrorBoundary>
+    {/* son çare: salonun kendisi çökerse; oyunların kendi sınırları Root.tsx'te */}
+    <GameBoundary title={SITE_NAME} canLeave={false}>
       <Root />
-    </ErrorBoundary>
+    </GameBoundary>
   </StrictMode>,
 )
 

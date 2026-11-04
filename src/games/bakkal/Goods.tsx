@@ -1,5 +1,5 @@
 import type { Stock } from './week';
-import { COUNTER_Y } from './ShopDecor';
+import { COUNTER_Y } from './layout';
 import { Pack, Shadow, Tiny } from './Packs';
 import { PACKS, labelOf } from './packSpecs';
 import { CATEGORIES, FRIDGE, MADE, RACK } from './data';

@@ -3,6 +3,7 @@ import { usePhase } from './game/store/storeLoader';
 import { audioEngine } from './audio/audioEngine';
 import { trackFor } from './audio/musicPlan';
 import { WelcomeScreen } from './screens/WelcomeScreen';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { UpdateNotice } from './components/ui/UpdateNotice';
 import { MobileBlock } from './components/ui/MobileBlock';
 import { useScreenFocus } from './components/ui/useScreenFocus';
@@ -103,4 +104,16 @@ function App() {
   );
 }
 
-export default App;
+/**
+ * Sen İK'sin kendi hata sınırıyla: günün kaydını bilir, "Devam et" ile dönüşü anlatır. Bu sınır
+ * İK'nın parçasında durur, salonun ilk paketine girmez (Root.tsx onu tembel yükler).
+ */
+function IseAlim() {
+  return (
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
+}
+
+export default IseAlim;

@@ -4,14 +4,13 @@ import { readSlot } from '../../arcade/saveSlot';
 import { isShopSave, SAVE_KEY, type ShopSave } from './save';
 import { audioEngine } from '../../audio/audioEngine';
 import { awayOf, loyalOf, basketOn, DAILY, characterOf, complains, BARGAIN, TOURIST_MARKUP, haggleOffer, isBasic, coolOff, dayVisits, effectiveType, eventOn, forget, hourOf, react, remember, rng, customerOf, settleDebts, titleFor, tl, weatherOn, type Product, type Reaction } from './data';
-import { CREDIT_PAGE, PRICE_PAGE } from './pages';
+import { CREDIT_PAGE } from './pages';
 import { type Errand, type Step } from './Till';
 import { COINS_DAILY, GUM, EMPTY_FLOW, LOAN, LOAN_BACK, RETURN_DAY, START_WORTH, stockValue, expensesOn, morning, payment, settleChange, bulkDiscount, deliver, discard, fineFor, handOver, madeCost, priceTalk, rot, settleAccount, settleDilemma, split, weekDay, type Answer, type ChangeWay, type Flow, type Outcome, priceIndex } from './week';
 import * as sfx from './sfx';
 import { addReceipt, giftIn, planReturn, settleGift, settleReturn } from './returns';
 import { addRep, applySupply, befriend, firmOf, rivalOf, settleAudit, spreadGossip, sulk, supplyOn } from './pressure';
-import { loadView, saveView, type View } from './access';
-import { TOUR } from './tourSteps';
+import { TOUR_SALE, useShopUi } from './shopUi';
 import { useShopState } from './shopState';
 import { ShopView } from './ShopView';
 
@@ -33,10 +32,6 @@ type Phase = 'intro' | 'shop' | 'dayEnd' | 'final';
 /** Yazar kasanın ekranı: son işlemin adı ve tutarı; nakit satışta alınan para ve para üstü. */
 type TillScreen = { amount: number | null; open: boolean; label?: string; paid?: number; change?: number };
 const TILL_IDLE: TillScreen = { amount: null, open: false };
-/** Tanıtımın beklemeli adımları: defteri açmak, levhayı çevirmek, ilk satış. */
-const TOUR_BOOK = TOUR.findIndex((s) => s.wait === 'book');
-const TOUR_SIGN = TOUR.findIndex((s) => s.wait === 'sign');
-const TOUR_SALE = TOUR.findIndex((s) => s.wait === 'sale');
 const TILL_CANCEL: TillScreen = { amount: null, open: false, label: 'İPTAL' };
 /** Kasadan geçen paranın ekranda yazan adı. */
 const TILL_LABEL: Partial<Record<keyof Flow, string>> = { sales: 'SATIŞ', accounts: 'ESKİ HESAP', collected: 'TAHSİLAT', loan: 'BORÇ VERİLDİ', charity: 'HAYIR', fine: 'CEZA', refund: 'İADE', gift: 'HEDİYE' };
@@ -50,21 +45,13 @@ function useBakkal() {
   const [step, setStep] = useState<Step>('ask');
   const [price, setPrice] = useState('');
   const [reaction, setReaction] = useState<Reaction | null>(null);
-  const [book, setBook] = useState(false);
-  const [bookAt, setBookAt] = useState(1);
   const [lineNo, setLineNo] = useState(0);
   const [saved, setSaved] = useState(() => readSlot(SAVE_KEY, isShopSave));
   const [credited, setCredited] = useState<boolean | null>(null);
   const [till, setTill] = useState<TillScreen>(TILL_IDLE);
-  const [calc, setCalc] = useState(false);
-  const [muted, setMuted] = useState(sfx.isMuted());
-  const [volume, setVolume] = useState(sfx.getVolume());
-  /** Görünüm ayarları: yazı boyutu, kontrast, büyük tuşlar, sakin hareket (access.ts). */
-  const [view, setViewState] = useState(loadView);
-  const setView = (v: View) => {
-    setViewState(v);
-    saveView(v);
-  };
+  // ekranla ilgili hâl: defter, hesap makinesi, çekmece, görünüm, ses, tanıtım (shopUi.ts)
+  const ui = useShopUi();
+  const { setBook, openBookAt, setDrawer, tour, setTour } = ui;
   // kepenk kalkarken kartlar gizlenir; kalkınca dükkân açılır
   const [rising, setRising] = useState(false);
   const [staleNote, setStaleNote] = useState<string | null>(null);
@@ -76,12 +63,9 @@ function useBakkal() {
   const [gumGiven, setGumGiven] = useState<number | null>(null);
   /** Eski hesap, ikilem ya da rafta olmayan mal: müşterinin son sözü ve kasaya etkisi. */
   const [outcome, setOutcome] = useState<Outcome | null>(null);
-  const [drawer, setDrawer] = useState(false);
-  /** Satılan paketin içinden çıkan para (karar bekliyor). */
   /** Kapıdaki levha çevrildi mi: her sabah kepenk kalkınca dükkân kapalıdır, oyuncu açar. */
   const [signOpen, setSignOpen] = useState(false);
-  /** İlk günün tanıtımında hangi adımdayız (Tour.tsx); null: tanıtım yok ya da bitti. */
-  const [tour, setTour] = useState<number | null>(null);
+  /** Satılan paketin içinden çıkan para (karar bekliyor). */
   const [gift, setGift] = useState<{ amount: number; product: Product } | null>(null);
   const timers = useRef<number[]>([]);
 
@@ -394,8 +378,7 @@ function useBakkal() {
       handGoods(shelf!.have);
       setRep((x) => addRep(x, 1));
       // deftere oyuncu kendi eliyle yazar: defter veresiye sayfasında açılır
-      setBookAt(CREDIT_PAGE);
-      setBook(true);
+      openBookAt(CREDIT_PAGE);
     } else {
       cash(reaction.sold, 'sales', shelf!.have);
       cutReceipt(reaction.sold, shelf!.have);
@@ -547,40 +530,13 @@ function useBakkal() {
     sfx.key();
     setSignOpen(true);
     // tanıtımda levha çevrilince ilk müşteriyle birlikte satış yapılır
-    setTour((at) => (at === TOUR_SIGN ? TOUR_SALE : null));
-  };
-
-  /** Defter: tanıtımda geçen yılın etiket fiyatlarında açılır ve bir sonraki adıma geçilir. */
-  const openBook = () => {
-    if (tour === TOUR_BOOK) {
-      setBookAt(PRICE_PAGE);
-      setBook(true);
-      return setTour(TOUR_BOOK + 1);
-    }
-    setBook((b) => !b);
-  };
-
-  /** Tanıtımda ileri, geri ve atla: defter adımının öncesinde ve sonrasında defter açılıp kapanır. */
-  const tourTo = (at: number | null) => {
-    const reading = at === TOUR_BOOK + 1;
-    if (reading) setBookAt(PRICE_PAGE);
-    setBook(reading);
-    setTour(at === null || at >= TOUR.length ? null : at);
+    ui.signTurned();
   };
 
   // ilk satış adımı: müşteri fiyata tepki verince tanıtım biter
   useEffect(() => {
     if (tour === TOUR_SALE && (reaction || outcome)) setTour(null);
-  }, [tour, reaction, outcome]);
-
-  const toggleMute = () => {
-    sfx.setMuted(!muted);
-    setMuted(!muted);
-  };
-  const changeVolume = (v: number) => {
-    sfx.setVolume(v);
-    setVolume(v);
-  };
+  }, [tour, reaction, outcome, setTour]);
 
   const playing = phase === 'shop' || phase === 'dayEnd';
   const unpaid = debts.filter((d) => !d.paid && !d.lost).reduce((s, d) => s + d.amount, 0);
@@ -602,7 +558,14 @@ function useBakkal() {
     // oxlint-disable-next-line react/exhaustive-deps
   }, [phase]);
 
-  return { acceptCharity, answerAccount, bankrupt, basket, befriended, book, bookAt, calc, carried, changeVolume, coins, credited, day, daySales, decideCredit, decideDilemma, decideGift, decideReturn, deeds, drawer, errand, ethics, fine, flow, gift, giveChange, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, muted, next, nextDay, noStock, old, openBook, openDebt, openShop, order, outcome, pages, paidToday, pay, payFine, phase, playing, price, raise, reaction, receipts, rep, repAtDayStart, restart, resume, returned, rising, saved, seed, sell, setBook, setBookAt, setCalc, setDrawer, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, setTour, setView, shelf, short, showBooks, signOpen, spoiled, staleNote, step, stock, supply, till, toggleMute, tour, tourTo, turnGum, unpaid, verdicts, view, visit, visits, volume, weather, written };
+  /*
+   * ShopView'a üç grup gider: `state` dükkânın ve tezgâhın okunan hâli, `act` oyuncunun yapabildiği
+   * işler, `ui` yalnızca ekranla ilgili hâl (shopUi.ts). Düz yüz alanlık bir torba yerine kim neyi
+   * okuyor, kim neyi değiştiriyor ayrı görünür.
+   */
+  const state = { bankrupt, basket, befriended, carried, coins, credited, day, daySales, deeds, errand, ethics, fine, flow, gift, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, old, openDebt, order, outcome, pages, paidToday, pay, phase, playing, price, reaction, receipts, rep, repAtDayStart, returned, rising, saved, seed, shelf, short, signOpen, spoiled, staleNote, step, stock, supply, till, unpaid, verdicts, visit, visits, weather, written };
+  const act = { acceptCharity, answerAccount, decideCredit, decideDilemma, decideGift, decideReturn, giveChange, next, nextDay, noStock, openShop, payFine, raise, restart, resume, sell, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, showBooks, turnGum };
+  return { state, act, ui };
 }
 
 /** Oyunun bütün hâli ve işleri: ShopView bunları çizer. */

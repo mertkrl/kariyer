@@ -1,5 +1,7 @@
 import { H, ROAD, ROLLER_W, W, type VehicleKind, type Weather } from './model';
 import { VEHICLE } from './vehicles';
+import { hash01 as hash } from '../../shared/random';
+import { toneHex } from '../../shared/color';
 
 /*
  * Şantiyenin dekoru, dünyayla aynı koordinatlarda (320 × 135), giriş ekranındaki mahalle maketinin
@@ -16,12 +18,6 @@ const FLOOR = 8.4;
 const GROUND_FLOOR = 10;
 /** Kaldırımın üstü: binalar buraya oturur. */
 const WALK = 72;
-
-/** Aynı sahnede hep aynı çıkan küçük sayılar (panjur, çamaşır, ışık). */
-const hash = (n: number) => {
-  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
 
 type Shop = 'bakkal' | 'doviz' | 'kepenk' | 'kapi' | 'cay';
 interface Block {
@@ -48,11 +44,7 @@ const BLOCKS: Block[] = [
 ];
 
 /** #rrggbb rengini koyulaştırır (k < 0) ya da açar (k > 0). */
-function tone(hex: string, k: number) {
-  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  const t = k > 0 ? 255 : 0;
-  return `#${c.map((v) => Math.round(v + (t - v) * Math.abs(k)).toString(16).padStart(2, '0')).join('')}`;
-}
+const tone = toneHex;
 
 function Window({ x, y, shutter, lit, seed }: { x: number; y: number; shutter?: string; lit: boolean; seed: number }) {
   return (

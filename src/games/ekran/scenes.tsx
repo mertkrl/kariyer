@@ -1,17 +1,12 @@
 import type { ReactNode } from 'react';
 import type { SceneId, Widget } from './model';
+import { hash01 as rnd } from '../../shared/random';
 
 /*
  * Video alanının manzaraları: düz SVG, degradeler ve katmanlarla; hareket `seconds`'a bağlı olduğu
  * için PNG'de de aynı kare çıkar. Boğaz: gün batımında asma köprü, üstünde akan trafik, altında
  * vapur. Karlı orman: katman katman dağlar, karlı çamlar, yağan kar.
  */
-
-/** 0–1 arası sabit sözde rastgele sayı: aynı i hep aynı değeri verir. */
-const rnd = (i: number) => {
-  const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
 
 interface Frame {
   wd: Widget;

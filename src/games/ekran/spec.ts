@@ -1,4 +1,5 @@
 import { H, W, type Design, type Kind, type PresetId, type Widget } from './model';
+import { contrast, luminance } from '../../shared/color';
 
 /*
  * Zor mod: ihale şartnamesi. Her ekranın üç dosyası var; her dosyada kurumun istekleri birer
@@ -9,20 +10,10 @@ import { H, W, type Design, type Kind, type PresetId, type Widget } from './mode
 
 // ── Ölçümler ────────────────────────────────────────────────────
 
-const lum = (hex: string) => {
-  const n = parseInt(hex.slice(1), 16);
-  const ch = (v: number) => {
-    const c = v / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * ch(n >> 16) + 0.7152 * ch((n >> 8) & 255) + 0.0722 * ch(n & 255);
-};
+const lum = luminance;
 
 /** WCAG kontrast oranı, 1–21. */
-export function contrast(a: string, b: string) {
-  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
-  return (x + 0.05) / (y + 0.05);
-}
+export { contrast };
 
 /** Yazısı ekranda okunacak bileşenler (hat haritası ve video kendi renklerini çizer). */
 const TEXTUAL: Kind[] = ['text', 'clock', 'date', 'number', 'patient', 'queue', 'ticker', 'nextStop', 'terminus', 'stops'];

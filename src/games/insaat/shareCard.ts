@@ -1,4 +1,5 @@
 import { CARD_H, CARD_W } from '../../arcade/share';
+import { toneHex } from '../../shared/color';
 
 /*
  * İnşaat İzleme'nin paylaşım kartı: akşamüstü, teslim edilmiş apartman ve yanında şantiye tabelası.
@@ -206,11 +207,7 @@ function building(ctx: CanvasRenderingContext2D, d: InsaatCardData) {
 }
 
 /** #rrggbb rengini açar (k > 0) ya da koyulaştırır (k < 0). */
-function shade(hex: string, k: number) {
-  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  const t = k > 0 ? 255 : 0;
-  return `rgb(${c.map((v) => Math.round(v + (t - v) * Math.abs(k))).join(',')})`;
-}
+const shade = toneHex;
 
 /** Sırtı dönük amca: kasket, omuz, ense. */
 function amca(ctx: CanvasRenderingContext2D, cx: number, base: number, s: number, coat: string, cap: string) {

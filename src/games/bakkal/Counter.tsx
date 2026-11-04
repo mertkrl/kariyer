@@ -1,4 +1,5 @@
-import { COUNTER_Y, Cat } from './ShopDecor';
+import { Cat } from './ShopDecor';
+import { COUNTER_Y } from './layout';
 import { GumMachine } from './GumMachine';
 import styles from './ShopScene.module.css';
 

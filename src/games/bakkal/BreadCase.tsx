@@ -1,4 +1,4 @@
-import { COUNTER_Y } from './ShopDecor';
+import { COUNTER_Y } from './layout';
 
 /* Ekmek dolabı ve somunları: sahnenin koordinatlarında (ShopScene çizer). */
 

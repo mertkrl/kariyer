@@ -1,4 +1,5 @@
 import styles from './ShopScene.module.css';
+import { COUNTER_Y } from './layout';
 
 /*
  * Dükkânın küçük eşyaları: kapının solunda duvar rafındaki küçük tüplü
@@ -6,8 +7,6 @@ import styles from './ShopScene.module.css';
  * geçirilmiş plastik futbol topları ve tezgâhtaki uyuyan kedi. Sahneyle aynı koordinatlarda çizilir.
  */
 
-/** Tezgâhın üst kenarı: müşteri bunun arkasında kalır. */
-export const COUNTER_Y = 690;
 
 /** Fileye geçirilmiş toplar: renkli plastik futbol topları, üstte büzgülü ip. */
 const BALLS = [

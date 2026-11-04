@@ -6,9 +6,11 @@ import { Fridge, Shelves } from './Goods';
 import { BreadCase } from './BreadCase';
 import { ChipsRack } from './Furniture';
 import { beamAt, darknessAt, skyAt, tintAt } from './sky';
-import { COUNTER_Y, Extras } from './ShopDecor';
+import { Extras } from './ShopDecor';
+import { BREAD_SHIFT, CLOCK_AT, COUNTER_Y, FIT, FRIDGE_SHIFT, fitY, SCENE_H as H, SCENE_W as W } from './layout';
 import { Street } from './Street';
 import styles from './ShopScene.module.css';
+import { hash01 as hash } from '../../shared/random';
 
 /*
  * Dükkânın içi, tezgâhın arkasından bakış: tam ekran. Arkada sıva duvar ve lambri, solda tüplü
@@ -20,20 +22,6 @@ import styles from './ShopScene.module.css';
  * Müşteri (children) duvarla tezgâh arasında durur.
  */
 
-const W = 1600;
-const H = 900;
-/**
- * Dükkânın eşyaları ortada, biraz küçültülmüş durur: 4:3 ekranda da kapı ve dolap görünsün.
- * Duvar, lambri ve tezgâh gövdesi bunun dışında tam genişlikte çizilir. Müşteri de aynı dönüşümü kullanır.
- */
-export const FIT = 'translate(160 180) scale(0.8)';
-const fitY = (y: number) => 180 + y * 0.8;
-
-/** Tohumlu sözde rastgele (0–1): yağmur her açılışta aynı düşsün. */
-const hash = (i: number) => {
-  const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
 
 /**
  * Kapı camında yağmur: dışarıda iki katman (uzakta ince ve sık, yakında iri ve hızlı) eğik çizgiler
@@ -362,10 +350,10 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         <ChipsRack stock={stock} />
         <Shelves stock={stock} />
         {/* rafın yanında soğuk dolap, onun yanında ekmek dolabı: çizimleri kendi yerlerinden kaydırılır */}
-        <g transform="translate(-76 0)">
+        <g transform={`translate(${FRIDGE_SHIFT} 0)`}>
           <Fridge stock={stock} />
         </g>
-        <g transform="translate(380 0)">
+        <g transform={`translate(${BREAD_SHIFT} 0)`}>
           <BreadCase bread={stock.ekmek ?? 0} />
         </g>
         <Extras />
@@ -386,7 +374,7 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         />
 
         {/* duvar saati: soğuk dolabın üstünde; akrep ve yelkovan oyunun saatini gösterir */}
-        <g transform="translate(1254 -10)" className={styles.clock}>
+        <g transform={`translate(${CLOCK_AT.x} ${CLOCK_AT.y})`} className={styles.clock}>
           <circle r="42" fill="#fdf8ea" stroke="#5c3b22" strokeWidth="6" />
           {Array.from({ length: 12 }, (_, i) => (
             <path key={i} d="M0 -36 V-30" stroke="#333" strokeWidth={i % 3 ? 1.5 : 3} transform={`rotate(${i * 30})`} />

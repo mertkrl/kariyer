@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react';
 import type { Theme } from './model';
+import { toneHex } from '../../shared/color';
 
 /*
  * Cüzdan TL'nin simgeleri: her uygulama için elle çizilmiş SVG, üç dönemde üç ayrı işçilikle.
@@ -12,11 +13,7 @@ import type { Theme } from './model';
 
 export type IconId = 'gecmis' | 'ucuz' | 'web' | 'not' | 'saat' | 'muzik' | 'karne' | 'gunluk' | 'oyun' | 'start';
 
-const shade = (hex: string, k: number) => {
-  const n = parseInt(hex.slice(1), 16);
-  const ch = (v: number) => Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k))));
-  return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => ch(v).toString(16).padStart(2, '0')).join('')}`;
-};
+const shade = toneHex;
 
 interface Paint {
   /** Ana dolgu: dönemine göre degrade ya da düz renk. */

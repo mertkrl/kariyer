@@ -1,5 +1,6 @@
 import { useId, useMemo, type ReactNode } from 'react';
 import type { FoodKind } from '../../game/data/lunchMenus';
+import { mulberry32 } from '../../shared/random';
 
 /*
  * Tabldot yemeği çizici. Her yemek bir "tarif":
@@ -161,17 +162,6 @@ const RECIPES: Record<FoodKind, Recipe> = {
 };
 
 // ── yardımcılar ──────────────────────────────────────────────────────────────
-
-function mulberry32(seed: number) {
-  let a = seed;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /** Gürültülü radyal noktalardan geçen kapalı yumuşak damla (Catmull-Rom → kübik Bézier). */
 function blobPath(cx: number, cy: number, rx: number, ry: number, rand: () => number, jag = 0.1, points = 14) {

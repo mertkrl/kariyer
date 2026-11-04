@@ -1,6 +1,6 @@
 import { RACK } from './data';
 import type { Stock } from './week';
-import { COUNTER_Y } from './ShopDecor';
+import { COUNTER_Y } from './layout';
 
 /*
  * Kapıyla raf arasındaki tel cips standı: tepede sarı CİPS levhası, iki tel direk, beş katlı tel

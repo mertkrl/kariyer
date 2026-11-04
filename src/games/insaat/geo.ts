@@ -1,3 +1,4 @@
+import { mixHex } from '../../shared/color';
 /** Sahnenin ortak ölçüleri (SVG birimi, görüntü 1200×640). */
 export const GROUND = 520;
 export const LEFT = 430;
@@ -14,9 +15,5 @@ export const WINDOWS = [26, 96, 166, 236];
 
 export const clamp = (n: number) => Math.min(1, Math.max(0, n));
 
-/** İki renk arasında ara renk (#rrggbb). */
-export function mix(a: string, b: string, k: number) {
-  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
-  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
-  return `#${pa.map((v, i) => Math.round(v + (pb[i] - v) * clamp(k)).toString(16).padStart(2, '0')).join('')}`;
-}
+/** İki renk arasında ara renk (#rrggbb); oran 0–1'e kırpılır. */
+export const mix = mixHex;

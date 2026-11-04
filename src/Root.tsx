@@ -1,8 +1,10 @@
 import { lazy, Suspense, useEffect, type ComponentType } from 'react';
 import { WelcomeScreen } from './arcade/welcome/WelcomeScreen';
 import { useRoute } from './arcade/route';
-import { loadingBgOf, SITE_NAME } from './arcade/games';
+import { GAMES, loadingBgOf, SITE_NAME } from './arcade/games';
 import type { GameRoute } from './arcade/slugs';
+import { GameBoundary } from './arcade/shell/GameBoundary';
+import { GameLoading } from './arcade/shell/GameLoading';
 
 // Salon ilk pakettedir; her oyun kendi parçasıdır ve yalnızca girilince (ya da kartın üstüne gelince) iner.
 const LOADERS: Record<GameRoute, () => Promise<{ default: ComponentType }>> = {
@@ -32,10 +34,17 @@ export function Root() {
 
   if (route === 'arcade') return <WelcomeScreen preload={preload} />;
   const Game = GAME_VIEWS[route];
-  // yüklenirken oyunun kendi açılış zemini görünür (games.ts): renk bir an başka bir şeye sıçramaz
+  const title = GAMES.find((g) => g.route === route)?.title ?? SITE_NAME;
+  /*
+   * Her oyun kendi hata sınırında (adrese bağlı: başka oyuna geçince hata unutulur). İK'nın kayıt
+   * bilen kendi sınırı App.tsx'te, İK'nın parçasında; parça inemezse hata bu sınıra kalır.
+   * Yüklenirken oyunun kendi açılış zemini (renk sıçramaz), biraz sürerse adı ve ilerleme çizgisi.
+   */
   return (
-    <Suspense fallback={<div style={{ minHeight: '100%', background: loadingBgOf(route) }} />}>
-      <Game />
-    </Suspense>
+    <GameBoundary key={route} title={title}>
+      <Suspense fallback={<GameLoading title={title} background={loadingBgOf(route)} />}>
+        <Game />
+      </Suspense>
+    </GameBoundary>
   );
 }

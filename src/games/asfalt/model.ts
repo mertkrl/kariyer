@@ -1,3 +1,4 @@
+import { mulberry32 } from '../../shared/random';
 /*
  * Yama Ekibi'nin fiziği: yolun yandan kesiti, hücre hücre bir kum dünyası. Toprak ve mıcır kum
  * gibi akıp yığılır, sıcak asfalt bal gibi yayılıp soğudukça donar, su çukurda birikip yolun
@@ -134,16 +135,7 @@ export interface World {
   wasted: number;
 }
 
-export function mulberry32(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+export { mulberry32 };
 
 export const idx = (x: number, y: number) => y * W + x;
 export const loose = (c: Cell) => c === SOIL || c === GRAVEL || c === HOT || c === SET;

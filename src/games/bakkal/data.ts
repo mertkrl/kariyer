@@ -15,6 +15,7 @@ import type { Account, Dilemma } from './week';
 import type { ReturnAsk } from './returns';
 import { characterOf } from './characters';
 import { LOW_REP, isBasic, touristShare } from './catalog';
+import { mulberry32 } from '../../shared/random';
 
 export interface Product {
   id: string;
@@ -231,17 +232,8 @@ export const forget = (rep: number) => rep + Math.sign(START_REPUTATION - rep) *
 export const OPEN_HOUR = 8;
 export const CLOSE_HOUR = 19;
 
-/** Tohumlu rastgele sayı (mulberry32). */
-export function rng(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+/** Tohumlu rastgele sayı (mulberry32, src/shared/random.ts). */
+export const rng = mulberry32;
 
 /** O güne kadar gelen zam sıçramalarının sayısı. */
 const jumps = (p: Product, day: number) => (p.step && p.every && p.first && day >= p.first ? Math.floor((day - p.first) / p.every) + 1 : 0);
@@ -645,7 +637,6 @@ export interface LogEntry {
 }
 
 export const profitOf = (sold: number, cost: number) => sold - cost;
-
 
 /** Lira yazımı: "1.250 ₺". */
 export const tl = (n: number) => `${n.toLocaleString('tr-TR')} ₺`;

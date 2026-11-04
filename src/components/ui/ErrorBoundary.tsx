@@ -1,12 +1,14 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { clearSave, readSave } from '../../game/store/save';
 import { getState } from '../../game/store/storeApi';
+import { isChunkError } from '../../arcade/shell/errors';
 import styles from './ErrorBoundary.module.css';
 
 /*
  * Bir ekran çizilirken hata verirse oyuncu boş bir sayfa yerine bunu görür: ne olduğu ve geri
  * dönüş yolu. Günün başındaki kontrol noktası hâlâ tarayıcıda; bu yüzden yeniden yüklemek
- * "Devam et"li karşılama ekranına götürür.
+ * "Devam et"li karşılama ekranına götürür. Yalnızca Sen İK'sin'i sarar (Root.tsx); oyunun parçası
+ * inemediyse hata dıştaki oyun sınırına (GameBoundary) bırakılır, o "yeni sürüm geldi" der.
  */
 interface State {
   error: Error | null;
@@ -59,6 +61,8 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   render() {
     const { error, copied } = this.state;
     if (!error) return this.props.children;
+    // parça inemedi: oyun çökmedi, sürüm değişti; bunu dıştaki sınır anlatır
+    if (isChunkError(error)) throw error;
     const hasSave = readSave() !== null;
     return (
       <div className={styles.screen} role="alert">

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Look, Mood } from './data';
-import { FIT } from './ShopScene';
+import { FIT } from './layout';
 import styles from './ShopScene.module.css';
 
 /*

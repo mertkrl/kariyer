@@ -48,6 +48,12 @@
 Zayıf nokta, oyun bileşenlerindeki dev "her şeyi bilen" hook'lar ve oyunlar arası kopyalanan
 yardımcılar. Hata sınırı tek ve yanlış markalı. Yükleniyor durumu görsel olarak boş.
 
+> **Durum (4 Kasım 2026): bu bölümdeki maddeler uygulandı.** Oyun başına hata sınırı ve "yeni sürüm"
+> ekranı (`src/arcade/shell/`), yükleniyor ekranı, ortak `src/shared/random.ts` ve `src/shared/color.ts`
+> (+ `tests/shared.test.ts`), Bakkal'da `useShopUi` ve `state / act / ui` grupları, `layout.ts`,
+> `max-lines: error`. Kanıt: [`fe-yeni-surum.webp`](docs/analiz/fe-yeni-surum.webp),
+> [`fe-yukleniyor.webp`](docs/analiz/fe-yukleniyor.webp), [`fe-bakkal-akis.webp`](docs/analiz/fe-bakkal-akis.webp).
+
 🔴 **Tek, İK markalı hata sınırı bütün oyunlara uygulanıyor.**
 - Gördüm: `src/main.tsx:25` tek bir `<ErrorBoundary>` var. Metni `src/components/ui/ErrorBoundary.tsx:66-67`
   "İK SİSTEMİ v4.2 · BEKLENMEYEN HATA / Sistem yanıt vermiyor. … Kayıtlı bir günün yok". Bir oyun

@@ -1,4 +1,5 @@
 import type { Design, Kind, Widget } from './model';
+import { contrast, luminance } from '../../shared/color';
 
 /*
  * Hazır renk takımları ve okunurluk. Bir takım bütün ekranı tek tıkla boyar: koyu zeminli
@@ -31,23 +32,7 @@ export const THEMES: Theme[] = [
 const SILENT: Kind[] = ['box', 'taskbar', 'video', 'lineMap'];
 export const hasReadableText = (wd: Widget) => !SILENT.includes(wd.kind);
 
-function rgb(hex: string): [number, number, number] {
-  const n = Number.parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-export function luminance(hex: string): number {
-  const [r, g, b] = rgb(hex).map((c) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-export function contrast(a: string, b: string): number {
-  const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p);
-  return (x + 0.05) / (y + 0.05);
-}
+export { contrast, luminance };
 
 /** Bileşenin yazısının gerçekte üstünde durduğu renk: kendi zemini ya da altındaki en üstteki dolu bileşen. */
 export function backdropOf(design: Design, wd: Widget): string {

@@ -1,4 +1,5 @@
 import type { GameRoute } from '../slugs';
+import { hash01 } from '../../shared/random';
 
 /*
  * Mahallenin tıklanan yerleri: her yer bir (plazada iki) oyuna açılır. Koordinatlar sahnenin
@@ -34,10 +35,7 @@ export const PLACES: Place[] = [
 export const placeOf = (route: GameRoute) => PLACES.find((p) => p.routes.includes(route));
 
 /** Sabit sözde rastgele: aynı tohum her açılışta aynı ışıkları yakar. */
-export function hash(n: number): number {
-  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-}
+export const hash = hash01;
 
 /** Günün saatine göre sahnenin ışığı. */
 export type Phase = 'sabah' | 'gunduz' | 'aksam' | 'gece';

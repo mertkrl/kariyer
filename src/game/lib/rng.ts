@@ -5,6 +5,8 @@
  * verir. Görsel ve işitsel gürültü Math.random kullanmaya devam eder: hiçbir şeyi değiştirmez.
  */
 
+import { mulberry32 } from '../../shared/random';
+
 function hashLabel(label: string) {
   let h = 2166136261;
   for (let i = 0; i < label.length; i++) h = Math.imul(h ^ label.charCodeAt(i), 16777619);
@@ -13,14 +15,7 @@ function hashLabel(label: string) {
 
 /** Bu tohum ve etiket için [0, 1) aralığında bir sayı akışı (mulberry32). */
 export function rngFor(seed: number, label: string): () => number {
-  let a = (seed ^ hashLabel(label)) >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+  return mulberry32((seed ^ hashLabel(label)) >>> 0);
 }
 
 /** `list`in rastgele sıralı bir kopyası (Fisher–Yates: her sıra eşit olasılıklı). */
