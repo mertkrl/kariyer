@@ -64,6 +64,8 @@ export function CuzdanGame() {
 
   return (
     <div className={s.app} data-theme={themeOf(year)}>
+      {/* ekran okuyucunun başlık listesinde oyunun adı (görsel başlık sahnenin içinde) */}
+      <h1 className="sr-only">Cüzdan Zamanı</h1>
       <div className={`${s.screen} ${degauss ? s.degauss : ''}`}>
         {!persona ? (
           <Boot onLogin={setPersona} />

@@ -16,7 +16,7 @@ export function serviceWorkerSource(bundleFiles: string[]): string {
   // müzik ve adayların sitelerindeki fotoğraflar ilk açılışta inmez: ilk kullanıldıklarında saklanır
   const files = all.filter((f) => !f.startsWith('audio/') && !f.startsWith('sites/'))
   const version = createHash('sha256').update(all.join('|')).digest('hex').slice(0, 12)
-  return `const CACHE = 'sen-iksin-${version}';
+  return `const CACHE = 'mesai-disi-${version}';
 const FILES = ${JSON.stringify(['./', ...files.map((f) => './' + f)])};
 
 self.addEventListener('install', (event) => {

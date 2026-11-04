@@ -112,7 +112,8 @@
 .mark {
   position: fixed;
   right: 18px;
-  bottom: 14px;
+  /* oyunun alt şeridi varsa (Bakkal'ın kepenk rayı) oyun bu payı yükseltir */
+  bottom: var(--studio-mark-bottom, 14px);
   z-index: 40;
   color: #1d2733;
   cursor: default;

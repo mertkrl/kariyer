@@ -368,7 +368,8 @@ button.file:hover {
   padding: 4px 18px 6px;
   border-radius: 8px 8px 0 0;
   background: #e9dfca;
-  color: #7a6d58;
+  /* 4,66:1 (AA); eski #7a6d58 3,81:1 idi */
+  color: #6b604d;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;

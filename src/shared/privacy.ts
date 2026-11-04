@@ -8,7 +8,9 @@ export const STORAGE_PREFIX = 'kariyerweb-';
 /** Önek gelmeden önce yazılmış anahtarlar (Meydan Islahı'nın eski taslakları): yalnızca silinir, bir daha yazılmaz. */
 export const LEGACY_PREFIXES = ['meydan:taslak:'];
 /** Çevrimdışı kopyanın önbellekleri (adları vite.config.ts'de verilir). */
-export const CACHE_PREFIX = 'sen-iksin-';
+export const CACHE_PREFIX = 'mesai-disi-';
+/** Marka adı değişmeden önceki (Sen İK'sin dönemi) önbellekler: yalnızca silinir. */
+export const LEGACY_CACHE_PREFIXES = ['sen-iksin-'];
 
 export async function clearAllGameData() {
   for (const pick of [() => localStorage, () => sessionStorage]) {
@@ -24,7 +26,7 @@ export async function clearAllGameData() {
   try {
     if ('caches' in globalThis) {
       const names = await caches.keys();
-      await Promise.all(names.filter((n) => n.startsWith(CACHE_PREFIX)).map((n) => caches.delete(n)));
+      await Promise.all(names.filter((n) => [CACHE_PREFIX, ...LEGACY_CACHE_PREFIXES].some((p) => n.startsWith(p))).map((n) => caches.delete(n)));
     }
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();

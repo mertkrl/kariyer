@@ -400,7 +400,8 @@ function ShelfTag({ id, n, x, y }: { id: string; n: number; x: number; y: number
   const out = n <= 0;
   const low = !out && n <= LOW;
   return (
-    <g>
+    // büyük yazı modunda etiket kendi merkezinden büyür (ShopScene.module.css .shelfTag)
+    <g className={styles.shelfTag}>
       <title>{`${labelOf(id)}: ${out ? 'tükendi' : `rafta ${n} tane`}`}</title>
       <rect x={x} y={y} width="50" height="8" rx="1" fill={out ? '#c62828' : low ? '#f59e0b' : '#fffdf2'} opacity=".95" />
       <text x={x + 25} y={y + 6.5} textAnchor="middle" fontSize="5.6" fontWeight="800" fill={out ? '#fff' : '#3a2a1a'} fontFamily="Arial, sans-serif">

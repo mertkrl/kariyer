@@ -66,11 +66,11 @@ export function Home({ onNormal, onHard }: { onNormal: () => void; onHard: () =>
           <p className={styles.stamp}>
             İhale ilanı <span>Dosya 2026/EKR-0042</span>
           </p>
-          <h2 className={styles.headline}>
+          <h1 className={styles.headline}>
             Ekran
             <br />
             <em>İhalesi</em>
-          </h2>
+          </h1>
           <p className={styles.pitch}>Hastane koridorunda, metrobüs tavanında, Marmaray vagonunda… Yıllardır aynı duran ekranlar yeniden tasarlanacak. İhaleyi sen aldın.</p>
           <dl className={styles.stats}>
             <div>

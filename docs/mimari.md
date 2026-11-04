@@ -98,3 +98,17 @@ sil") dokunduğunu da denetler.
 - **Yazı tipi ön yüklemesi yok.** `index.html` bütün adreslerde aynı; salonun yazı tiplerini ön
   yüklemek salonda FCP'yi iyileştirse de paylaşım bağlantısıyla doğrudan oyuna gelenin ilk
   açılışını yavaşlattı (Bakkal mobil 81 → 70). Yazı tipleri `font-display: swap`.
+
+## Erişilebilirlik ve mobil kuralları
+
+- **Dokunma alanı en az 44 × 44 px.** Görünüşü küçük kalması gereken denetime görünmez bir
+  `::after` alanı eklenir (örnek: `arcade/ClockOut.module.css` `.out`).
+- **Her oyunun bir `<h1>`'i var**: görsel başlık sahnenin içindeyse `className="sr-only"`.
+- **Görünen yazı erişilebilir adın parçasıdır** (WCAG 2.5.3): görünen metni olan bağlantı ya da
+  düğmeye farklı bir `aria-label` verilmez; durum `aria-pressed` ile söylenir.
+- **Klavye sırası görsel sırayla aynı**: yerleşim CSS `order` ile değişiyorsa DOM sırası görsel
+  sırayı izler (salonda başlık DOM'da en önde).
+- **Güvenli alan (çentik):** `index.html` `viewport-fit=cover` kullanmaz; tarayıcı içeriği zaten
+  çentiğin dışında tutar. `cover` eklenirse sabit konumlu çubuklara `env(safe-area-inset-*)` gerekir.
+- **Kırılma noktaları** yalnızca ortak listeden (`tests/layout.test.ts`: 1240, 1100, 960, 760, 560;
+  yükseklik 820, 520). Daha dar telefonda yerleşim satır kırarak sığar, yeni kırılma noktası açılmaz.

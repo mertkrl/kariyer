@@ -8,7 +8,7 @@
  * politikadan geçer; o da bu adresi kabul eder, başka hiçbir şeyi değil (swUpdate.ts).
  */
 /** Sayfanın oluşturabileceği tek Trusted Types politikası. */
-export const TT_POLICY = 'sen-iksin-sw';
+export const TT_POLICY = 'mesai-disi-sw';
 
 export const CSP_DIRECTIVES = [
   "default-src 'self'",

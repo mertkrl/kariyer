@@ -9,7 +9,7 @@ import styles from './Shutter.module.css';
  */
 export function Shutter({ down }: { down: boolean }) {
   return (
-    <div className={`${styles.shutter} ${down ? '' : styles.up}`} aria-hidden={!down} aria-label="Kepenk">
+    <div className={`${styles.shutter} ${down ? '' : styles.up}`} aria-hidden="true">
       <div className={styles.curtain}>
         <div className={styles.slats}>
           <span className={styles.wear} />

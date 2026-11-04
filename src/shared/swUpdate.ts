@@ -23,7 +23,7 @@ const SW_URL = './sw.js';
 function swUrl(): string {
   const tt = (window as { trustedTypes?: { createPolicy: (name: string, rules: { createScriptURL: (url: string) => string }) => { createScriptURL: (url: string) => unknown } } }).trustedTypes;
   if (!tt) return SW_URL;
-  const policy = tt.createPolicy('sen-iksin-sw', {
+  const policy = tt.createPolicy('mesai-disi-sw', {
     createScriptURL: (url) => {
       if (url !== SW_URL) throw new TypeError(`İzin verilmeyen betik adresi: ${url}`);
       return url;

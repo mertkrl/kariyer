@@ -25,7 +25,8 @@ test('verilerimi sil öneksiz eski Meydan taslaklarını da siler', async () => 
 });
 
 test('verilerimi sil oyunun çevrimdışı kopyasını da siler, başka önbelleğe dokunmaz', async () => {
-  const names = new Set(['sen-iksin-abc123', 'baska-site-cache']);
+  // yeni ad ve marka değişmeden önceki ad: ikisi de oyunun kopyası
+  const names = new Set(['mesai-disi-abc123', 'sen-iksin-eski99', 'baska-site-cache']);
   const g = globalThis as { caches?: unknown };
   g.caches = {
     keys: async () => [...names],

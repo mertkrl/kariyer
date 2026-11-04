@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { clearSlot } from '../../arcade/saveSlot';
 import { SAVE_KEY } from './save';
 import { StudioMark } from '../../arcade/Studio';
@@ -32,6 +33,8 @@ export function ShopView({ g }: { g: Bakkal }) {
   const { book, bookAt, calc, changeVolume, drawer, muted, openBook, setBook, setBookAt, setCalc, setDrawer, setTour, setView, toggleMute, tour, tourTo, view, volume } = g.ui;
   return (
     <div className={styles.app} {...viewAttrs(view)}>
+      {/* ekran okuyucunun başlık listesinde oyunun adı (görsel başlık sahnenin içinde) */}
+      <h1 className="sr-only">Köy Bakkalı</h1>
       <ShopScene open={signOpen} onSign={openShop} coach={tour === null && !signOpen ? 'sign' : null} stock={stock} gumActive={gumGiven !== null && !!pay && gumGiven < pay.odd} onGum={turnGum} hour={hour} weather={weather} onCalc={() => setCalc((c) => !c)} onBook={openBook}>
         {visit && (
           <Customer
@@ -184,7 +187,8 @@ export function ShopView({ g }: { g: Bakkal }) {
         <Ledger pages={pages} at={bookAt} onTurn={setBookAt} onChange={(id, page) => setPages((p) => ({ ...p, [id]: page }))} onClose={() => setBook(false)} />
       )}
 
-      <footer className={styles.sign}>
+      {/* KASM damgası kepengin rayının (alt profil + kaldırım, 66 px) üstünde dursun */}
+      <footer className={styles.sign} style={{ '--studio-mark-bottom': '80px' } as CSSProperties}>
         {phase === 'intro' && <StudioMark minimal />}
       </footer>
     </div>

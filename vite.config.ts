@@ -36,7 +36,7 @@ function offlineCache(): Plugin {
 /*
  * Yalnızca yayınlanan sayfanın ihtiyaç duyduğu şeyler. İçerik Güvenliği Politikası (csp.ts) yalnızca
  * derleme sırasında eklenir; geliştirme sunucusu politikanın engelleyeceği stiller ve bir websocket
- * ekler. SITE_URL ayarlıysa (derlemenin yayınlandığı adres, ör. SITE_URL=https://sen-iksin.example
+ * ekler. SITE_URL ayarlıysa (derlemenin yayınlandığı adres, ör. SITE_URL=https://mesai-disi.example
  * npm run build), paylaşım önizlemesi sosyal sitelerdeki bağlantı önizlemelerinin istediği mutlak
  * adresleri alır.
  */

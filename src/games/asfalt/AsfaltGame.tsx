@@ -48,6 +48,8 @@ export function AsfaltGame() {
 
   return (
     <div className={styles.app}>
+      {/* ekran okuyucunun başlık listesinde oyunun adı (görsel başlık sahnenin içinde) */}
+      <h1 className="sr-only">Yama Ekibi</h1>
       <header className={styles.top}>
         <span className={ui.exit}>
           <ClockOut risk={phase.at === 'work' ? 'Yarım kalan yama kaybolur; biten işler kayıtlı.' : undefined} />

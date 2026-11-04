@@ -115,8 +115,8 @@ function SoundToggle() {
     <button
       type="button"
       className={styles.sound}
+      // ad görünen yazıdır ("Ses açık" / "Ses kapalı"), durum aria-pressed'te: ikisi çelişmesin
       aria-pressed={!muted}
-      aria-label={muted ? 'Sesi aç' : 'Sesi kapat'}
       onClick={() => {
         audioEngine.init();
         audioEngine.setMuted(!muted);

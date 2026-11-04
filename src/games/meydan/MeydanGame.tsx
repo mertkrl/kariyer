@@ -43,6 +43,8 @@ export function MeydanGame() {
 
   return (
     <div className={styles.app}>
+      {/* ekran okuyucunun başlık listesinde oyunun adı (görsel başlık sahnenin içinde) */}
+      <h1 className="sr-only">Meydan Islahı</h1>
       <header className={styles.top}>
         <ClockOut />
         <div className={styles.topRight}>

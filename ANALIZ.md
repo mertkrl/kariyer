@@ -236,6 +236,13 @@ adreste sessiz yönlendirme ve oyunlar arasında tutarsız "geri" dili.
 belgesi, Trafik'in kontrol merkezi, Cüzdan'ın BIOS'u, Bakkal'ın mürekkep çizimi. Güçlü yanı bu
 çeşitlilik, zayıf yanı da aynı çeşitlilik: salon ile oyunlar arasında ortak bir "ev" dili zayıf.
 
+
+> **Durum (4 Kasım 2026): uygulandı.** Logo "MESAİ DIŞI / KASM MAHALLESİ" + slogan (geniş ekranda);
+> dar ekranda saat akışta, 320–1440 px arasında çakışma ve taşma yok
+> ([`ui-salon-375.webp`](docs/analiz/ui-salon-375.webp)). Önbellek ve Trusted Types adı `mesai-disi-`
+> ("Verilerimi sil" eski `sen-iksin-` önbelleklerini de siler). Bakkal'da KASM damgası kepenk
+> rayının üstünde ([`ui-bakkal-768.webp`](docs/analiz/ui-bakkal-768.webp)). Depo anahtarları
+> (`kariyerweb-`) kullanıcı verisini taşımamak için bilerek değişmedi.
 🟠 **Marka adı dört farklı biçimde geçiyor:** "Mesai Dışı" (başlık, `index.html`), "KASM Mahallesi / KASM Labs" (salon logosu, oyun köşeleri), "Sen İK'sin" (önbellek adı `sen-iksin-*`, hata ekranı), "kariyerweb" (paket adı, `kariyerweb-defter`). Kullanıcıya görünenler ilk ikisi; ama hangisinin marka olduğu belirsiz.
 - Öneri: Ürün adı **Mesai Dışı**, stüdyo imzası **KASM**. Logo "MESAİ DIŞI · KASM Mahallesi" olsun; iç anahtarlar zamanla `mesai-disi-` önekine taşınsın (göç ile).
 
@@ -255,6 +262,11 @@ belgesi, Trafik'in kontrol merkezi, Cüzdan'ın BIOS'u, Bakkal'ın mürekkep çi
 metin ölçeği, modal odak kapanı, `aria-live` var. Lighthouse salonda 100. Bulunan sorunlar az ve
 somut.
 
+
+> **Durum (4 Kasım 2026): uygulandı.** Lighthouse erişilebilirlik: salon, Test, İnşaat, Bakkal, Ekran,
+> Meydan, Yama, Trafik ve Cüzdan **100** (önce Bakkal ve Trafik 94). Kepenk süs olarak gizli; logo ve
+> Test ses düğmesinde ad görünen yazı; salonda Tab başlıktan başlar ve `body`'ye düşmez; her oyunda
+> `h1`; Ekran sekmesi kontrastı 3,81 → 4,66:1; büyük yazı modunda raf etiketleri 1,2 / 1,35 kat.
 🟠 **Trafik "Oyna" düğmesi kontrastı 1,42:1** (AA için 4,5:1 gerekir).
 - Kanıt: Lighthouse `color-contrast` (#ece9e1 metin, #ffb81c zemin). Sebep: `src/games/trafik/TrafikGame.module.css:27-29` `.app button { color: inherit }` kuralının seçici ağırlığı (0,1,1), `Title.module.css:312` `.cta { color: #1b1607 }` kuralını (0,1,0) eziyor.
 - Düzeltme: `.app .cta { color: #1b1607; }` ya da `.app button` kuralını `:where(.app) button` yapın.
@@ -282,6 +294,12 @@ somut.
 düşünülmüş: Bakkal'da levha eşi, Trafik'te panel, salonda çip listesi. Sorunlar dokunma hedefi
 boyutları ve tek bir oyunun (İK) mobil deneyimi.
 
+
+> **Durum (4 Kasım 2026): uygulandı.** 375 px'te 44 px altındaki dokunma hedefi salonda 4 → 0,
+> İnşaat 7 → 0, Trafik 2 → 0, Test 3 → 1 (etiketle sarılı onay kutusu), Bakkal 6 → 2 (sahne
+> çizimindeki levha ve defter). Güvenli alan için değişiklik gerekmedi (`viewport-fit=cover` yok).
+> Bakkal ürünlerini `<use>` ile çizmek denendi: DOM yalnızca 2.623 → 2.400, mürekkep çizgisi
+> kopyalara geçmediği için geri alındı.
 🟠 **Dokunma hedefleri küçük:** 375 px'te salonda 21 hedefin **13'ü** 44×44 px altında (oyun çipleri 36 px yükseklikte). İnşaat'ta 7/7, Bakkal'da 6/8, Ekran'da 5/9.
 - Düzeltme: Çiplerde `min-height: 44px`; ikon düğmelerde görünmez dokunma alanı (`::after { inset: -6px }`).
 

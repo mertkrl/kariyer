@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type R
 import { audio } from '../../shared/audio/lazy';
 import { storeMuted } from '../../shared/prefs';
 import { prefersReducedMotion } from '../../shared/motion';
-import { GAMES, loadingBgOf } from '../games';
+import { GAMES, loadingBgOf, SITE_TAGLINE } from '../games';
 import { loadProgress } from '../progress';
 import { hrefOf } from '../route';
 import type { GameRoute } from '../slugs';
@@ -253,42 +253,17 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
       style={{ '--shade': shadeOf(dark) } as CSSProperties}
     >
       <div className={s.frame}>
-        <div className={s.model}>
-          <Model
-            src={`${import.meta.env.BASE_URL}mahalle/giris.webp`}
-            nightSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece.webp`}
-            litSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece-isik.webp`}
-            dark={dark} lights={lights} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
-        </div>
-
+        {/* başlık DOM'da en önde: klavyeyle gezinti görsel sırayla aynı (logo, ses, yardım, ayarlar,
+            sonra maket ve oyunlar); yerleşimi CSS order verir */}
         {/* data-safe-top: maketteki kart bu çubuğun altında açılır */}
-        {/* telefonda maketin işaretleri sık durur: oyunlar altında bir de liste olarak */}
-        <nav className={s.list} aria-label="Oyunlar">
-          {GAMES.map((g) => {
-            const stop = STOPS.find((st) => st.routes.includes(g.route))!;
-            return (
-              <button key={g.route} type="button" className={s.chip} onClick={() => enterGame(stop, g.route)}>
-                {progress.played[g.route] && (
-                  <svg viewBox="0 0 12 12" aria-hidden="true">
-                    <path d="M3 6.2l2 2 4-4.4" />
-                  </svg>
-                )}
-                {g.title}
-                {g.desktopOnly && <small className={s.chipTag}>masaüstü</small>}
-                {progress.played[g.route] && <span className="sr-only"> (bitirildi)</span>}
-              </button>
-            );
-          })}
-        </nav>
-
         <header className={s.top} data-safe-top>
-          <a className={s.identity} href={hrefOf('arcade')} aria-label="KASM Mahallesi, Mesai Dışı Sk.">
+          <a className={s.identity} href={hrefOf('arcade')}>
             <span className={s.brand}>
-              <b>KASM</b>
-              <small>MAHALLESİ</small>
+              <b>MESAİ DIŞI</b>
+              <small>KASM MAHALLESİ</small>
             </span>
             <span className={s.divider} aria-hidden="true" />
-            <span className={s.street}>Mesai Dışı Sk.</span>
+            <span className={s.street}>{SITE_TAGLINE}</span>
           </a>
           <ShiftClock
             overtimeSince={overtimeSince}
@@ -325,6 +300,33 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             </ToolButton>
           </nav>
         </header>
+        <div className={s.model}>
+          <Model
+            src={`${import.meta.env.BASE_URL}mahalle/giris.webp`}
+            nightSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece.webp`}
+            litSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece-isik.webp`}
+            dark={dark} lights={lights} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
+        </div>
+
+        {/* telefonda maketin işaretleri sık durur: oyunlar altında bir de liste olarak */}
+        <nav className={s.list} aria-label="Oyunlar">
+          {GAMES.map((g) => {
+            const stop = STOPS.find((st) => st.routes.includes(g.route))!;
+            return (
+              <button key={g.route} type="button" className={s.chip} onClick={() => enterGame(stop, g.route)}>
+                {progress.played[g.route] && (
+                  <svg viewBox="0 0 12 12" aria-hidden="true">
+                    <path d="M3 6.2l2 2 4-4.4" />
+                  </svg>
+                )}
+                {g.title}
+                {g.desktopOnly && <small className={s.chipTag}>masaüstü</small>}
+                {progress.played[g.route] && <span className="sr-only"> (bitirildi)</span>}
+              </button>
+            );
+          })}
+        </nav>
+
 
         <section className={s.intro}>
           <p className={s.kicker}>

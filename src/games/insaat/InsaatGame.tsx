@@ -93,6 +93,8 @@ export function InsaatGame() {
 
   return (
     <div className={`${styles.app}${paused && !over ? ` ${styles.paused}` : ''}`}>
+      {/* ekran okuyucunun başlık listesinde oyunun adı (görsel başlık sahnenin içinde) */}
+      <h1 className="sr-only">İnşaat İzleme</h1>
       <Scene t={t} plan={plan} />
 
       <header className={styles.top}>

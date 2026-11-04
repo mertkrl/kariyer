@@ -477,3 +477,17 @@
     filter: drop-shadow(0 0 8px rgba(120, 230, 140, 1));
   }
 }
+
+/* raf etiketleri: görünüm ayarında yazı büyütülünce etiket de kendi merkezinden büyür (access.ts) */
+.shelfTag {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+[data-text='lg'] .shelfTag {
+  transform: scale(1.2);
+}
+
+[data-text='xl'] .shelfTag {
+  transform: scale(1.35);
+}

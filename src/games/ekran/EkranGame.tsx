@@ -74,6 +74,8 @@ export function EkranGame() {
 
   return (
     <div className={styles.app}>
+      {/* giriş ekranının başlığı görünür h1 (Lobby); öteki ekranlarda ekran okuyucu için */}
+      {phase.at !== 'home' && <h1 className="sr-only">Ekran İhalesi</h1>}
       <header className={styles.top}>
         <ClockOut tone="dark" />
         <div className={styles.topRight}>

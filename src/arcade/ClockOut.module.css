@@ -248,3 +248,18 @@
     padding-right: 4px;
   }
 }
+
+/* dokunma alanı en az 44 × 44 px; görünüş aynı kalır (WCAG 2.5.8, mobil) */
+.out {
+  position: relative;
+}
+
+.out::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
