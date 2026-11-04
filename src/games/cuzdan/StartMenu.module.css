@@ -182,16 +182,16 @@
 
 /* ── 2002–2005: iki sütun, mavi baş ve ayak ── */
 :global([data-theme='luna']) .menu {
-  border: 1px solid #0b3aa8;
+  border: 1px solid #0e5a4a;
   border-radius: 8px 8px 0 0;
   box-shadow: 3px -2px 14px rgba(0, 0, 0, 0.45);
 }
 
 :global([data-theme='luna']) .head {
   color: #fff;
-  background: linear-gradient(180deg, #1868ce, #0f4eb5 85%);
+  background: linear-gradient(180deg, #1d8a72, #126e5a 85%);
   border-bottom: 2px solid #f39a2c;
-  text-shadow: 1px 1px #0b2a7a;
+  text-shadow: 1px 1px #083a30;
 }
 
 :global([data-theme='luna']) .avatar {
@@ -203,9 +203,9 @@
 }
 
 :global([data-theme='luna']) .right {
-  color: #0a246a;
-  background: #d3e5fa;
-  border-left: 1px solid #95bdee;
+  color: #0a3d32;
+  background: #dcf1ea;
+  border-left: 1px solid #9fd3c3;
 }
 
 :global([data-theme='luna']) .game:hover,
@@ -213,13 +213,13 @@
 :global([data-theme='luna']) .link:hover,
 :global([data-theme='luna']) .link:focus-visible {
   outline: none;
-  background: #316ac5;
+  background: #1f8a73;
   color: #fff;
 }
 
 :global([data-theme='luna']) .foot {
   color: #fff;
-  background: linear-gradient(180deg, #4282d6, #1c5bc4);
+  background: linear-gradient(180deg, #2f9e85, #16745f);
 }
 
 :global([data-theme='luna']) .footBtn:hover,

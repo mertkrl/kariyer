@@ -1,12 +1,15 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { audioEngine } from '../../audio/audioEngine';
 import { MUSIC_VOLUME_KEY, readStoredVolume, SFX_VOLUME_KEY, storeMuted, storeVolume } from '../../game/lib/prefs';
+import { clearAllGameData } from '../../game/lib/privacy';
 import { prefersReducedMotion } from '../../components/ui/motion';
+import { GAMES, loadingBgOf } from '../games';
 import { loadProgress } from '../progress';
 import { hrefOf } from '../route';
 import type { GameRoute } from '../slugs';
 import { Model, type Leaving } from './Model';
-import type { Stop } from './stops';
+import { darkness, windowsOn } from './nightClock';
+import { STOPS, type Stop } from './stops';
 import * as sfx from '../mahalle/sfx';
 import './fonts.css';
 import s from './Welcome.module.css';
@@ -17,9 +20,6 @@ import s from './Welcome.module.css';
  * tıklayan doğrudan o yerin oyununa dalar (dövizci → Cüzdan Zamanı). Sitenin ana sayfasıdır;
  * oyunlardan dönüş de buraya gelir.
  */
-
-/** Oyun açılırken ekranın son rengi: her oyunun yüklenirken gösterdiği zemin (Root.tsx). */
-const LOADING_BG: Record<GameRoute, string> = { iseAlim: '#100e0b', test: '#f4f6fa', insaat: '#bcd9ea', bakkal: '#f4e6c8', ekran: '#23262d', meydan: '#ece6da', asfalt: '#e9e4d8', trafik: '#1d2128', cuzdan: '#efe9da' };
 
 /** Figma'daki ikonlar (lucide): 18×18, 1.5 kalınlık. */
 const ICONS = {
@@ -38,16 +38,48 @@ function ToolButton({ label, pressed, onClick, children }: { label: string; pres
 }
 
 function Panel({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  // açılınca odak panele geçer: klavyeyle gelen içeriği hemen okur, Esc kapatır
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => close.current?.focus(), []);
   return (
     <aside className={s.panel} role="dialog" aria-label={title}>
       <div className={s.panelHead}>
         <h2>{title}</h2>
-        <button type="button" className={s.close} aria-label="Paneli kapat" onClick={onClose}>
+        <button ref={close} type="button" className={s.close} aria-label="Paneli kapat" onClick={onClose}>
           ×
         </button>
       </div>
       <div className={s.panelBody}>{children}</div>
     </aside>
+  );
+}
+
+/** Mahalle rehberi: maket, kayıt ve gizlilik, bütün verileri silmek. */
+function Help() {
+  const [confirm, setConfirm] = useState(false);
+  return (
+    <>
+      <p>Mahallede her durak kısa bir oyun. Maketteki bir yere tıkla; bitirdiğin oyunun durağına tik düşer.</p>
+      <h3 className={s.subhead}>Kayıt ve gizlilik</h3>
+      <p>Hesap yok, sunucu yok; hiçbir veri gönderilmez. İlerlemen ve ayarların yalnızca bu tarayıcıda durur, oyunlar kaldığın yerden devam eder.</p>
+      <p>
+        {confirm ? (
+          <>
+            Bütün oyunların kayıtları, sonuçları ve ayarlar silinsin mi?{' '}
+            <button type="button" className={s.textButton} onClick={() => void clearAllGameData().then(() => window.location.reload())}>
+              Evet, sil
+            </button>{' '}
+            <button type="button" className={s.textButton} onClick={() => setConfirm(false)}>
+              Vazgeç
+            </button>
+          </>
+        ) : (
+          <button type="button" className={s.textButton} onClick={() => setConfirm(true)}>
+            Verilerimi sil
+          </button>
+        )}
+      </p>
+    </>
   );
 }
 
@@ -93,12 +125,170 @@ function Settings() {
   );
 }
 
+/** Şimdiki saat; geliştirirken `?saat=22` (ya da `?saat=cmt`) ile başka bir an denenir. */
+function readNow(): Date {
+  const d = new Date();
+  if (!import.meta.env.DEV) return d;
+  const q = new URLSearchParams(window.location.search).get('saat');
+  if (q === 'cmt') d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7));
+  else if (q && /^\d{1,2}(:\d{2})?$/.test(q)) {
+    const [h, m = '0'] = q.split(':');
+    d.setHours(Number(h), Number(m));
+  }
+  return d;
+}
+
+/** Mesai saati: hafta içi 08:00–18:00. */
+function isWorkHours(d: Date): boolean {
+  const day = d.getDay();
+  const h = d.getHours();
+  // GEÇİCİ TEST: mesai 08:00–09:00'a daraltıldı, gün içinde soru denenebilsin. Geri al: h >= 8 && h < 18
+  return day >= 1 && day <= 5 && h >= 8 && h < 9;
+}
+
+function shiftNote(d: Date): string {
+  const day = d.getDay();
+  const h = d.getHours();
+  if (isWorkHours(d)) return 'Şu an mesai saatindesin. Sekmeyi küçük tut.';
+  if (day === 0 || day === 6) return 'Hafta sonu. Kimse bakmıyor.';
+  if (h < 8) return 'Mesai henüz başlamadı. Kimse bakmıyor.';
+  return 'Mesai bitti. Kimse bakmıyor.';
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** Fazla mesai sayacı: 00:03:12. */
+function elapsed(from: number, to: number): string {
+  const sec = Math.max(0, Math.floor((to - from) / 1000));
+  return `${pad(Math.floor(sec / 3600))}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}`;
+}
+
+type Ask = 'idle' | 'asking' | 'relieved';
+
+/*
+ * Üst çubuğun ortasındaki saat. Mesai dışında "Kimse bakmıyor" yazısının üstüne gelen (telefonda
+ * dokunan) kişiye saat sorar: "…sen çalışmıyorsun, değil mi?" Hayır derse yazı yerine döner, bir
+ * dahaki sefere soru kuşkulanır. Evet derse site fazla mesai moduna geçer ve saat sayaca döner.
+ */
+function ShiftClock({ overtimeSince, onConfess }: { overtimeSince: number | null; onConfess: () => void }) {
+  const [now, setNow] = useState(readNow);
+  const [ask, setAsk] = useState<Ask>('idle');
+  const [denied, setDenied] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(readNow()), overtimeSince ? 1000 : 15_000);
+    return () => window.clearInterval(id);
+  }, [overtimeSince]);
+  useEffect(() => {
+    if (ask !== 'relieved') return;
+    const id = window.setTimeout(() => setAsk('idle'), 2200);
+    return () => window.clearTimeout(id);
+  }, [ask]);
+
+  const work = isWorkHours(now);
+  const time = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+  if (overtimeSince) {
+    return (
+      <p className={`${s.clock} ${s.clockOvertime}`}>
+        <span className={`${s.dot} ${s.dotWork}`} aria-hidden="true" />
+        <span className={s.clockTime}>{time}</span>
+        <span className={s.clockText}>
+          Fazla mesai: <span className={s.clockTime}>{elapsed(overtimeSince, Date.now())}</span>
+        </span>
+      </p>
+    );
+  }
+
+  const open = () => !work && ask === 'idle' && setAsk('asking');
+  const question = denied ? 'Emin misin? Sekmende Excel açık gibi.' : '…sen çalışmıyorsun, değil mi?';
+  return (
+    <div className={`${s.clock} ${ask === 'asking' ? s.clockAsking : ''}`} onPointerEnter={(e) => e.pointerType !== 'touch' && open()} onPointerLeave={() => ask === 'asking' && setAsk('idle')}>
+      <span className={`${s.dot} ${work ? s.dotWork : ''} ${ask === 'relieved' ? s.dotWink : ''}`} aria-hidden="true" />
+      <span className={s.clockTime}>{time}</span>
+      {work ? (
+        <span className={s.clockText}>{shiftNote(now)}</span>
+      ) : ask === 'idle' ? (
+        <button type="button" className={`${s.clockText} ${s.clockBait}`} onClick={open}>
+          {shiftNote(now)}
+        </button>
+      ) : ask === 'relieved' ? (
+        <span className={s.clockText} role="status">
+          İyi. Öyle kalsın.
+        </span>
+      ) : (
+        <span className={s.ask} role="group" aria-label={question}>
+          <span className={s.askText}>{question}</span>
+          <button
+            type="button"
+            className={s.askBtn}
+            onClick={() => {
+              setDenied((n) => n + 1);
+              setAsk('relieved');
+            }}
+          >
+            Hayır
+          </button>
+          <button type="button" className={`${s.askBtn} ${s.askYes}`} onClick={onConfess}>
+            Evet
+          </button>
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Saat: yarım dakikada bir ilerler (maketin ışıkları ve sitenin rengi buna bakar). */
+function useNow(): Date {
+  const [now, setNow] = useState(readNow);
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(readNow()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+  return now;
+}
+
+/**
+ * Sitenin akşamı: zemin 0…1 karanlıkla koyulaşır. Yazı rengi yarıda döner; o anda zemin ara tondan
+ * atlar ki iki renk de ara tonda okunaksız kalmasın (gündüz zemini en çok %25, gece en az %75 koyu).
+ */
+const shadeOf = (dark: number) => (dark < 0.5 ? dark * 0.5 : 0.75 + (dark - 0.5) * 0.5);
+
+/** Fazla mesaide uzaktan klavye tıkırtısı ve floresan uğultusu. */
+function useOvertimeAmbience(on: boolean) {
+  useEffect(() => {
+    if (!on || prefersReducedMotion()) return;
+    let alive = true;
+    const timers: number[] = [];
+    const burst = () => {
+      if (!alive) return;
+      const n = 3 + Math.floor(Math.random() * 7);
+      for (let i = 0; i < n; i++) timers.push(window.setTimeout(sfx.keyTap, i * (70 + Math.random() * 90)));
+      timers.push(window.setTimeout(burst, 1400 + Math.random() * 2600));
+    };
+    for (let i = 0; i < 8; i++) timers.push(window.setTimeout(sfx.lampOn, 400 + i * 180));
+    burst();
+    sfx.hum();
+    const hum = window.setInterval(sfx.hum, 3600);
+    return () => {
+      alive = false;
+      timers.forEach(window.clearTimeout);
+      window.clearInterval(hum);
+    };
+  }, [on]);
+}
+
 export function WelcomeScreen({ preload }: { preload: (route: string) => void }) {
   const [muted, setMuted] = useState(() => audioEngine.isMuted());
   const [panel, setPanel] = useState<'help' | 'settings' | null>(null);
   const toggle = (p: 'help' | 'settings') => setPanel((cur) => (cur === p ? null : p));
   const [progress] = useState(loadProgress);
   const [leaving, setLeaving] = useState<Leaving | null>(null);
+  const [overtimeSince, setOvertimeSince] = useState<number | null>(null);
+  useOvertimeAmbience(overtimeSince !== null);
+  const now = useNow();
+  // fazla mesaide de ışık dışarıdaki saati izler: gündüz aydınlık, akşam yavaşça kararır
+  const dark = darkness(now);
+  const lights = windowsOn(now, overtimeSince !== null);
 
   // kamera durağa dalar, ekran oyunun zemin rengine döner, sonra oyun açılır
   const enterGame = (stop: Stop, route: GameRoute) => {
@@ -126,13 +316,39 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
   }, [panel]);
 
   return (
-    <div className={`${s.page} ${leaving ? s.leaving : ''}`}>
+    <div
+      className={`${s.page} ${leaving ? s.leaving : ''} ${dark >= 0.5 ? s.dusk : ''} ${overtimeSince ? s.overtime : ''}`}
+      style={{ '--shade': shadeOf(dark) } as CSSProperties}
+    >
       <div className={s.frame}>
         <div className={s.model}>
-          <Model src={`${import.meta.env.BASE_URL}mahalle/giris.webp`} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
+          <Model
+            src={`${import.meta.env.BASE_URL}mahalle/giris.webp`}
+            nightSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece.webp`}
+            litSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece-isik.webp`}
+            dark={dark} lights={lights} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
         </div>
 
-        <header className={s.top}>
+        {/* data-safe-top: maketteki kart bu çubuğun altında açılır */}
+        {/* telefonda maketin işaretleri sık durur: oyunlar altında bir de liste olarak */}
+        <nav className={s.list} aria-label="Oyunlar">
+          {GAMES.map((g) => {
+            const stop = STOPS.find((st) => st.routes.includes(g.route))!;
+            return (
+              <button key={g.route} type="button" className={s.chip} onClick={() => enterGame(stop, g.route)}>
+                {progress.played[g.route] && (
+                  <svg viewBox="0 0 12 12" aria-hidden="true">
+                    <path d="M3 6.2l2 2 4-4.4" />
+                  </svg>
+                )}
+                {g.title}
+                {progress.played[g.route] && <span className="sr-only"> (bitirildi)</span>}
+              </button>
+            );
+          })}
+        </nav>
+
+        <header className={s.top} data-safe-top>
           <a className={s.identity} href={hrefOf('arcade')} aria-label="KASM Mahallesi, Mesai Dışı Sk.">
             <span className={s.brand}>
               <b>KASM</b>
@@ -141,6 +357,13 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             <span className={s.divider} aria-hidden="true" />
             <span className={s.street}>Mesai Dışı Sk.</span>
           </a>
+          <ShiftClock
+            overtimeSince={overtimeSince}
+            onConfess={() => {
+              sfx.wake();
+              setOvertimeSince(Date.now());
+            }}
+          />
           <nav className={s.tools} aria-label="Oyun araçları">
             <ToolButton
               label={muted ? 'Sesi aç' : 'Sesi kapat'}
@@ -171,9 +394,12 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
         </header>
 
         <section className={s.intro}>
-          <p className={s.kicker}>MESAİ BİTTİ, OYUN BAŞLASIN.</p>
+          <p className={s.kicker}>
+            <span className={s.kickerOld}>MESAİ BİTTİ, OYUN BAŞLASIN.</span>
+            {overtimeSince && <span className={s.kickerNew}>MESAİ BİTMEDİ.</span>}
+          </p>
           <h1 className={s.title}>
-            Mahalleye
+            Mahalleye{' '}
             <br />
             hoş geldin.
           </h1>
@@ -194,11 +420,11 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
         </footer>
       </div>
 
-      <div className={s.fade} style={leaving ? { background: LOADING_BG[leaving.route] } : undefined} />
+      <div className={s.fade} style={leaving ? { background: loadingBgOf(leaving.route) } : undefined} />
 
       {panel === 'help' && (
         <Panel title="Mahalle rehberi" onClose={() => setPanel(null)}>
-          <p>KASM Mahallesi'ne hoş geldiniz. Mahallemiz sekiz duraktan oluşur; her durak, mesai sonrası için titizlikle hazırlanmış kısa bir oyundur.</p>
+          <Help />
         </Panel>
       )}
       {panel === 'settings' && (

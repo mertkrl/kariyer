@@ -490,8 +490,16 @@ test('ara sokaklar: ışıksız; sokaktan çıkan yol verip katılır, kimi ara�
   while (!net.done) {
     stepNet(net);
     for (const s of net.sims) {
-      for (const c of s.cars) if (c.enter && !seen.has(c.id)) (seen.add(c.id), merged++);
-      for (const g of s.ghosts) if (g.side && !seen.has(-g.id)) (seen.add(-g.id), off++);
+      for (const c of s.cars)
+        if (c.enter && !seen.has(c.id)) {
+          seen.add(c.id);
+          merged++;
+        }
+      for (const g of s.ghosts)
+        if (g.side && !seen.has(-g.id)) {
+          seen.add(-g.id);
+          off++;
+        }
       // katılan araç başka araçla üst üste binmez: şeritte önündekiyle arasında boşluk var
       for (const c of s.cars)
         if (c.enter && c.s - c.enter.s < 0.3)

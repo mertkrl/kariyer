@@ -8,6 +8,8 @@ import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
 import { clearSlot, isIndex, isRecord, readSlot, writeSlot } from '../../arcade/saveSlot';
 import { crewTitle, LEVELS, TOOL_LABEL } from './levels';
+import { H, ROAD, W } from './model';
+import { Backdrop } from './Site';
 import { Work } from './Work';
 import styles from './AsfaltGame.module.css';
 import ui from './Work.module.css';
@@ -54,6 +56,19 @@ export function AsfaltGame() {
 
       {phase.at === 'order' && level && (
         <main className={styles.center}>
+          {/* arkada sokak ve çukur: iş emri sahnenin üstünde okunur */}
+          <div className={styles.scenery} aria-hidden="true">
+            <div className={styles.sceneryStage}>
+              <Backdrop rain={false} />
+              <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+                <rect x="0" y={ROAD} width={W} height="7" fill="#3a3a3e" />
+                <rect x="0" y={ROAD + 7} width={W} height="6" fill="#8f8577" />
+                <rect x="0" y={ROAD + 13} width={W} height={H - ROAD - 13} fill="#5a4330" />
+                <line x1="0" x2={W} y1={ROAD + 3.4} y2={ROAD + 3.4} stroke="#e8e2d2" strokeWidth="0.5" strokeDasharray="6 5" />
+                <path d={`M ${W / 2 - 22} ${ROAD} L ${W / 2 - 16} ${ROAD + 10} Q ${W / 2} ${ROAD + 16} ${W / 2 + 16} ${ROAD + 10} L ${W / 2 + 22} ${ROAD} Z`} fill="#2b201a" stroke="#2a231d" strokeWidth="0.4" />
+              </svg>
+            </div>
+          </div>
           <article className={styles.order}>
             <header>
               <span>FEN İŞLERİ MÜDÜRLÜĞÜ · İŞ EMRİ</span>
@@ -102,9 +117,11 @@ export function AsfaltGame() {
                 </button>
               </p>
             )}
-            <button type="button" className={styles.primary} onClick={() => setPhase({ at: 'work', n: phase.n, key: Date.now() })}>
-              Çukurun başına geç
-            </button>
+            <div className={styles.orderActions}>
+              <button type="button" className={styles.primary} onClick={() => setPhase({ at: 'work', n: phase.n, key: Date.now() })}>
+                Çukurun başına geç
+              </button>
+            </div>
           </article>
         </main>
       )}

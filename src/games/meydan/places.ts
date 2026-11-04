@@ -1,7 +1,7 @@
 import { BLANK_SITE, BLANK_SPEC, GROUND, makeItem, topOf, type BuildingShape, type Design, type Item, type ItemKind, type Place, type PlaceId, type Spec } from './model';
 
 /*
- * Meydanlar ve bugünkü hâlleri: beş bölgeden beş sokak. Her binanın biçimi ve kusurları sabittir;
+ * Meydanlar ve bugünkü hâlleri: dört bölgeden dört sokak. Her binanın biçimi ve kusurları sabittir;
  * tabelalar, afişler, klimalar, termosifonlar ve kablolar meydanın "kirli" hâlidir ve oyuncu
  * bunları söküp yeniden düzenler. Dükkân adları uydurmadır; gerçek bir işletmeye ya da markaya
  * benzemesi amaçlanmamıştır. Bina sıraları o bölgenin tipik sokaklarından derlenmiştir, birebir
@@ -339,70 +339,6 @@ const ANKARA = design(
   ],
 );
 
-/* ── Güneydoğu: Diyarbakır, Sur ── */
-
-// Sur içinde Gazi Caddesi'ne açılan bir sıra: siyah bazalt han ve kemerli evler, aralarına
-// yükselmiş beton apartmanlar; bazaltın üstüne çıplak briketten katlar, çatılarda termosifonlar.
-const DIYARBAKIR_BUILDINGS: BuildingShape[] = [
-  { id: 'b1', name: 'Bazalt han', x: 0, w: 200, floors: 2, floorH: 60, groundH: 96, cols: 3, balcony: false, roof: 'kornis', facade: 'tas', year: 1720, risk: 1, defects: { illegal: 'briket', cracked: true } },
-  { id: 'b2', name: 'Beton apartman', x: 200, w: 150, floors: 5, floorH: 46, groundH: 92, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1987, risk: 2, defects: { enclosed: true, bare: true } },
-  { id: 'b3', name: 'Kemerli bazalt ev', x: 350, w: 170, floors: 2, floorH: 58, groundH: 96, cols: 2, balcony: false, roof: 'duz', facade: 'tas', year: 1880, risk: 1, defects: { leanTo: true, patch: 'seramik' } },
-  { id: 'b4', name: 'Dört katlı işhanı', x: 520, w: 180, floors: 4, floorH: 48, groundH: 92, cols: 4, balcony: false, roof: 'duz', facade: 'apartman', year: 1979, risk: 2, defects: { illegal: 'sac', patch: 'kompozit' } },
-  { id: 'b5', name: 'Taş kahvehane', x: 700, w: 140, floors: 1, floorH: 60, groundH: 96, cols: 2, balcony: false, roof: 'duz', facade: 'tas', year: 1910, risk: 0, defects: { bare: true } },
-  { id: 'b6', name: 'Köşe apartmanı', x: 840, w: 170, floors: 5, floorH: 46, groundH: 92, cols: 3, balcony: true, roof: 'duz', facade: 'apartman', year: 1996, risk: 1, defects: { illegal: 'pvc' } },
-  { id: 'b7', name: 'Kuyumcular çarşısı', x: 1010, w: 190, floors: 0, floorH: 46, groundH: 92, cols: 1, balcony: false, roof: 'sundurma', facade: 'apartman', year: 1985, risk: 0 },
-];
-
-const dy = kit(DIYARBAKIR_BUILDINGS);
-const DIYARBAKIR = design(
-  'diyarbakir',
-  [
-    spec('b1', '#4a4744', '#d8d0c0', '#2a2724'),
-    spec('b2', '#d8c9a8', '#8e959c', '#3f4a52'),
-    spec('b3', '#55514c', '#d8d0c0', '#2a2724'),
-    spec('b4', '#c7c2b4', '#7e868b', '#3a4248'),
-    spec('b5', '#4f4b46', '#cfc6b3', '#2a2724'),
-    spec('b6', '#e6d3b0', '#ffffff', '#5b4838'),
-    spec('b7', '#7a2e2e', '#5e2222', '#2f2420'),
-  ],
-  [
-    dy.pano('b1', 'CİĞERCİ', '#d71920', '#ffffff'),
-    dy.afis('b1', 2, 'KAHVALTI SALONU', '#ffdf00', '#111111', 0.12, 0.76, 56),
-    dy.klima('b1', 1, 0.82),
-    dy.anten('b1', 0.3),
-    dy.depo('b1', 0.7),
-    dy.pano('b2', 'TELEFONCU', '#ff7a00', '#ffffff'),
-    dy.folyo('b2', 'KURS MERKEZİ', '#ffee00', '#0a0a0a', 0.1, 0.8, 2),
-    dy.klima('b2', 2, 0.02),
-    dy.klima('b2', 3, 0.72),
-    dy.klima('b2', 4, 0.02),
-    dy.gunes('b2', 0.08),
-    dy.gunes('b2', 0.52),
-    dy.pano('b3', 'MEYAN ŞERBETİ', '#5a2d82', '#ffd200'),
-    dy.afis('b3', 1, 'ÇEYİZ', '#e0457b', '#ffffff', 0.2, 0.6, 48),
-    dy.gunes('b3', 0.3),
-    dy.pano('b4', 'BAKLAVA', '#2e7d32', '#ffd200', 0.03, 0.5),
-    dy.pano('b4', 'DÖVİZ', '#0b3d91', '#ffffff', 0.55, 0.42),
-    dy.afis('b4', 3, 'OFİS KİRALIK', '#d71920', '#ffffff', 0.14, 0.7, 50),
-    dy.klima('b4', 2, 0.02),
-    dy.klima('b4', 4, 0.76),
-    dy.anten('b4', 0.4),
-    dy.pano('b5', 'KAHVE', '#3e2a16', '#f0c75e'),
-    dy.tente('b5', '#c8102e', '#ffffff'),
-    dy.depo('b5', 0.6),
-    dy.pano('b6', 'MARKET', '#d0021b', '#ffffff'),
-    dy.folyo('b6', '%30 İNDİRİM', '#ffdf00', '#111111', 0.1, 0.6),
-    dy.klima('b6', 3, 0.04),
-    dy.gunes('b6', 0.4),
-    dy.anten('b6', 0.1),
-    dy.pano('b7', 'KUYUMCULAR ÇARŞISI', '#141414', '#e8c35a', 0.03, 0.94),
-    dy.kutu('b7', 'ATM', '#c8102e', '#ffffff', 0.74, 44),
-    dy.kablo(150, 330, 240),
-    dy.kablo(480, 300, 260),
-    dy.kablo(800, 320, 260),
-  ],
-);
-
 export const PLACES: Place[] = [
   {
     id: 'bakirkoy',
@@ -455,19 +391,6 @@ export const PLACES: Place[] = [
     local: ['siva', 'tas', 'mantolama', 'tugla'],
     buildings: ANKARA_BUILDINGS,
     original: ANKARA,
-  },
-  {
-    id: 'diyarbakir',
-    title: 'Gazi Caddesi',
-    district: 'Diyarbakır · Sur',
-    region: 'Güneydoğu Anadolu',
-    blurb: 'Surların dibinde siyah bazalt han ve kemerli evler; üstlerine çıplak briketten katlar, çatılarda termosifon ve su deposu ormanı.',
-    backdrop: 'sur',
-    landmark: 'cesme',
-    stone: '#3f3c39',
-    local: ['tas', 'siva'],
-    buildings: DIYARBAKIR_BUILDINGS,
-    original: DIYARBAKIR,
   },
 ];
 

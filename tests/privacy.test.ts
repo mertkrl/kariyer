@@ -15,6 +15,15 @@ test('verilerimi sil yalnızca oyunun kayıtlarını siler', async () => {
   assert.equal(localStorage.getItem('baska-site'), 'kalsın');
 });
 
+test('verilerimi sil öneksiz eski Meydan taslaklarını da siler', async () => {
+  localStorage.clear();
+  localStorage.setItem('meydan:taslak:v3:rize', '{}');
+  localStorage.setItem('baska-site', 'kalsın');
+  await clearAllGameData();
+  assert.equal(localStorage.getItem('meydan:taslak:v3:rize'), null);
+  assert.equal(localStorage.getItem('baska-site'), 'kalsın');
+});
+
 test('verilerimi sil oyunun çevrimdışı kopyasını da siler, başka önbelleğe dokunmaz', async () => {
   const names = new Set(['sen-iksin-abc123', 'baska-site-cache']);
   const g = globalThis as { caches?: unknown };

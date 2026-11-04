@@ -4,7 +4,6 @@ import { loadStore, useLoadedStore, withStore } from '../game/store/storeLoader'
 import { Button } from '../components/ui/Button';
 import { days } from '../game/data/days';
 import styles from './WelcomeScreen.module.css';
-import { clearAllGameData } from '../game/lib/privacy';
 import { useDialog } from '../components/ui/useDialog';
 
 /** Yeni oyun kaydın üzerine yazar: oyunun kendi pencereleriyle aynı kâğıt kartta sorulur. */
@@ -53,7 +52,6 @@ export function WelcomeScreen() {
   // oyun yüklenince oyuna göre kontrol edilir (bu derlemenin sürdüremeyeceği bir kayıt kaybolur)
   const save = useMemo(() => (store ? store.loadSave() : readSave()), [store]);
   const savedDay = save ? days[save.data.currentDayIndex ?? 0] : null;
-  const [confirmClear, setConfirmClear] = useState(false);
   const [confirmNew, setConfirmNew] = useState(false);
 
   return (
@@ -117,29 +115,6 @@ export function WelcomeScreen() {
 
       <div className={styles.bottomInfo}>
         Karakterler, şirketler ve olaylar hayal ürünüdür; gerçek kişi ve kurumlarla benzerlik tesadüftür.
-        <p className={styles.privacy}>
-          Oyun hiçbir veri göndermez; ilerlemen ve ayarların yalnızca bu tarayıcıda durur.{' '}
-          {confirmClear ? (
-            <>
-              Kayıt, başarımlar ve ayarlar silinsin mi?{' '}
-              <button
-                className={styles.privacyLink}
-                onClick={() => {
-                  void clearAllGameData().then(() => window.location.reload());
-                }}
-              >
-                Evet, sil
-              </button>{' '}
-              <button className={styles.privacyLink} onClick={() => setConfirmClear(false)}>
-                Vazgeç
-              </button>
-            </>
-          ) : (
-            <button className={styles.privacyLink} onClick={() => setConfirmClear(true)}>
-              Verilerimi sil
-            </button>
-          )}
-        </p>
       </div>
       {confirmNew && <NewGameDialog onConfirm={startGame} onClose={() => setConfirmNew(false)} />}
     </div>

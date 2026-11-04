@@ -2,14 +2,15 @@ import { memo } from 'react';
 import { dayPhase, weatherAt } from './data';
 import { clamp, GROUND, mix } from './geo';
 import { darkAt, skyAt } from './light';
+import { INK, inkFar } from './ink';
 import s from './Scene.module.css';
 
 /*
  * Atmosfer, gerçek saate (`t`) göre. Arkadan öne: gökyüzü (üç duraklı geçiş ve güneş tarafında
- * ufuk ışıması), yıldızlar ve ay, güneş ve ışınları, hacimli bulutlar (üstü aydınlık, altı gölgeli),
- * puslu uzak dağlar, üç sıra orman (uzak sıra soluk, yakın sıra ışık-gölgeli), ufuk pusu, çimen
- * kenarı ve toprak arsa (doku, lastik izi, çakıl, kütükler). Yağmur ve kar ayrı katmandır (Weather).
- * Orman ve zemin süsleri ağırdır, yalnızca kar örtüsü değişince yeniden çizilir (memo).
+ * ufuk ışıması), yıldızlar ve ay, güneş ve ışınları, mürekkeple çizilmiş bulutlar (altı gölgeli),
+ * uzak dağlar, üç sıra orman (uzak sıranın mürekkebi havaya karışır), ufuk pusu, çimen kenarı ve
+ * toprak arsa (lastik izi, çakıl, kütükler). Yağmur ve kar ayrı katmandır (Weather). Orman ve
+ * zemin süsleri ağırdır, yalnızca kar örtüsü değişince yeniden çizilir (memo).
  */
 
 /** Bulutlar: [x, y, ölçek, sürüklenme süresi]. */
@@ -21,8 +22,8 @@ const CLOUDS: [number, number, number, number][] = [
   [330, 150, 0.7, 60],
 ];
 
-/** Bir bulut: üst üste binen yuvarlaklar; üstü ışıklı, altı gölgeli (radyal dolgu). */
-function Cloud({ x, y, k, dur, light, shade }: { x: number; y: number; k: number; dur: number; light: string; shade: string }) {
+/** Bir bulut: üst üste binen yuvarlaklar, çevresi mürekkep; altı gölgeli, tepesi parlak. */
+function Cloud({ i, x, y, k, dur, light, shade }: { i: number; x: number; y: number; k: number; dur: number; light: string; shade: string }) {
   const blobs: [number, number, number][] = [
     [-46, 6, 22],
     [-20, -8, 30],
@@ -31,39 +32,53 @@ function Cloud({ x, y, k, dur, light, shade }: { x: number; y: number; k: number
     [70, 8, 18],
     [0, 10, 26],
   ];
+  const clip = `ins-cloud-${i}`;
   return (
     <g className={s.cloudDrift} style={{ animationDuration: `${dur}s` }}>
       <g transform={`translate(${x} ${y}) scale(${k})`}>
-        {/* gövde tek parça ve yumuşak kenarlı; alt yarısı gölgeli, tepesi parlak */}
-        <g filter="url(#ins-cloudsoft)">
-          {blobs.map(([bx, by, r], i) => (
-            <circle key={i} cx={bx} cy={by} r={r} fill={light} />
+        <clipPath id={clip}>
+          {blobs.map(([bx, by, r], j) => (
+            <circle key={j} cx={bx} cy={by} r={r} />
+          ))}
+        </clipPath>
+        {/* önce kalın çizgili yuvarlaklar, üstüne çizgisizleri: geriye yalnızca dış çevre kalır */}
+        <g fill={light} stroke={inkFar(light, 0.45)} strokeWidth={2.2 / k}>
+          {blobs.map(([bx, by, r], j) => (
+            <circle key={j} cx={bx} cy={by} r={r} />
           ))}
         </g>
-        <ellipse cx="8" cy="18" rx="74" ry="13" fill={shade} opacity="0.45" filter="url(#ins-soft)" />
-        <ellipse cx="0" cy="-22" rx="38" ry="10" fill="#ffffff" opacity="0.6" filter="url(#ins-soft)" />
+        <g fill={light}>
+          {blobs.map(([bx, by, r], j) => (
+            <circle key={j} cx={bx} cy={by} r={r} />
+          ))}
+        </g>
+        <g clipPath={`url(#${clip})`}>
+          <path d="M -80 12 Q -20 2 20 8 T 100 6 V 50 H -80 Z" fill={shade} opacity="0.42" />
+          <path d="M -40 -26 q 24 -14 50 -12" fill="none" stroke="#fff" strokeWidth={2.4 / k} strokeLinecap="round" opacity="0.7" />
+        </g>
       </g>
     </g>
   );
 }
 
 /** Kademeli çam: üç kat, ışık tarafı açık, gölge tarafı koyu. */
-function Pine({ x, base, h, color }: { x: number; base: number; h: number; color: string }) {
+function Pine({ x, base, h, color, ink }: { x: number; base: number; h: number; color: string; ink: string }) {
   const lit = mix(color, '#e9f0c8', 0.18);
-  const dark = mix(color, '#0d1a12', 0.28);
+  const dark = mix(color, '#2a2c48', 0.3);
   const tiers = [0, 0.28, 0.52];
   return (
     <g>
-      <rect x={x - h * 0.025} y={base - h * 0.16} width={h * 0.05} height={h * 0.16} fill={mix(color, '#3a2a1c', 0.6)} />
+      <rect x={x - h * 0.025} y={base - h * 0.16} width={h * 0.05} height={h * 0.16} fill={mix(color, '#3a2a1c', 0.6)} stroke={ink} strokeWidth="0.8" />
       {tiers.map((f, i) => {
         const tip = base - h + f * h * 0.55;
         const wid = h * (0.16 + i * 0.07);
         const bot = base - h * 0.14 - (2 - i) * h * 0.2;
         return (
           <g key={i}>
-            <path d={`M ${x} ${tip} L ${x + wid} ${bot} Q ${x} ${bot + h * 0.05} ${x - wid} ${bot} Z`} fill={color} />
+            <path d={`M ${x} ${tip} L ${x + wid} ${bot} Q ${x} ${bot + h * 0.05} ${x - wid} ${bot} Z`} fill={color} stroke={ink} strokeWidth="1" strokeLinejoin="round" />
             <path d={`M ${x} ${tip} L ${x - wid} ${bot} Q ${x - wid * 0.5} ${bot + h * 0.03} ${x - wid * 0.15} ${bot + h * 0.02} Z`} fill={lit} />
             <path d={`M ${x} ${tip} L ${x + wid} ${bot} Q ${x + wid * 0.6} ${bot + h * 0.04} ${x + wid * 0.25} ${bot + h * 0.03} Z`} fill={dark} />
+            <path d={`M ${x} ${tip} L ${x + wid} ${bot} Q ${x} ${bot + h * 0.05} ${x - wid} ${bot} Z`} fill="none" stroke={ink} strokeWidth="1" strokeLinejoin="round" />
           </g>
         );
       })}
@@ -72,12 +87,22 @@ function Pine({ x, base, h, color }: { x: number; base: number; h: number; color
 }
 
 /** Yapraklı ağaç: birkaç yuvarlak taç; sol üst aydınlık, sağ alt gölgeli. */
-function Broadleaf({ x, base, h, color }: { x: number; base: number; h: number; color: string }) {
+function Broadleaf({ x, base, h, color, ink }: { x: number; base: number; h: number; color: string; ink: string }) {
   const lit = mix(color, '#f0f5c8', 0.2);
-  const dark = mix(color, '#0d1a12', 0.3);
+  const dark = mix(color, '#2a2c48', 0.32);
+  const crown: [number, number, number][] = [
+    [h * 0.12, -h * 0.52, h * 0.22],
+    [-h * 0.14, -h * 0.55, h * 0.2],
+    [0, -h * 0.72, h * 0.24],
+  ];
   return (
     <g>
-      <path d={`M ${x - h * 0.03} ${base} L ${x - h * 0.02} ${base - h * 0.4} L ${x + h * 0.02} ${base - h * 0.4} L ${x + h * 0.035} ${base} Z`} fill={mix(color, '#3a2a1c', 0.65)} />
+      <path d={`M ${x - h * 0.03} ${base} L ${x - h * 0.02} ${base - h * 0.4} L ${x + h * 0.02} ${base - h * 0.4} L ${x + h * 0.035} ${base} Z`} fill={mix(color, '#3a2a1c', 0.65)} stroke={ink} strokeWidth="0.8" />
+      <g fill={color} stroke={ink} strokeWidth="2">
+        {crown.map(([dx, dy, r], i) => (
+          <circle key={i} cx={x + dx} cy={base + dy} r={r} />
+        ))}
+      </g>
       <circle cx={x + h * 0.12} cy={base - h * 0.52} r={h * 0.22} fill={dark} />
       <circle cx={x - h * 0.14} cy={base - h * 0.55} r={h * 0.2} fill={color} />
       <circle cx={x} cy={base - h * 0.72} r={h * 0.24} fill={color} />
@@ -99,19 +124,20 @@ const Forest = memo(function Forest({ snow }: { snow: number }) {
   return (
     <g>
       {/* uzak dağlar: soluk ve mavimsi, hava perspektifi */}
-      <path d="M0 470 L 90 420 L 170 446 L 280 392 L 390 440 L 470 414 L 560 448 L 700 398 L 820 436 L 930 404 L 1040 442 L 1130 410 L 1200 430 V 480 H 0 Z" fill="#a9b8c0" opacity="0.75" />
-      <path d="M0 476 L 120 446 L 240 466 L 360 432 L 500 462 L 640 440 L 780 466 L 900 444 L 1040 464 L 1200 446 V 486 H 0 Z" fill="#94a89f" opacity="0.8" />
+      <path d="M0 470 L 90 420 L 170 446 L 280 392 L 390 440 L 470 414 L 560 448 L 700 398 L 820 436 L 930 404 L 1040 442 L 1130 410 L 1200 430 V 480 H 0 Z" fill="#a9b8c0" opacity="0.75" stroke={inkFar('#c8d2cf', 0.72)} strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M0 476 L 120 446 L 240 466 L 360 432 L 500 462 L 640 440 L 780 466 L 900 444 L 1040 464 L 1200 446 V 486 H 0 Z" fill="#94a89f" opacity="0.8" stroke={inkFar('#c8d2cf', 0.6)} strokeWidth="1.2" strokeLinejoin="round" />
       {snow > 0 && <path d="M 280 392 L 300 402 L 270 400 Z M 700 398 L 722 409 L 690 406 Z M 930 404 L 950 413 L 920 411 Z" fill="#f4f6f8" opacity={snow} />}
       {ROWS.map(([base, h, gap, color, seed], r) => {
         const c = snow > 0 ? mix(color, '#e3e9ec', snow * 0.4) : color;
         return (
-          <g key={base} filter={r === 0 ? 'url(#ins-haze)' : undefined}>
+          <g key={base}>
             <rect y={base - h * 0.25} width="1200" height={h * 0.3} fill={mix(c, '#0d1a12', r * 0.1)} />
             {Array.from({ length: Math.ceil(1240 / gap) }, (_, i) => {
               const n = (i * 37 + seed * 13) % 17;
               const x = i * gap - 10 + (n % 5) * 3;
               const hh = h * (0.8 + (n % 7) * 0.05);
-              return n % 3 === 0 ? <Broadleaf key={i} x={x} base={base} h={hh} color={c} /> : <Pine key={i} x={x} base={base} h={hh} color={c} />;
+              const ink = inkFar('#c8d2cf', [0.7, 0.42, 0.12][r]);
+              return n % 3 === 0 ? <Broadleaf key={i} x={x} base={base} h={hh} color={c} ink={ink} /> : <Pine key={i} x={x} base={base} h={hh} color={c} ink={ink} />;
             })}
           </g>
         );
@@ -125,8 +151,8 @@ const Lot = memo(function Lot({ wet }: { wet: boolean }) {
   return (
     <g>
       {/* çimen kenarı: arsanın iki yanında, ormanın dibinde */}
-      <path d={`M 0 ${GROUND - 4} H 290 Q 300 ${GROUND + 10} 280 ${GROUND + 24} H 0 Z`} fill={wet ? '#5a6e42' : '#7a8c4e'} />
-      <path d={`M 1200 ${GROUND - 4} H 935 Q 924 ${GROUND + 12} 944 ${GROUND + 26} H 1200 Z`} fill={wet ? '#5a6e42' : '#7a8c4e'} />
+      <path d={`M 0 ${GROUND - 4} H 290 Q 300 ${GROUND + 10} 280 ${GROUND + 24} H 0 Z`} fill={wet ? '#5a6e42' : '#7a8c4e'} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+      <path d={`M 1200 ${GROUND - 4} H 935 Q 924 ${GROUND + 12} 944 ${GROUND + 26} H 1200 Z`} fill={wet ? '#5a6e42' : '#7a8c4e'} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
       <g stroke={wet ? '#46582f' : '#5d7036'} strokeWidth="1.2">
         {Array.from({ length: 70 }, (_, i) => {
           const x = i < 35 ? (i * 8.3) % 285 : 940 + ((i - 35) * 7.7) % 260;
@@ -151,14 +177,14 @@ const Lot = memo(function Lot({ wet }: { wet: boolean }) {
         ))}
       </g>
       {/* kesilmiş ağaç kütükleri: kabuk, kesik yüzü, yıllık halkalar */}
-      {[180, 236, 960, 1020].map((x, i) => {
+      {[34, 84, 1142, 1184].map((x, i) => {
         const r = 11 + (i % 2) * 3;
         return (
           <g key={x}>
             <ellipse cx={x + 6} cy={GROUND + 13} rx={r + 6} ry="3.5" fill="rgba(0,0,0,.22)" filter="url(#ins-soft)" />
-            <path d={`M ${x - r} ${GROUND + 4} V ${GROUND + 12} Q ${x} ${GROUND + 16} ${x + r} ${GROUND + 12} V ${GROUND + 4} Z`} fill="#5a3d26" />
+            <path d={`M ${x - r} ${GROUND + 4} V ${GROUND + 12} Q ${x} ${GROUND + 16} ${x + r} ${GROUND + 12} V ${GROUND + 4} Z`} fill="#5a3d26" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
             <path d={`M ${x - r} ${GROUND + 6} V ${GROUND + 12} Q ${x - r * 0.5} ${GROUND + 14} ${x - r * 0.3} ${GROUND + 14} V ${GROUND + 6} Z`} fill="#74513a" />
-            <ellipse cx={x} cy={GROUND + 4} rx={r} ry="4" fill="#d6bd8a" stroke="#5a3d26" />
+            <ellipse cx={x} cy={GROUND + 4} rx={r} ry="4" fill="#d6bd8a" stroke={INK} strokeWidth="1.4" />
             <ellipse cx={x} cy={GROUND + 4} rx={r * 0.62} ry="2.4" fill="none" stroke="#b89668" strokeWidth="0.8" />
             <ellipse cx={x} cy={GROUND + 4} rx={r * 0.3} ry="1.2" fill="none" stroke="#b89668" strokeWidth="0.8" />
           </g>
@@ -212,12 +238,6 @@ export function Sky({ t, snowCover }: { t: number; snowCover: number }) {
           <stop offset="0.5" stopColor={wet ? '#5e4a34' : '#94744d'} />
           <stop offset="1" stopColor={wet ? '#4a3a29' : '#7a5e3e'} />
         </linearGradient>
-        {/* toprak dokusu: ince taneli gürültü */}
-        <filter id="ins-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" />
-          <feColorMatrix values="0 0 0 0 0.25  0 0 0 0 0.18  0 0 0 0 0.1  0 0 0 0.35 0" />
-          <feComposite in2="SourceGraphic" operator="in" />
-        </filter>
         <linearGradient id="ins-haze-band" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={bottom} stopOpacity="0" />
           <stop offset="0.75" stopColor={bottom} stopOpacity={grey ? 0.65 : 0.42} />
@@ -251,21 +271,21 @@ export function Sky({ t, snowCover }: { t: number; snowCover: number }) {
             </g>
           )}
           <circle cx={sunX} cy={sunY} r="70" fill="url(#ins-sun)" opacity="0.5" />
-          <circle cx={sunX} cy={sunY} r="24" fill="#fffbe8" />
+          <circle cx={sunX} cy={sunY} r="24" fill="#fff5d2" stroke={mix(sun, INK, 0.35)} strokeWidth="1.6" />
         </g>
       )}
       {p >= 0.7 && (
         <g opacity={clamp(dark / 0.3)}>
           <circle cx={200 + nightP * 760} cy={150 - Math.sin(nightP * Math.PI) * 90} r="44" fill="#f4efd8" opacity="0.12" />
-          <circle cx={200 + nightP * 760} cy={150 - Math.sin(nightP * Math.PI) * 90} r="18" fill="#f4efd8" />
+          <circle cx={200 + nightP * 760} cy={150 - Math.sin(nightP * Math.PI) * 90} r="18" fill="#f4efd8" stroke="#9c977f" strokeWidth="1.4" />
           <circle cx={194 + nightP * 760} cy={146 - Math.sin(nightP * Math.PI) * 90} r="4" fill="#d9d2b8" />
           <circle cx={206 + nightP * 760} cy={156 - Math.sin(nightP * Math.PI) * 90} r="3" fill="#d9d2b8" />
         </g>
       )}
 
       {/* bulutlar; kötü havada üstüne kalın bir bulut tabakası iner */}
-      {CLOUDS.map(([x, y, k, dur]) => (
-        <Cloud key={x} x={x} y={y} k={k} dur={dur} light={cloudLight} shade={cloudShade} />
+      {CLOUDS.map(([x, y, k, dur], i) => (
+        <Cloud key={x} i={i} x={x} y={y} k={k} dur={dur} light={cloudLight} shade={cloudShade} />
       ))}
       {grey && (
         <g>
@@ -286,7 +306,7 @@ export function Sky({ t, snowCover }: { t: number; snowCover: number }) {
 
       {/* arsa */}
       <rect y={GROUND} width="1200" height="120" fill="url(#ins-ground)" />
-      <rect y={GROUND} width="1200" height="120" filter="url(#ins-grain)" />
+      <path d={`M 0 ${GROUND} H 1200`} stroke={INK} strokeWidth="1.6" opacity="0.55" />
       <Lot wet={wet} />
       {snowCover > 0 && <rect y={GROUND - 4} width="1200" height="124" fill="#eef2f5" opacity={snowCover * 0.85} />}
       {wet && (

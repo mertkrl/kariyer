@@ -2,6 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MAX_ITEMS, W, applySignCode, colorCount, isJunk, itemsOn, makeItem, sanitize, withoutJunk, type Design, type Place } from '../src/games/meydan/model';
 import { PLACES } from '../src/games/meydan/places';
+import { adoptOldDrafts } from '../src/games/meydan/drafts';
+import { draftKey } from '../src/games/meydan/model';
 import { buildingCost, lookScore, makeover, openDefects, seismic } from '../src/games/meydan/report';
 
 /** Mimarın ve mühendisin tam projesi: her kusur kapanır, her bina güçlenir, meydan yayalaşır. */
@@ -177,4 +179,17 @@ test('paylaşım özeti: dokunulmayan, sökülen, tabela yığılan ve planlanan
     assert.ok(best.cost > 1e6);
     assert.ok(best.works.length >= 4);
   }
+});
+
+test('öneksiz eski taslaklar yeni anahtara taşınır, yenisinin üstüne yazılmaz, kalanı silinir', () => {
+  localStorage.clear();
+  localStorage.setItem('meydan:taslak:v3:rize', '"eski rize"');
+  localStorage.setItem('meydan:taslak:v3:izmir', '"eski izmir"');
+  localStorage.setItem(draftKey('izmir'), '"yeni izmir"');
+  localStorage.setItem('meydan:taslak:v3:diyarbakir', '"kalkan yer"');
+  localStorage.setItem('meydan:taslak:v2:rize', '"eski çizim"');
+  adoptOldDrafts(localStorage, PLACES.map((p) => p.id));
+  assert.equal(localStorage.getItem(draftKey('rize')), '"eski rize"');
+  assert.equal(localStorage.getItem(draftKey('izmir')), '"yeni izmir"');
+  assert.ok(Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i) ?? '').every((k) => k.startsWith('kariyerweb-')));
 });

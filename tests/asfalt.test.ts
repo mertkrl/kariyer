@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FILL_TO, chuteFull, EMPTY, GRAVEL, H, HOT, OLD, PACKED, ROAD, ROLLER_W, RUBBLE, SAW_REACH, SET, SOIL, TACK, W, WATER, WET, DENSE, ROLLER_MAX, bondOf, checklist, createWorld, dig, rake, tamp, soilIntrusion, surfaceTemp, probe, railSpill, driveRoller, holeVolume, idx, openToTraffic, pour, rubbleLeft, sawCut, spray, step, surfaceAt, type LevelSpec, type World } from '../src/games/asfalt/model';
+import { FILL_TO, chuteFull, bondOf, dig, rake, tamp, pour, rubbleLeft, spray } from '../src/games/asfalt/tools';
+import { EMPTY, GRAVEL, H, HOT, OLD, PACKED, ROAD, ROLLER_W, RUBBLE, SAW_REACH, SET, SOIL, TACK, W, WATER, WET, createWorld, idx, surfaceAt, type LevelSpec, type World, sawCut } from '../src/games/asfalt/model';
+import { DENSE, ROLLER_MAX, driveRoller } from '../src/games/asfalt/roller';
+import { step } from '../src/games/asfalt/physics';
+import { checklist, surfaceTemp, probe, holeVolume } from '../src/games/asfalt/inspect';
+import { soilIntrusion, railSpill, openToTraffic } from '../src/games/asfalt/traffic';
 import { crewTitle, LEVELS, PASS_SCORE } from '../src/games/asfalt/levels';
 
 const SPEC: LevelSpec = { id: 'deneme', seed: 7, center: 120, half: 24, depth: 22 };

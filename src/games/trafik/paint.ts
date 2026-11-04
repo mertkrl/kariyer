@@ -1,4 +1,5 @@
-import { inPoint, type Junction, type LegGeo } from './junction';
+import { PAINT, noiseTile, arrow, band, line, along } from './roadMarks';
+import { inPoint, type Junction } from './junction';
 import { LANE_W, SIDE_W, SIDE_WALK, SIDEWALK } from './model';
 import { rng } from './sim';
 import { building, OBL_X, OBL_Y } from './facade';
@@ -28,94 +29,6 @@ export const applyView = (ctx: CanvasRenderingContext2D, v: View) => ctx.setTran
 export const bounds = (v: View, pad = 0) => ({ x0: v.cx - v.w / 2 / v.k - pad, x1: v.cx + v.w / 2 / v.k + pad, y0: v.cy - v.h / 2 / v.k - pad, y1: v.cy + v.h / 2 / v.k + pad });
 
 const COURT = '#b8b2a3';
-const PAINT = 'rgba(240,238,230,0.92)';
-
-function noiseTile(seed: number, base: [number, number, number], spread: number, size = 96) {
-  const c = document.createElement('canvas');
-  c.width = size;
-  c.height = size;
-  const x = c.getContext('2d')!;
-  const img = x.createImageData(size, size);
-  const r = rng(seed);
-  for (let i = 0; i < size * size; i++) {
-    const n = (r() - 0.5) * spread + (r() < 0.02 ? (r() - 0.5) * spread * 3 : 0);
-    img.data[i * 4] = base[0] + n;
-    img.data[i * 4 + 1] = base[1] + n;
-    img.data[i * 4 + 2] = base[2] + n;
-    img.data[i * 4 + 3] = 255;
-  }
-  x.putImageData(img, 0, 0);
-  return c;
-}
-
-
-const along = (g: LegGeo, s: number, lat: number): [number, number] => [g.u[0] * s + g.rout[0] * lat, g.u[1] * s + g.rout[1] * lat];
-
-/** Kolun bir dikdörtgen bandı: s0–s1 boyunca, enine lat0–lat1 (giden yarı artı). */
-function band(ctx: CanvasRenderingContext2D, g: LegGeo, s0: number, s1: number, lat0: number, lat1: number) {
-  const a = along(g, s0, lat0);
-  const b = along(g, s1, lat0);
-  const c = along(g, s1, lat1);
-  const d = along(g, s0, lat1);
-  ctx.beginPath();
-  ctx.moveTo(a[0], a[1]);
-  ctx.lineTo(b[0], b[1]);
-  ctx.lineTo(c[0], c[1]);
-  ctx.lineTo(d[0], d[1]);
-  ctx.closePath();
-}
-
-function line(ctx: CanvasRenderingContext2D, g: LegGeo, s0: number, s1: number, lat: number, w: number, dash?: number[]) {
-  const a = along(g, s0, lat);
-  const b = along(g, s1, lat);
-  ctx.setLineDash(dash ?? []);
-  ctx.lineWidth = w;
-  ctx.beginPath();
-  ctx.moveTo(a[0], a[1]);
-  ctx.lineTo(b[0], b[1]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-}
-
-/** Şerit oku: yerel çerçevede (x ileri, y sağa), metre. */
-function arrow(ctx: CanvasRenderingContext2D, x: number, y: number, ang: number, moves: string) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(ang);
-  ctx.strokeStyle = PAINT;
-  ctx.fillStyle = PAINT;
-  ctx.lineWidth = 0.32;
-  ctx.lineCap = 'butt';
-  const head = (hx: number, hy: number, a: number) => {
-    ctx.save();
-    ctx.translate(hx, hy);
-    ctx.rotate(a);
-    ctx.beginPath();
-    ctx.moveTo(0.95, 0);
-    ctx.lineTo(0, -0.55);
-    ctx.lineTo(0, 0.55);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  };
-  ctx.beginPath();
-  ctx.moveTo(-2.6, 0);
-  ctx.lineTo(moves.includes('T') ? 0.9 : -0.1, 0);
-  ctx.stroke();
-  if (moves.includes('T')) head(0.9, 0, 0);
-  for (const [t, sgn] of [
-    ['L', -1],
-    ['R', 1],
-  ] as const) {
-    if (!moves.includes(t)) continue;
-    ctx.beginPath();
-    ctx.moveTo(-0.6, 0);
-    ctx.quadraticCurveTo(0.3, 0, 0.35, sgn * 0.75);
-    ctx.stroke();
-    head(0.35, sgn * 0.75, (sgn * Math.PI) / 2);
-  }
-  ctx.restore();
-}
 
 export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, seed: number): HTMLCanvasElement {
   const cv = document.createElement('canvas');
@@ -567,68 +480,5 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
   const coarse = v.k < 2;
   for (const b of vis) building(ctx, b, dusk, coarse);
   return cv;
-}
-
-/** Arabaların üstünde kalan katman: ağaç taçları ve aydınlatma direklerinin başları. */
-export function paintCanopy(j: Junction, sc: Scenery, v: View, seed: number): HTMLCanvasElement {
-  const cv = document.createElement('canvas');
-  cv.width = v.w;
-  cv.height = v.h;
-  const ctx = cv.getContext('2d')!;
-  applyView(ctx, v);
-  const B = bounds(v, 6);
-  const r = rng(seed * 31 + 7);
-  const trees = [...sc.trees];
-  // refüj ağaçları
-  for (const g of Object.values(j.legs))
-    if (g.half >= 1.5)
-      for (let s = g.cw1 + 14; s < WORLD; s += 11 + r() * 4) {
-        const p = along(g, s, 0);
-        trees.push({ x: p[0], y: p[1], r: 1.8 + r() * 0.8, tone: r() });
-      }
-  for (const t of trees) {
-    if (t.x < B.x0 || t.x > B.x1 || t.y < B.y0 || t.y > B.y1) continue;
-    ctx.fillStyle = 'rgba(20,24,18,0.25)';
-    ctx.beginPath();
-    ctx.ellipse(t.x + t.r * 0.45, t.y + t.r * 0.3, t.r, t.r * 0.9, 0, 0, Math.PI * 2);
-    ctx.fill();
-    const base = t.tone < 0.33 ? [70, 110, 52] : t.tone < 0.66 ? [86, 124, 60] : [62, 98, 58];
-    const g = ctx.createRadialGradient(t.x - t.r * 0.3, t.y - t.r * 0.35, t.r * 0.1, t.x, t.y, t.r);
-    g.addColorStop(0, `rgb(${base[0] + 40},${base[1] + 40},${base[2] + 25})`);
-    g.addColorStop(1, `rgb(${base[0] - 20},${base[1] - 25},${base[2] - 15})`);
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    for (let k = 0; k < 7; k++) {
-      const a = (k / 7) * Math.PI * 2 + t.tone;
-      const rr = t.r * (0.55 + 0.1 * Math.sin(k * 2.3 + t.tone * 9));
-      ctx.moveTo(t.x + Math.cos(a) * rr * 0.6 + rr * 0.55, t.y + Math.sin(a) * rr * 0.6);
-      ctx.arc(t.x + Math.cos(a) * rr * 0.6, t.y + Math.sin(a) * rr * 0.6, rr * 0.55, 0, Math.PI * 2);
-    }
-    ctx.arc(t.x, t.y, t.r * 0.6, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  for (const l of sc.lamps) {
-    if (l.x < B.x0 || l.x > B.x1 || l.y < B.y0 || l.y > B.y1) continue;
-    ctx.strokeStyle = '#55585e';
-    ctx.lineWidth = 0.14;
-    ctx.beginPath();
-    ctx.moveTo(l.x, l.y);
-    ctx.lineTo(l.x + Math.cos(l.a) * 1.8, l.y + Math.sin(l.a) * 1.8);
-    ctx.stroke();
-    ctx.fillStyle = '#3a3d42';
-    ctx.beginPath();
-    ctx.arc(l.x, l.y, 0.18, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#d9d6c8';
-    ctx.beginPath();
-    ctx.ellipse(l.x + Math.cos(l.a) * 1.9, l.y + Math.sin(l.a) * 1.9, 0.45, 0.22, l.a, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  return cv;
-}
-
-/** Sokak lambalarının yeri: akşam ışık havuzu için. */
-export function lampHeads(sc: Scenery) {
-  return sc.lamps.map((l) => [l.x + Math.cos(l.a) * 1.9, l.y + Math.sin(l.a) * 1.9] as [number, number]);
 }
 

@@ -18,6 +18,7 @@ import { FOURTH_WAVE } from './fourthWave';
 import { FIFTH_WAVE } from './fifthWave';
 import { SIXTH_WAVE } from './sixthWave';
 import { SEVENTH_WAVE } from './seventhWave';
+import { SEVENTH_WAVE_CULTURE } from './seventhWaveCulture';
 import { EIGHTH_WAVE } from './eighthWave';
 import { NINTH_WAVE } from './ninthWave';
 
@@ -407,6 +408,7 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
   ...FIFTH_WAVE,
   ...SIXTH_WAVE,
   ...SEVENTH_WAVE,
+  ...SEVENTH_WAVE_CULTURE,
   ...EIGHTH_WAVE,
   ...NINTH_WAVE,
 ];

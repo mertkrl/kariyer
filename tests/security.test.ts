@@ -39,6 +39,10 @@ test('tarayıcıda tutulan her şey oyunun önekiyle durur', () => {
   const keys = srcFiles.flatMap(({ text }) => [...text.matchAll(/_KEY\s*=\s*'([^']+)'|\bKEY\s*=\s*'([^']+)'/g)].map((m) => m[1] ?? m[2]));
   assert.ok(keys.length >= 5, 'anahtarlar bulunamadı');
   assert.deepEqual(keys.filter((k) => !k.startsWith(STORAGE_PREFIX)), []);
+  // değişkenli anahtarlar da (ör. `draftKey = (yer) => \`…\``): ya önekle ya önekli bir sabitle başlar
+  const built = srcFiles.flatMap(({ f, text }) => [...text.matchAll(/\b\w*(?:Key|KEY)\w*\s*=\s*\([^)]*\)\s*=>\s*`([^`]*)`/g)].map((m) => ({ f, key: m[1] })));
+  assert.ok(built.length >= 2, 'değişkenli anahtarlar bulunamadı');
+  assert.deepEqual(built.filter(({ key }) => !key.startsWith(STORAGE_PREFIX) && !/^\$\{\w*KEY\}/.test(key)), []);
   // ve depoya asla o kontrolden kaçacak düz bir anahtarla yazılmaz
   const literal = srcFiles.filter(({ text }) => /(local|session)Storage\.setItem\(\s*['"`]/.test(text)).map(({ f }) => f);
   assert.deepEqual(literal, []);

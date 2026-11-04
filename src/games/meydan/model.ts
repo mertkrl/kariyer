@@ -17,7 +17,7 @@ const MAX_TEXT = 40;
 /** Çizimin bir pikseli kaç metre: maliyet hesabı cephe alanını buradan bulur. */
 export const METER = 0.06;
 
-export type PlaceId = 'bakirkoy' | 'rize' | 'izmir' | 'ankara' | 'diyarbakir';
+export type PlaceId = 'bakirkoy' | 'rize' | 'izmir' | 'ankara';
 export type SignKind = 'pano' | 'bayrak' | 'kutu' | 'tente' | 'folyo' | 'afis';
 export type JunkKind = 'klima' | 'anten' | 'kablo' | 'gunes' | 'depo' | 'baca';
 export type ItemKind = SignKind | JunkKind;
@@ -210,7 +210,7 @@ export const SITE_OPTIONS = {
       mevcut: c('Olduğu gibi', 0, 'Yamalı asfalt, kırık parke, kaldırımda sökük taşlar.'),
       granit: c('Granit plak', 3500, 'Büyük gri plaklar: ağır trafiğe dayanır, kaymaz yüzey.', 6),
       arnavut: c('Arnavut kaldırımı', 2400, 'Elde dizilmiş küp taş: yavaşlatır, yağmuru emer.', 6),
-      bazalt: c('Bazalt', 3800, 'Koyu volkanik taş: Güneydoğu sokaklarının kendi taşı.', 6),
+      bazalt: c('Bazalt', 3800, 'Koyu volkanik taş: sert, kaymaz, yıllarca dayanır.', 6),
       beton: c('Prefabrik beton', 1200, 'Kilitli parke: ucuz, ama her yer aynı.', 3),
     },
   },
@@ -258,8 +258,8 @@ export interface Design {
   items: Item[];
 }
 
-export type Backdrop = 'istanbul' | 'karadeniz' | 'ege' | 'bozkir' | 'sur';
-export type LandmarkKind = 'bayrak' | 'cay' | 'saat' | 'metro' | 'cesme';
+export type Backdrop = 'istanbul' | 'karadeniz' | 'ege' | 'bozkir';
+export type LandmarkKind = 'bayrak' | 'cay' | 'saat' | 'metro';
 
 export interface Place {
   id: PlaceId;
@@ -311,7 +311,7 @@ export function makeItem(kind: ItemKind, at: Partial<Item> = {}): Item {
 }
 
 // meydanın çizimi değişince eski taslaklar yeni binalara oturmaz: anahtar sürümle değişir
-export const draftKey = (place: PlaceId) => `meydan:taslak:v3:${place}`;
+export const draftKey = (place: PlaceId) => `kariyerweb-meydan-taslak-v3-${place}`;
 
 /** Bir binanın gövdesinin üst kenarı (çatısız); ruhsatlanan kaçak kat gövdeye katılır. */
 export const topOf = (b: BuildingShape, s?: Pick<Spec, 'extra'>) => GROUND - b.groundH - (b.floors + (b.defects?.illegal && s?.extra === 'uyumla' ? 1 : 0)) * b.floorH;

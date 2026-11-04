@@ -1,7 +1,8 @@
 import { signal } from './controller';
 import { crossPoint } from './junction';
 import { CRASH_CLEAR, DIFFICULTY, DT, PED_COLORS, PED_PATIENCE, PED_V, type Ped } from './model';
-import { body, rateAt, say, type Sim } from './sim';
+import { body } from './driving';
+import { rateAt, say, type Sim } from './sim';
 
 /*
  * Yayalar: geçitlere bölümün takvimindeki hızla gelir, yeşilde (yaklaşan araç yoksa) karşıya

@@ -8,7 +8,8 @@ import inst from './Instruments.module.css';
 import { applyPlan, say, setHold, setSideRule, skipTo, type Report, type Sim } from './sim';
 import { setOff } from './controller';
 import { createNet, netLog, netReport, nodeX, setClosed, stepNet, type Net } from './net';
-import { clampCam, Scene, ZOOM_MIN, type Camera } from './Scene';
+import { Scene } from './Scene';
+import { clampCam, ZOOM_MIN, type Camera } from './camera';
 import { IncidentCards } from './Incidents';
 import { greenWave, lightName } from './engineer';
 import { Help } from './Help';
@@ -119,7 +120,8 @@ export function Play({
   const [learn, setLearn] = useState<TourState>({ zoomed: false, panned: false, whole: false, green: false, timed: false, paused: false });
   const learned = useCallback((k: keyof TourState) => setLearn((s) => (s[k] ? s : { ...s, [k]: true })), []);
   const [, setTick] = useState(0);
-  const [running, setRunning] = useState(false);
+  // vardiya emri yoksa trafik hemen akar; varsa emir kapanınca (aşağıda)
+  const [running, setRunning] = useState(!briefing);
   const [speed, setSpeed] = useState(1);
   const [selected, setSelected] = useState(0);
   // dar ekranda panelin tek bölümü görünür: kartlar, süreler ya da yollar
@@ -144,18 +146,28 @@ export function Play({
   const xs = useMemo(() => net.sims.map((s) => nodeX(net, s)), [net]);
   // en uzak yakınlık ekrana göre değişir: harita çizdikçe Scene bildirir, kamera yeni sınıra oturur
   const [floor, setFloor] = useState(ZOOM_MIN);
-  useEffect(() => setCamera((c) => clampCam(c, xs, floor)), [floor, xs]);
-  // tanıtım: kamera hareketleri adımları tamamlar
-  useEffect(() => {
-    if (!tour) return;
-    if (camera.zoom > 1.25) learned('zoomed');
-    if (Math.abs(camera.dx) + Math.abs(camera.dy) > 10) learned('panned');
-    if (camera.zoom <= floor * 1.001 && floor < 0.99) learned('whole');
-  }, [tour, camera, floor, learned]);
+  const onFloor = useCallback(
+    (f: number) => {
+      setFloor(f);
+      setCamera((c) => {
+        const n = clampCam(c, xs, f);
+        return n.zoom === c.zoom && n.dx === c.dx && n.dy === c.dy ? c : n;
+      });
+    },
+    [xs],
+  );
+  // tanıtım: kamera hareketleri adımları tamamlar (öğrenilen bir daha unutulmaz, döngü kurmaz)
+  if (tour) {
+    if (camera.zoom > 1.25 && !learn.zoomed) learned('zoomed');
+    if (Math.abs(camera.dx) + Math.abs(camera.dy) > 10 && !learn.panned) learned('panned');
+    if (camera.zoom <= floor * 1.001 && floor < 0.99 && !learn.whole) learned('whole');
+  }
   // vardiya emri kapanınca trafik kendiliğinden akar
-  useEffect(() => {
+  const [briefed, setBriefed] = useState(briefing);
+  if (briefed !== briefing) {
+    setBriefed(briefing);
     if (!briefing && net.t === 0) setRunning(true);
-  }, [briefing, net]);
+  }
   // kayda yeni bir sürücü sesi düştüyse korna çalar
   const heard = useRef('');
   const log = netLog(net);
@@ -333,7 +345,7 @@ export function Play({
 
   return (
     <main className={styles.play}>
-      <Scene net={net} selected={selected} onSelect={select} camera={camera} onCamera={setCamera} onFloor={setFloor} highlight={point === null ? null : sim.plan.phases[point]?.moves ?? null} />
+      <Scene net={net} selected={selected} onSelect={select} camera={camera} onCamera={setCamera} onFloor={onFloor} highlight={point === null ? null : sim.plan.phases[point]?.moves ?? null} />
 
       {live && !briefing && <Patience r={live} where={live.worstAt && multi ? `${live.worstAt}’da ` : ''} />}
 

@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DUE_YEARS, FLOOR_STEPS, STAGES, TOTAL, WORK_TOTAL, floorStepAt, idleAt, speechAt, stageAt, stageProgress, watchersAt, workAt } from '../src/games/insaat/data';
+import { FLOOR_STEPS, PROJECTS, floorStepAt, idleAt, planFor, speechAt, stageAt, stageProgress, watchersAt, workAt } from '../src/games/insaat/data';
+
+const plan = planFor('huzur');
+const { stages: STAGES, total: TOTAL, workTotal: WORK_TOTAL } = plan;
 
 test('inşaat aşamaları sırayla gelir ve iş bitmeden başlar', () => {
   assert.equal(STAGES[0].at, 0);
@@ -16,11 +19,11 @@ test('inşaat aşamaları sırayla gelir ve iş bitmeden başlar', () => {
 test('iş saati yalnızca şantiye çalışırken ilerler', () => {
   let last = 0;
   for (let t = 0; t <= TOTAL; t += 0.5) {
-    const w = workAt(t);
+    const w = workAt(plan, t);
     assert.ok(w >= last - 1e-9, `t=${t}`);
     last = w;
   }
-  assert.ok(Math.abs(workAt(TOTAL) - WORK_TOTAL) < 0.2);
+  assert.ok(Math.abs(workAt(plan, TOTAL) - WORK_TOTAL) < 0.2);
   // gece, yağmur ya da kar varken iş durur: gerçek süre iş süresinden uzundur
   assert.ok(TOTAL > WORK_TOTAL + 30);
   const idle = Array.from({ length: Math.floor(TOTAL) }, (_, t) => idleAt(t)).filter(Boolean);
@@ -29,40 +32,40 @@ test('iş saati yalnızca şantiye çalışırken ilerler', () => {
 
 test('zamana göre aşama, kat adımı ve konuşan amca tutarlıdır', () => {
   for (let t = 0; t <= TOTAL; t += 0.5) {
-    const w = workAt(t);
-    const i = stageAt(w);
+    const w = workAt(plan, t);
+    const i = stageAt(plan, w);
     assert.ok(STAGES[i].at <= w + 1e-9);
-    const p = stageProgress(w, i);
+    const p = stageProgress(plan, w, i);
     assert.ok(p >= 0 && p <= 1);
-    const fs = floorStepAt(w);
+    const fs = floorStepAt(plan, w);
     assert.equal(fs !== null, STAGES[i].id === 'karkas');
-    const sp = speechAt(t);
+    const sp = speechAt(plan, t);
     assert.ok(sp.text.length > 0);
     assert.ok(sp.who >= 0 && sp.who < watchersAt(t));
   }
 });
 
 test('teslim tarihi hep ileri ertelenir', () => {
-  DUE_YEARS.forEach((y, i) => i && assert.ok(y > DUE_YEARS[i - 1]));
+  for (const p of PROJECTS) p.due.forEach((y, i) => i && assert.ok(y > p.due[i - 1], p.id));
 });
 
 test('şantiyeler: kat sayısı takvimi kaydırır, aşamalar sıralı kalır, iş biter', async () => {
-  const data = await import('../src/games/insaat/data');
-  for (const p of data.PROJECTS) {
-    data.selectProject(p.id);
-    assert.equal(data.FLOORS, p.floors);
-    data.STAGES.forEach((st, i) => i && assert.ok(st.at > data.STAGES[i - 1].at, `${p.id} ${st.id}`));
-    assert.ok(data.STAGES[data.STAGES.length - 1].at < data.WORK_TOTAL, p.id);
-    assert.ok(Math.abs(data.workAt(data.TOTAL) - data.WORK_TOTAL) < 0.2, p.id);
+  for (const p of PROJECTS) {
+    const pl = planFor(p.id);
+    assert.equal(pl.floors, p.floors);
+    pl.stages.forEach((st, i) => i && assert.ok(st.at > pl.stages[i - 1].at, `${p.id} ${st.id}`));
+    assert.ok(pl.stages[pl.stages.length - 1].at < pl.workTotal, p.id);
+    assert.ok(Math.abs(workAt(pl, pl.total) - pl.workTotal) < 0.2, p.id);
   }
-  data.selectProject('huzur');
-  assert.equal(data.WORK_TOTAL, 306);
+  assert.equal(planFor('huzur').workTotal, 306);
+  // takvim saf bir değerdir: başka bir şantiyenin planını kurmak öncekini değiştirmez
+  assert.equal(plan.workTotal, 306);
 });
 
 test('şantiye defteri: her aşama ve kat adımının ekibi, kaydı, kontrolü ve İSG önlemi var', async () => {
   const data = await import('../src/games/insaat/data');
   const crew = await import('../src/games/insaat/crew');
-  for (const st of data.STAGES) {
+  for (const st of STAGES) {
     if (st.id === 'karkas') continue; // kaba inşaatın defteri kat adımlarındadır
     const p = crew.STAGE_PLANS[st.id];
     assert.ok(p && p.crew.length && p.log.length && p.checks.length && p.isg, st.id);

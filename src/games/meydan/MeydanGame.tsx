@@ -5,11 +5,12 @@ import { audioEngine } from '../../audio/audioEngine';
 import { Editor } from './Editor';
 import { draftKey, sanitize, type Design, type Place } from './model';
 import { PLACES } from './places';
+import { adoptOldDrafts } from './drafts';
 import { Scene } from './Scene';
 import styles from './MeydanGame.module.css';
 
 /*
- * Meydan Islahı: beş bölgeden beş sokağın tabela, klima, kaçak kat ve yama altında kalmış
+ * Meydan Islahı: dört bölgeden dört sokağın tabela, klima, kaçak kat ve yama altında kalmış
  * cephelerini mimar ve mühendis gözüyle baştan düzenle. Önce meydan seçilir, sonra serbest modda
  * boyanır, kaplanır, güçlendirilir ve temizlenir.
  */
@@ -18,6 +19,7 @@ type Phase = { at: 'pick' } | { at: 'edit'; place: Place; design: Design; key: n
 
 function loadDraft(place: Place): Design {
   try {
+    adoptOldDrafts(localStorage, PLACES.map((p) => p.id));
     const raw = localStorage.getItem(draftKey(place.id));
     const d = raw ? sanitize(JSON.parse(raw), place) : null;
     if (d) return d;

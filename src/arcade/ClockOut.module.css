@@ -26,11 +26,6 @@
   z-index: 50;
 }
 
-.centered {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 .out {
   display: inline-flex;
   align-items: center;
@@ -67,76 +62,180 @@
   transform: translateX(-3px);
 }
 
-/* onay balonu */
+/* onay balonu: çıkış kartı */
 .ask {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   left: 0;
   z-index: 60;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  width: 280px;
-  padding: 14px;
+  gap: 8px;
+  width: 300px;
+  padding: 14px 14px 14px;
   border: 1px solid var(--co-line);
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--co-bg);
   color: var(--co-muted);
   font: 400 13px/1.45 var(--font-body);
   white-space: normal;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
-  animation: askIn 160ms ease-out;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.26), 0 2px 6px rgba(0, 0, 0, 0.08);
+  animation: askIn 180ms cubic-bezier(0.2, 1.2, 0.4, 1);
+  transform-origin: 24px -6px;
 }
 
-.centered .ask {
-  left: 50%;
-  transform: translateX(-50%);
-  animation: none;
+/* balonun okla bağlantısı */
+.ask::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 18px;
+  width: 11px;
+  height: 11px;
+  border-top: 1px solid var(--co-line);
+  border-left: 1px solid var(--co-line);
+  background: var(--co-bg);
+  transform: rotate(45deg);
 }
 
-.ask b {
+/* puantaj kartı: krem kâğıt, üstte delik sırası, kesik çizgili satırlar */
+.card {
+  position: relative;
+  display: block;
+  padding: 10px 12px 10px;
+  border-radius: 6px;
+  background: #f6efdc;
+  color: #3a332a;
+  box-shadow: inset 0 0 0 1px rgba(80, 60, 30, 0.18);
+  transform: rotate(-1.2deg);
+  margin: 2px 2px 4px;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 46px;
+  height: 6px;
+  background: radial-gradient(circle, rgba(80, 60, 30, 0.35) 1.6px, transparent 2px) 0 0 / 9px 6px repeat-x;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 10.5px var(--font-mono);
+  letter-spacing: 0.12em;
+  color: #9b4a2c;
+}
+
+.cardHead svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cardRows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin-top: 7px;
+  font-size: 11.5px;
+}
+
+.cardRows > span {
+  color: #7a6f5c;
+}
+
+.cardRows > b {
+  border-bottom: 1px dashed rgba(80, 60, 30, 0.3);
+  font-weight: 700;
+}
+
+.blank {
+  color: #b9a98a;
+}
+
+.q {
   color: var(--co-ink);
   font-weight: 700;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.risk:empty {
+  display: none;
 }
 
 @keyframes askIn {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(0.96);
   }
 }
 
 .actions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .stay,
 .leave {
-  padding: 7px 12px;
-  border-radius: 8px;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 10px;
   font: 600 13px var(--font-body);
   cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease;
 }
 
-.stay {
+.ask .stay {
   border: 1px solid var(--co-line);
   background: transparent;
   color: var(--co-ink);
 }
 
-.leave {
+.stay:hover {
+  background: color-mix(in srgb, var(--co-ink) 6%, transparent);
+}
+
+.ask .leave {
   border: 0;
-  background: var(--co-badge);
-  color: var(--co-badge-ink);
+  background: #b8432f;
+  color: #fff;
+  box-shadow: 0 2px 0 #8a2f20;
+}
+
+.leave svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ask .leave:hover {
+  background: #a63a27;
+}
+
+.leave:active,
+.stay:active {
+  transform: translateY(1px);
 }
 
 .stay:focus-visible,
 .leave:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask {
+    animation: none;
+  }
 }
 
 /* küçük telefon: yalnızca ok */

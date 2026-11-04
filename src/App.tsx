@@ -95,7 +95,7 @@ function App() {
         {phase !== 'gameplay' && phase !== 'finalRound' && phase !== 'welcome' && phase !== 'weekend' && <SoundToggle />}
       </Suspense>
       {phase === 'welcome' && <UpdateNotice />}
-      {phase === 'welcome' && <ClockOut tone="dark" fixed centered />}
+      {phase === 'welcome' && <ClockOut tone="dark" fixed />}
       {phase === 'welcome' && <StudioMark tone="dark" minimal />}
       {/* telefonda oyun başlamaz: açılış sayfası okunur, gerisi geniş ekran ister */}
       {phase !== 'welcome' && <MobileBlock />}

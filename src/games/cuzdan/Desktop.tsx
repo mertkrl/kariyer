@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { ClockOut } from '../../arcade/ClockOut';
 import { markPlayed } from '../../arcade/progress';
 import { EVENTS, YEAR_NOTE, type Year } from './data';
 import { CheaperApp } from './apps/CheaperApp';
 import { GuessApp } from './apps/GuessApp';
 import { DailyApp } from './apps/DailyApp';
-import { ERA_GAME_TITLE, EraGame } from './apps/EraGame';
+import { EraGame } from './apps/EraGame';
+import { ERA_GAME_TITLE } from './apps/eraTitle';
 import { ShopApp } from './apps/ShopApp';
 import { MusicApp } from './apps/MusicApp';
 import { ClockApp, NoteApp, ReportApp } from './apps/Utility';
@@ -337,6 +339,10 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
   return (
     <>
       <div className={s.desk}>
+        {/* salona dönüş her oyunda sol üstte; burada masaüstünün bir parçası, pencereler üstüne açılabilir */}
+        <div className={s.exit}>
+          <ClockOut tone="dark" />
+        </div>
         <ul className={s.icons} aria-label="Masaüstü">
           {ICONS.map((app) => (
             <li key={app.id}>
@@ -399,11 +405,11 @@ export function Desktop({ year, persona, onYear, onLogout }: { year: Year; perso
       {menu && <StartMenu theme={theme} year={year} persona={persona} onOpen={(id) => open(id as AppId)} onLogout={onLogout} onClose={closeMenu} />}
 
       <div className={s.taskbar}>
-        <button type="button" className={s.start} onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-label="Başlat" data-start>
+        <button type="button" className={s.start} onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-label="Cüzdan menüsü" data-start>
           <span className={s.startFlag} aria-hidden="true">
             {ic('start', theme === 'luna' ? 20 : 26)}
           </span>
-          <span className={s.startLabel}>başlat</span>
+          <span className={s.startLabel}>Cüzdan</span>
         </button>
         <div className={s.tasks}>
           {order

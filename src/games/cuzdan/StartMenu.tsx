@@ -49,7 +49,7 @@ export function StartMenu({ theme, year, persona, onOpen, onLogout, onClose }: {
   const flat = theme === 'flat';
 
   return (
-    <div ref={ref} className={m.menu} role="menu" aria-label="Başlat menüsü">
+    <div ref={ref} className={m.menu} role="menu" aria-label="Cüzdan menüsü">
       <div className={m.head}>
         <span className={m.avatar} aria-hidden="true">
           {persona.avatar}

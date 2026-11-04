@@ -18,28 +18,32 @@
 .app[data-theme='luna'] {
   --font: Tahoma;
   --title-font: bold 13px 'Trebuchet MS', Tahoma, sans-serif;
-  --bar: linear-gradient(180deg, #3d8bff 0%, #0a5ce0 12%, #0058e6 50%, #0a5ce0 88%, #0831a8 100%);
+  --bar: linear-gradient(180deg, #4cc3a6 0%, #178a72 12%, #138068 50%, #178a72 88%, #0b5545 100%);
   --bar-ink: #fff;
   --bar-h: 30px;
-  --frame: #0a5ce0;
+  --frame: #178a72;
   --frame-pad: 0 3px 3px;
   --radius: 8px 8px 0 0;
   --face: #ece9d8;
   --line: #d4d0c8;
-  --accent: #316ac5;
-  --legend: #0046d5;
+  --accent: #1f8a73;
+  --legend: #0e6b58;
   --btn: linear-gradient(180deg, #fff, #ece9d8 85%, #d6d0c5);
-  --btn-line: #003c74;
+  --btn-line: #0b4a3d;
   --btn-r: 3px;
-  --task: linear-gradient(180deg, #3f8cf3 0%, #245edb 10%, #1f53c8 90%, #1941a5 100%);
+  --task: linear-gradient(180deg, #3fb39a 0%, #1d8a72 10%, #177b65 90%, #0f5c4c 100%);
   --task-h: 34px;
   --task-ink: #fff;
-  --taskitem: #3c81f3;
-  --taskitem-on: #1e4bb8;
-  /* başlat düğmesi Cüzdan'ın kendi sikke rengi; duvar kâğıdı akşamüstü Boğaz: dönemin havası, kendi resmimiz */
+  --taskitem: #2fa287;
+  --taskitem-on: #0f5a48;
+  /*
+   * Dönemin havası ama kendi kimliğimiz: çubuklar ve pencereler Cüzdan yeşili, menü düğmesi Cüzdan'ın
+   * turuncu sikkesi (adı "Cüzdan"), duvar kâğıdı akşamüstü Boğaz. Hiçbir işletim sisteminin rengi
+   * ya da düğmesi birebir alınmaz.
+   */
   --start: linear-gradient(180deg, #ffc35a, #f08a1c 40%, #d96f0c);
-  --start-r: 0 12px 12px 0;
-  --tray: linear-gradient(180deg, #19a0f7, #0f8ff3);
+  --start-r: 16px;
+  --tray: linear-gradient(180deg, #2a9e86, #1b8a73);
   --menu: #fff;
   --wall:
     radial-gradient(40% 14% at 22% 20%, rgba(255, 255, 255, 0.55), transparent 70%), radial-gradient(10% 22% at 76% 80%, rgba(255, 210, 140, 0.55), transparent 70%),
@@ -70,7 +74,7 @@
   --task-ink: #fff;
   --taskitem: rgba(255, 255, 255, 0.08);
   --taskitem-on: rgba(140, 200, 255, 0.3);
-  --start: radial-gradient(circle at 50% 35%, #8be0ff, #1a7fc4 55%, #0b3f74);
+  --start: radial-gradient(circle at 50% 35%, #ffd98a, #f08a1c 55%, #9c4f08);
   --start-r: 50%;
   --tray: transparent;
   --menu: rgba(240, 246, 252, 0.95);
@@ -100,7 +104,7 @@
   --task-ink: #1b1b1b;
   --taskitem: transparent;
   --taskitem-on: rgba(0, 0, 0, 0.07);
-  --start: linear-gradient(135deg, #3aa0ff, #0067c0);
+  --start: linear-gradient(135deg, #ffb347, #e07b12);
   --start-r: 6px;
   --tray: transparent;
   --menu: rgba(250, 250, 252, 0.97);
@@ -154,7 +158,7 @@
   border: 3px solid #fff;
   border-radius: 6px;
   background: #f2c86a;
-  box-shadow: 0 0 0 1px #00309c;
+  box-shadow: 0 0 0 1px #0e4f42;
 }
 
 /* ── masaüstü ── */
@@ -165,14 +169,28 @@
   background: var(--wall);
 }
 
+.exit {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(6px);
+}
+
 .icons {
   position: absolute;
   left: 10px;
-  top: 10px;
+  top: 52px;
+  bottom: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
-  display: grid;
+  /* kısa ekranda simgeler ikinci sütuna geçer, alttakiler görev çubuğunun altında kalmaz */
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
   gap: 8px;
 }
 
@@ -263,9 +281,9 @@
   bottom: calc(var(--task-h) + 10px);
   z-index: 1900;
   width: 230px;
-  border: 1px solid #6f8db9;
+  border: 1px solid #6fb3a1;
   border-radius: 4px;
-  background: linear-gradient(180deg, #fff, #dbe7fb);
+  background: linear-gradient(180deg, #fff, #dcf1ea);
   box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.35);
   animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
@@ -280,7 +298,7 @@
   padding: 3px 6px;
   font: bold 11px Tahoma, sans-serif;
   color: #fff;
-  background: linear-gradient(180deg, #7aa6e9, #3a6fc8);
+  background: linear-gradient(180deg, #5cc1a8, #1f8a73);
 }
 
 .app[data-theme='flat'] .toast {
@@ -337,13 +355,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 22px 0 10px;
+  padding: 0 16px 0 8px;
+  margin-left: 4px;
   border: 0;
   border-radius: var(--start-r);
   background: var(--start);
   color: #fff !important;
-  font: italic bold 17px 'Trebuchet MS', sans-serif !important;
-  text-shadow: 1px 1px #104a10;
+  font: bold 15px 'Trebuchet MS', sans-serif !important;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 
 .startFlag {
@@ -357,7 +377,7 @@
   padding: 0;
   justify-content: center;
   box-shadow:
-    0 0 10px rgba(120, 220, 255, 0.6),
+    0 0 10px rgba(255, 190, 90, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 

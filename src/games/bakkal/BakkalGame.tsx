@@ -1,99 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { markPlayed } from '../../arcade/progress';
-import { clearSlot, readSlot, writeSlot } from '../../arcade/saveSlot';
+import { readSlot } from '../../arcade/saveSlot';
 import { isShopSave, SAVE_KEY, type ShopSave } from './save';
-import { StudioMark } from '../../arcade/Studio';
 import { audioEngine } from '../../audio/audioEngine';
-import {
-  START_REPUTATION,
-  VILLAGERS,
-  awayOf,
-  loyalOf,
-  peddlerOn,
-  RIVAL_DAY,
-  basketOn,
-  BASIC,
-  DAILY,
-  LOW_REP,
-  characterOf,
-  complains,
-  BARGAIN,
-  TOURIST_MARKUP,
-  haggleOffer,
-  isBasic,
-  coolOff,
-  clockText,
-  dayVisits,
-  effectiveType,
-  eventOn,
-  forget,
-  hourOf,
-  react,
-  remember,
-  rng,
-  customerOf,
-  settleDebts,
-  titleFor,
-  tl,
-  weatherOn,
-  type Debt,
-  type LogEntry,
-  type Memories,
-  type Product,
-  type Reaction,
-} from './data';
-import { Customer, type Face } from './Customer';
-import { Ledger } from './Ledger';
-import { Calculator, CashRegister } from './Register';
-import { CREDIT_PAGE, EMPTY_PAGES, PRICE_PAGE, type Pages } from './pages';
-import { ShopScene } from './ShopScene';
-import { Shutter } from './Shutter';
-import { DayEndCard, FinalCard, IntroCard } from './Cards';
-import { say } from './say';
-import { Till, type Step } from './Till';
-import { TopBar } from './TopBar';
-import {
-  BREAD_DEFAULT,
-  COINS_DAILY,
-  GUM,
-  EMPTY_FLOW,
-  LOAN,
-  LOAN_BACK,
-  RETURN_DAY,
-  START_CASH,
-  START_STOCK,
-  START_WORTH,
-  stockValue,
-  expensesOn,
-  morning,
-  payment,
-  settleChange,
-  bulkDiscount,
-  deliver,
-  discard,
-  fineFor,
-  handOver,
-  madeCost,
-  priceTalk,
-  rot,
-  settleAccount,
-  settleDilemma,
-  split,
-  weekDay,
-  type Answer,
-  type ChangeWay,
-  type Flow,
-  type Outcome,
-  type Stock,
-  priceIndex,
-} from './week';
+import { awayOf, loyalOf, basketOn, DAILY, characterOf, complains, BARGAIN, TOURIST_MARKUP, haggleOffer, isBasic, coolOff, dayVisits, effectiveType, eventOn, forget, hourOf, react, remember, rng, customerOf, settleDebts, titleFor, tl, weatherOn, type Product, type Reaction } from './data';
+import { CREDIT_PAGE, PRICE_PAGE } from './pages';
+import { type Errand, type Step } from './Till';
+import { COINS_DAILY, GUM, EMPTY_FLOW, LOAN, LOAN_BACK, RETURN_DAY, START_WORTH, stockValue, expensesOn, morning, payment, settleChange, bulkDiscount, deliver, discard, fineFor, handOver, madeCost, priceTalk, rot, settleAccount, settleDilemma, split, weekDay, type Answer, type ChangeWay, type Flow, type Outcome, priceIndex } from './week';
 import * as sfx from './sfx';
-import { addReceipt, giftIn, planReturn, settleGift, settleReturn, type Receipt } from './returns';
-import { ReceiptDrawer } from './Drawer';
-import { SUPPLY_NOTE, addRep, applySupply, befriend, firmOf, rivalOf, settleAudit, spreadGossip, sulk, supplyOn, type Supply } from './pressure';
-import { loadView, saveView, viewAttrs, type View } from './access';
-import { TOUR, TourOverlay } from './Tour';
-import styles from './BakkalGame.module.css';
+import { addReceipt, giftIn, planReturn, settleGift, settleReturn } from './returns';
+import { addRep, applySupply, befriend, firmOf, rivalOf, settleAudit, spreadGossip, sulk, supplyOn } from './pressure';
+import { loadView, saveView, type View } from './access';
+import { TOUR } from './tourSteps';
+import { useShopState } from './shopState';
+import { ShopView } from './ShopView';
 
 /*
  * Köy Bakkalı: dükkân batana kadar tezgâhtasın. Tanıdık köylüler kapıdan girer, bir ya da birkaç şey ister;
@@ -110,11 +30,7 @@ import styles from './BakkalGame.module.css';
 
 type Phase = 'intro' | 'shop' | 'dayEnd' | 'final';
 
-
 /** Yazar kasanın ekranı: son işlemin adı ve tutarı; nakit satışta alınan para ve para üstü. */
-/** Fiyata tepkinin yüzü: kelepire sevinç, akıl almaz fiyata şok; gerisi tepkinin kendisi. */
-const faceOf = (r: Reaction): Face => (r.mood === 'happy' && r.rep >= 2 ? 'delight' : r.mood === 'leave' && r.rep <= -4 ? 'shock' : r.mood);
-
 type TillScreen = { amount: number | null; open: boolean; label?: string; paid?: number; change?: number };
 const TILL_IDLE: TillScreen = { amount: null, open: false };
 /** Tanıtımın beklemeli adımları: defteri açmak, levhayı çevirmek, ilk satış. */
@@ -125,35 +41,19 @@ const TILL_CANCEL: TillScreen = { amount: null, open: false, label: 'İPTAL' };
 /** Kasadan geçen paranın ekranda yazan adı. */
 const TILL_LABEL: Partial<Record<keyof Flow, string>> = { sales: 'SATIŞ', accounts: 'ESKİ HESAP', collected: 'TAHSİLAT', loan: 'BORÇ VERİLDİ', charity: 'HAYIR', fine: 'CEZA', refund: 'İADE', gift: 'HEDİYE' };
 
-export function BakkalGame() {
-  const [seed, setSeed] = useState(() => Date.now() % 100000);
+function useBakkal() {
   const [phase, setPhase] = useState<Phase>('intro');
-  const [day, setDay] = useState(1);
-  const [rep, setRep] = useState(START_REPUTATION);
-  const [repAtDayStart, setRepAtDayStart] = useState(START_REPUTATION);
-  const [money, setMoney] = useState(START_CASH);
-  /** Bugün kasaya girenler ve çıkanlar. */
-  const [flow, setFlow] = useState<Flow>(EMPTY_FLOW);
-  /** Her gün sonundaki kasa (ilki açılış). */
-  const [history, setHistory] = useState<number[]>([START_CASH]);
-  const [daySales, setDaySales] = useState(0);
+  // dükkânın günden güne süren hâli (kasa, defter, raf, köyün hafızası) ve akşam kaydı: shopState.ts
+  const shop = useShopState(phase);
+  const { seed, day, setDay, rep, setRep, repAtDayStart, setRepAtDayStart, money, setMoney, flow, setFlow, history, setHistory, daySales, setDaySales, log, setLog, pages, setPages, memories, setMemories, away, setAway, debts, setDebts, paidToday, setPaidToday, lostToday, setLostToday, stock, setStock, carried, setCarried, order, setOrder, old, setOld, spoiled, setSpoiled, keep, setKeep, staleSold, setStaleSold, staleYesterday, setStaleYesterday, short, setShort, coins, setCoins, ethics, setEthics, verdicts, setVerdicts, deeds, setDeeds, lent, setLent, receipts, setReceipts, hidden, setHidden, supply, setSupply, loyal, setLoyal, befriended, setBefriended, bankrupt, setBankrupt, returned, setReturned } = shop;
   const [idx, setIdx] = useState(0);
   const [step, setStep] = useState<Step>('ask');
   const [price, setPrice] = useState('');
   const [reaction, setReaction] = useState<Reaction | null>(null);
-  const [log, setLog] = useState<LogEntry[]>([]);
   const [book, setBook] = useState(false);
   const [bookAt, setBookAt] = useState(1);
-  const [pages, setPages] = useState<Pages>(EMPTY_PAGES);
   const [lineNo, setLineNo] = useState(0);
-  const [memories, setMemories] = useState<Memories>({});
-  /** Sabah, kini birikip kasabanın marketine gidenler: o gün dükkâna uğramazlar. */
-  const [away, setAway] = useState<string[]>([]);
   const [saved, setSaved] = useState(() => readSlot(SAVE_KEY, isShopSave));
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [paidToday, setPaidToday] = useState<Debt[]>([]);
-  /** Bu akşam vadesi dolup batan veresiyeler. */
-  const [lostToday, setLostToday] = useState<Debt[]>([]);
   const [credited, setCredited] = useState<boolean | null>(null);
   const [till, setTill] = useState<TillScreen>(TILL_IDLE);
   const [calc, setCalc] = useState(false);
@@ -167,41 +67,15 @@ export function BakkalGame() {
   };
   // kepenk kalkarken kartlar gizlenir; kalkınca dükkân açılır
   const [rising, setRising] = useState(false);
-  const [stock, setStock] = useState<Stock>(START_STOCK);
-  /** Dükkânın tuttuğu mallar: açılışta hepsi; "paraya göre doldur" bunları doldurur. */
-  const [carried, setCarried] = useState<string[]>(Object.keys(START_STOCK));
-  /** Akşam toptancı Kemal'e söylenen mal; ekmek de onunla gelir, adedi ertesi akşama aynen kalır. */
-  const [order, setOrder] = useState<Stock>({ ekmek: BREAD_DEFAULT });
-  /** Raftaki bayat ve bozuk mal (stoğun içinde), bu gece bozulan ve hangilerinin rafta tutulacağı. */
-  const [old, setOld] = useState<Stock>({});
-  const [spoiled, setSpoiled] = useState<Stock>({});
-  const [keep, setKeep] = useState<Record<string, boolean>>({});
-  /** Bugün ve dün müşteriye giden bayat mal: dün satıldıysa bugün zabıta gelir. */
-  const [staleSold, setStaleSold] = useState(0);
-  const [staleYesterday, setStaleYesterday] = useState(0);
   const [staleNote, setStaleNote] = useState<string | null>(null);
   /** Bugünkü satışlarda fiyatın market fiyatına oranı; akşam kahvede konuşulur. */
   const [ratios, setRatios] = useState<number[]>([]);
-  const [bankrupt, setBankrupt] = useState(false);
-  /** Şükrü Amca memleketten döndü: dükkân batmadan son güne varıldı. */
-  const [returned, setReturned] = useState(false);
-  /** Bu sabah kasadaki para yetmediği için geri giden mal oldu mu. */
-  const [short, setShort] = useState(false);
-  /** Kasadaki bozukluk (₺): her sabah bankadan bozdurulur. */
-  const [coins, setCoins] = useState(COINS_DAILY);
   /** Müşterinin uzattığı para ve para üstü (küsuratı varsa sorulur). */
   const [pay, setPay] = useState<{ bill: number; change: number; odd: number } | null>(null);
   /** Sakızla verilen para üstünde kaç kez kol çevrildi (null: makine beklemiyor). */
   const [gumGiven, setGumGiven] = useState<number | null>(null);
-  const [ethics, setEthics] = useState(0);
-  /** Eski hesapların ve vicdan anlarının karneye düşen notları. */
-  const [verdicts, setVerdicts] = useState<string[]>([]);
-  const [deeds, setDeeds] = useState<string[]>([]);
-  const [lent, setLent] = useState(false);
   /** Eski hesap, ikilem ya da rafta olmayan mal: müşterinin son sözü ve kasaya etkisi. */
   const [outcome, setOutcome] = useState<Outcome | null>(null);
-  /** Kasanın çekmecesindeki fişler; iade getirenin fişi burada aranır. */
-  const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [drawer, setDrawer] = useState(false);
   /** Satılan paketin içinden çıkan para (karar bekliyor). */
   /** Kapıdaki levha çevrildi mi: her sabah kepenk kalkınca dükkân kapalıdır, oyuncu açar. */
@@ -209,14 +83,6 @@ export function BakkalGame() {
   /** İlk günün tanıtımında hangi adımdayız (Tour.tsx); null: tanıtım yok ya da bitti. */
   const [tour, setTour] = useState<number | null>(null);
   const [gift, setGift] = useState<{ amount: number; product: Product } | null>(null);
-  /** Kasaya atılıp Z raporuna girmeyen para: vergi memuru bulursa ceza keser. */
-  const [hidden, setHidden] = useState(0);
-  /** Sabah Kemal'in getirdiği: tam, yarım ya da hiç. */
-  const [supply, setSupply] = useState<Supply>('ok');
-  /** Sadık müşteriler (sabahki hâl): sıranın başına geçerler. */
-  const [loyal, setLoyal] = useState<string[]>([]);
-  /** Bugün veresiyesi yazılmadığı için küsenler ve borcunu ödeyip sadık müşteri olanlar (gün sonu notu). */
-  const [befriended, setBefriended] = useState<string[]>([]);
   const timers = useRef<number[]>([]);
 
   const later = (ms: number, fn: () => void) => timers.current.push(window.setTimeout(fn, ms));
@@ -231,9 +97,10 @@ export function BakkalGame() {
 
   const weather = weatherOn(seed, day);
   const event = eventOn(seed, day);
-  // iade getiren yalnızca dünkü ve önceki fişlere bakar: gün içinde kesilen fiş sırayı değiştirmez
-  const pastReceipts = receipts.filter((x) => x.day < day).length;
-  const returning = useMemo(() => planReturn(receipts, seed, day), [seed, day, pastReceipts]);
+  // iade getiren günün sabahındaki fişlere bakar: gün içinde kesilen ya da iade edilen fiş planı değiştirmez
+  const [dawn, setDawn] = useState({ day, receipts });
+  if (dawn.day !== day) setDawn({ day, receipts });
+  const returning = useMemo(() => planReturn(dawn.receipts, seed, day), [dawn.receipts, seed, day]);
   const visits = useMemo(() => {
     const list = weekDay(dayVisits(seed, day, repAtDayStart, weatherOn(seed, day), away, loyal), day, { seed, staleSold: staleYesterday });
     if (!returning || away.includes(returning.villager.id)) return list;
@@ -249,7 +116,7 @@ export function BakkalGame() {
   const shelf = visit ? split(visit.items, stock) : null;
   const basket = shelf ? basketOn(shelf.have, day) : null;
   // alışveriş olmayan ziyaret: eski hesap, borç isteyen nine ya da istediği hiçbir şey rafta yok
-  const errand = visit?.audit ? 'audit' : visit?.returning ? 'return' : visit?.account ? 'account' : visit?.dilemma === 'loan' ? 'loan' : visit?.charity ? 'charity' : visit?.fine ? 'fine' : shelf && !shelf.have.length ? 'empty' : null;
+  const errand: Errand = visit?.audit ? 'audit' : visit?.returning ? 'return' : visit?.account ? 'account' : visit?.dilemma === 'loan' ? 'loan' : visit?.charity ? 'charity' : visit?.fine ? 'fine' : shelf && !shelf.have.length ? 'empty' : null;
   // hayırsever bütün açık veresiyeyi öder, batmış olanlar dahil
   const openDebt = debts.filter((d) => !d.paid).reduce((s, d) => s + d.amount, 0);
   const fine = visit?.fine ? fineFor(visit.fine, day) : 0;
@@ -667,44 +534,9 @@ export function BakkalGame() {
 
   const restart = () =>
     raise(() => {
-      setSeed((s) => s + 7);
-      setDay(1);
-      setRep(START_REPUTATION);
-      setRepAtDayStart(START_REPUTATION);
-      setMoney(START_CASH);
-      setFlow(EMPTY_FLOW);
-      setHistory([START_CASH]);
-      setDaySales(0);
+      shop.reset();
       setIdx(0);
-      setLog([]);
-      setPages(EMPTY_PAGES);
-      setMemories({});
-      setAway([]);
-      setDebts([]);
-      setPaidToday([]);
-      setLostToday([]);
       setTill(TILL_IDLE);
-      setStock(START_STOCK);
-      setCarried(Object.keys(START_STOCK));
-      setOrder({ ekmek: BREAD_DEFAULT });
-      setOld({});
-      setSpoiled({});
-      setKeep({});
-      setStaleSold(0);
-      setStaleYesterday(0);
-      setBankrupt(false);
-      setReturned(false);
-      setReceipts([]);
-      setHidden(0);
-      setSupply('ok');
-      setLoyal([]);
-      setBefriended([]);
-      setShort(false);
-      setCoins(COINS_DAILY);
-      setEthics(0);
-      setVerdicts([]);
-      setDeeds([]);
-      setLent(false);
       setSignOpen(false);
       setPhase('shop');
     });
@@ -755,52 +587,10 @@ export function BakkalGame() {
   const playing = phase === 'shop' || phase === 'dayEnd';
   const unpaid = debts.filter((d) => !d.paid && !d.lost).reduce((s, d) => s + d.amount, 0);
   const written = debts.filter((d) => d.lost).reduce((s, d) => s + d.amount, 0);
-  // her akşam gün sonu kartı açılınca kayıt; dükkân kapanınca kayıt silinir
-  useEffect(() => {
-    if (phase === 'final') {
-      clearSlot(SAVE_KEY);
-      return;
-    }
-    if (phase !== 'dayEnd') return;
-    const snap: ShopSave = { v: 1, seed, day, rep, repAtDayStart, money, flow, history, daySales, log, pages, memories, away, debts, paidToday, lostToday, stock, carried, bread: order.ekmek ?? 0, order, stale: old.ekmek ?? 0, spoiled, old, keep, staleSold, short, coins, ethics, verdicts, deeds, lent, receipts, hidden };
-    writeSlot(SAVE_KEY, snap);
-  }, [phase, seed, day, rep, repAtDayStart, money, flow, history, daySales, log, pages, memories, away, debts, paidToday, lostToday, stock, carried, order, old, spoiled, keep, staleSold, short, coins, ethics, verdicts, deeds, lent, receipts, hidden]);
-
   /** Kayıttan dönüş: aynı akşamın gün sonu kartı açılır. */
   const resume = (s: ShopSave) =>
     raise(() => {
-      setSeed(s.seed);
-      setDay(s.day);
-      setRep(s.rep);
-      setRepAtDayStart(s.repAtDayStart);
-      setMoney(s.money);
-      setFlow({ ...EMPTY_FLOW, ...s.flow });
-      setHistory(s.history);
-      setDaySales(s.daySales);
-      setLog(s.log);
-      setPages(s.pages);
-      setMemories(s.memories);
-      setAway(s.away);
-      setDebts(s.debts);
-      setPaidToday(s.paidToday);
-      setLostToday(s.lostToday);
-      setStock(s.stock);
-      setCarried(s.carried ?? [...new Set([...BASIC, ...Object.keys(s.stock).filter((id) => s.stock[id] > 0)])]);
-      setOrder({ ekmek: s.bread, ...s.order });
-      setOld(s.old ?? {});
-      setSpoiled(s.spoiled);
-      setKeep(s.keep ?? {});
-      setStaleSold(s.staleSold ?? 0);
-      setStaleYesterday(0);
-      setShort(s.short);
-      setCoins(s.coins);
-      setEthics(s.ethics);
-      setVerdicts(s.verdicts);
-      setDeeds(s.deeds);
-      setLent(s.lent);
-      setReceipts(Array.isArray(s.receipts) ? s.receipts : []);
-      setHidden(typeof s.hidden === 'number' ? s.hidden : 0);
-      setLoyal(loyalOf(s.memories));
+      shop.restore(s);
       setSaved(null);
       setPhase('dayEnd');
     });
@@ -814,176 +604,12 @@ export function BakkalGame() {
     // oxlint-disable-next-line react/exhaustive-deps
   }, [phase]);
 
-  return (
-    <div className={styles.app} {...viewAttrs(view)}>
-      <ShopScene open={signOpen} onSign={openShop} coach={tour === null && !signOpen ? 'sign' : null} stock={stock} gumActive={gumGiven !== null && !!pay && gumGiven < pay.odd} onGum={turnGum} hour={hour} weather={weather} onPet={pet} onCalc={() => setCalc((c) => !c)} onBook={openBook}>
-        {visit && (
-          <Customer
-            key={`${day}-${idx}`}
-            type={visit.customer.id}
-            look={visit.villager.look}
-            face={outcome ? outcome.mood : credited === false ? 'grumble' : credited === true ? 'happy' : reaction ? faceOf(reaction) : 'ask'}
-            state={reaction?.mood === 'leave' || outcome?.mood === 'leave' || (step === 'dilemma' && visit.dilemma === 'change') ? 'leave' : 'enter'}
-            name={visit.villager.name}
-            reply={!!reaction}
-            lineKey={String(lineNo)}
-            line={say({ visit, step, outcome, reaction, credited, lineNo, memory: memories[visit.villager.id], day })}
-          />
-        )}
-      </ShopScene>
-      <TopBar intro={phase === 'intro'} risk={playing ? 'Dükkân her akşam kaydedilir; bugünün satışları kaybolur.' : undefined} day={day} clock={clockText(hour)} money={money} rep={rep} unpaid={unpaid} muted={muted} onMute={toggleMute} volume={volume} onVolume={changeVolume} view={view} onView={setView} />
+  return { acceptCharity, answerAccount, bankrupt, basket, befriended, book, bookAt, calc, carried, changeVolume, coins, credited, day, daySales, decideCredit, decideDilemma, decideGift, decideReturn, deeds, drawer, errand, ethics, fine, flow, gift, giveChange, gumGiven, history, hour, idx, keep, lineNo, log, lostToday, memories, money, muted, next, nextDay, noStock, old, openBook, openDebt, openShop, order, outcome, pages, paidToday, pay, payFine, pet, phase, playing, price, raise, reaction, receipts, rep, repAtDayStart, restart, resume, returned, rising, saved, seed, sell, setBook, setBookAt, setCalc, setDrawer, setKeep, setOrder, setPages, setPhase, setPrice, setSaved, setSignOpen, setTour, setView, shelf, short, showBooks, signOpen, spoiled, staleNote, step, stock, supply, till, toggleMute, tour, tourTo, turnGum, unpaid, verdicts, view, visit, visits, volume, weather, written };
+}
 
-      <Shutter down={phase !== 'shop' && !rising} />
+/** Oyunun bütün hâli ve işleri: ShopView bunları çizer. */
+export type Bakkal = ReturnType<typeof useBakkal>;
 
-      {phase === 'intro' && !rising && (
-        <IntroCard
-          onOpen={() =>
-            raise(() => {
-              clearSlot(SAVE_KEY);
-              setSaved(null);
-              setSignOpen(false);
-              // yeni dükkânın ilk sabahı: defter, kasa ve levha kısaca tanıtılır
-              setTour(day === 1 ? 0 : null);
-              setPhase('shop');
-            })
-          }
-          busy={rising}
-          resumeDay={saved?.day}
-          onResume={saved ? () => resume(saved) : undefined}
-        />
-      )}
-
-      {phase === 'shop' && !signOpen && !rising && tour === null && (
-        <main className={styles.coachCard}>
-          <section className={styles.till}>
-            <p className={styles.queue}>
-              {day}. gün · {clockText(hour)} · dükkân kapalı
-            </p>
-            <p className={styles.or}>
-              Kapıdaki levhada içeriden <b>AÇIK</b> yazıyor, yani dışarıdan dükkân kapalı görünüyor. Levhayı çevir: dışarıda AÇIK yazsın, müşteriler gelsin.
-            </p>
-            <button autoFocus className={styles.primary} onClick={openShop}>
-              🔄 Levhayı çevir, dükkânı aç
-            </button>
-          </section>
-        </main>
-      )}
-
-      {phase === 'shop' && !rising && tour !== null && <TourOverlay at={tour} onNext={() => tourTo(tour + 1)} onBack={() => tourTo(tour - 1)} onSkip={() => tourTo(null)} />}
-
-      {phase === 'shop' && visit && basket && shelf && (
-        <Till
-          queue={`${day}. gün · ${clockText(hour)} · müşteri ${idx + 1}/${visits.length}`}
-          news={[supply !== 'ok' && idx === 0 ? SUPPLY_NOTE[supply] : null, peddlerOn(seed, day) && idx === 0 ? '🛻 Bugün köye seyyar satıcı geldi: meydanda tezgâh açmış, müşteri az.' : null, day === RIVAL_DAY && idx === 0 ? '🏬 Kasabaya zincir market açıldı: temel gıdada köylü fiyata daha çok bakacak.' : null].filter((x): x is string => !!x)}
-          onAudit={showBooks}
-          last={idx + 1 >= visits.length}
-          visit={visit}
-          shelf={shelf}
-          errand={errand}
-          step={step}
-          reaction={reaction}
-          outcome={outcome}
-          credited={credited}
-          onSell={sell}
-          onCredit={decideCredit}
-          onAccount={answerAccount}
-          onDilemma={decideDilemma}
-          onNoStock={noStock}
-          onCharity={acceptCharity}
-          onFine={payFine}
-          charity={openDebt}
-          fine={fine}
-          staleNote={staleNote}
-          pay={pay}
-          coins={coins}
-          gum={stock[GUM] ?? 0}
-          gumGiven={gumGiven}
-          onChange={giveChange}
-          onReturn={decideReturn}
-          receipts={receipts}
-          onDrawer={() => setDrawer(true)}
-          gift={gift}
-          onGift={decideGift}
-          onNext={next}
-        />
-      )}
-
-      {phase === 'dayEnd' && !rising && (
-        <DayEndCard
-          day={day}
-          sales={daySales}
-          visitors={visits.filter((v) => v.items.length).length}
-          money={money}
-          flow={flow}
-          history={history}
-          repFrom={repAtDayStart}
-          rep={rep}
-          unpaid={unpaid}
-          paidToday={paidToday}
-          lostToday={lostToday}
-          dues={expensesOn(day + 1)}
-          old={old}
-          spoiled={spoiled}
-          keep={keep}
-          onKeep={setKeep}
-          short={short}
-          stock={stock}
-          order={order}
-          onOrder={setOrder}
-          carried={carried}
-          shelf={stockValue(stock, day)}
-          lowRep={rep < LOW_REP}
-          receipts={receipts}
-          befriended={befriended}
-          supplyNote={supply !== 'ok' ? SUPPLY_NOTE[supply] : null}
-          onNext={nextDay}
-        />
-      )}
-
-      {phase === 'final' && !rising && (
-        <FinalCard
-          bankrupt={bankrupt}
-          returned={returned}
-          days={day}
-          money={money}
-          history={history}
-          rep={rep}
-          sales={log.filter((l) => l.mood === 'happy' || l.mood === 'grumble').length}
-          lost={written}
-          unpaid={unpaid}
-          ethics={ethics}
-          verdicts={verdicts}
-          deeds={deeds}
-          friend={VILLAGERS.find((v) => v.id === Object.entries(memories).sort((x, y) => y[1].happy - x[1].happy).find(([, m]) => m.happy >= 2)?.[0])?.name}
-          foe={VILLAGERS.find((v) => v.id === Object.entries(memories).sort((x, y) => y[1].grudge - x[1].grudge).find(([, m]) => m.grudge >= 2)?.[0])?.name}
-          worth={money + stockValue(stock, day) + unpaid}
-          startWorth={START_WORTH}
-          shelf={stockValue(stock, day)}
-          onRestart={restart}
-        />
-      )}
-
-      {phase === 'shop' && (visit || !rising) && (
-        <CashRegister
-          value={price}
-          onChange={setPrice}
-          onSubmit={(v) => (errand === 'account' ? answerAccount(v) : sell(step === 'counter', v))}
-          active={!!visit && ((step === 'ask' && (!errand || (errand === 'account' && visit.account!.kind !== 'claim'))) || step === 'counter')}
-          label={!visit ? 'KASA' : errand === 'account' ? 'BORÇ' : step === 'counter' ? 'SON SÖZ' : visit.items.length > 1 ? 'TOPLAM' : 'FİYAT'}
-          shown={till}
-          open={till.open || drawer}
-          onDrawer={() => setDrawer(true)}
-        />
-      )}
-      {drawer && phase === 'shop' && <ReceiptDrawer receipts={receipts} day={day} onClose={() => setDrawer(false)} />}
-      {calc && <Calculator onClose={() => setCalc(false)} />}
-      {book && phase !== 'intro' && (
-        <Ledger pages={pages} at={bookAt} onTurn={setBookAt} onChange={(id, page) => setPages((p) => ({ ...p, [id]: page }))} onClose={() => setBook(false)} />
-      )}
-
-      <footer className={styles.sign}>
-        {phase === 'intro' && <StudioMark minimal />}
-      </footer>
-    </div>
-  );
+export function BakkalGame() {
+  return <ShopView g={useBakkal()} />;
 }

@@ -98,7 +98,7 @@
 
 :global([data-theme='luna']) .bar {
   margin: 0 -3px;
-  text-shadow: 1px 1px #0b2a7a;
+  text-shadow: 1px 1px #083a30;
 }
 
 :global([data-theme='glass']) .bar {
@@ -135,7 +135,7 @@
   border: 1px solid #fff;
   border-radius: 3px;
   color: #fff !important;
-  background: linear-gradient(180deg, #4d8ff8, #1d5fe0);
+  background: linear-gradient(180deg, #3fb39a, #178a72);
 }
 
 :global([data-theme='luna']) .close {
@@ -177,7 +177,7 @@
 }
 
 :global([data-theme='luna']) .body {
-  border: 1px solid #0831a8;
+  border: 1px solid #0b5545;
 }
 
 :global([data-theme='glass']) .body {

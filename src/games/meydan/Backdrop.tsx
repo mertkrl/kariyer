@@ -4,7 +4,7 @@ import { rnd, url } from './paint';
 /*
  * Her bölgenin kendi arka planı ve meydanın simgesi. Karadeniz'de bulutun indiği çay yamaçları,
  * Ege'de evlerin tırmandığı Kadifekale ve palmiyeler, İç Anadolu'da bozkır tepeleri, uzaktaki
- * kule ve vinçler, Güneydoğu'da bazalt surlar ve kare gövdeli minare, İstanbul'da pusta şehir.
+ * kule ve vinçler, İstanbul'da pusta şehir.
  */
 
 const SKY: Record<BackdropKind, [string, string, string]> = {
@@ -12,7 +12,6 @@ const SKY: Record<BackdropKind, [string, string, string]> = {
   karadeniz: ['#8d999f', '#bcc6ca', '#e1e5e4'],
   ege: ['#2f86d6', '#86c0ec', '#d8ecf6'],
   bozkir: ['#9fb6c8', '#cdd6d8', '#ebe3d0'],
-  sur: ['#7fb0d8', '#bcd4e2', '#f0e2c4'],
 };
 
 export function SkyDefs() {
@@ -153,34 +152,6 @@ export function Backdrop({ kind }: { kind: BackdropKind }) {
           <rect y={200} width={W} height={GROUND - 200} fill="#efe8d8" opacity="0.4" />
         </>
       )}
-      {kind === 'sur' && (
-        <>
-          {/* kare gövdeli minare ve uzakta kubbeler */}
-          <g fill="#6e6a64">
-            <rect x={590} y={96} width="34" height={GROUND - 96} />
-            <rect x={584} y={150} width="46" height="8" />
-            <polygon points="586,96 628,96 607,70" />
-            <ellipse cx={460} cy={300} rx="60" ry="40" />
-            <ellipse cx={820} cy={310} rx="50" ry="34" />
-          </g>
-          {/* bazalt surlar: burçlar ve mazgallar */}
-          <rect y={300} width={W} height={GROUND - 300} fill="#3e3b37" />
-          {Array.from({ length: 30 }, (_, i) => (
-            <rect key={i} x={i * 40} y={290} width="24" height="12" fill="#3e3b37" />
-          ))}
-          {[110, 470, 900].map((x) => (
-            <g key={x}>
-              <rect x={x} y={250} width="90" height={GROUND - 250} fill="#34312e" />
-              {[0, 1, 2, 3].map((k) => (
-                <rect key={k} x={x + k * 24} y={240} width="16" height="12" fill="#34312e" />
-              ))}
-              <rect x={x + 38} y={290} width="12" height="24" rx="6" fill="#1d1b19" />
-            </g>
-          ))}
-          <rect y={300} width={W} height={GROUND - 300} fill={url('ashlar')} />
-          <rect y={240} width={W} height={GROUND - 240} fill="#f0e2c4" opacity="0.18" />
-        </>
-      )}
     </g>
   );
 }
@@ -191,7 +162,6 @@ export function Landmark({ kind }: { kind: LandmarkKind }) {
   if (kind === 'cay') return <TeaGlass />;
   if (kind === 'saat') return <ClockTower />;
   if (kind === 'metro') return <MetroTotem />;
-  if (kind === 'cesme') return <Fountain />;
   return <Flag />;
 }
 
@@ -306,24 +276,3 @@ function MetroTotem() {
   );
 }
 
-/** Sur: siyah bazalt ve beyaz kalker şeritli (ablak), sivri kemerli sebil; üstünde kurşun külah. */
-function Fountain() {
-  const x = 610;
-  const base = H - 24;
-  return (
-    <g pointerEvents="none">
-      <ellipse cx={x} cy={base + 6} rx="60" ry="9" fill="#000" opacity="0.22" />
-      <rect x={x - 46} y={base - 120} width="92" height="124" fill="#3a3734" />
-      {[0, 1, 2, 3, 4, 5].map((k) => (
-        <rect key={k} x={x - 46} y={base - 114 + k * 20} width="92" height="10" fill="#e3dccd" />
-      ))}
-      <path d={`M${x - 24} ${base} V${base - 62} Q${x - 24} ${base - 88} ${x} ${base - 100} Q${x + 24} ${base - 88} ${x + 24} ${base - 62} V${base} Z`} fill="#24221f" stroke="#e3dccd" strokeWidth="4" />
-      <rect x={x - 18} y={base - 20} width="36" height="16" fill="#7fb3c9" opacity="0.85" />
-      <rect x={x - 3} y={base - 50} width="6" height="12" fill="#b89a4a" />
-      <rect x={x - 54} y={base - 130} width="108" height="12" fill="#2e2c29" />
-      <polygon points={`${x - 40},${base - 130} ${x + 40},${base - 130} ${x},${base - 178}`} fill="#8e9599" />
-      <polygon points={`${x},${base - 178} ${x + 40},${base - 130} ${x + 14},${base - 130}`} fill="#000" opacity="0.15" />
-      <rect x={x - 1.5} y={base - 194} width="3" height="16" fill="#b89a4a" />
-    </g>
-  );
-}

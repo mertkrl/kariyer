@@ -122,8 +122,8 @@ const BASE_TOTAL = 306;
 
 /*
  * Şantiyeler: aynı takvim, başka bina. Kat sayısı, cephe rengi, tabela ve amcaların lafları
- * şantiyeye göre değişir. Seçili şantiyenin değerleri aşağıdaki `export let`lerdedir; ekranlar
- * ve saf hesaplar onları okur, `selectProject` hepsini yeniden kurar.
+ * şantiyeye göre değişir. Seçili şantiyenin takvimi bir `Plan` değeridir (`planFor`); modülde
+ * değişen bir durum yoktur, ekranlar ve hesaplar planı parametre olarak alır.
  */
 export interface Project {
   id: string;
@@ -209,11 +209,6 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export let PROJECT: Project = PROJECTS[0];
-export let FLOORS = BASE_FLOORS;
-export let STAGES: Stage[] = BASE_STAGES;
-/** İşin bittiği an (iş saati). */
-export let WORK_TOTAL = BASE_TOTAL;
 
 /**
  * Kaba inşaatta bir katın alt adımları: katın kendi süresi içindeki başlangıç oranları. Bina
@@ -232,9 +227,6 @@ export const FLOOR_STEPS = [
 
 /** Alt adımların sırası (FLOOR_STEPS içindeki yer): Building, Site ve konuşmalar bunları okur. */
 export const FLOOR_STEP = { aks: 0, rebar: 1, form: 2, mesh: 3, check: 4, pour: 5, cure: 6, strip: 7 } as const;
-
-/** Tabeladaki teslim tarihi: inşaat ilerledikçe ertelenir. */
-export let DUE_YEARS = PROJECT.due;
 
 /** Gerçek saatte şantiye takvimi: saniye başına gün. */
 export const DAYS_PER_SECOND = 6;
@@ -272,64 +264,69 @@ export const idleAt = (t: number): Idle => {
 /* ── iş saati tablosu: gerçek saatten iş saatine ── */
 
 const STEP = 0.1;
-let WORK: number[] = [0];
-const workTable = () => {
-  const out = [0];
-  for (let i = 1; out[i - 1] < WORK_TOTAL; i++) out.push(out[i - 1] + (idleAt((i - 1) * STEP) ? 0 : STEP));
-  return out;
-};
-WORK = workTable();
 
-/** Sahnenin sonu (gerçek saat): iş bitince. */
-export let TOTAL = (WORK.length - 1) * STEP;
+/** Bir şantiyenin takvimi: kat sayısına göre kayan aşamalar ve gerçek saatten iş saatine tablo. */
+export interface Plan {
+  project: Project;
+  floors: number;
+  stages: Stage[];
+  /** İşin bittiği an (iş saati). */
+  workTotal: number;
+  /** Gerçek saatte o ana kadar çalışılan süre, STEP saniyede bir. */
+  work: number[];
+  /** Sahnenin sonu (gerçek saat): iş bitince. */
+  total: number;
+}
 
-/** Şantiyeyi seçer: kat sayısına göre takvimi kaydırır, lafları ve tabelayı değiştirir. */
-export function selectProject(id: string) {
-  PROJECT = PROJECTS.find((p) => p.id === id) ?? PROJECTS[0];
-  FLOORS = PROJECT.floors;
-  const shift = (FLOORS - BASE_FLOORS) * FLOOR_SECONDS;
+/** Şantiyenin takvimi: kat sayısına göre takvim kayar, lafları şantiyenin kendisinden gelir. */
+export function planFor(id: string): Plan {
+  const project = PROJECTS.find((p) => p.id === id) ?? PROJECTS[0];
+  const shift = (project.floors - BASE_FLOORS) * FLOOR_SECONDS;
   const karkas = BASE_STAGES.findIndex((st) => st.id === 'karkas');
-  STAGES = BASE_STAGES.map((st, i) => ({ ...st, at: i > karkas ? st.at + shift : st.at, lines: PROJECT.lines?.[st.id] ?? st.lines }));
-  WORK_TOTAL = BASE_TOTAL + shift;
-  DUE_YEARS = PROJECT.due;
-  WORK = workTable();
-  TOTAL = (WORK.length - 1) * STEP;
+  const stages = BASE_STAGES.map((st, i) => ({ ...st, at: i > karkas ? st.at + shift : st.at, lines: project.lines?.[st.id] ?? st.lines }));
+  const workTotal = BASE_TOTAL + shift;
+  const work = [0];
+  for (let i = 1; work[i - 1] < workTotal; i++) work.push(work[i - 1] + (idleAt((i - 1) * STEP) ? 0 : STEP));
+  return { project, floors: project.floors, stages, workTotal, work, total: (work.length - 1) * STEP };
 }
 
 /** Gerçek saatte o ana kadar çalışılan süre. */
-export const workAt = (t: number) => {
-  const i = Math.min(WORK.length - 1, Math.max(0, Math.floor(t / STEP)));
-  const next = WORK[Math.min(WORK.length - 1, i + 1)];
-  return Math.min(WORK_TOTAL, WORK[i] + (next - WORK[i]) * ((t - i * STEP) / STEP));
+export const workAt = ({ work, workTotal }: Plan, t: number) => {
+  const i = Math.min(work.length - 1, Math.max(0, Math.floor(t / STEP)));
+  const next = work[Math.min(work.length - 1, i + 1)];
+  return Math.min(workTotal, work[i] + (next - work[i]) * ((t - i * STEP) / STEP));
 };
 
 /* ── aşamalar ── */
 
-export const stageAt = (w: number) => {
+export const stageAt = ({ stages }: Plan, w: number) => {
   let i = 0;
-  while (i + 1 < STAGES.length && STAGES[i + 1].at <= w) i++;
+  while (i + 1 < stages.length && stages[i + 1].at <= w) i++;
   return i;
 };
 
+/** Kaba inşaatın başladığı an (iş saati). */
+export const karkasAt = (plan: Plan) => plan.stages.find((st) => st.id === 'karkas')!.at;
+
 /** Bir aşamanın içindeki ilerleme (0–1). */
-export const stageProgress = (w: number, i: number) => {
-  const start = STAGES[i].at;
-  const end = i + 1 < STAGES.length ? STAGES[i + 1].at : WORK_TOTAL;
+export const stageProgress = ({ stages, workTotal }: Plan, w: number, i: number) => {
+  const start = stages[i].at;
+  const end = i + 1 < stages.length ? stages[i + 1].at : workTotal;
   return Math.min(1, Math.max(0, (w - start) / (end - start)));
 };
 
 /** Bir aşamanın bitmişlik oranı: başlamadıysa 0, bittiyse 1. */
-export const doneOf = (w: number, id: string) => {
-  const i = STAGES.findIndex((st) => st.id === id);
-  const now = stageAt(w);
-  return i < now ? 1 : i > now ? 0 : stageProgress(w, i);
+export const doneOf = (plan: Plan, w: number, id: string) => {
+  const i = plan.stages.findIndex((st) => st.id === id);
+  const now = stageAt(plan, w);
+  return i < now ? 1 : i > now ? 0 : stageProgress(plan, w, i);
 };
 
 /** Kaba inşaatta şu an hangi kat ve hangi alt adım (kaba inşaat dışında null). */
-export const floorStepAt = (w: number) => {
-  if (STAGES[stageAt(w)].id !== 'karkas') return null;
-  const f = (w - STAGES.find((s) => s.id === 'karkas')!.at) / FLOOR_SECONDS;
-  const floor = Math.min(FLOORS - 1, Math.floor(f));
+export const floorStepAt = (plan: Plan, w: number) => {
+  if (plan.stages[stageAt(plan, w)].id !== 'karkas') return null;
+  const f = (w - karkasAt(plan)) / FLOOR_SECONDS;
+  const floor = Math.min(plan.floors - 1, Math.floor(f));
   const p = f - floor;
   let step = 0;
   while (step + 1 < FLOOR_STEPS.length && FLOOR_STEPS[step + 1].at <= p) step++;
@@ -341,7 +338,7 @@ export const floorStepAt = (w: number) => {
  * döşeme, kiriş, kolon ve perdeyle m² başına ~0,33 m³ beton; donatı m³ başına ~120 kg; transmikser
  * 9 m³; her döküm günü ve her 100 m³ için altı küp (üçü 7, üçü 28 günlük kırım).
  */
-export function quantities(floors = FLOORS, area = PROJECT.area) {
+export function quantities(floors: number, area: number) {
   const pours = [area * 1.2 * 0.8, ...Array.from({ length: floors }, () => area * 0.33)];
   const concrete = pours.reduce((a, b) => a + b, 0);
   const excavation = area * 1.3 * 4.5;
@@ -370,20 +367,20 @@ const IDLE_LINES: Record<Exclude<Idle, null> | 'priz', string[]> = {
 };
 
 /** Şu anda konuşan amca ve söylediği. Şantiye duruyorsa durma sebebine dair konuşulur. */
-export function speechAt(t: number) {
+export function speechAt(plan: Plan, t: number) {
   const idle = idleAt(t);
-  const w = workAt(t);
-  const fs = floorStepAt(w);
+  const w = workAt(plan, t);
+  const fs = floorStepAt(plan, w);
   const why = idle ?? (fs?.step === FLOOR_STEP.cure ? 'priz' : null);
   if (why) {
     const lines = IDLE_LINES[why];
     const k = Math.floor(t / 5) % lines.length;
     return { id: `${why}-${Math.floor(t / 5)}`, text: lines[k], who: Math.floor(t / 5) % watchersAt(t) };
   }
-  const i = stageAt(w);
-  const st = STAGES[i];
-  const k = Math.min(st.lines.length - 1, Math.floor(stageProgress(w, i) * st.lines.length));
-  const before = STAGES.slice(0, i).reduce((n, x) => n + x.lines.length, 0);
+  const i = stageAt(plan, w);
+  const st = plan.stages[i];
+  const k = Math.min(st.lines.length - 1, Math.floor(stageProgress(plan, w, i) * st.lines.length));
+  const before = plan.stages.slice(0, i).reduce((n, x) => n + x.lines.length, 0);
   return { id: `l-${before + k}`, text: st.lines[k], who: (before + k) % watchersAt(t) };
 }
 

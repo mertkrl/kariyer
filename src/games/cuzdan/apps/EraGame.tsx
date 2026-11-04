@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ERA_ITEMS, ITEMS, NOW, type Year } from '../data';
-import { money, rng, themeOf, type Theme } from '../model';
+import { money, rng, themeOf } from '../model';
 import { sfx } from '../sfx';
 import a from '../Apps.module.css';
 import g from '../EraGame.module.css';
@@ -32,12 +32,6 @@ function eraEmojis(year: Year, r: () => number, n: number): string[] {
   const rest = ITEMS.map((i) => i.emoji);
   return [...new Set([...shuffle(era, r), ...shuffle(rest, r)])].slice(0, n);
 }
-
-export const ERA_GAME_TITLE: Record<Theme, string> = {
-  luna: 'Eşini Bul',
-  glass: 'Yapboz Aracı',
-  flat: 'Etiket Avı',
-};
 
 export function EraGame({ year }: { year: Year }) {
   const theme = themeOf(year);

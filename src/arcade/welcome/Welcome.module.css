@@ -1,13 +1,16 @@
 /*
  * Karşılama, Figma'daki 1600×1000 çerçeve birebir. Geniş ekranda çerçeve ekrana sığacak biçimde
  * ölçeklenir: --u çerçevenin bir pikselidir ve her öğe Figma'daki yerinde durur. Dar ekranda
- * öğeler alt alta akar: üst menü, maket, karşılama, konum.
+ * öğeler alt alta akar: üst menü, maket, karşılama, konum. Yazılar ve düğmeler çerçeveyle küçülür
+ * ama bir tabanın altına inmez (max(…, px)): 1280×720 bir laptopta da okunur kalır.
  */
 
 .page {
-  --bg: #eae6dc;
+  /* --shade: akşamın zemine kattığı karanlık (WelcomeScreen, saate göre) */
+  --bg: color-mix(in srgb, #141c22 calc(var(--shade, 0) * 100%), #eae6dc);
   --ink: #234638;
-  --muted: #657468;
+  /* gövde metninde 4,5:1 kontrast (#eae6dc üstünde 5,0:1) */
+  --muted: #56645a;
   --line: rgba(35, 70, 56, 0.19);
   --u: 1px;
   --inter: 'Inter', Arial, sans-serif;
@@ -18,7 +21,7 @@
   background: var(--bg);
   color: var(--ink);
   font-family: var(--inter);
-  transition: filter 0.5s;
+  transition: filter 0.5s, background 1.6s, color 1.6s;
 }
 
 .frame {
@@ -31,6 +34,7 @@
 /* ── üst menü ── */
 
 .top {
+  position: relative;
   order: 0;
   display: flex;
   align-items: center;
@@ -61,7 +65,7 @@
 }
 
 .brand small {
-  font-size: calc(9 * var(--u));
+  font-size: max(calc(9 * var(--u)), 9px);
   font-weight: 500;
   letter-spacing: calc(3.5 * var(--u));
 }
@@ -74,8 +78,112 @@
 }
 
 .street {
-  font-size: calc(13 * var(--u));
+  font-size: max(calc(13 * var(--u)), 12px);
   white-space: nowrap;
+}
+
+/* mesai saati: üst çubuğun tam ortasında */
+.clock {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--u));
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #fff 55%, transparent);
+  font-size: max(calc(13 * var(--u)), 12px);
+  white-space: nowrap;
+}
+
+.clockTime {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.clockText {
+  color: var(--muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9aa59f;
+}
+
+.dotWork {
+  background: #d9534f;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #d9534f 25%, transparent);
+}
+
+/* "Kimse bakmıyor" yazısı: üstüne gelince soru açılır */
+.clockBait {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: help;
+}
+
+.clockBait:hover {
+  color: var(--ink);
+}
+
+.clockAsking {
+  animation: shiver 0.3s;
+}
+
+.ask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.askText {
+  font-style: italic;
+}
+
+.askBtn {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.askBtn:hover,
+.askBtn:focus-visible {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.askYes {
+  border-color: #d9534f;
+  color: #b83a36;
+}
+
+.dotWink {
+  animation: wink 0.5s 2;
+}
+
+.clockOvertime {
+  border-color: #d9534f;
+  background: color-mix(in srgb, #d9534f 18%, transparent);
+}
+
+@keyframes shiver {
+  20%, 60% { transform: translateX(calc(-50% - 2px)); }
+  40%, 80% { transform: translateX(calc(-50% + 2px)); }
+}
+
+@keyframes wink {
+  50% { transform: scaleY(0.1); }
 }
 
 .tools {
@@ -87,8 +195,8 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: calc(42 * var(--u));
-  height: calc(42 * var(--u));
+  width: max(calc(42 * var(--u)), 36px);
+  height: max(calc(42 * var(--u)), 36px);
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -104,8 +212,8 @@
 }
 
 .tool svg {
-  width: calc(18 * var(--u));
-  height: calc(18 * var(--u));
+  width: max(calc(18 * var(--u)), 16px);
+  height: max(calc(18 * var(--u)), 16px);
 }
 
 .tool svg,
@@ -121,7 +229,7 @@
 /* sessizken hoparlörün üstüne çapraz çizgi */
 .slash {
   position: absolute;
-  width: calc(22 * var(--u));
+  width: max(calc(22 * var(--u)), 19px);
   height: 1px;
   background: var(--ink);
   transform: rotate(45deg);
@@ -143,9 +251,9 @@
   flex-direction: column;
   align-items: flex-start;
   gap: calc(22 * var(--u));
-  width: calc(340 * var(--u));
+  width: max(calc(340 * var(--u)), 250px);
   max-width: 100%;
-  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .intro > * {
@@ -153,21 +261,21 @@
 }
 
 .kicker {
-  font-size: calc(9 * var(--u));
+  font-size: max(calc(9 * var(--u)), 10px);
   font-weight: 600;
   letter-spacing: calc(1.7 * var(--u));
 }
 
 .title {
   font-family: var(--manrope);
-  font-size: calc(47 * var(--u));
+  font-size: max(calc(47 * var(--u)), 34px);
   font-weight: 500;
   line-height: 1.14;
   letter-spacing: calc(-2.1 * var(--u));
 }
 
 .lead {
-  font-size: calc(15 * var(--u));
+  font-size: max(calc(15 * var(--u)), 14px);
   line-height: 1.7;
   color: var(--muted);
 }
@@ -208,7 +316,53 @@
   aspect-ratio: 1152 / 928;
   margin: 28px 0 8px;
   /* yalnızca başlarken: biten dönüşüm, telefondaki sabit kartın konumunu bozmasın */
-  animation: rise 0.9s 0.1s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+/* ── telefonda oyun listesi: maketin altında ── */
+
+.list {
+  order: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 32px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--ink);
+  font: 500 14px var(--inter);
+  cursor: pointer;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.chip svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* geniş ekranda maketin kendisi yeter */
+@media (min-width: 761px) {
+  .list {
+    display: none;
+  }
 }
 
 /* ── alt çizgi ve konum ── */
@@ -221,14 +375,14 @@
   margin-top: 40px;
   padding-top: calc(28 * var(--u));
   border-top: 1px solid var(--line);
-  font-size: calc(10 * var(--u));
+  font-size: max(calc(10 * var(--u)), 10px);
   letter-spacing: calc(1.4 * var(--u));
   color: var(--muted);
 }
 
 .foot svg {
-  width: calc(13 * var(--u));
-  height: calc(13 * var(--u));
+  width: max(calc(13 * var(--u)), 12px);
+  height: max(calc(13 * var(--u)), 12px);
   stroke-width: 1.3;
 }
 
@@ -294,6 +448,36 @@
 
 .panelBody p + p {
   margin-top: 8px;
+}
+
+/* rehber uzun: panel ekranın altına taşmaz, kendi içinde kayar */
+.panel {
+  max-height: calc(100dvh - 92px);
+  overflow-y: auto;
+}
+
+.textButton:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.subhead {
+  margin: 16px 0 4px;
+  font-family: var(--manrope);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.textButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .row {
@@ -414,6 +598,10 @@
     display: none;
   }
 
+  .clockText {
+    display: none;
+  }
+
   .title {
     font-size: 42px;
   }
@@ -470,6 +658,8 @@
   .panel {
     top: calc(50% - 500 * var(--u) + 88 * var(--u));
     right: calc(50% - 800 * var(--u) + 48 * var(--u));
+    /* ekranın altından 16 px yukarıda biter */
+    max-height: calc(50% + 412 * var(--u) - 16px);
   }
 }
 
@@ -488,15 +678,83 @@
 
 .labs b {
   font-family: var(--manrope);
-  font-size: calc(14 * var(--u));
+  font-size: max(calc(14 * var(--u)), 12px);
   font-weight: 800;
   letter-spacing: calc(2 * var(--u));
 }
 
 .labs small {
-  font-size: calc(7 * var(--u));
+  font-size: max(calc(7 * var(--u)), 7px);
   font-weight: 500;
   letter-spacing: calc(4.2 * var(--u));
   margin-right: calc(-4.2 * var(--u));
 }
 
+
+/* ── akşam: zemin yarıdan koyuya geçince yazılar açılır ── */
+
+.dusk {
+  --ink: #e8e2d2;
+  --muted: #a3ada6;
+  --line: rgba(232, 226, 210, 0.22);
+}
+
+/* gece zemininde açık yüzeyler koyulaşır: saat, oyun düğmeleri, paneller */
+.dusk .clock {
+  background: color-mix(in srgb, #fff 8%, transparent);
+}
+
+.dusk .chip {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dusk .panel {
+  background: rgba(24, 33, 40, 0.95);
+}
+
+/* ── fazla mesai: ışık gerçek saati izler; hava kararınca (dusk) site gece renklerine geçer ── */
+
+.kickerOld,
+.kickerNew {
+  display: inline-block;
+}
+
+.overtime.dusk {
+  --bg: #141c22;
+  --ink: #e8e2d2;
+  --muted: #a3ada6;
+  --line: rgba(232, 226, 210, 0.22);
+  transition: background 1.6s, color 1.6s;
+}
+
+.overtime .clock {
+  background: color-mix(in srgb, #d9534f 18%, transparent);
+}
+
+.overtime .kickerOld {
+  text-decoration: line-through 2px #d9534f;
+  opacity: 0.55;
+}
+
+.kickerNew {
+  margin-left: 10px;
+  color: #ff8a7a;
+  font-family: 'Bradley Hand', 'Segoe Print', 'Comic Sans MS', cursive;
+  font-size: 1.6em;
+  letter-spacing: 0;
+  transform: rotate(-4deg);
+  animation: scribble 0.6s 0.6s backwards;
+}
+
+@keyframes scribble {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kickerNew,
+  .clockAsking,
+  .dotWink {
+    animation: none;
+  }
+}

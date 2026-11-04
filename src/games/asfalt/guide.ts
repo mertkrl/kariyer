@@ -1,4 +1,6 @@
-import { FILL_TO, H, idx, EMPTY, WATER, type Material, type StepKey, type World } from './model';
+import { FILL_TO } from './tools';
+import { H, idx, EMPTY, WATER, type Material, type World } from './model';
+import type { StepKey } from './inspect';
 import type { Tool } from './levels';
 
 /*

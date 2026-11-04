@@ -107,17 +107,16 @@ interface Box {
 
 export function Tour({ state, onDone }: { state: TourState; onDone: () => void }) {
   const [i, setI] = useState(0);
-  const [box, setBox] = useState<Box | null>(null);
+  const [found, setBox] = useState<Box | null>(null);
   const step = STEPS[i];
+  // hedefi olmayan adımda halka yok; yoklama yalnızca hedefi olan adımda çalışır
+  const box = step.target ? found : null;
   const ok = !step.done || step.done(state);
   const last = i === STEPS.length - 1;
 
   // halka hedefi izler: panel açılıp kapanınca, pencere boyu değişince yer değişebilir
   useLayoutEffect(() => {
-    if (!step.target) {
-      setBox(null);
-      return;
-    }
+    if (!step.target) return;
     const find = () => {
       const el = document.querySelector(`[data-tour="${step.target}"]`);
       const r = el?.getBoundingClientRect();

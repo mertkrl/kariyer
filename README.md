@@ -1,24 +1,22 @@
 # Mesai Dışı
 
-Kısa, tuhaf oyunlar. Ana sayfa bir mahalle maketi (`src/arcade/welcome/`): maketteki her yer bir oyuna açılır. Oyunların listesi, süreleri ve kart metinleri `src/arcade/games.ts`'te, adresleri `src/arcade/slugs.ts`'te.
+İş hayatının ve şehrin tuhaflıkları üzerine kısa tarayıcı oyunları. Ana sayfa bir mahalle maketi (`src/arcade/welcome/`): maketteki her durak bir oyuna açılır. Kurulum, hesap ya da sunucu yok; her şey tarayıcıda çalışır, hiçbir veri dışarı gönderilmez.
 
-| Oyun | Adres | Kod |
-| --- | --- | --- |
-| Sen İK'sin: beş günlük işe alım simülasyonu | `#/ise-alim` | `src/App.tsx`, `src/game/`, `src/screens/`, `src/components/` |
-| Genel Yetenek ve Uyum Testi (UyumMetre) | `#/test` | `src/games/test/` |
-| İnşaat İzleme | `#/insaat` | `src/games/insaat/` |
-| Köy Bakkalı | `#/bakkal` | `src/games/bakkal/` |
-| Ekran İhalesi | `#/ekran` | `src/games/ekran/` |
-| Meydan Islahı | `#/meydan` | `src/games/meydan/` |
-| Yama Ekibi | `#/asfalt` | `src/games/asfalt/` |
-| Kavşak Amiri | `#/trafik` | `src/games/trafik/` |
-| Cüzdan Zamanı | `#/cuzdan` | `src/games/cuzdan/` |
+## Oyunlar
 
-Her oyun kendi parçası olarak yalnızca girilince yüklenir; kaydını `src/arcade/saveSlot.ts` ile kendi anahtarında tutar, bitince `src/arcade/progress.ts` ile ana sayfadaki maketin tikini yazar. Ortak parçalar `src/arcade/` altında: çıkış düğmesi (`ClockOut`), oyun sonu belgesi (`Finale`), sonuç kartı ve paylaşım (`share.ts`, `ShareButton`). Yeni oyun eklemek: `slugs.ts`'e adresini, `games.ts`'e kartını, `Root.tsx`'e yükleyicisini, `welcome/stops.ts` ve `mahalle/places.ts`'e maketteki yerini ekle.
+| Oyun | Maketteki yeri | Adres | Kod |
+| --- | --- | --- | --- |
+| **Sen İK'sin**: beş günlük işe alım simülasyonu; kurallar mı, vicdan mı? (yalnızca geniş ekranda) | Plaza | `#/ise-alim` | `src/App.tsx`, `src/game/`, `src/screens/`, `src/components/` |
+| **Genel Yetenek ve Uyum Testi** (UyumMetre): "tamamen objektif" bir işe alım sınavının hicvi | Plaza | `#/test` | `src/games/test/` |
+| **İnşaat İzleme**: bir apartmanı temelden çatıya, ellerin arkanda izle | Şantiye | `#/insaat` | `src/games/insaat/` |
+| **Köy Bakkalı**: etiket yok, fiyatı sen söylersin; otuz gün dükkânı batırmadan tut | Bakkal | `#/bakkal` | `src/games/bakkal/` |
+| **Ekran İhalesi**: hastane, metrobüs, Marmaray ekranlarını baştan tasarla | Durak | `#/ekran` | `src/games/ekran/` |
+| **Meydan Islahı**: dört şehirden dört sokak; cepheyi kapla, binayı güçlendir, tabelaları hizaya sok | Meydan | `#/meydan` | `src/games/meydan/` |
+| **Yama Ekibi**: üç aydır kapanmayan çukura sandbox fiziğiyle asfalt dök | Çukur | `#/asfalt` | `src/games/asfalt/` |
+| **Kavşak Amiri**: tek kavşaktan dört kavşaklı caddeye, sinyal yönetimi | Işık | `#/trafik` | `src/games/trafik/` |
+| **Cüzdan Zamanı**: 2002'den bugüne Türk lirası; eski fiyatı bil, ucuzu seç | Döviz | `#/cuzdan` | `src/games/cuzdan/` |
 
-Hepsi tamamen tarayıcıda çalışır; sunucu, hesap ya da dış ağ isteği yoktur. Derlenmiş sürüm bir kez açıldıktan sonra çevrimdışı da oynanabilir ve uygulama olarak kurulabilir.
-
-Bu belgenin geri kalanı çoğunlukla ilk ve en büyük oyun olan **Sen İK'sin**'i anlatır: yeni işe başlamış bir İK uzmanısın (Defne Aral); her gün masana onlarca CV düşüyor, müdürün hız istiyor, sistem adayların çoğunu sen görmeden eliyor. Kurallara uymakla vicdanını dinlemek arasında verdiğin her karar iki puana yansıyor: **Performans** ve **Vicdan**.
+Oyunların adı, kart esprisi, rengi ve yüklenirken görünen zemini `src/arcade/games.ts`'te; adresleri `src/arcade/slugs.ts`'te; maketteki yerleri `src/arcade/mahalle/places.ts` ve `src/arcade/welcome/stops.ts`'te.
 
 ## Çalıştırma
 
@@ -27,125 +25,109 @@ npm install
 npm run dev
 ```
 
-Diğer komutlar:
-
 | Komut | Ne yapar |
 | --- | --- |
 | `npm run build` | Tip kontrolü (`tsc -b`) ve üretim derlemesi (`dist/`) |
 | `npm run preview` | Üretim derlemesini yerelde sunar |
-| `npm run typecheck` | Yalnızca tip kontrolü (strict mod) |
-| `npm run lint` | `oxlint` ile kod denetimi (hook bağımlılıkları dahil) |
+| `npm run typecheck` | Yalnızca tip kontrolü (strict mod). `tsc -p .` hiçbir şeyi denetlemez, `tsc -b` kullan |
+| `npm run lint` | `oxlint` ile kod denetimi (hook bağımlılıkları, 500 satır sınırı dahil) |
 | `npm test` | Testler: Node'un kendi test aracıyla, ek paket kurmadan |
 | `npm run check` | Tip kontrolü + lint + testler |
 | `npm run size` | Derlemeden sonra ilk açılış paketinin boyut bütçesini denetler |
 | `npm run og` | Çalışan geliştirme sunucusundan bağlantı önizlemesi görsellerini (`public/og.png`, `public/og/<oyun>.png`) Chrome ile yeniden üretir |
-| `npm run package` | Derleyip `release/` altına itch.io'ya (HTML projesi) yüklenmeye hazır bir zip üretir |
+| `npm run package` | Derleyip `release/mesai-disi-<sürüm>-web.zip`'i üretir (itch.io'ya HTML projesi olarak yüklenmeye hazır) |
 | `npm run ci` | CI'ın çalıştırdığının aynısı: check + derleme + boyut bütçesi + `npm audit` |
 
-GitHub'a gönderildiğinde `.github/workflows/ci.yml` her push ve PR'da `npm run ci`'ı çalıştırır. Node sürümü `.nvmrc`'de (CI de onu okur).
-
-Göndermeden önce aynı denetimin yerelde çalışması için, depoyu klonladıktan sonra bir kez:
+GitHub'a gönderildiğinde `.github/workflows/ci.yml` her push ve PR'da `npm run ci`'ı çalıştırır. Node sürümü `.nvmrc`'de. Göndermeden önce aynı denetimin yerelde çalışması için, klonladıktan sonra bir kez:
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-Bundan sonra her `git push` önce `npm run ci`'ı çalıştırır (acil durumda `git push --no-verify`). Çalışma akışı (dal → PR → `main`), dosyaların nereye konduğu ve sürüm yayımlama [CONTRIBUTING.md](CONTRIBUTING.md)'de; değişiklikler [CHANGELOG.md](CHANGELOG.md)'de. `v*` etiketi gönderilince `.github/workflows/release.yml` zip'i bir GitHub sürümüne ekler. Dependabot paket ve GitHub Actions güncellemeleri için haftalık PR açar; hata bildirimi ve PR için şablonlar `.github/` altında.
+Çalışma akışı (dal → PR → `main`), dosyaların nereye konduğu ve sürüm yayımlama [CONTRIBUTING.md](CONTRIBUTING.md)'de; değişiklikler [CHANGELOG.md](CHANGELOG.md)'de.
 
-## Testler
-
-`tests/` altındaki dosyalar oyunun kaynak kodunu doğrudan çalıştırır: Node (23.6+) TypeScript tiplerini kendisi siler, `tests/setup/` Vite'ın yaptığı iki işi (uzantısız importlar, `import.meta.env`) üstlenir. Vitest, Jest ya da tarayıcı gerekmez.
-
-- `scoring`, `ending`: kararların ve sonların kuralları, başarımlar
-- `rng`, `time`: tohumlu rastgelelik, saat ve Türkçe ekler
-- `save`: kaydın yazılması, doğrulanması, bozuk ya da eski kayıtların reddi; kaybolan kaydın oyuncuya söylenmesi
-- `week`: bir botun beş günü saat saat oynaması; aynı tohumun aynı haftayı vermesi, rahat ve zor mod
-- `data`: senaryo verisinin bütünlüğü (her aday, gün, rica ve hikâye rolü tutarlı; karışık kadrolar adayları kaybetmez); oyun mantığında `Math.random` yok
-- `layout`: bütün stil dosyaları yalnızca ortak kırılma noktalarını kullanır; çerçeve ölçüleri tek yerde ([docs/yerlesim.md](docs/yerlesim.md))
-- `security`, `privacy`: ağ isteği yok, HTML'den betik yok, her depolama anahtarı `kariyerweb-` önekli, kayıt oyunun durumunu kirletemez, sayfadaki ve başlıktaki güvenlik politikası aynı; "Verilerimi sil" her şeyi siler
-- `motion`: her `requestAnimationFrame` döngüsü hareket azaltma tercihini sorar; tercih tek yerden (`components/ui/motion.ts`) okunur
-- `balance`: farklı alışkanlıkta botlar (okumadan sisteme uyan, okuyarak uyan, dengeli, adayları savunan, hiç karar vermeyen) aynı haftaları oynar; puanların bu oyuncuları doğru sıraya dizmesi ve duvara dayanmaması denetlenir. Puanlama kuralları `game/engine/scoring.ts` başındaki açıklamada.
-
-Oyun mantığı ses çalmak için `game/lib/sound.ts` üzerinden konuşur; ses motoru `main.tsx`'te bağlanır, testlerde sessizdir.
-
-## Oyunun akışı
-
-1. **Karşılama → ilan seçimi → başvuru seli → gün brifingi**
-2. **Mesai** (`GameplayScreen`): masa, bilgisayar (İşe Alım Portalı, e-posta), sabit hat ve cep telefonu. CV'leri incele, mülakata çağır ya da reddet; öğle arası, müdürün ricaları, ret bildirimleri.
-3. **Çarşamba 11:00 — haftalık İK toplantısı**: görüntülü görüşme; Selin'in paylaştığı pano konuşmayı takip eder.
-4. **Gün sonu** özetleri, **Cuma mülakatları**, Cuma 18:40'ta **Hakan Bey'in kadro teklifi**, annenle telefon (hafta sonu) ve **final** ekranları
-
-## Kod yapısı
+## Sitenin yapısı
 
 ```
 src/
-  App.tsx                 Aşamaya göre ekran seçimi (ekranlar ve oyunun kendisi ihtiyaç anında yüklenir)
-  screens/                Her oyun aşamasının ekranı
-  components/
-    desk/ pc/ phone/      Masa, bilgisayar ve telefon
-    gameplay/             CV gövdesi, ret bildirimleri, üst çubuk
-    meeting/              Görüntülü toplantı ve pano
-    dayend/ ui/           Gün sonu sahneleri, ortak bileşenler
-  game/
-    types.ts              Oyunun ortak tipleri (aday, karar, aşama)
-    store/                Oyun durumu (zustand): store (yeni hafta, devam, kayıt noktası), storeLoader (ilk
-                          ekrandan sonra arka planda yükler), storeTypes, storeDefaults, storeApi (döngüsel
-                          import olmadan erişim), save (localStorage kaydı, doğrulama, sürüm geçişleri)
-    slices/               Eylemler: gün (sabah, saat, akşam), dosyalar ve kararlar, telefon, masa, hikâye, ayarlar
-    day/                  Mesainin kendisi: tick (bir saniye), clock (saat ilerledikçe olanlar), mail, desk,
-                          manager ve managerCalls (müdür), references, rejectionMails, visits, echoes,
-                          ats (sistemin okuduğu), lineups (aday havuzu), story, phoneTypes
-    events/               Haftanın özel anları: meeting (Çarşamba toplantısı), interview ve panel (Cuma),
-                          offer (Cuma 18:40), weekend (annenle telefon)
-    engine/               Puanlama, sonlar, başarımlar, oturum raporu
-    lib/                  Oyundan bağımsız küçük araçlar: rng (tohumlu rastgelelik), time, weekdays, turkish,
-                          later, sound (ses çıkışı, main.tsx'te bağlanır), prefs (ses tercihleri), privacy,
-                          textScale, player (oyuncunun adı)
-    data/                 Metinler ve veriler: adaylar, günler, ilanlar, telefon senaryosu (phoneScript)
-  audio/                  Ses: audioEngine (ayarlar, müzik, kısa sesler), engineCore (ses grafiği ve
-                          sentez araçları), scenes/ (ofis, sokak, hava, öğle arası, tarama…)
-                          musicPlan (hangi aşamada hangi parça: sakin, gergin, kapanış). Müzik dosyaları
-                          public/audio altında, scripts/generate-*-music.mjs ile üretilir
-docs/                     Senaryo, oyun mekaniği, vakalar, bağımlılık kararları, yerleşim stratejisi, eğitmen rehberi
+  main.tsx, Root.tsx      Açılış: ayarlar, ses, servis çalışanı; adrese göre maket ya da oyun
+  arcade/                 Bütün oyunların ortak altyapısı
+    games.ts, slugs.ts    Oyun listesi ve adresleri
+    route.ts              `#/<oyun>` adresleri (herhangi bir statik sunucuda, çevrimdışı da çalışır)
+    welcome/, mahalle/    Ana sayfa: mahalle maketi, duraklar, kartlar, mahalle rehberi
+    ClockOut              Her oyunun sol üstündeki "Mesaiyi bitir" (gerekirse onay ister)
+    Finale, share.ts      Oyun sonu belgesi ve 1080×1350 sonuç kartı, paylaşım
+    saveSlot.ts           Oyunların ortak kayıt yuvası (doğrulamalı)
+    progress.ts           Maketteki tikler: hangi oyun bitti, sonucu ne
+  games/<oyun>/           Her oyun kendi klasöründe, kendi verisi ve kaydıyla
+  App.tsx, game/, screens/, components/   Sen İK'sin (aşağıda)
+  audio/                  Ortak ses motoru ve sahneleri
+  styles/                 Yazı tipleri, temel palet, ortak kırılma noktaları
+gamePages.ts              Her oyunun paylaşım sayfası (`oyun/<ad>/`)
+serviceWorker.ts, csp.ts  Çevrimdışı kopya ve içerik güvenliği politikası
 ```
 
-## Eğitimde kullanmak
+Her oyun ayrı bir parça olarak yalnızca girilince (ya da maketteki durağın üstüne gelince) iner; ilk açılış yalnızca maketi indirir. Oyun bitince `progress.ts` ile maketteki durağına tik düşer.
 
-Final ekranındaki **Oturum raporu** oyuncunun haftasını (son, puanlar, okuyarak verilen kararlar, sistemin haksız yere aşağı ittiği adaylara ne yaptığı, müdürün ricaları) ve kendi kararlarından başlayan tartışma sorularını gösterir; yazdırılabilir ya da metin olarak kopyalanabilir, hiçbir yere gönderilmez. Bir grubun aynı haftayı oynaması için adres `?seed=` ile paylaşılır. Oturum planı, süreler ve tartışma akışı: [docs/egitmen-rehberi.md](docs/egitmen-rehberi.md).
+**Yeni oyun eklemek:** `slugs.ts`'e adresini, `games.ts`'e kartını (açılış zemini dahil), `Root.tsx`'teki `LOADERS`'a yükleyicisini, `mahalle/places.ts` ve `welcome/stops.ts`'e maketteki yerini ekle. Oyun salona `ClockOut` ile döner, bitince `markPlayed` çağırır, kaydını `saveSlot.ts` ile `kariyerweb-` önekli kendi anahtarında tutar.
 
-## Hata bildirmek
+## Testler
 
-Oyun çökerse hata ekranındaki "Hata raporunu kopyala" düğmesi sürümü, oyun kodunu, aşamayı, günü ve hata izini panoya alır; kişisel bilgi içermez. Oyun kodu (`?seed=`) aynı haftayı yeniden kurmaya yeter.
+`tests/` altındaki dosyalar oyunların kaynak kodunu doğrudan çalıştırır: Node (23.6+) TypeScript tiplerini kendisi siler, `tests/setup/` Vite'ın yaptığı iki işi (uzantısız importlar, `import.meta.env`) üstlenir. Vitest, Jest ya da tarayıcı gerekmez. Testler tip kontrolüne girmez; bir import'u taşırken testleri de çalıştır.
 
-## Kayıt
+- **Ortak:** `security`, `privacy` (ağ isteği yok, her depolama anahtarı `kariyerweb-` önekli, "Verilerimi sil" her şeyi siler, sayfadaki ve başlıktaki güvenlik politikası aynı), `layout` (yalnızca ortak kırılma noktaları), `motion` (her animasyon döngüsü hareket azaltma tercihini sorar), `defter` (maketin ilerleme kaydı)
+- **Oyunlar:** `aptitude`, `testGame` (UyumMetre), `insaat`, `bakkal*`, `ekran`, `meydan`, `asfalt`, `trafik`, `cuzdan`
+- **Sen İK'sin:** `scoring`, `ending`, `balance*` (farklı alışkanlıkta botlar aynı haftaları oynar, puanlar onları doğru sıraya dizmeli), `week`, `save`, `data`, `a11y`, `interview*`, `offer`, `report` ve diğerleri
 
-Her günün başında otomatik kayıt alınır ve karşılama ekranında "Devam et" düğmesi çıkar. Kayıt yüklenmeden önce oyunun bugünkü haliyle karşılaştırılır; şekli uymayan, olmayan bir güne ya da artık oyunda olmayan bir adaya ait kayıt yarım yüklenmek yerine silinir. Kayıt biçimi değişirse `game/store/save.ts` içindeki `SAVE_VERSION` artırılır ve mümkünse `MIGRATIONS` tablosuna bir geçiş adımı yazılır. Kayıt yalnızca oyuncunun tarayıcısında (`localStorage`) durur; sunucu yoktur, hiçbir veri dışarı gönderilmez. Gün ortasında kapatılan oyun o günün başından devam eder. Gizli pencerede ya da site verileri silinince kayıt kaybolur.
+## Kayıt ve gizlilik
 
-## Aynı haftayı yeniden oynamak
-
-Her oyunun bir kodu (tohum) vardır; ayarlar panelinin altında "Oyun kodu #…" olarak görünür. Adresin sonuna `?seed=<kod>` eklenirse aynı aday dizilimi, aynı müdür ricaları ve aynı olaylarla aynı hafta yeniden başlar. Hata bildirirken bu kodu paylaşmak yeterli.
+Sunucu, hesap, analiz ya da üçüncü taraf betiği yoktur. Her oyunun kaydı, maketteki tikler ve ayarlar yalnızca oyuncunun tarayıcısında, `kariyerweb-` ile başlayan anahtarlarda durur; kayıtlar okunurken doğrulanır, bozuk ya da eski biçimli kayıt yarım yüklenmek yerine yok sayılır. Ana sayfadaki **Mahalle rehberi**'nde (?) "Verilerimi sil" bunların hepsini ve çevrimdışı kopyayı siler. Gizli pencerede ya da site verileri silinince kayıtlar kaybolur.
 
 ## Çevrimdışı
 
-`npm run build` bir servis çalışanı (`sw.js`) üretir: oyunun dosyaları (sayfa, betikler, stiller, yazı tipleri, görseller) ilk açılışta tarayıcıya alınır. Müzik ve yağmur sesi (birkaç MB) ilk açılışta indirilmez; ilk çalındıklarında saklanır, böylece mobil veride duyulmayacak ses indirilmez. Yeni bir derleme yayınlandığında süren bir haftanın ortasında devreye girmez: karşılama ekranında "Oyunun yeni sürümü hazır · Yenile" çıkar, seçilmezse bütün sekmeler kapanınca geçilir. Servis çalışanı yalnızca derlenmiş sürümde ve HTTPS ya da localhost üzerinden çalışır.
+`npm run build` bir servis çalışanı (`sw.js`) üretir: sitenin dosyaları (sayfa, betikler, stiller, yazı tipleri, görseller) ilk açılışta tarayıcıya alınır, sonra çevrimdışı da oynanır ve uygulama olarak kurulabilir. Müzik ve yağmur sesi (birkaç MB) ilk açılışta indirilmez, ilk çalındıklarında saklanır. Yeni bir derleme süren bir oyunun ortasında devreye girmez: "Oyunun yeni sürümü hazır · Yenile" çıkar, seçilmezse bütün sekmeler kapanınca geçilir. Servis çalışanı yalnızca derlenmiş sürümde ve HTTPS ya da localhost üzerinden çalışır.
 
 ## Yayına almak
 
-`dist/` klasörü herhangi bir statik sunucudan, herhangi bir alt klasörde yayınlanabilir.
+`dist/` klasörü herhangi bir statik sunucudan, herhangi bir alt klasörde yayınlanabilir; `.github/workflows/pages.yml` onu GitHub Pages'e yayınlar.
 
-- **Paylaşım önizlemesi:** sosyal sitelerin bağlantı önizlemesi `og:image` için tam adres ister. Derlerken yayın adresini ver: `SITE_URL=https://alan-adi npm run build`. Sayfaya tam görsel adresi, `og:url` ve `canonical` eklenir. Sonuç kartının altındaki adres, oyunun açıldığı adresten okunur.
-- **Güvenlik:** derlenen sayfa kendi Content-Security-Policy'sini taşır (`csp.ts`): yalnızca oyunun kendi dosyaları yüklenir, sayfadan hiçbir yere istek çıkmaz, Trusted Types metnin betiğe dönüşmesini engeller. `public/_headers` (Netlify ve Cloudflare Pages bunu okur) aynı politikayı başlık olarak da verir, başka sitelerin oyunu çerçeve içine almasını engeller, `sw.js`'in önbelleğe alınmamasını ve parmak izli dosyaların uzun süre önbellekte kalmasını sağlar. Başka bir sunucu kullanılıyorsa aynı başlıklar oradan verilmeli.
-- **Görseller:** masadaki orkide, Unsplash Lisansı'yla yayımlanmış bir fotoğraftan kesildi (ücretsiz kullanım ve değiştirme serbest, atıf gerekmez). Diğer bütün çizimler kodun içinde SVG olarak durur.
-
-## Gizlilik
-
-Oyun hiçbir veri göndermez: sunucu, hesap, analiz ya da üçüncü taraf betiği yoktur. Kayıt, başarımlar ve ayarlar yalnızca oyuncunun tarayıcısında `kariyerweb-` ile başlayan anahtarlarda durur. Karşılama ekranındaki "Verilerimi sil" bağlantısı bunların hepsini siler. Hata raporu yalnızca oyuncu düğmeye basınca panoya kopyalanır; içinde sürüm, oyun kodu, aşama, tarayıcı bilgisi ve hata izi vardır, kişisel bilgi yoktur.
+- **Paylaşım önizlemesi:** adresler `#/test` gibi bir parça taşır ve bağlantı önizlemesi yapan siteler parçayı görmez. Bu yüzden her oyunun `oyun/<ad>/` altında kendi başlığını, açıklamasını ve görselini taşıyan küçük bir sayfası vardır (`gamePages.ts`); oyunların paylaştığı bağlantılar oraya gider. Önizleme görseli tam adres ister: `SITE_URL=https://alan-adi npm run build`.
+- **Güvenlik:** derlenen sayfa kendi Content-Security-Policy'sini taşır (`csp.ts`): yalnızca sitenin kendi dosyaları yüklenir, sayfadan hiçbir yere istek çıkmaz, Trusted Types metnin betiğe dönüşmesini engeller. `public/_headers` aynı politikayı başlık olarak da verir, çerçeve içine alınmayı reddeder ve önbellek sürelerini ayarlar; ama bu dosyayı yalnızca Netlify ve Cloudflare Pages okur. **GitHub Pages onu yok sayar:** orada çerçeve yasağı, HSTS ve önbellek başlıkları uygulanmaz. Başka bir sunucu kullanılıyorsa aynı başlıklar oradan verilmeli.
+- **Görseller:** masadaki orkide Unsplash Lisansı'yla, adayların sitelerindeki fotoğraflar Wikimedia Commons'tan (CC0 ya da kamu malı) gelir ([docs/gorsel-kaynaklari.md](docs/gorsel-kaynaklari.md)); diğer bütün çizimler kodun içinde SVG ya da tuval olarak durur.
 
 ## Bağımlılıklar
 
 Çalışma zamanında yalnızca `react`, `react-dom` ve `zustand`; yazı tipleri derleme sırasında `@fontsource-variable` paketlerinden projeye gömülür. Yeni paket eklemeden önce [docs/bagimliliklar.md](docs/bagimliliklar.md) içindeki adımları izle.
 
+## Sen İK'sin
+
+İlk ve en büyük oyun: yeni işe başlamış bir İK uzmanısın (Defne Aral); her gün masana onlarca CV düşüyor, müdürün hız istiyor, sistem adayların çoğunu sen görmeden eliyor. Kurallara uymakla vicdanını dinlemek arasında verdiğin her karar iki puana yansıyor: **Performans** ve **Vicdan**. Masa, bilgisayar ve mülakat odası geniş ekran için tasarlandı; telefonda açılış sayfası okunur, oyun başlamaz.
+
+**Akış:** karşılama → ilan seçimi → başvuru seli → gün brifingi → mesai (masa, İşe Alım Portalı, e-posta, sabit hat, cep telefonu) → Çarşamba 11:00 haftalık İK toplantısı → gün sonu özetleri → Cuma mülakatları → Cuma 18:40 Hakan Bey'in kadro teklifi → annenle telefon → final ve oturum raporu.
+
+```
+src/
+  App.tsx                 Aşamaya göre ekran seçimi (ekranlar ihtiyaç anında yüklenir)
+  screens/                Her aşamanın ekranı
+  components/             desk/ pc/ phone/ (masa, bilgisayar, telefon), gameplay/, meeting/, dayend/, ui/
+  game/
+    store/                Oyun durumu (zustand), kayıt ve sürüm geçişleri (save.ts, SAVE_VERSION, MIGRATIONS)
+    slices/               Eylemler: gün, dosyalar ve kararlar, telefon, masa, hikâye, ayarlar
+    day/                  Mesainin kendisi: saat, e-posta, müdür, ATS, aday havuzu, hikâye
+    events/               Haftanın özel anları: toplantı, mülakat, kurul, teklif, hafta sonu
+    engine/               Puanlama, sonlar, başarımlar, oturum raporu
+    lib/                  Oyundan bağımsız araçlar: tohumlu rastgelelik, zaman, Türkçe ekler, ses çıkışı
+    data/                 Adaylar, günler, ilanlar, telefon senaryosu
+docs/                     Senaryo, oyun mekaniği, vakalar, kadrolar, yerleşim, eğitmen rehberi
+```
+
+- **Kayıt:** her günün başında otomatik kayıt alınır; karşılama ekranında "Devam et" o günün sabahına döner. Kayıt biçimi değişirse `game/store/save.ts`'te `SAVE_VERSION` artar, mümkünse `MIGRATIONS`'a bir geçiş yazılır.
+- **Aynı haftayı yeniden oynamak:** adresin sonuna `?seed=<kod>` eklenirse aynı aday dizilimi, aynı ricalar ve aynı olaylarla aynı hafta yeniden başlar.
+- **Eğitimde kullanmak:** final ekranındaki **Oturum raporu** oyuncunun haftasını ve kendi kararlarından başlayan tartışma sorularını gösterir; yazdırılabilir ya da metin olarak kopyalanabilir, hiçbir yere gönderilmez. Oturum planı: [docs/egitmen-rehberi.md](docs/egitmen-rehberi.md).
+- **Hata bildirmek:** hata ekranındaki "Hata raporunu kopyala" sürümü, oyun kodunu, aşamayı, günü ve hata izini panoya alır; kişisel bilgi içermez.
+
 ## Bilinen eksikler
 
 - Arayüz testleri yok: testler oyun mantığını kapsıyor, ekranlar elle deneniyor.
-- Renklerin çoğu (yaklaşık 1.400 yerde) hâlâ doğrudan yazılmış; `styles/tokens.css` yalnızca temel paleti taşıyor.
+- Renklerin çoğu hâlâ doğrudan yazılmış; `styles/tokens.css` yalnızca temel paleti taşıyor.
+- Yalnızca Türkçe.

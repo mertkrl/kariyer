@@ -9,7 +9,7 @@ import { mkdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
-const out = resolve('release', `sen-iksin-${version}-web.zip`);
+const out = resolve('release', `mesai-disi-${version}-web.zip`);
 mkdirSync('release', { recursive: true });
 rmSync(out, { force: true });
 
@@ -22,4 +22,4 @@ try {
 }
 
 const mb = (statSync(out).size / 1024 / 1024).toFixed(1);
-console.log(`Paket hazır: release/sen-iksin-${version}-web.zip (${mb} MB)`);
+console.log(`Paket hazır: release/mesai-disi-${version}-web.zip (${mb} MB)`);

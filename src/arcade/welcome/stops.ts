@@ -32,14 +32,14 @@ function toBox(ix: number, iy: number) {
 }
 
 const RAW: { id: PlaceId; at: [number, number]; r: number }[] = [
-  { id: 'plaza', at: [545, 250], r: 13 },
-  { id: 'santiye', at: [845, 330], r: 13 },
-  { id: 'meydan', at: [255, 470], r: 13 },
-  { id: 'bakkal', at: [350, 615], r: 10 },
-  { id: 'durak', at: [495, 605], r: 7 },
-  { id: 'isik', at: [697, 585], r: 6 },
-  { id: 'doviz', at: [790, 625], r: 10 },
-  { id: 'cukur', at: [672, 716], r: 7 },
+  { id: 'plaza', at: [597, 287], r: 13 },
+  { id: 'santiye', at: [868, 398], r: 13 },
+  { id: 'meydan', at: [230, 438], r: 13 },
+  { id: 'bakkal', at: [430, 582], r: 10 },
+  { id: 'durak', at: [509, 552], r: 7 },
+  { id: 'isik', at: [618, 498], r: 6 },
+  { id: 'doviz', at: [717, 616], r: 10 },
+  { id: 'cukur', at: [523, 695], r: 7 },
 ];
 
 export const STOPS: Stop[] = RAW.map(({ id, at, r }) => {

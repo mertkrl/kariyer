@@ -5,6 +5,8 @@
  * worker ve önbelleğe aldığı dosyalar), böylece oyundan geriye hiçbir şey kalmaz.
  */
 export const STORAGE_PREFIX = 'kariyerweb-';
+/** Önek gelmeden önce yazılmış anahtarlar (Meydan Islahı'nın eski taslakları): yalnızca silinir, bir daha yazılmaz. */
+export const LEGACY_PREFIXES = ['meydan:taslak:'];
 /** Çevrimdışı kopyanın önbellekleri (adları vite.config.ts'de verilir). */
 export const CACHE_PREFIX = 'sen-iksin-';
 
@@ -13,7 +15,7 @@ export async function clearAllGameData() {
     try {
       const storage = pick();
       Array.from({ length: storage.length }, (_, i) => storage.key(i) ?? '')
-        .filter((key) => key.startsWith(STORAGE_PREFIX))
+        .filter((key) => key.startsWith(STORAGE_PREFIX) || LEGACY_PREFIXES.some((p) => key.startsWith(p)))
         .forEach((key) => storage.removeItem(key));
     } catch {
       // storage unavailable: there was nothing kept either

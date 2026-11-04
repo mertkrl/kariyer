@@ -71,15 +71,17 @@ export function CashRegister({
   const seat = useCounterSeat();
   // nakit satışta ekran büyümez: satış, alınan para ve para üstü aynı satırda sırayla döner
   const frames = !active && shown.paid !== undefined ? [{ label: shown.label ?? 'SATIŞ', amount: shown.amount }, { label: 'ALINAN', amount: shown.paid }, { label: 'ÜSTÜ', amount: shown.change ?? 0 }] : null;
-  const [frame, setFrame] = useState(0);
+  // yeni bir ödeme gelince dönüş baştan başlar
+  const payment = `${shown.paid}|${shown.change}|${shown.amount}|${active}`;
+  const [frame, setFrame] = useState({ of: payment, at: 0 });
+  if (frame.of !== payment) setFrame({ of: payment, at: 0 });
+  const cycling = frames !== null;
   useEffect(() => {
-    setFrame(0);
-    if (!frames) return;
-    const t = window.setInterval(() => setFrame((f) => (f + 1) % 3), 1700);
+    if (!cycling) return;
+    const t = window.setInterval(() => setFrame((f) => ({ ...f, at: (f.at + 1) % 3 })), 1700);
     return () => window.clearInterval(t);
-    // yalnızca yeni bir ödeme gelince baştan başlar
-  }, [shown.paid, shown.change, shown.amount, active]);
-  const now = frames ? frames[frame] : { label: active ? label : (shown.label ?? 'KASA'), amount: active ? Number(value || 0) : shown.amount };
+  }, [cycling, payment]);
+  const now = frames ? frames[frame.at] : { label: active ? label : (shown.label ?? 'KASA'), amount: active ? Number(value || 0) : shown.amount };
   const money = now.amount === null ? (now.label === 'İPTAL' ? '— — —' : '0,00') : `${now.amount},00`;
   return (
     <div data-tour="register" className={`${styles.cash} ${active ? styles.live : ''}`} style={{ bottom: seat.bottom, transform: `translateX(-50%) scale(${seat.scale})` }} role="group" aria-label="Yazar kasa">

@@ -1,4 +1,5 @@
-import type { LevelSpec, Report } from './model';
+import type { LevelSpec } from './model';
+import type { Report } from './traffic';
 
 /*
  * İş emirleri ve muhtarın lafları. Her iş bir çukur; aralarında ekip ertesi sabah yolun yeniden

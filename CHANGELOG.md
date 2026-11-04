@@ -4,6 +4,28 @@ Her sürüm bir `vX.Y.Z` etiketiyle yayımlanır; etiket gönderilince `.github/
 
 ## [Yayımlanmadı]
 
+## [1.1.0] - 2026-11-03
+
+Site artık **Mesai Dışı**: Sen İK'sin'in yanına sekiz kısa oyun geldi (Genel Yetenek ve Uyum Testi, İnşaat İzleme, Köy Bakkalı, Ekran İhalesi, Meydan Islahı, Yama Ekibi, Kavşak Amiri, Cüzdan Zamanı) ve ana sayfa bu oyunlara açılan bir mahalle maketi oldu. Sen İK'sin `#/ise-alim` adresinde; kayıtları taşınır.
+
+### Kod, içerik ve görünüm
+- Cüzdan Zamanı'nın 2005 masaüstü bir işletim sisteminin görünüşünü birebir anmıyor: görev çubuğu, pencereler, giriş ekranı, menü ve Haberci Cüzdan yeşili; menü düğmesi turuncu Cüzdan sikkesi ve adı "Cüzdan" (eğik "başlat" yazısı kalktı). 2009 ve bugünün temalarında da menü düğmesi aynı sikke.
+- Meydan Islahı'ndan Diyarbakır · Sur (Gazi Caddesi) sokağı kaldırıldı; oyun dört şehirden dört sokak. Bazalt zemin kaplaması seçenek olarak kalıyor.
+- Oyunların yüklenirken gösterdiği zemin tek yerde (`games.ts`'te `loadingBg`); `Root.tsx` dokuz ayrı yükleyici yerine tek bir tablodan okur.
+- İnşaat İzleme'de modül düzeyinde değişen durum yok: şantiyenin takvimi saf bir `Plan` değeri (`planFor`), sahne, bina, şantiye ve defter onu prop olarak alır.
+- Lint uyarısız: büyük dosyalar konularına göre bölündü (Yama Ekibi'nin modeli fizik, silindir, araçlar, trafik ve ölçüm; Kavşak Amiri'nin simülasyonu ara sokaklar ve sürüş, bölümleri, çizimleri; Köy Bakkalı'nın dükkân durumu `shopState.ts`'e, ekranı `ShopView.tsx`'e; Ekran İhalesi'nin bileşen paneli; UyumMetre'nin yedinci soru dalgası). Effect içinde durum eşitleyen yerler olaydan ya da çizim sırasında hesaplanıyor; Yama Ekibi'nin süre dolumu `useEffectEvent`.
+- README sitenin bütününü anlatıyor; itch.io paketi `mesai-disi-<sürüm>-web.zip`.
+- Meydan Islahı taslakları sitenin önekiyle (`kariyerweb-meydan-taslak-v3-<yer>`) saklanıyor; "Verilerimi sil" onları da siliyor. Eski anahtardaki taslaklar ilk açılışta yeni anahtara taşınıyor, kaldırılan yerlerin taslakları siliniyor. Değişkenli depolama anahtarlarının da önekle başladığı testle denetleniyor.
+
+### Ana sayfa ve çıkış düzeltmeleri
+- Ana sayfa yazıları laptopta okunur: çerçeveyle küçülen yazı ve düğmelere bir taban kondu (1280×720'de açıklama 10,8 → 14 px, üst etiket 6,5 → 10 px); ikincil metnin kontrastı 4,0'dan 5,0:1'e çıktı. Ekran okuyucu başlığı "Mahalleye hoş geldin" diye ayrı okur.
+- Maketteki oyun kartı üst menünün (ses, yardım, ayarlar) üstüne binmez, ekranın altından da taşmaz: dikeyde içeri kayar, bağlantı çizgisi durakta kalır.
+- Telefonda maketin altında oyunların listesi var; sık duran işaretlerin çakışan dokunma alanları yerine dokunuşu maket alır ve en yakın durağı seçer.
+- Açılış hızlandı: maket görseli betikten önce inmeye başlar (preload), giriş animasyonları kısaldı (yazılar 0,4 s, maket 0,5 s, işaretler 0,3 s'de başlar).
+- "Mesaiyi bitir" her oyunda sol üstte: Sen İK'sin'de ortadan sol üste geçti (telefonda ok artık "İK SİSTEMİ" yazısının üstüne binmiyor), Cüzdan Zamanı'nın masaüstünde de görünür; kısa ekranda masaüstü simgeleri ikinci sütuna geçer. `ClockOut`'un `centered` seçeneği kalktı.
+- Mahalle rehberi: kayıt ve gizlilik açıklaması ve bütün oyunların verisini silen "Verilerimi sil". Panel açılınca odak panele geçer, uzun içerik panelin içinde kayar.
+- Sen İK'sin açılışındaki "Oyun hiçbir veri göndermez… Verilerimi sil" satırı kalktı; verileri silmek artık yalnızca mahalle rehberinden.
+
 ### Gözden geçirme sonrası
 - Ana sayfa artık mahalle maketi; eski kareli defter salonu (`ArcadeScreen`, `arcade/notebook/`, `arcade/mahalle/` sahnesi ve asansörü) hiçbir yerden açılmadığı için testleriyle birlikte silindi (~9.200 satır). Aşağıdaki defter maddeleri bu yüzden artık sitede yok.
 - Maketin kırılma noktaları ortak listeye taşındı (`tests/layout.test.ts` yeniden geçiyor); 961 px ve üstünde maket çerçevesi, 560 px ve altında tek sütun.
