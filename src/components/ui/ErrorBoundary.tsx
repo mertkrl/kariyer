@@ -1,17 +1,21 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { clearSave, readSave } from '../../game/store/save';
 import { getState } from '../../game/store/storeApi';
 import styles from './ErrorBoundary.module.css';
 
 /*
  * Bir ekran çizilirken hata verirse oyuncu boş bir sayfa yerine bunu görür: ne olduğu ve geri
  * dönüş yolu. Günün başındaki kontrol noktası hâlâ tarayıcıda; bu yüzden yeniden yüklemek
- * "Devam et"li karşılama ekranına götürür.
+ * "Devam et"li karşılama ekranına götürür. Kayıt modülü (göç adımlarıyla birlikte) ilk açılış
+ * paketine girmesin diye yalnızca bir hata olunca iner.
  */
+const saveModule = () => import('../../game/store/save');
+
 interface State {
   error: Error | null;
   componentStack: string;
   copied: boolean | null;
+  /** Günün başındaki kayıt duruyor mu (kayıt modülü inince öğrenilir). */
+  hasSave: boolean;
 }
 
 /** Çökmeyi yeniden üretmek için gereken her şey: oyun kodu (tohum) aynı haftayı yeniden oynatır. */
@@ -36,7 +40,7 @@ function report(error: Error, componentStack: string) {
 }
 
 export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
-  state: State = { error: null, componentStack: '', copied: null };
+  state: State = { error: null, componentStack: '', copied: null, hasSave: false };
 
   static getDerivedStateFromError(error: Error) {
     return { error };
@@ -45,6 +49,11 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Oyun bir hatayla durdu:', error, info.componentStack);
     this.setState({ componentStack: info.componentStack ?? '' });
+    saveModule()
+      .then((m) => this.setState({ hasSave: m.readSave() !== null }))
+      .catch(() => {
+        // kayıt modülü inemedi: kayıt yokmuş gibi yenilemeyi önerir
+      });
   }
 
   copyReport = () => {
@@ -57,9 +66,8 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   };
 
   render() {
-    const { error, copied } = this.state;
+    const { error, copied, hasSave } = this.state;
     if (!error) return this.props.children;
-    const hasSave = readSave() !== null;
     return (
       <div className={styles.screen} role="alert">
         <div className={styles.card}>
@@ -78,8 +86,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
               <button
                 className={styles.secondary}
                 onClick={() => {
-                  clearSave();
-                  window.location.reload();
+                  void saveModule().then((m) => {
+                    m.clearSave();
+                    window.location.reload();
+                  });
                 }}
               >
                 Kaydı sil ve baştan başla

@@ -113,7 +113,9 @@ function useVisible() {
 /** Görünürken her `ms`de bir (biraz oynayarak) `f`'i çağırır. */
 function useEvery(ms: number | null, f: () => void) {
   const ref = useRef(f);
-  ref.current = f;
+  useEffect(() => {
+    ref.current = f;
+  });
   useEffect(() => {
     if (ms === null) return;
     let id = 0;
@@ -138,7 +140,7 @@ export default function Life({ night, overtime, muted, quiet }: { night: boolean
   // tarayıcı ilk dokunuştan önce ses çalmaz: ortam sesi o zamana kadar bekler
   const [armed, setArmed] = useState(false);
   const svg = useRef<SVGSVGElement>(null);
-  const lastTouch = useRef(Date.now());
+  const lastTouch = useRef(0);
   const seq = useRef(0);
   const deck = useRef<Quip[]>([]);
 
@@ -178,6 +180,7 @@ export default function Life({ night, overtime, muted, quiet }: { night: boolean
 
   // ilk dokunuş: ses motoru uyanır; her dokunuş "bekleme" sayacını sıfırlar
   useEffect(() => {
+    lastTouch.current = Date.now();
     const touch = () => {
       lastTouch.current = Date.now();
       setArmed(true);

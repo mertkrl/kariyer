@@ -1,0 +1,110 @@
+/*
+ * Güvertenin önü (Deck.tsx): küpeşte, çay bardağı, simit. Çayın yüzeyi ufukla aynı sallanır;
+ * "hareketi azalt"ta (.deckStill) çay, buhar ve martı durur.
+ */
+
+.deck {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.prop {
+  pointer-events: auto;
+  cursor: pointer;
+  outline: none;
+}
+
+.prop:focus-visible {
+  filter: drop-shadow(0 0 6px #fff3c4);
+}
+
+.liquid {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation:
+    sway 7s ease-in-out infinite,
+    refill 0.9s ease-out;
+}
+
+@keyframes refill {
+  from {
+    translate: 0 40px;
+  }
+}
+
+.steam path {
+  animation: steam 3.6s ease-in-out infinite;
+}
+
+.steam path + path {
+  animation-delay: -1.8s;
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.simit {
+  transition: transform 0.3s;
+}
+
+.prop:hover .simit {
+  transform: translateY(-3px);
+}
+
+.catch {
+  animation: catch 1.8s cubic-bezier(0.3, 0, 0.6, 1) forwards;
+}
+
+@keyframes catch {
+  from {
+    transform: translate(700px, 760px);
+  }
+  30% {
+    transform: translate(760px, 640px);
+  }
+  to {
+    transform: translate(1700px, -80px);
+  }
+}
+
+.deckStill .liquid,
+.deckStill .steam path,
+.deckStill .catch {
+  animation: none;
+}
+
+.deckStill .catch {
+  opacity: 0;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-0.5deg) translateY(0);
+  }
+  50% {
+    transform: rotate(0.5deg) translateY(-5px);
+  }
+}
+
+/* telefonda alt şerit güvertenin döşemesi olur (Vapur.module.css): küpeşte onun üstüne çıkar */
+@media (max-width: 760px) {
+  .deck {
+    height: calc(100% - 118px);
+  }
+}

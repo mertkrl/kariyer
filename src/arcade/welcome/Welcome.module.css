@@ -173,6 +173,9 @@
 }
 
 .clockOvertime {
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
   border-color: #d9534f;
   background: color-mix(in srgb, #d9534f 18%, transparent);
 }
@@ -550,6 +553,18 @@
 
   .clockText {
     display: none;
+  }
+
+  /* telefonda yazı sığmaz: saatin tamamı soruyu açan düğme olur, soru menünün altına iner */
+  .clockBait {
+    display: block;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .clockAsking {
+    top: calc(100% + 8px);
   }
 
   .title {

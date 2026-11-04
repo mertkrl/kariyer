@@ -56,6 +56,9 @@ function Panel({ title, onClose, children }: { title: string; onClose: () => voi
 // rehber ve ayarlar yalnızca açılınca iner: ilk açılış paketine girmez
 const Help = lazy(() => import('./WelcomePanels').then((m) => ({ default: m.Help })));
 const Settings = lazy(() => import('./WelcomePanels').then((m) => ({ default: m.Settings })));
+// fazla mesai vapuru: saat soruyu sorunca iner, "Evet"le açılır
+const loadVapur = () => import('./vapur/Vapur');
+const Vapur = lazy(loadVapur);
 
 /** Şimdiki saat; geliştirirken `?saat=22` (ya da `?saat=cmt`) ile başka bir an denenir. */
 function readNow(): Date {
@@ -120,17 +123,22 @@ function ShiftClock({ overtimeSince, onConfess }: { overtimeSince: number | null
 
   if (overtimeSince) {
     return (
-      <p className={`${s.clock} ${s.clockOvertime}`}>
+      // fazla mesaide saat vapura geri bindirir
+      <button type="button" className={`${s.clock} ${s.clockOvertime}`} onClick={onConfess} aria-label={`Fazla mesai ${elapsed(overtimeSince, now.getTime())}: vapura bin`}>
         <span className={`${s.dot} ${s.dotWork}`} aria-hidden="true" />
         <span className={s.clockTime}>{time}</span>
         <span className={s.clockText}>
           Fazla mesai: <span className={s.clockTime}>{elapsed(overtimeSince, now.getTime())}</span>
         </span>
-      </p>
+      </button>
     );
   }
 
-  const open = () => !work && ask === 'idle' && setAsk('asking');
+  const open = () => {
+    if (work || ask !== 'idle') return;
+    setAsk('asking');
+    void loadVapur();
+  };
   const question = denied ? 'Emin misin? Sekmende Excel açık gibi.' : '…sen çalışmıyorsun, değil mi?';
   return (
     <div className={`${s.clock} ${ask === 'asking' ? s.clockAsking : ''}`} onPointerEnter={(e) => e.pointerType !== 'touch' && open()} onPointerLeave={() => ask === 'asking' && setAsk('idle')}>
@@ -191,10 +199,18 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
   const [progress] = useState(loadProgress);
   const [leaving, setLeaving] = useState<Leaving | null>(null);
   const [overtimeSince, setOvertimeSince] = useState<number | null>(null);
+  const [ferry, setFerry] = useState(false);
   const now = useNow();
   // fazla mesaide de ışık dışarıdaki saati izler: gündüz aydınlık, akşam yavaşça kararır
   const dark = darkness(now);
   const lights = windowsOn(now, overtimeSince !== null);
+
+  const toggleMute = () => {
+    audioEngine.init();
+    audioEngine.setMuted(!muted);
+    storeMuted(!muted);
+    setMuted(!muted);
+  };
 
   // kamera durağa dalar, ekran oyunun zemin rengine döner, sonra oyun açılır
   const enterGame = (stop: Stop, route: GameRoute) => {
@@ -225,6 +241,7 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
     <div
       className={`${s.page} ${leaving ? s.leaving : ''} ${dark >= 0.5 ? s.dusk : ''} ${overtimeSince ? s.overtime : ''}`}
       style={{ '--shade': shadeOf(dark) } as CSSProperties}
+      data-away={ferry || undefined}
     >
       <div className={s.frame}>
         <div className={s.model}>
@@ -232,7 +249,7 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             src={`${import.meta.env.BASE_URL}mahalle/giris.webp`}
             nightSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece.webp`}
             litSrc={`${import.meta.env.BASE_URL}mahalle/giris-gece-isik.webp`}
-            dark={dark} lights={lights} muted={muted} overtime={overtimeSince !== null} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
+            dark={dark} lights={lights} muted={muted} overtime={overtimeSince !== null} away={ferry} progress={progress} leaving={leaving} onEnter={enterGame} preload={preload} />
         </div>
 
         {/* data-safe-top: maketteki kart bu çubuğun altında açılır */}
@@ -267,19 +284,15 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
             overtimeSince={overtimeSince}
             onConfess={() => {
               sfx.wake();
-              setOvertimeSince(Date.now());
+              setOvertimeSince((since) => since ?? Date.now());
+              setFerry(true);
             }}
           />
           <nav className={s.tools} aria-label="Oyun araçları">
             <ToolButton
               label={muted ? 'Sesi aç' : 'Sesi kapat'}
               pressed={muted}
-              onClick={() => {
-                audioEngine.init();
-                audioEngine.setMuted(!muted);
-                storeMuted(!muted);
-                setMuted(!muted);
-              }}
+              onClick={toggleMute}
             >
               <svg viewBox="0 0 18 18" aria-hidden="true">
                 <path d={ICONS.volume} />
@@ -328,6 +341,21 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
 
       <div className={s.fade} style={leaving ? { background: loadingBgOf(leaving.route) } : undefined} />
 
+      {ferry && overtimeSince && (
+        <Suspense fallback={null}>
+          <Vapur
+            since={overtimeSince}
+            now={now}
+            muted={muted}
+            onMute={toggleMute}
+            onExit={() => setFerry(false)}
+            onPlay={(route) => {
+              preload(route);
+              window.location.hash = hrefOf(route);
+            }}
+          />
+        </Suspense>
+      )}
       {panel === 'help' && (
         <Panel title="Mahalle rehberi" onClose={() => setPanel(null)}>
           <Suspense fallback={null}>

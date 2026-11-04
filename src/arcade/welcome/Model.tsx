@@ -38,13 +38,15 @@ interface Props {
   lights: boolean[];
   muted: boolean;
   overtime: boolean;
+  /** Vapur açık: mahallenin canlı katmanı (sesleri, lafları) susar. */
+  away: boolean;
   progress: Progress;
   leaving: Leaving | null;
   onEnter: (stop: Stop, route: GameRoute) => void;
   preload: (route: GameRoute) => void;
 }
 
-export function Model({ src, nightSrc, litSrc, dark, lights, muted, overtime, progress, leaving, onEnter, preload }: Props) {
+export function Model({ src, nightSrc, litSrc, dark, lights, muted, overtime, away, progress, leaving, onEnter, preload }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const maskId = `maket-isik-${useId().replace(/\W/g, '')}`;
   const night = dark >= 0.5;
@@ -158,7 +160,7 @@ export function Model({ src, nightSrc, litSrc, dark, lights, muted, overtime, pr
           )}
         </div>
 
-        {!leaving && (
+        {!leaving && !away && (
           <Suspense fallback={null}>
             <Life night={night} overtime={overtime} muted={muted} quiet={!!active} />
           </Suspense>

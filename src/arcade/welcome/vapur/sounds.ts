@@ -42,3 +42,15 @@ export function breath(inhale: boolean) {
 export function tick(last: boolean) {
   e.tone({ type: 'triangle', freq: last ? 880 : 660, decay: 0.12, peak: 0.025 });
 }
+
+/** Vapurun makinesi: güvertenin altından gelen kalın, kısık bir uğultu. */
+export function engine() {
+  e.tone({ type: 'sine', freq: 46, attack: 1.2, decay: 3, peak: 0.03 });
+  e.tone({ type: 'triangle', freq: 92, attack: 1.2, decay: 2.6, peak: 0.006 });
+}
+
+/** Simit martıya gidince: kanat çırpışı ve sevinçli bir çığlık. */
+export function snatch() {
+  for (let i = 0; i < 6; i++) later(i * 70, () => e.noiseHit({ filter: 'bandpass', freq: 1000 + i * 90, q: 1.1, attack: 0.005, decay: 0.05, peak: 0.025 }));
+  later(380, gull);
+}
