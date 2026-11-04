@@ -2,7 +2,7 @@ import { PAINT, noiseTile, arrow, band, line, along } from './roadMarks';
 import { inPoint, type Junction } from './junction';
 import { LANE_W, SIDE_W, SIDE_WALK, SIDEWALK } from './model';
 import { rng } from './sim';
-import { building, OBL_X, OBL_Y } from './facade';
+import { building, INK, OBL_X, OBL_Y } from './facade';
 import { roadRect, WORLD, type Scenery } from './scenery';
 
 /*
@@ -127,7 +127,7 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
       ctx.fillRect(gx, gy, 3 + r() * 5, 2 + r() * 4);
     }
     ctx.restore();
-    ctx.strokeStyle = '#7d7a73';
+    ctx.strokeStyle = INK;
     ctx.lineWidth = 0.55;
     ctx.stroke(path);
     ctx.strokeStyle = '#e4e0d7';
@@ -299,7 +299,7 @@ export function paintGround(j: Junction, sc: Scenery, v: View, dusk: number, see
     applyView(ctx, v);
     // bordürler
     ctx.lineWidth = 0.3;
-    ctx.strokeStyle = '#7d7a73';
+    ctx.strokeStyle = INK;
     ctx.beginPath();
     for (const sgn of [-1, 1]) {
       const a = P(at + sgn * (hw + R), t.edge);

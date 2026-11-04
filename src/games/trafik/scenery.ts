@@ -125,7 +125,8 @@ export interface Scenery {
   bollards: [number, number][];
 }
 
-const FACADES = ['#e9dcc3', '#efe6d2', '#e7c9a9', '#d9c7a6', '#f1ece0', '#cfd4d2', '#e3b9a0', '#ecd9a9', '#d7d0c3', '#e8d2c4', '#c9cfc0', '#f3e3c3'];
+/** Toprak tonlu sıvalar: okra, somon, pembe, kum, krem (mahalle maketinin paleti). */
+const FACADES = ['#d9b98c', '#e1a98f', '#cfc3a8', '#e6c99a', '#d7a3a8', '#ead9b8', '#e3b48a', '#d8b3a0', '#c9b48e', '#efdcc0', '#dcae8c', '#e8c4b0'];
 const SHOPS = ['ECZANE', 'BAKKAL', 'FIRIN', 'KUAFÖR', 'EMLAK', 'BÜFE', 'LOKANTA', 'OPTİK', 'TERZİ', 'ÇAY OCAĞI', 'KIRTASİYE', 'MANAV', 'BERBER', 'KASAP', 'PASTANE', 'TEKEL'];
 const AWNINGS = ['#b8432f', '#2f6b4f', '#2b4f7a', '#c48a1c', '#7a3b5c', '#3f6f7a', '#a65a2a', '#5a5f2a'];
 

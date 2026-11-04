@@ -301,14 +301,20 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         {/* tavan kirişi ve sıva lekeleri */}
         <rect width={W} height="40" fill="#5c3b22" />
         <rect y="40" width={W} height="8" fill="rgba(0,0,0,.2)" />
+        <path d={`M0 40 H${W}`} stroke="#2a231d" strokeWidth="2" />
         <ellipse cx="300" cy="200" rx="160" ry="70" fill="rgba(120,90,40,.08)" />
         <ellipse cx="1300" cy="170" rx="120" ry="50" fill="rgba(120,90,40,.08)" />
+        {/* sıvada kabaran boya, rutubet izi ve ince çatlaklar (mahalle maketinin sıva dokusu) */}
+        <ellipse cx="80" cy="420" rx="70" ry="110" fill="rgba(110,80,40,.07)" />
+        <ellipse cx="1520" cy="360" rx="60" ry="90" fill="rgba(110,80,40,.07)" />
+        <path d="M60 120 l14 22 l-6 18 l12 20 M1460 90 l-10 26 l8 14" stroke="rgba(42,35,29,.28)" strokeWidth="1.5" fill="none" />
         {/* lambri */}
         <rect y={fitY(560)} width={W} height="140" fill="#7a5232" />
         {Array.from({ length: 50 }, (_, i) => (
           <rect key={i} x={i * 32} y={fitY(560)} width="3" height="140" fill="rgba(0,0,0,.18)" />
         ))}
         <rect y={fitY(560) - 8} width={W} height="8" fill="#5c3b22" />
+        <path d={`M0 ${fitY(560) - 8} H${W} M0 ${fitY(560)} H${W}`} stroke="#2a231d" strokeWidth="1.5" />
 
         <g transform={FIT}>
         <Door hour={hour} weather={weather} open={open} onSign={onSign} glow={coach === 'sign'} />

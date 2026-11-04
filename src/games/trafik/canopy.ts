@@ -3,9 +3,11 @@ import { applyView, bounds, type View } from './paint';
 import type { Junction } from './junction';
 import { rng } from './sim';
 import { WORLD, type Scenery } from './scenery';
+import { INK } from './facade';
 
 /*
- * Arabaların üstündeki katman: ağaç taçları ve aydınlatma direklerinin başları.
+ * Arabaların üstündeki katman: ağaç taçları ve aydınlatma direklerinin başları, mahalle maketinin
+ * diliyle: taçlar mürekkep çevre çizgili, direkler arasında sarkan elektrik telleri.
  */
 
 /** Arabaların üstünde kalan katman: ağaç taçları ve aydınlatma direklerinin başları. */
@@ -45,7 +47,30 @@ export function paintCanopy(j: Junction, sc: Scenery, v: View, seed: number): HT
     }
     ctx.arc(t.x, t.y, t.r * 0.6, 0, Math.PI * 2);
     ctx.fill();
+    // ince mürekkep: yaprak kümelerinin kıvrımları
+    ctx.strokeStyle = INK;
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 0.06;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
+  // elektrik telleri: aynı sırada art arda dikilmiş direklerin başları arasında hafifçe sarkar
+  ctx.strokeStyle = INK;
+  ctx.globalAlpha = 0.5;
+  ctx.lineWidth = 0.05;
+  ctx.beginPath();
+  for (let k = 1; k < sc.lamps.length; k++) {
+    const a = sc.lamps[k - 1];
+    const b = sc.lamps[k];
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (len > 40 || a.a !== b.a) continue;
+    if (Math.max(a.x, b.x) < B.x0 || Math.min(a.x, b.x) > B.x1 || Math.max(a.y, b.y) < B.y0 || Math.min(a.y, b.y) > B.y1) continue;
+    // tel direğin dibinden değil, başının hemen gerisinden geçer; ortada güneye sarkar
+    ctx.moveTo(a.x, a.y);
+    ctx.quadraticCurveTo((a.x + b.x) / 2 + 0.6, (a.y + b.y) / 2 + 1.2, b.x, b.y);
+  }
+  ctx.stroke();
+  ctx.globalAlpha = 1;
   for (const l of sc.lamps) {
     if (l.x < B.x0 || l.x > B.x1 || l.y < B.y0 || l.y > B.y1) continue;
     ctx.strokeStyle = '#55585e';
@@ -54,14 +79,18 @@ export function paintCanopy(j: Junction, sc: Scenery, v: View, seed: number): HT
     ctx.moveTo(l.x, l.y);
     ctx.lineTo(l.x + Math.cos(l.a) * 1.8, l.y + Math.sin(l.a) * 1.8);
     ctx.stroke();
-    ctx.fillStyle = '#3a3d42';
+    ctx.fillStyle = '#7a5a3c';
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 0.06;
     ctx.beginPath();
-    ctx.arc(l.x, l.y, 0.18, 0, Math.PI * 2);
+    ctx.arc(l.x, l.y, 0.22, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#d9d6c8';
+    ctx.stroke();
+    ctx.fillStyle = '#efe6d4';
     ctx.beginPath();
     ctx.ellipse(l.x + Math.cos(l.a) * 1.9, l.y + Math.sin(l.a) * 1.9, 0.45, 0.22, l.a, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
   }
   return cv;
 }
