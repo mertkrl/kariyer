@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { audioEngine } from '../../shared/audio/audioEngine';
+import { audio } from '../../shared/audio/lazy';
 import { MUSIC_VOLUME_KEY, readStoredVolume, SFX_VOLUME_KEY, storeVolume } from '../../shared/prefs';
 import { clearAllGameData } from '../../shared/privacy';
 import s from './Welcome.module.css';
@@ -54,7 +54,7 @@ export function Settings() {
           value={music}
           onChange={(e) => {
             const v = Number(e.target.value);
-            audioEngine.setMusicVolume(v);
+            audio.setMusicVolume(v);
             storeVolume(MUSIC_VOLUME_KEY, v);
             setMusic(v);
           }}
@@ -70,7 +70,7 @@ export function Settings() {
           value={effects}
           onChange={(e) => {
             const v = Number(e.target.value);
-            audioEngine.setSfxVolume(v);
+            audio.setSfxVolume(v);
             storeVolume(SFX_VOLUME_KEY, v);
             setEffects(v);
           }}

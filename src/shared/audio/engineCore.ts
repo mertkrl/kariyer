@@ -1,3 +1,4 @@
+import { fetchBytes, retrying } from '../retry';
 export type StampKind = 'approve' | 'reject';
 
 /*
@@ -170,15 +171,21 @@ export class EngineCore {
     param.linearRampToValueAtTime(value, now + seconds);
   }
 
-  /** Bir kaydı bir kez indirip çözer; yüklenemezse null. */
+  /**
+   * Bir kaydı bir kez indirip çözer; yüklenemezse null. İndirme bir kez daha denenir; yine
+   * olmazsa sonuç önbellekten silinir, böylece bir sonraki sahne yeniden dener (bir kopukluk sesi
+   * bütün oturum boyunca susturmaz).
+   */
   loadSample(url: string): Promise<AudioBuffer | null> {
     let p = this.samples.get(url);
     if (!p) {
       const ctx = this.ensureContext();
-      p = fetch(url)
-        .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
+      p = retrying(() => fetchBytes(url))
         .then((b) => ctx.decodeAudioData(b))
-        .catch(() => null);
+        .catch(() => {
+          this.samples.delete(url);
+          return null;
+        });
       this.samples.set(url, p);
     }
     return p;

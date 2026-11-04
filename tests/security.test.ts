@@ -17,8 +17,8 @@ const srcFiles = readdirSync(join(root, 'src'), { recursive: true, encoding: 'ut
   .map((f) => ({ f, text: readFileSync(join(root, 'src', f), 'utf8') }));
 
 test('oyun ağ üzerinden hiçbir şey göndermez', () => {
-  // tek istekler oyunun kendi müzik dosyaları (aynı köken, GET)
-  const allowed = new Set(['shared/audio/engineCore.ts', 'shared/audio/audioEngine.ts']);
+  // tek istekler oyunun kendi ses ve müzik dosyaları (aynı köken, GET; shared/retry.ts fetchBytes)
+  const allowed = new Set(['shared/retry.ts']);
   const network = /\b(XMLHttpRequest|WebSocket|EventSource|sendBeacon|RTCPeerConnection)\b|\bfetch\s*\(/;
   const offenders = srcFiles.filter(({ f, text }) => network.test(text) && !allowed.has(f)).map(({ f }) => f);
   assert.deepEqual(offenders, []);
@@ -97,4 +97,20 @@ test('service worker: yalnızca kendi dosyaları, müzik ilk indirmede yok, her 
   const name = (s: string) => s.match(/const CACHE = '([^']+)'/)![1];
   assert.notEqual(name(sw), name(serviceWorkerSource([...build, 'assets/index-b2.js'])));
   assert.equal(name(sw), name(serviceWorkerSource(build)));
+});
+
+test('başka sitenin çerçevesinde oyun çizilmez; itch.io ve yerel önizleme hariç', async () => {
+  const { strangerFrame } = await import('../src/shared/frameGuard');
+  assert.equal(strangerFrame({ framed: false, hostname: 'mertkrl.github.io' }), false);
+  assert.equal(strangerFrame({ framed: true, hostname: 'mertkrl.github.io' }), true);
+  assert.equal(strangerFrame({ framed: true, hostname: 'html-classic.itch.zone' }), false);
+  assert.equal(strangerFrame({ framed: true, hostname: 'v6p9d9t4.ssl.hwcdn.net' }), false);
+  assert.equal(strangerFrame({ framed: true, hostname: 'localhost' }), false);
+  // benzer görünen alan adı istisnaya girmez
+  assert.equal(strangerFrame({ framed: true, hostname: 'evilitch.zone' }), true);
+  assert.equal(strangerFrame({ framed: true, hostname: 'itch.zone.evil.com' }), true);
+});
+
+test('stil dosyası ve <style> yalnızca oyunun kendi dosyalarından', () => {
+  assert.ok(CSP_DIRECTIVES.includes("style-src-elem 'self'"));
 });

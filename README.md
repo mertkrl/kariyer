@@ -86,6 +86,10 @@ Katmanlar ve bağımlılık yönü (`shared/` ← `arcade/` ← `games/<oyun>/`,
 
 Sunucu, hesap, analiz ya da üçüncü taraf betiği yoktur. Her oyunun kaydı, maketteki tikler ve ayarlar yalnızca oyuncunun tarayıcısında, `kariyerweb-` ile başlayan anahtarlarda durur; kayıtlar okunurken doğrulanır, bozuk ya da eski biçimli kayıt yarım yüklenmek yerine yok sayılır. Ana sayfadaki **Mahalle rehberi**'nde (?) "Verilerimi sil" bunların hepsini ve çevrimdışı kopyayı siler. Gizli pencerede ya da site verileri silinince kayıtlar kaybolur.
 
+Tarayıcı deposuna yalnızca `src/shared/storage.ts` dokunur; biçimi değişen kayıt eski anahtarından çevrilip taşınır ya da silinir. Ağa yalnızca oyunun kendi ses dosyaları için çıkılır (`src/shared/retry.ts`). İleride bir sunucu gerekirse izlenecek ilkeler: [docs/backend.md](docs/backend.md).
+
+**Güvenlik:** sıkı İçerik Güvenliği Politikası (`csp.ts`: yalnızca kendi dosyalar, Trusted Types, sokulan `<style>` çalışmaz). Site başka bir sitenin çerçevesinde açılırsa oyun çizilmez, kendi adresinde açma bağlantısı görünür (`src/shared/frameGuard.ts`; itch.io istisna); başlık gönderebilen sunucularda `public/_headers` aynı korumayı başlıkla da verir.
+
 ## Çevrimdışı
 
 `npm run build` bir servis çalışanı (`sw.js`) üretir: sitenin dosyaları (sayfa, betikler, stiller, yazı tipleri, görseller) ilk açılışta tarayıcıya alınır, sonra çevrimdışı da oynanır ve uygulama olarak kurulabilir. Müzik ve yağmur sesi (birkaç MB) ilk açılışta indirilmez, ilk çalındıklarında saklanır. Yeni bir derleme süren bir oyunun ortasında devreye girmez: "Oyunun yeni sürümü hazır · Yenile" çıkar, seçilmezse bütün sekmeler kapanınca geçilir. Servis çalışanı yalnızca derlenmiş sürümde ve HTTPS ya da localhost üzerinden çalışır.

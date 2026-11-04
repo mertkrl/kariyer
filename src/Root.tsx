@@ -5,6 +5,7 @@ import { GAMES, loadingBgOf, SITE_NAME } from './arcade/games';
 import type { GameRoute } from './arcade/slugs';
 import { GameBoundary } from './arcade/shell/GameBoundary';
 import { GameLoading } from './arcade/shell/GameLoading';
+import { loadAudio } from './shared/audio/lazy';
 
 // Salon ilk pakettedir; her oyun kendi parçasıdır ve yalnızca girilince (ya da kartın üstüne gelince) iner.
 const LOADERS: Record<GameRoute, () => Promise<{ default: ComponentType }>> = {
@@ -28,6 +29,8 @@ const TITLES = { arcade: SITE_NAME, iseAlim: "Sen İK'sin — 5 günlük işe al
 export function Root() {
   const route = useRoute();
   useEffect(() => {
+    // oyuna girildi: ses motoru (salonun ilk paketinde değil) hemen insin
+    if (route !== 'arcade') void loadAudio();
     document.title = TITLES[route];
     window.scrollTo(0, 0);
   }, [route]);

@@ -552,8 +552,10 @@ function useBakkal() {
   // dükkân kapandı: salonun defterine tik ve karne
   useEffect(() => {
     if (phase !== 'final') return;
-    const t = titleFor(day, rep, money + stockValue(stock, day) + unpaid - START_WORTH);
-    markPlayed('bakkal', t.title);
+    const gain = money + stockValue(stock, day) + unpaid - START_WORTH;
+    const t = titleFor(day, rep, gain);
+    // sayısal sonuç: dükkânın başlangıca göre kazancı (₺)
+    markPlayed('bakkal', t.title, Math.round(gain));
     // yalnızca final ekranı açıldığında
     // oxlint-disable-next-line react/exhaustive-deps
   }, [phase]);

@@ -60,7 +60,9 @@
 }
 
 .primary {
+  display: inline-block;
   border: 0;
+  text-decoration: none;
   background: #c9a227;
   color: #1b1917;
 }

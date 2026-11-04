@@ -13,7 +13,11 @@ export const TT_POLICY = 'sen-iksin-sw';
 export const CSP_DIRECTIVES = [
   "default-src 'self'",
   "script-src 'self'",
+  // stil öznitelikleri (React'in style={…}, SVG'nin konumları) satır içi kalır; ama <style> ve
+  // stil dosyası yalnızca oyunun kendi dosyalarından: sayfaya sokulan bir <style> çalışmaz. Bu
+  // yönergeyi tanımayan eski tarayıcı yukarıdaki style-src'ye düşer, hiçbir şey kırılmaz.
   "style-src 'self' 'unsafe-inline'",
+  "style-src-elem 'self'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "media-src 'self' blob:",

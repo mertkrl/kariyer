@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { audioEngine } from '../../shared/audio/audioEngine';
+import { audio } from '../../shared/audio/lazy';
 import { storeMuted } from '../../shared/prefs';
 import { prefersReducedMotion } from '../../shared/motion';
 import { GAMES, loadingBgOf } from '../games';
@@ -210,7 +210,7 @@ function useOvertimeAmbience(on: boolean) {
 }
 
 export function WelcomeScreen({ preload }: { preload: (route: string) => void }) {
-  const [muted, setMuted] = useState(() => audioEngine.isMuted());
+  const [muted, setMuted] = useState(() => audio.isMuted());
   const [panel, setPanel] = useState<'help' | 'settings' | null>(null);
   const toggle = (p: 'help' | 'settings') => setPanel((cur) => (cur === p ? null : p));
   const [progress] = useState(loadProgress);
@@ -238,7 +238,7 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
   };
 
   useEffect(() => {
-    audioEngine.setMusicMood('off');
+    audio.setMusicMood('off');
   }, []);
   useEffect(() => {
     if (!panel) return;
@@ -301,8 +301,8 @@ export function WelcomeScreen({ preload }: { preload: (route: string) => void })
               label={muted ? 'Sesi aç' : 'Sesi kapat'}
               pressed={muted}
               onClick={() => {
-                audioEngine.init();
-                audioEngine.setMuted(!muted);
+                audio.init();
+                audio.setMuted(!muted);
                 storeMuted(!muted);
                 setMuted(!muted);
               }}

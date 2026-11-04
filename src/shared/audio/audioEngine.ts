@@ -1,5 +1,8 @@
 import { MUSIC_TRACKS, type MusicTrack } from './musicPlan';
 import { EngineCore, MUSIC_MOODS, sliderToGain, type MusicMood, type PourSound, type ScatterPaper, type StampKind } from './engineCore';
+import { fetchBytes, retrying } from '../retry';
+import { initialMusicVolume, initialSfxVolume, readStoredMuted } from '../prefs';
+import { connectSound } from '../sound';
 
 export type { MusicMood, PourSound } from './engineCore';
 
@@ -71,9 +74,7 @@ class AudioEngine extends EngineCore {
     const { src } = MUSIC_TRACKS[track];
     let buffer = this.musicBuffers.get(src);
     if (!buffer) {
-      buffer = fetch(src)
-        .then((res) => res.arrayBuffer())
-        .then((data) => ctx.decodeAudioData(data));
+      buffer = retrying(() => fetchBytes(src)).then((data) => ctx.decodeAudioData(data));
       // yüklenemezse bir dahaki istekte yeniden denensin
       buffer.catch(() => this.musicBuffers.delete(src));
       this.musicBuffers.set(src, buffer);
@@ -305,3 +306,10 @@ class AudioEngine extends EngineCore {
 }
 
 export const audioEngine = new AudioEngine();
+
+// Motor hangi yoldan yüklenirse yüklensin (salonun tembel yüklemesi, bir oyunun kendi import'u)
+// ilk sesten önce oyuncunun kayıtlı tercihlerini bilir ve oyun kurallarının seslerine bağlanır.
+audioEngine.setMuted(readStoredMuted());
+audioEngine.setMusicVolume(initialMusicVolume);
+audioEngine.setSfxVolume(initialSfxVolume);
+connectSound(audioEngine);

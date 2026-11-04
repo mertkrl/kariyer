@@ -7,31 +7,36 @@ import { GameBoundary } from './arcade/shell/GameBoundary'
 import { SITE_NAME } from './arcade/games'
 import { applyTextScale, loadTextScale } from './shared/textScale'
 import { applyMotionReduced, loadMotionReduced } from './shared/motion'
-import { audioEngine } from './shared/audio/audioEngine'
-import { connectSound } from './shared/sound'
+import { loadAudio } from './shared/audio/lazy'
 import { registerServiceWorker } from './shared/swUpdate'
-import { initialMusicVolume, initialSfxVolume, readStoredMuted } from './shared/prefs'
+import { isFramedByStranger } from './shared/frameGuard'
+
+// başka bir sitenin çerçevesindeyse oyun hiç çizilmez (clickjacking; shared/frameGuard.ts)
+const framed = isFramedByStranger()
 
 applyTextScale(loadTextScale(), false)
 applyMotionReduced(loadMotionReduced(), false)
 
-// Ses motoru, ilk tık sesinden önce kayıtlı sessiz modunu ve ses seviyelerini bilmeli.
-audioEngine.setMuted(readStoredMuted())
-audioEngine.setMusicVolume(initialMusicVolume)
-audioEngine.setSfxVolume(initialSfxVolume)
-connectSound(audioEngine)
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    {/* son çare: salonun kendisi çökerse; oyunların kendi sınırları Root.tsx'te */}
-    <GameBoundary title={SITE_NAME} canLeave={false}>
-      <Root />
-    </GameBoundary>
-  </StrictMode>,
-)
+const root = createRoot(document.getElementById('root')!)
+if (framed) {
+  // uyarı ekranı ilk pakete girmez: yalnızca çerçevede iner
+  void import('./arcade/shell/FramedNotice').then(({ FramedNotice }) => root.render(<FramedNotice />))
+} else {
+  root.render(
+    <StrictMode>
+      {/* son çare: salonun kendisi çökerse; oyunların kendi sınırları Root.tsx'te */}
+      <GameBoundary title={SITE_NAME} canLeave={false}>
+        <Root />
+      </GameBoundary>
+    </StrictMode>,
+  )
+}
 
-registerServiceWorker()
-
-// ses sahneleri ilk ekran için gerekmez: ekran çizildikten sonra indirilir
-const idle = window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 1500))
-idle(() => void audioEngine.loadScenes())
+if (!framed) {
+  registerServiceWorker()
+  // ses motoru ve sahneleri ilk ekran için gerekmez: ekran çizildikten sonra iner. Motor kayıtlı
+  // sessiz tercihini ve ses düzeylerini kendisi uygular (shared/audio/audioEngine.ts).
+  const idle = window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 1500))
+  idle(() => void loadAudio().then((e) => e.loadScenes()))
+}

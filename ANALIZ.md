@@ -123,6 +123,11 @@ belirsizlik ve paylaşılan kodun yokluğu olur.
 yalnızca ses dosyaları ve service worker için. Bugün backend gerektiren bir sorun yok; ama
 "paylaşılan sonuç", "günün kavşağı skor tablosu" gibi fırsatlar geldiğinde hazır olunacak birkaç şey var.
 
+> **Durum (4 Kasım 2026): bu bölümdeki maddeler uygulandı.** Ağ isteği tek yerde ve yeniden denemeli
+> (`src/shared/retry.ts`; ilk istek düşünce 1,5 s sonra ikinci denemede ses iniyor, hiç inmeyen dosya
+> önbellekten siliniyor; tarayıcıda doğrulandı). Ortak sonuç şeması `GameResult` (`score`, `plays`,
+> sürümlü defter). Sunucu eklenirse izlenecek yol `docs/backend.md`'de.
+
 🟢 **Ağ katmanı minimal ve doğru.** `fetch` yalnızca `audio/audioEngine.ts:74`, `audio/engineCore.ts:178` ve `serviceWorker.ts`'te. Yarış koşulu yok, N+1 yok.
 
 🟡 **Ses indirmesindeki hata oturum boyunca kalıcı.** `src/audio/engineCore.ts:174-182` `loadSample`, başarısız `fetch`'i `.catch(() => null)` ile `null`'a çevirip `this.samples` haritasında saklıyor. Mobil veride tek bir kopukluk, o sesi sekme kapanana kadar sessiz bırakıyor (yedek sentez çalıyor). Düzeltme: `null` sonucunu haritadan silin (`.catch(() => { this.samples.delete(url); return null; })`) ve bir kez 2 s sonra yeniden deneyin.
@@ -139,6 +144,12 @@ yalnızca ses dosyaları ve service worker için. Bugün backend gerektiren bir 
 **Özet:** Bu ölçekte bir istemci uygulaması için güvenlik duruşu örnek alınacak düzeyde: sıkı CSP,
 Trusted Types, sıfır zafiyet, `innerHTML` yok, gizli anahtar yok. Bulduğum tek pratik risk,
 `_headers` dosyasının GitHub Pages'te işlenmemesi.
+
+> **Durum (4 Kasım 2026): bu bölümdeki maddeler uygulandı.** Sayfa başka bir sitenin çerçevesinde
+> açılırsa oyun çizilmez, yalnızca kendi adresinde açma bağlantısı görünür (`src/shared/frameGuard.ts`;
+> itch.io ve localhost istisna; [`sec-cerceve.webp`](docs/analiz/sec-cerceve.webp)). CSP'ye
+> `style-src-elem 'self'` eklendi: dışarıdan sokulan `<style>` çalışmaz, stil öznitelikleri çalışır;
+> 10 route'ta ihlal yok. Ses motoru ilk paketten çıktı (ilk açılış 90,2 → 86,7 KB).
 
 🟢 CSP (`csp.ts`): `default-src 'self'`, `script-src 'self'`, `object-src 'none'`, `form-action 'none'`, `require-trusted-types-for 'script'`. Hem `<meta>` hem `_headers`'ta; `tests/security.test.ts` ikisini eşit tutuyor.
 🟢 `dangerouslySetInnerHTML`, `innerHTML`, `eval`, `new Function`: **0 kullanım**.
