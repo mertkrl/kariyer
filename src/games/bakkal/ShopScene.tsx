@@ -186,7 +186,12 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
   const beam = beamAt(hour, weather);
   return (
     <div className={styles.scene}>
-      <svg className={styles.layer} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      {/*
+        mahalle maketinin çizim dili: duran eşyalar (styles.inked) ve tezgâh eşyaları her şeklin
+        çevresinde ekranda 1 piksellik mürekkep çizgisiyle çizilir (ShopScene.module.css). Süzgeç
+        kullanılmaz: canlı öğeler döndükçe pahalı yeniden çizim olmasın.
+      */}
+      <svg className={`${styles.layer} ${styles.still}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
         <defs>
           <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#d9c7a1" />
@@ -297,17 +302,12 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
           </radialGradient>
         </defs>
 
+        <g className={styles.inked}>
         <rect width={W} height={H} fill="url(#wall)" />
         {/* tavan kirişi ve sıva lekeleri */}
         <rect width={W} height="40" fill="#5c3b22" />
         <rect y="40" width={W} height="8" fill="rgba(0,0,0,.2)" />
         <path d={`M0 40 H${W}`} stroke="#2a231d" strokeWidth="2" />
-        <ellipse cx="300" cy="200" rx="160" ry="70" fill="rgba(120,90,40,.08)" />
-        <ellipse cx="1300" cy="170" rx="120" ry="50" fill="rgba(120,90,40,.08)" />
-        {/* sıvada kabaran boya, rutubet izi ve ince çatlaklar (mahalle maketinin sıva dokusu) */}
-        <ellipse cx="80" cy="420" rx="70" ry="110" fill="rgba(110,80,40,.07)" />
-        <ellipse cx="1520" cy="360" rx="60" ry="90" fill="rgba(110,80,40,.07)" />
-        <path d="M60 120 l14 22 l-6 18 l12 20 M1460 90 l-10 26 l8 14" stroke="rgba(42,35,29,.28)" strokeWidth="1.5" fill="none" />
         {/* lambri */}
         <rect y={fitY(560)} width={W} height="140" fill="#7a5232" />
         {Array.from({ length: 50 }, (_, i) => (
@@ -315,17 +315,17 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         ))}
         <rect y={fitY(560) - 8} width={W} height="8" fill="#5c3b22" />
         <path d={`M0 ${fitY(560) - 8} H${W} M0 ${fitY(560)} H${W}`} stroke="#2a231d" strokeWidth="1.5" />
+        </g>
+        {/* lekeler süzgeçsiz: yumuşak kenarları mürekkep halkasına dönmesin */}
+        <ellipse cx="300" cy="200" rx="160" ry="70" fill="rgba(120,90,40,.08)" />
+        <ellipse cx="1300" cy="170" rx="120" ry="50" fill="rgba(120,90,40,.08)" />
+        {/* sıvada kabaran boya, rutubet izi ve ince çatlaklar (mahalle maketinin sıva dokusu) */}
+        <ellipse cx="80" cy="420" rx="70" ry="110" fill="rgba(110,80,40,.07)" />
+        <ellipse cx="1520" cy="360" rx="60" ry="90" fill="rgba(110,80,40,.07)" />
+        <path d="M60 120 l14 22 l-6 18 l12 20 M1460 90 l-10 26 l8 14" stroke="rgba(42,35,29,.28)" strokeWidth="1.5" fill="none" />
 
         <g transform={FIT}>
-        <Door hour={hour} weather={weather} open={open} onSign={onSign} glow={coach === 'sign'} />
-        {/* kapı camından yere düşen güneş: saat ilerledikçe yönü ve gücü değişir */}
-        <polygon
-          className={`${styles.light} ${styles.beam}`}
-          points="132,430 318,430 420,700 160,700"
-          fill="url(#sunBeam)"
-          style={{ opacity: beam.opacity, transform: `skewX(${-beam.skew}deg)` }}
-          pointerEvents="none"
-        />
+        <g className={styles.inked}>
         <ChipsRack stock={stock} />
         <Shelves stock={stock} />
         {/* rafın yanında soğuk dolap, onun yanında ekmek dolabı: çizimleri kendi yerlerinden kaydırılır */}
@@ -336,6 +336,21 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
           <BreadCase bread={stock.ekmek ?? 0} />
         </g>
         <Extras />
+        </g>
+        </g>
+      </svg>
+
+      <svg className={`${styles.layer} ${styles.live}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <g transform={FIT} className={`${styles.liveArt} ${styles.inked}`}>
+        <Door hour={hour} weather={weather} open={open} onSign={onSign} glow={coach === 'sign'} />
+        {/* kapı camından yere düşen güneş: saat ilerledikçe yönü ve gücü değişir */}
+        <polygon
+          className={`${styles.light} ${styles.beam}`}
+          points="132,430 318,430 420,700 160,700"
+          fill="url(#sunBeam)"
+          style={{ opacity: beam.opacity, transform: `skewX(${-beam.skew}deg)` }}
+          pointerEvents="none"
+        />
 
         {/* duvar saati: soğuk dolabın üstünde; akrep ve yelkovan oyunun saatini gösterir */}
         <g transform="translate(1254 -10)" className={styles.clock}>
@@ -358,11 +373,16 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         </g>
       </svg>
 
-      {children}
+      {/* müşteri de aynı mürekkeple: sarmalayıcı yerleşimi değiştirmez */}
+      <div className={`${styles.inked} ${styles.contents}`}>{children}</div>
 
+      <svg className={`${styles.layer} ${styles.front} ${styles.still}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <g className={styles.inked}>
+          <CounterBody y={fitY(COUNTER_Y)} width={W} height={H} />
+        </g>
+      </svg>
       <svg className={`${styles.layer} ${styles.front}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-        <CounterBody y={fitY(COUNTER_Y)} width={W} height={H} />
-        <g transform={FIT}>
+        <g transform={FIT} className={styles.inked}>
           <CounterTop coach={coach} onCalc={onCalc} onBook={onBook} gum={stock.sakiz ?? 0} gumActive={gumActive} onGum={onGum} />
         </g>
         {/* akşam ve kötü havada oda kararır; ampulün çevresi aydınlık kalır */}
@@ -371,6 +391,8 @@ export function ShopScene({ children, stock, gumActive = false, onGum, hour = 12
         <rect className={`${styles.light} ${styles.tint}`} width={W} height={H} style={{ fill: tint.color, opacity: tint.alpha }} pointerEvents="none" />
         <rect width={W} height={H} fill="url(#vignette)" pointerEvents="none" />
       </svg>
+      {/* el çizimi kâğıt ve sıva dokusu: bir kez boyanan sabit katman */}
+      <div className={styles.grain} aria-hidden="true" />
     </div>
   );
 }

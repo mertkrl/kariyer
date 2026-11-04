@@ -13,47 +13,32 @@ import styles from './BakkalGame.module.css';
 export type Errand = 'account' | 'loan' | 'empty' | 'charity' | 'fine' | 'return' | 'audit' | null;
 export type Step = 'ask' | 'counter' | 'credit' | 'dilemma' | 'change' | 'gift' | 'result';
 
-/** "Süt (1 lt)" → ad ve ölçü ayrı satırda. */
-const split = (name: string) => {
-  const m = name.match(/^(.*?) \((.*)\)$/);
-  return m ? { title: m[1], size: m[2] } : { title: name, size: '' };
-};
+/** "Süt (1 lt)" → "Süt": siparişte yalnızca malın adı yazar. */
+const titleOf = (name: string) => name.replace(/ \(.*\)$/, '');
 
 /**
- * Müşterinin istediği: sipariş fişi gibi. Başlıkta kimin istediği, kaç kalem olduğu ve günün sırası; her kalem
- * yan yana kendi kutusunda: simgesi, adı, raf durumu ve ölçüsü (tost ve sandviçte içindekiler).
+ * Müşterinin istediği: tezgâh panelinin içinde, ayrı bir kart olmadan. Her kalem simgesi, adı ve
+ * adediyle tek satır ("Sabun ×1"); rafta olmayanın üstü çizilir. Altta, yalnızca ilk gün, fiyatın
+ * kasaya girileceğini hatırlatan şerit.
  */
-function WantList({ visit, missing, queue, foot }: { visit: Visit; missing: Product[]; queue: string; foot?: ReactNode }) {
+function WantList({ visit, missing, foot }: { visit: Visit; missing: Product[]; foot?: ReactNode }) {
   return (
     <div className={styles.want}>
-      <div className={styles.wantHead}>
-        <span className={styles.wantWho}>
-          {visit.villager.name}
-          <span className={styles.wantCount}>{visit.items.length} kalem</span>
-        </span>
-        <span className={styles.wantQueue}>{queue}</span>
-      </div>
-      <ul className={styles.wantList} style={{ gridTemplateColumns: `repeat(${visit.items.length}, minmax(0, 1fr))` }}>
+      <ul className={styles.wantList}>
         {visit.items.map((p) => {
-          const { title, size } = split(p.name);
           const out = missing.includes(p);
           return (
-            <li key={p.id} className={out ? styles.wantOut : ''}>
+            <li key={p.id} className={out ? styles.wantOut : ''} title={p.detail ?? p.name}>
               <span className={styles.wantIcon} aria-hidden="true">
                 {p.emoji}
               </span>
-              <span className={styles.wantText} title={p.detail}>
-                <b>{title}</b>
-                <small>
-                  <i className={`${styles.wantTag} ${out ? styles.wantTagOut : p.detail ? styles.wantTagMade : ''}`}>{out ? 'yok' : p.detail ? 'tezgâhta' : 'rafta'}</i>
-                  {p.detail ?? size}
-                </small>
-              </span>
+              <b>{titleOf(p.name)}</b>
+              <span className={styles.wantQty}>×1</span>
+              {out && <i className={styles.wantTagOut}>yok</i>}
             </li>
           );
         })}
       </ul>
-      {/* fişin alt şeridi: ne yapılacağı (fiyatı kasaya gir) fişin parçası olarak durur */}
       {foot && <div className={styles.wantFoot}>{foot}</div>}
     </div>
   );
@@ -61,6 +46,7 @@ function WantList({ visit, missing, queue, foot }: { visit: Visit; missing: Prod
 
 export function Till({
   queue,
+  firstDay = false,
   news = [],
   onAudit,
   last,
@@ -94,6 +80,8 @@ export function Till({
   onGift,
 }: {
   queue: string;
+  /** İlk gün: fiyatın kasaya girileceği hatırlatılır. */
+  firstDay?: boolean;
   /** Sabahın haberleri: toptancı, seyyar satıcı, zincir market. */
   news?: string[];
   onAudit: () => void;
@@ -165,13 +153,9 @@ export function Till({
           <WantList
             visit={visit}
             missing={shelf.missing}
-            queue={queue}
             foot={
-              step === 'ask' && !errand ? (
+              step === 'ask' && !errand && firstDay ? (
                 <p className={styles.wantHint}>
-                  <span className={styles.wantStep} aria-hidden="true">
-                    ₺
-                  </span>
                   <span>
                     {shelf.missing.length > 0 && shelf.missing.length < visit.items.length && 'Rafta olmayanı almaz; gerisinin '}
                     {shelf.missing.length > 0 && shelf.missing.length < visit.items.length ? 'fiyatını' : 'Fiyatı'} kasaya gir, <kbd>ONAY</kbd>'a bas

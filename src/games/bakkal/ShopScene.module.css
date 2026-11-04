@@ -17,6 +17,46 @@
   pointer-events: none;
 }
 
+/* duran katman: tıklanacak bir şey yok */
+.still {
+  pointer-events: none;
+}
+
+/*
+ * Mahalle maketinin mürekkebi: kendi çizgisi olmayan her dolu şeklin çevresine ekranda 1 piksellik
+ * koyu kahve çizgi. Yarı saydam ışık, gölge ve cam katmanları (rgba, degrade perdeler, opaklık
+ * verilmiş şekiller) çizgisiz kalır.
+ */
+.inked :is(rect, path, circle, ellipse, polygon):not([stroke]):not([fill='none']):not([fill^='rgba']):not([fill^='url(#glass']):not([fill='url(#shelfShade)']):not([fill='url(#cyl)']):not([fill='url(#sunBeam)']):not([fill='url(#lampLight)']):not([fill='url(#mist)']):not([opacity]) {
+  stroke: #2a231d;
+  stroke-width: 1px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* yerleşime katılmayan sarmalayıcı */
+.contents {
+  display: contents;
+}
+
+/* kâğıt ve sıva dokusu: ince gürültü, sahnenin üstünde çok hafif */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .15 0 0 0 0 .1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* canlı katman: yalnızca kapı, levha ve saat tıklanır; boş yeri alttaki katmana geçer */
+.live {
+  pointer-events: none;
+}
+
+.liveArt {
+  pointer-events: auto;
+}
+
 .bell {
   transform-box: fill-box;
   transform-origin: 50% 0;

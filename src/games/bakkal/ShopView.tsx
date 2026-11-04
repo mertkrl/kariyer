@@ -72,6 +72,7 @@ export function ShopView({ g }: { g: Bakkal }) {
 
       {phase === 'shop' && visit && basket && shelf && (
         <Till
+          firstDay={day === 1}
           queue={`${day}. gün · ${clockText(hour)} · müşteri ${idx + 1}/${visits.length}`}
           news={[supply !== 'ok' && idx === 0 ? SUPPLY_NOTE[supply] : null, peddlerOn(seed, day) && idx === 0 ? '🛻 Bugün köye seyyar satıcı geldi: meydanda tezgâh açmış, müşteri az.' : null, day === RIVAL_DAY && idx === 0 ? '🏬 Kasabaya zincir market açıldı: temel gıdada köylü fiyata daha çok bakacak.' : null].filter((x): x is string => !!x)}
           onAudit={showBooks}
