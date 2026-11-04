@@ -74,8 +74,7 @@ function readNow(): Date {
 function isWorkHours(d: Date): boolean {
   const day = d.getDay();
   const h = d.getHours();
-  // GEÇİCİ TEST: mesai 08:00–09:00'a daraltıldı, gün içinde soru denenebilsin. Geri al: h >= 8 && h < 18
-  return day >= 1 && day <= 5 && h >= 8 && h < 9;
+  return day >= 1 && day <= 5 && h >= 8 && h < 18;
 }
 
 function shiftNote(d: Date): string {
