@@ -162,7 +162,7 @@ export function Model({ src, nightSrc, litSrc, dark, lights, muted, overtime, aw
 
         {!leaving && !away && (
           <Suspense fallback={null}>
-            <Life night={night} overtime={overtime} muted={muted} quiet={!!active} />
+            <Life night={night} dark={dark} overtime={overtime} muted={muted} quiet={!!active} />
           </Suspense>
         )}
 

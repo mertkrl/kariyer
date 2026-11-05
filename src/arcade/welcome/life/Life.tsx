@@ -1,105 +1,60 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { prefersReducedMotion } from '../../../components/ui/motion';
 import { audioEngine } from '../../../audio/audioEngine';
-import { IMG_H, IMG_W, toBox } from '../stops';
+import { City } from './city/city';
+import { H as IMG_H, W as IMG_W, type Pt } from './city/core';
 import { quipsFor, type Quip } from './quips';
+import { isSecret, loadFound, saveFound, SECRETS, type SecretId } from './secrets';
 import * as snd from './sounds';
 import s from './Life.module.css';
 
 /*
- * Maketin canlı katmanı: ilk açılış paketine girmez, maket göründükten sonra iner.
- *  - Az ama sürekli hareket: bacalardan duman, plazanın çatısında güvercinler, kaldırımda kuyruğunu
- *    sallayan kedi, simitçinin buharı, ara ara yoldan geçen dolmuş.
- *  - Pencerelerden laflar: saate, güne ve fazla mesaiye göre değişen balonlar (quips.ts).
- *  - Gizli şakalar: maketin bazı yerlerine dokununca bir şey olur; bulunan sırlar sayılır ve
- *    tarayıcıda saklanır ("Mahallenin sırları 3/11").
- *  - Ses: yalnızca açıkken. Açan kişiyi kısa bir nağme ve pencereden bir teyze karşılar; sonra
- *    gündüz kuşlar, gece cırcır böcekleri, fazla mesaide klavye ve floresan.
- *  - Sekme görünmezken her şey durur; "hareketi azalt" diyende hareket yok, laflar yine gelir;
- *    zayıf cihazda daha az duman, daha seyrek dolmuş ve laf.
+ * Maketin yaşayan katmanı (ilk açılış paketine girmez, maket göründükten sonra iner). Tek bir
+ * tuval görselin üstüne aynı ölçekle oturur; şehir (city/) her kare güncellenip çizilir:
+ * trafik ve ışık, yayalar, simitçi, çaycı, top oynayan çocuklar, baloncu, sepet sarkıtan teyze,
+ * güvercinler, kedi, köpek, martılar, çamaşır ipi, cam silme sepeti, kaynakçı, duman, yağmur.
+ *
+ * Dokunulan şey kendi tepkisini verir; bazı tepkiler bir "sır"dır. Bulunanlar sayılır ama ekranda
+ * adları yazmaz: köşedeki nazar boncuğunun çevresindeki halka dolar.
+ *
+ * Pencerelerden laflar (quips.ts), ses açılınca ödül ve ortam sesleri, fazla mesaide klavye ve
+ * floresan. Sekme gizliyken kare çizilmez; "hareketi azalt" diyende şehir donmuş bir an olarak
+ * çizilir, dokununca yine konuşur; zayıf cihazda daha az kişi ve parçacık, saniyede 30 kare.
  */
-
-type EggId = 'kedi' | 'guvercin' | 'simit' | 'kepce' | 'tabela' | 'vinc' | 'wifi' | 'dolmus' | 'anten' | 'bekle' | 'itiraf';
-
-interface Egg {
-  /** Balonun çıktığı yer (görsel koordinatı, 1152 × 928). */
-  at: [number, number];
-  who: string;
-  text: string;
-  sound?: () => void;
-}
-
-const EGGS: Record<EggId, Egg> = {
-  kedi: { at: [232, 618], who: 'Tekir', text: 'Miyav. (Mahallenin kedisi seni onayladı.)', sound: snd.meow },
-  guvercin: { at: [482, 112], who: 'Güvercinler', text: 'Pırrr! Plazanın çatısı boşaldı, biri yem getirsin.', sound: snd.flap },
-  simit: { at: [632, 650], who: 'Simitçi', text: 'Taze simiiit! Mesai dışına özel: iki simit, bir simit fiyatına.', sound: snd.bell },
-  kepce: { at: [950, 505], who: 'Kepçe operatörü', text: 'Abi şu an çay molasındayım, sonra kazarız.', sound: snd.rumble },
-  tabela: { at: [815, 465], who: 'Riskli yapı', text: 'Tabelanın kendisi de riskli, dikkat et.', sound: snd.thud },
-  vinc: { at: [900, 70], who: 'Vinççi', text: 'Biraz sağa… biraz daha… tamam, öyle kalsın.', sound: snd.creak },
-  wifi: { at: [537, 60], who: 'Plaza anteni', text: 'Wi-Fi: KASM_Misafir · Şifre: mesaibitti', sound: snd.blip },
-  dolmus: { at: [560, 640], who: 'Dolmuşçu', text: 'Kadıköy, Kadıköy! Arkaya doğru ilerleyelim!', sound: snd.horn },
-  anten: { at: [240, 262], who: 'Çanak anten', text: 'Maç çekmiyor. Amca balkona çıktı, anteni çeviriyor.', sound: snd.blip },
-  bekle: { at: [600, 330], who: 'Plazadan biri', text: 'Hâlâ buradasın. Patron da aynısını düşünüyor.' },
-  itiraf: { at: [597, 200], who: 'Patron', text: 'Madem buradasın, bir şey daha soracağım…' },
-};
-const EGG_COUNT = Object.keys(EGGS).length;
-const STORE = 'kasm-mahalle-sirlari';
-
-/** Lafların çıktığı pencereler. */
-const WINDOWS: [number, number][] = [
-  [192, 430],
-  [250, 495],
-  [300, 450],
-  [365, 465],
-  [470, 425],
-  [700, 520],
-  [745, 485],
-  [560, 230],
-];
-
-/** Duman çıkan bacalar (önce en görünürler: zayıf cihazda yalnız ilk ikisi tüter). */
-const CHIMNEYS: [number, number][] = [
-  [388, 252],
-  [762, 404],
-  [225, 304],
-  [310, 300],
-  [433, 350],
-];
-
-const ROAD = 'M600 512 C 592 560 578 606 558 648 S 522 716 512 752';
-
-function loadFound(): Set<EggId> {
-  try {
-    const raw = JSON.parse(localStorage.getItem(STORE) ?? '[]');
-    return new Set((Array.isArray(raw) ? raw : []).filter((id): id is EggId => id in EGGS));
-  } catch {
-    return new Set();
-  }
-}
-
-function saveFound(found: Set<EggId>) {
-  try {
-    localStorage.setItem(STORE, JSON.stringify([...found]));
-  } catch {
-    // saklanamadıysa bu ziyaretlik kalır
-  }
-}
-
-/** Zayıf cihaz: az çekirdek, az bellek ya da veri tasarrufu. */
-function lowPower(): boolean {
-  const n = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
-  return (n.hardwareConcurrency ?? 8) <= 4 || (n.deviceMemory ?? 8) <= 2 || n.connection?.saveData === true;
-}
 
 interface Bubble {
   key: number;
-  at: [number, number];
+  at: Pt;
   who: string;
   text: string;
   egg: boolean;
 }
 
-/** Görünürlük: sekme arka plandayken false. */
+/** Lafların çıktığı pencereler. */
+const WINDOWS: Pt[] = [
+  { x: 192, y: 430 },
+  { x: 250, y: 495 },
+  { x: 300, y: 450 },
+  { x: 365, y: 465 },
+  { x: 470, y: 425 },
+  { x: 700, y: 520 },
+  { x: 745, y: 485 },
+  { x: 560, y: 230 },
+];
+
+/** Dokunmadan bulunanların sözleri. */
+const PASSIVE: Partial<Record<SecretId, { who: string; text: string; at: Pt }>> = {
+  bekle: { who: 'Plazadan biri', text: 'Hâlâ buradasın. Patron da aynısını düşünüyor.', at: { x: 600, y: 330 } },
+  itiraf: { who: 'Patron', text: 'Madem buradasın, bir şey daha soracağım…', at: { x: 597, y: 200 } },
+  klavye: { who: 'Simitçi', text: 'Duydum seni! Klavyeden simit sipariş edilmez ama olsun, ayırdım.', at: { x: 632, y: 652 } },
+  'gece-yarisi': { who: 'Bekçi', text: 'Gece yarısı oldu. Şükrü kepengi indirdi, sen hâlâ buradasın.', at: { x: 470, y: 600 } },
+};
+
+function lowPower(): boolean {
+  const n = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+  return (n.hardwareConcurrency ?? 8) <= 4 || (n.deviceMemory ?? 8) <= 2 || n.connection?.saveData === true;
+}
+
 function useVisible() {
   const [visible, setVisible] = useState(() => !document.hidden);
   useEffect(() => {
@@ -110,7 +65,7 @@ function useVisible() {
   return visible;
 }
 
-/** Görünürken her `ms`de bir (biraz oynayarak) `f`'i çağırır. */
+/** Görünürken her `ms`de bir (biraz oynayarak) `f`. */
 function useEvery(ms: number | null, f: () => void) {
   const ref = useRef(f);
   useEffect(() => {
@@ -128,23 +83,74 @@ function useEvery(ms: number | null, f: () => void) {
   }, [ms]);
 }
 
-export default function Life({ night, overtime, muted, quiet }: { night: boolean; overtime: boolean; muted: boolean; quiet: boolean }) {
+interface View {
+  scale: number;
+  ox: number;
+  oy: number;
+  w: number;
+  h: number;
+  dpr: number;
+}
+
+const FIRST_VIEW: View = { scale: 1, ox: 0, oy: 0, w: 1, h: 1, dpr: 1 };
+
+export default function Life({ night, dark, overtime, muted, quiet }: { night: boolean; dark: number; overtime: boolean; muted: boolean; quiet: boolean }) {
   const visible = useVisible();
   const [still] = useState(prefersReducedMotion);
   const [low] = useState(lowPower);
   const [found, setFound] = useState(loadFound);
   const foundRef = useRef(found);
   const [bubble, setBubble] = useState<Bubble | null>(null);
-  const [pop, setPop] = useState(false);
-  const [fx, setFx] = useState<Partial<Record<EggId, number>>>({});
-  // tarayıcı ilk dokunuştan önce ses çalmaz: ortam sesi o zamana kadar bekler
+  const [pop, setPop] = useState(0);
   const [armed, setArmed] = useState(false);
-  const svg = useRef<SVGSVGElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const view = useRef<View>(FIRST_VIEW);
+  // balonların yeri için aynı ölçek (çizim ve dokunuş ref'ten okur, yerleşim bundan)
+  const [box, setBox] = useState<View>(FIRST_VIEW);
   const lastTouch = useRef(0);
   const seq = useRef(0);
   const deck = useRef<Quip[]>([]);
+  const busy = useRef(0);
 
-  const say = useCallback((b: Omit<Bubble, 'key'>) => setBubble({ ...b, key: ++seq.current }), []);
+  const say = useCallback((who: string, text: string, at: Pt, egg = false) => {
+    setBubble({ key: ++seq.current, at, who, text, egg });
+    busy.current = Date.now() + 5000;
+  }, []);
+
+  const discover = useCallback((id: SecretId) => {
+    if (foundRef.current.has(id)) return;
+    const next = new Set(foundRef.current).add(id);
+    foundRef.current = next;
+    setFound(next);
+    saveFound(next);
+    snd.found();
+    setPop((n) => n + 1);
+  }, []);
+
+  // şehir ilk kullanıldığında bir kez kurulur; sözleri ve sırları React'e kancalarla iletir
+  const hooks = useRef({ say, discover });
+  useEffect(() => {
+    hooks.current = { say, discover };
+  }, [say, discover]);
+  const cityRef = useRef<City | null>(null);
+  const getCity = useCallback(() => {
+    if (!cityRef.current) {
+      const c = new City(
+        {
+          say: (who, text, at) => hooks.current.say(who, text, at, true),
+          secret: (id) => {
+            if (isSecret(id)) hooks.current.discover(id);
+          },
+        },
+        low,
+      );
+      // açılışta şehir zaten yaşıyor olsun: birkaç saniyeyi sessizce ileri sar
+      for (let i = 0; i < 200; i++) c.update(0.05);
+      cityRef.current = c;
+    }
+    return cityRef.current;
+  }, [low]);
 
   // balon birkaç saniye kalır
   useEffect(() => {
@@ -153,30 +159,134 @@ export default function Life({ night, overtime, muted, quiet }: { night: boolean
     return () => window.clearTimeout(id);
   }, [bubble]);
 
-  const discover = useCallback(
-    (id: EggId) => {
-      const egg = EGGS[id];
-      egg.sound?.();
-      say({ at: egg.at, who: egg.who, text: egg.text, egg: true });
-      setFx((cur) => ({ ...cur, [id]: (cur[id] ?? 0) + 1 }));
-      if (foundRef.current.has(id)) return;
-      const next = new Set(foundRef.current).add(id);
-      foundRef.current = next;
-      setFound(next);
-      saveFound(next);
-      snd.found();
-      setPop(true);
-      window.setTimeout(() => setPop(false), 1600);
-    },
-    [say],
-  );
-
-  // sekme gizliyken SVG'nin kendi animasyonları (dolmuş) da durur
+  // ses: açık, görünür ve ilk dokunuştan sonra
+  const sound = visible && armed && !muted && !audioEngine.isMuted();
+  const live = useRef({ dark, sound, quiet });
   useEffect(() => {
-    if (!svg.current) return;
-    if (visible) svg.current.unpauseAnimations();
-    else svg.current.pauseAnimations();
-  }, [visible]);
+    live.current = { dark, sound, quiet };
+  }, [dark, sound, quiet]);
+
+  /** Tuvali görselin kapladığı kutuya oturt (object-fit: cover ile aynı hesap). */
+  const paint = useCallback(() => {
+    const cv = canvas.current;
+    const g = cv?.getContext('2d');
+    if (!cv || !g) return;
+    const v = view.current;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, cv.width, cv.height);
+    g.setTransform(v.scale * v.dpr, 0, 0, v.scale * v.dpr, v.ox * v.dpr, v.oy * v.dpr);
+    getCity().draw(g);
+  }, [getCity]);
+
+  useEffect(() => {
+    const el = root.current;
+    const cv = canvas.current;
+    if (!el || !cv) return;
+    const fit = () => {
+      const w = el.clientWidth || 1;
+      const h = el.clientHeight || 1;
+      const scale = Math.max(w / IMG_W, h / IMG_H);
+      const dpr = Math.min(window.devicePixelRatio || 1, low ? 1.5 : 2);
+      view.current = { scale, ox: (w - IMG_W * scale) / 2, oy: (h - IMG_H * scale) / 2, w, h, dpr };
+      setBox(view.current);
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+      paint();
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [low, paint]);
+
+  // kare döngüsü: zayıf cihazda saniyede 30, sekme gizliyken tarayıcı zaten durdurur
+  useEffect(() => {
+    const city = getCity();
+    city.dark = live.current.dark;
+    city.night.set(city.dark);
+    if (still) {
+      paint();
+      return;
+    }
+    if (import.meta.env.DEV) {
+      (window as unknown as { __mahalle?: City }).__mahalle = city;
+      if (new URLSearchParams(window.location.search).get('hava') === 'yagmur') city.forceRain();
+    }
+    let raf = 0;
+    let last = performance.now();
+    let acc = 0;
+    const frame = (now: number) => {
+      raf = requestAnimationFrame(frame);
+      let dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      if (low) {
+        acc += dt;
+        if (acc < 1 / 30) return;
+        dt = acc;
+        acc = 0;
+      }
+      city.dark = live.current.dark;
+      city.sound = live.current.sound;
+      city.update(dt);
+      paint();
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [getCity, still, low, paint]);
+
+  // hareketi azalt: karanlık değişince yeniden çiz
+  useEffect(() => {
+    if (!still) return;
+    const city = getCity();
+    city.dark = dark;
+    city.night.set(dark);
+    paint();
+  }, [still, dark, getCity, paint]);
+
+  // dokunuş ve imleç: maketin kendi tıklamasından önce (yakalama evresinde) bakılır
+  useEffect(() => {
+    const el = root.current;
+    const model = el?.parentElement?.parentElement;
+    if (!el || !model) return;
+    const city = getCity();
+    const toImg = (e: MouseEvent): Pt => {
+      const r = el.getBoundingClientRect();
+      const v = view.current;
+      const lx = (e.clientX - r.left) * (v.w / (r.width || 1));
+      const ly = (e.clientY - r.top) * (v.h / (r.height || 1));
+      return { x: (lx - v.ox) / v.scale, y: (ly - v.oy) / v.scale };
+    };
+    const skip = (t: EventTarget | null) => t instanceof Element && !!t.closest('button, a, [role="dialog"], [role="group"]');
+    const onClick = (e: MouseEvent) => {
+      if (skip(e.target)) return;
+      const p = toImg(e);
+      audioEngine.init();
+      if (!city.tap(p.x, p.y)) return;
+      e.stopPropagation();
+      e.preventDefault();
+      if (still) paint();
+    };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
+      const p = toImg(e);
+      const hit = !skip(e.target) && city.hover(p.x, p.y);
+      if (hit) {
+        model.dataset.egg = '';
+        model.style.cursor = 'pointer';
+      } else if ('egg' in model.dataset) {
+        delete model.dataset.egg;
+        model.style.cursor = '';
+      }
+    };
+    model.addEventListener('click', onClick, true);
+    model.addEventListener('pointermove', onMove, true);
+    return () => {
+      model.removeEventListener('click', onClick, true);
+      model.removeEventListener('pointermove', onMove, true);
+      delete model.dataset.egg;
+      model.style.cursor = '';
+    };
+  }, [getCity, still, paint]);
 
   // ilk dokunuş: ses motoru uyanır; her dokunuş "bekleme" sayacını sıfırlar
   useEffect(() => {
@@ -195,40 +305,69 @@ export default function Life({ night, overtime, muted, quiet }: { night: boolean
     };
   }, []);
 
-  // fazla mesai itirafı da bir sır sayılır
+  /** Dokunmadan bulunan sır: sözüyle birlikte. */
+  const passive = useCallback(
+    (id: SecretId) => {
+      const p = PASSIVE[id];
+      if (p) say(p.who, p.text, p.at, true);
+      discover(id);
+    },
+    [say, discover],
+  );
+
+  // fazla mesai itirafı
   const wasOvertime = useRef(overtime);
   useEffect(() => {
-    if (overtime && !wasOvertime.current) window.setTimeout(() => discover('itiraf'), 1400);
+    if (overtime && !wasOvertime.current) window.setTimeout(() => passive('itiraf'), 1400);
     wasOvertime.current = overtime;
-  }, [overtime, discover]);
+  }, [overtime, passive]);
+
+  // klavyeden "simit" yazana simitçi seslenir
+  useEffect(() => {
+    let buf = '';
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.key.length !== 1) return;
+      buf = (buf + e.key.toLocaleLowerCase('tr-TR')).slice(-8);
+      if (buf.endsWith('simit')) {
+        buf = '';
+        getCity().simitci.call = 1.6;
+        if (live.current.sound) snd.bell();
+        passive('klavye');
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [getCity, passive]);
 
   // sesi açana ödül
   const wasMuted = useRef(muted);
   useEffect(() => {
     if (wasMuted.current && !muted) {
       snd.fanfare();
-      say({ at: WINDOWS[1], who: 'Teyze', text: night ? 'Kısın şunu, gece yarısı! …Yok yok, açık kalsın.' : 'Kısın şunu! …Yok yok, güzelmiş, açık kalsın.', egg: false });
+      say('Teyze', night ? 'Kısın şunu, gece yarısı! …Yok yok, açık kalsın.' : 'Kısın şunu! …Yok yok, güzelmiş, açık kalsın.', WINDOWS[1]);
     }
     wasMuted.current = muted;
   }, [muted, night, say]);
 
-  const live = visible && !quiet;
-
+  const quietNow = visible && !quiet;
   // pencereden laflar
-  useEvery(live ? (low ? 30_000 : 16_000) : null, () => {
-    if (bubble) return;
+  useEvery(quietNow ? (low ? 30_000 : 17_000) : null, () => {
+    if (Date.now() < busy.current) return;
     if (!deck.current.length) deck.current = quipsFor(new Date(), overtime).sort(() => Math.random() - 0.5);
     const quip = deck.current.pop()!;
-    say({ at: WINDOWS[Math.floor(Math.random() * WINDOWS.length)], who: quip.who, text: quip.text, egg: false });
+    say(quip.who, quip.text, WINDOWS[Math.floor(Math.random() * WINDOWS.length)]);
   });
 
-  // uzun süre kıpırdamayana
+  // uzun süre kıpırdamayana; gece yarısında burada olana
   useEvery(visible ? 10_000 : null, () => {
-    if (Date.now() - lastTouch.current > 45_000 && !foundRef.current.has('bekle')) discover('bekle');
+    if (Date.now() - lastTouch.current > 45_000 && !foundRef.current.has('bekle')) passive('bekle');
+    const now = new Date();
+    if (now.getHours() === 0 && now.getMinutes() < 10 && !foundRef.current.has('gece-yarisi')) passive('gece-yarisi');
   });
 
-  // ortam sesi: yalnızca ses açıkken, sekme görünürken ve ilk dokunuştan sonra
-  const sound = visible && armed && !muted && !audioEngine.isMuted();
+  // ortam sesi: gündüz kuşlar, gece cırcır böcekleri, uzaktan korna; fazla mesaide klavye ve floresan
   useEvery(sound ? (night ? 3_500 : 5_500) : null, night ? snd.crickets : snd.birds);
   useEvery(sound && !overtime ? 24_000 : null, snd.farHorn);
   useEffect(() => {
@@ -252,110 +391,49 @@ export default function Life({ night, overtime, muted, quiet }: { night: boolean
     };
   }, [sound, overtime, still]);
 
-  const hit = (id: EggId) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    audioEngine.init();
-    discover(id);
-  };
-  const flown = (fx.guvercin ?? 0) % 2 === 1;
-  const moving = !still;
-  const chimneys = CHIMNEYS.slice(0, low ? 2 : CHIMNEYS.length);
-  const puffs = low ? 2 : 3;
+  // ses kapanınca yağmur da susar
+  useEffect(() => {
+    if (!sound) snd.rain(false);
+  }, [sound]);
+
+  const place = (p: Pt) => ({ x: ((box.ox + p.x * box.scale) / box.w) * 100, y: ((box.oy + p.y * box.scale) / box.h) * 100 });
 
   return (
-    <div className={`${s.life} ${visible ? '' : s.paused} ${night ? s.night : ''} ${moving ? '' : s.still}`}>
-      <svg ref={svg} className={s.layer} viewBox={`0 0 ${IMG_W} ${IMG_H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        {moving &&
-          chimneys.map(([x, y], i) => (
-            <g key={i} transform={`translate(${x} ${y})`}>
-              {Array.from({ length: puffs }, (_, k) => (
-                <circle key={k} className={s.puff} r={7} style={{ animationDelay: `${-(k * 4.2) / puffs - i * 0.9}s` }} />
-              ))}
-            </g>
-          ))}
-
-        {/* simitçinin buharı */}
-        {moving && (
-          <g transform="translate(632 660)">
-            <circle className={`${s.puff} ${s.steam}`} r={4} />
-            <circle className={`${s.puff} ${s.steam}`} r={4} style={{ animationDelay: '-2s' }} />
-          </g>
-        )}
-
-        {/* plazanın çatısında güvercinler: dokununca uçar, bir daha dokununca döner */}
-        <g className={`${s.pigeons} ${flown ? s.flown : ''}`}>
-          {[
-            [466, 129],
-            [484, 133],
-            [503, 137],
-          ].map(([x, y], i) => (
-            <g key={i} transform={`translate(${x} ${y})`}>
-              <g className={s.bird} style={{ animationDelay: `${i * -1.3}s` }}>
-                <ellipse rx={6.5} ry={4} fill="#8d9098" stroke="#2a2420" strokeWidth={1.1} />
-                <circle className={s.head} cx={5.5} cy={-4} r={2.8} fill="#6f737c" stroke="#2a2420" strokeWidth={1} />
-              </g>
-            </g>
-          ))}
-        </g>
-        <circle data-egg className={s.hit} cx={484} cy={130} r={26} onClick={hit('guvercin')} />
-
-        {/* kaldırımdaki kedi */}
-        <g transform="translate(232 640)" className={(fx.kedi ?? 0) > 0 ? s.catJump : undefined} key={`kedi${fx.kedi ?? 0}`}>
-          <path className={s.tail} d="M6 -2 q 12 -2 10 -16" fill="none" stroke="#3a3330" strokeWidth={3} strokeLinecap="round" />
-          <ellipse cx={0} cy={-6} rx={8} ry={7} fill="#3a3330" />
-          <circle cx={-6} cy={-15} r={5} fill="#3a3330" />
-          <path d="M-10 -18 l1 -6 l3 4 M-5 -19 l2 -5 l1 5" fill="#3a3330" stroke="#3a3330" strokeWidth={1.4} strokeLinejoin="round" />
-          <circle cx={-7.5} cy={-15.5} r={0.9} fill="#e9d36a" />
-        </g>
-        <circle data-egg className={s.hit} cx={232} cy={630} r={20} onClick={hit('kedi')} />
-
-        {/* yoldan geçen dolmuş */}
-        {moving && (
-          <g data-egg className={s.dolmus} onClick={hit('dolmus')}>
-            <animateMotion dur={low ? '48s' : '26s'} repeatCount="indefinite" rotate="auto" path={ROAD} keyPoints="0;0;1;1" keyTimes="0;0.55;0.8;1" calcMode="linear" />
-            <animate attributeName="opacity" dur={low ? '48s' : '26s'} repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.54;0.57;0.78;0.81;1" />
-            <circle r={22} fill="transparent" />
-            <rect x={-13} y={-7.5} width={26} height={15} rx={4} fill="#e9b730" stroke="#2a2420" strokeWidth={1.4} />
-            <rect x={-6} y={-5.5} width={11} height={11} rx={2} fill="#f6e3a2" stroke="#2a2420" strokeWidth={1} />
-            <rect x={8} y={-5} width={3} height={10} rx={1} fill="#bfe0ee" />
-          </g>
-        )}
-
-        {/* riskli yapının sıvası düşer */}
-        {(fx.tabela ?? 0) > 0 && <rect key={`sıva${fx.tabela}`} className={s.plaster} x={806} y={560} width={9} height={6} fill="#cbbfa8" stroke="#2a2420" strokeWidth={1} />}
-        {/* kepçenin tozu */}
-        {(fx.kepce ?? 0) > 0 && (
-          <g key={`toz${fx.kepce}`} transform="translate(925 565)">
-            {[0, 1, 2].map((k) => (
-              <circle key={k} className={s.dust} r={9} cx={k * 14 - 14} style={{ animationDelay: `${k * 0.08}s` }} />
-            ))}
-          </g>
-        )}
-
-        <circle data-egg className={s.hit} cx={632} cy={690} r={26} onClick={hit('simit')} />
-        <circle data-egg className={s.hit} cx={950} cy={540} r={36} onClick={hit('kepce')} />
-        <circle data-egg className={s.hit} cx={815} cy={515} r={34} onClick={hit('tabela')} />
-        <circle data-egg className={s.hit} cx={895} cy={45} r={30} onClick={hit('vinc')} />
-        <circle data-egg className={s.hit} cx={537} cy={38} r={22} onClick={hit('wifi')} />
-        <circle data-egg className={s.hit} cx={240} cy={272} r={22} onClick={hit('anten')} />
-      </svg>
-
-      {bubble && <Speech key={bubble.key} bubble={bubble} />}
-
-      {found.size > 0 && (
-        <p className={`${s.secrets} ${pop ? s.pop : ''}`} role="status">
-          Mahallenin sırları <b>{found.size}/{EGG_COUNT}</b>
-        </p>
-      )}
+    <div ref={root} className={`${s.life} ${quiet ? s.dim : ''}`}>
+      <canvas ref={canvas} className={s.canvas} aria-hidden="true" />
+      {bubble && !quiet && <Speech key={bubble.key} bubble={bubble} at={place(bubble.at)} />}
+      {found.size > 0 && <Eye count={found.size} total={SECRETS.length} pop={pop} />}
     </div>
   );
 }
 
-function Speech({ bubble }: { bubble: Bubble }) {
-  const p = toBox(bubble.at[0], bubble.at[1]);
-  // balon maketin kenarından taşmasın: sağ yarıdakiler sola, soldakiler sağa doğru açılır
-  const side = p.x > 62 ? s.toLeft : p.x < 30 ? s.toRight : '';
-  const style = { left: `${p.x}%`, top: `${Math.max(9, p.y)}%` } as CSSProperties;
+/** Nazar boncuğu: çevresindeki halka bulunanlar kadar dolar; yeni bir şey bulununca göz kırpar. */
+function Eye({ count, total, pop }: { count: number; total: number; pop: number }) {
+  const r = 16;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className={s.eye} key={pop} role="status" aria-label={`Bulunan sürpriz: ${count} / ${total}`}>
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx={20} cy={20} r={r} className={s.track} />
+        <circle cx={20} cy={20} r={r} className={s.fill} strokeDasharray={`${(c * count) / total} ${c}`} transform="rotate(-90 20 20)" />
+        <circle cx={20} cy={20} r={11.5} fill="#1f4fa8" />
+        <circle cx={20} cy={20} r={8} fill="#f6f4ee" />
+        <circle cx={20} cy={20} r={5.4} fill="#4fb3e8" />
+        <circle cx={20} cy={20} r={2.8} fill="#0d1420" className={s.pupil} />
+        <circle cx={18.6} cy={18.6} r={1.1} fill="#ffffff" />
+      </svg>
+      <span>
+        {count}
+        <small>/{total}</small>
+      </span>
+    </div>
+  );
+}
+
+function Speech({ bubble, at }: { bubble: Bubble; at: Pt }) {
+  // balon maketin kenarından taşmasın: sağdakiler sola, soldakiler sağa açılır
+  const side = at.x > 62 ? s.toLeft : at.x < 30 ? s.toRight : '';
+  const style = { left: `${at.x}%`, top: `${Math.max(9, at.y)}%` } as CSSProperties;
   return (
     <div className={`${s.bubble} ${side} ${bubble.egg ? s.eggBubble : ''}`} style={style} role={bubble.egg ? 'status' : undefined} aria-hidden={bubble.egg ? undefined : true}>
       <b>{bubble.who}</b>

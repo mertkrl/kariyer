@@ -1,15 +1,14 @@
 /*
- * Maketin canlı katmanı. Hareketler yavaş, kısa ve tekrar eden döngüler: göz kenarda bir şey
- * kıpırdadığını görür ama maketten kopmaz. Sekme gizliyken (.paused) hepsi durur; "hareketi
- * azalt" diyende (.still) döngü yok, yalnızca balonlar yumuşakça belirir.
+ * Maketin yaşayan katmanı: görselin üstüne oturan tek tuval, konuşma balonları ve köşedeki nazar
+ * boncuğu (bulunanların halkası). Tuval tıklamayı engellemez: dokunuşu maket yakalar, Life.tsx
+ * şehre sorar.
  */
 
+/* kök kendi katmanını kurmaz: tuval durak işaretlerinin altında, balonlar üstünde kalır */
 .life {
   position: absolute;
   inset: 0;
-  z-index: 2;
   pointer-events: none;
-  animation: lifeIn 1.2s ease both;
 }
 
 @keyframes lifeIn {
@@ -18,192 +17,18 @@
   }
 }
 
-.paused,
-.paused * {
-  animation-play-state: paused !important;
-}
-
-.layer {
+.canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow: visible;
-  pointer-events: none;
+  animation: lifeIn 1.2s ease both;
+  transition: opacity 0.5s ease;
 }
 
-/* ── duman ve buhar ── */
-
-.puff {
-  fill: rgba(150, 142, 132, 0.5);
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: puff 4.2s linear infinite;
-}
-
-.night .puff {
-  fill: rgba(190, 196, 214, 0.32);
-}
-
-.steam {
-  fill: rgba(255, 255, 255, 0.6);
-  animation-duration: 3.4s;
-}
-
-@keyframes puff {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.5);
-  }
-  15% {
-    opacity: 0.9;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(10px, -48px) scale(1.9);
-  }
-}
-
-/* ── güvercinler ── */
-
-.bird {
-  animation: bob 3.9s ease-in-out infinite;
-}
-
-.head {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: peck 3.9s ease-in-out infinite;
-  animation-delay: inherit;
-}
-
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-0.8px);
-  }
-}
-
-@keyframes peck {
-  0%,
-  70%,
-  100% {
-    transform: translate(0, 0);
-  }
-  78% {
-    transform: translate(2px, 3px);
-  }
-  86% {
-    transform: translate(0, 0);
-  }
-  92% {
-    transform: translate(2px, 3px);
-  }
-}
-
-.pigeons {
-  transition:
-    transform 1.6s cubic-bezier(0.4, 0, 0.6, 1),
-    opacity 1.2s ease 0.3s;
-}
-
-.flown {
-  transform: translate(140px, -150px);
-  opacity: 0;
-}
-
-.still .pigeons {
-  transition: opacity 0.4s;
-}
-
-.still .flown {
-  transform: none;
-}
-
-/* ── kedi ── */
-
-.tail {
-  transform-box: fill-box;
-  transform-origin: 0% 100%;
-  animation: swish 2.6s ease-in-out infinite;
-}
-
-@keyframes swish {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(-22deg);
-  }
-}
-
-.catJump {
-  animation: catJump 0.7s cubic-bezier(0.3, 0.7, 0.4, 1);
-}
-
-@keyframes catJump {
-  40% {
-    transform: translate(232px, 622px) scaleX(-1);
-  }
-  100% {
-    transform: translate(232px, 640px);
-  }
-}
-
-/* ── dolmuş, sıva, toz ── */
-
-.dolmus {
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-.plaster {
-  animation: fall 0.9s cubic-bezier(0.5, 0, 1, 1) forwards;
-}
-
-@keyframes fall {
-  to {
-    transform: translate(6px, 80px) rotate(160deg);
-    opacity: 0;
-  }
-}
-
-.dust {
-  fill: rgba(196, 170, 128, 0.7);
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: dust 1.4s ease-out forwards;
-}
-
-@keyframes dust {
-  from {
-    transform: scale(0.3);
-    opacity: 0.9;
-  }
-  to {
-    transform: translateY(-26px) scale(2.2);
-    opacity: 0;
-  }
-}
-
-.still .tail,
-.still .bird,
-.still .head,
-.still .catJump,
-.still .plaster,
-.still .dust {
-  animation: none;
-}
-
-/* sırların dokunma alanları: görünmez */
-.hit {
-  fill: transparent;
-  pointer-events: auto;
-  cursor: pointer;
+/* bir durağın kartı açıkken şehir biraz geri çekilir */
+.dim .canvas {
+  opacity: 0.55;
 }
 
 /* ── balon ── */
@@ -284,8 +109,10 @@
   }
 }
 
-.still .bubble {
-  animation: fadeIn 0.3s ease both;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes fadeIn {
@@ -294,37 +121,80 @@
   }
 }
 
-/* ── sır sayacı ── */
+@media (prefers-reduced-motion: reduce) {
+  .bubble {
+    animation: fadeIn 0.3s ease both;
+  }
+}
 
-.secrets {
+/* ── nazar boncuğu: yazısız sayaç ── */
+
+.eye {
   position: absolute;
   left: 3%;
   bottom: 3%;
   z-index: 3;
-  margin: 0;
-  padding: 6px 11px;
-  border: 1px solid rgba(35, 70, 56, 0.22);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid rgba(35, 70, 56, 0.2);
   border-radius: 999px;
-  background: rgba(240, 237, 229, 0.9);
+  background: rgba(240, 237, 229, 0.88);
   color: #234638;
-  font: 600 11px/1 'Manrope', Arial, sans-serif;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font: 700 12px/1 'Manrope', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  animation: eyeIn 0.7s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
 
-.secrets b {
-  margin-left: 4px;
-  color: #9d2732;
+.eye svg {
+  width: 30px;
+  height: 30px;
 }
 
-.pop {
-  animation: pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1);
+.eye small {
+  margin-left: 1px;
+  color: #7a857e;
+  font-size: 10px;
+  font-weight: 600;
 }
 
-@keyframes pop {
+.track {
+  fill: none;
+  stroke: rgba(35, 70, 56, 0.14);
+  stroke-width: 3;
+}
+
+.fill {
+  fill: none;
+  stroke: #c9a24a;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.8s ease;
+}
+
+.pupil {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wink 0.5s ease 0.35s;
+}
+
+@keyframes eyeIn {
   40% {
     scale: 1.18;
-    background: #fff3c4;
+  }
+}
+
+@keyframes wink {
+  50% {
+    scale: 1 0.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eye,
+  .pupil {
+    animation: none;
   }
 }
 
@@ -332,5 +202,14 @@
   .bubble {
     max-width: 180px;
     font-size: 12px;
+  }
+
+  .eye {
+    padding: 3px 8px 3px 3px;
+  }
+
+  .eye svg {
+    width: 26px;
+    height: 26px;
   }
 }
